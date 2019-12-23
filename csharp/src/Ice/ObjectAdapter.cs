@@ -11,7 +11,7 @@ namespace Ice
     using System.Threading.Tasks;
     using IceInternal;
 
-    public delegate Task<OutputStream>? Disp(Incoming inS, Current current);
+    public delegate Task<OutputStream?>? Disp(Incoming inS, Current current);
 
     public sealed class ObjectAdapter
     {
@@ -246,6 +246,7 @@ namespace Ice
                 //
             }
 
+            Debug.Assert(_incomingConnectionFactories != null);
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 factory.destroy();
@@ -271,7 +272,7 @@ namespace Ice
         /// </summary>
         public void WaitForDeactivate()
         {
-            IncomingConnectionFactory[] incomingConnectionFactories = null;
+            IncomingConnectionFactory[] incomingConnectionFactories;
             lock (this)
             {
                 //
@@ -287,7 +288,7 @@ namespace Ice
                 {
                     return;
                 }
-
+                Debug.Assert(_incomingConnectionFactories != null);
                 incomingConnectionFactories = _incomingConnectionFactories.ToArray();
             }
 
@@ -593,11 +594,9 @@ namespace Ice
         /// by using any installed ServantLocator.
         ///
         /// </summary>
-        /// <param name="id">The identity of the Ice object for which the servant
-        /// should be returned.
-        ///
-        /// </param>
-        /// <returns>The servant that implements the Ice object with the
+        /// <param name="ident">The identity of the Ice object for which the servant should be returned.</param>
+        /// <param name="facet">Optinoal facet of the Ice object.</param>
+        /// <returns>The dispatcher associated with the
         /// given identity, or null if no such servant has been found.
         ///
         /// </returns>
@@ -717,13 +716,13 @@ namespace Ice
         /// not belong to any specific category.
         ///
         /// </param>
-        public void AddServantLocator(ServantLocator locator, string prefix)
+        public void AddServantLocator(ServantLocator locator, string category)
         {
             lock (this)
             {
                 checkForDeactivation();
 
-                _servantManager.addServantLocator(locator, prefix);
+                _servantManager.addServantLocator(locator, category);
             }
         }
 
@@ -739,13 +738,13 @@ namespace Ice
         /// if no Servant Locator was found for the given category.
         ///
         /// </returns>
-        public ServantLocator RemoveServantLocator(string prefix)
+        public ServantLocator RemoveServantLocator(string category)
         {
             lock (this)
             {
                 checkForDeactivation();
 
-                return _servantManager.removeServantLocator(prefix);
+                return _servantManager.removeServantLocator(category);
             }
         }
 
@@ -1620,7 +1619,7 @@ namespace Ice
             return endpoints.ToArray();
         }
 
-        private void UpdateLocatorRegistry(LocatorInfo? locatorInfo, IObjectPrx proxy)
+        private void UpdateLocatorRegistry(LocatorInfo? locatorInfo, IObjectPrx? proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
             {

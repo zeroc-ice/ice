@@ -1934,6 +1934,7 @@ namespace Ice
         /// Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
+        /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The optional value.</returns>
         public T? ReadProxy<T>(int tag, ProxyFactory<T> factory) where T : class, IObjectPrx
         {

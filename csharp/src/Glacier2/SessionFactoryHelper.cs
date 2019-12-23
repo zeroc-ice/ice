@@ -23,8 +23,16 @@ namespace Glacier2
         /// <summary>
         /// Creates a SessionFactory object.
         /// </summary>
-        /// <param name="properties">The properties to use when creating the communicator.</param>
-        /// <param name="callback">The callback object for notifications.</param>
+        /// <param name="callback">The callback for notifications about session establishment.</param>
+        /// <param name="properties">Optional properties used for communicator initialization.</param>
+        /// <param name="compactIdResolver">Optional compact type ID resolver delegate used for communicator initialization.</param>
+        /// <param name="dispatcher">Optional dispatcher delegate used for communicator initialization.</param>
+        /// <param name="logger">Optional logger used for communicator initialization.</param>
+        /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
+        /// <param name="threadStart">Optional thread start delegate used for communicator initialization.</param>
+        /// <param name="threadStop">Optional thread stop delegate used for communicator initialization.</param>
+        /// <param name="typeIdNamespaces">Optional list of TypeId namespaces used for communicator initialization.
+        /// The default is Ice.TypeId.</param>
         public
         SessionFactoryHelper(SessionCallback callback,
                              Dictionary<string, string> properties,

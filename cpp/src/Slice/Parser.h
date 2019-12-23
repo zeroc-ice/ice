@@ -143,7 +143,6 @@ typedef ::IceUtil::Handle<Const> ConstPtr;
 typedef ::IceUtil::Handle<Unit> UnitPtr;
 
 typedef std::list<TypePtr> TypeList;
-typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::set<std::string> StringSet;
 typedef std::list<std::string> StringList;
 typedef std::pair<TypePtr, std::string> TypeString;

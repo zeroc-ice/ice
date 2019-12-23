@@ -13,8 +13,12 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
-bool isNullable(const TypePtr&);
+std::string marshaledResultStructName(const std::string&, const std::string&);
+std::string returnValueName(const ParamDeclList&);
+std::string resultTuple(const OperationPtr&, const std::string&, bool = false);
+std::string resultTask(const OperationPtr&, const std::string&, bool = false);
 
+bool isNullable(const TypePtr&);
 bool isCollectionType(const TypePtr&);
 bool isProxyType(const TypePtr&);
 bool isClassType(const TypePtr&);
@@ -58,10 +62,6 @@ protected:
     //
     static std::string getNamespacePrefix(const ContainedPtr&);
     static std::string getCustomTypeIdNamespace(const UnitPtr&);
-
-    static std::string resultStructName(const std::string&, const std::string&, bool = false);
-    static std::string resultType(const OperationPtr&, const std::string&, bool = false);
-    static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
 
     static std::string getOptionalFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);

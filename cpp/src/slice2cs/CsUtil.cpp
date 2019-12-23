@@ -27,7 +27,9 @@ Slice::isNullable(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+        if(builtin->kind() == Builtin::KindObject ||
+           builtin->kind() == Builtin::KindValue ||
+           builtin->kind() == Builtin::KindObjectProxy)
         {
             return true;
         }
@@ -506,50 +508,78 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
+Slice::marshaledResultStructName(const string& className, const string& opName)
 {
     ostringstream s;
     s << className
       << "_"
       << IceUtilInternal::toUpper(opName.substr(0, 1))
       << opName.substr(1)
-      << (marshaledResult ? "MarshaledResult" : "Result");
+      << "MarshaledResult";
     return s.str();
 }
 
 string
-Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bool dispatch)
+Slice::returnValueName(const ParamDeclList& outParams)
 {
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
-    if(dispatch && op->hasMarshaledResult())
+    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
     {
-        return getUnqualified(cl, package, "", resultStructName("", op->name(), true));
-    }
-
-    string t;
-    ParamDeclList outParams = op->outParameters();
-    if(op->returnType() || !outParams.empty())
-    {
-        if(outParams.empty())
+        if((*i)->name() == "returnValue")
         {
-            t = typeToString(op->returnType(), package, op->returnIsOptional());
-        }
-        else if(op->returnType() || outParams.size() > 1)
-        {
-            t = getUnqualified(cl, package, "", resultStructName("", op->name()));
-        }
-        else
-        {
-            t = typeToString(outParams.front()->type(), package, outParams.front()->optional());
+            return "returnValue_";
         }
     }
-    return t;
+    return "returnValue";
 }
 
 string
-Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::resultTuple(const OperationPtr& op, const string& scope, bool dispatch)
 {
-    string t = resultType(op, scope, dispatch);
+    ParamDeclList outParams = op->outParameters();
+    if(dispatch && op->hasMarshaledResult())
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
+        return marshaledResultStructName(cl->name(), op->name());
+    }
+
+    if(outParams.empty())
+    {
+        return op->returnType() == 0 ? "" : CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional());
+    }
+
+    if(op->returnType() == 0 && outParams.size() == 1)
+    {
+        return CsGenerator::typeToString(outParams.front()->type(), scope, outParams.front()->optional());
+    }
+
+    ostringstream os;
+    os << "(";
+
+    if(op->returnType() != 0)
+    {
+        os << CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional())
+           << " " << CsGenerator::fixId(returnValueName(outParams)) << ", ";
+    }
+
+    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+    {
+        ParamDeclPtr p = *i;
+        os << CsGenerator::typeToString(p->type(), scope, p->optional()) << " " << CsGenerator::fixId(p->name());
+        if(++i != outParams.end())
+        {
+            os << ", ";
+        }
+    }
+
+    os << ")";
+
+    return os.str();
+}
+
+string
+Slice::resultTask(const OperationPtr& op, const string& scope, bool dispatch)
+{
+    string t = resultTuple(op, scope, dispatch);
     if(t.empty())
     {
         return "global::System.Threading.Tasks.Task";

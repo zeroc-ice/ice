@@ -139,71 +139,6 @@ getEscapedParamName(const DataMemberList& params, const string& name)
     return name;
 }
 
-string
-returnValueName(const ParamDeclList& outParams)
-{
-    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-    {
-        if((*i)->name() == "returnValue")
-        {
-            return "returnValue_";
-        }
-    }
-    return "returnValue";
-}
-
-string
-resultTuple(const OperationPtr& op, const string& scope)
-{
-    ParamDeclList outParams = op->outParameters();
-    if(outParams.empty())
-    {
-        return op->returnType() == 0 ? "" : CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional());
-    }
-
-    if(op->returnType() == 0 && outParams.size() == 1)
-    {
-        return CsGenerator::typeToString(outParams.front()->type(), scope, outParams.front()->optional());
-    }
-
-    ostringstream os;
-    os << "(";
-
-    if(op->returnType() != 0)
-    {
-        os << CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional())
-           << " " << CsGenerator::fixId(returnValueName(outParams)) << ", ";
-    }
-
-    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
-    {
-        ParamDeclPtr p = *i;
-        os << CsGenerator::typeToString(p->type(), scope, p->optional()) << " " << CsGenerator::fixId(p->name());
-        if(++i != outParams.end())
-        {
-            os << ", ";
-        }
-    }
-
-    os << ")";
-
-    return os.str();
-}
-
-string
-resultTask(const OperationPtr& op, const string& scope)
-{
-    string t = resultTuple(op, scope);
-    if(t.empty())
-    {
-        return "global::System.Threading.Tasks.Task";
-    }
-    else
-    {
-        return "global::System.Threading.Tasks.Task<" + t + '>';
-    }
-}
-
 }
 
 Slice::CsVisitor::CsVisitor(Output& out) :
@@ -427,7 +362,8 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         string opName = op->name();
         _out << sp;
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
-        _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns) << ">";
+        _out << nl << "public static global::System.Threading.Tasks.Task<"
+             << getUnqualified("Ice.OutputStream", ns) << "?>?";
         _out << nl << "iceD_" << opName << "(" << name << (p->isInterface() ? "" : "Disp_") << " obj, "
              <<  "global::IceInternal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
@@ -444,26 +380,22 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
             // Unmarshal 'in' parameters.
             //
             _out << nl << "var istr = inS.startReadParams();";
-            for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+            for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)
             {
-                string param = "iceP_" + (*pli)->name();
-                string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
-                const bool isClass = isClassType((*pli)->type());
+                ParamDeclPtr param = *i;
+                string typeS = typeToString(param->type(), ns, false);
 
-                if((*pli)->optional())
+                _out << nl << typeS;
+                if(isReferenceType(param->type()) || param->optional())
                 {
-                    _out << nl << typeS << ' ' << param;
-                    if(isClass)
-                    {
-                        _out << " = null;";
-                    }
-                    _out << ';';
+                    _out << "?";
                 }
-                else
+                _out << " iceP_" << param->name();
+                if(isClassType(param->type()) || StructPtr::dynamicCast(param->type()))
                 {
-                    _out << nl << typeS << ' ' << param << ';';
-                    _out << nl << param << " = default(" << typeS << ");";
+                    _out << " = default(" << typeS << ")";
                 }
+                _out << ";";
             }
             writeMarshalUnmarshalParams(inParams, 0, false, ns);
             if(op->sendsClasses(false))
@@ -497,7 +429,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         }
         else if(amd)
         {
-            string retS = resultType(op, ns);
+            string retS = resultTuple(op, ns, true);
             _out << nl << "return inS.setResultTask" << (retS.empty() ? "" : ('<' + retS + '>'));
             _out << "(obj." << opName << "Async" << spar << inArgs << "current" << epar;
             if(!retS.empty())
@@ -827,7 +759,7 @@ Slice::CsVisitor::getDispatchParams(const OperationPtr& op, string& retS, vector
         params = getInParams(op, ns);
         args = getInArgs(op);
         paramDecls = op->inParameters();
-        retS = taskResultType(op, ns, true);
+        retS = resultTask(op, ns, true);
     }
     else if(op->hasMarshaledResult())
     {
@@ -835,7 +767,7 @@ Slice::CsVisitor::getDispatchParams(const OperationPtr& op, string& retS, vector
         params = getInParams(op, ns);
         args = getInArgs(op);
         paramDecls = op->inParameters();
-        retS = resultType(op, ns, true);
+        retS = resultTuple(op, ns, true);
     }
     else
     {
@@ -1839,9 +1771,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
-
-    OpsVisitor opsVisitor(_out);
-    p->visit(&opsVisitor, false);
 
     HelperVisitor helperVisitor(_out);
     p->visit(&helperVisitor, false);
@@ -2992,10 +2921,7 @@ hasResultType(const ModulePtr& p)
         OperationList operations = cl->operations();
         for(OperationList::const_iterator j = operations.begin(); j != operations.end(); ++j)
         {
-            OperationPtr op = *j;
-            ParamDeclList outParams = op->outParameters();
-            TypePtr ret = op->returnType();
-            if(outParams.size() > 1 || (ret && outParams.size() > 0))
+            if((*j)->hasMarshaledResult())
             {
                 return true;
             }
@@ -3055,70 +2981,9 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList outParams = p->outParameters();
     TypePtr ret = p->returnType();
 
-    if(outParams.size() > 1 || (ret && outParams.size() > 0))
-    {
-        string name = resultStructName(cl->name(), p->name());
-
-        string retS;
-        string retSName;
-        if(ret)
-        {
-            retS = typeToString(ret, ns, p->returnIsOptional());
-            retSName = returnValueName(outParams);
-        }
-
-        _out << sp;
-        _out << nl << "public struct " << name;
-        _out << sb;
-
-        //
-        // One shot constructor
-        //
-        _out << nl << "public " << name << spar;
-        if(ret)
-        {
-            _out << (retS + " " + retSName);
-        }
-        for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << (typeToString((*i)->type(), ns, (*i)->optional()) + " " + fixId((*i)->name()));
-        }
-        _out << epar;
-
-        _out << sb;
-
-        if(ret)
-        {
-            _out << nl << "this." << retSName << " = " << retSName << ";";
-        }
-
-        for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << nl << "this." << fixId((*i)->name()) << " = " << fixId((*i)->name()) << ";";
-        }
-
-        _out << eb;
-
-        //
-        // Data members
-        //
-        _out << sp;
-        if(ret)
-        {
-            _out << nl << "public " << retS << " " << retSName << ";";
-        }
-
-        for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << nl << "public " << typeToString((*i)->type(), ns, (*i)->optional()) << " " << fixId((*i)->name())
-                 << ";";
-        }
-        _out << eb;
-    }
-
     if(p->hasMarshaledResult())
     {
-        string name = resultStructName(cl->name(), p->name(), true);
+        string name = marshaledResultStructName(cl->name(), p->name());
 
         _out << sp;
         emitGeneratedCodeAttribute();
@@ -3358,15 +3223,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList inParamsDecl = p->inParameters();
     ParamDeclList outParamsDecl = p->outParameters();
 
+    bool optionalReturn = (ret && outParamsDecl.empty() && p->returnIsOptional()) ||
+        (!ret && outParamsDecl.size() == 1 && outParamsDecl.front()->optional());
+    bool nullableReturn = (ret && outParamsDecl.empty() && isReferenceType(ret)) ||
+        (!ret && outParamsDecl.size() == 1 && isReferenceType(outParamsDecl.front()->type()));
+
     vector<string> args = getArgs(p);
     vector<string> argsAMI = getInArgs(p);
 
     string deprecateReason = getDeprecateReason(p, cl, "operation");
 
     ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-
     //
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -3374,6 +3241,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // being marshaled instead of the derived exception.
     //
     throws.sort(Slice::DerivedToBaseCompare());
+    throws.unique();
 
     string context = getEscapedParamName(p, "context");
     string cancel = getEscapedParamName(p, "cancel");
@@ -3495,16 +3363,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         _out << nl << "iceCheckTwowayOnly(\"" << opName << "\");";
     }
-    if(returnTypeS.empty())
-    {
-        _out << nl << "var completed = "
-             << "new global::IceInternal.OperationTaskCompletionCallback<object>(progress, cancel);";
-    }
-    else
-    {
-        _out << nl << "var completed = "
-             << "new global::IceInternal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
-    }
+
+    _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
+         << (returnTypeS.empty() ? "object" : returnTypeS)
+         << ">(progress, cancel);";
 
     _out << nl << "_iceI_" << opName << spar << getInArgs(p, true) << "context" << "synchronous" << "completed"
          << epar << ";";
@@ -3522,14 +3384,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
          << "global::IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
     _out << sb;
 
-    if(returnTypeS.empty())
+    _out << nl << "var outAsync = getOutgoingAsync<" << (returnTypeS.empty() ? "object" : returnTypeS);
+
+    if(!optionalReturn && nullableReturn)
     {
-        _out << nl << "var outAsync = getOutgoingAsync<object>(completed);";
+        _out << "?";
     }
-    else
-    {
-        _out << nl << "var outAsync = getOutgoingAsync<" << returnTypeS << ">(completed);";
-    }
+    _out << ">(completed);";
 
     _out << nl << "outAsync.invoke(";
     _out.inc();
@@ -3586,22 +3447,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << sb;
         if(outParamsDecl.empty())
         {
-            _out << nl << returnTypeS << " ret";
-            if(!p->returnIsOptional())
+            _out << nl << returnTypeS;
+            if(!p->returnIsOptional() && isReferenceType(ret))
             {
-                StructPtr st = StructPtr::dynamicCast(ret);
-                if(st && isImmutableType(st))
-                {
-                    _out << " = " << "new " + returnTypeS + "()";
-                }
-                else if(isClassType(ret) || st)
-                {
-                    _out << " = null";
-                }
+                _out << "?";
             }
-            else if(isClassType(ret))
+            _out << " ret";
+            if(StructPtr::dynamicCast(ret) || isClassType(ret))
             {
-                _out << " = null";
+                _out << " = default(" << returnTypeS << ")";
             }
             _out << ";";
         }
@@ -3652,101 +3506,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _out << ");";
     _out.dec();
     _out << eb;
-}
-
-Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalAbstractClassDefs())
-    {
-        return false;
-    }
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::OpsVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    //
-    // Generate operations only for interfaces
-    //
-    if(!p->isInterface())
-    {
-        return false;
-    }
-    string name = p->name();
-    string ns = getNamespace(p);
-    string scoped = fixId(p->scoped());
-    ClassList bases = p->bases();
-    string opIntfName = "Operations";
-
-    _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "interface"));
-    emitGeneratedCodeAttribute();
-    _out << nl << "public interface " << name << opIntfName << '_';
-    if(bases.size() >= 1)
-    {
-        _out << " : ";
-        ClassList::const_iterator q = bases.begin();
-        bool first = true;
-        while(q != bases.end())
-        {
-            if (!first)
-            {
-                _out << ", ";
-            }
-            else
-            {
-                first = false;
-            }
-            _out << getUnqualified(*q, ns, "", "Operations_");
-            ++q;
-        }
-    }
-    _out << sb;
-
-    OperationList ops = p->operations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        bool amd = (p->hasMetaData("amd") || op->hasMetaData("amd"));
-        string retS;
-        vector<string> params, args;
-        string opName = getDispatchParams(op, retS, params, args, ns);
-        _out << sp;
-        if(amd)
-        {
-            writeDocCommentAMD(op,
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
-        }
-        else
-        {
-            writeDocComment(op, getDeprecateReason(op, p, "operation"),
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
-        }
-        emitAttributes(op);
-        emitDeprecate(op, op, _out, "operation");
-        emitGeneratedCodeAttribute();
-        _out << nl << retS << " " << opName << spar << params << epar << ";";
-    }
-
-    _out << eb;
-    return false;
 }
 
 Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
@@ -4044,7 +3803,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
          << "<" << fixId(p->name()) << ", " << fixId(p->name() + "Traits") << ">();";
 
     _out << sp;
-    _out << nl << "public global::System.Threading.Tasks.Task<global::Ice.OutputStream> Dispatch("
+    _out << nl << "public global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? Dispatch("
          << fixId(p->name()) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
     _out << sb;
 
@@ -4164,7 +3923,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
     {
         vector<string> pDecl = getInParams(op, ns);
-        string resultType = CsGenerator::resultType(op, ns, true);
+        string resultType = resultTuple(op, ns, true);
 
         _out << "public override ";
 
@@ -4241,9 +4000,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     }
     else
     {
-        string retS = op->hasMarshaledResult() ?
-            fixId(cl->scope() + resultStructName(cl->name(), op->name(), true)) :
-            typeToString(ret, ns);
+        string retS = resultTuple(op, ns, true);
 
         vector<string> pDecls = op->hasMarshaledResult() ? getInParams(op, ns) : getParams(op, ns);
 
@@ -4259,7 +4016,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         _out << sb;
         if(op->hasMarshaledResult())
         {
-            _out << nl << "return new " << fixId(cl->scope() + resultStructName(cl->name(), op->name(), true))
+            _out << nl << "return new " << fixId(cl->scope() + marshaledResultStructName(cl->name(), op->name()))
                  << "(";
             if(ret)
             {

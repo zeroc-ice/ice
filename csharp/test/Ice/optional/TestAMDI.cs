@@ -65,196 +65,196 @@ namespace Ice
                     throw e;
                 }
 
-                public Task<Test.Initial_OpByteResult>
+                public Task<(byte? returnValue, byte? p3)>
                 opByteAsync(byte? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpByteResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpBoolResult>
+                public Task<(bool? returnValue, bool? p3)>
                 opBoolAsync(bool? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpBoolResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpShortResult>
+                public Task<(short? returnValue, short? p3)>
                 opShortAsync(short? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpShortResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpIntResult>
+                public Task<(int? returnValue, int? p3)>
                 opIntAsync(int? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpIntResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpLongResult>
+                public Task<(long? returnValue, long? p3)>
                 opLongAsync(long? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpLongResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpFloatResult>
+                public Task<(float? returnValue, float? p3)>
                 opFloatAsync(float? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpFloatResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpDoubleResult>
+                public Task<(double? returnValue, double? p3)>
                 opDoubleAsync(double? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpDoubleResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpStringResult>
+                public Task<(string? returnValue, string? p3)>
                 opStringAsync(string? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpStringResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpMyEnumResult>
+                public Task<(Test.MyEnum? returnValue, Test.MyEnum? p3)>
                 opMyEnumAsync(Test.MyEnum? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpMyEnumResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpSmallStructResult>
+                public Task<(Test.SmallStruct? returnValue, Test.SmallStruct? p3)>
                 opSmallStructAsync(Test.SmallStruct? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpSmallStructResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpFixedStructResult>
+                public Task<(Test.FixedStruct? returnValue, Test.FixedStruct? p3)>
                 opFixedStructAsync(Test.FixedStruct? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpFixedStructResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpVarStructResult>
+                public Task<(Test.VarStruct? returnValue, Test.VarStruct? p3)>
                 opVarStructAsync(Test.VarStruct? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpVarStructResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpOneOptionalResult>
+                public Task<(Test.OneOptional? returnValue, Test.OneOptional? p3)>
                 opOneOptionalAsync(Test.OneOptional? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpOneOptionalProxyResult>
-                opOneOptionalProxyAsync(Ice.IObjectPrx? p1, Current current)
+                public Task<(IObjectPrx? returnValue, IObjectPrx? p3)>
+                opOneOptionalProxyAsync(IObjectPrx? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpOneOptionalProxyResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpByteSeqResult>
+                public Task<(byte[]? returnValue, byte[]? p3)>
                 opByteSeqAsync(byte[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpByteSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpBoolSeqResult>
+                public Task<(bool[]? returnValue, bool[]? p3)>
                 opBoolSeqAsync(bool[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpBoolSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpShortSeqResult>
+                public Task<(short[]? returnValue, short[]? p3)>
                 opShortSeqAsync(short[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpShortSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpIntSeqResult>
+                public Task<(int[]? returnValue, int[]? p3)>
                 opIntSeqAsync(int[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpIntSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpLongSeqResult>
+                public Task<(long[]? returnValue, long[]? p3)>
                 opLongSeqAsync(long[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpLongSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpFloatSeqResult>
+                public Task<(float[]? returnValue, float[]? p3)>
                 opFloatSeqAsync(float[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpFloatSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpDoubleSeqResult>
+                public Task<(double[]? returnValue, double[]? p3)>
                 opDoubleSeqAsync(double[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpDoubleSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpStringSeqResult>
+                public Task<(string[]? returnValue, string[]? p3)>
                 opStringSeqAsync(string[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpStringSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpSmallStructSeqResult>
+                public Task<(Test.SmallStruct[]? returnValue, Test.SmallStruct[]? p3)>
                 opSmallStructSeqAsync(Test.SmallStruct[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpSmallStructSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpSmallStructListResult>
+                public Task<(List<Test.SmallStruct>? returnValue, List<Test.SmallStruct>? p3)>
                 opSmallStructListAsync(List<Test.SmallStruct>? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpSmallStructListResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpFixedStructSeqResult>
+                public Task<(Test.FixedStruct[]? returnValue, Test.FixedStruct[]? p3)>
                 opFixedStructSeqAsync(Test.FixedStruct[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpFixedStructSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpFixedStructListResult>
+                public Task<(LinkedList<Test.FixedStruct>? returnValue, LinkedList<Test.FixedStruct>? p3)>
                 opFixedStructListAsync(LinkedList<Test.FixedStruct>? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpFixedStructListResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpVarStructSeqResult>
+                public Task<(Test.VarStruct[]? returnValue, Test.VarStruct[]? p3)>
                 opVarStructSeqAsync(Test.VarStruct[]? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpVarStructSeqResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpSerializableResult>
+                public Task<(optional.Test.SerializableClass? returnValue, optional.Test.SerializableClass? p3)>
                 opSerializableAsync(Ice.optional.Test.SerializableClass? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpSerializableResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpIntIntDictResult>
+                public Task<(Dictionary<int, int>? returnValue, Dictionary<int, int>? p3)>
                 opIntIntDictAsync(Dictionary<int, int>? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpIntIntDictResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpStringIntDictResult>
+                public Task<(Dictionary<string, int>? returnValue, Dictionary<string, int>? p3)>
                 opStringIntDictAsync(Dictionary<string, int>? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpStringIntDictResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
-                public Task<Test.Initial_OpIntOneOptionalDictResult>
+                public Task<(Dictionary<int, Test.OneOptional>? returnValue, Dictionary<int, Test.OneOptional>? p3)>
                 opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional>? p1, Current current)
                 {
-                    return Task.FromResult(new Test.Initial_OpIntOneOptionalDictResult(p1, p1));
+                    return Task.FromResult((p1, p1));
                 }
 
                 public Task
                 opClassAndUnknownOptionalAsync(Test.A p, Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public Task

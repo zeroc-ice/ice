@@ -167,7 +167,7 @@ namespace Ice
         {
             lock (_properties)
             {
-               return _properties.Remove(name);
+                return _properties.Remove(name);
             }
         }
 
@@ -363,7 +363,7 @@ namespace Ice
             }
         }
 
-        internal enum ParseState : byte { Key, Value}
+        internal enum ParseState : byte { Key, Value }
 
         private static (string Name, string Value) ParseLine(string line)
         {

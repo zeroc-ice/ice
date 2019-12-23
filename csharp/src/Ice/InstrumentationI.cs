@@ -62,7 +62,7 @@ namespace IceInternal
             where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
             where Observer : Ice.Instrumentation.Observer
         {
-            ObserverImpl obsv = getObserver<S, ObserverImpl>(mapName, helper);
+            ObserverImpl? obsv = getObserver<S, ObserverImpl>(mapName, helper);
             if (obsv != null)
             {
                 obsv.setDelegate(del);
@@ -1130,7 +1130,7 @@ namespace IceInternal
             {
                 try
                 {
-                    Ice.Instrumentation.ThreadObserver del = null;
+                    Ice.Instrumentation.ThreadObserver? del = null;
                     ThreadObserverI? o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
                     if (_delegate != null)
                     {

@@ -16,55 +16,55 @@ namespace Ice
                 public Task shutdownAsync(Ice.Current current)
                 {
                     current.Adapter.Communicator.shutdown();
-                    return null;
+                    return Task.CompletedTask;
                 }
 
-                public Task<Test.MyClass_OpNVResult>
+                public Task<(Dictionary<int, int> returnValue, Dictionary<int, int> o)>
                 opNVAsync(Dictionary<int, int> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNVResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNRResult>
+                public Task<(Dictionary<string, string> returnValue, Dictionary<string, string> o)>
                 opNRAsync(Dictionary<string, string> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNRResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDVResult>
+                public Task<(Dictionary<string, Dictionary<int, int>> returnValue, Dictionary<string, Dictionary<int, int>> o)>
                 opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDVResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDRResult>
-                opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Ice.Current current)
+                public Task<(Dictionary<string, Dictionary<string, string>> returnValue, Dictionary<string, Dictionary<string, string>> o)>
+                opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDRResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDAISResult>
+                public Task<(Dictionary<string, int[]> returnValue, Dictionary<string, int[]> o)>
                 opNDAISAsync(Dictionary<string, int[]> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDAISResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDGISResult>
+                public Task<(Dictionary<string, List<int>> returnValue, Dictionary<string, List<int>> o)>
                 opNDGISAsync(Dictionary<string, List<int>> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDGISResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDASSResult>
+                public Task<(Dictionary<string, string[]> returnValue, Dictionary<string, string[]> o)>
                 opNDASSAsync(Dictionary<string, string[]> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDASSResult(i, i));
+                    return Task.FromResult((i, i));
                 }
 
-                public Task<Test.MyClass_OpNDGSSResult>
+                public Task<(Dictionary<string, List<string>> returnValue, Dictionary<string, List<string>> o)>
                 opNDGSSAsync(Dictionary<string, List<string>> i, Ice.Current current)
                 {
-                    return Task.FromResult(new Test.MyClass_OpNDGSSResult(i, i));
+                    return Task.FromResult((i, i));
                 }
             }
         }

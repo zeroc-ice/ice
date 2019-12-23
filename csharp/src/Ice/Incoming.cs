@@ -247,7 +247,7 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream>? setResult(Ice.OutputStream? os)
+        public Task<Ice.OutputStream?>? setResult(Ice.OutputStream? os)
         {
             _os = os;
             return null; // Response is cached in the Incoming to not have to create unecessary Task

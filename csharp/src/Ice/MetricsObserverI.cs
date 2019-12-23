@@ -294,7 +294,7 @@ namespace IceMX
             }
         }
 
-        public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T> previous)
+        public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T>? previous)
         {
             _objects = objects;
 
@@ -313,14 +313,14 @@ namespace IceMX
             }
         }
 
-        public ObserverImpl getObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
+        public ObserverImpl? getObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
             where ObserverImpl : Observer<S>, new()
         {
-            List<MetricsMap<S>.Entry> metricsObjects = null;
+            List<MetricsMap<S>.Entry>? metricsObjects = null;
             foreach (MetricsMap<T>.Entry entry in _objects)
             {
-                MetricsMap<S>.Entry e = entry.getMatching(mapName, helper);
+                MetricsMap<S>.Entry? e = entry.getMatching(mapName, helper);
                 if (e != null)
                 {
                     if (metricsObjects == null)
@@ -388,12 +388,12 @@ namespace IceMX
             }
         }
 
-        public O getObserver(MetricsHelper<T> helper)
+        public O? getObserver(MetricsHelper<T> helper)
         {
             return getObserver(helper, null);
         }
 
-        public O getObserver(MetricsHelper<T> helper, object observer)
+        public O? getObserver(MetricsHelper<T> helper, object? observer)
         {
             lock (this)
             {
@@ -401,7 +401,7 @@ namespace IceMX
                 O? old = null;
                 try
                 {
-                    old = (O)observer;
+                    old = (O?)observer;
                 }
                 catch (InvalidCastException)
                 {

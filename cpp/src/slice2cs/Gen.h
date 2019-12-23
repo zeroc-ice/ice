@@ -180,17 +180,6 @@ private:
         virtual void visitOperation(const OperationPtr&);
     };
 
-    class OpsVisitor : public CsVisitor
-    {
-    public:
-
-        OpsVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
     class HelperVisitor : public CsVisitor
     {
     public:

@@ -80,7 +80,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="bu">The desired encoding version.</param>
+        /// <param name="buf">The desired encoding version.</param>
         private void Initialize(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
         {
             Debug.Assert(communicator != null);

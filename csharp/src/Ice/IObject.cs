@@ -59,7 +59,7 @@ namespace Ice
         public string IceId(Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream> iceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? iceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.startReadParams();
             var id = istr.ReadString();
@@ -72,7 +72,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream> iceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? iceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             obj.IcePing(current);
@@ -81,7 +81,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream> iceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? iceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             var ret = obj.IceIds(current);
@@ -93,7 +93,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream> iceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? iceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             var ret = obj.IceId(current);
@@ -167,7 +167,7 @@ namespace Ice
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public new Task<OutputStream> Dispatch(Incoming incoming, Current current)
+        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
         {
             incoming.startOver();
             byte[] inEncaps = incoming.readParamEncaps();
@@ -202,7 +202,7 @@ namespace Ice
     {
         string Id { get; }
         string[] Ids { get; }
-        Task<OutputStream> Dispatch(T servant, Incoming incoming, Current current);
+        Task<OutputStream?>? Dispatch(T servant, Incoming incoming, Current current);
     }
 
     public class Object<T, Traits> : IObject where Traits : struct, IInterfaceTraits<T>
