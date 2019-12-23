@@ -38,40 +38,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception indicates that a failure occurred while initializing
-    /// a plug-in.
-    /// </summary>
-    public class PluginInitializationException : LocalException
-    {
-        public string reason;
-
-        public PluginInitializationException()
-        {
-            this.reason = "";
-        }
-
-        public PluginInitializationException(global::System.Exception ex) : base(ex)
-        {
-            this.reason = "";
-        }
-
-        public PluginInitializationException(string reason)
-        {
-            this.reason = reason;
-        }
-
-        public PluginInitializationException(string reason, global::System.Exception ex) : base(ex)
-        {
-            this.reason = reason;
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::PluginInitializationException";
-        }
-    }
-
-    /// <summary>
     /// An attempt was made to find or deregister something that is not
     /// registered with the Ice run time or Ice locator.
     /// This exception is raised if an attempt is made to remove a servant,
@@ -258,26 +224,6 @@ namespace Ice
         public override string ice_id()
         {
             return "::Ice::UnknownUserException";
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if the Ice library version does not match
-    /// the version in the Ice header files.
-    /// </summary>
-    public class VersionMismatchException : LocalException
-    {
-        public VersionMismatchException()
-        {
-        }
-
-        public VersionMismatchException(global::System.Exception ex) : base(ex)
-        {
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::VersionMismatchException";
         }
     }
 

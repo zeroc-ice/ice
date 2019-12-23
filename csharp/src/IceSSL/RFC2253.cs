@@ -15,22 +15,6 @@ namespace IceSSL
 {
     internal class RFC2253
     {
-        public class ParseException : Exception
-        {
-            internal ParseException(string reason)
-            {
-                this.reason = reason;
-            }
-
-            internal string
-            ice_id()
-            {
-                return "::RFC2253::ParseException";
-            }
-
-            internal string reason;
-        }
-
         internal struct RDNPair
         {
             internal string key;
@@ -55,7 +39,7 @@ namespace IceSSL
                 {
                     if (current.rdn.Count > 0)
                     {
-                        throw new ParseException("negation symbol '!' must appear at start of list");
+                        throw new FormatException("negation symbol '!' must appear at start of list");
                     }
                     ++pos;
                     current.negate = true;
@@ -74,7 +58,7 @@ namespace IceSSL
                 }
                 else if (pos < data.Length)
                 {
-                    throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                    throw new FormatException("expected ',' or ';' at `" + data.Substring(pos) + "'");
                 }
             }
             if (current.rdn.Count > 0)
@@ -99,7 +83,7 @@ namespace IceSSL
                 }
                 else if (pos < data.Length)
                 {
-                    throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
+                    throw new FormatException("expected ',' or ';' at `" + data.Substring(pos) + "'");
                 }
             }
             return results;
@@ -116,7 +100,7 @@ namespace IceSSL
             {
                 if (data[data.Length - 1] != '"')
                 {
-                    throw new ParseException("unescape: missing \"");
+                    throw new FormatException("unescape: missing \"");
                 }
                 //
                 // Return the string without quotes.
@@ -152,7 +136,7 @@ namespace IceSSL
                         ++pos;
                         if (pos >= data.Length)
                         {
-                            throw new ParseException("unescape: invalid escape sequence");
+                            throw new FormatException("unescape: invalid escape sequence");
                         }
                         if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
                         {
@@ -184,7 +168,7 @@ namespace IceSSL
             {
                 return 10 + (v - 'A');
             }
-            throw new ParseException("unescape: invalid hex pair");
+            throw new FormatException("unescape: invalid hex pair");
         }
 
         private static char unescapeHex(string data, int pos)
@@ -192,7 +176,7 @@ namespace IceSSL
             Debug.Assert(pos < data.Length);
             if (pos + 2 >= data.Length)
             {
-                throw new ParseException("unescape: invalid hex pair");
+                throw new FormatException("unescape: invalid hex pair");
             }
             return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
         }
@@ -227,11 +211,11 @@ namespace IceSSL
             eatWhite(data, ref pos);
             if (pos >= data.Length)
             {
-                throw new ParseException("invalid attribute type/value pair (unexpected end of data)");
+                throw new FormatException("invalid attribute type/value pair (unexpected end of data)");
             }
             if (data[pos] != '=')
             {
-                throw new ParseException("invalid attribute type/value pair (missing =). remainder: " +
+                throw new FormatException("invalid attribute type/value pair (missing =). remainder: " +
                                          data.Substring(pos));
             }
             ++pos;
@@ -244,7 +228,7 @@ namespace IceSSL
             eatWhite(data, ref pos);
             if (pos >= data.Length)
             {
-                throw new ParseException("invalid attribute type (expected end of data)");
+                throw new FormatException("invalid attribute type (expected end of data)");
             }
 
             string result = "";
@@ -293,7 +277,7 @@ namespace IceSSL
                         // 1*DIGIT must follow "."
                         if (pos < data.Length && !char.IsDigit(data[pos]))
                         {
-                            throw new ParseException("invalid attribute type (expected end of data)");
+                            throw new FormatException("invalid attribute type (expected end of data)");
                         }
                     }
                     else
@@ -324,7 +308,7 @@ namespace IceSSL
             }
             else
             {
-                throw new ParseException("invalid attribute type");
+                throw new FormatException("invalid attribute type");
             }
             return result;
         }
@@ -369,7 +353,7 @@ namespace IceSSL
                 {
                     if (pos >= data.Length)
                     {
-                        throw new ParseException("invalid attribute value (unexpected end of data)");
+                        throw new FormatException("invalid attribute value (unexpected end of data)");
                     }
                     // final terminating "
                     if (data[pos] == '"')
@@ -432,7 +416,7 @@ namespace IceSSL
 
             if (pos >= data.Length)
             {
-                throw new ParseException("invalid escape format (unexpected end of data)");
+                throw new FormatException("invalid escape format (unexpected end of data)");
             }
 
             if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
@@ -468,7 +452,7 @@ namespace IceSSL
                 {
                     return result;
                 }
-                throw new ParseException("invalid hex format");
+                throw new FormatException("invalid hex format");
             }
             return result;
         }

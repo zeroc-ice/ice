@@ -4,7 +4,6 @@
 
 using Ice;
 using System;
-using System.Text;
 
 namespace IceDiscovery
 {
@@ -146,7 +145,7 @@ namespace IceDiscovery
         public static void
         registerIceDiscovery(bool loadOnInitialize)
         {
-            Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+            Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
         }
     }
 }

@@ -222,9 +222,23 @@ namespace Ice
             //
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
             //
-            if (_pluginManager != null)
+            List<(string Name, Plugin Plugin)> plugins;
+            lock (this)
             {
-                _pluginManager.destroy();
+                plugins = new List<(string Name, Plugin Plugin)>(_plugins);
+            }
+            plugins.Reverse();
+            foreach (var p in plugins)
+            {
+                try
+                {
+                    p.Plugin.destroy();
+                }
+                catch (System.Exception ex)
+                {
+                    Util.getProcessLogger().warning(
+                        $"unexpected exception raised by plug-in `{p.Name}' destruction:\n{ex}");
+                }
             }
 
             lock (this)
@@ -243,7 +257,6 @@ namespace Ice
                 _routerManager = null;
                 _locatorManager = null;
                 _endpointFactoryManager = null;
-                _pluginManager = null;
 
                 _adminAdapter = null;
                 _adminFacets.Clear();
@@ -577,26 +590,6 @@ namespace Ice
         public ImplicitContext getImplicitContext()
         {
             return _implicitContext;
-        }
-
-        /// <summary>
-        /// Get the plug-in manager for this communicator.
-        /// </summary>
-        /// <returns>This communicator's plug-in manager.
-        ///
-        /// </returns>
-        public PluginManager getPluginManager()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                Debug.Assert(_pluginManager != null);
-                return _pluginManager;
-            }
         }
 
         internal int messageSizeMax()
@@ -1241,8 +1234,6 @@ namespace Ice
                 ProtocolInstance wssInstance = new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
                 _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, SSLEndpointType.value));
 
-                _pluginManager = new Ice.PluginManagerI(this);
-
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
                 _objectAdapterFactory = new ObjectAdapterFactory(this);
@@ -1258,8 +1249,7 @@ namespace Ice
                 // Load plug-ins.
                 //
                 Debug.Assert(_serverThreadPool == null);
-                PluginManagerI pluginManagerImpl = (PluginManagerI)_pluginManager;
-                pluginManagerImpl.loadPlugins(ref args);
+                LoadPlugins(ref args);
 
                 //
                 // Initialize the endpoint factories once all the plugins are loaded. This gives
@@ -1432,7 +1422,7 @@ namespace Ice
                 //
                 if ((GetPropertyAsInt("Ice.InitPlugins") ?? 1) > 0)
                 {
-                    pluginManagerImpl.initializePlugins();
+                    InitializePlugins();
                 }
 
                 //
@@ -2798,7 +2788,6 @@ namespace Ice
         private IceInternal.Timer? _timer;
         private RetryQueue? _retryQueue;
         private EndpointFactoryManager? _endpointFactoryManager;
-        private PluginManager? _pluginManager;
         private readonly bool _adminEnabled = false;
         private ObjectAdapter? _adminAdapter;
         private readonly Dictionary<string, (object servant, Disp disp)> _adminFacets =

@@ -132,14 +132,8 @@ public class AllTests
                     p.IcePing();
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
-                    // Expected.
-                }
-                catch (LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
                 }
                 comm.destroy();
             }
@@ -147,8 +141,7 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                 clientProperties["Ice.InitPlugins"] = "0";
                 var comm = new Communicator(ref args, clientProperties);
-                PluginManager pm = comm.getPluginManager();
-                pm.initializePlugins();
+                comm.InitializePlugins();
                 var fact = Test.ServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(serverProperties);
@@ -175,11 +168,10 @@ public class AllTests
                 clientProperties["Ice.InitPlugins"] = "0";
                 clientProperties["IceSSL.CAs"] = caCert1File;
                 var comm = new Communicator(ref args, clientProperties);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin? plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 plugin.setCertificates(coll);
-                pm.initializePlugins();
+                comm.InitializePlugins();
                 var fact = Test.ServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                 serverProperties["IceSSL.VerifyPeer"] = "2";
@@ -207,11 +199,10 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["Ice.InitPlugins"] = "0";
                 var comm = new Communicator(ref args, clientProperties);
-                PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 plugin.setCACertificates(coll);
-                pm.initializePlugins();
+                comm.InitializePlugins();
                 var fact = Test.ServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                 serverProperties["IceSSL.VerifyPeer"] = "2";
@@ -1106,7 +1097,8 @@ public class AllTests
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Debug.Assert(plugin != null);
                 CertificateVerifierI verifier = new CertificateVerifierI();
                 plugin.setCertificateVerifier(verifier);
 
@@ -1162,7 +1154,7 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["IceSSL.CertVerifier"] = "CertificateVerifierI";
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 test(plugin.getCertificateVerifier() != null);
                 comm.destroy();
@@ -1373,7 +1365,7 @@ public class AllTests
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["IceSSL.CAs"] = "cacert1.der";
-                Communicator comm = new Communicator(clientProperties);
+                using var comm = new Communicator(clientProperties);
                 var fact = Test.ServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                 serverProperties["IceSSL.VerifyPeer"] = "2";
@@ -1389,7 +1381,6 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1407,14 +1398,9 @@ public class AllTests
                     new Communicator(ref args, clientProperties);
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
                     // Expected.
-                }
-                catch (LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
                 }
             }
             {
@@ -1425,26 +1411,20 @@ public class AllTests
                 clientProperties["Ice.InitPlugins"] = "0";
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
-                Communicator comm = new Communicator(ref args, clientProperties);
-                PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                using var comm = new Communicator(ref args, clientProperties);
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Debug.Assert(plugin != null);
                 PasswordCallbackI cb = new PasswordCallbackI("bogus");
                 plugin.setPasswordCallback(cb);
                 try
                 {
-                    pm.initializePlugins();
+                    comm.InitializePlugins();
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
                     // Expected.
                 }
-                catch (Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                comm.destroy();
             }
             {
                 //
@@ -1455,14 +1435,14 @@ public class AllTests
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Debug.Assert(plugin != null);
                 PasswordCallbackI cb = new PasswordCallbackI();
                 plugin.setPasswordCallback(cb);
                 test(plugin.getPasswordCallback() == cb);
                 try
                 {
-                    pm.initializePlugins();
+                    comm.InitializePlugins();
                 }
                 catch (LocalException ex)
                 {
@@ -1480,8 +1460,8 @@ public class AllTests
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                Ice.PluginManager pm = comm.getPluginManager();
-                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Debug.Assert(plugin != null);
                 test(plugin.getPasswordCallback() != null);
                 comm.destroy();
             }
@@ -2274,14 +2254,9 @@ public class AllTests
                             Communicator comm = new Communicator(ref args, clientProperties);
                             test(false);
                         }
-                        catch (Ice.PluginInitializationException)
+                        catch (System.Exception)
                         {
                             // Expected
-                        }
-                        catch (Ice.LocalException ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
                         }
                     }
 
@@ -2307,14 +2282,9 @@ public class AllTests
                         Communicator comm = new Communicator(ref args, clientProperties);
                         test(false);
                     }
-                    catch (PluginInitializationException)
+                    catch (System.Exception)
                     {
                         // Expected
-                    }
-                    catch (LocalException ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        test(false);
                     }
                 }
             }

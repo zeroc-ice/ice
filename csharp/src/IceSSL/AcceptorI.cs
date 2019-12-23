@@ -24,9 +24,7 @@ namespace IceSSL
             //
             if (!_instance.initialized())
             {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plug-in is not initialized";
-                throw ex;
+                throw new Ice.InitializationException("IceSSL: plug-in is not initialized");
             }
             return _delegate.startAccept(callback, state);
         }

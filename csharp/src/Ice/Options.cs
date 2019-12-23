@@ -11,13 +11,6 @@ namespace IceUtilInternal
 {
     public sealed class Options
     {
-        public sealed class BadQuote : Exception
-        {
-            public BadQuote(string message) : base(message)
-            {
-            }
-        }
-
         public enum State { Normal, DoubleQuote, SingleQuote, ANSIQuote };
 
         public static string[]
@@ -379,15 +372,15 @@ namespace IceUtilInternal
                     }
                 case State.SingleQuote:
                     {
-                        throw new BadQuote("missing closing single quote");
+                        throw new FormatException("missing closing single quote");
                     }
                 case State.DoubleQuote:
                     {
-                        throw new BadQuote("missing closing double quote");
+                        throw new FormatException("missing closing double quote");
                     }
                 case State.ANSIQuote:
                     {
-                        throw new BadQuote("unterminated $' quote");
+                        throw new FormatException("unterminated $' quote");
                     }
                 default:
                     {
