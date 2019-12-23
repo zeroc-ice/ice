@@ -164,12 +164,15 @@ namespace Ice
         /// <returns>The property value or null if this property was not set.</returns>
         public string? RemoveProperty(string key)
         {
-            if (_properties.TryGetValue(key, out var pv))
+            lock (_properties)
             {
-                _properties.Remove(key);
-                return pv.Val;
+                if (_properties.TryGetValue(key, out var pv))
+                {
+                    _properties.Remove(key);
+                    return pv.Val;
+                }
+                return null;
             }
-            return null;
         }
 
         /// <summary>Get all properties that were not read.</summary>
