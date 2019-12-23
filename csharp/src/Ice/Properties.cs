@@ -29,13 +29,13 @@ namespace Ice
         }
 
         /// <summary>Get the value of a property. If the property is not set, returns null.</summary>
-        /// <param name="key">The property key.</param>
+        /// <param name="name">The property name.</param>
         /// <returns>The property value.</returns>
-        public string? GetProperty(string key)
+        public string? GetProperty(string name)
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(key, out var pv))
+                if (_properties.TryGetValue(name, out var pv))
                 {
                     pv.Used = true;
                     return pv.Val;
@@ -45,13 +45,13 @@ namespace Ice
         }
 
         /// <summary>Get the value of a property as an integer. If the property is not set, returns null.</summary>
-        /// <param name="key">The property key.</param>
+        /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an integer or null.</returns>
-        public int? GetPropertyAsInt(string key)
+        public int? GetPropertyAsInt(string name)
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(key, out var pv))
+                if (_properties.TryGetValue(name, out var pv))
                 {
                     pv.Used = true;
                     return int.Parse(pv.Val, CultureInfo.InvariantCulture);
@@ -67,13 +67,13 @@ namespace Ice
         /// double quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as
         /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
         /// </summary>
-        /// <param name="key">The property key.</param>
+        /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an array of strings or null.</returns>
-        public string[]? GetPropertyAsList(string key)
+        public string[]? GetPropertyAsList(string name)
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(key, out var pv))
+                if (_properties.TryGetValue(name, out var pv))
                 {
                     pv.Used = true;
                     return IceUtilInternal.StringUtil.splitString(pv.Val, ", \t\r\n");
@@ -93,13 +93,13 @@ namespace Ice
             {
                 var result = new Dictionary<string, string>();
 
-                foreach (string key in _properties.Keys)
+                foreach (string name in _properties.Keys)
                 {
-                    if (forPrefix.Length == 0 || key.StartsWith(forPrefix, StringComparison.Ordinal))
+                    if (forPrefix.Length == 0 || name.StartsWith(forPrefix, StringComparison.Ordinal))
                     {
-                        PropertyValue pv = _properties[key];
+                        PropertyValue pv = _properties[name];
                         pv.Used = true;
-                        result[key] = pv.Val;
+                        result[name] = pv.Val;
                     }
                 }
                 return result;
@@ -107,31 +107,31 @@ namespace Ice
         }
 
         /// <summary>Get the value of a property as a proxy. If the property is not set, returns null.</summary>
-        /// <param name="key">The property key. This key is also used as a prefix for proxy options.</param>
+        /// <param name="name">The property name. The property name is also used as the prefix for proxy options.</param>
         /// <param name="factory">The proxy factory. Use IAPrx.Factory to create IAPrx proxies.</param>
         /// <returns>The property value parsed into a proxy or null.</returns>
-        public T? GetPropertyAsProxy<T>(string key, ProxyFactory<T> factory) where T : class, IObjectPrx
+        public T? GetPropertyAsProxy<T>(string name, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            string? proxy = GetProperty(key);
+            string? proxy = GetProperty(name);
             if (proxy == null)
             {
                 return null;
             }
-            return factory(CreateReference(proxy, key));
+            return factory(CreateReference(proxy, name));
         }
 
         /// <summary>Insert a new property or change the value of an existing property.
         /// Setting the value of a property to the empty string removes this property
         /// if it was present, and does nothing otherwise.</summary>
-        /// <param name="key">The property key.</param>
+        /// <param name="name">The property name.</param>
         /// <param name="value">The property value.</param>
-        public void SetProperty(string key, string value)
+        public void SetProperty(string name, string value)
         {
-            ValidatePropertyKey(key);
+            ValidatePropertyName(name);
 
             lock (_properties)
             {
-                _ = SetPropertyImpl(key, value);
+                _ = SetPropertyImpl(name, value);
             }
         }
 
@@ -144,7 +144,7 @@ namespace Ice
         {
             foreach (var entry in updates)
             {
-                ValidatePropertyKey(entry.Key);
+                ValidatePropertyName(entry.Key);
             }
 
             lock (_properties)
@@ -183,17 +183,17 @@ namespace Ice
 
         // SetPropertyImpl sets a property and returns true when the property
         // was added, changed or removed, and false otherwise.
-        private bool SetPropertyImpl(string key, string value)
+        private bool SetPropertyImpl(string name, string value)
         {
             // Must be called with a validated property and with _properties locked
 
-            key = key.Trim();
-            Debug.Assert(key.Length > 0);
+            name = name.Trim();
+            Debug.Assert(name.Length > 0);
             if (value.Length == 0)
             {
-                return _properties.Remove(key);
+                return _properties.Remove(name);
             }
-            else if (_properties.TryGetValue(key, out var pv))
+            else if (_properties.TryGetValue(name, out var pv))
             {
                 if (pv.Val != value)
                 {
@@ -205,25 +205,25 @@ namespace Ice
             else
             {
                 // These properties are always marked "used"
-                bool used = key == "Ice.ConfigFile" || key == "Ice.ProgramName";
-                _properties[key] = new PropertyValue(value, used);
+                bool used = name == "Ice.ConfigFile" || name == "Ice.ProgramName";
+                _properties[name] = new PropertyValue(value, used);
                 return true;
             }
             return false;
         }
 
-        private void ValidatePropertyKey(string key)
+        private void ValidatePropertyName(string name)
         {
-            key = key.Trim();
-            if (key.Length == 0)
+            name = name.Trim();
+            if (name.Length == 0)
             {
-                throw new ArgumentException("Attempt to set property with empty key", nameof(key));
+                throw new ArgumentException("Attempt to set property with empty key", nameof(name));
             }
 
-            int dotPos = key.IndexOf('.');
+            int dotPos = name.IndexOf('.');
             if (dotPos != -1)
             {
-                string prefix = key.Substring(0, dotPos);
+                string prefix = name.Substring(0, dotPos);
                 foreach (var validProps in IceInternal.PropertyNames.validProps)
                 {
                     string pattern = validProps[0].pattern();
@@ -241,17 +241,17 @@ namespace Ice
                     foreach (var prop in validProps)
                     {
                         Regex r = new Regex(prop.pattern());
-                        Match m = r.Match(key);
+                        Match m = r.Match(name);
                         found = m.Success;
                         if (found)
                         {
                             if (prop.deprecated())
                             {
-                                _logger.warning($"deprecated property: `{key}'");
+                                _logger.warning($"deprecated property: `{name}'");
                                 string? deprecatedBy = prop.deprecatedBy();
                                 if (deprecatedBy != null)
                                 {
-                                    key = deprecatedBy;
+                                    name = deprecatedBy;
                                 }
                             }
                             break;
@@ -260,7 +260,7 @@ namespace Ice
                         if (!found)
                         {
                             r = new Regex(prop.pattern().ToUpper());
-                            m = r.Match(key.ToUpper());
+                            m = r.Match(name.ToUpper());
                             if (m.Success)
                             {
                                 found = true;
@@ -272,11 +272,11 @@ namespace Ice
                     }
                     if (!found)
                     {
-                        _logger.warning($"unknown property: `{key}'");
+                        _logger.warning($"unknown property: `{name}'");
                     }
                     else if (mismatchCase)
                     {
-                        _logger.warning($"unknown property: `{key}'; did you mean `{otherKey}'");
+                        _logger.warning($"unknown property: `{name}'; did you mean `{otherKey}'");
                     }
                 }
             }
@@ -320,9 +320,9 @@ namespace Ice
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     var r = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    if (r.Key.Length > 0)
+                    if (r.Name.Length > 0)
                     {
-                        parsedArgs[r.Key] = r.Value;
+                        parsedArgs[r.Name] = r.Value;
                         continue;
                     }
                 }
@@ -356,19 +356,19 @@ namespace Ice
             while ((line = input.ReadLine()) != null)
             {
                 var result = ParseLine(line);
-                if (result.Key.Length > 0)
+                if (result.Name.Length > 0)
                 {
-                    into[result.Key] = result.Value;
+                    into[result.Name] = result.Value;
                 }
             }
         }
 
         internal enum ParseState : byte { Key, Value}
 
-        private static (string Key, string Value) ParseLine(string line)
+        private static (string Name, string Value) ParseLine(string line)
         {
-            StringBuilder key = new StringBuilder();
-            StringBuilder val = new StringBuilder();
+            StringBuilder name = new StringBuilder();
+            StringBuilder value = new StringBuilder();
 
             ParseState state = ParseState.Key;
 
@@ -393,30 +393,30 @@ namespace Ice
                                             case '\\':
                                             case '#':
                                             case '=':
-                                                key.Append(whitespace);
+                                                name.Append(whitespace);
                                                 whitespace.Clear();
-                                                key.Append(c);
+                                                name.Append(c);
                                                 break;
 
                                             case ' ':
-                                                if (key.Length != 0)
+                                                if (name.Length != 0)
                                                 {
                                                     whitespace.Append(c);
                                                 }
                                                 break;
 
                                             default:
-                                                key.Append(whitespace);
+                                                name.Append(whitespace);
                                                 whitespace.Clear();
-                                                key.Append('\\');
-                                                key.Append(c);
+                                                name.Append('\\');
+                                                name.Append(c);
                                                 break;
                                         }
                                     }
                                     else
                                     {
-                                        key.Append(whitespace);
-                                        key.Append(c);
+                                        name.Append(whitespace);
+                                        name.Append(c);
                                     }
                                     break;
 
@@ -424,7 +424,7 @@ namespace Ice
                                 case '\t':
                                 case '\r':
                                 case '\n':
-                                    if (key.Length != 0)
+                                    if (name.Length != 0)
                                     {
                                         whitespace.Append(c);
                                     }
@@ -440,9 +440,9 @@ namespace Ice
                                     break;
 
                                 default:
-                                    key.Append(whitespace);
+                                    name.Append(whitespace);
                                     whitespace.Clear();
-                                    key.Append(c);
+                                    name.Append(c);
                                     break;
                             }
                             break;
@@ -461,10 +461,10 @@ namespace Ice
                                             case '\\':
                                             case '#':
                                             case '=':
-                                                val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                                value.Append(value.Length == 0 ? escapedspace : whitespace);
                                                 whitespace.Clear();
                                                 escapedspace.Clear();
-                                                val.Append(c);
+                                                value.Append(c);
                                                 break;
 
                                             case ' ':
@@ -473,18 +473,18 @@ namespace Ice
                                                 break;
 
                                             default:
-                                                val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                                value.Append(value.Length == 0 ? escapedspace : whitespace);
                                                 whitespace.Clear();
                                                 escapedspace.Clear();
-                                                val.Append('\\');
-                                                val.Append(c);
+                                                value.Append('\\');
+                                                value.Append(c);
                                                 break;
                                         }
                                     }
                                     else
                                     {
-                                        val.Append(val.Length == 0 ? escapedspace : whitespace);
-                                        val.Append(c);
+                                        value.Append(value.Length == 0 ? escapedspace : whitespace);
+                                        value.Append(c);
                                     }
                                     break;
 
@@ -492,7 +492,7 @@ namespace Ice
                                 case '\t':
                                 case '\r':
                                 case '\n':
-                                    if (val.Length != 0)
+                                    if (value.Length != 0)
                                     {
                                         whitespace.Append(c);
                                     }
@@ -503,10 +503,10 @@ namespace Ice
                                     break;
 
                                 default:
-                                    val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                    value.Append(value.Length == 0 ? escapedspace : whitespace);
                                     whitespace.Clear();
                                     escapedspace.Clear();
-                                    val.Append(c);
+                                    value.Append(c);
                                     break;
                             }
                             break;
@@ -517,14 +517,14 @@ namespace Ice
                     break;
                 }
             }
-            val.Append(escapedspace);
+            value.Append(escapedspace);
 
-            if ((state == ParseState.Key && key.Length != 0) || (state == ParseState.Value && key.Length == 0))
+            if ((state == ParseState.Key && name.Length != 0) || (state == ParseState.Value && name.Length == 0))
             {
                 throw new FormatException($"invalid config file entry: \"{line}\"");
             }
 
-            return (key.ToString(), val.ToString());
+            return (name.ToString(), value.ToString());
         }
     }
 }
