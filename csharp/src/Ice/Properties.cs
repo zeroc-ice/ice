@@ -126,7 +126,7 @@ namespace Ice
         /// <param name="value">The property value.</param>
         public void SetProperty(string key, string value)
         {
-            ValidateProperty(key, value);
+            ValidatePropertyKey(key);
 
             lock (_properties)
             {
@@ -143,7 +143,7 @@ namespace Ice
         {
             foreach (var entry in updates)
             {
-                ValidateProperty(entry.Key, entry.Value);
+                ValidatePropertyKey(entry.Key);
             }
 
             lock (_properties)
@@ -229,7 +229,7 @@ namespace Ice
             return false;
         }
 
-        private void ValidateProperty(string key, string value)
+        private void ValidatePropertyKey(string key)
         {
             key = key.Trim();
             if (key.Length == 0)
