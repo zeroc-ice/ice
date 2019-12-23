@@ -197,7 +197,7 @@ namespace Ice
         // was added, changed or removed, and false otherwise.
         private bool SetPropertyImpl(string key, string value)
         {
-            // Must be called with validated a validated property and with _properties locked
+            // Must be called with a validated property and with _properties locked
 
             key = key.Trim();
             Debug.Assert(key.Length > 0);
