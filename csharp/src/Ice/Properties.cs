@@ -205,26 +205,21 @@ namespace Ice
             {
                 return _properties.Remove(key);
             }
+            else if (_properties.TryGetValue(key, out var pv))
+            {
+                if (pv.Val != value)
+                {
+                    pv.Val = value;
+                    return true;
+                }
+                // else Val == value, nothing to do
+            }
             else
             {
                 // These properties are always marked "used"
-                bool used = (key == "Ice.ConfigFile" || key == "Ice.ProgramName");
-
-                if (_properties.TryGetValue(key, out var pv))
-                {
-                    if (!pv.Val.Equals(value))
-                    {
-                        pv.Val = value;
-                        pv.Used = used;
-                        return true;
-                    }
-                    // else Val == value, nothing to do
-                }
-                else
-                {
-                    _properties[key] = new PropertyValue(value, used);
-                    return true;
-                }
+                bool used = key == "Ice.ConfigFile" || key == "Ice.ProgramName";
+                _properties[key] = new PropertyValue(value, used);
+                return true;
             }
             return false;
         }
