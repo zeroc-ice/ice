@@ -51,7 +51,7 @@ public class Client : Test.TestHelper
             }
             catch (System.Exception)
             {
-                //Excepted
+                // Expected
             }
             Console.WriteLine("ok");
         }
