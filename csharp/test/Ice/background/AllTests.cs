@@ -1030,7 +1030,9 @@ public class AllTests
         {
             cb.sent(value);
             t1Sent = true;
-        })).ContinueWith(p =>
+        }));
+
+        t1.ContinueWith(p =>
         {
             try
             {
@@ -1050,7 +1052,8 @@ public class AllTests
         {
             cb2.sent(value);
             t2Sent = true;
-        })).ContinueWith((Task p) =>
+        }));
+        t2.ContinueWith((Task p) =>
         {
             try
             {
