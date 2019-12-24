@@ -105,9 +105,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.secure();
     }
 
-    public override IceInternal.Transceiver transceiver()
+    public override IceInternal.Transceiver? transceiver()
     {
-        IceInternal.Transceiver transceiver = _endpoint.transceiver();
+        IceInternal.Transceiver? transceiver = _endpoint.transceiver();
         if (transceiver != null)
         {
             return new Transceiver(transceiver);
@@ -158,7 +158,9 @@ internal class EndpointI : IceInternal.EndpointI
 
     public override IceInternal.Acceptor acceptor(string adapterName)
     {
-        return new Acceptor(this, _endpoint.acceptor(adapterName));
+        var acceptor = _endpoint.acceptor(adapterName);
+        Debug.Assert(acceptor != null);
+        return new Acceptor(this, acceptor);
     }
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)
@@ -183,7 +185,7 @@ internal class EndpointI : IceInternal.EndpointI
         return endps;
     }
 
-    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI? publish)
     {
         List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
         foreach (IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
@@ -199,16 +201,11 @@ internal class EndpointI : IceInternal.EndpointI
 
     public override bool equivalent(IceInternal.EndpointI endpoint)
     {
-        EndpointI testEndpoint = null;
-        try
-        {
-            testEndpoint = (EndpointI)endpoint;
-        }
-        catch (System.InvalidCastException)
+        if (!(endpoint is EndpointI))
         {
             return false;
         }
-        return testEndpoint._endpoint.equivalent(_endpoint);
+        return ((EndpointI)endpoint)._endpoint.equivalent(_endpoint);
     }
 
     public override string options()
@@ -223,30 +220,17 @@ internal class EndpointI : IceInternal.EndpointI
 
     public override int CompareTo(IceInternal.EndpointI obj)
     {
-        EndpointI p = null;
-
-        try
-        {
-            p = (EndpointI)obj;
-        }
-        catch (System.InvalidCastException)
-        {
-            try
-            {
-                return type() < obj.type() ? -1 : 1;
-            }
-            catch (System.InvalidCastException)
-            {
-                Debug.Assert(false);
-            }
-        }
-
-        if (this == p)
+        if (ReferenceEquals(this, obj))
         {
             return 0;
         }
 
-        return _endpoint.CompareTo(p._endpoint);
+        if (!(obj is EndpointI))
+        {
+            return type() < obj.type() ? -1 : 1;
+        }
+
+        return _endpoint.CompareTo(((EndpointI)obj)._endpoint);
     }
 
     public IceInternal.EndpointI getDelegate()

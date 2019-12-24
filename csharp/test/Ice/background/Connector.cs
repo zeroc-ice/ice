@@ -24,28 +24,21 @@ internal class Connector : IceInternal.Connector
         _connector = connector;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        Connector p = null;
-
-        try
-        {
-            p = (Connector)obj;
-        }
-        catch (System.InvalidCastException)
-        {
-            return false;
-        }
-
-        if (this == p)
+        if (ReferenceEquals(this, obj))
         {
             return true;
         }
 
-        return _connector.Equals(p._connector);
+        if (!(obj is Connector))
+        {
+            return false;
+        }
+        return _connector.Equals(((Connector)obj)._connector);
     }
 
-    public override string ToString()
+    public override string? ToString()
     {
         return _connector.ToString();
     }

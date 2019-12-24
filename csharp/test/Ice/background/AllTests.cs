@@ -63,24 +63,15 @@ public class AllTests
 
     private class OpAMICallback
     {
-        public void response()
-        {
-            _response.called();
-        }
+        public void response() => _response.called();
 
         public void responseNoOp()
         {
         }
 
-        public void noResponse()
-        {
-            test(false);
-        }
+        public void noResponse() => test(false);
 
-        public void exception(Ice.Exception ex)
-        {
-            _response.called();
-        }
+        public void exception(Ice.Exception ex) => _response.called();
 
         public void noException(Ice.Exception ex)
         {
@@ -88,10 +79,7 @@ public class AllTests
             test(false);
         }
 
-        public void sent(bool ss)
-        {
-            _sent.called();
-        }
+        public void sent(bool ss) => _sent.called();
 
         public bool checkException(bool wait)
         {
@@ -139,6 +127,7 @@ public class AllTests
 
         public void Join()
         {
+            Debug.Assert(_thread != null);
             _thread.Join();
         }
 
@@ -171,7 +160,7 @@ public class AllTests
                     _background.opAsync();
                     Thread.Sleep(1);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
             }
@@ -186,13 +175,13 @@ public class AllTests
         }
 
         private bool _destroyed = false;
-        private BackgroundPrx _background = null;
-        private Thread _thread;
+        private BackgroundPrx _background;
+        private Thread? _thread;
     }
 
     public static Test.BackgroundPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         var background = BackgroundPrx.Parse($"background:{helper.getTestEndpoint(0)}", communicator);
 
         var backgroundController = BackgroundControllerPrx.Parse("backgroundController:" + helper.getTestEndpoint(1, "tcp"), communicator);
@@ -309,7 +298,7 @@ public class AllTests
             configuration.buffered(true);
             backgroundController.buffered(true);
             background.opAsync();
-            background.GetCachedConnection().close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
             background.opAsync();
 
             OpAMICallback cb = new OpAMICallback();
@@ -352,22 +341,22 @@ public class AllTests
         {
             background.op();
         }
-        catch (Ice.LocalException ex)
+        catch (LocalException ex)
         {
             System.Console.Out.WriteLine(ex);
             test(false);
         }
-        background.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        background.GetConnection().close(ConnectionClose.GracefullyWithWait);
 
         for (int i = 0; i < 4; ++i)
         {
             if (i == 0 || i == 2)
             {
-                configuration.connectorsException(new Ice.DNSException());
+                configuration.connectorsException(new DNSException());
             }
             else
             {
-                configuration.connectException(new Ice.SocketException());
+                configuration.connectException(new SocketException());
             }
             BackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
@@ -411,7 +400,7 @@ public class AllTests
                 }
                 catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
                 {
-                    cbEx.exception(ex.InnerException as Ice.Exception);
+                    cbEx.exception((Ice.Exception)ex.InnerException);
                 }
             });
             cbEx.checkException(true);
@@ -437,20 +426,20 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
 
-                configuration.connectException(new Ice.SocketException());
-                background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                configuration.connectException(new SocketException());
+                background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
                 Thread.Sleep(10);
                 configuration.connectException(null);
                 try
                 {
                     background.IcePing();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
             }
@@ -470,24 +459,24 @@ public class AllTests
         }
     }
 
-    private static void initializeTests(Configuration configuration, Test.BackgroundPrx background,
-                                        Test.BackgroundControllerPrx ctl)
+    private static void initializeTests(Configuration configuration, BackgroundPrx background,
+        BackgroundControllerPrx ctl)
     {
         try
         {
             background.op();
         }
-        catch (Ice.LocalException)
+        catch (LocalException)
         {
             test(false);
         }
-        background.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        background.GetConnection().close(ConnectionClose.GracefullyWithWait);
 
         for (int i = 0; i < 4; ++i)
         {
             if (i == 0 || i == 2)
             {
-                configuration.initializeException(new Ice.SocketException());
+                configuration.initializeException(new SocketException());
             }
             else
             {
@@ -500,7 +489,7 @@ public class AllTests
                 prx.op();
                 test(false);
             }
-            catch (Ice.SocketException)
+            catch (SocketException)
             {
             }
 
@@ -532,7 +521,7 @@ public class AllTests
             }
             catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
             {
-                cbEx.exception(ex.InnerException as Ice.Exception);
+                cbEx.exception((Ice.Exception)ex.InnerException);
             }
             cbEx.checkException(true);
             test(t.IsCompleted);
@@ -553,11 +542,11 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.initializeException(false);
         }
-        catch (Ice.SecurityException)
+        catch (SecurityException)
         {
             ctl.initializeException(false);
         }
@@ -571,60 +560,60 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 test(false);
             }
 
-            configuration.initializeException(new Ice.SocketException());
-            background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            configuration.initializeException(new SocketException());
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
             configuration.initializeException(null);
             try
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 test(false);
             }
 
-            background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
             background.IcePing();
 
             ctl.initializeException(true);
-            background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
             ctl.initializeException(false);
             try
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 test(false);
             }
 
             try
             {
-                background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
                 background.op();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 test(false);
             }
@@ -640,7 +629,7 @@ public class AllTests
     private sealed class CloseCallback : Callback
     {
 
-        public void closed(Ice.Connection con)
+        public void closed(Connection con)
         {
             called();
         }
@@ -653,7 +642,7 @@ public class AllTests
     {
         CloseCallback cb = new CloseCallback();
         prx.GetConnection().setCloseCallback(cb.closed);
-        prx.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+        prx.GetConnection().close(ConnectionClose.GracefullyWithWait);
         cb.check();
     }
 
@@ -677,14 +666,14 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.SocketException)
+        catch (SocketException)
         {
             configuration.readException(null);
         }
 
         for (int i = 0; i < 2; ++i)
         {
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             BackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
             bool sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
@@ -697,7 +686,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -714,7 +703,7 @@ public class AllTests
                 background.op();
                 configuration.readReady(true);
             }
-            catch (Ice.LocalException ex)
+            catch (LocalException ex)
             {
                 Console.Error.WriteLine(ex);
                 test(false);
@@ -725,11 +714,11 @@ public class AllTests
             {
                 // Get the read() of the connection validation to return "would block" and then throw.
                 configuration.readReady(false);
-                configuration.readException(new Ice.SocketException());
+                configuration.readException(new SocketException());
                 background.op();
                 test(false);
             }
-            catch (Ice.SocketException)
+            catch (SocketException)
             {
                 configuration.readException(null);
                 configuration.readReady(true);
@@ -738,7 +727,7 @@ public class AllTests
             for (int i = 0; i < 2; ++i)
             {
                 configuration.readReady(false);
-                configuration.readException(new Ice.SocketException());
+                configuration.readException(new SocketException());
                 var sentSynchronously = false;
                 var t = background.opAsync(progress: new Progress<bool>(value =>
                 {
@@ -750,7 +739,7 @@ public class AllTests
                     t.Wait();
                     test(false);
                 }
-                catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+                catch (AggregateException ex) when (ex.InnerException is SocketException)
                 {
                 }
                 test(t.IsCompleted);
@@ -786,7 +775,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.writeException(false);
         }
@@ -798,7 +787,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (Ice.LocalException ex)
+        catch (LocalException ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -813,7 +802,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.writeException(false);
             ctl.writeReady(true);
@@ -828,7 +817,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (Ice.LocalException ex)
+        catch (LocalException ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -841,7 +830,7 @@ public class AllTests
             try
             {
                 prx.IcePing();
-                configuration.writeException(new Ice.SocketException());
+                configuration.writeException(new SocketException());
                 prx.op();
                 test(false);
             }
@@ -851,7 +840,7 @@ public class AllTests
             }
 
             background.IcePing();
-            configuration.writeException(new Ice.SocketException());
+            configuration.writeException(new SocketException());
             var sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
@@ -863,7 +852,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -873,11 +862,11 @@ public class AllTests
         try
         {
             background.IcePing();
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             background.op();
             test(false);
         }
-        catch (Ice.SocketException)
+        catch (SocketException)
         {
             configuration.readException(null);
         }
@@ -885,14 +874,14 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             var t = background.opAsync();
             try
             {
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -907,7 +896,7 @@ public class AllTests
             background.op();
             configuration.writeReady(true);
         }
-        catch (Ice.LocalException)
+        catch (LocalException)
         {
             test(false);
         }
@@ -919,7 +908,7 @@ public class AllTests
             background.op();
             configuration.readReady(true);
         }
-        catch (Ice.LocalException)
+        catch (LocalException)
         {
             test(false);
         }
@@ -928,11 +917,11 @@ public class AllTests
         {
             background.IcePing();
             configuration.writeReady(false);
-            configuration.writeException(new Ice.SocketException());
+            configuration.writeException(new SocketException());
             background.op();
             test(false);
         }
-        catch (Ice.SocketException)
+        catch (SocketException)
         {
             configuration.writeReady(true);
             configuration.writeException(null);
@@ -944,7 +933,7 @@ public class AllTests
 
             background.IcePing();
             configuration.writeReady(false);
-            configuration.writeException(new Ice.SocketException());
+            configuration.writeException(new SocketException());
             bool sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
@@ -956,7 +945,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -968,11 +957,11 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false);
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             background.op();
             test(false);
         }
-        catch (Ice.SocketException)
+        catch (SocketException)
         {
             configuration.readException(null);
             configuration.readReady(true);
@@ -981,14 +970,14 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false);
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             var t = background.opAsync();
             try
             {
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -1000,7 +989,7 @@ public class AllTests
             background.IcePing();
             configuration.readReady(false);
             configuration.writeReady(false);
-            configuration.readException(new Ice.SocketException());
+            configuration.readException(new SocketException());
             var t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
             //r.waitForSent();
@@ -1009,7 +998,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is SocketException)
             {
             }
             test(t.IsCompleted);
@@ -1128,7 +1117,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.writeException(false);
         }
@@ -1140,7 +1129,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.readException(false);
         }
@@ -1152,7 +1141,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (Ice.LocalException)
+        catch (LocalException)
         {
             test(false);
         }
@@ -1164,7 +1153,7 @@ public class AllTests
             background.op();
             ctl.readReady(true);
         }
-        catch (Ice.LocalException)
+        catch (LocalException)
         {
             test(false);
         }
@@ -1177,7 +1166,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.writeException(false);
             ctl.writeReady(true);
@@ -1191,7 +1180,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
             ctl.readException(false);
             ctl.readReady(true);
@@ -1206,18 +1195,18 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 test(false);
             }
 
             Thread.Sleep(10);
-            configuration.writeException(new Ice.SocketException());
+            configuration.writeException(new SocketException());
             try
             {
                 background.op();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
             }
             configuration.writeException(null);
@@ -1225,10 +1214,10 @@ public class AllTests
             Thread.Sleep(10);
 
             background.IcePing();
-            background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
 
-            background.GetCachedConnection().close(Ice.ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
         }
 
         thread1.destroy();

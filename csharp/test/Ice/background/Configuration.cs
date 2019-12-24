@@ -4,7 +4,7 @@
 
 internal class Configuration
 {
-    public void connectorsException(Ice.LocalException ex)
+    public void connectorsException(Ice.LocalException? ex)
     {
         lock (this)
         {
@@ -23,7 +23,7 @@ internal class Configuration
         }
     }
 
-    public void connectException(Ice.LocalException ex)
+    public void connectException(Ice.LocalException? ex)
     {
         lock (this)
         {
@@ -42,7 +42,7 @@ internal class Configuration
         }
     }
 
-    public void initializeException(Ice.LocalException ex)
+    public void initializeException(Ice.LocalException? ex)
     {
         lock (this)
         {
@@ -69,7 +69,7 @@ internal class Configuration
         }
     }
 
-    public void readException(Ice.LocalException ex)
+    public void readException(Ice.LocalException? ex)
     {
         lock (this)
         {
@@ -109,7 +109,7 @@ internal class Configuration
         }
     }
 
-    public void writeException(Ice.LocalException ex)
+    public void writeException(Ice.LocalException? ex)
     {
         lock (this)
         {
@@ -156,13 +156,13 @@ internal class Configuration
         return _instance;
     }
 
-    private Ice.LocalException _connectorsException;
-    private Ice.LocalException _connectException;
-    private Ice.LocalException _initializeException;
+    private Ice.LocalException? _connectorsException;
+    private Ice.LocalException? _connectException;
+    private Ice.LocalException? _initializeException;
     private int _readReadyCount;
-    private Ice.LocalException _readException;
+    private Ice.LocalException? _readException;
     private int _writeReadyCount;
-    private Ice.LocalException _writeException;
+    private Ice.LocalException? _writeException;
     private bool _buffered;
 
     private static Configuration _instance = new Configuration();

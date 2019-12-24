@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.Transceiver
 {
-    public Socket fd()
+    public Socket? fd()
     {
         return _transceiver.fd();
     }
@@ -28,7 +28,7 @@ internal class Transceiver : IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    public int closing(bool initiator, Ice.LocalException ex)
+    public int closing(bool initiator, Ice.LocalException? ex)
     {
         return _transceiver.closing(initiator, ex);
     }
@@ -205,7 +205,7 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.getInfo();
     }
 
-    public override string ToString()
+    public override string? ToString()
     {
         return _transceiver.ToString();
     }
