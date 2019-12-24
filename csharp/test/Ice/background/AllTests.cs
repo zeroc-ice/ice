@@ -1064,13 +1064,13 @@ public class AllTests
         });
         test(!t2Sent);
 
-        var t1SentSynchronously = false;
-        t1 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        var t3SentSynchronously = false;
+        var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
         {
-            t1SentSynchronously = value;
+            t3SentSynchronously = value;
         }));
-        test(!t1SentSynchronously);
-        t1.ContinueWith((Task p) =>
+        test(!t3SentSynchronously);
+        t3.ContinueWith((Task p) =>
         {
             try
             {
@@ -1083,13 +1083,13 @@ public class AllTests
             }
         });
 
-        var t2SentSynchronously = false;
-        t2 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        var t4SentSynchronously = false;
+        var t4 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
         {
-            t2SentSynchronously = value;
+            t4SentSynchronously = value;
         }));
-        test(!t2SentSynchronously);
-        t2.ContinueWith((Task p) =>
+        test(!t4SentSynchronously);
+        t4.ContinueWith((Task p) =>
         {
             try
             {
@@ -1107,8 +1107,10 @@ public class AllTests
         ctl.resumeAdapter();
         cb.checkResponseAndSent();
         cb2.checkResponseAndSent();
-        test(t1Sent && t1.IsCompleted);
-        test(t2Sent && t2.IsCompleted);
+        test(t1Sent);
+        test(t1.IsCompleted);
+        test(t2Sent);
+        test(t2.IsCompleted);
 
         try
         {
