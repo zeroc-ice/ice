@@ -807,7 +807,8 @@ Slice::CsVisitor::emitComVisibleAttribute()
 void
 Slice::CsVisitor::emitGeneratedCodeAttribute()
 {
-    _out << nl << "[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"slice2cs\", \"" << ICE_STRING_VERSION << "\")]";
+    _out << nl << "[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"slice2cs\", \"" << ICE_STRING_VERSION
+         << "\")]";
 }
 
 void
@@ -1659,7 +1660,6 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
     if(!ContainedPtr::dynamicCast(p->container()))
     {
         string ns = getNamespacePrefix(p);
-        string name = fixId(p->name());
         if(!ns.empty())
         {
             _out << sp;
@@ -2154,14 +2154,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     _out << eb;
-}
-
-void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr&)
-{
-    //
-    // No need to generate anything for sequences.
-    //
 }
 
 bool
@@ -2796,11 +2788,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr&)
-{
-}
-
-void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixId(p->name());
@@ -2879,7 +2866,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     emitAttributes(p);
     emitGeneratedCodeAttribute();
     _out << nl << "public" << " " << typeToString(p->type(), getNamespace(cont), p->optional());
-    if(isNullable(p->type()) && !p->optional() )
+    if(isNullable(p->type()) && !p->optional())
     {
         _out << "?";
     }
@@ -3633,9 +3620,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "else";
     _out << sb;
     _out << nl << "ostr.WriteSize(v.Count);";
-    _out << nl << "foreach(global::System.Collections.";
-    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
-    _out << " e in v)";
+    _out << nl << "foreach (var e in v)";
     _out << sb;
     writeMarshalUnmarshalCode(_out, key, ns, "e.Key", true);
     writeMarshalUnmarshalCode(_out, value, ns, "e.Value", true);
@@ -3646,22 +3631,15 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "public static " << name << " Read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
     _out << sb;
     _out << nl << "int sz = istr.ReadSize();";
-    _out << nl << name << " r = new " << name << "();";
-    _out << nl << "for(int i = 0; i < sz; ++i)";
+    _out << nl << "var r = new " << name << "();";
+    _out << nl << "for (int i = 0; i < sz; ++i)";
     _out << sb;
-    _out << nl << keyS << " k;";
-    StructPtr st = StructPtr::dynamicCast(key);
-    if(st)
+    _out << nl << keyS << " k";
+    if(StructPtr::dynamicCast(key))
     {
-        if(isImmutableType(st))
-        {
-            _out << nl << "k = new " << typeToString(key, ns) << "();";
-        }
-        else
-        {
-            _out << nl << "k = null;";
-        }
+        _out << " = default";
     }
+    _out << ";";
     writeMarshalUnmarshalCode(_out, key, ns, "k", false);
 
     if(isClassType(value))
@@ -3672,19 +3650,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-        _out << nl << valueS << " v;";
-        StructPtr stv = StructPtr::dynamicCast(value);
-        if(stv)
+        _out << nl << valueS << " v";
+        if(StructPtr::dynamicCast(value))
         {
-            if(isImmutableType(stv))
-            {
-                _out << nl << "v = new " << typeToString(value, ns) << "();";
-            }
-            else
-            {
-                _out << nl << "v = null;";
-            }
+            _out << " = default";
         }
+        _out << ";";
         writeMarshalUnmarshalCode(_out, value, ns, "v", false);
         _out << nl << "r[k] = v;";
     }
