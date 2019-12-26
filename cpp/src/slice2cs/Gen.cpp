@@ -1903,7 +1903,7 @@ Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
 {
     string ns = getNamespacePrefix(p);
 
-    if(!ns.empty() && (p->hasValueDefs() || p->hasNonLocalExceptions()))
+    if(!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
     {
         string name = fixId(p->name());
         if(!ContainedPtr::dynamicCast(p->container()))
@@ -3038,7 +3038,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }
@@ -3516,7 +3516,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs() && !p->hasNonLocalSequences() && !p->hasDictionaries())
+    if(!p->hasSequences() && !p->hasDictionaries())
     {
         return false;
     }
@@ -3703,7 +3703,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }

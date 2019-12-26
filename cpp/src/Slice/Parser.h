@@ -512,26 +512,21 @@ public:
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     ContainedList contents() const;
-    bool hasNonLocalClassDecls() const;
-    bool hasNonLocalClassDefs() const;
-    bool hasNonLocalSequences() const;
-    bool hasNonLocalExceptions() const;
+    bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasDictionaries() const;
     bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
-    bool hasNonLocalInterfaceDefs() const;
+    bool hasInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOperations() const; // interfaces or classes with operations
-    bool hasNonLocalAbstractClassDefs() const; // interfaces or abstract classes
-    bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;
-    bool hasNonLocalContained(Contained::ContainedType) const;
+    bool hasContained(Contained::ContainedType) const;
     std::string thisScope() const;
     void mergeModules();
     void sort();
