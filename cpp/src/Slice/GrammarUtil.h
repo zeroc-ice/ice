@@ -22,7 +22,6 @@ class ClassListTok;
 class EnumeratorListTok;
 class ConstDefTok;
 class OptionalDefTok;
-class OptionalTypeDefTok;
 class ClassIdTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
