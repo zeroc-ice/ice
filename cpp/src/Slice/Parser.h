@@ -170,14 +170,6 @@ struct ConstDef
     std::string valueAsLiteral;
 };
 
-struct OptionalDef
-{
-    TypePtr type;
-    std::string name;
-    bool optional;
-    int tag;
-};
-
 // ----------------------------------------------------------------------
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------

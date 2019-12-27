@@ -439,9 +439,7 @@ tag
         tag = static_cast<int>(i->v);
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.optional = tag >= 0;
-    m->v.tag = tag;
+    OptionalDefTokPtr m = new OptionalDefTok(tag);
     $$ = m;
 }
 | ICE_TAGGED_START scoped_name ')'
@@ -532,25 +530,19 @@ tag
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.optional = tag >= 0;
-    m->v.tag = tag;
+    OptionalDefTokPtr m = new OptionalDefTok(tag);
     $$ = m;
 }
 | ICE_TAGGED_START ')'
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_TAG
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
     $$ = m;
 }
 ;
@@ -573,9 +565,7 @@ optional
         tag = static_cast<int>(i->v);
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.optional = tag >= 0;
-    m->v.tag = tag;
+    OptionalDefTokPtr m = new OptionalDefTok(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_START scoped_name ')'
@@ -666,25 +656,19 @@ optional
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.optional = tag >= 0;
-    m->v.tag = tag;
+    OptionalDefTokPtr m = new OptionalDefTok(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_START ')'
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
     $$ = m;
 }
 ;
@@ -703,8 +687,8 @@ tagged_type_id
 //      unit->error("Only optional types can be tagged.");
 //  }
 
-    m->v.type = ts->v.first;
-    m->v.name = ts->v.second;
+    m->type = ts->v.first;
+    m->name = ts->v.second;
     $$ = m;
 }
 | optional type_id
@@ -713,18 +697,16 @@ tagged_type_id
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
     // Infer the type to be optional for backwards compatability.
-    m->v.type = new Optional(ts->v.first);
-    m->v.name = ts->v.second;
+    m->type = new Optional(ts->v.first);
+    m->name = ts->v.second;
     $$ = m;
 }
 | type_id
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.type = ts->v.first;
-    m->v.name = ts->v.second;
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1);
+    m->type = ts->v.first;
+    m->name = ts->v.second;
     $$ = m;
 }
 ;
@@ -1126,19 +1108,19 @@ data_member
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, 0, "", "");
+        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
     }
-    unit->currentContainer()->checkIntroduced(def->v.name, dm);
+    unit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
 | tagged_type_id '=' const_initializer
@@ -1150,22 +1132,22 @@ data_member
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, value->v.value,
+        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, value->v.value,
                                   value->v.valueAsString, value->v.valueAsLiteral);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, value->v.value,
+        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, value->v.value,
                                   value->v.valueAsString, value->v.valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->v.name, def->v.type, def->v.optional, def->v.tag, value->v.value,
+        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, value->v.value,
                                   value->v.valueAsString, value->v.valueAsLiteral);
     }
-    unit->currentContainer()->checkIntroduced(def->v.name, dm);
+    unit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
 | type keyword
@@ -1306,7 +1288,7 @@ return_type
 //      unit->error("Only optional types can be tagged.");
 //  }
 
-    m->v.type = TypePtr::dynamicCast($2);
+    m->type = TypePtr::dynamicCast($2);
     $$ = m;
 }
 | optional type
@@ -1314,22 +1296,18 @@ return_type
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
 
     // Infer the type to be optional for backwards compatability.
-    m->v.type = new Optional(TypePtr::dynamicCast($2));
+    m->type = new Optional(TypePtr::dynamicCast($2));
     $$ = m;
 }
 | type
 {
-    OptionalDefTokPtr m = new OptionalDefTok();
-    m->v.type = TypePtr::dynamicCast($1);
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1);
+    m->type = TypePtr::dynamicCast($1);
     $$ = m;
 }
 | ICE_VOID
 {
-    OptionalDefTokPtr m = new OptionalDefTok;
-    m->v.optional = false;
-    m->v.tag = -1;
+    OptionalDefTokPtr m = new OptionalDefTok(-1);
     $$ = m;
 }
 ;
@@ -1344,7 +1322,7 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag);
         if(op)
         {
             cl->checkIntroduced(name, op);
@@ -1368,7 +1346,7 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
@@ -1393,7 +1371,7 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag);
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag);
         if(op)
         {
             unit->pushContainer(op);
@@ -1417,7 +1395,7 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->v.type, returnType->v.optional, returnType->v.tag,
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
@@ -1969,8 +1947,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
-        unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->optional, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
         if(!metaData->v.empty())
         {
@@ -1985,8 +1963,8 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->v.name, tsp->v.type, isOutParam->v, tsp->v.optional, tsp->v.tag);
-        unit->currentContainer()->checkIntroduced(tsp->v.name, pd);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->optional, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
         if(!metaData->v.empty())
         {

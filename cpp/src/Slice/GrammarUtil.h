@@ -182,7 +182,14 @@ class OptionalDefTok : public GrammarBase
 public:
 
     OptionalDefTok() { }
-    OptionalDef v;
+    OptionalDefTok(int tag) :
+        optional(tag >= 0),
+        tag(tag)
+    { }
+    TypePtr type;
+    std::string name;
+    bool optional;
+    int tag;
 };
 
 // ----------------------------------------------------------------------
