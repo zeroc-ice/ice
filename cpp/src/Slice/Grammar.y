@@ -126,7 +126,7 @@ opt_semicolon
 : ';'
 {
 }
-|
+| %empty
 {
 }
 ;
@@ -147,7 +147,7 @@ meta_data
 {
     $$ = $2;
 }
-|
+| %empty
 {
     $$ = new StringListTok;
 }
@@ -175,7 +175,7 @@ definitions
     }
 }
 definitions
-|
+| %empty
 {
 }
 ;
@@ -378,7 +378,7 @@ exception_extends
     cont->checkIntroduced(scoped->v);
     $$ = contained;
 }
-|
+| %empty
 {
     $$ = 0;
 }
@@ -403,7 +403,7 @@ exception_exports
 {
     unit->error("`;' missing after definition");
 }
-|
+| %empty
 {
 }
 ;
@@ -820,7 +820,7 @@ struct_exports
 {
     unit->error("`;' missing after definition");
 }
-|
+| %empty
 {
 }
 ;
@@ -1073,7 +1073,7 @@ class_extends
         }
     }
 }
-|
+| %empty
 {
     $$ = 0;
 }
@@ -1086,7 +1086,7 @@ implements
 {
     $$ = $2;
 }
-|
+| %empty
 {
     $$ = new ClassListTok;
 }
@@ -1111,7 +1111,7 @@ class_exports
 {
     unit->error("`;' missing after definition");
 }
-|
+| %empty
 {
 }
 ;
@@ -1643,7 +1643,7 @@ interface_extends
 {
     $$ = $2;
 }
-|
+| %empty
 {
     $$ = new ClassListTok;
 }
@@ -1668,7 +1668,7 @@ interface_exports
 {
     unit->error("`;' missing after definition");
 }
-|
+| %empty
 {
 }
 ;
@@ -1889,7 +1889,7 @@ enumerator
     EnumeratorListTokPtr ens = new EnumeratorListTok; // Dummy
     $$ = ens;
 }
-|
+| %empty
 {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens; // Dummy
@@ -1948,7 +1948,7 @@ out_qualifier
     out->v = true;
     $$ = out;
 }
-|
+| %empty
 {
     BoolTokPtr out = new BoolTok;
     out->v = false;
@@ -1959,7 +1959,7 @@ out_qualifier
 // ----------------------------------------------------------------------
 parameters
 // ----------------------------------------------------------------------
-: // empty
+: %empty
 {
 }
 | out_qualifier meta_data tagged_type_id
@@ -2049,7 +2049,7 @@ throws
 {
     $$ = $2;
 }
-|
+| %empty
 {
     $$ = new ExceptionListTok;
 }
