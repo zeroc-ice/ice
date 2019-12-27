@@ -87,6 +87,7 @@ slice_error(const char* s)
 %token ICE_FALSE
 %token ICE_TRUE
 %token ICE_IDEMPOTENT
+%token ICE_TAG
 %token ICE_OPTIONAL
 %token ICE_VALUE
 
@@ -100,7 +101,8 @@ slice_error(const char* s)
 %token ICE_FLOATING_POINT_LITERAL
 %token ICE_IDENT_OP
 %token ICE_KEYWORD_OP
-%token ICE_OPTIONAL_OP
+%token ICE_TAG_START
+%token ICE_OPTIONAL_START
 %token ICE_METADATA_OPEN
 %token ICE_METADATA_CLOSE
 %token ICE_GLOBAL_METADATA_OPEN
@@ -420,16 +422,16 @@ type_id
 ;
 
 // ----------------------------------------------------------------------
-optional
+tag
 // ----------------------------------------------------------------------
-: ICE_OPTIONAL_OP ICE_INTEGER_LITERAL ')'
+: ICE_TAGGED_START ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
 
     int tag;
     if(i->v < 0 || i->v > Int32Max)
     {
-        unit->error("tag for optional is out of range");
+        unit->error("tag is out of range");
         tag = -1;
     }
     else
@@ -442,7 +444,7 @@ optional
     m->v.tag = tag;
     $$ = m;
 }
-| ICE_OPTIONAL_OP scoped_name ')'
+| ICE_TAGGED_START scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
 
@@ -465,7 +467,141 @@ optional
             ostringstream os;
             os << "enumerator `" << scoped->v << "' could designate";
             bool first = true;
-            for(EnumeratorList::iterator p = enumerators.begin(); p != enumerators.end(); ++p)
+            for(const auto& p : enumerators)
+            {
+                if(first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    os << " or";
+                }
+
+                os << " `" << p->scoped() << "'";
+            }
+            unit->error(os.str());
+        }
+        else
+        {
+            unit->error(string("`") + scoped->v + "' is not defined");
+        }
+    }
+
+    if(cl.empty())
+    {
+        YYERROR; // Can't continue, jump to next yyerrok
+    }
+    cont->checkIntroduced(scoped->v);
+
+    int tag = -1;
+    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
+    ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+    if(constant)
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+        if(b)
+        {
+            switch(b->kind())
+            {
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+                if(l < 0 || l > Int32Max)
+                {
+                    unit->error("tag is out of range");
+                }
+                tag = static_cast<int>(l);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    else if(enumerator)
+    {
+        tag = enumerator->value();
+    }
+
+    if(tag < 0)
+    {
+        unit->error("invalid tag `" + scoped->v + "'");
+    }
+
+    OptionalDefTokPtr m = new OptionalDefTok;
+    m->v.optional = tag >= 0;
+    m->v.tag = tag;
+    $$ = m;
+}
+| ICE_TAGGED_START ')'
+{
+    unit->error("missing tag");
+    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
+    m->v.optional = false;
+    m->v.tag = -1;
+    $$ = m;
+}
+| ICE_TAG
+{
+    unit->error("missing tag");
+    OptionalDefTokPtr m = new OptionalDefTok; // Dummy
+    m->v.optional = false;
+    m->v.tag = -1;
+    $$ = m;
+}
+;
+
+// ----------------------------------------------------------------------
+optional
+// ----------------------------------------------------------------------
+: ICE_OPTIONAL_START ICE_INTEGER_LITERAL ')'
+{
+    IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
+
+    int tag;
+    if(i->v < 0 || i->v > Int32Max)
+    {
+        unit->error("tag is out of range");
+        tag = -1;
+    }
+    else
+    {
+        tag = static_cast<int>(i->v);
+    }
+
+    OptionalDefTokPtr m = new OptionalDefTok;
+    m->v.optional = tag >= 0;
+    m->v.tag = tag;
+    $$ = m;
+}
+| ICE_OPTIONAL_START scoped_name ')'
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($2);
+
+    ContainerPtr cont = unit->currentContainer();
+    assert(cont);
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+    if(cl.empty())
+    {
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if(enumerators.size() == 1)
+        {
+            // Found
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+                          + "' without its enumeration's scope is deprecated");
+        }
+        else if(enumerators.size() > 1)
+        {
+            ostringstream os;
+            os << "enumerator `" << scoped->v << "' could designate";
+            bool first = true;
+            for(const auto& p : enumerators)
             {
                 if(first)
                 {
@@ -510,7 +646,7 @@ optional
                 IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
                 if(l < 0 || l > Int32Max)
                 {
-                    unit->error("tag for optional is out of range");
+                    unit->error("tag is out of range");
                 }
                 tag = static_cast<int>(l);
                 break;
@@ -527,7 +663,7 @@ optional
 
     if(tag < 0)
     {
-        unit->error("invalid tag `" + scoped->v + "' for optional");
+        unit->error("invalid tag `" + scoped->v + "'");
     }
 
     OptionalDefTokPtr m = new OptionalDefTok;
@@ -535,9 +671,9 @@ optional
     m->v.tag = tag;
     $$ = m;
 }
-| ICE_OPTIONAL_OP ')'
+| ICE_OPTIONAL_START ')'
 {
-    unit->error("missing tag for optional");
+    unit->error("missing tag");
     OptionalDefTokPtr m = new OptionalDefTok; // Dummy
     m->v.optional = false;
     m->v.tag = -1;
@@ -545,7 +681,7 @@ optional
 }
 | ICE_OPTIONAL
 {
-    unit->error("missing tag for optional");
+    unit->error("missing tag");
     OptionalDefTokPtr m = new OptionalDefTok; // Dummy
     m->v.optional = false;
     m->v.tag = -1;
@@ -554,13 +690,30 @@ optional
 ;
 
 // ----------------------------------------------------------------------
-optional_type_id
+tagged_type_id
 // ----------------------------------------------------------------------
-: optional type_id
+: tag type_id
 {
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+
+//  OptionalPtr opt = OptionalPtr::dynamicCast(ts->v.first);
+//  if(!opt)
+//  {
+//      unit->error("Only optional types can be tagged.");
+//  }
+
     m->v.type = ts->v.first;
+    m->v.name = ts->v.second;
+    $$ = m;
+}
+| optional type_id
+{
+    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+
+    // Infer the type to be optional for backwards compatability.
+    m->v.type = new Optional(ts->v.first);
     m->v.name = ts->v.second;
     $$ = m;
 }
@@ -966,7 +1119,7 @@ class_exports
 // ----------------------------------------------------------------------
 data_member
 // ----------------------------------------------------------------------
-: optional_type_id
+: tagged_type_id
 {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast($1);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -988,7 +1141,7 @@ data_member
     unit->currentContainer()->checkIntroduced(def->v.name, dm);
     $$ = dm;
 }
-| optional_type_id '=' const_initializer
+| tagged_type_id '=' const_initializer
 {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast($1);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
@@ -1083,6 +1236,24 @@ struct_data_member
     unit->currentContainer()->checkIntroduced(ts->v.second, dm);
     $$ = dm;
 }
+| tag type_id
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    assert($$);
+    unit->error("tagged data members are not supported in structs");
+}
+| tag type_id '=' const_initializer
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    assert($$);
+    unit->error("tagged data members are not supported in structs");
+}
 | optional type_id
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
@@ -1090,7 +1261,7 @@ struct_data_member
     assert(st);
     $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
     assert($$);
-    unit->error("optional data members not supported in struct");
+    unit->error("tagged data members are not supported in structs");
 }
 | optional type_id '=' const_initializer
 {
@@ -1099,7 +1270,7 @@ struct_data_member
     assert(st);
     $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
     assert($$);
-    unit->error("optional data members not supported in struct");
+    unit->error("tagged data members are not supported in structs");
 }
 | type keyword
 {
@@ -1125,10 +1296,25 @@ struct_data_member
 // ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
-: optional type
+: tag type
 {
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+
+//  OptionalPtr opt = OptionalPtr::dynamicCast($2);
+//  if(!opt)
+//  {
+//      unit->error("Only optional types can be tagged.");
+//  }
+
     m->v.type = TypePtr::dynamicCast($2);
+    $$ = m;
+}
+| optional type
+{
+    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+
+    // Infer the type to be optional for backwards compatability.
+    m->v.type = new Optional(TypePtr::dynamicCast($2));
     $$ = m;
 }
 | type
@@ -1776,7 +1962,7 @@ parameters
 : // empty
 {
 }
-| out_qualifier meta_data optional_type_id
+| out_qualifier meta_data tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
     OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast($3);
@@ -1792,7 +1978,7 @@ parameters
         }
     }
 }
-| parameters ',' out_qualifier meta_data optional_type_id
+| parameters ',' out_qualifier meta_data tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
     OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast($5);
@@ -2291,6 +2477,9 @@ keyword
 {
 }
 | ICE_IDEMPOTENT
+{
+}
+| ICE_TAG
 {
 }
 | ICE_OPTIONAL
