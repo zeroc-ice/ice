@@ -159,11 +159,11 @@ dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const Str
 }
 
 void
-writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
+writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const string& scope, const string& fixedName,
                        const StringList& metaData, int typeCtx, bool endArg)
 {
     string s = typeToString(type, scope, metaData, typeCtx);
-    if(optional)
+    if(isTagged)
     {
         s = toOptional(s, typeCtx);
     }
@@ -204,7 +204,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 
         if(!str.empty())
         {
-            if(optional)
+            if(isTagged)
             {
                 str = toOptional(str, typeCtx);
             }
@@ -214,7 +214,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 }
 
 void
-writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData,
+writeParamEndCode(Output& out, const TypePtr& type, bool isTagged, const string& fixedName, const StringList& metaData,
                   const string& obj = "")
 {
     string objPrefix = obj.empty() ? obj : obj + ".";
@@ -239,7 +239,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                builtin->kind() != Builtin::KindObject &&
                builtin->kind() != Builtin::KindObjectProxy)
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << "if(" << escapedParamName << ")";
                     out << sb;
@@ -256,7 +256,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                     builtin->kind() == Builtin::KindObject ||
                     builtin->kind() == Builtin::KindObjectProxy)
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << "if(" << escapedParamName << ")";
                     out << sb;
@@ -290,7 +290,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
         }
         else if(seqType.find("%range") == 0)
         {
-            if(optional)
+            if(isTagged)
             {
                 out << nl << "if(" << escapedParamName << ")";
                 out << sb;
@@ -326,15 +326,15 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
     //
-    // Marshal non optional parameters.
+    // Marshal required parameters.
     //
     ParamDeclList requiredParams;
-    ParamDeclList optionals;
+    ParamDeclList taggedParams;
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         if((*p)->optional())
         {
-            optionals.push_back(*p);
+            taggedParams.push_back(*p);
         }
         else
         {
@@ -385,10 +385,10 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
-    if(!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
+    if(!taggedParams.empty() || (op && op->returnType() && op->returnIsOptional()))
     {
         //
-        // Sort optional parameters by tag.
+        // Sort tagged parameters by tag.
         //
         class SortFn
         {
@@ -398,7 +398,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 return lhs->tag() < rhs->tag();
             }
         };
-        optionals.sort(SortFn::compare);
+        taggedParams.sort(SortFn::compare);
 
         if(cpp11)
         {
@@ -421,7 +421,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
                 {
                     if(checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -445,7 +445,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
                 {
                     if(checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -465,11 +465,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         {
 
             //
-            // Marshal optional parameters.
+            // Marshal tagged parameters.
             //
 
             bool checkReturnType = op && op->returnIsOptional();
-            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+            for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
             {
                 if(checkReturnType && op->returnTag() < (*p)->tag())
                 {
@@ -1220,7 +1220,7 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional, int tag, const string& param,
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool isTagged, int tag, const string& param,
                                  bool marshal, const StringList& metaData, int typeCtx, const string& customStream,
                                  bool pointer, const string& obj)
 {
@@ -1255,7 +1255,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         os << "read(";
     }
 
-    if(optional)
+    if(isTagged)
     {
         os << tag << ", ";
     }
@@ -1277,13 +1277,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                 }
 
                 out << nl << func << objPrefix << param << "_tmp_);";
-                writeParamEndCode(out, seq, optional, param, metaData, obj);
+                writeParamEndCode(out, seq, isTagged, param, metaData, obj);
                 return;
             }
             else if(seqType.find("%range") == 0)
             {
                 out << nl << func << objPrefix << param << "_tmp_);";
-                writeParamEndCode(out, seq, optional, param, metaData, obj);
+                writeParamEndCode(out, seq, isTagged, param, metaData, obj);
                 return;
             }
         }
@@ -1401,7 +1401,7 @@ void
 Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
                                           const string& holder,
                                           const DataMemberList& dataMembers,
-                                          bool optional,
+                                          bool isTagged,
                                           bool marshal)
 {
     if(dataMembers.empty())
@@ -1415,7 +1415,7 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
     out << nl << stream << "->" << streamOp;
     out << spar;
 
-    if(optional)
+    if(isTagged)
     {
         ostringstream os;
         os << "{";
@@ -1458,13 +1458,13 @@ Slice::writeStreamHelpers(Output& out,
     }
 
     DataMemberList requiredMembers;
-    DataMemberList optionalMembers;
+    DataMemberList taggedMembers;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if((*q)->optional())
         {
-            optionalMembers.push_back(*q);
+            taggedMembers.push_back(*q);
         }
         else
         {
@@ -1472,7 +1472,7 @@ Slice::writeStreamHelpers(Output& out,
         }
     }
 
-    // Sort optional data members
+    // Sort tagged data members
     class SortFn
     {
     public:
@@ -1481,7 +1481,7 @@ Slice::writeStreamHelpers(Output& out,
             return lhs->tag() < rhs->tag();
         }
     };
-    optionalMembers.sort(SortFn::compare);
+    taggedMembers.sort(SortFn::compare);
 
     string scoped = c->scoped();
     bool classMetaData = checkClassMetaData ? (findMetaData(c->getMetaData(), false) == "%class") : false;
@@ -1492,14 +1492,14 @@ Slice::writeStreamHelpers(Output& out,
     // Generate StreamWriter
     //
     // Only generate StreamWriter specializations if we are generating for C++98 or
-    // we are generating for C++11 with optional data members and no base class data members
+    // we are generating for C++11 with tagged data members and no base class data members
     //
-    if(!cpp11 || !optionalMembers.empty() || hasBaseDataMembers)
+    if(!cpp11 || !taggedMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
         out << sb;
-        if(requiredMembers.empty() && optionalMembers.empty())
+        if(requiredMembers.empty() && taggedMembers.empty())
         {
             out << nl << "static void write(S*, const " << fullName << "&)";
         }
@@ -1513,7 +1513,7 @@ Slice::writeStreamHelpers(Output& out,
         if(cpp11)
         {
             writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
-            writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
+            writeMarshalUnmarshalAllInHolder(out, holder, taggedMembers, true, true);
         }
         else
         {
@@ -1522,7 +1522,7 @@ Slice::writeStreamHelpers(Output& out,
                 writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
             }
 
-            for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+            for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
             {
                 writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
             }
@@ -1538,7 +1538,7 @@ Slice::writeStreamHelpers(Output& out,
     out << nl << "template<typename S>";
     out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
     out << sb;
-    if (requiredMembers.empty() && optionalMembers.empty())
+    if (requiredMembers.empty() && taggedMembers.empty())
     {
         out << nl << "static void read(S*, " << fullName << "&)";
     }
@@ -1552,7 +1552,7 @@ Slice::writeStreamHelpers(Output& out,
     if(cpp11)
     {
         writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
-        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
+        writeMarshalUnmarshalAllInHolder(out, holder, taggedMembers, true, false);
     }
     else
     {
@@ -1561,7 +1561,7 @@ Slice::writeStreamHelpers(Output& out,
             writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
         }
 
-        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
         {
             writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
         }

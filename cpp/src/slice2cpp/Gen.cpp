@@ -2172,9 +2172,9 @@ bool
 usePrivateEnd(const OperationPtr& p)
 {
     TypePtr ret = p->returnType();
-    bool retIsOpt = p->returnIsOptional();
-    string retSEnd = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), TypeContextAMIEnd);
-    string retSPrivateEnd = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), TypeContextAMIPrivateEnd);
+    bool retIsTagged = p->returnIsOptional();
+    string retSEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIEnd);
+    string retSPrivateEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIPrivateEnd);
 
     ParamDeclList outParams;
     vector<string> outDeclsEnd;
@@ -2207,11 +2207,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
 
-    bool retIsOpt = p->returnIsOptional();
-    string retS = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextAMIEnd);
+    bool retIsTagged = p->returnIsOptional();
+    string retS = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring | TypeContextAMIEnd);
     string retSEndAMI =
-        returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
-    string retInS = retS != "void" ? inputTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring) : "";
+        returnTypeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
+    string retInS = retS != "void" ? inputTypeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring) : "";
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -6451,8 +6451,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
 
-    bool retIsOpt = p->returnIsOptional();
-    string retS = returnTypeToString(ret, retIsOpt, clScope, p->getMetaData(), _useWstring | TypeContextCpp11);
+    bool retIsTagged = p->returnIsOptional();
+    string retS = returnTypeToString(ret, retIsTagged, clScope, p->getMetaData(), _useWstring | TypeContextCpp11);
 
     vector<string> params;
     vector<string> paramsDecl;
@@ -6469,20 +6469,20 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList outParams = p->outParameters();
 
     string returnValueS = "returnValue";
-    bool outParamsHasOpt = false;
+    bool hasTaggedOutParams = false;
 
     if(ret)
     {
         //
         // Use empty scope to get full qualified names in types used with future declarations.
         //
-        futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
+        futureOutParams.push_back(typeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring |
                                                TypeContextCpp11));
 
-        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
+        lambdaOutParams.push_back(typeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring |
                                                TypeContextInParam | TypeContextCpp11));
 
-        outParamsHasOpt |= p->returnIsOptional();
+        hasTaggedOutParams |= p->returnIsOptional();
     }
 
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -6506,7 +6506,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
             params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
 
-            outParamsHasOpt |= (*q)->optional();
+            hasTaggedOutParams |= (*q)->optional();
 
             if((*q)->name() == "returnValue")
             {
@@ -6841,7 +6841,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // Generate a read method if there are more than one ret/out parameter. If there's
         // only one, we rely on the default read method from LambdaOutgoing
-        // except if the unique ret/out is optional or is an array/range.
+        // except if the unique ret/out is tagged or is an array/range.
         //
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", clScope) << " istr)";
         C << sb;
@@ -6855,10 +6855,10 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return v;";
         C << eb;
     }
-    else if(outParamsHasOpt || p->returnsClasses(false))
+    else if(hasTaggedOutParams || p->returnsClasses(false))
     {
         //
-        // If there's only one optional ret/out parameter, we still need to generate
+        // If there's only one tagged ret/out parameter, we still need to generate
         // a read method, we can't rely on the default read method which wouldn't
         // known which tag to use.
         //
