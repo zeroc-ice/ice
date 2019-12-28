@@ -1132,19 +1132,19 @@ data_member
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, value->value,
+        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, value->value,
+        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, value->value,
+        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     unit->currentContainer()->checkIntroduced(def->name, dm);
@@ -1213,7 +1213,7 @@ struct_data_member
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->value,
+    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->v,
                                             value->valueAsString, value->valueAsLiteral);
     unit->currentContainer()->checkIntroduced(ts->v.second, dm);
     $$ = dm;
@@ -2251,7 +2251,7 @@ const_initializer
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << intVal->v;
-    ConstDefTokPtr def = new ConstDefTok(type, type, sstr.str(), intVal->literal);
+    ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), intVal->literal);
     $$ = def;
 }
 | ICE_FLOATING_POINT_LITERAL
@@ -2260,7 +2260,7 @@ const_initializer
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << floatVal->v;
-    ConstDefTokPtr def = new ConstDefTok(type, type, sstr.str(), floatVal->literal);
+    ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), floatVal->literal);
     $$ = def;
 }
 | scoped_name
@@ -2271,7 +2271,7 @@ const_initializer
     if(cl.empty())
     {
         // Could be an enumerator
-        def = new ConstDefTok(TypePtr(0), SyntaxTreeBasePtr(0), scoped->v, scoped->v);
+        def = new ConstDefTok(SyntaxTreeBasePtr(0), scoped->v, scoped->v);
     }
     else
     {
@@ -2280,15 +2280,12 @@ const_initializer
         if(enumerator)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-            def = new ConstDefTok(enumerator->type(), enumerator, scoped->v, scoped->v);
+            def = new ConstDefTok(enumerator, scoped->v, scoped->v);
         }
         else if(constant)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
-            def = new ConstDefTok;
-            def->value = constant;
-            def->valueAsString = constant->value();
-            def->valueAsLiteral = constant->value();
+            def = new ConstDefTok(constant, constant->value(), const->value);
         }
         else
         {
@@ -2310,21 +2307,21 @@ const_initializer
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    ConstDefTokPtr def = new ConstDefTok(type, type, literal->v, literal->literal);
+    ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
     $$ = def;
 }
 | ICE_FALSE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    ConstDefTokPtr def = new ConstDefTok(type, type, "false", "false");
+    ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
     $$ = def;
 }
 | ICE_TRUE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    ConstDefTokPtr def = new ConstDefTok(type, type, "true", "true");
+    ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
     $$ = def;
 }
 ;
@@ -2338,7 +2335,7 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->value,
+    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 | ICE_CONST meta_data type '=' const_initializer
@@ -2347,7 +2344,7 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->value,
+    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;

@@ -170,15 +170,13 @@ class ConstDefTok : public GrammarBase
 public:
 
     ConstDefTok() { }
-    ConstDefTok(TypePtr type, SyntaxTreeBasePtr value, std::string valueAsString, std::string valueAsLiteral) :
-        type(type),
-        value(value),
+    ConstDefTok(SyntaxTreeBasePtr v, std::string valueAsString, std::string valueAsLiteral) :
+        v(v),
         valueAsString(valueAsString),
         valueAsLiteral(valueAsLiteral)
     { }
 
-    TypePtr type;
-    SyntaxTreeBasePtr value;
+    SyntaxTreeBasePtr v;
     std::string valueAsString;
     std::string valueAsLiteral;
 };
