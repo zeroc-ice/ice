@@ -162,14 +162,6 @@ typedef std::list<DataMemberPtr> DataMemberList;
 typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
 
-struct ConstDef
-{
-    TypePtr type;
-    SyntaxTreeBasePtr value;
-    std::string valueAsString;
-    std::string valueAsLiteral;
-};
-
 // ----------------------------------------------------------------------
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
