@@ -439,7 +439,7 @@ tag
         tag = static_cast<int>(i->v);
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
 | ICE_TAGGED_START scoped_name ')'
@@ -530,19 +530,19 @@ tag
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
 | ICE_TAGGED_START ')'
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
+    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_TAG
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
+    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 ;
@@ -565,7 +565,7 @@ optional
         tag = static_cast<int>(i->v);
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_START scoped_name ')'
@@ -656,19 +656,19 @@ optional
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    OptionalDefTokPtr m = new OptionalDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_START ')'
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
+    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
     unit->error("missing tag");
-    OptionalDefTokPtr m = new OptionalDefTok(-1); // Dummy
+    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 ;
@@ -678,7 +678,7 @@ tagged_type_id
 // ----------------------------------------------------------------------
 : tag type_id
 {
-    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
 //  OptionalPtr opt = OptionalPtr::dynamicCast(ts->v.first);
@@ -693,7 +693,7 @@ tagged_type_id
 }
 | optional type_id
 {
-    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
     // Infer the type to be optional for backwards compatability.
@@ -704,7 +704,7 @@ tagged_type_id
 | type_id
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    OptionalDefTokPtr m = new OptionalDefTok(-1);
+    TaggedDefTokPtr m = new TaggedDefTok(-1);
     m->type = ts->v.first;
     m->name = ts->v.second;
     $$ = m;
@@ -1103,48 +1103,48 @@ data_member
 // ----------------------------------------------------------------------
 : tagged_type_id
 {
-    OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
+        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
     unit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
 | tagged_type_id '=' const_initializer
 {
-    OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
+        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
+        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->optional, def->tag, value->v,
+        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     unit->currentContainer()->checkIntroduced(def->name, dm);
@@ -1280,7 +1280,7 @@ return_type
 // ----------------------------------------------------------------------
 : tag type
 {
-    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
 //  OptionalPtr opt = OptionalPtr::dynamicCast($2);
 //  if(!opt)
@@ -1293,7 +1293,7 @@ return_type
 }
 | optional type
 {
-    OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
     // Infer the type to be optional for backwards compatability.
     m->type = new Optional(TypePtr::dynamicCast($2));
@@ -1301,13 +1301,13 @@ return_type
 }
 | type
 {
-    OptionalDefTokPtr m = new OptionalDefTok(-1);
+    TaggedDefTokPtr m = new TaggedDefTok(-1);
     m->type = TypePtr::dynamicCast($1);
     $$ = m;
 }
 | ICE_VOID
 {
-    OptionalDefTokPtr m = new OptionalDefTok(-1);
+    TaggedDefTokPtr m = new TaggedDefTok(-1);
     $$ = m;
 }
 ;
@@ -1317,12 +1317,12 @@ operation_preamble
 // ----------------------------------------------------------------------
 : return_type ICE_IDENT_OP
 {
-    OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag);
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
             cl->checkIntroduced(name, op);
@@ -1341,12 +1341,12 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_IDENT_OP
 {
-    OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast($2);
+    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag,
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
@@ -1366,12 +1366,12 @@ operation_preamble
 }
 | return_type ICE_KEYWORD_OP
 {
-    OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast($1);
+    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag);
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
             unit->pushContainer(op);
@@ -1390,12 +1390,12 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_KEYWORD_OP
 {
-    OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast($2);
+    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->optional, returnType->tag,
+        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
@@ -1943,11 +1943,11 @@ parameters
 | out_qualifier meta_data tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast($3);
+    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast($3);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->optional, tsp->tag);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
         if(!metaData->v.empty())
@@ -1959,11 +1959,11 @@ parameters
 | parameters ',' out_qualifier meta_data tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast($5);
+    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast($5);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->optional, tsp->tag);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, pd);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
         if(!metaData->v.empty())

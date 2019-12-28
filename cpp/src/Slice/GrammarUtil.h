@@ -21,7 +21,7 @@ class ExceptionListTok;
 class ClassListTok;
 class EnumeratorListTok;
 class ConstDefTok;
-class OptionalDefTok;
+class TaggedDefTok;
 class ClassIdTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
@@ -35,7 +35,7 @@ typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
-typedef ::IceUtil::Handle<OptionalDefTok> OptionalDefTokPtr;
+typedef ::IceUtil::Handle<TaggedDefTok> TaggedDefTokPtr;
 typedef ::IceUtil::Handle<ClassIdTok> ClassIdTokPtr;
 
 // ----------------------------------------------------------------------
@@ -182,22 +182,22 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// OptionalDefTok
+// TaggedDefTok
 // ----------------------------------------------------------------------
 
-class OptionalDefTok : public GrammarBase
+class TaggedDefTok : public GrammarBase
 {
 public:
 
-    OptionalDefTok() { }
-    OptionalDefTok(int tag) :
-        optional(tag >= 0),
+    TaggedDefTok() { }
+    TaggedDefTok(int tag) :
+        isTagged(tag >= 0),
         tag(tag)
     { }
 
     TypePtr type;
     std::string name;
-    bool optional;
+    bool isTagged;
     int tag;
 };
 
