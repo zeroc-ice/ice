@@ -607,7 +607,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Data members are represented as a tuple:
         //
-        //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+        //   ('MemberName', MemberMetaData, MemberType, IsTagged, Tag)
         //
         // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
         //
@@ -1028,7 +1028,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 // The return type has the same format as an in/out parameter:
                 //
-                // MetaData, Type, Optional?, OptionalTag
+                // MetaData, Type, IsTagged, Tag
                 //
                 _out << "((), ";
                 writeType(returnType);
@@ -1187,7 +1187,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+    //   ('MemberName', MemberMetaData, MemberType, IsTagged, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
