@@ -1,7 +1,7 @@
 #include <IceUtil/ScannerConfig.h>
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 
-#line 4 "src/Slice/Scanner.cpp"
+#line 3 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -855,9 +855,9 @@ int checkIdentifier(string&);
 
 #define YY_USER_INIT initScanner();
 
-#line 858 "src/Slice/Scanner.cpp"
+#line 857 "src/Slice/Scanner.cpp"
 
-#line 860 "src/Slice/Scanner.cpp"
+#line 859 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -1082,7 +1082,7 @@ YY_DECL
 #line 96 "src/Slice/Scanner.l"
 
 
-#line 1085 "src/Slice/Scanner.cpp"
+#line 1084 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1314,9 +1314,13 @@ YY_RULE_SETUP
         unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OP;
     }
+    else if(st == ICE_TAG)
+    {
+        return ICE_TAG_START;
+    }
     else if(st == ICE_OPTIONAL)
     {
-        return ICE_OPTIONAL_OP;
+        return ICE_OPTIONAL_START;
     }
     else
     {
@@ -1326,7 +1330,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 236 "src/Slice/Scanner.l"
+#line 240 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1337,7 +1341,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 244 "src/Slice/Scanner.l"
+#line 248 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1545,7 +1549,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 449 "src/Slice/Scanner.l"
+#line 453 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1564,7 +1568,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 465 "src/Slice/Scanner.l"
+#line 469 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1598,7 +1602,7 @@ YY_RULE_SETUP
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 495 "src/Slice/Scanner.l"
+#line 499 "src/Slice/Scanner.l"
 {
     // Ignore white-space
 
@@ -1614,7 +1618,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 508 "src/Slice/Scanner.l"
+#line 512 "src/Slice/Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
 
@@ -1623,7 +1627,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 514 "src/Slice/Scanner.l"
+#line 518 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(yytext[0] < 32 || yytext[0] > 126)
@@ -1642,10 +1646,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 530 "src/Slice/Scanner.l"
+#line 534 "src/Slice/Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1648 "src/Slice/Scanner.cpp"
+#line 1651 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -2656,7 +2660,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 530 "src/Slice/Scanner.l"
+#line 534 "src/Slice/Scanner.l"
 
 
 namespace Slice {
@@ -2694,6 +2698,10 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
+    keywordMap["tag"] = ICE_TAG;
+    // 'optional' is kept as an alias for 'tag' for backwards compatability.
+    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
     keywordMap["optional"] = ICE_OPTIONAL;
     keywordMap["Value"] = ICE_VALUE;
 }

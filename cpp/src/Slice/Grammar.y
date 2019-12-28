@@ -424,7 +424,7 @@ type_id
 // ----------------------------------------------------------------------
 tag
 // ----------------------------------------------------------------------
-: ICE_TAGGED_START ICE_INTEGER_LITERAL ')'
+: ICE_TAG_START ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
 
@@ -442,7 +442,7 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_TAGGED_START scoped_name ')'
+| ICE_TAG_START scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
 
@@ -533,7 +533,7 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_TAGGED_START ')'
+| ICE_TAG_START ')'
 {
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
@@ -604,7 +604,7 @@ optional
                     os << " or";
                 }
 
-                os << " `" << (*p)->scoped() << "'";
+                os << " `" << p->scoped() << "'";
             }
             unit->error(os.str());
         }
@@ -2289,7 +2289,7 @@ const_initializer
         else if(constant)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
-            def = new ConstDefTok(constant, constant->value(), const->value);
+            def = new ConstDefTok(constant, constant->value(), constant->value());
         }
         else
         {

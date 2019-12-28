@@ -170,10 +170,10 @@ class ConstDefTok : public GrammarBase
 public:
 
     ConstDefTok() { }
-    ConstDefTok(SyntaxTreeBasePtr v, std::string valueAsString, std::string valueAsLiteral) :
-        v(v),
-        valueAsString(valueAsString),
-        valueAsLiteral(valueAsLiteral)
+    ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue, std::string literalValue) :
+        v(value),
+        valueAsString(stringValue),
+        valueAsLiteral(literalValue)
     { }
 
     SyntaxTreeBasePtr v;
@@ -190,9 +190,9 @@ class TaggedDefTok : public GrammarBase
 public:
 
     TaggedDefTok() { }
-    TaggedDefTok(int tag) :
-        isTagged(tag >= 0),
-        tag(tag)
+    TaggedDefTok(int t) :
+        isTagged(t >= 0),
+        tag(t)
     { }
 
     TypePtr type;
