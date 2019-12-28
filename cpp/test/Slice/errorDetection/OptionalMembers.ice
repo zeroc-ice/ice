@@ -64,6 +64,7 @@ class Ex
     tag(E::e2) int m14;        // ok
     tag(e3) int m15;           // ok
     tag(4) int m16;            // duplicate tag
+    optional(123) int m17;     // deprecated
 }
 
 class BaseEx
