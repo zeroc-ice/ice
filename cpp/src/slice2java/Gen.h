@@ -38,7 +38,7 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool = false);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool = false);
 
     //
     // Compose the argument lists for an operation.
@@ -46,7 +46,7 @@ protected:
     std::vector<std::string> getArgs(const OperationPtr&);
     std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
 
-    void writeMarshalProxyParams(::IceUtilInternal::Output&, const std::string&, const OperationPtr&, bool);
+    void writeMarshalProxyParams(::IceUtilInternal::Output&, const std::string&, const OperationPtr&);
     void writeUnmarshalProxyResults(::IceUtilInternal::Output&, const std::string&, const OperationPtr&);
     void writeMarshalServantResults(::IceUtilInternal::Output&, const std::string&, const OperationPtr&,
                                     const std::string&);

@@ -150,7 +150,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     else
     {
         TypePtr type = op->returnType();
-        bool optional = op->returnIsOptional();
+        bool isReturnTagged = op->returnIsOptional();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -158,14 +158,14 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                optional = outParams.front()->optional();
+                isReturnTagged = outParams.front()->optional();
             }
         }
         if(type)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
             assert(cl);
-            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), optional, object);
+            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), isReturnTagged, object);
         }
         else
         {
@@ -303,47 +303,47 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             p->optional(), false) << ' ' << fixKwd(name) << ';';
     }
 
-    ParamDeclList required, optional;
-    op->outParameters(required, optional);
+    ParamDeclList requiredParams, taggedParams;
+    op->outParameters(requiredParams, taggedParams);
 
     out << sp << nl << "public void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
     out << sb;
 
     int iter = 0;
-    for(const auto& pli : required)
+    for(const auto& pli : requiredParams)
     {
         const string paramName = fixKwd(pli->name());
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalNone, false, 0, "this." + paramName, true,
+        writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, "this." + paramName, true,
                                   iter, "", pli->getMetaData());
     }
 
     bool checkReturnType = op->returnIsOptional();
     if(ret && !checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, true, iter, "",
+        writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "",
                                   op->getMetaData());
     }
 
     //
-    // Handle optional parameters.
+    // Handle tagged parameters.
     //
-    for(const auto& pli : optional)
+    for(const auto& pli : taggedParams)
     {
         if(checkReturnType && op->returnTag() < pli->tag())
         {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true,
+            writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true,
                                       iter, "", op->getMetaData());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalOutParam, true, pli->tag(),
+        writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(),
                                   "this." + paramName, true, iter, "", pli->getMetaData());
     }
 
     if(checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter,
+        writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true, iter,
                                   "", op->getMetaData());
     }
 
@@ -353,11 +353,11 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     out << sb;
 
     iter = 0;
-    for(const auto& pli : required)
+    for(const auto& pli : requiredParams)
     {
         const string paramName = fixKwd(pli->name());
         const string patchParams = getPatcher(pli->type(), package, "this." + paramName);
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalNone, false, 0, "this." + paramName, false,
+        writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, "this." + paramName, false,
                                   iter, "", pli->getMetaData(), patchParams);
     }
 
@@ -365,34 +365,34 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     if(ret && !checkReturnType)
     {
         const string patchParams = getPatcher(ret, package, retval);
-        writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, false, iter, "",
+        writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, false, iter, "",
                                   op->getMetaData(), patchParams);
     }
 
     //
-    // Handle optional parameters.
+    // Handle tagged parameters.
     //
 
-    for(const auto& pli : optional)
+    for(const auto& pli : taggedParams)
     {
         if(checkReturnType && op->returnTag() < pli->tag())
         {
             const string patchParams = getPatcher(ret, package, retval);
-            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false,
+            writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, false,
                                       iter, "", op->getMetaData(), patchParams);
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
         const string patchParams = getPatcher(pli->type(), package, paramName);
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalOutParam, true, pli->tag(),
+        writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(),
                                   "this." + paramName, false, iter, "", pli->getMetaData(), patchParams);
     }
 
     if(checkReturnType)
     {
         const string patchParams = getPatcher(ret, package, retval);
-        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false,
+        writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, false,
                                   iter, "", op->getMetaData(), patchParams);
     }
 
@@ -467,44 +467,44 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
         << currentParamName << ");";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
-    ParamDeclList required, optional;
-    op->outParameters(required, optional);
+    ParamDeclList requiredParams, taggedParams;
+    op->outParameters(requiredParams, taggedParams);
     int iter = 0;
-    for(const auto& pli : required)
+    for(const auto& pli : requiredParams)
     {
         const string paramName = fixKwd(pli->name());
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalNone, false, 0, paramName, true, iter,
+        writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, true, iter,
                                   "_ostr", pli->getMetaData());
     }
 
     bool checkReturnType = op->returnIsOptional();
     if(ret && !checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, true, iter, "_ostr",
+        writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "_ostr",
                                   op->getMetaData());
     }
 
     //
-    // Handle optional parameters.
+    // Handle tagged parameters.
     //
 
-    for(const auto& pli : optional)
+    for(const auto& pli : taggedParams)
     {
         if(checkReturnType && op->returnTag() < pli->tag())
         {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true,
+            writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true,
                                       iter, "_ostr", op->getMetaData());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalOutParam, true, pli->tag(), paramName,
+        writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(), paramName,
                                   true, iter, "_ostr", pli->getMetaData());
     }
 
     if(checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter,
+        writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true, iter,
                                   "_ostr", op->getMetaData());
     }
 
@@ -531,7 +531,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
 
 void
 Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const string& package, const string& name,
-                                    bool optionalMapping)
+                                    bool isTagged)
 {
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -546,7 +546,7 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     {
         clsName = getUnqualified(cl, package);
     }
-    if(optionalMapping)
+    if(isTagged)
     {
         clsName = addAnnotation(clsName, "@Nullable");
     }
@@ -621,7 +621,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 }
 
 vector<string>
-Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool optionalMapping, bool internal)
+Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool internal)
 {
     vector<string> params;
 
@@ -629,7 +629,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
     for(const auto& q : inParams)
     {
         const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(),
-                                               optionalMapping && q->optional());
+                                                        q->optional());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + q->name() : fixKwd(q->name())));
     }
 
@@ -666,26 +666,25 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 }
 
 void
-Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op,
-                                            bool optionalMapping)
+Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op)
 {
     int iter = 0;
-    ParamDeclList required, optional;
-    op->inParameters(required, optional);
-    for(const auto pli : required)
+    ParamDeclList requiredParams, taggedParams;
+    op->inParameters(requiredParams, taggedParams);
+    for(const auto pli : requiredParams)
     {
         string paramName = "iceP_" + pli->name();
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalNone, false, 0, paramName, true,
+        writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, true,
                                   iter, "", pli->getMetaData());
     }
 
     //
-    // Handle optional parameters.
+    // Handle tagged parameters.
     //
-    for(const auto& pli : optional)
+    for(const auto& pli : taggedParams)
     {
-        writeMarshalUnmarshalCode(out, package, pli->type(), OptionalInParam, optionalMapping,
-                                  pli->tag(), "iceP_" + pli->name(), true, iter, "", pli->getMetaData());
+        writeMarshalUnmarshalCode(out, package, pli->type(), TaggedInParam, pli->tag(), "iceP_" + pli->name(), true,
+                                  iter, "", pli->getMetaData());
     }
 
     if(op->sendsClasses(false))
@@ -716,21 +715,21 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
     {
         string resultType = getResultType(op, package, false, false);
 
-        bool optional;
         TypePtr type;
+        bool isTagged;
         int tag;
         StringList metaData;
         if(ret)
         {
             type = ret;
-            optional = op->returnIsOptional();
+            isTagged = op->returnIsOptional();
             tag = op->returnTag();
             metaData = op->getMetaData();
         }
         else
         {
             assert(outParams.size() == 1);
-            optional = outParams.front()->optional();
+            isTagged = outParams.front()->optional();
             type = outParams.front()->type();
             tag = outParams.front()->tag();
             metaData = outParams.front()->getMetaData();
@@ -742,21 +741,21 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
 
         if(val)
         {
-            allocatePatcher(out, type, package, name, optional);
+            allocatePatcher(out, type, package, name, isTagged);
         }
         else
         {
             out << nl << resultType << ' ' << name << ';';
         }
         string patchParams = getPatcher(type, package, name + ".value");
-        if(optional)
+        if(isTagged)
         {
-            writeMarshalUnmarshalCode(out, package, type, ret ? OptionalReturnParam : OptionalOutParam, true,
+            writeMarshalUnmarshalCode(out, package, type, ret ? TaggedReturnParam : TaggedOutParam,
                                       tag, name, false, iter, "", metaData, patchParams);
         }
         else
         {
-            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, name, false, iter, "", metaData,
+            writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, name, false, iter, "", metaData,
                                       patchParams);
         }
 
@@ -787,31 +786,28 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
     else
     {
         const ParamDeclList params = op->outParameters();
-        bool optional;
-        OptionalMode mode;
+        TagMode mode;
         TypePtr type;
         int tag;
         StringList metaData;
         if(op->returnType())
         {
             type = op->returnType();
-            optional = op->returnIsOptional();
-            mode = optional ? OptionalReturnParam : OptionalNone;
+            mode = op->returnIsOptional() ? TaggedReturnParam : NotTagged;
             tag = op->returnTag();
             metaData = op->getMetaData();
         }
         else
         {
             assert(params.size() == 1);
-            optional = params.front()->optional();
-            mode = optional ? OptionalOutParam : OptionalNone;
+            mode = params.front()->optional() ? TaggedOutParam : NotTagged;
             type = params.front()->type();
             tag = params.front()->tag();
             metaData = params.front()->getMetaData();
         }
 
         int iter = 0;
-        writeMarshalUnmarshalCode(out, package, type, mode, true, tag, param, true, iter, "", metaData);
+        writeMarshalUnmarshalCode(out, package, type, mode, tag, param, true, iter, "", metaData);
     }
 
     if(op->returnsClasses(false))
@@ -860,7 +856,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
         assert(!forStruct);
         out << nl << "if(_" << member->name() << ")";
         out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalInParam, false, member->tag(),
+        writeMarshalUnmarshalCode(out, package, member->type(), TaggedInParam, member->tag(),
                                   fixKwd(member->name()), true, iter, "ostr_", member->getMetaData());
         out << eb;
     }
@@ -873,7 +869,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
             memberName = "this." + memberName;
         }
 
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, memberName,
+        writeMarshalUnmarshalCode(out, package, member->type(), NotTagged, 0, memberName,
                                   true, iter, stream, member->getMetaData());
     }
 }
@@ -890,9 +886,9 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     {
         assert(!forStruct);
         out << nl << "if(_" << member->name() << " = istr_.readOptional(" << member->tag() << ", "
-            << getOptionalFormat(member->type()) << "))";
+            << getTagFormat(member->type()) << "))";
         out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false,
+        writeMarshalUnmarshalCode(out, package, member->type(), TaggedMember, 0, fixKwd(member->name()), false,
                                   iter, "istr_", member->getMetaData(), patchParams);
         out << eb;
     }
@@ -905,7 +901,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
             memberName = "this." + memberName;
         }
 
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, memberName, false,
+        writeMarshalUnmarshalCode(out, package, member->type(), NotTagged, 0, memberName, false,
                                   iter, stream, member->getMetaData(), patchParams);
     }
 }
@@ -1113,21 +1109,21 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            ParamDeclList required, optional;
-            op->inParameters(required, optional);
+            ParamDeclList requiredParams, taggedParams;
+            op->inParameters(requiredParams, taggedParams);
             int iter = 0;
-            for(const auto& pli : required)
+            for(const auto& pli : requiredParams)
             {
                 const string paramName = isValue(pli->type()) ? ("icePP_" + pli->name()) : "iceP_" + pli->name();
                 const string patchParams = getPatcher(pli->type(), package, paramName + ".value");
-                writeMarshalUnmarshalCode(out, package, pli->type(), OptionalNone, false, 0, paramName, false,
+                writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, false,
                                           iter, "", pli->getMetaData(), patchParams);
             }
-            for(const auto& pli : optional)
+            for(const auto& pli : taggedParams)
             {
                 const string paramName = isValue(pli->type()) ? ("icePP_" + pli->name()) : "iceP_" + pli->name();
                 const string patchParams = getPatcher(pli->type(), package, paramName + ".value");
-                writeMarshalUnmarshalCode(out, package, pli->type(), OptionalInParam, true, pli->tag(),
+                writeMarshalUnmarshalCode(out, package, pli->type(), TaggedInParam, pli->tag(),
                                           paramName, false, iter, "", pli->getMetaData(), patchParams);
             }
             if(op->sendsClasses(false))
@@ -1353,7 +1349,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     int iter;
     DataMemberList members = p->dataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    DataMemberList taggedMembers = p->orderedOptionalDataMembers();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1402,7 +1398,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
             writeMarshalDataMember(out, package, d, iter);
         }
     }
-    for(const auto& d : optionalMembers)
+    for(const auto& d : taggedMembers)
     {
         writeMarshalDataMember(out, package, d, iter);
     }
@@ -1431,7 +1427,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
             writeUnmarshalDataMember(out, package, d, iter);
         }
     }
-    for(const auto& d : optionalMembers)
+    for(const auto& d : taggedMembers)
     {
         writeUnmarshalDataMember(out, package, d, iter);
     }
@@ -2308,14 +2304,14 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface() && !allDataMembers.empty())
     {
-        bool hasOptionalMembers = false;
+        bool hasTaggedMembers = false;
         bool hasRequiredMembers = false;
 
         for(const auto& d : allDataMembers)
         {
             if(d->optional())
             {
-                hasOptionalMembers = true;
+                hasTaggedMembers = true;
             }
             else
             {
@@ -2347,7 +2343,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 baseDataMembers = baseClass->allDataMembers();
             }
 
-            if(hasRequiredMembers && hasOptionalMembers)
+            if(hasRequiredMembers && hasTaggedMembers)
             {
                 //
                 // Generate a constructor accepting parameters for just the required members.
@@ -2584,36 +2580,36 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Check for annotated types to import the corresponding annotations.
     //
-    bool hasOptionalDataMembers = false;
-    bool hasRequiredDataMembers = false;
+    bool hasTaggedMembers = false;
+    bool hasRequiredMembers = false;
     for(const auto& d : p->allDataMembers())
     {
         if(d->optional())
         {
-            hasOptionalDataMembers = true;
-            if(hasRequiredDataMembers)
+            hasTaggedMembers = true;
+            if(hasRequiredMembers)
             {
                 break;
             }
         }
         else
         {
-            hasRequiredDataMembers = true;
-            if(hasOptionalDataMembers)
+            hasRequiredMembers = true;
+            if(hasTaggedMembers)
             {
                 break;
             }
         }
     }
 
-    if(hasOptionalDataMembers || hasRequiredDataMembers)
+    if(hasTaggedMembers || hasRequiredMembers)
     {
         out << sp;
-        if(hasRequiredDataMembers)
+        if(hasRequiredMembers)
         {
             out << nl << "import org.checkerframework.checker.nullness.qual.MonotonicNonNull;";
         }
-        if(hasOptionalDataMembers)
+        if(hasTaggedMembers)
         {
             out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
         }
@@ -2660,20 +2656,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDataMemberInitializers(out, members, package);
     out << eb;
 
-    bool hasOptionalMembers = false;
-    bool hasRequiredMembers = false;
-    for(const auto& d : allDataMembers)
-    {
-        if(d->optional())
-        {
-            hasOptionalMembers = true;
-        }
-        else
-        {
-            hasRequiredMembers = true;
-        }
-    }
-
     if(!allDataMembers.empty())
     {
         DataMemberList baseDataMembers;
@@ -2687,7 +2669,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         //
         if(allDataMembers.size() < 255)
         {
-            if(hasRequiredMembers && hasOptionalMembers)
+            if(hasRequiredMembers && hasTaggedMembers)
             {
                 bool hasBaseRequired = false;
                 for(const auto& d : baseDataMembers)
@@ -2699,7 +2681,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     }
                 }
 
-                DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+                DataMemberList taggedMembers = p->orderedOptionalDataMembers();
 
                 //
                 // Generate a constructor accepting parameters for just the required members.
@@ -2742,7 +2724,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                         out << nl << "this." << paramName << " = " << paramName << ';';
                     }
                 }
-                writeDataMemberInitializers(out, optionalMembers, package);
+                writeDataMemberInitializers(out, taggedMembers, package);
                 out << eb;
 
                 //
@@ -2783,7 +2765,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                             out << nl << "this." << paramName << " = " << paramName << ';';
                         }
                     }
-                    writeDataMemberInitializers(out, optionalMembers, package);
+                    writeDataMemberInitializers(out, taggedMembers, package);
                     out << eb;
                 }
             }
@@ -2898,7 +2880,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     bool preserved = p->hasMetaData("preserve-slice");
 
     DataMemberList members = p->dataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    DataMemberList taggedMembers = p->orderedOptionalDataMembers();
     int iter;
 
     if(preserved && !basePreserved)
@@ -2946,7 +2928,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             writeMarshalDataMember(out, package, d, iter);
         }
     }
-    for(const auto& d : optionalMembers)
+    for(const auto& d : taggedMembers)
     {
         writeMarshalDataMember(out, package, d, iter);
     }
@@ -2974,7 +2956,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             writeUnmarshalDataMember(out, package, d, iter);
         }
     }
-    for(const auto& d : optionalMembers)
+    for(const auto& d : taggedMembers)
     {
         writeUnmarshalDataMember(out, package, d, iter);
     }
@@ -3284,7 +3266,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(p->isVariableLength())
     {
@@ -3305,7 +3287,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "static public " << addAnnotation(name, "@Nullable") << " ice_read(" <<
         getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(p->isVariableLength())
     {
@@ -3382,14 +3364,14 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const string name = fixKwd(p->name());
     const StringList metaData = p->getMetaData();
     const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
-    const bool optional = p->optional();
+    const bool isTagged = p->optional();
     const TypePtr type = p->type();
     const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
 
     const string typeS = typeToString(type, TypeModeMember, getPackage(contained), metaData);
-    // Optional data members are only allowed in classes and exceptions.
+    // Tagged data members are only allowed in classes and exceptions.
     const string typeN = (cls || ex) ?
-                             typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metaData, optional)
+                             typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metaData, isTagged)
                              : typeToString(type, TypeModeMember, getPackage(contained), metaData);
 
     Output& out = output();
@@ -3411,7 +3393,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         out << nl << "protected " << typeN << ' ' << name << ';';
     }
-    else if(optional)
+    else if(isTagged)
     {
         out << nl << "private " << typeN << ' ' << name << ';';
     }
@@ -3420,7 +3402,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "public " << typeN << ' ' << name << ';';
     }
 
-    if(optional)
+    if(isTagged)
     {
         out << nl << "private boolean _" << p->name() << ';';
     }
@@ -3428,7 +3410,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     //
     // Getter/Setter.
     //
-    if(getSet || optional)
+    if(getSet || isTagged)
     {
         string capName = p->name();
         capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -3448,7 +3430,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 return;
             }
-            if(optional &&
+            if(isTagged &&
                (!validateMethod(ops, "has" + capName, 0, file, line) ||
                 !validateMethod(ops, "clear" + capName, 0, file, line) ||
                 !validateMethod(ops, "optional" + capName, 0, file, line)))
@@ -3468,7 +3450,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         }
         out << nl << "public " << typeS << " get" << capName << "()";
         out << sb;
-        if(optional)
+        if(isTagged)
         {
             out << nl << "if(!_" << p->name() << ')';
             out << sb;
@@ -3489,7 +3471,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         }
         out << nl << "public void set" << capName << '(' << typeS << " " << name << ')';
         out << sb;
-        if(optional)
+        if(isTagged)
         {
             out << nl << "_" << p->name() << " = true;";
         }
@@ -3497,9 +3479,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << eb;
 
         //
-        // Generate hasFoo and clearFoo for optional member.
+        // Generate hasFoo and clearFoo for tagged member.
         //
-        if(optional)
+        if(isTagged)
         {
             out << sp;
             writeDocComment(out, p->unit(), dc);
@@ -3578,7 +3560,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             }
             out << nl << "public boolean is" << capName << "()";
             out << sb;
-            if(optional)
+            if(isTagged)
             {
                 out << nl << "if(!_" << p->name() << ')';
                 out << sb;
@@ -3616,7 +3598,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 }
                 out << nl << "public " << elem << " get" << capName << "(int index)";
                 out << sb;
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << "if(!_" << p->name() << ')';
                     out << sb;
@@ -3636,7 +3618,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 }
                 out << nl << "public void set" << capName << "(int index, " << elem << " val)";
                 out << sb;
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << "if(!_" << p->name() << ')';
                     out << sb;
@@ -3751,7 +3733,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     out << nl << "ice_write(ostr, v);";
     out << eb;
@@ -3762,7 +3744,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "public static " << addAnnotation(name, "@Nullable") << " ice_read("
         << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     out << nl << "return ice_read(istr);";
     out << eb;
@@ -3996,7 +3978,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         out << nl << "if(v != null)";
         out << sb;
-        out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+        out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
         out << sb;
         if(p->type()->isVariableLength())
         {
@@ -4046,7 +4028,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+        out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
         out << sb;
         if(p->type()->isVariableLength())
         {
@@ -4119,7 +4101,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     TypePtr keyType = p->keyType();
     TypePtr valueType = p->valueType();
@@ -4144,7 +4126,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static " << addAnnotation(formalType, "@Nullable") << " read("
         << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(keyType->isVariableLength() || valueType->isVariableLength())
     {
@@ -4641,7 +4623,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const TypePtr ret = p->returnType();
     const string retS = getResultType(p, package, false, false);
     const bool returnsParams = ret || !p->outParameters().empty();
-    const vector<string> params = getParamsProxy(p, package, true);
+    const vector<string> params = getParamsProxy(p, package);
     const vector<string> args = getInArgs(p);
 
     ExceptionList throws = p->throws();
@@ -4764,7 +4746,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     out << sp;
     writeHiddenProxyDocComment(out, p);
-    out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar << getParamsProxy(p, package, true, true)
+    out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar << getParamsProxy(p, package, true)
         << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
     out << sb;
@@ -4779,7 +4761,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         out << "ostr -> {";
         out.inc();
-        writeMarshalProxyParams(out, package, p, true);
+        writeMarshalProxyParams(out, package, p);
         out.dec();
         out << nl << '}';
     }
@@ -5057,7 +5039,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
     else
     {
         TypePtr type = op->returnType();
-        bool optional = op->returnIsOptional();
+        bool isReturnTagged = op->returnIsOptional();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -5065,12 +5047,12 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                optional = outParams.front()->optional();
+                isReturnTagged = outParams.front()->optional();
             }
         }
         if(type)
         {
-            out << nl << retS << " r = " << getDefaultValue(package, type, optional) << ';';
+            out << nl << retS << " r = " << getDefaultValue(package, type, isReturnTagged) << ';';
         }
         else
         {
