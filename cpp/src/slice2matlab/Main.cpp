@@ -1574,7 +1574,7 @@ private:
     {
         string fixedName;
         TypePtr type;
-        bool optional;
+        bool isTagged;
         int tag;
         int pos; // Only used for out params
         ParamDeclPtr param; // 0 == return value
@@ -1586,7 +1586,7 @@ private:
     ParamInfoList getAllOutParams(const OperationPtr&);
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-    string getOptionalFormat(const TypePtr&);
+    string getTagFormat(const TypePtr&);
     string getFormatType(FormatType);
 
     void marshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
@@ -1845,7 +1845,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "methods(Access=protected)";
         out.inc();
 
-        const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+        const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
 
         out << nl << "function iceWriteImpl(obj, os)";
         out.inc();
@@ -1858,7 +1858,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
             }
         }
-        for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
         {
             marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
         }
@@ -1886,7 +1886,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
         }
-        for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
         {
             if(isClass((*d)->type()))
             {
@@ -2030,10 +2030,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            ParamInfoList requiredInParams, optionalInParams;
-            getInParams(op, requiredInParams, optionalInParams);
-            ParamInfoList requiredOutParams, optionalOutParams;
-            getOutParams(op, requiredOutParams, optionalOutParams);
+            ParamInfoList requiredInParams, taggedInParams;
+            getInParams(op, requiredInParams, taggedInParams);
+            ParamInfoList requiredOutParams, taggedOutParams;
+            getOutParams(op, requiredOutParams, taggedOutParams);
             const ParamInfoList allInParams = getAllInParams(op);
             const ParamInfoList allOutParams = getAllOutParams(op);
             const bool twowayOnly = op->returnsData();
@@ -2111,9 +2111,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     marshal(out, "os_", r->fixedName, r->type, false, 0);
                 }
-                for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
                 {
-                    marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
+                    marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
                 }
                 if(op->sendsClasses(false))
                 {
@@ -2148,7 +2148,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 // * unmarshal all required out parameters
                 // * unmarshal the required return value (if any)
-                // * unmarshal all optional out parameters (this includes an optional return value)
+                // * unmarshal all tagged out parameters (this includes a tagged return value)
                 //
                 ParamInfoList classParams;
                 ParamInfoList convertParams;
@@ -2200,9 +2200,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
                 //
-                // Now unmarshal all optional out parameters. They are already sorted by tag.
+                // Now unmarshal all tagged out parameters. They are already sorted by tag.
                 //
-                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
                 {
                     string name;
                     if(isClass(r->type))
@@ -2215,7 +2215,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         name = r->fixedName;
                     }
-                    unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                    unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
 
                     if(needsConversion(r->type))
                     {
@@ -2238,7 +2238,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
                 {
-                    convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
+                    convertValueType(out, r->fixedName, r->fixedName, r->type, r->isTagged);
                 }
             }
 
@@ -2274,9 +2274,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     marshal(out, "os_", r->fixedName, r->type, false, 0);
                 }
-                for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
                 {
-                    marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
+                    marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
                 }
                 if(op->sendsClasses(false))
                 {
@@ -2295,7 +2295,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 // * unmarshal all required out parameters
                 // * unmarshal the required return value (if any)
-                // * unmarshal all optional out parameters (this includes an optional return value)
+                // * unmarshal all tagged out parameters (this includes an tagged return value)
                 //
                 for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
                 {
@@ -2311,7 +2311,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             name = r->fixedName;
                         }
-                        unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                        unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
                     }
                 }
                 //
@@ -2333,9 +2333,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     unmarshal(out, "is_", name, r->type, false, -1);
                 }
                 //
-                // Now unmarshal all optional out parameters. They are already sorted by tag.
+                // Now unmarshal all tagged out parameters. They are already sorted by tag.
                 //
-                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
                 {
                     string name;
                     if(isClass(r->type))
@@ -2347,7 +2347,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         name = r->fixedName;
                     }
-                    unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                    unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
                 }
                 if(op->returnsClasses(false))
                 {
@@ -2364,14 +2364,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         ostringstream dest;
                         dest << "varargout{" << r->pos << "}";
-                        convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
+                        convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
                     }
                     else
                     {
                         out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
                     }
                 }
-                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
                 {
                     if(isClass(r->type))
                     {
@@ -2381,7 +2381,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         ostringstream dest;
                         dest << "varargout{" << r->pos << "}";
-                        convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
+                        convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
                     }
                     else
                     {
@@ -2761,8 +2761,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
         }
     }
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
     {
         string m = fixExceptionMember((*q)->name());
         if(isClass((*q)->type()))
@@ -2902,7 +2902,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "function r = ice_readOpt(is, tag)";
     out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if is.readOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(p->isVariableLength())
     {
@@ -2938,7 +2938,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "function ice_writeOpt(os, tag, v)";
     out.inc();
-    out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(p->isVariableLength())
     {
@@ -3044,7 +3044,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 
     out << nl << "function writeOpt(os, tag, seq)";
     out.inc();
-    out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(p->type()->isVariableLength())
     {
@@ -3169,7 +3169,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 
     out << nl << "function r = readOpt(is, tag)";
     out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if is.readOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(p->type()->isVariableLength())
     {
@@ -3330,7 +3330,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << nl << "function writeOpt(os, tag, d)";
     out.inc();
-    out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(key->isVariableLength() || value->isVariableLength())
     {
@@ -3416,7 +3416,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << nl << "function r = readOpt(is, tag)";
     out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if is.readOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     if(key->isVariableLength() || value->isVariableLength())
     {
@@ -3554,7 +3554,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 
     out << nl << "function ice_writeOpt(os, tag, v)";
     out.inc();
-    out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     out << nl << abs << ".ice_write(os, v);";
     out.dec();
@@ -3571,7 +3571,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 
     out << nl << "function r = ice_readOpt(is, tag)";
     out.inc();
-    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+    out << nl << "if is.readOptional(tag, " << getTagFormat(p) << ")";
     out.inc();
     out << nl << "r = " << abs << ".ice_read(is);";
     out.dec();
@@ -3710,7 +3710,7 @@ CodeVisitor::getAllInParams(const OperationPtr& op)
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
-        info.optional = (*p)->optional();
+        info.isTagged = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
         r.push_back(info);
@@ -3719,23 +3719,23 @@ CodeVisitor::getAllInParams(const OperationPtr& op)
 }
 
 void
-CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
+CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& requiredParams, ParamInfoList& taggedParams)
 {
     const ParamInfoList params = getAllInParams(op);
     for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if(p->isTagged)
         {
-            optional.push_back(*p);
+            taggedParams.push_back(*p);
         }
         else
         {
-            required.push_back(*p);
+            requiredParams.push_back(*p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
     class SortFn
     {
@@ -3745,7 +3745,7 @@ CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamI
             return lhs.tag < rhs.tag;
         }
     };
-    optional.sort(SortFn::compare);
+    taggedParams.sort(SortFn::compare);
 }
 
 CodeVisitor::ParamInfoList
@@ -3770,7 +3770,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
             }
         }
         info.type = op->returnType();
-        info.optional = op->returnIsOptional();
+        info.isTagged = op->returnIsOptional();
         info.tag = op->returnTag();
         l.push_back(info);
     }
@@ -3780,7 +3780,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
-        info.optional = (*p)->optional();
+        info.isTagged = (*p)->optional();
         info.tag = (*p)->tag();
         info.pos = pos++;
         info.param = *p;
@@ -3791,23 +3791,23 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
 }
 
 void
-CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
+CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& requiredParams, ParamInfoList& taggedParams)
 {
     const ParamInfoList params = getAllOutParams(op);
     for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if(p->isTagged)
         {
-            optional.push_back(*p);
+            taggedParams.push_back(*p);
         }
         else
         {
-            required.push_back(*p);
+            requiredParams.push_back(*p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
     class SortFn
     {
@@ -3817,11 +3817,11 @@ CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, Param
             return lhs.tag < rhs.tag;
         }
     };
-    optional.sort(SortFn::compare);
+    taggedParams.sort(SortFn::compare);
 }
 
 string
-CodeVisitor::getOptionalFormat(const TypePtr& type)
+CodeVisitor::getTagFormat(const TypePtr& type)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -3920,7 +3920,7 @@ CodeVisitor::getFormatType(FormatType type)
 
 void
 CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
-                     bool optional, int tag)
+                     bool isTagged, int tag)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -3929,7 +3929,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         {
             case Builtin::KindByte:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeByteOpt(" << tag << ", " << v << ");";
                 }
@@ -3941,7 +3941,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindBool:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeBoolOpt(" << tag << ", " << v << ");";
                 }
@@ -3953,7 +3953,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindShort:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeShortOpt(" << tag << ", " << v << ");";
                 }
@@ -3965,7 +3965,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindInt:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeIntOpt(" << tag << ", " << v << ");";
                 }
@@ -3977,7 +3977,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindLong:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeLongOpt(" << tag << ", " << v << ");";
                 }
@@ -3989,7 +3989,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindFloat:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeFloatOpt(" << tag << ", " << v << ");";
                 }
@@ -4001,7 +4001,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindDouble:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeDoubleOpt(" << tag << ", " << v << ");";
                 }
@@ -4013,7 +4013,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindString:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeStringOpt(" << tag << ", " << v << ");";
                 }
@@ -4026,7 +4026,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
                 }
@@ -4038,7 +4038,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindObjectProxy:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".writeProxyOpt(" << tag << ", " << v << ");";
                 }
@@ -4055,7 +4055,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        if(optional)
+        if(isTagged)
         {
             out << nl << stream << ".writeProxyOpt(" << tag << ", " << v << ");";
         }
@@ -4069,7 +4069,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(optional)
+        if(isTagged)
         {
             out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
         }
@@ -4084,7 +4084,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     if(st)
     {
         const string typeS = getAbsolute(st);
-        if(optional)
+        if(isTagged)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4099,7 +4099,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     if(en)
     {
         const string typeS = getAbsolute(en);
-        if(optional)
+        if(isTagged)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4113,7 +4113,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(optional)
+        if(isTagged)
         {
             out << nl << getAbsolute(dict) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4150,7 +4150,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             };
             string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
-            if(optional)
+            if(isTagged)
             {
                 out << "Opt(" << tag << ", ";
             }
@@ -4162,7 +4162,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             return;
         }
 
-        if(optional)
+        if(isTagged)
         {
             out << nl << getAbsolute(seq) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4178,7 +4178,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
 
 void
 CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
-                       bool optional, int tag)
+                       bool isTagged, int tag)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -4187,7 +4187,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         {
             case Builtin::KindByte:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readByteOpt(" << tag << ");";
                 }
@@ -4199,7 +4199,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindBool:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readBoolOpt(" << tag << ");";
                 }
@@ -4211,7 +4211,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindShort:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readShortOpt(" << tag << ");";
                 }
@@ -4223,7 +4223,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindInt:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readIntOpt(" << tag << ");";
                 }
@@ -4235,7 +4235,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindLong:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readLongOpt(" << tag << ");";
                 }
@@ -4247,7 +4247,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindFloat:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readFloatOpt(" << tag << ");";
                 }
@@ -4259,7 +4259,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindDouble:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readDoubleOpt(" << tag << ");";
                 }
@@ -4271,7 +4271,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindString:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readStringOpt(" << tag << ");";
                 }
@@ -4284,7 +4284,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", 'Ice.Value');";
                 }
@@ -4296,7 +4296,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindObjectProxy:
             {
-                if(optional)
+                if(isTagged)
                 {
                     out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
                 }
@@ -4316,9 +4316,9 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         if(prx->_class()->isInterface() || !prx->_class()->definition()->allOperations().empty())
         {
             const string typeS = getAbsolute(prx->_class(), "", "Prx");
-            if(optional)
+            if(isTagged)
             {
-                out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
+                out << nl << "if " << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << ")";
                 out.inc();
                 out << nl << stream << ".skip(4);";
                 out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
@@ -4332,7 +4332,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         }
         else
         {
-            if(optional)
+            if(isTagged)
             {
                 out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
             }
@@ -4348,7 +4348,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     if(cl)
     {
         const string cls = cl->isInterface() ? "Ice.Value" : getAbsolute(cl);
-        if(optional)
+        if(isTagged)
         {
             out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", '" << cls << "');";
         }
@@ -4363,7 +4363,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     if(st)
     {
         const string typeS = getAbsolute(st);
-        if(optional)
+        if(isTagged)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
@@ -4378,7 +4378,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     if(en)
     {
         const string typeS = getAbsolute(en);
-        if(optional)
+        if(isTagged)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
@@ -4392,7 +4392,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(optional)
+        if(isTagged)
         {
             out << nl << v << " = " << getAbsolute(dict) << ".readOpt(" << stream << ", " << tag << ");";
         }
@@ -4429,7 +4429,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             };
             string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
-            if(optional)
+            if(isTagged)
             {
                 out << "Opt(" << tag << ");";
             }
@@ -4440,7 +4440,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             return;
         }
 
-        if(optional)
+        if(isTagged)
         {
             out << nl << v << " = " << getAbsolute(seq) << ".readOpt(" << stream << ", " << tag << ");";
         }
