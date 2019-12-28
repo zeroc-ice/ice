@@ -47,7 +47,7 @@ interface Router
      * @return The router's client proxy.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
+    ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
 
     /**
      *

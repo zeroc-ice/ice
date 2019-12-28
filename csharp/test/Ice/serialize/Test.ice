@@ -104,13 +104,13 @@ exception MyException
     IntProxyD ipd;
     IntStringSD issd;
 
-    optional(1) string optName;
-    optional(2) int optInt;
-    optional(3) ValStruct optValStruct;
-    optional(4) RefStruct optRefStruct;
-    optional(5) MyEnum optEnum;
-    optional(6) MyClass optClass;
-    optional(7) MyInterface* optProxy;
+    tag(1) string optName;
+    tag(2) int optInt;
+    tag(3) ValStruct optValStruct;
+    tag(4) RefStruct optRefStruct;
+    tag(5) MyEnum optEnum;
+    tag(6) MyClass optClass;
+    tag(7) MyInterface* optProxy;
 }
 
 }

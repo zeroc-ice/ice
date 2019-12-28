@@ -33,13 +33,13 @@ module Test
 
         class D
         {
-            optional(1) BoolSeq1 boolSeq;
-            optional(2) ByteSeq1 byteSeq;
-            optional(3) ShortSeq1 shortSeq;
-            optional(4) IntSeq1 intSeq;
-            optional(5) LongSeq1 longSeq;
-            optional(6) FloatSeq1 floatSeq;
-            optional(7) DoubleSeq1 doubleSeq;
+            tag(1) BoolSeq1 boolSeq;
+            tag(2) ByteSeq1 byteSeq;
+            tag(3) ShortSeq1 shortSeq;
+            tag(4) IntSeq1 intSeq;
+            tag(5) LongSeq1 longSeq;
+            tag(6) FloatSeq1 floatSeq;
+            tag(7) DoubleSeq1 doubleSeq;
         }
 
         interface Custom

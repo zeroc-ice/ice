@@ -18,68 +18,68 @@ enum Eter { e2 }
 
 class C
 {
-    optional string m1;             // missing tag
-    optional() int m2;              // missing tag
-    optional(abc) bool m3;          // invalid tag
-    optional(0x80000000) short m4;  // out of range
-    optional(-0x80000001) long m5;  // out of range
-    optional(-1) float m6;          // out of range
-    optional(C1) string m7;         // ok
-    optional(C2) string m8;         // duplicate tag
-    optional(C3) double m9;         // invalid tag
-    optional(C4) byte m10;          // out of range
-    optional(C5) bool m11;          // invalid tag
-    optional(C6) bool m12;          // ok
-    optional(E::e1) int m13;        // duplicate tag
-    optional(e2) int m14;           // ambiguous
-    optional(e3) int m15;           // ok
-    optional(4) int m16;            // duplicate tag
+    tag string m1;             // missing tag
+    tag() int m2;              // missing tag
+    tag(abc) bool m3;          // invalid tag
+    tag(0x80000000) short m4;  // out of range
+    tag(-0x80000001) long m5;  // out of range
+    tag(-1) float m6;          // out of range
+    tag(C1) string m7;         // ok
+    tag(C2) string m8;         // duplicate tag
+    tag(C3) double m9;         // invalid tag
+    tag(C4) byte m10;          // out of range
+    tag(C5) bool m11;          // invalid tag
+    tag(C6) bool m12;          // ok
+    tag(E::e1) int m13;        // duplicate tag
+    tag(e2) int m14;           // ambiguous
+    tag(e3) int m15;           // ok
+    tag(4) int m16;            // duplicate tag
 }
 
 class Base
 {
-    optional(E::e2) int b1;
+    tag(E::e2) int b1;
 }
 
 class Derived extends Base
 {
-    optional(1) int d1;
+    tag(1) int d1;
 }
 
 class Ex
 {
-    optional string m1;             // missing tag
-    optional() int m2;              // missing tag
-    optional(abc) bool m3;          // invalid tag
-    optional(0x80000000) short m4;  // out of range
-    optional(-0x80000001) long m5;  // out of range
-    optional(-1) float m6;          // out of range
-    optional(C1) string m7;         // ok
-    optional(C2) string m8;         // duplicate tag
-    optional(C3) double m9;         // invalid tag
-    optional(C4) byte m10;          // out of range
-    optional(C5) bool m11;          // invalid tag
-    optional(C6) bool m12;          // ok
-    optional(E::e1) int m13;        // duplicate tag
-    optional(E::e2) int m14;        // ok
-    optional(e3) int m15;           // ok
-    optional(4) int m16;            // duplicate tag
+    tag string m1;             // missing tag
+    tag() int m2;              // missing tag
+    tag(abc) bool m3;          // invalid tag
+    tag(0x80000000) short m4;  // out of range
+    tag(-0x80000001) long m5;  // out of range
+    tag(-1) float m6;          // out of range
+    tag(C1) string m7;         // ok
+    tag(C2) string m8;         // duplicate tag
+    tag(C3) double m9;         // invalid tag
+    tag(C4) byte m10;          // out of range
+    tag(C5) bool m11;          // invalid tag
+    tag(C6) bool m12;          // ok
+    tag(E::e1) int m13;        // duplicate tag
+    tag(E::e2) int m14;        // ok
+    tag(e3) int m15;           // ok
+    tag(4) int m16;            // duplicate tag
 }
 
 class BaseEx
 {
-    optional(E::e2) int b1;
+    tag(E::e2) int b1;
 }
 
 class DerivedEx extends BaseEx
 {
-    optional(1) int d1;
+    tag(1) int d1;
 }
 
 struct S
 {
-    optional(1) int m1;             // not allowed in struct
-    optional(2) int m2 = 2;         // not allowed in struct
+    tag(1) int m1;             // not allowed in struct
+    tag(2) int m2 = 2;         // not allowed in struct
 }
 
 }

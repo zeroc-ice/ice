@@ -54,23 +54,23 @@ class OptionalClass
 {
     bool bo;
     byte by;
-    optional(1) short sh;
-    optional(2) int i;
-    optional(3) SmallStruct sm;
+    tag(1) short sh;
+    tag(2) int i;
+    tag(3) SmallStruct sm;
 
-    optional(4) MyEnumS enumS4;
-    optional(5) MyClassS myClassS5;
+    tag(4) MyEnumS enumS4;
+    tag(5) MyClassS myClassS5;
 
-    optional(6) ByteBoolD byteBoolD6;
-    optional(7) ShortIntD shortIntD7;
+    tag(6) ByteBoolD byteBoolD6;
+    tag(7) ShortIntD shortIntD7;
 
-    optional(8) MyEnum enum8;
-    optional(9) MyClass class9;
-    optional(10) StringMyClassD stringMyClassD10;
-    optional(12) Ice::IntSeq intSeq12;
-    optional(13) Ice::ByteSeq byteSeq13;
-    optional(14) Ice::StringSeq stringSeq14;
-    optional(15) Point p15;
+    tag(8) MyEnum enum8;
+    tag(9) MyClass class9;
+    tag(10) StringMyClassD stringMyClassD10;
+    tag(12) Ice::IntSeq intSeq12;
+    tag(13) Ice::ByteSeq byteSeq13;
+    tag(14) Ice::StringSeq stringSeq14;
+    tag(15) Point p15;
 }
 
 sequence<Ice::BoolSeq> BoolSS;

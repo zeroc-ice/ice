@@ -115,7 +115,7 @@ class InternalServerDescriptor
     PropertyDescriptorSeqDict properties;
 
     /** IceBox service names */
-    optional(1) Ice::StringSeq services;
+    tag(1) Ice::StringSeq services;
 }
 
 /**
@@ -546,7 +546,7 @@ interface ReplicaSession
      * will receive the database and database updates.
      *
      **/
-    idempotent void setDatabaseObserver(DatabaseObserver* dbObs, optional(1) StringLongDict serials)
+    idempotent void setDatabaseObserver(DatabaseObserver* dbObs, tag(1) StringLongDict serials)
         throws ObserverAlreadyRegisteredException, DeploymentException;
 
     /**
