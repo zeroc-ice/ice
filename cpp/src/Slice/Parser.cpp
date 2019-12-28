@@ -3660,8 +3660,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         }
     }
 
-    string newName = IceUtilInternal::toLower(name);
-
     //
     // Check whether any bases have defined something with the same name already.
     //
@@ -3690,8 +3688,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             }
 
             string baseName = IceUtilInternal::toLower((*q)->name());
-            string newName2 = IceUtilInternal::toLower(name);
-            if(baseName == newName2)
+            string newName = IceUtilInternal::toLower(name);
+            if(baseName == newName)
             {
                 string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
                 msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
@@ -4221,7 +4219,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         }
     }
 
-    string newName = IceUtilInternal::toLower(name);
     //
     // Check whether any bases have defined a member with the same name already.
     //
@@ -4241,8 +4238,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             }
 
             string baseName = IceUtilInternal::toLower((*r)->name());
-            string newName2 = IceUtilInternal::toLower(name);
-            if(baseName == newName2)
+            string newName = IceUtilInternal::toLower(name);
+            if(baseName == newName)
             {
                 string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
                 msg += (*r)->name() + "', which is defined in a base exception";
@@ -5399,9 +5396,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
             return 0;
         }
     }
-
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
 
     //
     // Check that in parameters don't follow out parameters.
