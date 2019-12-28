@@ -64,9 +64,9 @@ interface I
     tag(2) int io5(out tag(1) int p, out tag(2) int o);  // duplicate tag
     tag(C1) int io6(tag(E::e2) int p, out tag(E::e1) int o);   // duplicate tag
 
-    optional(1) int w();    // deprecated
-    int wi(optional(1) p);  // deprecated
-    int wo(out optional(1) p);  // deprecated
+    optional(1) int w();            // deprecated
+    int wi(optional(1) int p);      // deprecated
+    int wo(out optional(1) int p);  // deprecated
 }
 
 }

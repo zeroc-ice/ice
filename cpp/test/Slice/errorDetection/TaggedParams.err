@@ -38,6 +38,6 @@ TaggedParams.ice:62: tag for parameter `o' is already in use
 TaggedParams.ice:63: tag for parameter `o' is already in use
 TaggedParams.ice:64: tag for parameter `o' is already in use
 TaggedParams.ice:65: tag for parameter `o' is already in use
-TaggedParams.ice:67: The `optional' keyword is deprecated, use `tag' instead
-TaggedParams.ice:68: The `optional' keyword is deprecated, use `tag' instead
-TaggedParams.ice:69: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:67: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:68: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:69: warning: The `optional' keyword is deprecated, use `tag' instead

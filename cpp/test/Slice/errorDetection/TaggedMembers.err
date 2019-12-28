@@ -29,6 +29,6 @@ TaggedMembers.ice:61: invalid tag `C5'
 TaggedMembers.ice:63: tag for data member `m13' is already in use
 TaggedMembers.ice:65: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
 TaggedMembers.ice:66: tag for data member `m16' is already in use
-TaggedMembers.ice:67: The `optional' keyword is deprecated, use `tag' instead
-TaggedMembers.ice:82: tagged data members not supported in struct
-TaggedMembers.ice:83: tagged data members not supported in struct
+TaggedMembers.ice:67: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedMembers.ice:82: tagged data members are not supported in structs
+TaggedMembers.ice:83: tagged data members are not supported in structs
