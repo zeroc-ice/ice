@@ -527,7 +527,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool containsSequence;
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();
-    const string optionalFormat = getOptionalFormat(p);
+    const string tagFormat = getTagFormat(p);
 
     bool isClass = containsClassMembers(p);
     out << sp;
@@ -573,7 +573,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - returns: `" << name << "?` - The structured value read from the stream.";
     out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
-    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << tagFormat << ") else";
     out << sb;
     out << nl << "return nil";
     out << eb;
@@ -613,7 +613,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - parameter value: `" << name << "?` - The value to write to the stream.";
     out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
     out << nl << "if let v = value" << sb;
-    out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
+    out << nl << "if writeOptional(tag: tag, format: " << tagFormat << ")" << sb;
 
     if(p->isVariableLength())
     {
@@ -665,7 +665,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
 
-    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
+    const string tagFormat = getUnqualified(getTagFormat(p), swiftModule);
 
     out << sp;
     out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` sequence values from";
@@ -716,7 +716,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
         << fixIdent(name) << "?";
     out << sb;
-    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << tagFormat << ") else";
     out << sb;
     out << nl << "return nil";
     out << eb;
@@ -763,7 +763,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
     if(p->type()->isVariableLength())
     {
-        out << nl << "if ostr.writeOptional(tag: tag, format: " << optionalFormat << ")";
+        out << nl << "if ostr.writeOptional(tag: tag, format: " << tagFormat << ")";
         out << sb;
         out << nl << "let pos = ostr.startSize()";
         out << nl << "write(to: ostr, value: val)";
@@ -805,7 +805,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
 
-    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
+    const string tagFormat = getUnqualified(getTagFormat(p), swiftModule);
     const bool isVariableLength = p->keyType()->isVariableLength() || p->valueType()->isVariableLength();
     const size_t minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
@@ -869,7 +869,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
         << fixIdent(name) << "?";
     out << sb;
-    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << tagFormat << ") else";
     out << sb;
     out << nl << "return nil";
     out << eb;
@@ -917,7 +917,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
     if(isVariableLength)
     {
-        out << nl << "if ostr.writeOptional(tag: tag, format: " << optionalFormat << ")";
+        out << nl << "if ostr.writeOptional(tag: tag, format: " << tagFormat << ")";
         out << sb;
         out << nl << "let pos = ostr.startSize()";
         out << nl << "write(to: ostr, value: val)";
@@ -943,7 +943,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
-    const string optionalFormat = getOptionalFormat(p);
+    const string tagFormat = getTagFormat(p);
 
     out << sp;
     writeDocSummary(out, p);
@@ -997,7 +997,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// - returns: `" << name << "` - The enumerated value.";
     out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
-    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << tagFormat << ") else";
     out << sb;
     out << nl << "return nil";
     out << eb;
@@ -1350,7 +1350,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
     const DataMemberList allMembers = p->allDataMembers();
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
 
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
@@ -1396,7 +1396,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
     }
-    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
     {
         writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), false, (*d)->tag());
     }
@@ -1422,7 +1422,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
     }
-    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
     {
         writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), true, (*d)->tag());
     }

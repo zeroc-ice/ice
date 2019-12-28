@@ -25,7 +25,7 @@ struct ParamInfo
     std::string name;
     TypePtr type;
     std::string typeStr;
-    bool optional;
+    bool isTagged;
     int tag;
     ParamDeclPtr param; // 0 == return value
 };
@@ -98,7 +98,7 @@ protected:
 
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
-    std::string getOptionalFormat(const TypePtr&);
+    std::string getTagFormat(const TypePtr&);
 
     static bool isNullableType(const TypePtr&);
     bool isProxyType(const TypePtr&);

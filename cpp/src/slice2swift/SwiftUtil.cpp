@@ -1051,7 +1051,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
 
     string t = "";
     //
-    // The current module were the type is being used
+    // The current module where the type is being used
     //
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1240,7 +1240,7 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
 }
 
 string
-SwiftGenerator::getOptionalFormat(const TypePtr& type)
+SwiftGenerator::getTagFormat(const TypePtr& type)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -2034,7 +2034,7 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
         info.name = (*p)->name();
         info.type = (*p)->type();
         info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
-        info.optional = (*p)->optional();
+        info.isTagged = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
         r.push_back(info);
@@ -2043,23 +2043,23 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
 }
 
 void
-SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
+SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& requiredParams, ParamInfoList& taggedParams)
 {
     const ParamInfoList params = getAllInParams(op);
     for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if(p->isTagged)
         {
-            optional.push_back(*p);
+            taggedParams.push_back(*p);
         }
         else
         {
-            required.push_back(*p);
+            requiredParams.push_back(*p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
     class SortFn
     {
@@ -2069,7 +2069,7 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, Par
             return lhs.tag < rhs.tag;
         }
     };
-    optional.sort(SortFn::compare);
+    taggedParams.sort(SortFn::compare);
 }
 
 ParamInfoList
@@ -2084,7 +2084,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         info.name = (*p)->name();
         info.type = (*p)->type();
         info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
-        info.optional = (*p)->optional();
+        info.isTagged = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
         l.push_back(info);
@@ -2096,7 +2096,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
         info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
-        info.optional = op->returnIsOptional();
+        info.isTagged = op->returnIsOptional();
         info.tag = op->returnTag();
         l.push_back(info);
     }
@@ -2105,23 +2105,23 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
 }
 
 void
-SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
+SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& requiredParams, ParamInfoList& taggedParams)
 {
     const ParamInfoList params = getAllOutParams(op);
     for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if(p->isTagged)
         {
-            optional.push_back(*p);
+            taggedParams.push_back(*p);
         }
         else
         {
-            required.push_back(*p);
+            requiredParams.push_back(*p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
     class SortFn
     {
@@ -2131,21 +2131,21 @@ SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, Pa
             return lhs.tag < rhs.tag;
         }
     };
-    optional.sort(SortFn::compare);
+    taggedParams.sort(SortFn::compare);
 }
 
 void
 SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredInParams, optionalInParams;
-    getInParams(op, requiredInParams, optionalInParams);
+    ParamInfoList requiredInParams, taggedInParams;
+    getInParams(op, requiredInParams, taggedInParams);
 
     out << "{ ostr in";
     out.inc();
     //
     // Marshal parameters
     // 1. required
-    // 2. optional
+    // 2. tagged
     //
 
     for(ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
@@ -2153,7 +2153,7 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
     }
 
-    for(ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    for(ParamInfoList::const_iterator q = taggedInParams.begin(); q != taggedInParams.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
@@ -2169,15 +2169,15 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
 void
 SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
+    ParamInfoList requiredOutParams, taggedOutParams;
+    getOutParams(op, requiredOutParams, taggedOutParams);
 
     out << "{ ostr in";
     out.inc();
     //
     // Marshal parameters
     // 1. required
-    // 2. optional (including optional return)
+    // 2. tagged (including tagged return)
     //
 
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
@@ -2185,7 +2185,7 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
     }
 
-    for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for(ParamInfoList::const_iterator q = taggedOutParams.begin(); q != taggedOutParams.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
@@ -2202,15 +2202,15 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
 void
 SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
+    ParamInfoList requiredOutParams, taggedOutParams;
+    getOutParams(op, requiredOutParams, taggedOutParams);
 
     out << sb << " (ostr, retVals) in";
     out << nl << "let " << operationReturnDeclaration(op) << " = retVals";
     //
     // Marshal parameters
     // 1. required
-    // 2. optional (including optional return)
+    // 2. tagged (including tagged return)
     //
 
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
@@ -2218,7 +2218,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
     }
 
-    for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for(ParamInfoList::const_iterator q = taggedOutParams.begin(); q != taggedOutParams.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
@@ -2236,14 +2236,14 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
 {
     TypePtr returnType = op->returnType();
 
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
+    ParamInfoList requiredOutParams, taggedOutParams;
+    getOutParams(op, requiredOutParams, taggedOutParams);
     const ParamInfoList allOutParams = getAllOutParams(op);
     //
     // Unmarshal parameters
     // 1. required
     // 2. return
-    // 3. optional (including optional return)
+    // 3. tagged (including tagged return)
     //
     out << "{ istr in";
     out.inc();
@@ -2262,7 +2262,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         writeMarshalUnmarshalCode(out, q->type, op, param, false);
     }
 
-    for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for(ParamInfoList::const_iterator q = taggedOutParams.begin(); q != taggedOutParams.end(); ++q)
     {
         string param;
         if(isClassType(q->type))
@@ -2313,13 +2313,13 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
 void
 SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredInParams, optionalInParams;
-    getInParams(op, requiredInParams, optionalInParams);
+    ParamInfoList requiredInParams, taggedInParams;
+    getInParams(op, requiredInParams, taggedInParams);
     const ParamInfoList allInParams = getAllInParams(op);
     //
     // Unmarshal parameters
     // 1. required
-    // 3. optional
+    // 3. tagged
     //
     out << "{ istr in";
     out.inc();
@@ -2341,7 +2341,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         }
     }
 
-    for(ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    for(ParamInfoList::const_iterator q = taggedInParams.begin(); q != taggedInParams.end(); ++q)
     {
         string param;
         if(isClassType(q->type))
@@ -2438,11 +2438,11 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     {
         if(allInParams.size() == 1)
         {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
+            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->isTagged ? " = nil" : ""));
         }
         else
         {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->isTagged ? " = nil" : ""));
         }
     }
     out << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil");
@@ -2524,11 +2524,11 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     {
         if(allInParams.size() == 1)
         {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
+            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->isTagged ? " = nil" : ""));
         }
         else
         {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->isTagged ? " = nil" : ""));
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
