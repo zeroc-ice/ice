@@ -653,7 +653,6 @@ public:
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
-    bool sendsOptionals() const;
     int attributes() const;
     FormatType format() const;
     virtual std::string kindOf() const;

@@ -2172,13 +2172,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for(const auto& op : p->allOperations())
     {
-        if(op->sendsOptionals() || op->returnIsTagged())
+        if(op->returnIsTagged())
         {
             hasOptionals = true;
             break;
         }
 
-        for(const auto& q : op->outParameters())
+        for(const auto& q : op->parameters())
         {
             if(q->optional())
             {
@@ -4181,13 +4181,13 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     for(const auto& op : ops)
     {
-        if(op->sendsOptionals() || op->returnIsTagged())
+        if(op->returnIsTagged())
         {
             out << sp << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
             break;
         }
 
-        for(const auto& q : op->outParameters())
+        for(const auto& q : op->parameters())
         {
             if(q->optional())
             {
