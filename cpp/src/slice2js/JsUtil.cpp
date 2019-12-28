@@ -788,7 +788,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
 }
 
 void
-Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
+Slice::JsGenerator::writeTaggedMarshalUnmarshalCode(Output &out,
                                                       const TypePtr& type,
                                                       const string& param,
                                                       int tag,
