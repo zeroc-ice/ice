@@ -1,0 +1,34 @@
+TaggedMembers.ice:21: missing tag
+TaggedMembers.ice:22: missing tag
+TaggedMembers.ice:23: `abc' is not defined
+TaggedMembers.ice:24: tag is out of range
+TaggedMembers.ice:25: tag is out of range
+TaggedMembers.ice:26: tag is out of range
+TaggedMembers.ice:28: tag for data member `m8' is already in use
+TaggedMembers.ice:29: tag is out of range
+TaggedMembers.ice:29: invalid tag `C3'
+TaggedMembers.ice:30: tag is out of range
+TaggedMembers.ice:30: invalid tag `C4'
+TaggedMembers.ice:31: invalid tag `C5'
+TaggedMembers.ice:33: tag for data member `m13' is already in use
+TaggedMembers.ice:34: enumerator `e2' could designate `::Test::E::e2' or `::Test::Ebis::e2' or `::Test::Eter::e2'
+TaggedMembers.ice:35: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
+TaggedMembers.ice:36: tag for data member `m16' is already in use
+TaggedMembers.ice:51: missing tag
+TaggedMembers.ice:52: missing tag
+TaggedMembers.ice:53: `abc' is not defined
+TaggedMembers.ice:54: tag is out of range
+TaggedMembers.ice:55: tag is out of range
+TaggedMembers.ice:56: tag is out of range
+TaggedMembers.ice:58: tag for data member `m8' is already in use
+TaggedMembers.ice:59: tag is out of range
+TaggedMembers.ice:59: invalid tag `C3'
+TaggedMembers.ice:60: tag is out of range
+TaggedMembers.ice:60: invalid tag `C4'
+TaggedMembers.ice:61: invalid tag `C5'
+TaggedMembers.ice:63: tag for data member `m13' is already in use
+TaggedMembers.ice:65: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
+TaggedMembers.ice:66: tag for data member `m16' is already in use
+TaggedMembers.ice:67: The `optional' keyword is deprecated, use `tag' instead
+TaggedMembers.ice:82: tagged data members not supported in struct
+TaggedMembers.ice:83: tagged data members not supported in struct
