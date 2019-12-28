@@ -553,6 +553,7 @@ optional
 : ICE_OPTIONAL_START ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
+    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
 
     int tag;
     if(i->v < 0 || i->v > Int32Max)
@@ -571,6 +572,7 @@ optional
 | ICE_OPTIONAL_START scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
+    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -661,12 +663,14 @@ optional
 }
 | ICE_OPTIONAL_START ')'
 {
+    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
+    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
