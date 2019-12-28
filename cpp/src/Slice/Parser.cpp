@@ -5315,9 +5315,9 @@ Slice::Operation::returnType() const
 }
 
 bool
-Slice::Operation::returnIsOptional() const
+Slice::Operation::returnIsTagged() const
 {
-    return _returnIsOptional;
+    return _returnIsTagged;
 }
 
 int
@@ -5421,7 +5421,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         // Check for a duplicate tag.
         //
         const string msg = "tag for parameter `" + name + "' is already in use";
-        if(_returnIsOptional && tag == _returnTag)
+        if(_returnIsTagged && tag == _returnTag)
         {
             _unit->error(msg);
         }
@@ -5622,7 +5622,7 @@ bool
 Slice::Operation::returnsClasses(bool includeOptional) const
 {
     TypePtr t = returnType();
-    if(t && t->usesClasses() && (includeOptional || !_returnIsOptional))
+    if(t && t->usesClasses() && (includeOptional || !_returnIsTagged))
     {
         return true;
     }
@@ -5800,14 +5800,14 @@ Slice::Operation::visit(ParserVisitor* visitor, bool)
 Slice::Operation::Operation(const ContainerPtr& container,
                             const string& name,
                             const TypePtr& returnType,
-                            bool returnIsOptional,
+                            bool returnIsTagged,
                             int returnTag,
                             Mode mode) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     Container(container->unit()),
     _returnType(returnType),
-    _returnIsOptional(returnIsOptional),
+    _returnIsTagged(returnIsTagged),
     _returnTag(returnTag),
     _mode(mode)
 {

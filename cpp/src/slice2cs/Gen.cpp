@@ -2627,7 +2627,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string internalName = "_iceI_" + opName + "Async";
 
     TypePtr ret = operation->returnType();
-    string retS = typeToString(operation->returnType(), ns, operation->returnIsOptional());
+    string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
 
     string context = getEscapedParamName(operation, "context");
     string cancel = getEscapedParamName(operation, "cancel");

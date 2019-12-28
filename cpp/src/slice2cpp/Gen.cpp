@@ -600,7 +600,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     string clScope = fixKwd(cl->scope());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), clScope, p->getMetaData(),
+    string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getMetaData(),
                                      useWstring | TypeContextCpp11);
 
     ParamDeclList outParams = p->outParameters();
@@ -2172,7 +2172,7 @@ bool
 usePrivateEnd(const OperationPtr& p)
 {
     TypePtr ret = p->returnType();
-    bool retIsTagged = p->returnIsOptional();
+    bool retIsTagged = p->returnIsTagged();
     string retSEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIEnd);
     string retSPrivateEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIPrivateEnd);
 
@@ -2207,7 +2207,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
 
-    bool retIsTagged = p->returnIsOptional();
+    bool retIsTagged = p->returnIsTagged();
     string retS = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring | TypeContextAMIEnd);
     string retSEndAMI =
         returnTypeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
@@ -2300,7 +2300,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     bool generatePrivateEnd = retS != retSEndAMI || outParamsDeclAMI != outParamsDeclEndAMI;
     if(ret && generatePrivateEnd)
     {
-        string typeStringEndAMI = outputTypeToString(ret, p->returnIsOptional(), "", p->getMetaData(),
+        string typeStringEndAMI = outputTypeToString(ret, p->returnIsTagged(), "", p->getMetaData(),
                                                      _useWstring | TypeContextAMIPrivateEnd);
         outParamsDeclEndAMI.push_back(typeStringEndAMI + ' ' + "ret");
     }
@@ -3430,7 +3430,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     string classScopedAMD = classScope + classNameAMD;
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), classScope, p->getMetaData(), _useWstring);
+    string retS = returnTypeToString(ret, p->returnIsTagged(), classScope, p->getMetaData(), _useWstring);
 
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
@@ -4060,7 +4060,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     string delTmplName = (withCookie ? "Callback_" : "CallbackNC_") + clName + "_" + p->name();
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret, p->returnIsOptional(), clScope, p->getMetaData(), _useWstring);
+    string retS = inputTypeToString(ret, p->returnIsTagged(), clScope, p->getMetaData(), _useWstring);
     string retEndArg = getEndArg(ret, p->getMetaData(), "ret");
 
     ParamDeclList outParams;
@@ -4470,7 +4470,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         string classScopedAMD = "AMD_" + ClassDefPtr::dynamicCast(op->container())->name();
 
         TypePtr ret = op->returnType();
-        string retS = returnTypeToString(ret, op->returnIsOptional(), "", op->getMetaData(), _useWstring);
+        string retS = returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring);
 
         if(p->hasMetaData("amd") || op->hasMetaData("amd"))
         {
@@ -4676,7 +4676,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     string classScopedAMD = classScope + classNameAMD;
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret, p->returnIsOptional(), classScope, p->getMetaData(), _useWstring);
+    string retS = inputTypeToString(ret, p->returnIsTagged(), classScope, p->getMetaData(), _useWstring);
 
     string resultParam = "result";
     ParamDeclList paramList = p->outParameters();
@@ -4693,7 +4693,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        paramsAMD.push_back(inputTypeToString(ret, p->returnIsOptional(), classScope, p->getMetaData(), _useWstring) +
+        paramsAMD.push_back(inputTypeToString(ret, p->returnIsTagged(), classScope, p->getMetaData(), _useWstring) +
                             " " + resultParam);
     }
 
@@ -4838,7 +4838,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     string args;
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret, p->returnIsOptional(), "", p->getMetaData(), _useWstring);
+    string retS = inputTypeToString(ret, p->returnIsTagged(), "", p->getMetaData(), _useWstring);
 
     if(ret)
     {
@@ -6451,7 +6451,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
 
-    bool retIsTagged = p->returnIsOptional();
+    bool retIsTagged = p->returnIsTagged();
     string retS = returnTypeToString(ret, retIsTagged, clScope, p->getMetaData(), _useWstring | TypeContextCpp11);
 
     vector<string> params;
@@ -6482,7 +6482,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         lambdaOutParams.push_back(typeToString(ret, retIsTagged, "", p->getMetaData(), _useWstring |
                                                TypeContextInParam | TypeContextCpp11));
 
-        hasTaggedOutParams |= p->returnIsOptional();
+        hasTaggedOutParams |= p->returnIsTagged();
     }
 
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -7350,7 +7350,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        string typeS = inputTypeToString(ret, p->returnIsOptional(), classScope, p->getMetaData(),
+        string typeS = inputTypeToString(ret, p->returnIsTagged(), classScope, p->getMetaData(),
                                          _useWstring | TypeContextCpp11);
         responseParams.push_back(typeS + " " + returnValueParam);
         responseParamsDecl.push_back(typeS + " ret");
@@ -7368,7 +7368,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        retS = returnTypeToString(ret, p->returnIsOptional(), classScope, p->getMetaData(),
+        retS = returnTypeToString(ret, p->returnIsTagged(), classScope, p->getMetaData(),
                                   _useWstring | TypeContextCpp11);
     }
 
@@ -8328,7 +8328,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = op->hasMarshaledResult() ?
             scoped + "::" + resultStructName(opName, "", true) :
-            returnTypeToString(ret, op->returnIsOptional(), "", op->getMetaData(), _useWstring | TypeContextCpp11);
+            returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring | TypeContextCpp11);
 
         ParamDeclList params = op->parameters();
         ParamDeclList outParams;
@@ -8366,7 +8366,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(ret)
                 {
-                    responseParams = inputTypeToString(ret, op->returnIsOptional(), scope, op->getMetaData(),
+                    responseParams = inputTypeToString(ret, op->returnIsTagged(), scope, op->getMetaData(),
                                                        _useWstring | TypeContextCpp11);
                     if(!outParams.empty())
                     {

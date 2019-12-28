@@ -634,7 +634,7 @@ public:
     };
 
     TypePtr returnType() const;
-    bool returnIsOptional() const;
+    bool returnIsTagged() const;
     int returnTag() const;
     Mode mode() const;
     Mode sendMode() const;
@@ -665,7 +665,7 @@ protected:
     friend class ClassDef;
 
     TypePtr _returnType;
-    bool _returnIsOptional;
+    bool _returnIsTagged;
     int _returnTag;
     ExceptionList _throws;
     Mode _mode;

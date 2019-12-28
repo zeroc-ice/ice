@@ -150,7 +150,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     else
     {
         TypePtr type = op->returnType();
-        bool isReturnTagged = op->returnIsOptional();
+        bool isReturnTagged = op->returnIsTagged();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -246,7 +246,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
     if(ret)
     {
-        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsOptional())
+        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsTagged())
                 + " " + retval);
     }
     for(const auto& p : outParams)
@@ -281,7 +281,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             out << nl << " **/";
         }
         out << nl << "public " << typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(),
-            op->returnIsOptional(), false) << ' ' << retval << ';';
+            op->returnIsTagged(), false) << ' ' << retval << ';';
     }
 
     for(const auto& p : outParams)
@@ -317,7 +317,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                                   iter, "", pli->getMetaData());
     }
 
-    bool checkReturnType = op->returnIsOptional();
+    bool checkReturnType = op->returnIsTagged();
     if(ret && !checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "",
@@ -361,7 +361,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                                   iter, "", pli->getMetaData(), patchParams);
     }
 
-    checkReturnType = op->returnIsOptional();
+    checkReturnType = op->returnIsTagged();
     if(ret && !checkReturnType)
     {
         const string patchParams = getPatcher(ret, package, retval);
@@ -453,7 +453,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     out << nl << "public " << opName << "MarshaledResult" << spar;
     if(ret)
     {
-        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsOptional())
+        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsTagged())
                 + " " + retval);
     }
     for(const auto& p : outParams)
@@ -477,7 +477,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
                                   "_ostr", pli->getMetaData());
     }
 
-    bool checkReturnType = op->returnIsOptional();
+    bool checkReturnType = op->returnIsTagged();
     if(ret && !checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "_ostr",
@@ -722,7 +722,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         if(ret)
         {
             type = ret;
-            isTagged = op->returnIsOptional();
+            isTagged = op->returnIsTagged();
             tag = op->returnTag();
             metaData = op->getMetaData();
         }
@@ -793,7 +793,7 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
         if(op->returnType())
         {
             type = op->returnType();
-            mode = op->returnIsOptional() ? TaggedReturnParam : NotTagged;
+            mode = op->returnIsTagged() ? TaggedReturnParam : NotTagged;
             tag = op->returnTag();
             metaData = op->getMetaData();
         }
@@ -2172,7 +2172,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for(const auto& op : p->allOperations())
     {
-        if(op->sendsOptionals() || op->returnIsOptional())
+        if(op->sendsOptionals() || op->returnIsTagged())
         {
             hasOptionals = true;
             break;
@@ -4181,7 +4181,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     for(const auto& op : ops)
     {
-        if(op->sendsOptionals() || op->returnIsOptional())
+        if(op->sendsOptionals() || op->returnIsTagged())
         {
             out << sp << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
             break;
@@ -5008,7 +5008,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
         const ParamDeclList outParams = op->outParameters();
         if(op->returnType())
         {
-            out << getDefaultValue(package, op->returnType(), op->returnIsOptional());
+            out << getDefaultValue(package, op->returnType(), op->returnIsTagged());
         }
         for(const auto& p : outParams)
         {
@@ -5033,13 +5033,13 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
         if(op->returnType())
         {
             out << nl << "r." << retval << " = "
-                << getDefaultValue(package, op->returnType(), op->returnIsOptional()) << ';';
+                << getDefaultValue(package, op->returnType(), op->returnIsTagged()) << ';';
         }
     }
     else
     {
         TypePtr type = op->returnType();
-        bool isReturnTagged = op->returnIsOptional();
+        bool isReturnTagged = op->returnIsTagged();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();

@@ -776,7 +776,7 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
     {
         auto ret = ParamInfo(returnValueName(op->outParameters()),
                              op->returnType(),
-                             op->returnIsOptional(),
+                             op->returnIsTagged(),
                              op->returnTag(),
                              prefix);
 

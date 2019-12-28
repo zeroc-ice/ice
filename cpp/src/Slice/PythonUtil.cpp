@@ -1032,8 +1032,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 _out << "((), ";
                 writeType(returnType);
-                _out << ", " << ((*s)->returnIsOptional() ? "True" : "False") << ", "
-                     << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ')';
+                _out << ", " << ((*s)->returnIsTagged() ? "True" : "False") << ", "
+                     << ((*s)->returnIsTagged() ? (*s)->returnTag() : 0) << ')';
             }
             else
             {

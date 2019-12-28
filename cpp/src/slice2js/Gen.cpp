@@ -1619,7 +1619,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         _out << ", true";
                     }
-                    if(op->returnIsOptional())
+                    if(op->returnIsTagged())
                     {
                         if(!isObj)
                         {

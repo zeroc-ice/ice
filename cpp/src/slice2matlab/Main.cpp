@@ -3770,7 +3770,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
             }
         }
         info.type = op->returnType();
-        info.isTagged = op->returnIsOptional();
+        info.isTagged = op->returnIsTagged();
         info.tag = op->returnTag();
         l.push_back(info);
     }

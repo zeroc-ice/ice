@@ -342,7 +342,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
-    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
+    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsTagged()))
     {
         if(cpp11)
         {
@@ -360,7 +360,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             {
                 out << objPrefix + fixKwd(prefix + (*p)->name());
             }
-            if(op && op->returnType() && !op->returnIsOptional())
+            if(op && op->returnType() && !op->returnIsTagged())
             {
                 out << objPrefix + returnValueS;
             }
@@ -376,7 +376,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 
             if(op && op->returnType())
             {
-                if(!op->returnIsOptional())
+                if(!op->returnIsTagged())
                 {
                     writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(),
                                               typeCtx, customStream, true, obj);
@@ -385,7 +385,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
-    if(!taggedParams.empty() || (op && op->returnType() && op->returnIsOptional()))
+    if(!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
     {
         //
         // Sort tagged parameters by tag.
@@ -419,7 +419,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 //
                 ostringstream os;
                 os << '{';
-                bool checkReturnType = op && op->returnIsOptional();
+                bool checkReturnType = op && op->returnIsTagged();
                 bool insertComma = false;
                 for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
                 {
@@ -444,7 +444,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 //
                 // Parameters
                 //
-                bool checkReturnType = op && op->returnIsOptional();
+                bool checkReturnType = op && op->returnIsTagged();
                 for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
                 {
                     if(checkReturnType && op->returnTag() < (*p)->tag())
@@ -468,7 +468,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             // Marshal tagged parameters.
             //
 
-            bool checkReturnType = op && op->returnIsOptional();
+            bool checkReturnType = op && op->returnIsTagged();
             for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
             {
                 if(checkReturnType && op->returnTag() < (*p)->tag())
@@ -1326,7 +1326,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
 
     if(op && op->returnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
+        writeParamAllocateCode(out, op->returnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetaData(),
                                typeCtx, getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
     }
 }
@@ -1383,7 +1383,7 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     }
     if(op && op->returnType())
     {
-        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "ret", op->getMetaData());
+        writeParamEndCode(out, op->returnType(), op->returnIsTagged(), "ret", op->getMetaData());
     }
 }
 

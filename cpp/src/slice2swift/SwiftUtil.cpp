@@ -1902,7 +1902,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional());
+        os << typeToString(returnType, op, op->getMetaData(), op->returnIsTagged());
     }
 
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -2095,8 +2095,8 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
-        info.isTagged = op->returnIsOptional();
+        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsTagged());
+        info.isTagged = op->returnIsTagged();
         info.tag = op->returnTag();
         l.push_back(info);
     }
