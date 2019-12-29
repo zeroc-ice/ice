@@ -597,7 +597,7 @@ public class InputStream
 
         if(!_encapsStack.encoding_1_0)
         {
-            skipOptionals();
+            skipTagged();
             if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
                 throw new EncapsulationException();
@@ -663,7 +663,7 @@ public class InputStream
         else
         {
             //
-            // Skip the optional content of the encapsulation if we are expecting an
+            // Skip the tagged content of the encapsulation if we are expecting an
             // empty encapsulation.
             //
             _buf.position(_buf.b.position() + sz - 6);
@@ -924,22 +924,22 @@ public class InputStream
     }
 
     /**
-     * Determine if an optional value is available for reading.
+     * Determine if a tagged value is available for reading.
      *
      * @param tag The tag associated with the value.
-     * @param expectedFormat The optional format for the value.
+     * @param expectedFormat The tag format for the value.
      * @return True if the value is present, false otherwise.
      **/
-    public boolean readOptional(int tag, OptionalFormat expectedFormat)
+    public boolean readTag(int tag, TagFormat expectedFormat)
     {
         assert(_encapsStack != null);
         if(_encapsStack.decoder != null)
         {
-            return _encapsStack.decoder.readOptional(tag, expectedFormat);
+            return _encapsStack.decoder.readTag(tag, expectedFormat);
         }
         else
         {
-            return readOptImpl(tag, expectedFormat);
+            return readTagImpl(tag, expectedFormat);
         }
     }
 
@@ -961,14 +961,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional byte value from the stream.
+     * Extracts a tagged byte value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted byte value.
      **/
     public @Nullable Byte readByte(int tag)
     {
-        return readOptional(tag, OptionalFormat.F1) ? readByte() : null;
+        return readTag(tag, TagFormat.F1) ? readByte() : null;
     }
 
     /**
@@ -992,14 +992,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional byte sequence from the stream.
+     * Extracts a tagged byte sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted byte sequence.
      **/
     public byte @Nullable[] readByteSeq(int tag)
     {
-        return readOptional(tag, OptionalFormat.VSize) ? readByteSeq() : null;
+        return readTag(tag, TagFormat.VSize) ? readByteSeq() : null;
     }
 
     /**
@@ -1071,7 +1071,7 @@ public class InputStream
     }
 
     /**
-     * Extracts a optional serializable Java object from the stream.
+     * Extracts a tagged serializable Java object from the stream.
      *
      * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
@@ -1080,7 +1080,7 @@ public class InputStream
      **/
     public <T extends java.io.Serializable> @Nullable T readSerializable(int tag, Class<T> cl)
     {
-        return readOptional(tag, OptionalFormat.VSize) ? readSerializable(cl) : null;
+        return readTag(tag, TagFormat.VSize) ? readSerializable(cl) : null;
     }
 
     /**
@@ -1101,14 +1101,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional boolean value from the stream.
+     * Extracts a tagged boolean value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted boolean.
      **/
     public @Nullable Boolean readBool(int tag)
     {
-        return readOptional(tag, OptionalFormat.F1) ? readBool() : null;
+        return readTag(tag, TagFormat.F1) ? readBool() : null;
     }
 
     /**
@@ -1135,14 +1135,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional boolean sequence from the stream.
+     * Extracts a tagged boolean sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted boolean sequence.
      **/
     public boolean @Nullable[] readBoolSeq(int tag)
     {
-        return readOptional(tag, OptionalFormat.VSize) ? readBoolSeq() : null;
+        return readTag(tag, TagFormat.VSize) ? readBoolSeq() : null;
     }
 
     /**
@@ -1163,14 +1163,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional short value from the stream.
+     * Extracts a tagged short value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted short.
      **/
     public @Nullable Short readShort(int tag)
     {
-        return readOptional(tag, OptionalFormat.F2) ? readShort() : null;
+        return readTag(tag, TagFormat.F2) ? readShort() : null;
     }
 
     /**
@@ -1196,14 +1196,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional short sequence from the stream.
+     * Extracts a tagged short sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted short sequence.
      **/
     public short @Nullable[] readShortSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if(readTag(tag, TagFormat.VSize))
         {
             skipSize();
             return readShortSeq();
@@ -1256,14 +1256,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional int value from the stream.
+     * Extracts a tagged int value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted int.
      **/
     public @Nullable Integer readInt(int tag)
     {
-        return readOptional(tag, OptionalFormat.F4) ? readInt() : null;
+        return readTag(tag, TagFormat.F4) ? readInt() : null;
     }
 
     /**
@@ -1289,14 +1289,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional int sequence from the stream.
+     * Extracts a tagged int sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted int sequence.
      **/
     public int @Nullable[] readIntSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if(readTag(tag, TagFormat.VSize))
         {
             skipSize();
             return readIntSeq();
@@ -1349,14 +1349,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional long value from the stream.
+     * Extracts a tagged long value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted long.
      **/
     public @Nullable Long readLong(int tag)
     {
-        return readOptional(tag, OptionalFormat.F8) ? readLong() : null;
+        return readTag(tag, TagFormat.F8) ? readLong() : null;
     }
 
     /**
@@ -1382,14 +1382,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional long sequence from the stream.
+     * Extracts a tagged long sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted long sequence.
      **/
     public long @Nullable[] readLongSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if(readTag(tag, TagFormat.VSize))
         {
             skipSize();
             return readLongSeq();
@@ -1442,14 +1442,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional float value from the stream.
+     * Extracts a tagged float value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted float.
      **/
     public @Nullable Float readFloat(int tag)
     {
-        return readOptional(tag, OptionalFormat.F4) ? readFloat() : null;
+        return readTag(tag, TagFormat.F4) ? readFloat() : null;
     }
 
     /**
@@ -1475,14 +1475,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional float sequence from the stream.
+     * Extracts a tagged float sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted float sequence.
      **/
     public float @Nullable[] readFloatSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if(readTag(tag, TagFormat.VSize))
         {
             skipSize();
             return readFloatSeq();
@@ -1535,14 +1535,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional double value from the stream.
+     * Extracts a tagged double value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted double.
      **/
     public @Nullable Double readDouble(int tag)
     {
-        return readOptional(tag, OptionalFormat.F8) ? readDouble() : null;
+        return readTag(tag, TagFormat.F8) ? readDouble() : null;
     }
 
     /**
@@ -1568,14 +1568,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional double sequence from the stream.
+     * Extracts a tagged double sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted double sequence.
      **/
     public double @Nullable[] readDoubleSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
+        if(readTag(tag, TagFormat.VSize))
         {
             skipSize();
             return readDoubleSeq();
@@ -1695,14 +1695,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional string value from the stream.
+     * Extracts a tagged string value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted string.
      **/
     public @Nullable String readString(int tag)
     {
-        return readOptional(tag, OptionalFormat.VSize) ? readString() : null;
+        return readTag(tag, TagFormat.VSize) ? readString() : null;
     }
 
     /**
@@ -1722,14 +1722,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional string sequence from the stream.
+     * Extracts a tagged string sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted string sequence.
      **/
     public String @Nullable[] readStringSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if(readTag(tag, TagFormat.FSize))
         {
             skip(4);
             return readStringSeq();
@@ -1766,14 +1766,14 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
+     * Extracts a tagged proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param tag The numeric tag associated with the value.
      * @return The extracted proxy.
      **/
     public @Nullable ObjectPrx readProxy(int tag)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if(readTag(tag, TagFormat.FSize))
         {
             skip(4);
             return readProxy();
@@ -1785,7 +1785,7 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
+     * Extracts a tagged proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
@@ -1794,7 +1794,7 @@ public class InputStream
      **/
     public <T extends ObjectPrx> @Nullable T readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
     {
-        if(readOptional(tag, OptionalFormat.FSize))
+        if(readTag(tag, TagFormat.FSize))
         {
             skip(4);
             return readProxy(cast);
@@ -1880,7 +1880,7 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional Slice value from the stream.
+     * Extracts a tagged Slice value from the stream.
      *
      * @param <T> The value type.
      *
@@ -1894,7 +1894,7 @@ public class InputStream
      **/
     public <T extends Value> void readValue(int tag, java.util.function.@Nullable Consumer<@Nullable T> cb, Class<T> cls)
     {
-        if(readOptional(tag, OptionalFormat.Class))
+        if(readTag(tag, TagFormat.Class))
         {
             if(cb != null)
             {
@@ -1915,7 +1915,7 @@ public class InputStream
     }
 
     /**
-     * Extracts an optional Slice value from the stream.
+     * Extracts a tagged Slice value from the stream.
      *
      * @param tag The numeric tag associated with the value.
      *
@@ -1954,29 +1954,29 @@ public class InputStream
         _encapsStack.decoder.throwException(factory);
     }
 
-    private boolean readOptImpl(int readTag, OptionalFormat expectedFormat)
+    private boolean readTagImpl(int readTag, TagFormat expectedFormat)
     {
         if(isEncoding_1_0())
         {
-            return false; // Optional members aren't supported with the 1.0 encoding.
+            return false; // tagged members aren't supported with the 1.0 encoding.
         }
 
         while(true)
         {
             if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
             {
-                return false; // End of encapsulation also indicates end of optionals.
+                return false; // End of encapsulation also indicates end of tagged members.
             }
 
             final byte b = readByte();
             final int v = b < 0 ? b + 256 : b;
-            if(v == Protocol.OPTIONAL_END_MARKER)
+            if(v == Protocol.TAGGED_END_MARKER)
             {
                 _buf.position(_buf.b.position() - 1); // Rewind.
                 return false;
             }
 
-            OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // First 3 bits.
+            TagFormat format = TagFormat.valueOf(v & 0x07); // First 3 bits.
             int tag = v >> 3;
             if(tag == 30)
             {
@@ -1987,24 +1987,24 @@ public class InputStream
             {
                 int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
                 _buf.position(_buf.b.position() - offset);
-                return false; // No optional data members with the requested tag.
+                return false; // No tagged data members with the requested tag.
             }
             else if(tag < readTag)
             {
-                skipOptional(format); // Skip optional data members
+                skipTagged(format); // Skip tagged data members
             }
             else
             {
                 if(format != expectedFormat)
                 {
-                    throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
+                    throw new MarshalException("invalid tagged data member `" + tag + "': unexpected format");
                 }
                 return true;
             }
         }
     }
 
-    private void skipOptional(OptionalFormat format)
+    private void skipTagged(TagFormat format)
     {
         switch(format)
         {
@@ -2051,31 +2051,31 @@ public class InputStream
         }
     }
 
-    private void skipOptionals()
+    private void skipRemainingTagged()
     {
         //
-        // Skip remaining un-read optional members.
+        // Skip remaining un-read tagged members.
         //
         while(true)
         {
             if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
             {
-                return; // End of encapsulation also indicates end of optionals.
+                return; // End of encapsulation also indicates end of tagged members.
             }
 
             final byte b = readByte();
             final int v = b < 0 ? b + 256 : b;
-            if(v == Protocol.OPTIONAL_END_MARKER)
+            if(v == Protocol.TAGGED_END_MARKER)
             {
                 return;
             }
 
-            OptionalFormat format = OptionalFormat.valueOf(v & 0x07); // Read first 3 bits.
+            TagFormat format = TagFormat.valueOf(v & 0x07); // Read first 3 bits.
             if((v >> 3) == 30)
             {
                 skipSize();
             }
-            skipOptional(format);
+            skipTagged(format);
         }
     }
 
@@ -2198,7 +2198,7 @@ public class InputStream
         abstract void endSlice();
         abstract void skipSlice();
 
-        boolean readOptional(int tag, OptionalFormat format)
+        boolean readTag(int tag, TagFormat format)
         {
             return false;
         }
@@ -2971,9 +2971,9 @@ public class InputStream
         @Override
         void endSlice()
         {
-            if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if((_current.sliceFlags & Protocol.FLAG_HAS_TAGGED_MEMBERS) != 0)
             {
-                _stream.skipOptionals();
+                _stream.skipRemainingTagged();
             }
 
             //
@@ -2992,16 +2992,16 @@ public class InputStream
                 }
 
                 //
-                // Sanity checks. If there are optional members, it's possible
+                // Sanity checks. If there are tagged members, it's possible
                 // that not all instance references were read if they are from
-                // unknown optional data members.
+                // unknown tagged data members.
                 //
                 if(indirectionTable.length == 0)
                 {
                     throw new MarshalException("empty indirection table");
                 }
                 if((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
-                   (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+                   (_current.sliceFlags & Protocol.FLAG_HAS_TAGGED_MEMBERS) == 0)
                 {
                     throw new MarshalException("no references to indirection table");
                 }
@@ -3064,15 +3064,15 @@ public class InputStream
             SliceInfo info = new SliceInfo();
             info.typeId = _current.typeId;
             info.compactId = _current.compactId;
-            info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+            info.hasTaggedMembers = (_current.sliceFlags & Protocol.FLAG_HAS_TAGGED_MEMBERS) != 0;
             info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
             Buffer buffer = _stream.getBuffer();
             final int end = buffer.b.position();
             int dataEnd = end;
-            if(info.hasOptionalMembers)
+            if(info.hasTaggedMembers)
             {
                 //
-                // Don't include the optional member end marker. It will be re-written by
+                // Don't include the tagged member end marker. It will be re-written by
                 // endSlice when the sliced data is re-written.
                 //
                 --dataEnd;
@@ -3115,15 +3115,15 @@ public class InputStream
         }
 
         @Override
-        boolean readOptional(int readTag, OptionalFormat expectedFormat)
+        boolean readTag(int readTag, TagFormat expectedFormat)
         {
             if(_current == null)
             {
-                return _stream.readOptImpl(readTag, expectedFormat);
+                return _stream.readTagImpl(readTag, expectedFormat);
             }
-            else if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            else if((_current.sliceFlags & Protocol.FLAG_HAS_TAGGED_MEMBERS) != 0)
             {
-                return _stream.readOptImpl(readTag, expectedFormat);
+                return _stream.readTagImpl(readTag, expectedFormat);
             }
             return false;
         }

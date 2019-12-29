@@ -578,22 +578,22 @@ public class OutputStream
     }
 
     /**
-     * Write the header information for an optional value.
+     * Write the header information for a tagged value.
      *
      * @param tag The numeric tag associated with the value.
-     * @param format The optional format of the value.
-     * @return True if the current encoding supports optionals, false otherwise.
+     * @param format The tag format of the value.
+     * @return True if the current encoding supports tagged members, false otherwise.
      **/
-    public boolean writeOptional(int tag, OptionalFormat format)
+    public boolean writeTag(int tag, TagFormat format)
     {
         assert(_encapsStack != null);
         if(_encapsStack.encoder != null)
         {
-            return _encapsStack.encoder.writeOptional(tag, format);
+            return _encapsStack.encoder.writeTag(tag, format);
         }
         else
         {
-            return writeOptionalImpl(tag, format);
+            return writeTagImpl(tag, format);
         }
     }
 
@@ -609,16 +609,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional byte to the stream.
+     * Writes a tagged byte to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The byte to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeByte(int tag, @Nullable Byte v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F1))
+            if(writeTag(tag, TagFormat.F1))
             {
                 writeByte(v);
             }
@@ -657,16 +657,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional byte sequence to the stream.
+     * Writes a tagged byte sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The byte sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeByteSeq(int tag, byte @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeByteSeq(v);
             }
@@ -721,16 +721,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional serializable Java object to the stream.
+     * Writes a tagged serializable Java object to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The serializable object to write. Nothing will be written to the stream if null is passed.
      **/
     public void writeSerializable(int tag, java.io.@Nullable Serializable v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSerializable(v);
             }
@@ -749,16 +749,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional boolean to the stream.
+     * Writes a tagged boolean to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The boolean to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeBool(int tag, @Nullable Boolean v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F1))
+            if(writeTag(tag, TagFormat.F1))
             {
                 writeBool(v);
             }
@@ -800,16 +800,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional boolean sequence to the stream.
+     * Writes a tagged boolean sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The boolean sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeBoolSeq(int tag, boolean @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeBoolSeq(v);
             }
@@ -828,16 +828,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional short to the stream.
+     * Writes a tagged short to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The short to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeShort(int tag, @Nullable Short v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F2))
+            if(writeTag(tag, TagFormat.F2))
             {
                 writeShort(v);
             }
@@ -867,16 +867,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional short sequence to the stream.
+     * Writes a tagged short sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The short sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeShortSeq(int tag, short @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSize(v == null || v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
                 writeShortSeq(v);
@@ -920,16 +920,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional int to the stream.
+     * Writes a tagged int to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The int to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeInt(int tag, @Nullable Integer v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F4))
+            if(writeTag(tag, TagFormat.F4))
             {
                 writeInt(v);
             }
@@ -970,16 +970,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional int sequence to the stream.
+     * Writes a tagged int sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The int sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeIntSeq(int tag, int @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
                 writeIntSeq(v);
@@ -1023,16 +1023,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional long to the stream.
+     * Writes a tagged long to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The long to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeLong(int tag, @Nullable Long v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F8))
+            if(writeTag(tag, TagFormat.F8))
             {
                 writeLong(v);
             }
@@ -1062,16 +1062,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional long sequence to the stream.
+     * Writes a tagged long sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The long sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeLongSeq(int tag, long @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
                 writeLongSeq(v);
@@ -1115,16 +1115,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional float to the stream.
+     * Writes a tagged float to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The float to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeFloat(int tag, @Nullable Float v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F4))
+            if(writeTag(tag, TagFormat.F4))
             {
                 writeFloat(v);
             }
@@ -1154,16 +1154,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional float sequence to the stream.
+     * Writes a tagged float sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The float sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeFloatSeq(int tag, float @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
                 writeFloatSeq(v);
@@ -1207,16 +1207,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional double to the stream.
+     * Writes a tagged double to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The double to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeDouble(int tag, @Nullable Double v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.F8))
+            if(writeTag(tag, TagFormat.F8))
             {
                 writeDouble(v);
             }
@@ -1246,16 +1246,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional double sequence to the stream.
+     * Writes a tagged double sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The double sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeDoubleSeq(int tag, double @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
                 writeDoubleSeq(v);
@@ -1359,16 +1359,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional string to the stream.
+     * Writes a tagged string to the stream.
      *
-     * @param tag The optional tag.
-     * @param v The optional string to write to the stream. Nothing will be written to the stream if null is passed.
+     * @param tag The tag.
+     * @param v The string to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeString(int tag, @Nullable String v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.VSize))
+            if(writeTag(tag, TagFormat.VSize))
             {
                 writeString(v);
             }
@@ -1398,16 +1398,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional string sequence to the stream.
+     * Writes a tagged string sequence to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The string sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeStringSeq(int tag, String @Nullable[] v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.FSize))
+            if(writeTag(tag, TagFormat.FSize))
             {
                 int pos = startSize();
                 writeStringSeq(v);
@@ -1436,16 +1436,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional proxy to the stream.
+     * Writes a tagged proxy to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The proxy to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeProxy(int tag, @Nullable ObjectPrx v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.FSize))
+            if(writeTag(tag, TagFormat.FSize))
             {
                 int pos = startSize();
                 writeProxy(v);
@@ -1496,16 +1496,16 @@ public class OutputStream
     }
 
     /**
-     * Writes an optional value to the stream.
+     * Writes a tagged value to the stream.
      *
-     * @param tag The optional tag.
+     * @param tag The tag.
      * @param v The value to write to the stream. Nothing will be written to the stream if null is passed.
      **/
     public void writeValue(int tag, @Nullable Value v)
     {
         if(v != null)
         {
-            if(writeOptional(tag, OptionalFormat.Class))
+            if(writeTag(tag, TagFormat.Class))
             {
                 writeValue(v);
             }
@@ -1523,11 +1523,11 @@ public class OutputStream
         _encapsStack.encoder.writeException(v);
     }
 
-    private boolean writeOptionalImpl(int tag, OptionalFormat format)
+    private boolean writeTagImpl(int tag, TagFormat format)
     {
         if(isEncoding_1_0())
         {
-            return false; // Optional members aren't supported with the 1.0 encoding.
+            return false; // Tagged members aren't supported with the 1.0 encoding.
         }
 
         int v = format.value();
@@ -1622,7 +1622,7 @@ public class OutputStream
         abstract void startSlice(String typeId, int compactId, boolean last);
         abstract void endSlice();
 
-        boolean writeOptional(int tag, OptionalFormat format)
+        boolean writeTag(int tag, TagFormat format)
         {
             return false;
         }
@@ -2005,13 +2005,13 @@ public class OutputStream
         void endSlice()
         {
             //
-            // Write the optional member end marker if some optional members
-            // were encoded. Note that the optional members are encoded before
+            // Write the tagged member end marker if some tagged members
+            // were encoded. Note that the tagged members are encoded before
             // the indirection table and are included in the slice size.
             //
-            if((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if((_current.sliceFlags & com.zeroc.IceInternal.Protocol.FLAG_HAS_TAGGED_MEMBERS) != 0)
             {
-                _stream.writeByte((byte)com.zeroc.IceInternal.Protocol.OPTIONAL_END_MARKER);
+                _stream.writeByte((byte)com.zeroc.IceInternal.Protocol.TAGGED_END_MARKER);
             }
 
             //
@@ -2050,17 +2050,17 @@ public class OutputStream
         }
 
         @Override
-        boolean writeOptional(int tag, OptionalFormat format)
+        boolean writeTag(int tag, TagFormat format)
         {
             if(_current == null)
             {
-                return _stream.writeOptionalImpl(tag, format);
+                return _stream.writeTagImpl(tag, format);
             }
             else
             {
-                if(_stream.writeOptionalImpl(tag, format))
+                if(_stream.writeTagImpl(tag, format))
                 {
-                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_TAGGED_MEMBERS;
                     return true;
                 }
                 else
@@ -2094,9 +2094,9 @@ public class OutputStream
                 //
                 _stream.writeBlob(info.bytes);
 
-                if(info.hasOptionalMembers)
+                if(info.hasTaggedMembers)
                 {
-                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.sliceFlags |= com.zeroc.IceInternal.Protocol.FLAG_HAS_TAGGED_MEMBERS;
                 }
 
                 //
