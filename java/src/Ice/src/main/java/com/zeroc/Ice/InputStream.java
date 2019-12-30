@@ -597,7 +597,7 @@ public class InputStream
 
         if(!_encapsStack.encoding_1_0)
         {
-            skipTagged();
+            skipRemainingTagged();
             if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
                 throw new EncapsulationException();

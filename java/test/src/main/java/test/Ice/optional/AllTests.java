@@ -10,7 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OperationMode;
-import com.zeroc.Ice.OptionalFormat;
+import com.zeroc.Ice.TagFormat;
 import com.zeroc.Ice.OutputStream;
 
 import test.Ice.optional.Test.*;
@@ -52,7 +52,7 @@ public class AllTests
         test(initial.equals(base));
         out.println("ok");
 
-        out.print("testing optional data members... ");
+        out.print("testing tagged data members... ");
         out.flush();
 
         OneOptional oo1 = new OneOptional();
@@ -237,7 +237,7 @@ public class AllTests
             test(mo5.getSer().equals(mo1.getSer()));
         }
 
-        // Clear the first half of the optional parameters
+        // Clear the first half of the tagged parameters
         MultiOptional mo6 = new MultiOptional();
         mo6.setB(mo5.getB());
         mo6.setD(mo5.getD());
@@ -288,7 +288,7 @@ public class AllTests
 
         test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
 
-        // Clear the second half of the optional parameters
+        // Clear the second half of the tagged parameters
         MultiOptional mo8 = new MultiOptional();
         mo8.setA(mo5.getA());
         mo8.setC(mo5.getC());
@@ -359,7 +359,7 @@ public class AllTests
 
         //
         // Send a request using blobjects. Upon receival, we don't read
-        // any of the optional members. This ensures the optional members
+        // any of the tagged members. This ensures the tagged members
         // are skipped even if the receiver knows nothing about them.
         //
         factory.setEnabled(true);
@@ -392,7 +392,7 @@ public class AllTests
         factory.setEnabled(false);
 
         //
-        // Use the 1.0 encoding with operations whose only class parameters are optional.
+        // Use the 1.0 encoding with operations whose only class parameters are tagged.
         //
         @Nullable OneOptional oo = new OneOptional(53);
         initial.sendOptionalClass(true, oo);
@@ -428,9 +428,9 @@ public class AllTests
 
         os = new OutputStream(communicator);
         os.startEncapsulation();
-        os.writeOptional(1, OptionalFormat.F4);
+        os.writeTag(1, TagFormat.F4);
         os.writeInt(15);
-        os.writeOptional(1, OptionalFormat.VSize);
+        os.writeTag(1, TagFormat.VSize);
         os.writeString("test");
         os.endEncapsulation();
         inEncaps = os.finished();
@@ -519,7 +519,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing marshalling of objects with optional objects...");
+        out.print("testing marshalling of objects with tagged objects...");
         out.flush();
         {
             F f = new F();
@@ -546,7 +546,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing optional with default values... ");
+        out.print("testing tagged memebrs with default values... ");
         out.flush();
         {
             WD wd = (WD)initial.pingPong(new WD());
@@ -604,7 +604,7 @@ public class AllTests
             }
             out.println("ok");
 
-            out.print("testing optionals with unknown classes...");
+            out.print("testing tagged unknown classes...");
             out.flush();
             {
                 A a = new A();
@@ -612,7 +612,7 @@ public class AllTests
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeValue(a);
-                os.writeOptional(1, OptionalFormat.Class);
+                os.writeTag(1, TagFormat.Class);
                 os.writeValue(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -626,7 +626,7 @@ public class AllTests
             out.println("ok");
         }
 
-        out.print("testing optional parameters... ");
+        out.print("testing tagged parameters... ");
         out.flush();
         final boolean reqParams = initial.supportsRequiredParams();
 
@@ -650,7 +650,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F1);
+                os.writeTag(2, TagFormat.F1);
                 os.writeByte(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -687,7 +687,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F1);
+                os.writeTag(2, TagFormat.F1);
                 os.writeBool(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -724,7 +724,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F2);
+                os.writeTag(2, TagFormat.F2);
                 os.writeShort(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -761,7 +761,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F4);
+                os.writeTag(2, TagFormat.F4);
                 os.writeInt(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -798,7 +798,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(1, OptionalFormat.F8);
+                os.writeTag(1, TagFormat.F8);
                 os.writeLong(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -835,7 +835,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F4);
+                os.writeTag(2, TagFormat.F4);
                 os.writeFloat(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -872,7 +872,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.F8);
+                os.writeTag(2, TagFormat.F8);
                 os.writeDouble(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -909,7 +909,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeString(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -946,16 +946,16 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.Size);
+                os.writeTag(2, TagFormat.Size);
                 MyEnum.ice_write(os, p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 inv = initial.ice_invoke("opMyEnumReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.Size));
+                test(in.readTag(1, TagFormat.Size));
                 test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
-                test(in.readOptional(3, OptionalFormat.Size));
+                test(in.readTag(3, TagFormat.Size));
                 test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
                 in.endEncapsulation();
 
@@ -987,7 +987,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(1);
                 SmallStruct.ice_write(os, p1);
                 os.endEncapsulation();
@@ -995,11 +995,11 @@ public class AllTests
                 inv = initial.ice_invoke("opSmallStructReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 SmallStruct f = SmallStruct.ice_read(in);
                 test(f.m == 56);
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 f = SmallStruct.ice_read(in);
                 test(f.m == 56);
@@ -1031,7 +1031,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(4);
                 FixedStruct.ice_write(os, p1);
                 os.endEncapsulation();
@@ -1039,11 +1039,11 @@ public class AllTests
                 inv = initial.ice_invoke("opFixedStructReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 FixedStruct f = FixedStruct.ice_read(in);
                 test(f.m == 56);
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 f = FixedStruct.ice_read(in);
                 test(f.m == 56);
@@ -1075,7 +1075,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 VarStruct.ice_write(os, p1);
                 os.endSize(pos);
@@ -1084,11 +1084,11 @@ public class AllTests
                 inv = initial.ice_invoke("opVarStructReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.FSize));
+                test(in.readTag(1, TagFormat.FSize));
                 in.skip(4);
                 VarStruct v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
-                test(in.readOptional(3, OptionalFormat.FSize));
+                test(in.readTag(3, TagFormat.FSize));
                 in.skip(4);
                 v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
@@ -1120,7 +1120,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.Class);
+                os.writeTag(2, TagFormat.Class);
                 os.writeValue(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1160,7 +1160,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 os.writeProxy(p1);
                 os.endSize(pos);
@@ -1180,7 +1180,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing optional parameters and sequences... ");
+        out.print("testing tagged parameters and sequences... ");
         out.flush();
         {
             byte @Nullable[] p1 = null;
@@ -1203,7 +1203,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeByteSeq(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1240,7 +1240,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeBoolSeq(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1278,7 +1278,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 2 + (p1.length > 254 ? 5 : 1));
                 os.writeShortSeq(p1);
                 os.endEncapsulation();
@@ -1317,7 +1317,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 4 + (p1.length > 254 ? 5 : 1));
                 os.writeIntSeq(p1);
                 os.endEncapsulation();
@@ -1356,7 +1356,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 8 + (p1.length > 254 ? 5 : 1));
                 os.writeLongSeq(p1);
                 os.endEncapsulation();
@@ -1395,7 +1395,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 4 + (p1.length > 254 ? 5 : 1));
                 os.writeFloatSeq(p1);
                 os.endEncapsulation();
@@ -1434,7 +1434,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 8 + (p1.length > 254 ? 5 : 1));
                 os.writeDoubleSeq(p1);
                 os.endEncapsulation();
@@ -1473,7 +1473,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 os.writeStringSeq(p1);
                 os.endSize(pos);
@@ -1528,7 +1528,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length + (p1.length > 254 ? 5 : 1));
                 SmallStructSeqHelper.write(os, p1);
                 os.endEncapsulation();
@@ -1536,14 +1536,14 @@ public class AllTests
                 inv = initial.ice_invoke("opSmallStructSeqReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 SmallStruct[] arr = SmallStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
                 {
                     test(arr[i].equals(p1[i]));
                 }
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 arr = SmallStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
@@ -1582,7 +1582,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.size() + (p1.size() > 254 ? 5 : 1));
                 SmallStructListHelper.write(os, p1);
                 os.endEncapsulation();
@@ -1590,11 +1590,11 @@ public class AllTests
                 inv = initial.ice_invoke("opSmallStructListReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
                 test(arr.equals(p1));
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 arr = SmallStructListHelper.read(in);
                 test(arr.equals(p1));
@@ -1642,7 +1642,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.length * 4 + (p1.length > 254 ? 5 : 1));
                 FixedStructSeqHelper.write(os, p1);
                 os.endEncapsulation();
@@ -1650,14 +1650,14 @@ public class AllTests
                 inv = initial.ice_invoke("opFixedStructSeqReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 FixedStruct[] arr = FixedStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
                 {
                     test(arr[i].equals(p1[i]));
                 }
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 arr = FixedStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
@@ -1696,7 +1696,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.size() * 4 + (p1.size() > 254 ? 5 : 1));
                 FixedStructListHelper.write(os, p1);
                 os.endEncapsulation();
@@ -1704,11 +1704,11 @@ public class AllTests
                 inv = initial.ice_invoke("opFixedStructListReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
                 test(arr.equals(p1));
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 arr = FixedStructListHelper.read(in);
                 test(arr.equals(p1));
@@ -1756,7 +1756,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 VarStructSeqHelper.write(os, p1);
                 os.endSize(pos);
@@ -1765,14 +1765,14 @@ public class AllTests
                 inv = initial.ice_invoke("opVarStructSeqReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.FSize));
+                test(in.readTag(1, TagFormat.FSize));
                 in.skip(4);
                 VarStruct[] arr = VarStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
                 {
                     test(arr[i].equals(p1[i]));
                 }
-                test(in.readOptional(3, OptionalFormat.FSize));
+                test(in.readTag(3, TagFormat.FSize));
                 in.skip(4);
                 arr = VarStructSeqHelper.read(in);
                 for(int i = 0; i < p1.length; ++i)
@@ -1808,17 +1808,17 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSerializable(p1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 inv = initial.ice_invoke("opSerializableReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 SerializableClass sc = in.readSerializable(SerializableClass.class);
                 test(sc.equals(p1));
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 sc = in.readSerializable(SerializableClass.class);
                 test(sc.equals(p1));
                 in.endEncapsulation();
@@ -1830,7 +1830,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing optional parameters and dictionaries... ");
+        out.print("testing tagged parameters and dictionaries... ");
         out.flush();
         {
             java.util.@Nullable Map<Integer, Integer> p1 = null;
@@ -1854,7 +1854,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.VSize);
+                os.writeTag(2, TagFormat.VSize);
                 os.writeSize(p1.size() * 8 + (p1.size() > 254 ? 5 : 1));
                 IntIntDictHelper.write(os, p1);
                 os.endEncapsulation();
@@ -1862,11 +1862,11 @@ public class AllTests
                 inv = initial.ice_invoke("opIntIntDictReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.VSize));
+                test(in.readTag(1, TagFormat.VSize));
                 in.skipSize();
                 java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
                 test(m.equals(p1));
-                test(in.readOptional(3, OptionalFormat.VSize));
+                test(in.readTag(3, TagFormat.VSize));
                 in.skipSize();
                 m = IntIntDictHelper.read(in);
                 test(m.equals(p1));
@@ -1900,7 +1900,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 StringIntDictHelper.write(os, p1);
                 os.endSize(pos);
@@ -1909,11 +1909,11 @@ public class AllTests
                 inv = initial.ice_invoke("opStringIntDictReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.FSize));
+                test(in.readTag(1, TagFormat.FSize));
                 in.skip(4);
                 java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
                 test(m.equals(p1));
-                test(in.readOptional(3, OptionalFormat.FSize));
+                test(in.readTag(3, TagFormat.FSize));
                 in.skip(4);
                 m = StringIntDictHelper.read(in);
                 test(m.equals(p1));
@@ -1952,7 +1952,7 @@ public class AllTests
 
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, OptionalFormat.FSize);
+                os.writeTag(2, TagFormat.FSize);
                 int pos = os.startSize();
                 IntOneOptionalDictHelper.write(os, p1);
                 os.endSize(pos);
@@ -1961,11 +1961,11 @@ public class AllTests
                 inv = initial.ice_invoke("opIntOneOptionalDictReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, OptionalFormat.FSize));
+                test(in.readTag(1, TagFormat.FSize));
                 in.skip(4);
                 java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
                 test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-                test(in.readOptional(3, OptionalFormat.FSize));
+                test(in.readTag(3, TagFormat.FSize));
                 in.skip(4);
                 m = IntOneOptionalDictHelper.read(in);
                 test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
@@ -1985,9 +1985,9 @@ public class AllTests
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(1, OptionalFormat.Class);
+            os.writeTag(1, TagFormat.Class);
             os.writeValue(f);
-            os.writeOptional(2, OptionalFormat.Class);
+            os.writeTag(2, TagFormat.Class);
             os.writeValue(f.ae);
             os.endEncapsulation();
             inEncaps = os.finished();
@@ -2001,7 +2001,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing exception optionals... ");
+        out.print("testing exception with tagged members... ");
         out.flush();
         {
             try
@@ -2035,7 +2035,7 @@ public class AllTests
             try
             {
                 //
-                // Use the 1.0 encoding with an exception whose only class members are optional.
+                // Use the 1.0 encoding with an exception whose only class members are tagged.
                 //
                 int a = 30;
                 String b = "test";
@@ -2131,7 +2131,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing optionals with marshaled results... ");
+        out.print("testing tagged values with marshaled results... ");
         out.flush();
         {
             test(initial.opMStruct1() != null);
@@ -2239,14 +2239,14 @@ public class AllTests
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
             out.writeString("test");
-            out.writeOptional(1, OptionalFormat.FSize);
+            out.writeTag(1, TagFormat.FSize);
             String[] o = { "test1", "test2", "test3", "test4" };
             int pos = out.startSize();
             out.writeStringSeq(o);
             out.endSize(pos);
             A a = new A();
             a.setMc(18);
-            out.writeOptional(1000, OptionalFormat.Class);
+            out.writeTag(1000, TagFormat.Class);
             out.writeValue(a);
             out.endSlice();
             // ::Test::B
