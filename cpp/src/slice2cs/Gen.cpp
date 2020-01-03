@@ -1339,9 +1339,6 @@ Slice::Gen::generate(const UnitPtr& p)
     TypeIdVisitor typeIdVisitor(_out);
     p->visit(&typeIdVisitor, false);
 
-    ResultVisitor resultVisitor(_out);
-    p->visit(&resultVisitor, false);
-
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
 
@@ -2459,87 +2456,6 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
     {
         _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name()) << ");";
     }
-}
-
-Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out)
-    : CsVisitor(out)
-{
-}
-
-namespace
-{
-
-bool
-hasResultType(const ModulePtr& p)
-{
-    ClassList classes = p->classes();
-    for(ClassList::const_iterator i = classes.begin(); i != classes.end(); ++i)
-    {
-        ClassDefPtr cl = *i;
-        OperationList operations = cl->operations();
-        for(OperationList::const_iterator j = operations.begin(); j != operations.end(); ++j)
-        {
-            if((*j)->hasMarshaledResult())
-            {
-                return true;
-            }
-        }
-    }
-
-    ModuleList modules = p->modules();
-    for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
-    {
-        if(hasResultType(*i))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-}
-
-bool
-Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(hasResultType(p))
-    {
-        moduleStart(p);
-        _out << sp << nl << "namespace " << fixId(p->name());
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::ResultVisitor::visitClassDefStart(const ClassDefPtr&)
-{
-    return true;
-}
-
-void
-Slice::Gen::ResultVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-void
-Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& /*p*/)
-{
-    /*ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    string ns = getNamespace(cl);
-    ParamDeclList outParams = p->outParameters();
-    TypePtr ret = p->returnType();
-
-    */
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :

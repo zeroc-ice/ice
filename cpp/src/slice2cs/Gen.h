@@ -143,19 +143,6 @@ private:
         void writeMemberHashCode(const DataMemberList&);
     };
 
-    class ResultVisitor : public CsVisitor
-    {
-    public:
-
-        ResultVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
-    };
-
     class ProxyVisitor : public CsVisitor
     {
     public:
