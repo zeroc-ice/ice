@@ -262,26 +262,13 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     string scoped = p->scoped();
     string ns = getNamespace(p);
     ClassList allBases = p->allBases();
-    StringList ids;
     ClassList bases = p->bases();
-
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Value");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    assert(find(ids.begin(), ids.end(), scoped) != ids.end());
 
     //
     // Marshaling support
     //
-    DataMemberList allClassMembers = p->allClassDataMembers();
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    DataMemberList classMembers = p->classDataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1636,92 +1623,84 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
     string ns = getNamespace(p);
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
 
-    if(!p->isInterface())
-    {
-        _out << sp << nl << "partial void ice_initialize();";
-        if(allDataMembers.empty())
-        {
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public " << name << spar << epar;
-            _out << sb;
-            _out << nl << "ice_initialize();";
-            _out << eb;
-        }
-        else
-        {
-            const bool propertyMapping = p->hasMetaData("cs:property");
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public " << name << spar << epar;
-            if(hasBaseClass)
-            {
-                _out << " : base()";
-            }
-            _out << sb;
-            writeDataMemberInitializers(dataMembers, ns, propertyMapping);
-            _out << nl << "ice_initialize();";
-            _out << eb;
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public " << name << spar;
-            vector<string> paramDecl;
-            for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
-            {
-                string memberName = fixId((*d)->name());
-                string memberType = typeToString((*d)->type(), ns, (*d)->optional());
-                paramDecl.push_back(memberType + " " + memberName);
-            }
-            _out << paramDecl << epar;
-            if(hasBaseClass && allDataMembers.size() != dataMembers.size())
-            {
-                _out << " : base" << spar;
-                vector<string> baseParamNames;
-                DataMemberList baseDataMembers = bases.front()->allDataMembers();
-                for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
-                {
-                    baseParamNames.push_back(fixId((*d)->name()));
-                }
-                _out << baseParamNames << epar;
-            }
-            _out << sb;
-            for(auto m : dataMembers)
-            {
-                _out << nl << "this." << fixId(m->name(), Slice::ObjectType) << " = " << fixId(m->name()) << ";";
-            }
-            _out << nl << "ice_initialize();";
-            _out << eb;
-        }
-    }
-
-    if(!p->isInterface())
+    _out << sp << nl << "partial void ice_initialize();";
+    if(allDataMembers.empty())
     {
         _out << sp;
-        _out << nl << "private const string _id = \""
-             << p->scoped() << "\";";
+        emitGeneratedCodeAttribute();
+        _out << nl << "public " << name << spar << epar;
+        _out << sb;
+        _out << nl << "ice_initialize();";
+        _out << eb;
+    }
+    else
+    {
+        const bool propertyMapping = p->hasMetaData("cs:property");
 
         _out << sp;
-        _out << nl << "public static new string ice_staticId()";
+        emitGeneratedCodeAttribute();
+        _out << nl << "public " << name << spar << epar;
+        if(hasBaseClass)
+        {
+            _out << " : base()";
+        }
         _out << sb;
-        _out << nl << "return _id;";
+        writeDataMemberInitializers(dataMembers, ns, propertyMapping);
+        _out << nl << "ice_initialize();";
         _out << eb;
 
-        _out << nl << "public override string ice_id()";
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public " << name << spar;
+        vector<string> paramDecl;
+        for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+        {
+            string memberName = fixId((*d)->name());
+            string memberType = typeToString((*d)->type(), ns, (*d)->optional());
+            paramDecl.push_back(memberType + " " + memberName);
+        }
+        _out << paramDecl << epar;
+        if(hasBaseClass && allDataMembers.size() != dataMembers.size())
+        {
+            _out << " : base" << spar;
+            vector<string> baseParamNames;
+            DataMemberList baseDataMembers = bases.front()->allDataMembers();
+            for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+            {
+                baseParamNames.push_back(fixId((*d)->name()));
+            }
+            _out << baseParamNames << epar;
+        }
         _out << sb;
-        _out << nl << "return _id;";
+        for(auto m : dataMembers)
+        {
+            _out << nl << "this." << fixId(m->name(), Slice::ObjectType) << " = " << fixId(m->name()) << ";";
+        }
+        _out << nl << "ice_initialize();";
         _out << eb;
-
-        writeMarshaling(p);
     }
+
+    _out << sp;
+    _out << nl << "private const string _id = \""
+         << p->scoped() << "\";";
+
+    _out << sp;
+    _out << nl << "public static new string ice_staticId()";
+    _out << sb;
+    _out << nl << "return _id;";
+    _out << eb;
+
+    _out << nl << "public override string ice_id()";
+    _out << sb;
+    _out << nl << "return _id;";
+    _out << eb;
+
+    writeMarshaling(p);
 
     _out << eb;
 }
@@ -1765,9 +1744,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string ns = getNamespace(p);
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamDecl;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -2136,7 +2112,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string name = fixId(p->name());
     string scope = fixId(p->scope());
     string ns = getNamespace(p);
-    DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
 
     const bool propertyMapping = p->hasMetaData("cs:property");
@@ -2487,29 +2462,23 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isInterface() && p->allOperations().size() == 0)
+    if(!p->isInterface())
     {
         return false;
     }
 
     string name = p->name();
     string ns = getNamespace(p);
-    ClassList bases = p->bases();
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    writeDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << "Prx : ";
 
-    vector<string> baseInterfaces;
-    for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-    {
-        ClassDefPtr def = *q;
-        if(def->isInterface() || def->allOperations().size() > 0)
-        {
-            baseInterfaces.push_back(getUnqualified(*q, ns, "", "Prx"));
-        }
-    }
+    vector<string> baseInterfaces = mapfn<ClassDefPtr>(p->bases(), [&ns](const auto& c)
+                                                       {
+                                                           return getUnqualified(c, ns, "", "Prx");
+                                                       });
 
     if(baseInterfaces.empty())
     {
@@ -2646,7 +2615,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     list<ParamInfo> inParams = getAllInParams(operation);
     list<ParamInfo> requiredInParams;
     list<ParamInfo> optionalInParams;
-    Slice::getInParams(operation, requiredInParams, optionalInParams, "iceP_");
+    getInParams(operation, requiredInParams, optionalInParams, "iceP_");
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
@@ -3236,7 +3205,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
     list<ParamInfo> optionalInParams;
-    Slice::getInParams(operation, requiredInParams, optionalInParams, "iceP_");
+    getInParams(operation, requiredInParams, optionalInParams, "iceP_");
 
     list<ParamInfo> outParams = getAllOutParams(operation, "iceP_");
     list<ParamInfo> requiredOutParams;
