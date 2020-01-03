@@ -465,22 +465,6 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 }
 
 vector<string>
-Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool internal)
-{
-    vector<string> params;
-
-    string name = fixId(op->name());
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
-    ParamDeclList paramList = op->inParameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional())
-                         + " " + (internal ? "iceP_" + (*q)->name() : fixId((*q)->name())));
-    }
-    return params;
-}
-
-vector<string>
 getInvocationArgsAMI(const OperationPtr& op,
                      const string& context = "",
                      const string& progress = "null",
@@ -503,25 +487,6 @@ getInvocationArgsAMI(const OperationPtr& op,
     args.push_back(async);
 
     return args;
-}
-
-vector<string>
-Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
-{
-    vector<string> params;
-    ParamDeclList paramList = op->parameters();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        string param = getParamAttributes(*q);
-        if((*q)->isOutParam())
-        {
-            param += "out ";
-        }
-        param += typeToString((*q)->type(), ns, (*q)->optional()) + " " + fixId((*q)->name());
-        params.push_back(param);
-    }
-    return params;
 }
 
 void
@@ -3587,180 +3552,15 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 }
 
-Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
-{
-}
-
-void
-Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment)
-{
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    string ns = getNamespace(cl);
-    string opName = op->name();
-    TypePtr ret = op->returnType();
-    ParamDeclList params = op->parameters();
-    ParamDeclList outParams;
-    ParamDeclList inParams;
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        if((*i)->isOutParam())
-        {
-            outParams.push_back(*i);
-        }
-        else
-        {
-            inParams.push_back(*i);
-        }
-    }
-
-    if(comment)
-    {
-        _out << nl << "// ";
-    }
-    else
-    {
-        _out << sp << nl;
-    }
-
-    if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
-    {
-        vector<string> pDecl = getInParams(op, ns);
-
-        _out << "public override ";
-
-        _out << "global::System.Threading.Tasks.Task";
-        if(outParams.size() > 0 || ret)
-        {
-            _out << "<" << resultType(op, ns, true) << ">";
-        }
-        _out << " " << opName << "Async" << spar << pDecl << getUnqualified("Ice.Current", ns) + " current = null"
-             << epar;
-
-        if(comment)
-        {
-            _out << ';';
-            return;
-        }
-
-        _out << sb;
-        if(ret)
-        {
-            _out << nl << typeToString(ret, ns) << " ret = " << writeValue(ret, ns) << ';';
-        }
-        for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-        {
-            if((*i)->isOutParam())
-            {
-                string name = fixId((*i)->name());
-                TypePtr type = (*i)->type();
-                _out << nl << typeToString(type, ns) << ' ' << name << " = " << writeValue(type, ns) << ';';
-            }
-        }
-        _out << nl << "return global::System.Threading.Tasks.Task.FromResult";
-        if(!ret && outParams.size() == 0)
-        {
-            _out << "<global::System.Object>(null);";
-        }
-        else
-        {
-
-            bool returnStruct = (op->returnType() && !outParams.empty()) || outParams.size() > 1 ||
-                op->hasMarshaledResult();
-
-            if(returnStruct)
-            {
-                _out << "(new " << resultType;
-            }
-            _out << spar;
-            if(ret)
-            {
-                _out << "ret";
-            }
-
-            for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-            {
-                if((*i)->isOutParam())
-                {
-                    _out << fixId((*i)->name());
-                }
-            }
-
-            if(op->hasMarshaledResult())
-            {
-                _out << "current";
-            }
-
-            _out << epar;
-            if(returnStruct)
-            {
-                _out << ")";
-            }
-            _out << ";";
-        }
-        _out << eb;
-    }
-    else
-    {
-        string retS = resultType(op, ns, true);
-
-        vector<string> pDecls = op->hasMarshaledResult() ? getInParams(op, ns) : getParams(op, ns);
-
-        _out << "public override ";
-        _out << retS << ' ' << fixId(opName) << spar << pDecls;
-        _out << getUnqualified("Ice.Current", ns) + " current";
-        _out << epar;
-        if(comment)
-        {
-            _out << ';';
-            return;
-        }
-        _out << sb;
-        if(op->hasMarshaledResult())
-        {
-            _out << nl << "return new " << fixId(cl->scope() + marshaledResultStructName(cl->name(), op->name()))
-                 << "(";
-            if(ret)
-            {
-                _out << writeValue(ret, ns);
-            }
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-            {
-                if(ret || i != outParams.begin())
-                {
-                    _out << ", ";
-                }
-                _out << writeValue((*i)->type(), ns);
-            }
-            _out << ", current);";
-        }
-        else
-        {
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-            {
-                string name = fixId((*i)->name());
-                TypePtr type = (*i)->type();
-                _out << nl << name << " = " << writeValue(type, ns) << ';';
-            }
-
-            if(ret)
-            {
-                _out << nl << "return " << writeValue(ret, ns) << ';';
-            }
-        }
-        _out << eb;
-    }
-}
-
 Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out) :
-    BaseImplVisitor(out)
+    CsVisitor(out)
 {
 }
 
 bool
 Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }
@@ -3782,31 +3582,91 @@ Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->allOperations().size() == 0)
-    {
-        return false;
-    }
-
-    string name = p->name();
-
-    _out << sp << nl << "public class " << name << 'I';
     if(p->isInterface())
     {
-        _out << " : " << name << "Disp_";
+        _out << sp << nl << "public class " << p->name() << "I : " << fixId(p->name());
+        _out << sb;
+    }
+    return p->isInterface();
+}
+
+void
+Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
+{
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+    string ns = getNamespace(cl);
+    string opName = op->name();
+
+    list<ParamInfo> outParams = getAllOutParams(op);
+
+    _out << sp << nl;
+
+    if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
+    {
+        _out << "public override " << resultTask(op, ns, true) << " " << opName << "Async" << spar
+             << getNames(getAllInParams(op))
+             << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
+             << epar;
+        _out << sb;
+
+        for(const auto& p : outParams)
+        {
+            _out << nl << p.typeStr << " " << p.name << " = " << writeValue(p.type, ns) << ';';
+        }
+
+        if(outParams.size() == 0)
+        {
+            _out << nl << "global::System.Threading.Tasks.Task.CompletedTask;";
+        }
+        else if(op->hasMarshaledResult() || outParams.size() > 1)
+        {
+            _out << nl << "return new " << opName << (op->hasMarshaledResult() ? "MarshaledResult" : "Result")
+                 << spar
+                 << getNames(getAllOutParams(op, "", true));
+            if(op->hasMarshaledResult())
+            {
+                _out << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"));
+            }
+            _out << epar << ";";
+        }
+        else
+        {
+            _out << nl << "return " << outParams.front().name << ";";
+        }
+        _out << eb;
     }
     else
     {
-        _out << " : " << fixId(name);
-    }
-    _out << sb;
+        _out << "public override " << resultType(op, ns, true) << " " << opName << spar
+             << getNames(getAllInParams(op))
+             << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
+             << epar;
+        _out << sb;
 
-    OperationList ops = p->allOperations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        writeOperation(*r, false);
+        if(op->hasMarshaledResult())
+        {
+            _out << nl << "return new " << opName << "MarshaledResult"
+                 << spar
+                 << getNames(getAllOutParams(op, "", true))
+                 << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
+                 << epar << ";";
+        }
+        else
+        {
+            for(const auto& p : outParams)
+            {
+                if(p.param)
+                {
+                    _out << nl << p.name << " = " << writeValue(p.type, ns) << ';';
+                }
+                else
+                {
+                    _out << nl << "return " << writeValue(p.type, ns) << ';';
+                }
+            }
+        }
+        _out << eb;
     }
-
-    return true;
 }
 
 void

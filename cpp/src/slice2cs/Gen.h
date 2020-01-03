@@ -30,9 +30,6 @@ protected:
 
     virtual void writeMarshaling(const ClassDefPtr&);
 
-    static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-    static std::vector<std::string> getInParams(const OperationPtr&, const std::string&, bool = false);
-
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
     void emitGeneratedCodeAttribute();
@@ -202,18 +199,7 @@ private:
         void writeMethodDeclaration(const OperationPtr&);
     };
 
-    class BaseImplVisitor : public CsVisitor
-    {
-    public:
-
-        BaseImplVisitor(::IceUtilInternal::Output&);
-
-    protected:
-
-        void writeOperation(const OperationPtr&, bool);
-    };
-
-    class ImplVisitor : public BaseImplVisitor
+    class ImplVisitor : public CsVisitor
     {
     public:
 
@@ -222,6 +208,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
     };
 };
