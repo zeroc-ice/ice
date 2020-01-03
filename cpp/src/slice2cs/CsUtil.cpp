@@ -704,26 +704,26 @@ Slice::isValueType(const TypePtr& type)
     return s && isImmutableType(s);
 }
 
-Slice::ParamInfo::ParamInfo(const string& name, const TypePtr& type, bool optional, int tag, const string& prefix)
+Slice::ParamInfo::ParamInfo(const string& pName, const TypePtr& pType, bool pOptional, int pTag, const string& pPrefix)
 {
-    this->name = CsGenerator::fixId(prefix + name);
-    this->type = type;
-    this->typeStr = CsGenerator::typeToString(type, "", optional);
-    this->optional = optional;
-    this->nullable = isNullable(type);
-    this->tag = tag;
+    this->name = CsGenerator::fixId(pPrefix + pName);
+    this->type = pType;
+    this->typeStr = CsGenerator::typeToString(pType, "", pOptional);
+    this->optional = pOptional;
+    this->nullable = isNullable(pType);
+    this->tag = pTag;
     this->param = 0;
 }
 
-Slice::ParamInfo::ParamInfo(const ParamDeclPtr& param, const string& prefix)
+Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
 {
-    this->name = CsGenerator::fixId(prefix + param->name());
-    this->type = param->type();
-    this->typeStr = CsGenerator::typeToString(type, "", param->optional());
-    this->optional = param->optional();
+    this->name = CsGenerator::fixId(pPrefix + pParam->name());
+    this->type = pParam->type();
+    this->typeStr = CsGenerator::typeToString(type, "", pParam->optional());
+    this->optional = pParam->optional();
     this->nullable = isNullable(type);
-    this->tag = param->tag();
-    this->param = param;
+    this->tag = pParam->tag();
+    this->param = pParam;
 }
 
 list<ParamInfo>
@@ -933,6 +933,7 @@ Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
+    EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
     const string stream = customStream.empty() ? "ostr" : customStream;

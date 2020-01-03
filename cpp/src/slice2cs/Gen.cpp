@@ -217,13 +217,11 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
 
 void
 Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const string& name, const string& ns,
-                                         bool forStruct,
                                          const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->optional())
     {
-        assert(!forStruct);
         StructPtr st = StructPtr::dynamicCast(member->type());
         if(st && isImmutableType(st))
         {
@@ -242,12 +240,11 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
 
 void
 Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const string& name, const string& ns,
-                                           bool forStruct, const string& customStream)
+                                           const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->optional())
     {
-        assert(!forStruct);
         writeOptionalUnmarshalCode(_out, member->type(), ns, unmarshalParamArgument(member->type(), "this." + name, ns),
                                    member->tag(), stream);
     }
@@ -2345,7 +2342,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeMarshalDataMember(m, fixId(m->name()), ns, true);
+        writeMarshalDataMember(m, fixId(m->name()), ns);
     }
     _out << eb;
 
@@ -2355,7 +2352,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeUnmarshalDataMember(m, fixId(m->name()), ns, true);
+        writeUnmarshalDataMember(m, fixId(m->name()), ns);
     }
     _out << eb;
 
