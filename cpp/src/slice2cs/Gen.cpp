@@ -2397,16 +2397,14 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "public static void Write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
          << " v)";
     _out << sb;
-    writeMarshalCode(_out, p, ns, "v");
+    _out << nl << "ostr.WriteEnum((int)v, " << p->maxValue() << ");";
     _out << eb;
 
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public static " << name << " Read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
     _out << sb;
-    _out << nl << name << " v;";
-    writeUnmarshalCode(_out, p, ns, "v");
-    _out << nl << "return v;";
+    _out << nl << "return (" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
     _out << eb;
 
     _out << eb;
