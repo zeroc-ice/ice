@@ -4061,6 +4061,21 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
+StringList
+Slice::ClassDef::ids() const
+{
+    StringList ids;
+    ClassList bases = allBases();
+    transform(bases.begin(), bases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+    StringList other;
+    other.push_back(scoped());
+    other.push_back("::Ice::Object");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+    return ids;
+}
+
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf,
                           const ClassList& bases) :
     SyntaxTreeBase(container->unit()),

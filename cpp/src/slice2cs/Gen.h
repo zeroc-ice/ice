@@ -19,28 +19,24 @@ public:
 
 protected:
 
-    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, const std::string&, bool = false,
-                                     bool = false, const std::string& = "");
-    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
-    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
+    void writeMarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
+                            const std::string& stream = "ostr", const std::string& obj = "");
+    void writeUnmarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
+                              const std::string& stream = "istr");
+    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false,
+                                const std::string& stream = "ostr");
+    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false,
+                                  const std::string& stream = "istr");
 
-    virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
     static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
     static std::vector<std::string> getInParams(const OperationPtr&, const std::string&, bool = false);
-    static std::vector<std::string> getOutParams(const OperationPtr&, const std::string&, bool, bool);
-    static std::vector<std::string> getArgs(const OperationPtr&);
-    static std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
-    static std::string getDispatchParams(const OperationPtr&, std::string&, std::vector<std::string>&,
-                                         std::vector<std::string>&, const std::string&);
 
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
     void emitGeneratedCodeAttribute();
     void emitPartialTypeAttributes();
-
-    static std::string getParamAttributes(const ParamDeclPtr&);
 
     std::string writeValue(const TypePtr&, const std::string&);
 
@@ -61,10 +57,8 @@ protected:
     void writeDocCommentOp(const OperationPtr&);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAMI(const OperationPtr&, ParamDir, const std::string&, const std::string& = "",
-                            const std::string& = "", const std::string& = "");
-    void writeDocCommentTaskAsyncAMI(const OperationPtr&, const std::string&, const std::string& = "",
-                                     const std::string& = "", const std::string& = "");
+    void writeDocCommentAMI(const OperationPtr&, const std::string&, const std::string& = "", const std::string& = "",
+                            const std::string& = "");
     void writeDocCommentAMD(const OperationPtr&, const std::string&);
     void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
@@ -199,6 +193,13 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+
+    protected:
+
+        void writeResultStruct(const OperationPtr&);
+        void writeMethodDeclaration(const OperationPtr&);
     };
 
     class BaseImplVisitor : public CsVisitor

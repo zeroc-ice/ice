@@ -730,6 +730,7 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
+    StringList ids() const;
 
 protected:
 

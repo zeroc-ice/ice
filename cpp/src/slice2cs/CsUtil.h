@@ -7,6 +7,7 @@
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
+#include <functional>
 
 namespace Slice
 {
@@ -15,8 +16,8 @@ enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
 std::string marshaledResultStructName(const std::string&, const std::string&);
 std::string returnValueName(const ParamDeclList&);
-std::string resultTuple(const OperationPtr&, const std::string&, bool = false);
-std::string resultTask(const OperationPtr&, const std::string&, bool = false);
+std::string resultType(const OperationPtr&, const std::string&, bool);
+std::string resultTask(const OperationPtr&, const std::string&, bool);
 
 bool isNullable(const TypePtr&);
 bool isCollectionType(const TypePtr&);
@@ -25,6 +26,41 @@ bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
 bool isImmutableType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
+
+struct ParamInfo
+{
+    std::string name;
+    TypePtr type;
+    std::string typeStr;
+    bool nullable;
+    bool optional;
+    int tag;
+    ParamDeclPtr param; // 0 == return value
+
+    ParamInfo(const std::string& name, const TypePtr& type, bool optional, int tag, const std::string& prefix = "");
+    ParamInfo(const ParamDeclPtr& param, const std::string& prefix = "");
+};
+
+std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");
+void getInParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
+
+std::list<ParamInfo> getAllOutParams(const OperationPtr&, const std::string& prefix = "",
+                                     bool returnTypeIsFirst = false);
+void getOutParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
+
+std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::string prefix = "");
+std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::function<std::string (const ParamInfo&)>);
+
+template<typename T> inline std::vector<std::string>
+mapfn(const std::list<T>& items, std::function<std::string (const T&)> fn)
+{
+    std::vector<std::string> result;
+    for(const auto& item : items)
+    {
+        result.push_back(fn(item));
+    }
+    return result;
+}
 
 class CsGenerator : private ::IceUtil::noncopyable
 {
@@ -69,10 +105,15 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
-                                   bool, const std::string& = "");
-    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&,
-                                           const std::string&, int, bool, const std::string& = "");
+    void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+                          const std::string& = "ostr");
+    void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+                            const std::string& = "istr");
+
+    void writeOptionalMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+                                  int, const std::string& = "ostr");
+    void writeOptionalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+                                    int, const std::string& = "istr");
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                            const std::string&, bool, bool, const std::string& = "");
     void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,

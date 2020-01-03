@@ -116,12 +116,9 @@ namespace Ice
                     return _opVoidThread.Task;
                 }
 
-                public Task<(bool returnValue, bool p3)> opBoolAsync(bool p1, bool p2, Current current)
-                {
-                    return Task.FromResult((p2, p1));
-                }
+                public Task<Test.MyClass.opBoolResult> opBoolAsync(bool p1, bool p2, Current current) => Task.FromResult(new Test.MyClass.opBoolResult(p2, p1));
 
-                public Task<(bool[] returnValue, bool[] p3)> opBoolSAsync(bool[] p1, bool[] p2, Current current)
+                public Task<Test.MyClass.opBoolSResult> opBoolSAsync(bool[] p1, bool[] p2, Current current)
                 {
                     bool[] p3 = new bool[p1.Length + p2.Length];
                     Array.Copy(p1, p3, p1.Length);
@@ -133,10 +130,10 @@ namespace Ice
                         r[i] = p1[p1.Length - (i + 1)];
                     }
 
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opBoolSResult(r, p3));
                 }
 
-                public Task<(bool[][] returnValue, bool[][] p3)>
+                public Task<Test.MyClass.opBoolSSResult>
                 opBoolSSAsync(bool[][] p1, bool[][] p2, Current current)
                 {
                     bool[][] p3 = new bool[p1.Length + p2.Length][];
@@ -149,16 +146,14 @@ namespace Ice
                         r[i] = p1[p1.Length - (i + 1)];
                     }
 
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opBoolSSResult(r, p3));
                 }
 
-                public Task<(byte returnValue, byte p3)>
-                opByteAsync(byte p1, byte p2, Current current)
-                {
-                    return Task.FromResult((p1, (byte)(p1 ^ p2)));
-                }
+                public Task<Test.MyClass.opByteResult>
+                opByteAsync(byte p1, byte p2, Current current) => Task.FromResult(new Test.MyClass.opByteResult(p1, (byte)(p1 ^ p2)));
 
-                public Task<(Dictionary<byte, bool> returnValue, Dictionary<byte, bool> p3)>
+
+                public Task<Test.MyClass.opByteBoolDResult>
                 opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Ice.Current current)
                 {
                     Dictionary<byte, bool> p3 = p1;
@@ -171,11 +166,10 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opByteBoolDResult(r, p3));
                 }
 
-                public Task<(byte[] returnValue, byte[] p3)>
+                public Task<Test.MyClass.opByteSResult>
                 opByteSAsync(byte[] p1, byte[] p2, Ice.Current current)
                 {
                     byte[] p3 = new byte[p1.Length];
@@ -188,10 +182,10 @@ namespace Ice
                     Array.Copy(p1, r, p1.Length);
                     Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opByteSResult(r, p3));
                 }
 
-                public Task<(byte[][] returnValue, byte[][] p3)>
+                public Task<Test.MyClass.opByteSSResult>
                 opByteSSAsync(byte[][] p1, byte[][] p2, Ice.Current current)
                 {
                     byte[][] p3 = new byte[p1.Length][];
@@ -204,16 +198,14 @@ namespace Ice
                     Array.Copy(p1, r, p1.Length);
                     Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opByteSSResult(r, p3));
                 }
 
-                public Task<(double returnValue, float p3, double p4)>
-                opFloatDoubleAsync(float p1, double p2, Current current)
-                {
-                    return Task.FromResult((p2, p1, p2));
-                }
+                public Task<Test.MyClass.opFloatDoubleResult>
+                opFloatDoubleAsync(float p1, double p2, Current current) => Task.FromResult(new Test.MyClass.opFloatDoubleResult(p2, p1, p2));
 
-                public Task<(double[] returnValue, float[] p3, double[] p4)>
+
+                public Task<Test.MyClass.opFloatDoubleSResult>
                 opFloatDoubleSAsync(float[] p1, double[] p2, Current current)
                 {
                     float[] p3 = p1;
@@ -231,10 +223,10 @@ namespace Ice
                         r[p2.Length + i] = p1[i];
                     }
 
-                    return Task.FromResult((r, p3, p4));
+                    return Task.FromResult(new Test.MyClass.opFloatDoubleSResult(r, p3, p4));
                 }
 
-                public Task<(double[][] returnValue, float[][] p3, double[][] p4)>
+                public Task<Test.MyClass.opFloatDoubleSSResult>
                 opFloatDoubleSSAsync(float[][] p1, double[][] p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -256,10 +248,10 @@ namespace Ice
                         }
                     }
 
-                    return Task.FromResult((r, p3, p4));
+                    return Task.FromResult(new Test.MyClass.opFloatDoubleSSResult(r, p3, p4));
                 }
 
-                public Task<(Dictionary<long, float> returnValue, Dictionary<long, float> p3)>
+                public Task<Test.MyClass.opLongFloatDResult>
                 opLongFloatDAsync(Dictionary<long, float> p1, Dictionary<long, float> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -273,24 +265,22 @@ namespace Ice
                         r[e.Key] = e.Value;
                     }
 
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opLongFloatDResult(r, p3));
                 }
 
-                public Task<(Test.MyClassPrx returnValue, Test.MyClassPrx p2, Test.MyClassPrx p3)>
+                public Task<Test.MyClass.opMyClassResult>
                 opMyClassAsync(Test.MyClassPrx p1, Ice.Current current)
                 {
                     var p2 = p1;
                     var p3 = Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
-                    return Task.FromResult((Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
+                    return Task.FromResult(new Test.MyClass.opMyClassResult(
+                        Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
                 }
 
-                public Task<(Test.MyEnum returnValue, Test.MyEnum p2)>
-                opMyEnumAsync(Test.MyEnum p1, Ice.Current current)
-                {
-                    return Task.FromResult((Test.MyEnum.enum3, p1));
-                }
+                public Task<Test.MyClass.opMyEnumResult>
+                opMyEnumAsync(Test.MyEnum p1, Ice.Current current) => Task.FromResult(new Test.MyClass.opMyEnumResult(Test.MyEnum.enum3, p1));
 
-                public Task<(Dictionary<short, int> returnValue, Dictionary<short, int> p3)>
+                public Task<Test.MyClass.opShortIntDResult>
                 opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -303,17 +293,17 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opShortIntDResult(r, p3));
                 }
 
-                public Task<(long returnValue, short p4, int p5, long p6)>
+                public Task<Test.MyClass.opShortIntLongResult>
                 opShortIntLongAsync(short p1, int p2, long p3, Current current)
                 {
-                    return Task.FromResult((p3, p1, p2, p3));
+                    return Task.FromResult(new Test.MyClass.opShortIntLongResult(p3, p1, p2, p3));
                 }
 
-                public Task<(long[] returnValue, short[] p4, int[] p5, long[] p6)>
-                opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Ice.Current current)
+                public Task<Test.MyClass.opShortIntLongSResult>
+                opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
                 {
                     var p4 = p1;
                     var p5 = new int[p2.Length];
@@ -324,10 +314,10 @@ namespace Ice
                     var p6 = new long[p3.Length + p3.Length];
                     Array.Copy(p3, p6, p3.Length);
                     Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-                    return Task.FromResult((p3, p4, p5, p6));
+                    return Task.FromResult(new Test.MyClass.opShortIntLongSResult(p3, p4, p5, p6));
                 }
 
-                public Task<(long[][] returnValue, short[][] p4, int[][] p5, long[][] p6)>
+                public Task<Test.MyClass.opShortIntLongSSResult>
                 opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Ice.Current current)
                 {
                     var p4 = p1;
@@ -341,17 +331,14 @@ namespace Ice
                     var p6 = new long[p3.Length + p3.Length][];
                     Array.Copy(p3, p6, p3.Length);
                     Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-                    return Task.FromResult((p3, p4, p5, p6));
+                    return Task.FromResult(new Test.MyClass.opShortIntLongSSResult(p3, p4, p5, p6));
                 }
 
-                public Task<(string returnValue, string p3)>
-                opStringAsync(string p1, string p2, Ice.Current current)
-                {
-                    return Task.FromResult((p1 + " " + p2, p2 + " " + p1));
-                }
+                public Task<Test.MyClass.opStringResult>
+                opStringAsync(string p1, string p2, Current current) => Task.FromResult(new Test.MyClass.opStringResult($"{p1} {p2}", $"{p2} {p1}"));
 
-                public Task<(Dictionary<string, Test.MyEnum> returnValue, Dictionary<string, Test.MyEnum> p3)>
-                opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Ice.Current current)
+                public Task<Test.MyClass.opStringMyEnumDResult>
+                opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
                 {
                     var p3 = p1;
                     var r = new Dictionary<string, Test.MyEnum>();
@@ -363,11 +350,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringMyEnumDResult(r, p3));
                 }
 
-                public Task<(Dictionary<Test.MyEnum, string> returnValue, Dictionary<Test.MyEnum, string> p3)>
-                opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Ice.Current current)
+                public Task<Test.MyClass.opMyEnumStringDResult>
+                opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
                 {
                     var p3 = p1;
                     var r = new Dictionary<Test.MyEnum, string>();
@@ -379,10 +366,10 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opMyEnumStringDResult(r, p3));
                 }
 
-                public Task<(Dictionary<Test.MyStruct, Test.MyEnum> returnValue, Dictionary<Test.MyStruct, Test.MyEnum> p3)>
+                public Task<Test.MyClass.opMyStructMyEnumDResult>
                 opMyStructMyEnumDAsync(Dictionary<Test.MyStruct, Test.MyEnum> p1,
                                        Dictionary<Test.MyStruct, Test.MyEnum> p2, Ice.Current current)
                 {
@@ -396,10 +383,10 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opMyStructMyEnumDResult(r, p3));
                 }
 
-                public Task<(Dictionary<byte, bool>[] returnValue, Dictionary<byte, bool>[] p3)>
+                public Task<Test.MyClass.opByteBoolDSResult>
                 opByteBoolDSAsync(Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
@@ -411,11 +398,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opByteBoolDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<short, int>[] returnValue, Dictionary<short, int>[] p3)>
-                opShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Ice.Current current)
+                public Task<Test.MyClass.opShortIntDSResult>
+                opShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
                 {
                     var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
                     Array.Copy(p2, p3, p2.Length);
@@ -426,11 +413,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opShortIntDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<long, float>[] returnValue, Dictionary<long, float>[] p3)>
-                opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Ice.Current current)
+                public Task<Test.MyClass.opLongFloatDSResult>
+                opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
                 {
                     var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
                     Array.Copy(p2, p3, p2.Length);
@@ -441,11 +428,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opLongFloatDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, string>[] returnValue, Dictionary<string, string>[] p3)>
-                opStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Ice.Current current)
+                public Task<Test.MyClass.opStringStringDSResult>
+                opStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
                 {
                     var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
                     Array.Copy(p2, p3, p2.Length);
@@ -456,11 +443,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringStringDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, Test.MyEnum>[] returnValue, Dictionary<string, Test.MyEnum>[] p3)>
-                opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Ice.Current current)
+                public Task<Test.MyClass.opStringMyEnumDSResult>
+                opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
                 {
                     var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
                     Array.Copy(p2, p3, p2.Length);
@@ -471,10 +458,10 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringMyEnumDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<Test.MyEnum, string>[] returnValue, Dictionary<Test.MyEnum, string>[] p3)>
+                public Task<Test.MyClass.opMyEnumStringDSResult>
                 opMyEnumStringDSAsync(Dictionary<Test.MyEnum, string>[] p1, Dictionary<Test.MyEnum, string>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
@@ -486,13 +473,13 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opMyEnumStringDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<Test.MyStruct, Test.MyEnum>[] returnValue, Dictionary<Test.MyStruct, Test.MyEnum>[] p3)>
+                public Task<Test.MyClass.opMyStructMyEnumDSResult>
                 opMyStructMyEnumDSAsync(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
                                         Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
-                                        Ice.Current current)
+                                        Current current)
                 {
                     var p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
                     Array.Copy(p2, p3, p2.Length);
@@ -503,11 +490,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opMyStructMyEnumDSResult(r, p3));
                 }
 
-                public Task<(Dictionary<byte, byte[]> returnValue, Dictionary<byte, byte[]> p3)>
-                opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opByteByteSDResult>
+                opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<byte, byte[]>();
@@ -519,11 +506,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opByteByteSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<bool, bool[]> returnValue, Dictionary<bool, bool[]> p3)>
-                opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opBoolBoolSDResult>
+                opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<bool, bool[]>();
@@ -535,11 +522,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opBoolBoolSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<short, short[]> returnValue, Dictionary<short, short[]> p3)>
-                opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opShortShortSDResult>
+                opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<short, short[]>();
@@ -551,11 +538,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opShortShortSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<int, int[]> returnValue, Dictionary<int, int[]> p3)>
-                opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opIntIntSDResult>
+                opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<int, int[]>();
@@ -567,11 +554,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opIntIntSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<long, long[]> returnValue, Dictionary<long, long[]> p3)>
-                opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opLongLongSDResult>
+                opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<long, long[]>();
@@ -583,11 +570,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opLongLongSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, float[]> returnValue, Dictionary<string, float[]> p3)>
-                opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opStringFloatSDResult>
+                opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<string, float[]>();
@@ -599,11 +586,11 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringFloatSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, double[]> returnValue, Dictionary<string, double[]> p3)>
-                opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Ice.Current current)
+                public Task<Test.MyClass.opStringDoubleSDResult>
+                opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
                 {
                     var p3 = p2;
                     var r = new Dictionary<string, double[]>();
@@ -615,10 +602,10 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringDoubleSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, string[]> returnValue, Dictionary<string, string[]> p3)>
+                public Task<Test.MyClass.opStringStringSDResult>
                 opStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -631,10 +618,10 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringStringSDResult(r, p3));
                 }
 
-                public Task<(Dictionary<Test.MyEnum, Test.MyEnum[]> returnValue, Dictionary<Test.MyEnum, Test.MyEnum[]> p3)>
+                public Task<Test.MyClass.opMyEnumMyEnumSDResult>
                 opMyEnumMyEnumSDAsync(Dictionary<Test.MyEnum, Test.MyEnum[]> p1, Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
                     Ice.Current current)
                 {
@@ -648,7 +635,7 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opMyEnumMyEnumSDResult(r, p3));
                 }
 
                 public Task<int[]>
@@ -701,8 +688,8 @@ namespace Ice
                     return Task.CompletedTask;
                 }
 
-                public Task<(string[] returnValue, string[] p3)>
-                opStringSAsync(string[] p1, string[] p2, Ice.Current current)
+                public Task<Test.MyClass.opStringSResult>
+                opStringSAsync(string[] p1, string[] p2, Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length];
                     Array.Copy(p1, p3, p1.Length);
@@ -713,11 +700,11 @@ namespace Ice
                     {
                         r[i] = p1[p1.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringSResult(r, p3));
                 }
 
-                public Task<(string[][] returnValue, string[][] p3)>
-                opStringSSAsync(string[][] p1, string[][] p2, Ice.Current current)
+                public Task<Test.MyClass.opStringSSResult>
+                opStringSSAsync(string[][] p1, string[][] p2, Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length][];
                     Array.Copy(p1, p3, p1.Length);
@@ -727,11 +714,11 @@ namespace Ice
                     {
                         r[i] = p2[p2.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringSSResult(r, p3));
                 }
 
-                public Task<(string[][][] returnValue, string[][][] p3)>
-                opStringSSSAsync(string[][][] p1, string[][][] p2, Ice.Current current)
+                public Task<Test.MyClass.opStringSSSResult>
+                opStringSSSAsync(string[][][] p1, string[][][] p2, Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length][][];
                     Array.Copy(p1, p3, p1.Length);
@@ -742,10 +729,10 @@ namespace Ice
                     {
                         r[i] = p2[p2.Length - (i + 1)];
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringSSSResult(r, p3));
                 }
 
-                public Task<(Dictionary<string, string> returnValue, Dictionary<string, string> p3)>
+                public Task<Test.MyClass.opStringStringDResult>
                 opStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -758,117 +745,117 @@ namespace Ice
                     {
                         r[e.Key] = e.Value;
                     }
-                    return Task.FromResult((r, p3));
+                    return Task.FromResult(new Test.MyClass.opStringStringDResult(r, p3));
                 }
 
-                public Task<(Test.Structure returnValue, Test.Structure p3)>
+                public Task<Test.MyClass.opStructResult>
                 opStructAsync(Test.Structure p1, Test.Structure p2, Ice.Current current)
                 {
                     var p3 = p1;
                     p3.s.s = "a new string";
-                    return Task.FromResult((p2, p3));
+                    return Task.FromResult(new Test.MyClass.opStructResult(p2, p3));
                 }
 
                 public Task
-                opIdempotentAsync(Ice.Current current)
+                opIdempotentAsync(Current current)
                 {
-                    test(current.Mode == Ice.OperationMode.Idempotent);
-                    return null;
+                    test(current.Mode == OperationMode.Idempotent);
+                    return Task.CompletedTask;
                 }
 
                 public Task
                 opNonmutatingAsync(Ice.Current current)
                 {
-                    test(current.Mode == Ice.OperationMode.Nonmutating);
-                    return null;
+                    test(current.Mode == OperationMode.Nonmutating);
+                    return Task.CompletedTask;
                 }
 
                 public Task
-                opDerivedAsync(Ice.Current current)
+                opDerivedAsync(Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public Task<byte>
-                opByte1Async(byte value, Ice.Current current)
+                opByte1Async(byte value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<short>
-                opShort1Async(short value, Ice.Current current)
+                opShort1Async(short value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<int>
-                opInt1Async(int value, Ice.Current current)
+                opInt1Async(int value, Current current)
                 {
-                    return Task.FromResult<int>(value);
+                    return Task.FromResult(value);
                 }
 
                 public Task<long>
-                opLong1Async(long value, Ice.Current current)
+                opLong1Async(long value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<float>
-                opFloat1Async(float value, Ice.Current current)
+                opFloat1Async(float value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<double>
-                opDouble1Async(double value, Ice.Current current)
+                opDouble1Async(double value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<string>
-                opString1Async(string value, Ice.Current current)
-                {
-                    return Task.FromResult<string>(value);
-                }
-
-                public Task<string[]>
-                opStringS1Async(string[] value, Ice.Current current)
-                {
-                    return Task.FromResult(value);
-                }
-
-                public Task<Dictionary<byte, bool>>
-                opByteBoolD1Async(Dictionary<byte, bool> value, Ice.Current current)
+                opString1Async(string value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<string[]>
-                opStringS2Async(string[] value, Ice.Current current)
+                opStringS1Async(string[] value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<Dictionary<byte, bool>>
-                opByteBoolD2Async(Dictionary<byte, bool> value, Ice.Current current)
+                opByteBoolD1Async(Dictionary<byte, bool> value, Current current)
+                {
+                    return Task.FromResult(value);
+                }
+
+                public Task<string[]>
+                opStringS2Async(string[] value, Current current)
+                {
+                    return Task.FromResult(value);
+                }
+
+                public Task<Dictionary<byte, bool>>
+                opByteBoolD2Async(Dictionary<byte, bool> value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<Test.MyClass1>
-                opMyClass1Async(Test.MyClass1 value, Ice.Current current)
+                opMyClass1Async(Test.MyClass1 value, Current current)
                 {
-                    return Task.FromResult<Test.MyClass1>(value);
+                    return Task.FromResult(value);
                 }
 
                 public Task<Test.MyStruct1>
-                opMyStruct1Async(Test.MyStruct1 value, Ice.Current current)
+                opMyStruct1Async(Test.MyStruct1 value, Current current)
                 {
                     return Task.FromResult(value);
                 }
 
                 public Task<string[]>
-                opStringLiteralsAsync(Ice.Current current)
+                opStringLiteralsAsync(Current current)
                 {
                     return Task.FromResult(new string[]
                         {
@@ -910,7 +897,7 @@ namespace Ice
                 }
 
                 public Task<string[]>
-                opWStringLiteralsAsync(Ice.Current current)
+                opWStringLiteralsAsync(Current current)
                 {
                     return Task.FromResult(new string[]
                         {
@@ -951,46 +938,46 @@ namespace Ice
                         });
                 }
 
-                public async Task<Test.MyClass_OpMStruct1MarshaledResult>
-                opMStruct1Async(Ice.Current current)
+                public async Task<Test.MyClass.opMStruct1MarshaledResult>
+                opMStruct1Async(Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
+                    return new Test.MyClass.opMStruct1MarshaledResult(new Test.Structure(), current);
                 }
 
-                public async Task<Test.MyClass_OpMStruct2MarshaledResult>
-                opMStruct2Async(Test.Structure p1, Ice.Current current)
+                public async Task<Test.MyClass.opMStruct2MarshaledResult>
+                opMStruct2Async(Test.Structure p1, Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
+                    return new Test.MyClass.opMStruct2MarshaledResult(p1, p1, current);
                 }
 
-                public async Task<Test.MyClass_OpMSeq1MarshaledResult>
-                opMSeq1Async(Ice.Current current)
+                public async Task<Test.MyClass.opMSeq1MarshaledResult>
+                opMSeq1Async(Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
+                    return new Test.MyClass.opMSeq1MarshaledResult(new string[0], current);
                 }
 
-                public async Task<Test.MyClass_OpMSeq2MarshaledResult>
-                opMSeq2Async(string[] p1, Ice.Current current)
+                public async Task<Test.MyClass.opMSeq2MarshaledResult>
+                opMSeq2Async(string[] p1, Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
+                    return new Test.MyClass.opMSeq2MarshaledResult(p1, p1, current);
                 }
 
-                public async Task<Test.MyClass_OpMDict1MarshaledResult>
-                opMDict1Async(Ice.Current current)
+                public async Task<Test.MyClass.opMDict1MarshaledResult>
+                opMDict1Async(Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
+                    return new Test.MyClass.opMDict1MarshaledResult(new Dictionary<string, string>(), current);
                 }
 
-                public async Task<Test.MyClass_OpMDict2MarshaledResult>
+                public async Task<Test.MyClass.opMDict2MarshaledResult>
                 opMDict2Async(Dictionary<string, string> p1, Ice.Current current)
                 {
                     await Task.Delay(0);
-                    return new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
+                    return new Test.MyClass.opMDict2MarshaledResult(p1, p1, current);
                 }
 
                 private Thread_opVoid? _opVoidThread;

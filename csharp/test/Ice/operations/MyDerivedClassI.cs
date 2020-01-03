@@ -876,34 +876,34 @@ namespace Ice
                 return opStringLiterals(current);
             }
 
-            public Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Current current)
+            public Test.MyClass.opMStruct1MarshaledResult opMStruct1(Current current)
             {
-                return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
+                return new Test.MyClass.opMStruct1MarshaledResult(new Test.Structure(), current);
             }
 
-            public Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Current current)
+            public Test.MyClass.opMStruct2MarshaledResult opMStruct2(Test.Structure p1, Current current)
             {
-                return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
+                return new Test.MyClass.opMStruct2MarshaledResult(p1, p1, current);
             }
 
-            public Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Current current)
+            public Test.MyClass.opMSeq1MarshaledResult opMSeq1(Current current)
             {
-                return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
+                return new Test.MyClass.opMSeq1MarshaledResult(new string[0], current);
             }
 
-            public Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Current current)
+            public Test.MyClass.opMSeq2MarshaledResult opMSeq2(string[] p1, Current current)
             {
-                return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
+                return new Test.MyClass.opMSeq2MarshaledResult(p1, p1, current);
             }
 
-            public Test.MyClass_OpMDict1MarshaledResult opMDict1(Current current)
+            public Test.MyClass.opMDict1MarshaledResult opMDict1(Current current)
             {
-                return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
+                return new Test.MyClass.opMDict1MarshaledResult(new Dictionary<string, string>(), current);
             }
 
-            public Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Current current)
+            public Test.MyClass.opMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Current current)
             {
-                return new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
+                return new Test.MyClass.opMDict2MarshaledResult(p1, p1, current);
             }
 
             private int _opByteSOnewayCallCount = 0;

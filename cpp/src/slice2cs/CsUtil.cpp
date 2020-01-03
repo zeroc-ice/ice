@@ -43,6 +43,21 @@ Slice::isNullable(const TypePtr& type)
 namespace
 {
 
+static const char* builtinTableSuffix[] =
+{
+    "Byte",
+    "Bool",
+    "Short",
+    "Int",
+    "Long",
+    "Float",
+    "Double",
+    "String",
+    "Value",
+    "Proxy",
+    "Value"
+};
+
 string
 mangleName(const string& name, unsigned int baseTypes)
 {
@@ -533,54 +548,33 @@ Slice::returnValueName(const ParamDeclList& outParams)
 }
 
 string
-Slice::resultTuple(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
 {
-    ParamDeclList outParams = op->outParameters();
-    if(dispatch && op->hasMarshaledResult())
+    list<ParamInfo> outParams = getAllOutParams(op);
+    if(outParams.size() == 0)
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
-        return marshaledResultStructName(cl->name(), op->name());
+        return "void";
     }
-
-    if(outParams.empty())
+    else if(dispatch && op->hasMarshaledResult())
     {
-        return op->returnType() == 0 ? "" : CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional());
+        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." + op->name() +
+            "MarshaledResult";
     }
-
-    if(op->returnType() == 0 && outParams.size() == 1)
+    else if(outParams.size() > 1)
     {
-        return CsGenerator::typeToString(outParams.front()->type(), scope, outParams.front()->optional());
+        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." + op->name() + "Result";
     }
-
-    ostringstream os;
-    os << "(";
-
-    if(op->returnType() != 0)
+    else
     {
-        os << CsGenerator::typeToString(op->returnType(), scope, op->returnIsOptional())
-           << " " << CsGenerator::fixId(returnValueName(outParams)) << ", ";
+        return outParams.front().typeStr;
     }
-
-    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
-    {
-        ParamDeclPtr p = *i;
-        os << CsGenerator::typeToString(p->type(), scope, p->optional()) << " " << CsGenerator::fixId(p->name());
-        if(++i != outParams.end())
-        {
-            os << ", ";
-        }
-    }
-
-    os << ")";
-
-    return os.str();
 }
 
 string
-Slice::resultTask(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::resultTask(const OperationPtr& op, const string& ns, bool dispatch)
 {
-    string t = resultTuple(op, scope, dispatch);
-    if(t.empty())
+    string t = resultType(op, ns, dispatch);
+    if(t == "void")
     {
         return "global::System.Threading.Tasks.Task";
     }
@@ -710,384 +704,290 @@ Slice::isValueType(const TypePtr& type)
     return s && isImmutableType(s);
 }
 
-void
-Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
-                                              const TypePtr& type,
-                                              const string& package,
-                                              const string& param,
-                                              bool marshal,
-                                              const string& customStream)
+Slice::ParamInfo::ParamInfo(const string& name, const TypePtr& type, bool optional, int tag, const string& prefix)
 {
-    string stream = customStream;
-    if(stream.empty())
+    this->name = CsGenerator::fixId(prefix + name);
+    this->type = type;
+    this->typeStr = CsGenerator::typeToString(type, "", optional);
+    this->optional = optional;
+    this->nullable = isNullable(type);
+    this->tag = tag;
+    this->param = 0;
+}
+
+Slice::ParamInfo::ParamInfo(const ParamDeclPtr& param, const string& prefix)
+{
+    this->name = CsGenerator::fixId(prefix + param->name());
+    this->type = param->type();
+    this->typeStr = CsGenerator::typeToString(type, "", param->optional());
+    this->optional = param->optional();
+    this->nullable = isNullable(type);
+    this->tag = param->tag();
+    this->param = param;
+}
+
+list<ParamInfo>
+Slice::getAllInParams(const OperationPtr& op, const string& prefix)
+{
+    list<ParamInfo> inParams;
+    for(const auto& p : op->inParameters())
     {
-        stream = marshal ? "ostr" : "istr";
+        inParams.push_back(ParamInfo(p, prefix));
+    }
+    return inParams;
+}
+void
+Slice::getInParams(const OperationPtr& op, list<ParamInfo>& required, list<ParamInfo>& optional, const string&  prefix)
+{
+    required.clear();
+    optional.clear();
+    for(const auto& p : getAllInParams(op, prefix))
+    {
+        if(p.optional)
+        {
+            optional.push_back(p);
+        }
+        else
+        {
+            required.push_back(p);
+        }
     }
 
-    static const char* builtinTable[] =
-    {
-        "Byte",
-        "Bool",
-        "Short",
-        "Int",
-        "Long",
-        "Float",
-        "Double",
-        "String",
-        "Value",
-        "Proxy",
-        "Value"
-    };
+    //
+    // Sort optional parameters by tag.
+    //
+    optional.sort([](const auto& lhs, const auto& rhs)
+                  {
+                      return lhs.tag < rhs.tag;
+                  });
+}
 
+list<ParamInfo>
+Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool returnTypeIsFirst)
+{
+    list<ParamInfo> outParams;
+
+    for(const auto& p : op->outParameters())
+    {
+        outParams.push_back(ParamInfo(p, prefix));
+    }
+
+    if(op->returnType())
+    {
+        auto ret = ParamInfo(returnValueName(op->outParameters()),
+                             op->returnType(),
+                             op->returnIsOptional(),
+                             op->returnTag(),
+                             prefix);
+
+        if(returnTypeIsFirst)
+        {
+            outParams.push_front(ret);
+        }
+        else
+        {
+            outParams.push_back(ret);
+        }
+    }
+
+    return outParams;
+}
+
+void
+Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& required, list<ParamInfo>& optional, const string& prefix)
+{
+    required.clear();
+    optional.clear();
+
+    for(const auto& p : getAllOutParams(op, prefix))
+    {
+        if(p.optional)
+        {
+            optional.push_back(p);
+        }
+        else
+        {
+            required.push_back(p);
+        }
+    }
+
+    //
+    // Sort optional parameters by tag.
+    //
+    optional.sort([](const auto& lhs, const auto& rhs)
+                  {
+                      return lhs.tag < rhs.tag;
+                  });
+}
+
+vector<string>
+Slice::getNames(const list<ParamInfo>& params, string prefix)
+{
+    return getNames(params, [p = move(prefix)](const auto& item)
+                            {
+                                return p + item.name;
+                            });
+}
+
+vector<string>
+Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&)> fn)
+{
+    return mapfn<ParamInfo>(params, move(fn));
+}
+
+void
+Slice::CsGenerator::writeMarshalCode(Output &out,
+                                     const TypePtr& type,
+                                     const string& package,
+                                     const string& param,
+                                     const string& customStream)
+{
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".Write" << builtinTable[builtin->kind()] << "(" << param << ");";
-        }
-        else
-        {
-            if(builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
-            {
-                out << nl << stream << ".ReadValue(" << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << stream << ".Read" << builtinTable[builtin->kind()] << "(";
-                if(builtin->kind() == Builtin::KindObjectProxy)
-                {
-                    out << getUnqualified("Ice.IObjectPrx", package) << ".Factory";
-                }
-                out << ");";
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
-    {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            string typeS = typeToString(type, package);
-            if(marshal)
-            {
-                out << nl << stream << ".WriteProxy(" << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << stream << ".ReadProxy(" << typeS  << ".Factory);";
-            }
-        }
-        else
-        {
-            if(marshal)
-            {
-                out << nl << stream << ".WriteProxy(" << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << stream << ".ReadProxy(" << getUnqualified("Ice.IObjectPrx", package)
-                    << ".Factory)" << ';';
-            }
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".WriteValue(" << param << ");";
-        }
-        else
-        {
-            out << nl << stream << ".ReadValue(" << param << ");";
-        }
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        if(marshal)
-        {
-            if(!isImmutableType(st))
-            {
-                out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << param << ".ice_writeMembers(" << stream << ");";
-            }
-        }
-        else
-        {
-            if(!isImmutableType(st))
-            {
-                out << nl << param << " = " << typeToString(type, package) << ".ice_read(" << stream << ");";
-            }
-            else
-            {
-                out << nl << param << ".ice_readMembers(" << stream << ");";
-            }
-        }
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".WriteEnum((int)" << param << ", " << en->maxValue() << ");";
-        }
-        else
-        {
-            out << nl << param << " = (" << typeToString(type, package) << ')' << stream << ".ReadEnum("
-                << en->maxValue() << ");";
-        }
-        return;
-    }
-
     SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        writeSequenceMarshalUnmarshalCode(out, seq, package, param, marshal, true, stream);
-        return;
-    }
+    StructPtr st = StructPtr::dynamicCast(type);
+    const string stream = customStream.empty() ? "ostr" : customStream;
 
-    assert(ConstructedPtr::dynamicCast(type));
-    string helperName;
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
+    if(builtin || isProxyType(type) || isClassType(type))
     {
-        helperName = getUnqualified(d, package, "", "Helper");
+        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinTableSuffix[kind] << "(" << param << ");";
+    }
+    else if(seq)
+    {
+        writeSequenceMarshalUnmarshalCode(out, seq, package, param, true, true, stream);
+    }
+    else if(st)
+    {
+        if(!isImmutableType(st))
+        {
+            out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
+        }
+        else
+        {
+            out << nl << param << ".ice_writeMembers(" << stream << ");";
+        }
     }
     else
     {
-        helperName = typeToString(type, package) + "Helper";
-    }
-
-    if(marshal)
-    {
-        out << nl << helperName << ".Write(" << stream << ", " << param << ");";
-    }
-    else
-    {
-        out << nl << param << " = " << helperName << ".Read(" << stream << ')' << ';';
+        out << nl << getUnqualified(ConstructedPtr::dynamicCast(type), package, "", "Helper")
+            << ".Write(" << stream << ", " << param << ");";
     }
 }
 
 void
-Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
-                                                      const TypePtr& type,
-                                                      const string& scope,
-                                                      const string& param,
-                                                      int tag,
-                                                      bool marshal,
-                                                      const string& customStream)
+Slice::CsGenerator::writeUnmarshalCode(Output &out,
+                                       const TypePtr& type,
+                                       const string& ns,
+                                       const string& param,
+                                       const string& customStream)
 {
-    string stream = customStream;
-    if(stream.empty())
-    {
-        stream = marshal ? "ostr" : "istr";
-    }
-
-    static const char* builtinTable[] =
-    {
-        "Byte",
-        "Bool",
-        "Short",
-        "Int",
-        "Long",
-        "Float",
-        "Double",
-        "String",
-        "Value",
-        "Proxy",
-        "Value"
-    };
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".Write" << builtinTable[builtin->kind()] << "(" << tag << ", " << param << ");";
-        }
-        else
-        {
-            if(builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
-            {
-                 out << nl << stream << ".ReadValue(" << tag << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << stream << ".Read" << builtinTable[builtin->kind()] << "(" << tag;
-                if(builtin->kind() == Builtin::KindObjectProxy)
-                {
-                    string typeS = typeToString(type, scope);
-                    out << ", " << typeS << ".Factory";
-                }
-                out << ");";
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
-    {
-        if(marshal)
-        {
-            out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag
-                << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".FSize))";
-            out << sb;
-            out << nl << "int pos = " << stream << ".StartSize();";
-            writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
-            out << nl << stream << ".EndSize(pos);";
-            out << eb;
-        }
-        else
-        {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
-                << ".FSize))";
-            out << sb;
-            out << nl << stream << ".skip(4);";
-            string tmp = "tmpVal";
-            string typeS = typeToString(type, scope);
-            out << nl << typeS << ' ' << tmp << ';';
-            writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = " << tmp << ";";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        if(marshal)
-        {
-            out << nl << stream << ".WriteValue(" << tag << ", " << param << ");";
-        }
-        else
-        {
-            out << nl << stream << ".ReadValue(" << tag << ", " << param << ");";
-        }
-        return;
-    }
-
     StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        if(marshal)
-        {
-            out << nl << "if(" << param;
-            if(isImmutableType(st))
-            {
-                out << " is " << typeToString(st, scope);
-            }
-            else
-            {
-                out << " != null";
-            }
-            out << " && " << stream << ".WriteOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
-            out << sb;
-            if(st->isVariableLength())
-            {
-                out << nl << "int pos = " << stream << ".StartSize();";
-            }
-            else
-            {
-                out << nl << stream << ".WriteSize(" << st->minWireSize() << ");";
-            }
-            writeMarshalUnmarshalCode(out, type, scope, param + (isImmutableType(st) ? ".Value" : ""), marshal,
-                                      customStream);
-            if(st->isVariableLength())
-            {
-                out << nl << stream << ".EndSize(pos);";
-            }
-            out << eb;
-        }
-        else
-        {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
-            out << sb;
-            if(st->isVariableLength())
-            {
-                out << nl << stream << ".skip(4);";
-            }
-            else
-            {
-                out << nl << stream << ".skipSize();";
-            }
-            string typeS = typeToString(type, scope);
-            string tmp = "tmpVal";
-            out << nl << typeS << " tmpVal = default(" << typeS << ");";
-
-            writeMarshalUnmarshalCode(out, type, scope, "tmpVal", marshal, customStream);
-            out << nl << param << " = " << tmp << ";";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
-        }
-        return;
-    }
-
     EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+
+    const string stream = customStream.empty() ? "istr" : customStream;
+
+    if(isClassType(type))
     {
-        size_t sz = en->enumerators().size();
-        if(marshal)
+        out << nl << stream << ".ReadValue(" << param << ");";
+    }
+    else if(isProxyType(type))
+    {
+        out << nl << param << " = " << stream << ".ReadProxy(" << typeToString(type, ns) << ".Factory);";
+    }
+    else if(builtin)
+    {
+        out << nl << param << " = " << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "();";
+
+    }
+    else if(st)
+    {
+        if(!isImmutableType(st))
         {
-            out << nl << "if(" << param << " != null)";
-            out << sb;
-            out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value, " << sz << ");";
-            out << eb;
+            out << nl << param << " = " << typeToString(type, ns) << ".ice_read(" << stream << ");";
         }
         else
         {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
-                << ".Size))";
-            out << sb;
-            string typeS = typeToString(type, scope);
-            string tmp = "tmpVal";
-            out << nl << typeS << ' ' << tmp << ';';
-            writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = " << tmp << ";";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
+            out << nl << param << ".ice_readMembers(" << stream << ");";
         }
-        return;
     }
+    else if(seq)
+    {
+        writeSequenceMarshalUnmarshalCode(out, seq, ns, param, false, true, stream);
+    }
+    else
+    {
+        out << nl << param << " = " << getUnqualified(ConstructedPtr::dynamicCast(type), ns, "", "Helper")
+            << ".Read(" << stream << ");";
+    }
+}
 
+void
+Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
+                                             const TypePtr& type,
+                                             const string& scope,
+                                             const string& param,
+                                             int tag,
+                                             const string& customStream)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    StructPtr st = StructPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, marshal, stream);
-        return;
-    }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    assert(d);
-    TypePtr keyType = d->keyType();
-    TypePtr valueType = d->valueType();
-    if(marshal)
+    const string stream = customStream.empty() ? "ostr" : customStream;
+
+    if(builtin || isProxyType(type) || isClassType(type))
     {
+        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinTableSuffix[kind] << "(" << tag << ", " << param << ");";
+    }
+    else if(st)
+    {
+        out << nl << "if(" << param;
+        if(isImmutableType(st))
+        {
+            out << " is " << typeToString(st, scope);
+        }
+        else
+        {
+            out << " != null";
+        }
+        out << " && " << stream << ".WriteOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
+        out << sb;
+        if(st->isVariableLength())
+        {
+            out << nl << "int pos = " << stream << ".StartSize();";
+        }
+        else
+        {
+            out << nl << stream << ".WriteSize(" << st->minWireSize() << ");";
+        }
+        writeMarshalCode(out, type, scope, param + (isImmutableType(st) ? ".Value" : ""), stream);
+        if(st->isVariableLength())
+        {
+            out << nl << stream << ".EndSize(pos);";
+        }
+        out << eb;
+    }
+    else if(en)
+    {
+        out << nl << "if(" << param << " != null)";
+        out << sb;
+        out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value, " << en->enumerators().size()
+            << ");";
+        out << eb;
+    }
+    else if(seq)
+    {
+        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, true, stream);
+    }
+    else
+    {
+        DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+        assert(d);
+        TypePtr keyType = d->keyType();
+        TypePtr valueType = d->valueType();
         out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
             << getOptionalFormat(d, scope) << "))";
         out << sb;
@@ -1101,15 +1001,87 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param
                 << ".Count > 254 ? 5 : 1));";
         }
-        writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
+        writeMarshalCode(out, type, scope, param, stream);
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
             out << nl << stream << ".EndSize(pos);";
         }
         out << eb;
     }
+}
+
+void
+Slice::CsGenerator::writeOptionalUnmarshalCode(Output &out,
+                                               const TypePtr& type,
+                                               const string& scope,
+                                               const string& param,
+                                               int tag,
+                                               const string& customStream)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    StructPtr st = StructPtr::dynamicCast(type);
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+
+    const string stream = customStream.empty() ? "istr" : customStream;
+
+    if(isClassType(type))
+    {
+        out << nl << stream << ".ReadValue(" << tag << ", " << param << ");";
+    }
+    else if(isProxyType(type))
+    {
+        out << nl << param << " = " << stream << ".ReadProxy(" << tag << ", " << typeToString(type, scope)
+            << ".Factory);";
+    }
+    else if(builtin)
+    {
+        out << nl << param << " = " << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "(" << tag << ");";
+    }
+    else if(st)
+    {
+        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
+        out << sb;
+        if(st->isVariableLength())
+        {
+            out << nl << stream << ".skip(4);";
+        }
+        else
+        {
+            out << nl << stream << ".skipSize();";
+        }
+
+        out << nl << typeToString(type, scope) << " tmpVal = default;";
+
+        writeUnmarshalCode(out, type, scope, "tmpVal", stream);
+        out << nl << param << " = tmpVal;";
+        out << eb;
+    }
+    else if(en)
+    {
+        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
+            << ".Size))";
+        out << sb;
+        out << nl << typeToString(type, scope) << " tmpVal;";
+        writeUnmarshalCode(out, type, scope, "tmpVal", stream);
+        out << nl << param << " = tmpVal;";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << param << " = null;";
+        out << eb;
+    }
+    else if(seq)
+    {
+        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, false, stream);
+    }
     else
     {
+        DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+        assert(d);
+        TypePtr keyType = d->keyType();
+        TypePtr valueType = d->valueType();
+
         out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(d, scope) << "))";
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
@@ -1123,7 +1095,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         string typeS = typeToString(type, scope);
         string tmp = "tmpVal";
         out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
-        writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
+        writeUnmarshalCode(out, type, scope, tmp, stream);
         out << nl << param << " = " << tmp << ";";
         out << eb;
         out << nl << "else";

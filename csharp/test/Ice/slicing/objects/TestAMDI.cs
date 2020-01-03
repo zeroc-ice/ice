@@ -144,7 +144,7 @@ public sealed class TestI : TestIntf
         return Task.FromResult<B>(d2);
     }
 
-    public Task<(B p1, B p2)>
+    public Task<TestIntf.paramTest1Result>
     paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -157,10 +157,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult((p1: (B)d1, p2: (B)d2));
+        return Task.FromResult(new TestIntf.paramTest1Result(d1, d2));
     }
 
-    public Task<(B p2, B p1)>
+    public Task<TestIntf.paramTest2Result>
     paramTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -173,10 +173,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B)d2, (B)d1));
+        return Task.FromResult(new TestIntf.paramTest2Result(d2, d1));
     }
 
-    public Task<(B, B, B)>
+    public Task<TestIntf.paramTest3Result>
     paramTest3Async(Ice.Current current)
     {
         D2 d2 = new D2();
@@ -203,10 +203,10 @@ public sealed class TestI : TestIntf
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return Task.FromResult(((B)d3, (B)d2, (B)d4));
+        return Task.FromResult(new TestIntf.paramTest3Result(d3, d2, d4));
     }
 
-    public Task<(B, B)>
+    public Task<TestIntf.paramTest4Result>
     paramTest4Async(Ice.Current current)
     {
         D4 d4 = new D4();
@@ -216,10 +216,10 @@ public sealed class TestI : TestIntf
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        return Task.FromResult((d4.p2, (B)d4));
+        return Task.FromResult(new TestIntf.paramTest4Result(d4.p2, d4));
     }
 
-    public Task<(B, B, B)>
+    public Task<TestIntf.returnTest1Result>
     returnTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -232,10 +232,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B)d2, (B)d2, (B)d1));
+        return Task.FromResult(new TestIntf.returnTest1Result(d2, d2, d1));
     }
 
-    public Task<(B, B, B)>
+    public Task<TestIntf.returnTest2Result>
     returnTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -248,7 +248,7 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B)d1, (B)d1, (B)d2));
+        return Task.FromResult(new TestIntf.returnTest2Result(d1, d1, d2));
     }
 
     public Task<B>
@@ -263,7 +263,7 @@ public sealed class TestI : TestIntf
         return Task.FromResult(new SS3(p1, p2));
     }
 
-    public Task<(Dictionary<int, B>, Dictionary<int, B>)>
+    public Task<TestIntf.dictionaryTestResult>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
@@ -289,7 +289,7 @@ public sealed class TestI : TestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return Task.FromResult((r, bout));
+        return Task.FromResult(new TestIntf.dictionaryTestResult(r, bout));
     }
 
     public Task<PBase>
@@ -335,7 +335,7 @@ public sealed class TestI : TestIntf
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public Task<Preserved>
@@ -372,7 +372,7 @@ public sealed class TestI : TestIntf
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public Task<Preserved>
@@ -402,13 +402,13 @@ public sealed class TestI : TestIntf
             test(pu.ps.Equals("preserved"));
             test(pu.pb == pu);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public Task<PNode>
     exchangePNodeAsync(PNode pn, Ice.Current current)
     {
-        return Task.FromResult<PNode>(pn);
+        return Task.FromResult(pn);
     }
 
     public Task throwBaseAsBaseAsync(Ice.Current current)
@@ -486,9 +486,8 @@ public sealed class TestI : TestIntf
     useForwardAsync(Ice.Current current)
     {
         var f = new Forward();
-        f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
-        return Task.FromResult<Forward>(f);
+        return Task.FromResult(f);
     }
 }
