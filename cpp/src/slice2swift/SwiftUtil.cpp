@@ -1449,7 +1449,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
         {
             DataMemberPtr m = *i;
             out << (fixIdent(m->name()) + ": " +
-                    typeToString(m->type(), p, m->getMetaData(), m->optional()));
+                    typeToString(m->type(), p, m->getMetaData(), m->tagged()));
         }
 
         out << epar;
@@ -1488,7 +1488,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
-        string memberType = typeToString(type, p, member->getMetaData(), member->optional());
+        string memberType = typeToString(type, p, member->getMetaData(), member->tagged());
 
         //
         // If the member type is equal to the member name, create a local type alias
@@ -1510,7 +1510,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         if(alias.empty())
         {
             writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
-                               member->optional());
+                               member->tagged());
         }
         else
         {
@@ -1917,7 +1917,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional());
+        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->tagged());
     }
 
     if(returnIsTuple)
@@ -2005,7 +2005,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
                 os << ", ";
             }
 
-            os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional());
+            os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->tagged());
         }
         if(isTuple)
         {
@@ -2033,8 +2033,8 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
-        info.isTagged = (*p)->optional();
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->tagged());
+        info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.param = *p;
         r.push_back(info);
@@ -2083,8 +2083,8 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
-        info.isTagged = (*p)->optional();
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->tagged());
+        info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.param = *p;
         l.push_back(info);

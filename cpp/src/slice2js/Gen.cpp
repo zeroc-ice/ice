@@ -379,7 +379,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, con
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if(!(*q)->tagged())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
         }
@@ -396,7 +396,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if(!(*q)->tagged())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
         }
@@ -1292,7 +1292,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1362,7 +1362,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string value;
-                if((*q)->optional())
+                if((*q)->tagged())
                 {
                     if((*q)->defaultValueType())
                     {
@@ -1650,7 +1650,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", true";
                         }
-                        if((*pli)->optional())
+                        if((*pli)->tagged())
                         {
                             if(!isObj)
                             {
@@ -1683,7 +1683,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", true";
                         }
-                        if((*pli)->optional())
+                        if((*pli)->tagged())
                         {
                             if(!isObj)
                             {
@@ -1796,7 +1796,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1831,7 +1831,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if((*q)->tagged())
         {
             if((*q)->defaultValueType())
             {
@@ -1943,7 +1943,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if((*q)->tagged())
         {
             if((*q)->defaultValueType())
             {
@@ -2718,7 +2718,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
             {
                 _out << (fixId((*r)->name()) +
-                         ((*r)->optional() ? "?" : "") +
+                         ((*r)->tagged() ? "?" : "") +
                          ":" +
                          typeToString((*r)->type(), p, imports(), true, false, true));
             }

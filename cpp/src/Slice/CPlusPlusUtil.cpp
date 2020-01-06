@@ -332,7 +332,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     ParamDeclList taggedParams;
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if((*p)->optional())
+        if((*p)->tagged())
         {
             taggedParams.push_back(*p);
         }
@@ -1319,7 +1319,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
 
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), clScope, fixKwd(prefix + (*p)->name()),
+        writeParamAllocateCode(out, (*p)->type(), (*p)->tagged(), clScope, fixKwd(prefix + (*p)->name()),
                                (*p)->getMetaData(), typeCtx, getEndArg((*p)->type(), (*p)->getMetaData(),
                                                                        (*p)->name()) != (*p)->name());
     }
@@ -1379,7 +1379,7 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     string prefix = prepend ? paramPrefix : "";
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        writeParamEndCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData());
+        writeParamEndCode(out, (*p)->type(), (*p)->tagged(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData());
     }
     if(op && op->returnType())
     {
@@ -1393,7 +1393,7 @@ Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
                                                const DataMemberPtr& p,
                                                bool marshal)
 {
-    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), holder + fixKwd(p->name()), marshal,
+    writeMarshalUnmarshalCode(C, p->type(), p->tagged(), p->tag(), holder + fixKwd(p->name()), marshal,
                               p->getMetaData());
 }
 
@@ -1462,7 +1462,7 @@ Slice::writeStreamHelpers(Output& out,
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if((*q)->optional())
+        if((*q)->tagged())
         {
             taggedMembers.push_back(*q);
         }
@@ -1586,7 +1586,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx | TypeContextCpp11)
+        out << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(), typeCtx | TypeContextCpp11)
             << "&";
     }
     out << "> ice_tuple() const";
@@ -1743,7 +1743,7 @@ string
 Slice::getDataMemberRef(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    if(!p->optional())
+    if(!p->tagged())
     {
         return name;
     }

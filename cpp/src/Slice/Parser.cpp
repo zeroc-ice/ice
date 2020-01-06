@@ -83,7 +83,7 @@ string txAttribute[] = { "supports", "mandatory", "required", "never" };
 enum { Supports, Mandatory, Required, Never };
 
 DataMemberList
-filterOrderedOptionalDataMembers(const DataMemberList& members)
+filterSortedTaggedDataMembers(const DataMemberList& members)
 {
     class SortFn
     {
@@ -97,7 +97,7 @@ filterOrderedOptionalDataMembers(const DataMemberList& members)
     DataMemberList result;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->optional())
+        if((*p)->tagged())
         {
             result.push_back(*p);
         }
@@ -107,10 +107,10 @@ filterOrderedOptionalDataMembers(const DataMemberList& members)
 }
 
 void
-sortOptionalParameters(ParamDeclList& params)
+sortTaggedParameters(ParamDeclList& params)
 {
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
     class SortFn
     {
@@ -3527,7 +3527,7 @@ Slice::ClassDef::destroy()
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
                                  const TypePtr& returnType,
-                                 bool optional,
+                                 bool tagged,
                                  int tag,
                                  Operation::Mode mode)
 {
@@ -3621,13 +3621,13 @@ Slice::ClassDef::createOperation(const string& name,
     }
 
     _hasOperations = true;
-    OperationPtr op = new Operation(this, name, returnType, optional, tag, mode);
+    OperationPtr op = new Operation(this, name, returnType, tagged, tag, mode);
     _contents.push_back(op);
     return op;
 }
 
 DataMemberPtr
-Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                   const string& defaultLiteral)
 {
@@ -3718,7 +3718,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         }
     }
 
-    if(optional)
+    if(tagged)
     {
         //
         // Validate the tag.
@@ -3726,7 +3726,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         DataMemberList dml = dataMembers();
         for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
         {
-            if((*q)->optional() && tag == (*q)->tag())
+            if((*q)->tagged() && tag == (*q)->tag())
             {
                 string msg = "tag for data member `" + name + "' is already in use";
                 _unit->error(msg);
@@ -3738,7 +3738,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
     checkDeprecatedType(_unit, type);
 
     _hasDataMembers = true;
-    DataMemberPtr member = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
     _contents.push_back(member);
     return member;
 }
@@ -3828,9 +3828,9 @@ Slice::ClassDef::dataMembers() const
 }
 
 DataMemberList
-Slice::ClassDef::orderedOptionalDataMembers() const
+Slice::ClassDef::sortedTaggedDataMembers() const
 {
-    return filterOrderedOptionalDataMembers(dataMembers());
+    return filterSortedTaggedDataMembers(dataMembers());
 }
 
 //
@@ -4189,7 +4189,7 @@ Slice::Exception::destroy()
 }
 
 DataMemberPtr
-Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
@@ -4268,7 +4268,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         }
     }
 
-    if(optional)
+    if(tagged)
     {
         //
         // Validate the tag.
@@ -4276,7 +4276,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         DataMemberList dml = dataMembers();
         for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
         {
-            if((*q)->optional() && tag == (*q)->tag())
+            if((*q)->tagged() && tag == (*q)->tag())
             {
                 string msg = "tag for data member `" + name + "' is already in use";
                 _unit->error(msg);
@@ -4287,7 +4287,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
 
     checkDeprecatedType(_unit, type);
 
-    DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -4308,9 +4308,9 @@ Slice::Exception::dataMembers() const
 }
 
 DataMemberList
-Slice::Exception::orderedOptionalDataMembers() const
+Slice::Exception::sortedTaggedDataMembers() const
 {
-    return filterOrderedOptionalDataMembers(dataMembers());
+    return filterSortedTaggedDataMembers(dataMembers());
 }
 
 //
@@ -4436,19 +4436,19 @@ Slice::Exception::uses(const ContainedPtr&) const
 }
 
 bool
-Slice::Exception::usesClasses(bool includeOptional) const
+Slice::Exception::usesClasses(bool includeTagged) const
 {
     DataMemberList dml = dataMembers();
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
-        if((*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
+        if((*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
         {
             return true;
         }
     }
     if(_base)
     {
-        return _base->usesClasses(includeOptional);
+        return _base->usesClasses(includeTagged);
     }
     return false;
 }
@@ -4514,7 +4514,7 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                 const string& defaultLiteral)
 {
@@ -4576,7 +4576,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         }
     }
 
-    if(optional)
+    if(tagged)
     {
         //
         // Validate the tag.
@@ -4584,7 +4584,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         DataMemberList dml = dataMembers();
         for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
         {
-            if((*q)->optional() && tag == (*q)->tag())
+            if((*q)->tagged() && tag == (*q)->tag())
             {
                 string msg = "tag for data member `" + name + "' is already in use";
                 _unit->error(msg);
@@ -4595,7 +4595,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
 
     checkDeprecatedType(_unit, type);
 
-    DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
+    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -5369,7 +5369,7 @@ Slice::Operation::hasMarshaledResult() const
 }
 
 ParamDeclPtr
-Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
+Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -5415,7 +5415,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     //
     checkDeprecatedType(_unit, type);
 
-    if(optional)
+    if(tagged)
     {
         //
         // Check for a duplicate tag.
@@ -5430,7 +5430,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
             ParamDeclList params = parameters();
             for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
             {
-                if((*p)->optional() && (*p)->tag() == tag)
+                if((*p)->tagged() && (*p)->tag() == tag)
                 {
                     _unit->error(msg);
                     break;
@@ -5439,7 +5439,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, optional, tag);
+    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, tagged, tag);
     _contents.push_back(p);
     return p;
 }
@@ -5475,22 +5475,22 @@ Slice::Operation::inParameters() const
 }
 
 void
-Slice::Operation::inParameters(ParamDeclList& required, ParamDeclList& optional) const
+Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
     const ParamDeclList params = inParameters();
     for(ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
     {
-        if((*pli)->optional())
+        if((*pli)->tagged())
         {
-            optional.push_back(*pli);
+            taggedParams.push_back(*pli);
         }
         else
         {
-            required.push_back(*pli);
+            requiredParams.push_back(*pli);
         }
     }
 
-    sortOptionalParameters(optional);
+    sortTaggedParameters(taggedParams);
 }
 
 ParamDeclList
@@ -5509,22 +5509,22 @@ Slice::Operation::outParameters() const
 }
 
 void
-Slice::Operation::outParameters(ParamDeclList& required, ParamDeclList& optional) const
+Slice::Operation::outParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
     const ParamDeclList params = outParameters();
     for(ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
     {
-        if((*pli)->optional())
+        if((*pli)->tagged())
         {
-            optional.push_back(*pli);
+            taggedParams.push_back(*pli);
         }
         else
         {
-            required.push_back(*pli);
+            requiredParams.push_back(*pli);
         }
     }
 
-    sortOptionalParameters(optional);
+    sortTaggedParameters(taggedParams);
 }
 
 ExceptionList
@@ -5605,12 +5605,12 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 }
 
 bool
-Slice::Operation::sendsClasses(bool includeOptional) const
+Slice::Operation::sendsClasses(bool includeTagged) const
 {
     ParamDeclList pdl = parameters();
     for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
     {
-        if(!(*i)->isOutParam() && (*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
+        if(!(*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
         {
             return true;
         }
@@ -5619,17 +5619,17 @@ Slice::Operation::sendsClasses(bool includeOptional) const
 }
 
 bool
-Slice::Operation::returnsClasses(bool includeOptional) const
+Slice::Operation::returnsClasses(bool includeTagged) const
 {
     TypePtr t = returnType();
-    if(t && t->usesClasses() && (includeOptional || !_returnIsTagged))
+    if(t && t->usesClasses() && (includeTagged || !_returnIsTagged))
     {
         return true;
     }
     ParamDeclList pdl = parameters();
     for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
     {
-        if((*i)->isOutParam() && (*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
+        if((*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
         {
             return true;
         }
@@ -5820,9 +5820,9 @@ Slice::ParamDecl::isOutParam() const
 }
 
 bool
-Slice::ParamDecl::optional() const
+Slice::ParamDecl::tagged() const
 {
-    return _optional;
+    return _tagged;
 }
 
 int
@@ -5862,12 +5862,12 @@ Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam,
-                            bool optional, int tag) :
+                            bool tagged, int tag) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
     _isOutParam(isOutParam),
-    _optional(optional),
+    _tagged(tagged),
     _tag(tag)
 {
 }
@@ -5883,9 +5883,9 @@ Slice::DataMember::type() const
 }
 
 bool
-Slice::DataMember::optional() const
+Slice::DataMember::tagged() const
 {
-    return _optional;
+    return _tagged;
 }
 
 int
@@ -5943,12 +5943,12 @@ Slice::DataMember::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type,
-                              bool optional, int tag, const SyntaxTreeBasePtr& defaultValueType,
+                              bool tagged, int tag, const SyntaxTreeBasePtr& defaultValueType,
                               const string& defaultValue, const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
-    _optional(optional),
+    _tagged(tagged),
     _tag(tag),
     _defaultValueType(defaultValueType),
     _defaultValue(defaultValue),

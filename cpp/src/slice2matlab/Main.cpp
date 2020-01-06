@@ -521,7 +521,7 @@ defaultValue(const DataMemberPtr& m)
     {
         return constantValue(m->type(), m->defaultValueType(), m->defaultValue());
     }
-    else if(m->optional())
+    else if(m->tagged())
     {
         return "Ice.Unset";
     }
@@ -1657,7 +1657,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
-                    if(declarePropertyType((*q)->type(), (*q)->optional()))
+                    if(declarePropertyType((*q)->type(), (*q)->tagged()))
                     {
                         out << " " << typeToString((*q)->type());
                     }
@@ -1687,7 +1687,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         writeMemberDoc(out, *q);
                         out << nl << fixIdent((*q)->name());
-                        if(declarePropertyType((*q)->type(), (*q)->optional()))
+                        if(declarePropertyType((*q)->type(), (*q)->tagged()))
                         {
                             out << " " << typeToString((*q)->type());
                         }
@@ -1703,7 +1703,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         writeMemberDoc(out, *q);
                         out << nl << fixIdent((*q)->name());
-                        if(declarePropertyType((*q)->type(), (*q)->optional()))
+                        if(declarePropertyType((*q)->type(), (*q)->tagged()))
                         {
                             out << " " << typeToString((*q)->type());
                         }
@@ -1828,7 +1828,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
                 {
                     string m = "obj." + fixIdent((*d)->name());
-                    convertValueType(out, m, m, (*d)->type(), (*d)->optional());
+                    convertValueType(out, m, m, (*d)->type(), (*d)->tagged());
                 }
                 if(base)
                 {
@@ -1845,7 +1845,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "methods(Access=protected)";
         out.inc();
 
-        const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+        const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
         out << nl << "function iceWriteImpl(obj, os)";
         out.inc();
@@ -1853,7 +1853,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             << ");";
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
-            if(!(*d)->optional())
+            if(!(*d)->tagged())
             {
                 marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
             }
@@ -1874,7 +1874,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "is.startSlice();";
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
-            if(!(*d)->optional())
+            if(!(*d)->tagged())
             {
                 if(isClass((*d)->type()))
                 {
@@ -2579,7 +2579,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             writeMemberDoc(out, *q);
             out << nl << fixExceptionMember((*q)->name());
-            if(declarePropertyType((*q)->type(), (*q)->optional()))
+            if(declarePropertyType((*q)->type(), (*q)->tagged()))
             {
                 out << " " << typeToString((*q)->type());
             }
@@ -2725,7 +2725,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             for(MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
             {
                 string m = "obj." + q->fixedName;
-                convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
+                convertValueType(out, m, m, q->dataMember->type(), q->dataMember->tagged());
             }
             if(base && base->usesClasses(true))
             {
@@ -2748,7 +2748,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         string m = fixExceptionMember((*q)->name());
-        if(!(*q)->optional())
+        if(!(*q)->tagged())
         {
             if(isClass((*q)->type()))
             {
@@ -2761,7 +2761,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
         }
     }
-    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
     for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
     {
         string m = fixExceptionMember((*q)->name());
@@ -3710,7 +3710,7 @@ CodeVisitor::getAllInParams(const OperationPtr& op)
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
-        info.isTagged = (*p)->optional();
+        info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.param = *p;
         r.push_back(info);
@@ -3780,7 +3780,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
-        info.isTagged = (*p)->optional();
+        info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.pos = pos++;
         info.param = *p;

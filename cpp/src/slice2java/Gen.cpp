@@ -158,7 +158,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                isReturnTagged = outParams.front()->optional();
+                isReturnTagged = outParams.front()->tagged();
             }
         }
         if(type)
@@ -251,7 +251,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     }
     for(const auto& p : outParams)
     {
-        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->optional())
+        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->tagged())
                 + " " + fixKwd(p->name()));
     }
     out << epar;
@@ -300,7 +300,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             }
         }
         out << nl << "public " << typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(),
-            p->optional(), false) << ' ' << fixKwd(name) << ';';
+            p->tagged(), false) << ' ' << fixKwd(name) << ';';
     }
 
     ParamDeclList requiredParams, taggedParams;
@@ -458,7 +458,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     }
     for(const auto& p : outParams)
     {
-        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->optional())
+        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->tagged())
                 + " " + fixKwd((p->name())));
     }
     out << currentParam << epar;
@@ -613,7 +613,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
     const ParamDeclList paramList = op->inParameters();
     for(const auto& q : paramList)
     {
-        const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->optional());
+        const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
         params.push_back(type + ' ' + fixKwd(q->name()));
     }
 
@@ -629,7 +629,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
     for(const auto& q : inParams)
     {
         const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(),
-                                                        q->optional());
+                                                        q->tagged());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + q->name() : fixKwd(q->name())));
     }
 
@@ -729,7 +729,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         else
         {
             assert(outParams.size() == 1);
-            isTagged = outParams.front()->optional();
+            isTagged = outParams.front()->tagged();
             type = outParams.front()->type();
             tag = outParams.front()->tag();
             metaData = outParams.front()->getMetaData();
@@ -800,7 +800,7 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
         else
         {
             assert(params.size() == 1);
-            mode = params.front()->optional() ? TaggedOutParam : NotTagged;
+            mode = params.front()->tagged() ? TaggedOutParam : NotTagged;
             type = params.front()->type();
             tag = params.front()->tag();
             metaData = params.front()->getMetaData();
@@ -851,7 +851,7 @@ void
 Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter,
                                            bool forStruct)
 {
-    if(member->optional())
+    if(member->tagged())
     {
         assert(!forStruct);
         out << nl << "if(_" << member->name() << ")";
@@ -882,7 +882,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
 
     const string patchParams = getPatcher(member->type(), package, fixKwd(member->name()));
 
-    if(member->optional())
+    if(member->tagged())
     {
         assert(!forStruct);
         out << nl << "if(_" << member->name() << " = istr_.readOptional(" << member->tag() << ", "
@@ -1094,14 +1094,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 const TypePtr paramType = pli->type();
                 if(isValue(paramType))
                 {
-                    allocatePatcher(out, paramType, package, "icePP_" + pli->name(), pli->optional());
+                    allocatePatcher(out, paramType, package, "icePP_" + pli->name(), pli->tagged());
                     values.push_back(pli);
                 }
                 else
                 {
                     const string paramName = "iceP_" + pli->name();
                     const string typeS = typeToAnnotatedString(paramType, TypeModeIn, package, pli->getMetaData(),
-                                                               pli->optional());
+                                                               pli->tagged());
                     out << nl << typeS << ' ' << paramName << ';';
                 }
             }
@@ -1135,7 +1135,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             for(const auto& pli : values)
             {
                 const string typeS = typeToAnnotatedString(pli->type(), TypeModeIn, package, pli->getMetaData(),
-                                                           pli->optional());
+                                                           pli->tagged());
                 out << nl << typeS << ' ' << "iceP_" << pli->name() << " = icePP_" << pli->name() << ".value;";
             }
         }
@@ -1349,7 +1349,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     int iter;
     DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1393,7 +1393,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     iter = 0;
     for(const auto& d : members)
     {
-        if(!d->optional())
+        if(!d->tagged())
         {
             writeMarshalDataMember(out, package, d, iter);
         }
@@ -1422,7 +1422,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     iter = 0;
     for(const auto& d : members)
     {
-        if(!d->optional())
+        if(!d->tagged())
         {
             writeUnmarshalDataMember(out, package, d, iter);
         }
@@ -1523,7 +1523,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
         TypePtr t = p->type();
         if(p->defaultValueType())
         {
-            if(p->optional())
+            if(p->tagged())
             {
                 string capName = p->name();
                 capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2153,7 +2153,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     bool hasRequiredDataMembers = false;
     for(const auto& d : p->allDataMembers())
     {
-        if(d->optional())
+        if(d->tagged())
         {
             hasOptionals = true;
             if(hasRequiredDataMembers)
@@ -2180,7 +2180,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for(const auto& q : op->parameters())
         {
-            if(q->optional())
+            if(q->tagged())
             {
                 hasOptionals = true;
                 break;
@@ -2309,7 +2309,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for(const auto& d : allDataMembers)
         {
-            if(d->optional())
+            if(d->tagged())
             {
                 hasTaggedMembers = true;
             }
@@ -2352,7 +2352,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 vector<string> paramDecl;
                 for(const auto d : allDataMembers)
                 {
-                    if(!d->optional())
+                    if(!d->tagged())
                     {
                         string memberName = fixKwd(d->name());
                         string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
@@ -2366,7 +2366,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     bool hasBaseRequired = false;
                     for(const auto& d : baseDataMembers)
                     {
-                        if(!d->optional())
+                        if(!d->tagged())
                         {
                             hasBaseRequired = true;
                             break;
@@ -2378,7 +2378,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         vector<string> baseParamNames;
                         for(const auto& d : baseDataMembers)
                         {
-                            if(!d->optional())
+                            if(!d->tagged())
                             {
                                 baseParamNames.push_back(fixKwd(d->name()));
                             }
@@ -2389,13 +2389,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 for(const auto& d : members)
                 {
-                    if(!d->optional())
+                    if(!d->tagged())
                     {
                         string paramName = fixKwd(d->name());
                         out << nl << "this." << paramName << " = " << paramName << ';';
                     }
                 }
-                writeDataMemberInitializers(out, p->orderedOptionalDataMembers(), package);
+                writeDataMemberInitializers(out, p->sortedTaggedDataMembers(), package);
                 out << eb;
             }
 
@@ -2408,7 +2408,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 string memberName = fixKwd(d->name());
                 string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetaData(),
-                                                          d->optional());
+                                                          d->tagged());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;
@@ -2426,7 +2426,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(const auto& d : members)
             {
                 string paramName = fixKwd(d->name());
-                if(d->optional())
+                if(d->tagged())
                 {
                     string capName = paramName;
                     capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2584,7 +2584,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     bool hasRequiredMembers = false;
     for(const auto& d : p->allDataMembers())
     {
-        if(d->optional())
+        if(d->tagged())
         {
             hasTaggedMembers = true;
             if(hasRequiredMembers)
@@ -2674,14 +2674,14 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 bool hasBaseRequired = false;
                 for(const auto& d : baseDataMembers)
                 {
-                    if(!d->optional())
+                    if(!d->tagged())
                     {
                         hasBaseRequired = true;
                         break;
                     }
                 }
 
-                DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+                DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
                 //
                 // Generate a constructor accepting parameters for just the required members.
@@ -2690,7 +2690,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 vector<string> paramDecl;
                 for(const auto& d : allDataMembers)
                 {
-                    if(!d->optional())
+                    if(!d->tagged())
                     {
                         string memberName = fixKwd(d->name());
                         string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
@@ -2707,7 +2707,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                         vector<string> baseParamNames;
                         for(const auto& d : baseDataMembers)
                         {
-                            if(!d->optional())
+                            if(!d->tagged())
                             {
                                 baseParamNames.push_back(fixKwd(d->name()));
                             }
@@ -2718,7 +2718,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
                 for(const auto& d : members)
                 {
-                    if(!d->optional())
+                    if(!d->tagged())
                     {
                         string paramName = fixKwd(d->name());
                         out << nl << "this." << paramName << " = " << paramName << ';';
@@ -2745,7 +2745,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                         vector<string> baseParamNames;
                         for(const auto& d : baseDataMembers)
                         {
-                            if(!d->optional())
+                            if(!d->tagged())
                             {
                                 baseParamNames.push_back(fixKwd(d->name()));
                             }
@@ -2759,7 +2759,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     }
                     for(const auto& d : members)
                     {
-                        if(!d->optional())
+                        if(!d->tagged())
                         {
                             string paramName = fixKwd(d->name());
                             out << nl << "this." << paramName << " = " << paramName << ';';
@@ -2779,7 +2779,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 string memberName = fixKwd(d->name());
                 string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetaData(),
-                                                          d->optional());
+                                                          d->tagged());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;
@@ -2799,7 +2799,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             for(const auto& d : members)
             {
                 string paramName = fixKwd(d->name());
-                if(d->optional())
+                if(d->tagged())
                 {
                     string capName = paramName;
                     capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2843,7 +2843,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 for(const auto& d : members)
                 {
                     string paramName = fixKwd(d->name());
-                    if(d->optional())
+                    if(d->tagged())
                     {
                         string capName = paramName;
                         capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -2880,7 +2880,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     bool preserved = p->hasMetaData("preserve-slice");
 
     DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
     int iter;
 
     if(preserved && !basePreserved)
@@ -2923,7 +2923,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     iter = 0;
     for(const auto& d : members)
     {
-        if(!d->optional())
+        if(!d->tagged())
         {
             writeMarshalDataMember(out, package, d, iter);
         }
@@ -2951,7 +2951,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     iter = 0;
     for(const auto& d : members)
     {
-        if(!d->optional())
+        if(!d->tagged())
         {
             writeUnmarshalDataMember(out, package, d, iter);
         }
@@ -3364,7 +3364,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const string name = fixKwd(p->name());
     const StringList metaData = p->getMetaData();
     const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
-    const bool isTagged = p->optional();
+    const bool isTagged = p->tagged();
     const TypePtr type = p->type();
     const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
 
@@ -4189,7 +4189,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for(const auto& q : op->parameters())
         {
-            if(q->optional())
+            if(q->tagged())
             {
                 out << sp << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
                 break;
@@ -5012,7 +5012,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
         }
         for(const auto& p : outParams)
         {
-            out << getDefaultValue(package, p->type(), p->optional());
+            out << getDefaultValue(package, p->type(), p->tagged());
         }
         out << "current" << epar << ';';
     }
@@ -5024,7 +5024,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
         for(const auto& p : outParams)
         {
             out << nl << "r." << fixKwd(p->name()) << " = "
-                << getDefaultValue(package, p->type(), p->optional()) << ';';
+                << getDefaultValue(package, p->type(), p->tagged()) << ';';
             if(p->name() == "returnValue")
             {
                 retval = "_returnValue";
@@ -5047,7 +5047,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                isReturnTagged = outParams.front()->optional();
+                isReturnTagged = outParams.front()->tagged();
             }
         }
         if(type)

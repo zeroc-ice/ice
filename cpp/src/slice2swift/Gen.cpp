@@ -1350,7 +1350,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
     const DataMemberList allMembers = p->allDataMembers();
-    const DataMemberList taggedMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
@@ -1391,7 +1391,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
-        if(!member->optional())
+        if(!member->tagged())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
@@ -1417,7 +1417,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         DataMemberPtr member = *i;
         TypePtr type = member->type();
-        if(!member->optional())
+        if(!member->tagged())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
