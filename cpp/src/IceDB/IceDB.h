@@ -227,7 +227,6 @@ protected:
 
     DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
     DbiBase();
-    ~DbiBase();
 
     // default copy ctor and assignment operator are OK
 
@@ -253,10 +252,6 @@ public:
     }
 
     Dbi()
-    {
-    }
-
-    ~Dbi()
     {
     }
 

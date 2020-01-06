@@ -11,85 +11,21 @@
 #include <Ice/ObserverHelper.h>
 #include <IceUtil/RecMutex.h>
 
+#include<condition_variable>
+
+
 namespace IceStorm
 {
 
-#ifdef ICE_CPP11_MAPPING
-class SendQueueSizeMaxReached : public ::Ice::LocalExceptionHelper<SendQueueSizeMaxReached, ::Ice::LocalException>
-{
-public:
-
-    virtual ~SendQueueSizeMaxReached();
-
-    SendQueueSizeMaxReached(const SendQueueSizeMaxReached&) = default;
-
-    /**
-        * The file and line number are required for all local exceptions.
-        * @param file The file name in which the exception was raised, typically __FILE__.
-        * @param line The line number at which the exception was raised, typically __LINE__.
-        */
-    SendQueueSizeMaxReached(const char* file, int line) : ::Ice::LocalExceptionHelper<SendQueueSizeMaxReached, ::Ice::LocalException>(file, line)
-    {
-    }
-
-    /**
-        * Obtains a tuple containing all of the exception's data members.
-        * @return The data members in a tuple.
-        */
-    std::tuple<> ice_tuple() const
-    {
-        return std::tie();
-    }
-
-    /**
-        * Obtains the Slice type ID of this exception.
-        * @return The fully-scoped type ID.
-        */
-    static const ::std::string& ice_staticId();
-};
-#else
-class SendQueueSizeMaxReached : public ::Ice::LocalException
-{
-public:
-
-    /**
-        * The file and line number are required for all local exceptions.
-        * @param file The file name in which the exception was raised, typically __FILE__.
-        * @param line The line number at which the exception was raised, typically __LINE__.
-        */
-    SendQueueSizeMaxReached(const char* file, int line);
-    virtual ~SendQueueSizeMaxReached() throw();
-
-    /**
-        * Obtains the Slice type ID of this exception.
-        * @return The fully-scoped type ID.
-        */
-    virtual ::std::string ice_id() const;
-    /**
-        * Polymporphically clones this exception.
-        * @return A shallow copy of this exception.
-        */
-    virtual SendQueueSizeMaxReached* ice_clone() const;
-    /**
-        * Throws this exception.
-        */
-    virtual void ice_throw() const;
-};
-#endif // ICE_CPP11_MAPPING
-
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
 
-class Subscriber;
-typedef IceUtil::Handle<Subscriber> SubscriberPtr;
-
-class Subscriber : public IceUtil::Shared
+class Subscriber : public std::enable_shared_from_this<Subscriber>
 {
 public:
 
-    static SubscriberPtr create(const InstancePtr&, const IceStorm::SubscriberRecord&);
+    static std::shared_ptr<Subscriber> create(const std::shared_ptr<Instance>&, const IceStorm::SubscriberRecord&);
 
-    Ice::ObjectPrx proxy() const; // Get the per subscriber object.
+    std::shared_ptr<Ice::ObjectPrx> proxy() const; // Get the per subscriber object.
     Ice::Identity id() const; // Return the id of the subscriber.
     IceStorm::SubscriberRecord record() const; // Get the subscriber record.
 
@@ -102,8 +38,8 @@ public:
     void destroy();
 
     // To be called by the AMI callbacks only.
-    void completed(const Ice::AsyncResultPtr&);
-    void error(bool, const Ice::Exception&);
+    void completed();
+    void error(bool, std::exception_ptr);
 
     void shutdown();
 
@@ -123,17 +59,18 @@ protected:
 
     void setState(SubscriberState);
 
-    Subscriber(const InstancePtr&, const IceStorm::SubscriberRecord&, const Ice::ObjectPrx&, int, int);
+    Subscriber(std::shared_ptr<Instance>, IceStorm::SubscriberRecord, std::shared_ptr<Ice::ObjectPrx>, int, int);
 
     // Immutable
-    const InstancePtr _instance;
+    const std::shared_ptr<Instance> _instance;
     const IceStorm::SubscriberRecord _rec; // The subscriber record.
     const int _retryCount; // The retryCount.
     const int _maxOutstanding; // The maximum number of oustanding events.
-    const Ice::ObjectPrx _proxy; // The per subscriber object proxy, if any.
-    const Ice::ObjectPrx _proxyReplica; // The replicated per subscriber object proxy, if any.
+    const std::shared_ptr<Ice::ObjectPrx> _proxy; // The per subscriber object proxy, if any.
+    const std::shared_ptr<Ice::ObjectPrx> _proxyReplica; // The replicated per subscriber object proxy, if any.
 
-    IceUtil::Monitor<IceUtil::RecMutex> _lock;
+    mutable std::recursive_mutex _mutex;
+    std::condition_variable_any _condVar;
 
     bool _shutdown;
 
@@ -144,13 +81,13 @@ protected:
     EventDataSeq _events; // The queue of events to send.
 
     // The next time to try sending a new event if we're offline.
-    IceUtil::Time _next;
+    std::chrono::system_clock::time_point _next;
     int _currentRetry;
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::SubscriberObserver> _observer;
 };
 
-bool operator==(const IceStorm::SubscriberPtr&, const Ice::Identity&);
+bool operator==(const std::shared_ptr<IceStorm::Subscriber>&, const Ice::Identity&);
 bool operator==(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);

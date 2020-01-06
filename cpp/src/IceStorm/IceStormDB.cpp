@@ -9,7 +9,9 @@
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
+
 #include <fstream>
+#include <iterator>
 
 using namespace std;
 using namespace IceInternal;

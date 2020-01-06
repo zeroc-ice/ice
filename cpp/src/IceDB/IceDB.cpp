@@ -340,10 +340,6 @@ DbiBase::DbiBase() :
 {
 }
 
-DbiBase::~DbiBase()
-{
-}
-
 void
 DbiBase::clear(const ReadWriteTxn& txn)
 {

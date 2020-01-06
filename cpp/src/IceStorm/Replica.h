@@ -14,32 +14,27 @@ namespace IceStormElection
 
 struct GroupNodeInfo
 {
-    GroupNodeInfo(int i);
-    GroupNodeInfo(int i, LogUpdate l, const Ice::ObjectPrx& o = Ice::ObjectPrx());
+    explicit GroupNodeInfo(int i);
+    GroupNodeInfo(int i, LogUpdate l, std::shared_ptr<Ice::ObjectPrx> o = nullptr);
+
     bool operator<(const GroupNodeInfo& rhs) const;
     bool operator==(const GroupNodeInfo& rhs) const;
-    //
-    // COMPILER FIX: Clang using libc++ requires to define operator=
-    //
-#if defined(__clang__) && defined(_LIBCPP_VERSION)
-    GroupNodeInfo& operator=(const GroupNodeInfo&);
-#endif
+
     const int id;
     const LogUpdate llu;
-    const Ice::ObjectPrx observer;
+    const std::shared_ptr<Ice::ObjectPrx> observer;
 };
 
-class Replica : public virtual IceUtil::Shared
+class Replica
 {
 public:
 
     virtual LogUpdate getLastLogUpdate() const = 0;
-    virtual void sync(const Ice::ObjectPrx&) = 0;
+    virtual void sync(const std::shared_ptr<Ice::ObjectPrx>&) = 0;
     virtual void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const LogUpdate&) = 0;
-    virtual Ice::ObjectPrx getObserver() const = 0;
-    virtual Ice::ObjectPrx getSync() const = 0;
+    virtual std::shared_ptr<Ice::ObjectPrx> getObserver() const = 0;
+    virtual std::shared_ptr<Ice::ObjectPrx> getSync() const = 0;
 };
-typedef IceUtil::Handle<Replica> ReplicaPtr;
 
 }
 

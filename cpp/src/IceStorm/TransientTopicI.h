@@ -12,31 +12,27 @@ namespace IceStorm
 
 // Forward declarations.
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
-
 class Subscriber;
-typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
-class TransientTopicImpl : public TopicInternal, public IceUtil::Mutex
+class TransientTopicImpl : public TopicInternal
 {
 public:
 
-    TransientTopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&);
-    ~TransientTopicImpl();
+    static std::shared_ptr<TransientTopicImpl> create(const std::shared_ptr<Instance>&, const std::string&,
+                                                      const Ice::Identity&);
 
-    virtual std::string getName(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getNonReplicatedPublisher(const Ice::Current&) const;
-    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual Ice::ObjectPrx subscribeAndGetPublisher(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
-    virtual TopicLinkPrx getLinkProxy(const Ice::Current&);
-    virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
-    virtual void unlink(const TopicPrx&, const Ice::Current&);
-    virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
-    virtual Ice::IdentitySeq getSubscribers(const Ice::Current&) const;
-    virtual void destroy(const Ice::Current&);
-    virtual void reap(const Ice::IdentitySeq&, const Ice::Current&);
+    std::string getName(const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
+    void unsubscribe(std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
+    std::shared_ptr<TopicLinkPrx> getLinkProxy(const Ice::Current&) override;
+    void link(std::shared_ptr<TopicPrx>, int, const Ice::Current&) override;
+    void unlink(std::shared_ptr<TopicPrx>, const Ice::Current&) override;
+    LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
+    Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
+    void destroy(const Ice::Current&) override;
+    void reap(Ice::IdentitySeq, const Ice::Current&) override;
 
     // Internal methods
     bool destroyed() const;
@@ -47,15 +43,17 @@ public:
 
 private:
 
+    TransientTopicImpl(std::shared_ptr<Instance>, const std::string&, const Ice::Identity&);
+
     //
     // Immutable members.
     //
-    const InstancePtr _instance;
+    const std::shared_ptr<Instance> _instance;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
 
-    /*const*/ Ice::ObjectPrx _publisherPrx;
-    /*const*/ TopicLinkPrx _linkPrx;
+    std::shared_ptr<Ice::ObjectPrx> _publisherPrx;
+    std::shared_ptr<TopicLinkPrx> _linkPrx;
 
     //
     // We keep a vector of subscribers since the optimized behaviour
@@ -64,12 +62,12 @@ private:
     // vector/list/map and although there was little difference vector
     // was the fastest of the three.
     //
-    std::vector<SubscriberPtr> _subscribers;
+    std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
     bool _destroyed; // Has this Topic been destroyed?
-};
 
-typedef IceUtil::Handle<TransientTopicImpl> TransientTopicImplPtr;
+    mutable std::mutex _mutex;
+};
 
 } // End namespace IceStorm
 
