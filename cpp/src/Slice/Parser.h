@@ -162,22 +162,6 @@ typedef std::list<DataMemberPtr> DataMemberList;
 typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
 
-struct ConstDef
-{
-    TypePtr type;
-    SyntaxTreeBasePtr value;
-    std::string valueAsString;
-    std::string valueAsLiteral;
-};
-
-struct OptionalDef
-{
-    TypePtr type;
-    std::string name;
-    bool optional;
-    int tag;
-};
-
 // ----------------------------------------------------------------------
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
@@ -650,7 +634,7 @@ public:
     };
 
     TypePtr returnType() const;
-    bool returnIsOptional() const;
+    bool returnIsTagged() const;
     int returnTag() const;
     Mode mode() const;
     Mode sendMode() const;
@@ -669,7 +653,6 @@ public:
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
-    bool sendsOptionals() const;
     int attributes() const;
     FormatType format() const;
     virtual std::string kindOf() const;
@@ -681,7 +664,7 @@ protected:
     friend class ClassDef;
 
     TypePtr _returnType;
-    bool _returnIsOptional;
+    bool _returnIsTagged;
     int _returnTag;
     ExceptionList _throws;
     Mode _mode;
@@ -712,7 +695,7 @@ public:
     OperationList operations() const;
     OperationList allOperations() const;
     DataMemberList dataMembers() const;
-    DataMemberList orderedOptionalDataMembers() const;
+    DataMemberList sortedTaggedDataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
@@ -794,7 +777,7 @@ public:
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
     DataMemberList dataMembers() const;
-    DataMemberList orderedOptionalDataMembers() const;
+    DataMemberList sortedTaggedDataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
@@ -1011,7 +994,7 @@ public:
 
     TypePtr type() const;
     bool isOutParam() const;
-    bool optional() const;
+    bool tagged() const;
     int tag() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
@@ -1025,7 +1008,7 @@ protected:
 
     TypePtr _type;
     bool _isOutParam;
-    bool _optional;
+    bool _tagged;
     int _tag;
 };
 
@@ -1038,7 +1021,7 @@ class DataMember : public virtual Contained
 public:
 
     TypePtr type() const;
-    bool optional() const;
+    bool tagged() const;
     int tag() const;
     std::string defaultValue() const;
     std::string defaultLiteral() const;
@@ -1057,7 +1040,7 @@ protected:
     friend class Exception;
 
     TypePtr _type;
-    bool _optional;
+    bool _tagged;
     int _tag;
     SyntaxTreeBasePtr _defaultValueType;
     std::string _defaultValue;

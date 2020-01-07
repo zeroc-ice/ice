@@ -268,7 +268,7 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
+Slice::CsGenerator::getTagFormat(const TypePtr& type, const string& scope)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     string prefix = getUnqualified("Ice.OptionalFormat", scope);
@@ -704,13 +704,13 @@ Slice::isValueType(const TypePtr& type)
     return s && isImmutableType(s);
 }
 
-Slice::ParamInfo::ParamInfo(const string& pName, const TypePtr& pType, bool pOptional, int pTag, const string& pPrefix)
+Slice::ParamInfo::ParamInfo(const string& pName, const TypePtr& pType, bool pTagged, int pTag, const string& pPrefix)
 {
     this->name = CsGenerator::fixId(pPrefix + pName);
     this->type = pType;
-    this->typeStr = CsGenerator::typeToString(pType, "", pOptional);
-    this->optional = pOptional;
+    this->typeStr = CsGenerator::typeToString(pType, "", pTagged);
     this->nullable = isNullable(pType);
+    this->tagged = pTagged;
     this->tag = pTag;
     this->param = 0;
 }
@@ -719,9 +719,9 @@ Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
 {
     this->name = CsGenerator::fixId(pPrefix + pParam->name());
     this->type = pParam->type();
-    this->typeStr = CsGenerator::typeToString(type, "", pParam->optional());
-    this->optional = pParam->optional();
+    this->typeStr = CsGenerator::typeToString(type, "", pParam->tagged());
     this->nullable = isNullable(type);
+    this->tagged = pParam->tagged();
     this->tag = pParam->tag();
     this->param = pParam;
 }
@@ -737,29 +737,29 @@ Slice::getAllInParams(const OperationPtr& op, const string& prefix)
     return inParams;
 }
 void
-Slice::getInParams(const OperationPtr& op, list<ParamInfo>& required, list<ParamInfo>& optional, const string&  prefix)
+Slice::getInParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams, const string&  prefix)
 {
-    required.clear();
-    optional.clear();
+    requiredParams.clear();
+    taggedParams.clear();
     for(const auto& p : getAllInParams(op, prefix))
     {
-        if(p.optional)
+        if(p.tagged)
         {
-            optional.push_back(p);
+            taggedParams.push_back(p);
         }
         else
         {
-            required.push_back(p);
+            requiredParams.push_back(p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
-    optional.sort([](const auto& lhs, const auto& rhs)
-                  {
-                      return lhs.tag < rhs.tag;
-                  });
+    taggedParams.sort([](const auto& lhs, const auto& rhs)
+                      {
+                          return lhs.tag < rhs.tag;
+                      });
 }
 
 list<ParamInfo>
@@ -776,7 +776,7 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
     {
         auto ret = ParamInfo(returnValueName(op->outParameters()),
                              op->returnType(),
-                             op->returnIsOptional(),
+                             op->returnIsTagged(),
                              op->returnTag(),
                              prefix);
 
@@ -794,30 +794,30 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
 }
 
 void
-Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& required, list<ParamInfo>& optional, const string& prefix)
+Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams, const string& prefix)
 {
-    required.clear();
-    optional.clear();
+    requiredParams.clear();
+    taggedParams.clear();
 
     for(const auto& p : getAllOutParams(op, prefix))
     {
-        if(p.optional)
+        if(p.tagged)
         {
-            optional.push_back(p);
+            taggedParams.push_back(p);
         }
         else
         {
-            required.push_back(p);
+            requiredParams.push_back(p);
         }
     }
 
     //
-    // Sort optional parameters by tag.
+    // Sort tagged parameters by tag.
     //
-    optional.sort([](const auto& lhs, const auto& rhs)
-                  {
-                      return lhs.tag < rhs.tag;
-                  });
+    taggedParams.sort([](const auto& lhs, const auto& rhs)
+                      {
+                          return lhs.tag < rhs.tag;
+                      });
 }
 
 vector<string>
@@ -924,12 +924,12 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 }
 
 void
-Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
-                                             const TypePtr& type,
-                                             const string& scope,
-                                             const string& param,
-                                             int tag,
-                                             const string& customStream)
+Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
+                                           const TypePtr& type,
+                                           const string& scope,
+                                           const string& param,
+                                           int tag,
+                                           const string& customStream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
@@ -954,7 +954,7 @@ Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
         {
             out << " != null";
         }
-        out << " && " << stream << ".WriteOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
+        out << " && " << stream << ".WriteOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
         if(st->isVariableLength())
         {
@@ -981,7 +981,7 @@ Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
     }
     else if(seq)
     {
-        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, true, stream);
+        writeTaggedSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, true, stream);
     }
     else
     {
@@ -990,7 +990,7 @@ Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
         out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-            << getOptionalFormat(d, scope) << "))";
+            << getTagFormat(d, scope) << "))";
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
@@ -1012,12 +1012,12 @@ Slice::CsGenerator::writeOptionalMarshalCode(Output &out,
 }
 
 void
-Slice::CsGenerator::writeOptionalUnmarshalCode(Output &out,
-                                               const TypePtr& type,
-                                               const string& scope,
-                                               const string& param,
-                                               int tag,
-                                               const string& customStream)
+Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
+                                             const TypePtr& type,
+                                             const string& scope,
+                                             const string& param,
+                                             int tag,
+                                             const string& customStream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
@@ -1041,7 +1041,7 @@ Slice::CsGenerator::writeOptionalUnmarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(st, scope) << "))";
+        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
         if(st->isVariableLength())
         {
@@ -1074,7 +1074,7 @@ Slice::CsGenerator::writeOptionalUnmarshalCode(Output &out,
     }
     else if(seq)
     {
-        writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, false, stream);
+        writeTaggedSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, false, stream);
     }
     else
     {
@@ -1083,7 +1083,7 @@ Slice::CsGenerator::writeOptionalUnmarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(d, scope) << "))";
+        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(d, scope) << "))";
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
@@ -1777,7 +1777,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
+Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                                                               const SequencePtr& seq,
                                                               const string& scope,
                                                               const string& param,
@@ -1845,7 +1845,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(seq, scope) << "))";
+                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
                 out << sb;
                 if(builtin->isVariableLength())
                 {
@@ -1882,7 +1882,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             if(marshal)
             {
                 out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                    << getOptionalFormat(seq, scope) << "))";
+                    << getTagFormat(seq, scope) << "))";
                 out << sb;
                 out << nl << "int pos = " << stream << ".StartSize();";
                 writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
@@ -1891,7 +1891,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(seq, scope) << "))";
+                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
                 out << sb;
                 out << nl << stream << ".skip(4);";
                 string tmp = "tmpVal";
@@ -1927,7 +1927,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         if(marshal)
         {
             out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                << getOptionalFormat(seq, scope) << "))";
+                << getTagFormat(seq, scope) << "))";
             out << sb;
             if(st->isVariableLength())
             {
@@ -1947,7 +1947,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(seq, scope) << "))";
+            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
             out << sb;
             if(st->isVariableLength())
             {
@@ -1983,7 +1983,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     if(marshal)
     {
         out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-            << getOptionalFormat(seq, scope) << "))";
+            << getTagFormat(seq, scope) << "))";
         out << sb;
         out << nl << "int pos = " << stream << ".StartSize();";
         writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
@@ -1992,7 +1992,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getOptionalFormat(seq, scope) << "))";
+        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
         out << sb;
         out << nl << stream << ".skip(4);";
         string tmp = "tmpVal";

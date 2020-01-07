@@ -152,21 +152,21 @@ Slice::CsVisitor::~CsVisitor()
 
 void
 Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
-                                     const list<ParamInfo>& required,
-                                     const list<ParamInfo>& optional,
+                                     const list<ParamInfo>& requiredParams,
+                                     const list<ParamInfo>& taggedParams,
                                      const string& customStream,
                                      const string& obj)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
     string ns = getNamespace(ClassDefPtr::dynamicCast(op->container()));
-    for(const auto& param : required)
+    for(const auto& param : requiredParams)
     {
         writeMarshalCode(_out, param.type, ns, obj + param.name, stream);
     }
 
-    for(const auto& param : optional)
+    for(const auto& param : taggedParams)
     {
-        writeOptionalMarshalCode(_out, param.type, ns, obj + param.name, param.tag, stream);
+        writeTaggedMarshalCode(_out, param.type, ns, obj + param.name, param.tag, stream);
     }
 }
 
@@ -190,13 +190,13 @@ unmarshalParamArgument(const TypePtr& type, const string& param, const string& n
 
 void
 Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
-                                       const list<ParamInfo>& required,
-                                       const list<ParamInfo>& optional,
+                                       const list<ParamInfo>& requiredParams,
+                                       const list<ParamInfo>& taggedParams,
                                        const string& customStream)
 {
     const string stream = customStream.empty() ? "istr" : customStream;
     string ns = getNamespace(ClassDefPtr::dynamicCast(op->container()));
-    for(const auto& param : required)
+    for(const auto& param : requiredParams)
     {
         _out << nl << param.typeStr << " " << param.name;
         if(isClassType(param.type) || StructPtr::dynamicCast(param.type))
@@ -207,10 +207,10 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
         writeUnmarshalCode(_out, param.type, ns, unmarshalParamArgument(param.type, param.name, ns), stream);
     }
 
-    for(const auto& param : optional)
+    for(const auto& param : taggedParams)
     {
         _out << nl << param.typeStr << " " << param.name << " = null;";
-        writeOptionalUnmarshalCode(_out, param.type, ns, unmarshalParamArgument(param.type, param.name, ns), param.tag,
+        writeTaggedUnmarshalCode(_out, param.type, ns, unmarshalParamArgument(param.type, param.name, ns), param.tag,
                                    stream);
     }
 }
@@ -220,16 +220,16 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
                                          const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
-    if(member->optional())
+    if(member->tagged())
     {
         StructPtr st = StructPtr::dynamicCast(member->type());
         if(st && isImmutableType(st))
         {
-            writeOptionalMarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
+            writeTaggedMarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
         }
         else
         {
-            writeOptionalMarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
+            writeTaggedMarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
         }
     }
     else
@@ -243,10 +243,10 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
                                            const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
-    if(member->optional())
+    if(member->tagged())
     {
-        writeOptionalUnmarshalCode(_out, member->type(), ns, unmarshalParamArgument(member->type(), "this." + name, ns),
-                                   member->tag(), stream);
+        writeTaggedUnmarshalCode(_out, member->type(), ns, unmarshalParamArgument(member->type(), "this." + name, ns),
+                                 member->tag(), stream);
     }
     else
     {
@@ -268,7 +268,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     // Marshaling support
     //
     DataMemberList members = p->dataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
@@ -325,13 +325,13 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "ostr.StartSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(auto m : members)
     {
-        if(!m->optional())
+        if(!m->tagged())
         {
             writeMarshalDataMember(m, fixId(m->name()), ns);
         }
     }
 
-    for(auto m : optionalMembers)
+    for(auto m : taggedMembers)
     {
         writeMarshalDataMember(m, fixId(m->name()), ns);
     }
@@ -352,12 +352,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr.StartSlice();";
     for(auto m : members)
     {
-        if(!m->optional())
+        if(!m->tagged())
         {
             writeUnmarshalDataMember(m, fixId(m->name()), ns);
         }
     }
-    for(auto m : optionalMembers)
+    for(auto m : taggedMembers)
     {
         writeUnmarshalDataMember(m, fixId(m->name()), ns);
     }
@@ -402,7 +402,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
         {
             param << "out ";
         }
-        param << CsGenerator::typeToString(p->type(), ns, p->optional())
+        param << CsGenerator::typeToString(p->type(), ns, p->tagged())
               << " "
               << CsGenerator::fixId(p->name());
         params.push_back(param.str());
@@ -425,7 +425,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
         ostringstream param;
         param << getParamAttributes(p)
-              << CsGenerator::typeToString(p->type(), ns, p->optional())
+              << CsGenerator::typeToString(p->type(), ns, p->tagged())
               << " "
               << CsGenerator::fixId(prefix + p->name());
         params.push_back(param.str());
@@ -631,7 +631,7 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
         {
             return true;
         }
-        else if((*p)->optional())
+        else if((*p)->tagged())
         {
             return true;
         }
@@ -664,7 +664,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
-        else if(!(*p)->optional())
+        else if(!(*p)->tagged())
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
             if(builtin && builtin->kind() == Builtin::KindString)
@@ -1661,7 +1661,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
         {
             string memberName = fixId((*d)->name());
-            string memberType = typeToString((*d)->type(), ns, (*d)->optional());
+            string memberType = typeToString((*d)->type(), ns, (*d)->tagged());
             paramDecl.push_back(memberType + " " + memberName);
         }
         _out << paramDecl << epar;
@@ -1749,7 +1749,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns, (*q)->optional());
+        string memberType = typeToString((*q)->type(), ns, (*q)->tagged());
         allParamDecl.push_back(memberType + " " + memberName);
     }
 
@@ -1763,7 +1763,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns, (*q)->optional());
+        string memberType = typeToString((*q)->type(), ns, (*q)->tagged());
         paramDecl.push_back(memberType + " " + memberName);
     }
 
@@ -1828,7 +1828,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             DataMemberPtr m = *q;
-            if(m->optional() && isValueType(m->type()))
+            if(m->tagged() && isValueType(m->type()))
             {
                 optionals = true;
                 continue;
@@ -1866,7 +1866,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 DataMemberPtr m = *q;
-                if(!m->optional() || !isValueType(m->type()))
+                if(!m->tagged() || !isValueType(m->type()))
                 {
                     continue;
                 }
@@ -1946,14 +1946,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             DataMemberPtr m = *q;
             string mName = fixId(m->name(), Slice::ExceptionType);
-            if(m->optional() && isValueType(m->type()))
+            if(m->tagged() && isValueType(m->type()))
             {
                 _out << nl << "if (" << mName << " != null)";
                 _out << sb;
             }
             _out << nl << "info.AddValue(\"" << mName << "\", " << mName;
 
-            if(m->optional() && isValueType(m->type()))
+            if(m->tagged() && isValueType(m->type()))
             {
                 _out << ".Value";
             }
@@ -1965,7 +1965,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             _out << ");";
 
-            if(m->optional() && isValueType(m->type()))
+            if(m->tagged() && isValueType(m->type()))
             {
                 _out << eb;
             }
@@ -2408,8 +2408,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitAttributes(p);
     emitGeneratedCodeAttribute();
-    _out << nl << "public" << " " << typeToString(p->type(), getNamespace(cont), p->optional());
-    if(isNullable(p->type()) && !p->optional())
+    _out << nl << "public" << " " << typeToString(p->type(), getNamespace(cont), p->tagged());
+    if(isNullable(p->type()) && !p->tagged())
     {
         _out << "?";
     }
@@ -2609,13 +2609,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
     list<ParamInfo> outParams = getAllOutParams(operation);
     list<ParamInfo> requiredOutParams;
-    list<ParamInfo> optionalOutParams;
-    getOutParams(operation, requiredOutParams, optionalOutParams, "iceP_");
+    list<ParamInfo> taggedOutParams;
+    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
 
     list<ParamInfo> inParams = getAllInParams(operation);
     list<ParamInfo> requiredInParams;
-    list<ParamInfo> optionalInParams;
-    getInParams(operation, requiredInParams, optionalInParams, "iceP_");
+    list<ParamInfo> taggedInParams;
+    getInParams(operation, requiredInParams, taggedInParams, "iceP_");
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
@@ -2627,7 +2627,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string internalName = "_iceI_" + opName + "Async";
 
     TypePtr ret = operation->returnType();
-    string retS = typeToString(operation->returnType(), ns, operation->returnIsOptional());
+    string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
 
     string context = getEscapedParamName(operation, "context");
     string cancel = getEscapedParamName(operation, "cancel");
@@ -2753,7 +2753,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << ",";
             _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
             _out << sb;
-            writeMarshalParams(operation, requiredInParams, optionalInParams);
+            writeMarshalParams(operation, requiredInParams, taggedInParams);
             if(operation->sendsClasses(false))
             {
                 _out << nl << "ostr.WritePendingValues();";
@@ -2792,7 +2792,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "read: (" << getUnqualified("Ice.InputStream", ns) << " istr) =>";
             _out << sb;
 
-            writeUnmarshalParams(operation, requiredOutParams, optionalOutParams);
+            writeUnmarshalParams(operation, requiredOutParams, taggedOutParams);
             if(operation->returnsClasses(false))
             {
                 _out << nl << "istr.ReadPendingValues();";
@@ -3056,8 +3056,8 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
 
     list<ParamInfo> outParams = getAllOutParams(operation, "", true);
     list<ParamInfo> requiredOutParams;
-    list<ParamInfo> optionalOutParams;
-    getOutParams(operation, requiredOutParams, optionalOutParams, "iceP_");
+    list<ParamInfo> taggedOutParams;
+    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
 
     if(operation->hasMarshaledResult())
     {
@@ -3076,7 +3076,7 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
         _out << sb;
         _out << nl << "_ostr = global::IceInternal.Incoming.createResponseOutputStream(current);";
         _out << nl << "_ostr.StartEncapsulation(current.Encoding, " << opFormatTypeToString(operation, ns) << ");";
-        writeMarshalParams(operation, requiredOutParams, optionalOutParams, "_ostr");
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "_ostr");
         if(operation->returnsClasses(false))
         {
             _out << nl << "_ostr.WritePendingValues();";
@@ -3204,13 +3204,13 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
-    list<ParamInfo> optionalInParams;
-    getInParams(operation, requiredInParams, optionalInParams, "iceP_");
+    list<ParamInfo> taggedInParams;
+    getInParams(operation, requiredInParams, taggedInParams, "iceP_");
 
     list<ParamInfo> outParams = getAllOutParams(operation, "iceP_");
     list<ParamInfo> requiredOutParams;
-    list<ParamInfo> optionalOutParams;
-    getOutParams(operation, requiredOutParams, optionalOutParams, "iceP_");
+    list<ParamInfo> taggedOutParams;
+    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
 
     string retS = resultType(operation, ns, true);
 
@@ -3235,7 +3235,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     else
     {
         _out << nl << "var istr = inS.startReadParams();";
-        writeUnmarshalParams(operation, requiredInParams, optionalInParams);
+        writeUnmarshalParams(operation, requiredInParams, taggedInParams);
         if(operation->sendsClasses(false))
         {
             _out << nl << "istr.ReadPendingValues();";
@@ -3266,7 +3266,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << nl << "(ostr, " << outParams.front().name << ") =>";
                 _out << sb;
-                writeMarshalParams(operation, requiredOutParams, optionalOutParams);
+                writeMarshalParams(operation, requiredOutParams, taggedOutParams);
                 if(operation->returnsClasses(false))
                 {
                     _out << nl << "ostr.WritePendingValues();";
@@ -3277,8 +3277,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << nl << "(ostr, ret) =>";
                 _out << sb;
-                getOutParams(operation, requiredOutParams, optionalOutParams);
-                writeMarshalParams(operation, requiredOutParams, optionalOutParams, "ostr", "ret.");
+                getOutParams(operation, requiredOutParams, taggedOutParams);
+                writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "ret.");
                 if(operation->returnsClasses(false))
                 {
                     _out << nl << "ostr.WritePendingValues();";
@@ -3320,7 +3320,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         else
         {
             _out << nl << "var ostr = inS.startWriteParams();";
-            writeMarshalParams(operation, requiredOutParams, optionalOutParams);
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams);
             if(operation->returnsClasses(false))
             {
                 _out << nl << "ostr.WritePendingValues();";

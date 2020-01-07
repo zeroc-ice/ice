@@ -33,11 +33,11 @@ struct ParamInfo
     TypePtr type;
     std::string typeStr;
     bool nullable;
-    bool optional;
+    bool tagged;
     int tag;
     ParamDeclPtr param; // 0 == return value
 
-    ParamInfo(const std::string& name, const TypePtr& type, bool optional, int tag, const std::string& prefix = "");
+    ParamInfo(const std::string& name, const TypePtr& type, bool tagged, int tag, const std::string& prefix = "");
     ParamInfo(const ParamDeclPtr& param, const std::string& prefix = "");
 };
 
@@ -99,7 +99,7 @@ protected:
     static std::string getNamespacePrefix(const ContainedPtr&);
     static std::string getCustomTypeIdNamespace(const UnitPtr&);
 
-    static std::string getOptionalFormat(const TypePtr&, const std::string&);
+    static std::string getTagFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);
 
     //
@@ -110,13 +110,13 @@ protected:
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
-    void writeOptionalMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                                   int, const std::string& = "ostr");
-    void writeOptionalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                                     int, const std::string& = "istr");
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                            const std::string&, bool, bool, const std::string& = "");
-    void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
+    void writeTaggedSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                                    const std::string&, int, bool, const std::string& = "");
 private:
 

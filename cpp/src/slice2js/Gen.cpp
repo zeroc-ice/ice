@@ -375,36 +375,36 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& taggedMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if(!(*q)->tagged())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
         }
     }
 
-    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
+        writeTaggedMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
     }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& taggedMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(!(*q)->optional())
+        if(!(*q)->tagged())
         {
             writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
         }
     }
 
-    for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
+        writeTaggedMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
     }
 }
 
@@ -1292,7 +1292,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1362,7 +1362,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string value;
-                if((*q)->optional())
+                if((*q)->tagged())
                 {
                     if((*q)->defaultValueType())
                     {
@@ -1407,13 +1407,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << sp;
                 _out << nl << "_iceWriteMemberImpl(ostr)";
                 _out << sb;
-                writeMarshalDataMembers(dataMembers, optionalMembers);
+                writeMarshalDataMembers(dataMembers, taggedMembers);
                 _out << eb;
 
                 _out << sp;
                 _out << nl << "_iceReadMemberImpl(istr)";
                 _out << sb;
-                writeUnmarshalDataMembers(dataMembers, optionalMembers);
+                writeUnmarshalDataMembers(dataMembers, taggedMembers);
                 _out << eb;
             }
         }
@@ -1619,7 +1619,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         _out << ", true";
                     }
-                    if(op->returnIsOptional())
+                    if(op->returnIsTagged())
                     {
                         if(!isObj)
                         {
@@ -1650,7 +1650,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", true";
                         }
-                        if((*pli)->optional())
+                        if((*pli)->tagged())
                         {
                             if(!isObj)
                             {
@@ -1683,7 +1683,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", true";
                         }
-                        if((*pli)->optional())
+                        if((*pli)->tagged())
                         {
                             if(!isObj)
                             {
@@ -1796,7 +1796,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1831,7 +1831,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if((*q)->tagged())
         {
             if((*q)->defaultValueType())
             {
@@ -1885,13 +1885,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "_writeMemberImpl(ostr)";
         _out << sb;
-        writeMarshalDataMembers(dataMembers, optionalMembers);
+        writeMarshalDataMembers(dataMembers, taggedMembers);
         _out << eb;
 
         _out << sp;
         _out << nl << "_readMemberImpl(istr)";
         _out << sb;
-        writeUnmarshalDataMembers(dataMembers, optionalMembers);
+        writeUnmarshalDataMembers(dataMembers, taggedMembers);
         _out << eb;
     }
 
@@ -1943,7 +1943,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
-        if((*q)->optional())
+        if((*q)->tagged())
         {
             if((*q)->defaultValueType())
             {
@@ -2718,7 +2718,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
             {
                 _out << (fixId((*r)->name()) +
-                         ((*r)->optional() ? "?" : "") +
+                         ((*r)->tagged() ? "?" : "") +
                          ":" +
                          typeToString((*r)->type(), p, imports(), true, false, true));
             }

@@ -211,25 +211,29 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
         {
             unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
     }
     int st = checkKeyword(ident->v);
     if(st == ICE_IDENTIFIER)
     {
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
     }
     else if(st == ICE_SCOPED_IDENTIFIER)
     {
         unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
+    }
+    else if(st == ICE_TAG)
+    {
+        return ICE_TAG_OPEN;
     }
     else if(st == ICE_OPTIONAL)
     {
-        return ICE_OPTIONAL_OP;
+        return ICE_OPTIONAL_OPEN;
     }
     else
     {
-        return ICE_KEYWORD_OP;
+        return ICE_KEYWORD_OPEN;
     }
 }
 
@@ -564,6 +568,10 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
+    keywordMap["tag"] = ICE_TAG;
+    // 'optional' is kept as an alias for 'tag' for backwards compatability.
+    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
     keywordMap["optional"] = ICE_OPTIONAL;
     keywordMap["Value"] = ICE_VALUE;
 }

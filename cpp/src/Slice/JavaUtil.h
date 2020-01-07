@@ -129,9 +129,9 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
-    // Returns the optional type corresponding to the given Slice type.
+    // Returns the tag format corresponding to the given Slice type.
     //
-    std::string getOptionalFormat(const TypePtr&);
+    std::string getTagFormat(const TypePtr&);
 
     //
     // Get the Java name for a type. If an optional scope is provided,
@@ -166,20 +166,20 @@ protected:
     //
     // Generate code to marshal or unmarshal a type.
     //
-    enum OptionalMode
+    enum TagMode
     {
-        OptionalNone,
-        OptionalInParam,
-        OptionalOutParam,
-        OptionalReturnParam,
-        OptionalMember
+        NotTagged,
+        TaggedInParam,
+        TaggedOutParam,
+        TaggedReturnParam,
+        TaggedMember
     };
 
     std::string getWriteFunction(const std::string&, const TypePtr&);
     std::string getReadFunction(const std::string&, const TypePtr&);
 
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                   bool, int, const std::string&, bool, int&, const std::string& = "",
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, TagMode,
+                                   int, const std::string&, bool, int&, const std::string& = "",
                                    const StringList& = StringList(), const std::string& = "");
 
     //

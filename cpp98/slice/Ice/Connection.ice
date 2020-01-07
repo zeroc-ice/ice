@@ -346,7 +346,7 @@ local interface Connection
      *
      **/
     ["swift:noexcept"]
-    void setACM(optional(1) int timeout, optional(2) ACMClose close, optional(3) ACMHeartbeat heartbeat);
+    void setACM(tag(1) int timeout, tag(2) ACMClose close, tag(3) ACMHeartbeat heartbeat);
 
     /**
      *

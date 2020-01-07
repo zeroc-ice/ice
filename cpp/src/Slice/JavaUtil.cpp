@@ -984,7 +984,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 }
 
 string
-Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
+Slice::JavaGenerator::getTagFormat(const TypePtr& type)
 {
     const string prefix = "com.zeroc.Ice.OptionalFormat.";
 
@@ -1282,8 +1282,7 @@ void
 Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                                                 const string& package,
                                                 const TypePtr& type,
-                                                OptionalMode mode,
-                                                bool optionalMapping,
+                                                TagMode mode,
                                                 int tag,
                                                 const string& param,
                                                 bool marshal,
@@ -1298,9 +1297,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         stream = marshal ? "ostr" : "istr";
     }
 
-    const bool optionalParam = mode == OptionalInParam || mode == OptionalOutParam || mode == OptionalReturnParam;
+    const bool isTaggedParam = mode == TaggedInParam || mode == TaggedOutParam || mode == TaggedReturnParam;
 
-    assert(!marshal || mode != OptionalMember); // Only support OptionalMember for un-marshaling
+    assert(!marshal || mode != TaggedMember); // Only support TaggedMember for un-marshaling
 
     static const char* builtinTable[] =
     {
@@ -1334,7 +1333,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 string s = builtinTable[builtin->kind()];
                 if(marshal)
                 {
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << stream << ".write" << s << "(" << tag << ", " << param << ");";
                     }
@@ -1345,7 +1344,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << param << " = " << stream << ".read" << s << "(" << tag << ");";
                     }
@@ -1361,7 +1360,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(marshal)
                 {
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
                     }
@@ -1373,7 +1372,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 else
                 {
                     assert(!patchParams.empty());
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
                     }
@@ -1388,7 +1387,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(marshal)
                 {
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
                     }
@@ -1399,11 +1398,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    if(optionalParam)
+                    if(isTaggedParam)
                     {
                         out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
                     }
-                    else if(mode == OptionalMember)
+                    else if(mode == TaggedMember)
                     {
                         out << nl << stream << ".skip(4);";
                         out << nl << param << " = " << stream << ".readProxy();";
@@ -1426,7 +1425,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            if(optionalParam)
+            if(isTaggedParam)
             {
                 out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
             }
@@ -1437,11 +1436,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            if(optionalParam)
+            if(isTaggedParam)
             {
                 out << nl << param << " = " << stream << ".readProxy(" << tag << ", " << typeS << "::uncheckedCast);";
             }
-            else if(mode == OptionalMember)
+            else if(mode == TaggedMember)
             {
                 out << nl << stream << ".skip(4);";
                 out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
@@ -1459,7 +1458,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            if(optionalParam)
+            if(isTaggedParam)
             {
                 out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
             }
@@ -1471,7 +1470,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         else
         {
             assert(!patchParams.empty());
-            if(optionalParam)
+            if(isTaggedParam)
             {
                 out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
             }
@@ -1486,7 +1485,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(optionalParam || mode == OptionalMember)
+        if(isTaggedParam || mode == TaggedMember)
         {
             string instanceType, formalType, origInstanceType, origFormalType;
             getDictionaryTypes(dict, "", metaData, instanceType, formalType);
@@ -1502,7 +1501,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
                     return;
                 }
-                else if(mode != OptionalMember)
+                else if(mode != TaggedMember)
                 {
                     out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
                     return;
@@ -1513,18 +1512,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             TypePtr valueType = dict->valueType();
             if(marshal)
             {
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << nl;
-                    if(optionalMapping)
-                    {
-                        out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
-                            << getOptionalFormat(type) << "))";
-                    }
-                    else
-                    {
-                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    }
+                    out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
+                        << getTagFormat(type) << "))";
                     out << sb;
                 }
 
@@ -1543,17 +1535,17 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     writeDictionaryMarshalUnmarshalCode(out, package, dict, param, marshal, iter, true, customStream, metaData);
                 }
 
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << eb;
                 }
             }
             else
             {
-                string d = optionalParam ? "optDict" : param;
-                if(optionalParam)
+                string d = isTaggedParam ? "optDict" : param;
+                if(isTaggedParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << d << ';';
                 }
@@ -1566,7 +1558,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".skipSize();";
                 }
                 writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metaData);
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << nl << param << " = " << d << ";";
                     out << eb;
@@ -1587,7 +1579,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        if(optionalParam || mode == OptionalMember)
+        if(isTaggedParam || mode == TaggedMember)
         {
             string ignored;
             TypePtr elemType = seq->type();
@@ -1600,7 +1592,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".write" << bs << "Seq(" << tag << ", " << param << ");";
                     return;
                 }
-                else if(mode != OptionalMember)
+                else if(mode != TaggedMember)
                 {
                     out << nl << param << " = " << stream << ".read" << bs << "Seq(" << tag << ");";
                     return;
@@ -1613,7 +1605,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".writeSerializable" << spar << tag << param << epar << ";";
                     return;
                 }
-                else if(mode != OptionalMember)
+                else if(mode != TaggedMember)
                 {
                     out << nl << param << " = " << stream << ".readSerializable" << spar << tag << typeS + ".class"
                         << epar << ";";
@@ -1635,7 +1627,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
                         return;
                     }
-                    else if(mode != OptionalMember)
+                    else if(mode != TaggedMember)
                     {
                         out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
                         return;
@@ -1645,18 +1637,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
             if(marshal)
             {
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << nl;
-                    if(optionalMapping)
-                    {
-                        out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
-                            << getOptionalFormat(type) << "))";
-                    }
-                    else
-                    {
-                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    }
+                    out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
+                        << getTagFormat(type) << "))";
                     out << sb;
                 }
 
@@ -1692,7 +1677,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     writeSequenceMarshalUnmarshalCode(out, package, seq, param, true, iter, true, customStream, metaData);
                 }
 
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << eb;
                 }
@@ -1700,10 +1685,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             else
             {
                 const size_t sz = elemType->minWireSize();
-                string s = optionalParam ? "optSeq" : param;
-                if(optionalParam)
+                string s = isTaggedParam ? "optSeq" : param;
+                if(isTaggedParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << s << ';';
                 }
@@ -1716,7 +1701,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".skipSize();";
                 }
                 writeSequenceMarshalUnmarshalCode(out, package, seq, s, false, iter, true, customStream, metaData);
-                if(optionalParam)
+                if(isTaggedParam)
                 {
                     out << nl << param << " = " << s << ";";
                     out << eb;
@@ -1739,7 +1724,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     assert(constructed);
     if(marshal)
     {
-        if(optionalParam)
+        if(isTaggedParam)
         {
             out << nl << typeS << ".ice_write(" << stream << ", " << tag << ", " << param << ");";
         }
@@ -1750,11 +1735,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        if(optionalParam)
+        if(isTaggedParam)
         {
             out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
         }
-        else if(mode == OptionalMember && st)
+        else if(mode == TaggedMember && st)
         {
             out << nl << stream << (st->isVariableLength() ? ".skip(4);" : ".skipSize();");
             out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
@@ -1842,8 +1827,8 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl;
         out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << param << ".entrySet())";
         out << sb;
-        writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "e.getKey()", true, iter, customStream);
-        writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "e.getValue()", true, iter,
+        writeMarshalUnmarshalCode(out, package, key, NotTagged, 0, "e.getKey()", true, iter, customStream);
+        writeMarshalUnmarshalCode(out, package, value, NotTagged, 0, "e.getValue()", true, iter,
                                   customStream);
         out << eb;
         out << eb;
@@ -1859,21 +1844,21 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         if(ClassDeclPtr::dynamicCast(value) || (b && b->usesClasses()))
         {
             out << nl << "final " << keyS << " key;";
-            writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
+            writeMarshalUnmarshalCode(out, package, key, NotTagged, 0, "key", false, iter, customStream);
 
             valueS = typeToObjectString(value, TypeModeIn, package);
             ostringstream patchParams;
             patchParams << "value -> " << param << ".put(key, value), " << valueS << ".class";
-            writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream,
+            writeMarshalUnmarshalCode(out, package, value, NotTagged, 0, "value", false, iter, customStream,
                                       StringList(), patchParams.str());
         }
         else
         {
             out << nl << keyS << " key;";
-            writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
+            writeMarshalUnmarshalCode(out, package, key, NotTagged, 0, "key", false, iter, customStream);
 
             out << nl << valueS << " value;";
-            writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream);
+            writeMarshalUnmarshalCode(out, package, value, NotTagged, 0, "value", false, iter, customStream);
 
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
             if(!(builtin && builtin->usesClasses()) && !ClassDeclPtr::dynamicCast(value))
@@ -2081,7 +2066,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string ctypeS = typeToString(type, TypeModeIn, package);
             out << nl << "for(" << ctypeS << " elem : " << param << ')';
             out << sb;
-            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, customStream);
+            writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, "elem", true, iter, customStream);
             out << eb;
             out << eb; // else
         }
@@ -2108,13 +2093,13 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "final int fi" << iter << " = i" << iter << ";";
                 patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS << ".class";
 
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", false, iter,
+                writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, "elem", false, iter,
                                           customStream, StringList(), patchParams.str());
             }
             else
             {
                 out << nl << cont << " elem;";
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream);
+                writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, "elem", false, iter, customStream);
                 out << nl << param << ".add(elem);";
             }
             out << eb;
@@ -2155,7 +2140,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 ostringstream o;
                 o << param << "[i" << iter << "]";
                 iter++;
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), true, iter, customStream);
+                writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, o.str(), true, iter, customStream);
                 out << eb;
                 out << eb;
             }
@@ -2220,12 +2205,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     ostringstream patchParams;
                     out << nl << "final int fi" << iter << " = i" << iter << ";";
                     patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS << ".class";
-                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter,
+                    writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, o.str(), false, iter,
                                               customStream, StringList(), patchParams.str());
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter,
+                    writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, o.str(), false, iter,
                                               customStream);
                 }
                 out << eb;

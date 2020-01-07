@@ -11,7 +11,7 @@ module Test
 
 class OneOptional
 {
-    optional(1) int a;
+    tag(1) int a;
 }
 
 enum MyEnum
@@ -70,81 +70,81 @@ dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
 class MultiOptional
 {
-    optional(1) byte a;
-    optional(2) bool  b;
-    optional(3) short c;
-    optional(4) int d;
-    optional(5) long e;
-    optional(6) float f;
-    optional(7) double g;
-    optional(8) string h;
-    optional(9) MyEnum i;
-    optional(10) MultiOptional* j;
-    optional(11) MultiOptional k;
-    optional(12) ByteSeq bs;
-    optional(13) StringSeq ss;
-    optional(14) IntIntDict iid;
-    optional(15) StringIntDict sid;
-    optional(16) FixedStruct fs;
-    optional(17) VarStruct vs;
+    tag(1) byte a;
+    tag(2) bool  b;
+    tag(3) short c;
+    tag(4) int d;
+    tag(5) long e;
+    tag(6) float f;
+    tag(7) double g;
+    tag(8) string h;
+    tag(9) MyEnum i;
+    tag(10) MultiOptional* j;
+    tag(11) MultiOptional k;
+    tag(12) ByteSeq bs;
+    tag(13) StringSeq ss;
+    tag(14) IntIntDict iid;
+    tag(15) StringIntDict sid;
+    tag(16) FixedStruct fs;
+    tag(17) VarStruct vs;
 
-    optional(18) ShortSeq shs;
-    optional(19) MyEnumSeq es;
-    optional(20) FixedStructSeq fss;
-    optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
-    optional(23) OneOptionalPrxSeq oops;
+    tag(18) ShortSeq shs;
+    tag(19) MyEnumSeq es;
+    tag(20) FixedStructSeq fss;
+    tag(21) VarStructSeq vss;
+    tag(22) OneOptionalSeq oos;
+    tag(23) OneOptionalPrxSeq oops;
 
-    optional(24) IntEnumDict ied;
-    optional(25) IntFixedStructDict ifsd;
-    optional(26) IntVarStructDict ivsd;
-    optional(27) IntOneOptionalDict iood;
-    optional(28) IntOneOptionalPrxDict ioopd;
+    tag(24) IntEnumDict ied;
+    tag(25) IntFixedStructDict ifsd;
+    tag(26) IntVarStructDict ivsd;
+    tag(27) IntOneOptionalDict iood;
+    tag(28) IntOneOptionalPrxDict ioopd;
 
-    optional(29) BoolSeq bos;
+    tag(29) BoolSeq bos;
 
-    optional(30) Serializable ser;
+    tag(30) Serializable ser;
 }
 
 class A
 {
     int requiredA = 0;
-    optional(1) int ma;
-    optional(50) int mb;
-    optional(500) int mc;
+    tag(1) int ma;
+    tag(50) int mb;
+    tag(500) int mc;
 }
 
 ["preserve-slice"]
 class B extends A
 {
     int requiredB = 0;
-    optional(10) int md;
+    tag(10) int md;
 }
 
 class C extends B
 {
     string ss;
-    optional(890) string ms;
+    tag(890) string ms;
 }
 
 class WD
 {
-    optional(1) int a = 5;
-    optional(2) string s = "test";
+    tag(1) int a = 5;
+    tag(2) string s = "test";
 }
 
 exception OptionalException
 {
     bool req = false;
-    optional(1) int a = 5;
-    optional(2) string b;
-    optional(50) OneOptional o;
+    tag(1) int a = 5;
+    tag(2) string b;
+    tag(50) OneOptional o;
 }
 
 exception DerivedException extends OptionalException
 {
-    optional(600) string ss = "test";
-    optional(601) OneOptional o2;
+    tag(600) string ss = "test";
+    tag(601) OneOptional o2;
 }
 
 exception RequiredException extends OptionalException
@@ -155,9 +155,9 @@ exception RequiredException extends OptionalException
 
 class OptionalWithCustom
 {
-    optional(1) SmallStructList l;
-    ["protected"] optional(2) SmallStructList lp;
-    optional(3) ClassVarStruct s;
+    tag(1) SmallStructList l;
+    ["protected"] tag(2) SmallStructList lp;
+    tag(3) ClassVarStruct s;
 }
 
 class E
@@ -167,7 +167,7 @@ class E
 
 class F extends E
 {
-    optional(1) A af;
+    tag(1) A af;
 }
 
 class G1
@@ -182,9 +182,9 @@ class G2
 
 class G
 {
-    optional(1) G1 gg1Opt;
+    tag(1) G1 gg1Opt;
     G2 gg2;
-    optional(0) G2 gg2Opt;
+    tag(0) G2 gg2Opt;
     G1 gg1;
 }
 
@@ -193,7 +193,7 @@ sequence<Recursive> RecursiveSeq;
 
 class Recursive
 {
-    optional(0) RecursiveSeq value;
+    tag(0) RecursiveSeq value;
 }
 
 ["amd"]
@@ -203,124 +203,124 @@ interface Initial
 
     Object pingPong(Object o);
 
-    void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opOptionalException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
         throws OptionalException;
 
-    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opDerivedException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
         throws OptionalException;
 
-    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opRequiredException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
         throws OptionalException;
 
-    optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
+    tag(1) byte opByte(tag(2) byte p1, out tag(3) byte p3);
 
-    optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
+    tag(1) bool opBool(tag(2) bool p1, out tag(3) bool p3);
 
-    optional(1) short opShort(optional(2) short p1, out optional(3) short p3);
+    tag(1) short opShort(tag(2) short p1, out tag(3) short p3);
 
-    optional(1) int opInt(optional(2) int p1, out optional(3) int p3);
+    tag(1) int opInt(tag(2) int p1, out tag(3) int p3);
 
-    optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
+    tag(3) long opLong(tag(1) long p1, out tag(2) long p3);
 
-    optional(1) float opFloat(optional(2) float p1, out optional(3) float p3);
+    tag(1) float opFloat(tag(2) float p1, out tag(3) float p3);
 
-    optional(1) double opDouble(optional(2) double p1, out optional(3) double p3);
+    tag(1) double opDouble(tag(2) double p1, out tag(3) double p3);
 
-    optional(1) string opString(optional(2) string p1, out optional(3) string p3);
+    tag(1) string opString(tag(2) string p1, out tag(3) string p3);
 
-    ["cpp:view-type:Util::string_view"] optional(1) string
-    opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1,
-                   out ["cpp:view-type:Util::string_view"] optional(3) string p3);
+    ["cpp:view-type:Util::string_view"] tag(1) string
+    opCustomString(["cpp:view-type:Util::string_view"] tag(2) string p1,
+                   out ["cpp:view-type:Util::string_view"] tag(3) string p3);
 
-    optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
+    tag(1) MyEnum opMyEnum(tag(2) MyEnum p1, out tag(3) MyEnum p3);
 
-    optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
+    tag(1) SmallStruct opSmallStruct(tag(2) SmallStruct p1, out tag(3) SmallStruct p3);
 
-    optional(1) FixedStruct opFixedStruct(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
+    tag(1) FixedStruct opFixedStruct(tag(2) FixedStruct p1, out tag(3) FixedStruct p3);
 
-    optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
+    tag(1) VarStruct opVarStruct(tag(2) VarStruct p1, out tag(3) VarStruct p3);
 
-    optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
+    tag(1) OneOptional opOneOptional(tag(2) OneOptional p1, out tag(3) OneOptional p3);
 
-    optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
+    tag(1) OneOptional* opOneOptionalProxy(tag(2) OneOptional* p1, out tag(3) OneOptional* p3);
 
     // Custom mapping operations
-    ["cpp:array"] optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1,
-                                                out ["cpp:array"] optional(3) ByteSeq p3);
+    ["cpp:array"] tag(1) ByteSeq opByteSeq(["cpp:array"] tag(2) ByteSeq p1,
+                                                out ["cpp:array"] tag(3) ByteSeq p3);
 
-    ["cpp:array"] optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1,
-                                                out ["cpp:array"] optional(3) BoolSeq p3);
+    ["cpp:array"] tag(1) BoolSeq opBoolSeq(["cpp:array"] tag(2) BoolSeq p1,
+                                                out ["cpp:array"] tag(3) BoolSeq p3);
 
-    ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
-                                                  out ["cpp:array"] optional(3) ShortSeq p3);
+    ["cpp:array"] tag(1) ShortSeq opShortSeq(["cpp:array"] tag(2) ShortSeq p1,
+                                                  out ["cpp:array"] tag(3) ShortSeq p3);
 
-    ["cpp:array"] optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1,
-                                              out ["cpp:array"] optional(3) IntSeq p3);
+    ["cpp:array"] tag(1) IntSeq opIntSeq(["cpp:array"] tag(2) IntSeq p1,
+                                              out ["cpp:array"] tag(3) IntSeq p3);
 
-    ["cpp:array"] optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1,
-                                                out ["cpp:array"] optional(3) LongSeq p3);
+    ["cpp:array"] tag(1) LongSeq opLongSeq(["cpp:array"] tag(2) LongSeq p1,
+                                                out ["cpp:array"] tag(3) LongSeq p3);
 
-    ["cpp:array"] optional(1) FloatSeq opFloatSeq(["cpp:array"] optional(2) FloatSeq p1,
-                                                  out ["cpp:array"] optional(3) FloatSeq p3);
+    ["cpp:array"] tag(1) FloatSeq opFloatSeq(["cpp:array"] tag(2) FloatSeq p1,
+                                                  out ["cpp:array"] tag(3) FloatSeq p3);
 
-    ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
-                                                    out ["cpp:array"] optional(3) DoubleSeq p3);
+    ["cpp:array"] tag(1) DoubleSeq opDoubleSeq(["cpp:array"] tag(2) DoubleSeq p1,
+                                                    out ["cpp:array"] tag(3) DoubleSeq p3);
 
-    ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
-                                                    out ["cpp:range"] optional(3) StringSeq p3);
+    ["cpp:range"] tag(1) StringSeq opStringSeq(["cpp:range"] tag(2) StringSeq p1,
+                                                    out ["cpp:range"] tag(3) StringSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
-                                                              out ["cpp:array"] optional(3) SmallStructSeq p3);
+    ["cpp:array"] tag(1) SmallStructSeq opSmallStructSeq(["cpp:array"] tag(2) SmallStructSeq p1,
+                                                              out ["cpp:array"] tag(3) SmallStructSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructList opSmallStructList(["cpp:array"] optional(2) SmallStructList p1,
-                                                                out ["cpp:array"] optional(3) SmallStructList p3);
+    ["cpp:array"] tag(1) SmallStructList opSmallStructList(["cpp:array"] tag(2) SmallStructList p1,
+                                                                out ["cpp:array"] tag(3) SmallStructList p3);
 
-    ["cpp:array"] optional(1) FixedStructSeq opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1,
-                                                              out ["cpp:array"] optional(3) FixedStructSeq p3);
+    ["cpp:array"] tag(1) FixedStructSeq opFixedStructSeq(["cpp:array"] tag(2) FixedStructSeq p1,
+                                                              out ["cpp:array"] tag(3) FixedStructSeq p3);
 
-    ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
-                                                                out ["cpp:array"] optional(3) FixedStructList p3);
+    ["cpp:array"] tag(1) FixedStructList opFixedStructList(["cpp:array"] tag(2) FixedStructList p1,
+                                                                out ["cpp:array"] tag(3) FixedStructList p3);
 
-    ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
-                                                          out ["cpp:range"] optional(3) VarStructSeq p3);
+    ["cpp:range"] tag(1) VarStructSeq opVarStructSeq(["cpp:range"] tag(2) VarStructSeq p1,
+                                                          out ["cpp:range"] tag(3) VarStructSeq p3);
 
-    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
+    tag(1) Serializable opSerializable(tag(2) Serializable p1, out tag(3) Serializable p3);
 
-    optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
+    tag(1) IntIntDict opIntIntDict(tag(2) IntIntDict p1, out tag(3) IntIntDict p3);
 
-    optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
+    tag(1) StringIntDict opStringIntDict(tag(2) StringIntDict p1, out tag(3) StringIntDict p3);
 
-    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
+    tag(1) IntOneOptionalDict opIntOneOptionalDict(tag(2) IntOneOptionalDict p1, out tag(3) IntOneOptionalDict p3);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(1) IntStringDict
+    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(1) IntStringDict
     opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(2) IntStringDict p1,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(3) IntStringDict p3);
+        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(2) IntStringDict p1,
+        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
 
-    void sendOptionalClass(bool req, optional(1) OneOptional o);
+    void sendOptionalClass(bool req, tag(1) OneOptional o);
 
-    void returnOptionalClass(bool req, out optional(1) OneOptional o);
+    void returnOptionalClass(bool req, out tag(1) OneOptional o);
 
     G opG(G g);
 
     void opVoid();
 
-    ["marshaled-result"] optional(1) SmallStruct opMStruct1();
-    ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
-                                                            out optional(3)SmallStruct p2);
+    ["marshaled-result"] tag(1) SmallStruct opMStruct1();
+    ["marshaled-result"] tag(1) SmallStruct opMStruct2(tag(2) SmallStruct p1,
+                                                            out tag(3)SmallStruct p2);
 
-    ["marshaled-result"] optional(1) StringSeq opMSeq1();
-    ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
-                                                       out optional(3) StringSeq p2);
+    ["marshaled-result"] tag(1) StringSeq opMSeq1();
+    ["marshaled-result"] tag(1) StringSeq opMSeq2(tag(2) StringSeq p1,
+                                                       out tag(3) StringSeq p2);
 
-    ["marshaled-result"] optional(1) StringIntDict opMDict1();
-    ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
-                                                            out optional(3) StringIntDict p2);
+    ["marshaled-result"] tag(1) StringIntDict opMDict1();
+    ["marshaled-result"] tag(1) StringIntDict opMDict2(tag(2) StringIntDict p1,
+                                                            out tag(3) StringIntDict p2);
 
-    ["marshaled-result"] optional(1) G opMG1();
-    ["marshaled-result"] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
+    ["marshaled-result"] tag(1) G opMG1();
+    ["marshaled-result"] tag(1) G opMG2(tag(2) G p1, out tag(3) G p2);
 
     bool supportsRequiredParams();
 

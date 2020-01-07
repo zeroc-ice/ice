@@ -116,9 +116,9 @@ dictionary<int, S1Dict> S1DictDict;
 
 class Opt
 {
-    optional(1) S1 s1;
-    optional(2) C1Seq c1seq;
-    optional(3) S1Dict s1dict;
+    tag(1) S1 s1;
+    tag(2) C1Seq c1seq;
+    tag(3) S1Dict s1dict;
 }
 
 }

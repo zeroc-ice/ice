@@ -15,8 +15,8 @@ module Test
 class D extends B
 {
     string ds;
-    optional(990) StringSeq seq;
-    optional(1000) A ao;
+    tag(990) StringSeq seq;
+    tag(1000) A ao;
 }
 
 //
@@ -26,9 +26,9 @@ class D extends B
 //
 interface Initial2
 {
-    void opClassAndUnknownOptional(A p, optional(1) Object o);
+    void opClassAndUnknownOptional(A p, tag(1) Object o);
 
-    void opVoid(optional(1) int a, optional(2) string v);
+    void opVoid(tag(1) int a, tag(2) string v);
 }
 
 }

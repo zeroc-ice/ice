@@ -607,7 +607,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Data members are represented as a tuple:
         //
-        //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+        //   ('MemberName', MemberMetaData, MemberType, IsTagged, Tag)
         //
         // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
         //
@@ -632,8 +632,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMetaData((*r)->getMetaData());
             _out << ", ";
             writeType((*r)->type());
-            _out << ", " << ((*r)->optional() ? "True" : "False") << ", "
-                 << ((*r)->optional() ? (*r)->tag() : 0) << ')';
+            _out << ", " << ((*r)->tagged() ? "True" : "False") << ", "
+                 << ((*r)->tagged() ? (*r)->tag() : 0) << ')';
         }
         if(members.size() == 1)
         {
@@ -990,8 +990,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
-                    _out << ", " << ((*t)->optional() ? "True" : "False") << ", "
-                         << ((*t)->optional() ? (*t)->tag() : 0) << ')';
+                    _out << ", " << ((*t)->tagged() ? "True" : "False") << ", "
+                         << ((*t)->tagged() ? (*t)->tag() : 0) << ')';
                     ++count;
                 }
             }
@@ -1012,8 +1012,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
-                    _out << ", " << ((*t)->optional() ? "True" : "False") << ", "
-                        << ((*t)->optional() ? (*t)->tag() : 0) << ')';
+                    _out << ", " << ((*t)->tagged() ? "True" : "False") << ", "
+                        << ((*t)->tagged() ? (*t)->tag() : 0) << ')';
                     ++count;
                 }
             }
@@ -1028,12 +1028,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 // The return type has the same format as an in/out parameter:
                 //
-                // MetaData, Type, Optional?, OptionalTag
+                // MetaData, Type, IsTagged, Tag
                 //
                 _out << "((), ";
                 writeType(returnType);
-                _out << ", " << ((*s)->returnIsOptional() ? "True" : "False") << ", "
-                     << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ')';
+                _out << ", " << ((*s)->returnIsTagged() ? "True" : "False") << ", "
+                     << ((*s)->returnIsTagged() ? (*s)->returnTag() : 0) << ')';
             }
             else
             {
@@ -1187,7 +1187,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
+    //   ('MemberName', MemberMetaData, MemberType, IsTagged, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -1201,8 +1201,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         writeMetaData((*dmli)->getMetaData());
         _out << ", ";
         writeType((*dmli)->type());
-        _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", "
-             << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
+        _out << ", " << ((*dmli)->tagged() ? "True" : "False") << ", "
+             << ((*dmli)->tagged() ? (*dmli)->tag() : 0) << ')';
     }
     if(members.size() == 1)
     {
@@ -1882,7 +1882,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     // Structures are treated differently (see bug 3676).
     //
     StructPtr st = StructPtr::dynamicCast(info.dataMember->type());
-    if(st && !info.dataMember->optional())
+    if(st && !info.dataMember->tagged())
     {
         _out << nl << "if " << paramName << " is Ice._struct_marker:";
         _out.inc();
@@ -1976,7 +1976,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
         }
-        else if(member->optional())
+        else if(member->tagged())
         {
             _out << "Ice.Unset";
         }
