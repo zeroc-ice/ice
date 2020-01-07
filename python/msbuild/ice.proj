@@ -32,17 +32,17 @@
     </ItemDefinitionGroup>
 
     <ItemGroup>
-        <SliceCompile Include="..\..\slice\Ice\*.ice;
-                               ..\..\slice\Glacier2\*.ice"
-                      Exclude="..\..\slice\Ice\Metrics.ice;
-                               ..\..\slice\Glacier2\Metrics.ice">
+        <SliceCompile Include="..\..\cpp98\slice\Ice\*.ice;
+                               ..\..\cpp98\slice\Glacier2\*.ice"
+                      Exclude="..\..\cpp98\slice\Ice\Metrics.ice;
+                               ..\..\cpp98\slice\Glacier2\Metrics.ice">
             <AdditionalOptions>--no-package %(AdditionalOptions)</AdditionalOptions>
         </SliceCompile>
-        <SliceCompile Include="..\..\slice\Glacier2\Metrics.ice;
-                               ..\..\slice\Ice\Metrics.ice;
-                               ..\..\slice\IceBox\*.ice;
-                               ..\..\slice\IceGrid\*.ice;
-                               ..\..\slice\IceStorm\*.ice"/>
+        <SliceCompile Include="..\..\cpp98\slice\Glacier2\Metrics.ice;
+                               ..\..\cpp98\slice\Ice\Metrics.ice;
+                               ..\..\cpp98\slice\IceBox\*.ice;
+                               ..\..\cpp98\slice\IceGrid\*.ice;
+                               ..\..\cpp98\slice\IceStorm\*.ice"/>
         <PythonGenerated Include="@(SliceCompile->'$(MSBuildThisFileDirectory)..\python\Ice\%(Filename)_ice.py')"/>
         <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceBox\*_ice.py"/>
         <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceGrid\*_ice.py"/>
@@ -72,7 +72,7 @@
     <Target Name="SliceCompile" BeforeTargets="Build"
             Condition="@(SliceCompile) != ''">
         <MakeDir Directories="$(SliceCompileOutputDir)"/>
-        <Exec Command="$(IceToolsPath)\slice2py.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
+        <Exec Command="$(IceToolsPath)\slice2py.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\cpp98\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
     </Target>
 
     <Target Name="SliceCompileClean" BeforeTargets="Clean">
