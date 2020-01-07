@@ -2508,10 +2508,13 @@ namespace Ice
             EncodingVersion encoding;
             if (!s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                protocol = new ProtocolVersion();
-                protocol.ice_readMembers(s);
-                encoding = new EncodingVersion();
-                encoding.ice_readMembers(s);
+                byte major = s.ReadByte();
+                byte minor = s.ReadByte();
+                protocol = new ProtocolVersion(major, minor);
+
+                major = s.ReadByte();
+                minor = s.ReadByte();
+                encoding = new EncodingVersion(major, minor);
             }
             else
             {

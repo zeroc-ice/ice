@@ -286,8 +286,10 @@ namespace IceInternal
             base.streamWriteImpl(s);
             if (s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                Ice.Util.Protocol_1_0.ice_writeMembers(s);
-                Ice.Util.Encoding_1_0.ice_writeMembers(s);
+                s.WriteByte(Ice.Util.Protocol_1_0.major);
+                s.WriteByte(Ice.Util.Protocol_1_0.minor);
+                s.WriteByte(Ice.Util.Encoding_1_0.major);
+                s.WriteByte(Ice.Util.Encoding_1_0.minor);
             }
             // Not transmitted.
             //s.writeBool(_connect);

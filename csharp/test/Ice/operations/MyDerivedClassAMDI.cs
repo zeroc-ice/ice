@@ -152,7 +152,6 @@ namespace Ice
                 public Task<Test.MyClass.opByteResult>
                 opByteAsync(byte p1, byte p2, Current current) => Task.FromResult(new Test.MyClass.opByteResult(p1, (byte)(p1 ^ p2)));
 
-
                 public Task<Test.MyClass.opByteBoolDResult>
                 opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Ice.Current current)
                 {
@@ -203,7 +202,6 @@ namespace Ice
 
                 public Task<Test.MyClass.opFloatDoubleResult>
                 opFloatDoubleAsync(float p1, double p2, Current current) => Task.FromResult(new Test.MyClass.opFloatDoubleResult(p2, p1, p2));
-
 
                 public Task<Test.MyClass.opFloatDoubleSResult>
                 opFloatDoubleSAsync(float[] p1, double[] p2, Current current)

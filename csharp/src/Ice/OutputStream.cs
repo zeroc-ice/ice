@@ -317,7 +317,8 @@ namespace Ice
             _encapsStack.start = _buf.b.position();
 
             WriteInt(0); // Placeholder for the encapsulation length.
-            _encapsStack.encoding.ice_writeMembers(this);
+            WriteByte(_encapsStack.encoding.major);
+            WriteByte(_encapsStack.encoding.minor);
         }
 
         /// <summary>
@@ -347,7 +348,8 @@ namespace Ice
         {
             Protocol.checkSupportedEncoding(encoding);
             WriteInt(6); // Size
-            encoding.ice_writeMembers(this);
+            WriteByte(encoding.major);
+            WriteByte(encoding.minor);
         }
 
         /// <summary>

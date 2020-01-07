@@ -526,12 +526,14 @@ namespace Ice
             {
                 try
                 {
-                    os_.WriteBlob(IceInternal.Protocol.magic);
-                    ProtocolVersion.ice_write(os_, Ice.Util.currentProtocol);
-                    EncodingVersion.ice_write(os_, Ice.Util.currentProtocolEncoding);
-                    os_.WriteByte(IceInternal.Protocol.validateConnectionMsg);
-                    os_.WriteByte((byte)0);
-                    os_.WriteInt(IceInternal.Protocol.headerSize); // Message size.
+                    os_.WriteBlob(Protocol.magic);
+                    os_.WriteByte(Util.currentProtocol.major);
+                    os_.WriteByte(Util.currentProtocol.minor);
+                    os_.WriteByte(Util.currentProtocolEncoding.major);
+                    os_.WriteByte(Util.currentProtocolEncoding.minor);
+                    os_.WriteByte(Protocol.validateConnectionMsg);
+                    os_.WriteByte(0);
+                    os_.WriteInt(Protocol.headerSize); // Message size.
 
                     int status = _connection.sendAsyncRequest(this, false, false);
 
@@ -1088,11 +1090,13 @@ namespace Ice
                                     throw ex;
                                 }
 
-                                ProtocolVersion pv = new ProtocolVersion();
-                                pv.ice_readMembers(_readStream);
+                                byte major = _readStream.ReadByte();
+                                byte minor = _readStream.ReadByte();
+                                ProtocolVersion pv = new ProtocolVersion(major, minor);
                                 Protocol.checkSupportedProtocol(pv);
-                                EncodingVersion ev = new EncodingVersion();
-                                ev.ice_readMembers(_readStream);
+                                major = _readStream.ReadByte();
+                                minor = _readStream.ReadByte();
+                                EncodingVersion ev = new EncodingVersion(major, minor);
                                 Protocol.checkSupportedProtocolEncoding(ev);
 
                                 _readStream.ReadByte(); // messageType
@@ -1961,8 +1965,10 @@ namespace Ice
                 //
                 OutputStream os = new OutputStream(_communicator, Util.currentProtocolEncoding);
                 os.WriteBlob(Protocol.magic);
-                Util.currentProtocol.ice_writeMembers(os);
-                Util.currentProtocolEncoding.ice_writeMembers(os);
+                os.WriteByte(Util.currentProtocol.major);
+                os.WriteByte(Util.currentProtocol.minor);
+                os.WriteByte(Util.currentProtocolEncoding.major);
+                os.WriteByte(Util.currentProtocolEncoding.minor);
                 os.WriteByte(Protocol.closeConnectionMsg);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Protocol.headerSize); // Message size.
@@ -1992,8 +1998,10 @@ namespace Ice
             {
                 OutputStream os = new OutputStream(_communicator, Util.currentProtocolEncoding);
                 os.WriteBlob(Protocol.magic);
-                Util.currentProtocol.ice_writeMembers(os);
-                Util.currentProtocolEncoding.ice_writeMembers(os);
+                os.WriteByte(Util.currentProtocol.major);
+                os.WriteByte(Util.currentProtocol.minor);
+                os.WriteByte(Util.currentProtocolEncoding.major);
+                os.WriteByte(Util.currentProtocolEncoding.minor);
                 os.WriteByte(Protocol.validateConnectionMsg);
                 os.WriteByte(0);
                 os.WriteInt(Protocol.headerSize); // Message size.
@@ -2038,8 +2046,10 @@ namespace Ice
                     if (_writeStream.size() == 0)
                     {
                         _writeStream.WriteBlob(Protocol.magic);
-                        Util.currentProtocol.ice_writeMembers(_writeStream);
-                        Util.currentProtocolEncoding.ice_writeMembers(_writeStream);
+                        _writeStream.WriteByte(Util.currentProtocol.major);
+                        _writeStream.WriteByte(Util.currentProtocol.minor);
+                        _writeStream.WriteByte(Util.currentProtocolEncoding.major);
+                        _writeStream.WriteByte(Util.currentProtocolEncoding.minor);
                         _writeStream.WriteByte(Protocol.validateConnectionMsg);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Protocol.headerSize); // Message size.
@@ -2110,12 +2120,13 @@ namespace Ice
                         throw ex;
                     }
 
-                    ProtocolVersion pv = new ProtocolVersion();
-                    pv.ice_readMembers(_readStream);
+                    byte major = _readStream.ReadByte();
+                    byte minor = _readStream.ReadByte();
+                    ProtocolVersion pv = new ProtocolVersion(major, minor);
                     Protocol.checkSupportedProtocol(pv);
-
-                    EncodingVersion ev = new EncodingVersion();
-                    ev.ice_readMembers(_readStream);
+                    major = _readStream.ReadByte();
+                    minor = _readStream.ReadByte();
+                    EncodingVersion ev = new EncodingVersion(major, minor);
                     Protocol.checkSupportedProtocolEncoding(ev);
 
                     byte messageType = _readStream.ReadByte();

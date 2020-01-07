@@ -393,8 +393,9 @@ namespace Ice
             }
             _encapsStack.sz = sz;
 
-            EncodingVersion encoding = new EncodingVersion();
-            encoding.ice_readMembers(this);
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            EncodingVersion encoding = new EncodingVersion(major, minor);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
             _encapsStack.setEncoding(encoding);
 
@@ -461,9 +462,9 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-
-            var encoding = new EncodingVersion();
-            encoding.ice_readMembers(this);
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            var encoding = new EncodingVersion(major, minor);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
 
             if (encoding.Equals(Util.Encoding_1_0))
@@ -501,8 +502,9 @@ namespace Ice
                 throw new UnmarshalOutOfBoundsException();
             }
 
-            encoding = new EncodingVersion();
-            encoding.ice_readMembers(this);
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            encoding = new EncodingVersion(major, minor);
             _buf.b.position(_buf.b.position() - 6);
 
             byte[] v = new byte[sz];
@@ -547,8 +549,9 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            EncodingVersion encoding = new EncodingVersion();
-            encoding.ice_readMembers(this);
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            EncodingVersion encoding = new EncodingVersion(major, minor);
             try
             {
                 _buf.b.position(_buf.b.position() + sz - 6);
