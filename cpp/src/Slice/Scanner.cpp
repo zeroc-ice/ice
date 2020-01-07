@@ -1302,29 +1302,29 @@ YY_RULE_SETUP
         {
             unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
     }
     int st = checkKeyword(ident->v);
     if(st == ICE_IDENTIFIER)
     {
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
     }
     else if(st == ICE_SCOPED_IDENTIFIER)
     {
         unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        return ICE_IDENT_OP;
+        return ICE_IDENT_OPEN;
     }
     else if(st == ICE_TAG)
     {
-        return ICE_TAG_START;
+        return ICE_TAG_OPEN;
     }
     else if(st == ICE_OPTIONAL)
     {
-        return ICE_OPTIONAL_START;
+        return ICE_OPTIONAL_OPEN;
     }
     else
     {
-        return ICE_KEYWORD_OP;
+        return ICE_KEYWORD_OPEN;
     }
 }
 	YY_BREAK
