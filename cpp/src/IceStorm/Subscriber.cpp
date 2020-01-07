@@ -213,7 +213,7 @@ SubscriberOneway::flush()
                 _observer->delivered(1);
             }
         }
-        catch(const std::exception& ex)
+        catch(const std::exception&)
         {
             error(false, current_exception());
             return;
@@ -709,7 +709,6 @@ Subscriber::error(bool dec, exception_ptr e)
         }
         return;
     }
-
 
     // A hard error is an ObjectNotExistException, NotRegisteredException, or SendQueueSizeMaxReached
     bool hardError;

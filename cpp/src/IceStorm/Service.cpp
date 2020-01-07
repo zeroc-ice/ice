@@ -169,7 +169,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                     int nodeid = stoi(prop.first.substr(prefix.size()));
                     nodes[nodeid] = uncheckedCast<NodePrx>(communicator->propertyToProxy(prop.first));
                 }
-                catch(const std::invalid_argument& ex)
+                catch(const std::invalid_argument&)
                 {
                     Ice::Warning warn(communicator->getLogger());
                     warn << "deployment warning: invalid node id `" << prop.first.substr(prefix.size()) << "'";
