@@ -3123,7 +3123,7 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
         _out << sb;
         for(const auto& p : outParams)
         {
-            _out << nl << "this. " << p.name << " = " << p.name << ";";
+            _out << nl << "this." << p.name << " = " << p.name << ";";
         }
         _out << eb;
 
