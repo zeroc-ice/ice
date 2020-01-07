@@ -94,19 +94,23 @@ slice_error(const char* s)
 //
 // Other tokens.
 //
-%token ICE_IDENTIFIER
-%token ICE_SCOPED_IDENTIFIER
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
-%token ICE_IDENT_OP
-%token ICE_KEYWORD_OP
-%token ICE_TAG_START
-%token ICE_OPTIONAL_START
+%token ICE_IDENTIFIER
+%token ICE_SCOPED_IDENTIFIER
 %token ICE_METADATA_OPEN
 %token ICE_METADATA_CLOSE
 %token ICE_GLOBAL_METADATA_OPEN
 %token ICE_GLOBAL_METADATA_CLOSE
+
+//
+// Here 'OPEN' means these tokens end with an open parenthesis.
+//
+%token ICE_IDENT_OPEN
+%token ICE_KEYWORD_OPEN
+%token ICE_TAG_OPEN
+%token ICE_OPTIONAL_OPEN
 
 %token BAD_CHAR
 
@@ -424,7 +428,7 @@ type_id
 // ----------------------------------------------------------------------
 tag
 // ----------------------------------------------------------------------
-: ICE_TAG_START ICE_INTEGER_LITERAL ')'
+: ICE_TAG_OPEN ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
 
@@ -442,7 +446,7 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_TAG_START scoped_name ')'
+| ICE_TAG_OPEN scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
 
@@ -533,7 +537,7 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_TAG_START ')'
+| ICE_TAG_OPEN ')'
 {
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
@@ -550,7 +554,7 @@ tag
 // ----------------------------------------------------------------------
 optional
 // ----------------------------------------------------------------------
-: ICE_OPTIONAL_START ICE_INTEGER_LITERAL ')'
+: ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
     unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
@@ -569,7 +573,7 @@ optional
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_OPTIONAL_START scoped_name ')'
+| ICE_OPTIONAL_OPEN scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
@@ -661,7 +665,7 @@ optional
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_OPTIONAL_START ')'
+| ICE_OPTIONAL_OPEN ')'
 {
     unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
     unit->error("missing tag");
@@ -835,7 +839,7 @@ class_name
 // ----------------------------------------------------------------------
 class_id
 // ----------------------------------------------------------------------
-: ICE_CLASS ICE_IDENT_OP ICE_INTEGER_LITERAL ')'
+: ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'
 {
     IceUtil::Int64 id = IntegerTokPtr::dynamicCast($3)->v;
     if(id < 0)
@@ -860,7 +864,7 @@ class_id
     classId->t = static_cast<int>(id);
     $$ = classId;
 }
-| ICE_CLASS ICE_IDENT_OP scoped_name ')'
+| ICE_CLASS ICE_IDENT_OPEN scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($3);
 
@@ -1319,7 +1323,7 @@ return_type
 // ----------------------------------------------------------------------
 operation_preamble
 // ----------------------------------------------------------------------
-: return_type ICE_IDENT_OP
+: return_type ICE_IDENT_OPEN
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
@@ -1343,7 +1347,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| ICE_IDEMPOTENT return_type ICE_IDENT_OP
+| ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
@@ -1368,7 +1372,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| return_type ICE_KEYWORD_OP
+| return_type ICE_KEYWORD_OPEN
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
@@ -1392,7 +1396,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| ICE_IDEMPOTENT return_type ICE_KEYWORD_OP
+| ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
