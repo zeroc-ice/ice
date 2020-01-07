@@ -150,7 +150,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     else
     {
         TypePtr type = op->returnType();
-        bool isReturnTagged = op->returnIsTagged();
+        bool returnIsTagged = op->returnIsTagged();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -158,14 +158,14 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                isReturnTagged = outParams.front()->tagged();
+                returnIsTagged = outParams.front()->tagged();
             }
         }
         if(type)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
             assert(cl);
-            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), isReturnTagged, object);
+            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), returnIsTagged, object);
         }
         else
         {
@@ -5039,7 +5039,7 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
     else
     {
         TypePtr type = op->returnType();
-        bool isReturnTagged = op->returnIsTagged();
+        bool returnIsTagged = op->returnIsTagged();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -5047,12 +5047,12 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                isReturnTagged = outParams.front()->tagged();
+                returnIsTagged = outParams.front()->tagged();
             }
         }
         if(type)
         {
-            out << nl << retS << " r = " << getDefaultValue(package, type, isReturnTagged) << ';';
+            out << nl << retS << " r = " << getDefaultValue(package, type, returnIsTagged) << ';';
         }
         else
         {
