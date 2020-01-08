@@ -640,8 +640,7 @@ def getSliceDir():
     # In a source distribution, the "slice" directory is an extra level higher.
     # directory.
     #
-    #dir = os.path.join(pyHome, "..", "..", "slice")  Temporary fix to use the cpp98 Slice files.
-    dir = os.path.join(pyHome, "..", "..", "cpp98", "slice")
+    dir = os.path.join(pyHome, "..", "..", "slice")
     if os.path.exists(dir):
         return os.path.normpath(dir)
 

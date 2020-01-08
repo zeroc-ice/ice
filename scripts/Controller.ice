@@ -13,6 +13,7 @@ sequence<string> StringSeq;
 
 class Config
 {
+#ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping
     optional(1) string protocol;
     optional(2) bool mx;
     optional(3) bool serialize;
@@ -20,15 +21,32 @@ class Config
     optional(5) bool ipv6;
     optional(6) StringSeq cprops;
     optional(7) StringSeq sprops;
+#else
+    tag(1) string protocol;
+    tag(2) bool mx;
+    tag(3) bool serialize;
+    tag(4) bool compress;
+    tag(5) bool ipv6;
+    tag(6) StringSeq cprops;
+    tag(7) StringSeq sprops;
+#endif
 }
 
 class OptionOverrides
 {
+#ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping
     optional(1) StringSeq protocol;
     optional(2) BoolSeq mx;
     optional(3) BoolSeq serialize;
     optional(4) BoolSeq compress;
     optional(5) BoolSeq ipv6;
+#else
+    tag(1) StringSeq protocol;
+    tag(2) BoolSeq mx;
+    tag(3) BoolSeq serialize;
+    tag(4) BoolSeq compress;
+    tag(5) BoolSeq ipv6;
+#endif
 }
 
 exception TestCaseNotExistException
