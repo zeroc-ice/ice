@@ -57,7 +57,7 @@ extern "C"
 {
 
 ICESTORM_SERVICE_API ::IceBox::Service*
-createIceStorm(shared_ptr<Communicator>)
+createIceStorm(const shared_ptr<Communicator>&)
 {
     return new IceStormInternal::ServiceI;
 }
