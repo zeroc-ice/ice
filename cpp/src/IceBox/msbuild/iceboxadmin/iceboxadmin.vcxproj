@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1B745EA3-C97A-41BB-8E6F-64AAE992BE55}</ProjectGuid>
     <RootNamespace>IceBox</RootNamespace>
+    <ProjectName>iceboxadmin</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
