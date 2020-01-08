@@ -376,9 +376,9 @@ namespace Ice
                 var initial2 = initial.Clone(encodingVersion: Util.Encoding_1_0);
                 initial2.sendOptionalClass(true, oo);
 
-                initial.returnOptionalClass(true, out oo);
+                oo = initial.returnOptionalClass(true);
                 test(oo != null);
-                initial2.returnOptionalClass(true, out oo);
+                oo = initial2.returnOptionalClass(true);
                 test(oo == null);
 
                 Test.Recursive[] recursive1 = new Test.Recursive[1];
@@ -610,23 +610,22 @@ namespace Ice
                 output.Flush();
                 {
                     byte? p1 = null;
-                    byte? p3;
-                    byte? p2 = initial.opByte(p1, out p3);
+                    var (p2, p3) = initial.opByte(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opByte(null, out p3);
+                    (p2, p3) = initial.opByte(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 56;
-                    p2 = initial.opByte(p1, out p3);
+                    (p2, p3) = initial.opByte(p1);
                     test(p2 == 56 && p3 == 56);
                     var r = initial.opByteAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
-                    p2 = initial.opByte(p1, out p3);
+                    (p2, p3) = initial.opByte(p1);
                     test(p2 == 56 && p3 == 56);
                     r = initial.opByteAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opByte(null, out p3);
+                    (p2, p3) = initial.opByte(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -648,23 +647,22 @@ namespace Ice
 
                 {
                     bool? p1 = null;
-                    bool? p3;
-                    bool? p2 = initial.opBool(p1, out p3);
+                    var (p2, p3) = initial.opBool(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opBool(null, out p3);
+                    (p2, p3) = initial.opBool(null);
                     test(p2 == null && p3 == null);
 
                     p1 = true;
-                    p2 = initial.opBool(p1, out p3);
+                    (p2, p3) = initial.opBool(p1);
                     test(p2 == true && p3 == true);
                     var r = initial.opBoolAsync(p1).Result;
                     test(r.returnValue == true && r.p3 == true);
-                    p2 = initial.opBool(true, out p3);
+                    (p2, p3) = initial.opBool(true);
                     test(p2 == true && p3 == true);
                     r = initial.opBoolAsync(true).Result;
                     test(r.returnValue == true && r.p3 == true);
 
-                    p2 = initial.opBool(null, out p3);
+                    (p2, p3) = initial.opBool(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -686,23 +684,22 @@ namespace Ice
 
                 {
                     short? p1 = null;
-                    short? p3;
-                    short? p2 = initial.opShort(p1, out p3);
+                    var (p2, p3) = initial.opShort(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opShort(null, out p3);
+                    (p2, p3) = initial.opShort(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 56;
-                    p2 = initial.opShort(p1, out p3);
+                    (p2, p3) = initial.opShort(p1);
                     test(p2 == 56 && p3 == 56);
                     var r = initial.opShortAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
-                    p2 = initial.opShort(p1, out p3);
+                    (p2, p3) = initial.opShort(p1);
                     test(p2 == 56 && p3 == 56);
                     r = initial.opShortAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opShort(null, out p3);
+                    (p2, p3) = initial.opShort(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -724,23 +721,22 @@ namespace Ice
 
                 {
                     int? p1 = null;
-                    int? p3;
-                    int? p2 = initial.opInt(p1, out p3);
+                    var (p2, p3) = initial.opInt(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opInt(null, out p3);
+                    (p2, p3) = initial.opInt(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 56;
-                    p2 = initial.opInt(p1, out p3);
+                    (p2, p3) = initial.opInt(p1);
                     test(p2 == 56 && p3 == 56);
                     var r = initial.opIntAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
-                    p2 = initial.opInt(p1, out p3);
+                    (p2, p3) = initial.opInt(p1);
                     test(p2 == 56 && p3 == 56);
                     r = initial.opIntAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opInt(null, out p3);
+                    (p2, p3) = initial.opInt(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -762,23 +758,22 @@ namespace Ice
 
                 {
                     long? p1 = null;
-                    long? p3;
-                    long? p2 = initial.opLong(p1, out p3);
+                    var (p2, p3) = initial.opLong(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opLong(null, out p3);
+                    (p2, p3) = initial.opLong(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 56;
-                    p2 = initial.opLong(p1, out p3);
+                    (p2, p3) = initial.opLong(p1);
                     test(p2 == 56 && p3 == 56);
                     var r = initial.opLongAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
-                    p2 = initial.opLong(p1, out p3);
+                    (p2, p3) = initial.opLong(p1);
                     test(p2 == 56 && p3 == 56);
                     r = initial.opLongAsync(p1).Result;
                     test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opLong(null, out p3);
+                    (p2, p3) = initial.opLong(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -800,23 +795,22 @@ namespace Ice
 
                 {
                     float? p1 = null;
-                    float? p3;
-                    float? p2 = initial.opFloat(p1, out p3);
+                    var (p2, p3) = initial.opFloat(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opFloat(null, out p3);
+                    (p2, p3) = initial.opFloat(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 1.0f;
-                    p2 = initial.opFloat(p1, out p3);
+                    (p2, p3) = initial.opFloat(p1);
                     test(p2 == 1.0f && p3 == 1.0f);
                     var r = initial.opFloatAsync(p1).Result;
                     test(r.returnValue == 1.0f && r.p3 == 1.0f);
-                    p2 = initial.opFloat(p1, out p3);
+                    (p2, p3) = initial.opFloat(p1);
                     test(p2 == 1.0f && p3 == 1.0f);
                     r = initial.opFloatAsync(p1).Result;
                     test(r.returnValue == 1.0f && r.p3 == 1.0f);
 
-                    p2 = initial.opFloat(null, out p3);
+                    (p2, p3) = initial.opFloat(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -838,23 +832,22 @@ namespace Ice
 
                 {
                     double? p1 = null;
-                    double? p3;
-                    double? p2 = initial.opDouble(p1, out p3);
+                    var (p2, p3) = initial.opDouble(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opDouble(null, out p3);
+                    (p2, p3) = initial.opDouble(null);
                     test(p2 == null && p3 == null);
 
                     p1 = 1.0;
-                    p2 = initial.opDouble(p1, out p3);
+                    (p2, p3) = initial.opDouble(p1);
                     test(p2 == 1.0 && p3 == 1.0);
                     var r = initial.opDoubleAsync(p1).Result;
                     test(r.returnValue == 1.0 && r.p3 == 1.0);
-                    p2 = initial.opDouble(p1, out p3);
+                    (p2, p3) = initial.opDouble(p1);
                     test(p2 == 1.0 && p3 == 1.0);
                     r = initial.opDoubleAsync(p1).Result;
                     test(r.returnValue == 1.0 && r.p3 == 1.0);
 
-                    p2 = initial.opDouble(null, out p3);
+                    (p2, p3) = initial.opDouble(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -876,25 +869,24 @@ namespace Ice
 
                 {
                     string? p1 = null;
-                    string? p3;
-                    string? p2 = initial.opString(p1, out p3);
+                    var (p2, p3) = initial.opString(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opString(null, out p3);
+                    (p2, p3) = initial.opString(null);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opString(null, out p3); // Implicitly converts to string>(null)
+                    (p2, p3) = initial.opString(null); // Implicitly converts to string>(null)
                     test(p2 == null && p3 == null);
 
                     p1 = "test";
-                    p2 = initial.opString(p1, out p3);
+                    (p2, p3) = initial.opString(p1);
                     test(p2 == "test" && p3 == "test");
                     var r = initial.opStringAsync(p1).Result;
                     test(r.returnValue == "test" && r.p3 == "test");
-                    p2 = initial.opString(p1, out p3);
+                    (p2, p3) = initial.opString(p1);
                     test(p2 == "test" && p3 == "test");
                     r = initial.opStringAsync(p1).Result;
                     test(r.returnValue == "test" && r.p3 == "test");
 
-                    p2 = initial.opString(null, out p3);
+                    (p2, p3) = initial.opString(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -916,23 +908,22 @@ namespace Ice
 
                 {
                     Test.MyEnum? p1 = null;
-                    Test.MyEnum? p3;
-                    Test.MyEnum? p2 = initial.opMyEnum(p1, out p3);
+                    var (p2, p3) = initial.opMyEnum(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opMyEnum(null, out p3);
+                    (p2, p3) = initial.opMyEnum(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Test.MyEnum.MyEnumMember;
-                    p2 = initial.opMyEnum(p1, out p3);
+                    (p2, p3) = initial.opMyEnum(p1);
                     test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
                     var r = initial.opMyEnumAsync(p1).Result;
                     test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
-                    p2 = initial.opMyEnum(p1, out p3);
+                    (p2, p3) = initial.opMyEnum(p1);
                     test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
                     r = initial.opMyEnumAsync(p1).Result;
                     test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
 
-                    p2 = initial.opMyEnum(null, out p3);
+                    (p2, p3) = initial.opMyEnum(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -956,23 +947,22 @@ namespace Ice
 
                 {
                     Test.SmallStruct? p1 = null;
-                    Test.SmallStruct? p3;
-                    Test.SmallStruct? p2 = initial.opSmallStruct(p1, out p3);
+                    var (p2, p3) = initial.opSmallStruct(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opSmallStruct(null, out p3);
+                    (p2, p3) = initial.opSmallStruct(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Test.SmallStruct(56);
-                    p2 = initial.opSmallStruct(p1, out p3);
+                    (p2, p3) = initial.opSmallStruct(p1);
                     test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     var r = initial.opSmallStructAsync(p1).Result;
                     test(p2!.Value.m == 56 && p3!.Value.m == 56);
-                    p2 = initial.opSmallStruct(p1, out p3);
+                    (p2, p3) = initial.opSmallStruct(p1);
                     test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     r = initial.opSmallStructAsync(p1).Result;
                     test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
-                    p2 = initial.opSmallStruct(null, out p3);
+                    (p2, p3) = initial.opSmallStruct(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1003,23 +993,22 @@ namespace Ice
 
                 {
                     Test.FixedStruct? p1 = null;
-                    Test.FixedStruct? p3;
-                    Test.FixedStruct? p2 = initial.opFixedStruct(p1, out p3);
+                    var (p2, p3) = initial.opFixedStruct(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opFixedStruct(null, out p3);
+                    (p2, p3) = initial.opFixedStruct(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Test.FixedStruct(56);
-                    p2 = initial.opFixedStruct(p1, out p3);
+                    (p2, p3) = initial.opFixedStruct(p1);
                     test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     var r = initial.opFixedStructAsync(p1).Result;
                     test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
-                    p2 = initial.opFixedStruct(p1, out p3);
+                    (p2, p3) = initial.opFixedStruct(p1);
                     test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     r = initial.opFixedStructAsync(p1).Result;
                     test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
-                    p2 = initial.opFixedStruct(null, out p3);
+                    (p2, p3) = initial.opFixedStruct(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1050,28 +1039,27 @@ namespace Ice
 
                 {
                     Test.VarStruct? p1 = null;
-                    Test.VarStruct? p3;
-                    Test.VarStruct? p2 = initial.opVarStruct(p1, out p3);
+                    var (p2, p3) = initial.opVarStruct(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opVarStruct(null, out p3);
+                    (p2, p3) = initial.opVarStruct(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Test.VarStruct("test");
-                    p2 = initial.opVarStruct(p1, out p3);
+                    (p2, p3) = initial.opVarStruct(p1);
                     test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
 
                     // Test null struct
-                    p2 = initial.opVarStruct(null, out p3);
+                    (p2, p3) = initial.opVarStruct(null);
                     test(p2 == null && p3 == null);
 
                     var r = initial.opVarStructAsync(p1).Result;
                     test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
-                    p2 = initial.opVarStruct(p1, out p3);
+                    (p2, p3) = initial.opVarStruct(p1);
                     test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
                     r = initial.opVarStructAsync(p1).Result;
                     test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
 
-                    p2 = initial.opVarStruct(null, out p3);
+                    (p2, p3) = initial.opVarStruct(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1103,23 +1091,22 @@ namespace Ice
 
                 {
                     Test.OneOptional? p1 = null;
-                    Test.OneOptional? p3;
-                    Test.OneOptional? p2 = initial.opOneOptional(p1, out p3);
+                    var (p2, p3) = initial.opOneOptional(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opOneOptional(null, out p3);
+                    (p2, p3) = initial.opOneOptional(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Test.OneOptional(58);
-                    p2 = initial.opOneOptional(p1, out p3);
+                    (p2, p3) = initial.opOneOptional(p1);
                     test(p2!.a == 58 && p3!.a == 58);
                     var r = initial.opOneOptionalAsync(p1).Result;
                     test(r.returnValue!.a == 58 && r.p3!.a == 58);
-                    p2 = initial.opOneOptional(p1, out p3);
+                    (p2, p3) = initial.opOneOptional(p1);
                     test(p2!.a == 58 && p3!.a == 58);
                     r = initial.opOneOptionalAsync(p1).Result;
                     test(r.returnValue!.a == 58 && r.p3!.a == 58);
 
-                    p2 = initial.opOneOptional(null, out p3);
+                    (p2, p3) = initial.opOneOptional(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1147,22 +1134,21 @@ namespace Ice
 
                 {
                     IObjectPrx? p1 = null;
-                    IObjectPrx? p3;
-                    IObjectPrx? p2 = initial.opOneOptionalProxy(p1, out p3);
+                    var (p2, p3) = initial.opOneOptionalProxy(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opOneOptionalProxy(p1, out p3);
+                    (p2, p3) = initial.opOneOptionalProxy(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opOneOptionalProxy(null, out p3);
+                    (p2, p3) = initial.opOneOptionalProxy(null);
                     test(p2 == null && p3 == null);
 
                     p1 = IObjectPrx.Parse("test", communicator);
-                    p2 = initial.opOneOptionalProxy(p1, out p3);
+                    (p2, p3) = initial.opOneOptionalProxy(p1);
                     test(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
                     (p2, p3) = initial.opOneOptionalProxyAsync(p1).Result;
                     test(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
-                    p2 = initial.opOneOptionalProxy(null, out p3);
+                    (p2, p3) = initial.opOneOptionalProxy(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1187,23 +1173,22 @@ namespace Ice
 
                 {
                     byte[]? p1 = null;
-                    byte[]? p3;
-                    byte[]? p2 = initial.opByteSeq(p1, out p3);
+                    var (p2, p3) = initial.opByteSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opByteSeq(null, out p3);
+                    (p2, p3) = initial.opByteSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
-                    p2 = initial.opByteSeq(p1, out p3);
+                    (p2, p3) = initial.opByteSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opByteSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opByteSeq(p1, out p3);
+                    (p2, p3) = initial.opByteSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opByteSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opByteSeq(null, out p3);
+                    (p2, p3) = initial.opByteSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1228,23 +1213,22 @@ namespace Ice
 
                 {
                     bool[]? p1 = null;
-                    bool[]? p3;
-                    bool[]? p2 = initial.opBoolSeq(p1, out p3);
+                    var (p2, p3) = initial.opBoolSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opBoolSeq(null, out p3);
+                    (p2, p3) = initial.opBoolSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
-                    p2 = initial.opBoolSeq(p1, out p3);
+                    (p2, p3) = initial.opBoolSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opBoolSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opBoolSeq(p1, out p3);
+                    (p2, p3) = initial.opBoolSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opBoolSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opBoolSeq(null, out p3);
+                    (p2, p3) = initial.opBoolSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1269,24 +1253,23 @@ namespace Ice
 
                 {
                     short[]? p1 = null;
-                    short[]? p3;
-                    short[]? p2 = initial.opShortSeq(p1, out p3);
+                    var (p2, p3) = initial.opShortSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opShortSeq(null, out p3);
+                    (p2, p3) = initial.opShortSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
-                    p2 = initial.opShortSeq(p1, out p3);
+                    (p2, p3) = initial.opShortSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opShortSeqAsync(p1).Result;
 
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opShortSeq(p1, out p3);
+                    (p2, p3) = initial.opShortSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opShortSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opShortSeq(null, out p3);
+                    (p2, p3) = initial.opShortSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1314,23 +1297,22 @@ namespace Ice
 
                 {
                     int[]? p1 = null;
-                    int[]? p3;
-                    int[]? p2 = initial.opIntSeq(p1, out p3);
+                    var (p2, p3) = initial.opIntSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opIntSeq(null, out p3);
+                    (p2, p3) = initial.opIntSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
-                    p2 = initial.opIntSeq(p1, out p3);
+                    (p2, p3) = initial.opIntSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opIntSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opIntSeq(p1, out p3);
+                    (p2, p3) = initial.opIntSeq(p1);
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
                     r = initial.opIntSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opIntSeq(null, out p3);
+                    (p2, p3) = initial.opIntSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1358,23 +1340,22 @@ namespace Ice
 
                 {
                     long[]? p1 = null;
-                    long[]? p3;
-                    long[]? p2 = initial.opLongSeq(p1, out p3);
+                    var (p2, p3) = initial.opLongSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opLongSeq(null, out p3);
+                    (p2, p3) = initial.opLongSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
-                    p2 = initial.opLongSeq(p1, out p3);
+                    (p2, p3) = initial.opLongSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opLongSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opLongSeq(p1, out p3);
+                    (p2, p3) = initial.opLongSeq(p1);
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
                     r = initial.opLongSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opLongSeq(null, out p3);
+                    (p2, p3) = initial.opLongSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1402,23 +1383,22 @@ namespace Ice
 
                 {
                     float[]? p1 = null;
-                    float[]? p3;
-                    float[]? p2 = initial.opFloatSeq(p1, out p3);
+                    var (p2, p3) = initial.opFloatSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opFloatSeq(null, out p3);
+                    (p2, p3) = initial.opFloatSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
-                    p2 = initial.opFloatSeq(p1, out p3);
+                    (p2, p3) = initial.opFloatSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFloatSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opFloatSeq(p1, out p3);
+                    (p2, p3) = initial.opFloatSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opFloatSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFloatSeq(null, out p3);
+                    (p2, p3) = initial.opFloatSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1446,23 +1426,22 @@ namespace Ice
 
                 {
                     double[]? p1 = null;
-                    double[]? p3;
-                    double[]? p2 = initial.opDoubleSeq(p1, out p3);
+                    var (p2, p3) = initial.opDoubleSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opDoubleSeq(null, out p3);
+                    (p2, p3) = initial.opDoubleSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
-                    p2 = initial.opDoubleSeq(p1, out p3);
+                    (p2, p3) = initial.opDoubleSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opDoubleSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opDoubleSeq(p1, out p3);
+                    (p2, p3) = initial.opDoubleSeq(p1);
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
                     r = initial.opDoubleSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opDoubleSeq(null, out p3);
+                    (p2, p3) = initial.opDoubleSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1490,23 +1469,22 @@ namespace Ice
 
                 {
                     string[]? p1 = null;
-                    string[]? p3;
-                    string[]? p2 = initial.opStringSeq(p1, out p3);
+                    var (p2, p3) = initial.opStringSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opStringSeq(null, out p3);
+                    (p2, p3) = initial.opStringSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
-                    p2 = initial.opStringSeq(p1, out p3);
+                    (p2, p3) = initial.opStringSeq(p1 );
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opStringSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opStringSeq(p1, out p3);
+                    (p2, p3) = initial.opStringSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opStringSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opStringSeq(null, out p3);
+                    (p2, p3) = initial.opStringSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1535,23 +1513,22 @@ namespace Ice
 
                 {
                     Test.SmallStruct[]? p1 = null;
-                    Test.SmallStruct[]? p3;
-                    Test.SmallStruct[]? p2 = initial.opSmallStructSeq(p1, out p3);
+                    var (p2, p3) = initial.opSmallStructSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opSmallStructSeq(null, out p3);
+                    (p2, p3) = initial.opSmallStructSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 10).Select(_ => new Test.SmallStruct()).ToArray();
-                    p2 = initial.opSmallStructSeq(p1, out p3);
+                    (p2, p3) = initial.opSmallStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opSmallStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opSmallStructSeq(p1, out p3);
+                    (p2, p3) = initial.opSmallStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opSmallStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opSmallStructSeq(null, out p3);
+                    (p2, p3) = initial.opSmallStructSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1581,10 +1558,9 @@ namespace Ice
 
                 {
                     List<Test.SmallStruct>? p1 = null;
-                    List<Test.SmallStruct>? p3;
-                    List<Test.SmallStruct>? p2 = initial.opSmallStructList(p1, out p3);
+                    var (p2, p3) = initial.opSmallStructList(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opSmallStructList(null, out p3);
+                    (p2, p3) = initial.opSmallStructList(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new List<Test.SmallStruct>();
@@ -1592,16 +1568,16 @@ namespace Ice
                     {
                         p1.Add(new Test.SmallStruct());
                     }
-                    p2 = initial.opSmallStructList(p1, out p3);
+                    (p2, p3) = initial.opSmallStructList(p1);
                     test(Collections.Equals(p2, p1));
                     var r = initial.opSmallStructListAsync(p1).Result;
                     test(Collections.Equals(p2, p1));
-                    p2 = initial.opSmallStructList(p1, out p3);
+                    (p2, p3) = initial.opSmallStructList(p1);
                     test(Collections.Equals(p2, p1));
                     r = initial.opSmallStructListAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1));
 
-                    p2 = initial.opSmallStructList(null, out p3);
+                    (p2, p3) = initial.opSmallStructList(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1631,23 +1607,22 @@ namespace Ice
 
                 {
                     Test.FixedStruct[]? p1 = null;
-                    Test.FixedStruct[]? p3;
-                    Test.FixedStruct[]? p2 = initial.opFixedStructSeq(p1, out p3);
+                    var (p2, p3) = initial.opFixedStructSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opFixedStructSeq(null, out p3);
+                    (p2, p3) = initial.opFixedStructSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 10).Select(_ => new Test.FixedStruct()).ToArray();
-                    p2 = initial.opFixedStructSeq(p1, out p3);
+                    (p2, p3) = initial.opFixedStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFixedStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opFixedStructSeq(p1, out p3);
+                    (p2, p3) = initial.opFixedStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opFixedStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFixedStructSeq(null, out p3);
+                    (p2, p3) = initial.opFixedStructSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1677,10 +1652,9 @@ namespace Ice
 
                 {
                     LinkedList<Test.FixedStruct>? p1 = null;
-                    LinkedList<Test.FixedStruct>? p3;
-                    LinkedList<Test.FixedStruct>? p2 = initial.opFixedStructList(p1, out p3);
+                    var (p2, p3) = initial.opFixedStructList(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opFixedStructList(null, out p3);
+                    (p2, p3) = initial.opFixedStructList(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new LinkedList<Test.FixedStruct>();
@@ -1688,16 +1662,16 @@ namespace Ice
                     {
                         p1.AddLast(new Test.FixedStruct());
                     }
-                    p2 = initial.opFixedStructList(p1, out p3);
+                    (p2, p3) = initial.opFixedStructList(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFixedStructListAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opFixedStructList(p1, out p3);
+                    (p2, p3) = initial.opFixedStructList(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opFixedStructListAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFixedStructList(null, out p3);
+                    (p2, p3) = initial.opFixedStructList(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1727,23 +1701,22 @@ namespace Ice
 
                 {
                     Test.VarStruct[]? p1 = null;
-                    Test.VarStruct[]? p3;
-                    Test.VarStruct[]? p2 = initial.opVarStructSeq(p1, out p3);
+                    var (p2, p3) = initial.opVarStructSeq(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opVarStructSeq(null, out p3);
+                    (p2, p3) = initial.opVarStructSeq(null);
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 10).Select(_ => new Test.VarStruct("")).ToArray();
-                    p2 = initial.opVarStructSeq(p1, out p3);
+                    (p2, p3) = initial.opVarStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opVarStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opVarStructSeq(p1, out p3);
+                    (p2, p3) = initial.opVarStructSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opVarStructSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opVarStructSeq(null, out p3);
+                    (p2, p3) = initial.opVarStructSeq(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1775,23 +1748,22 @@ namespace Ice
                 if (supportsCsharpSerializable)
                 {
                     Test.SerializableClass? p1 = null;
-                    Test.SerializableClass? p3;
-                    Test.SerializableClass? p2 = initial.opSerializable(p1, out p3);
+                    var (p2, p3) = initial.opSerializable(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opSerializable(null, out p3);
+                    (p2, p3) = initial.opSerializable(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Test.SerializableClass(58);
-                    p2 = initial.opSerializable(p1, out p3);
+                    (p2, p3) = initial.opSerializable(p1);
                     test(p2.Equals(p1) && p3.Equals(p1));
                     var r = initial.opSerializableAsync(p1).Result;
                     test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
-                    p2 = initial.opSerializable(p1, out p3);
+                    (p2, p3) = initial.opSerializable(p1);
                     test(p2.Equals(p1) && p3.Equals(p1));
                     r = initial.opSerializableAsync(p1).Result;
                     test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
 
-                    p2 = initial.opSerializable(null, out p3);
+                    (p2, p3) = initial.opSerializable(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1818,25 +1790,24 @@ namespace Ice
 
                 {
                     Dictionary<int, int>? p1 = null;
-                    Dictionary<int, int>? p3;
-                    Dictionary<int, int>? p2 = initial.opIntIntDict(p1, out p3);
+                    var (p2, p3) = initial.opIntIntDict(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opIntIntDict(null, out p3);
+                    (p2, p3) = initial.opIntIntDict(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<int, int>();
                     p1.Add(1, 2);
                     p1.Add(2, 3);
-                    p2 = initial.opIntIntDict(p1, out p3);
+                    (p2, p3) = initial.opIntIntDict(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opIntIntDictAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opIntIntDict(p1, out p3);
+                    (p2, p3) = initial.opIntIntDict(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opIntIntDictAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opIntIntDict(null, out p3);
+                    (p2, p3) = initial.opIntIntDict(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1866,25 +1837,24 @@ namespace Ice
 
                 {
                     Dictionary<string, int>? p1 = null;
-                    Dictionary<string, int>? p3;
-                    Dictionary<string, int>? p2 = initial.opStringIntDict(p1, out p3);
+                    var (p2, p3) = initial.opStringIntDict(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opStringIntDict(null, out p3);
+                    (p2, p3) = initial.opStringIntDict(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<string, int>();
                     p1.Add("1", 1);
                     p1.Add("2", 2);
-                    p2 = initial.opStringIntDict(p1, out p3);
+                    (p2, p3) = initial.opStringIntDict(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opStringIntDictAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
-                    p2 = initial.opStringIntDict(p1, out p3);
+                    (p2, p3) = initial.opStringIntDict(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     r = initial.opStringIntDictAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opStringIntDict(null, out p3);
+                    (p2, p3) = initial.opStringIntDict(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1938,25 +1908,24 @@ namespace Ice
 
                 {
                     Dictionary<int, Test.OneOptional>? p1 = null;
-                    Dictionary<int, Test.OneOptional>? p3;
-                    Dictionary<int, Test.OneOptional>? p2 = initial.opIntOneOptionalDict(p1, out p3);
+                    var (p2, p3) = initial.opIntOneOptionalDict(p1);
                     test(p2 == null && p3 == null);
-                    p2 = initial.opIntOneOptionalDict(null, out p3);
+                    (p2, p3) = initial.opIntOneOptionalDict(null);
                     test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<int, Test.OneOptional>();
                     p1.Add(1, new Test.OneOptional(58));
                     p1.Add(2, new Test.OneOptional(59));
-                    p2 = initial.opIntOneOptionalDict(p1, out p3);
+                    (p2, p3) = initial.opIntOneOptionalDict(p1);
                     test(p2[1].a == 58 && p3[1].a == 58);
                     var r = initial.opIntOneOptionalDictAsync(p1).Result;
                     test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
-                    p2 = initial.opIntOneOptionalDict(p1, out p3);
+                    (p2, p3) = initial.opIntOneOptionalDict(p1);
                     test(p2[1].a == 58 && p3[1].a == 58);
                     r = initial.opIntOneOptionalDictAsync(p1).Result;
                     test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
 
-                    p2 = initial.opIntOneOptionalDict(null, out p3);
+                    (p2, p3) = initial.opIntOneOptionalDict(null);
                     test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -2110,41 +2079,41 @@ namespace Ice
 
                     {
                         Test.SmallStruct? p1, p2, p3;
-                        p3 = initial.opMStruct2(null, out p2);
+                        (p3, p2) = initial.opMStruct2(null);
                         test(p2 == null && p3 == null);
 
                         p1 = new Test.SmallStruct();
-                        p3 = initial.opMStruct2(p1, out p2);
+                        (p3, p2) = initial.opMStruct2(p1);
                         test(p2.Equals(p1) && p3.Equals(p1));
                     }
                     {
                         string[]? p1, p2, p3;
-                        p3 = initial.opMSeq2(null, out p2);
+                        (p3, p2) = initial.opMSeq2(null);
                         test(p2 == null && p3 == null);
 
                         p1 = new string[1] { "hello" };
-                        p3 = initial.opMSeq2(p1, out p2);
+                        (p3, p2) = initial.opMSeq2(p1);
                         test(Collections.Equals(p2, p1) &&
                              Collections.Equals(p3, p1));
                     }
                     {
                         Dictionary<string, int>? p1, p2, p3;
-                        p3 = initial.opMDict2(null, out p2);
+                        (p3, p2) = initial.opMDict2(null);
                         test(p2 == null && p3 == null);
 
                         p1 = new Dictionary<string, int>();
                         p1["test"] = 54;
-                        p3 = initial.opMDict2(p1, out p2);
+                        (p3, p2) = initial.opMDict2(p1);
                         test(Collections.Equals(p2, p1) &&
                              Collections.Equals(p3, p1));
                     }
                     {
                         Test.G? p1, p2, p3;
-                        p3 = initial.opMG2(null, out p2);
+                        (p3, p2) = initial.opMG2(null);
                         test(p2 == null && p3 == null);
 
                         p1 = new Test.G();
-                        p3 = initial.opMG2(p1, out p2);
+                        (p3, p2) = initial.opMG2(p1);
                         test(p2 != null && p3 != null && p3 == p2);
                     }
                 }

@@ -396,12 +396,12 @@ getInvocationParams(const OperationPtr& op, const string& ns)
     ParamDeclList paramList = op->parameters();
     for(const auto& p : op->parameters())
     {
-        ostringstream param;
-        param << getParamAttributes(p);
         if(p->isOutParam())
         {
-            param << "out ";
+            continue;
         }
+        ostringstream param;
+        param << getParamAttributes(p);
         param << CsGenerator::typeToString(p->type(), ns, p->tagged())
               << " "
               << CsGenerator::fixId(p->name());
@@ -2654,36 +2654,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << retS  << " " << name << spar << getInvocationParams(operation, ns) << epar;
+        _out << nl << resultType(operation, ns, false)  << " " << name << spar << getInvocationParams(operation, ns)
+             << epar;
         _out << sb;
 
         _out << nl << "try";
         _out << sb;
 
-        if(ret && outParams.size() > 1)
+        if(outParams.size() == 0)
         {
-            _out << nl << retS << " " << outParams.back().name << ";";
+            _out << nl << internalName << spar << getInvocationArgsAMI(operation) << epar << ".Wait();";
         }
-
-        _out << nl;
-        if(outParams.size() > 1)
+        else
         {
-            _out << spar << getNames(getAllOutParams(operation, "", true)) << epar << " = ";
-        }
-        else if(ret)
-        {
-            _out << "return ";
-        }
-        else if(outParams.size() == 1)
-        {
-            _out << outParams.front().name << " = ";
-        }
-        _out << internalName << spar << getInvocationArgsAMI(operation) << epar
-             << (outParams.size() == 0 ? ".Wait();" : ".Result;");
-
-        if(ret && outParams.size() > 1)
-        {
-            _out << nl << "return " << outParams.back().name << ";";
+            _out << nl << "return " << internalName << spar << getInvocationArgsAMI(operation) << epar << ".Result;";
         }
 
         _out << eb;

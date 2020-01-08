@@ -25,248 +25,217 @@ namespace Ice
             {
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();
-                    byte[] o;
-                    var r = p.opAByteS(i, out o);
+                    var (r, o) = p.opAByteS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToList();
-                    List<byte> o;
-                    var r = p.opLByteS(i, out o);
+                    var (r, o) = p.opLByteS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                    LinkedList<byte> o;
-                    var r = p.opKByteS(i, out o);
+                    var (r, o) = p.opKByteS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                    Queue<byte> o;
-                    var r = p.opQByteS(i, out o);
+                    var (r, o) = p.opQByteS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                    Stack<byte> o;
-                    var r = p.opSByteS(i, out o);
+                    var (r, o) = p.opSByteS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray();
-                    bool[] o;
-                    var r = p.opABoolS(i, out o);
+                    var (r, o) = p.opABoolS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToList();
-                    List<bool> o;
-                    var r = p.opLBoolS(i, out o);
+                    var (r, o) = p.opLBoolS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
-                    LinkedList<bool> o;
-                    var r = p.opKBoolS(i, out o);
+                    var (r, o) = p.opKBoolS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
-                    Queue<bool> o;
-                    var r = p.opQBoolS(i, out o);
+                    var (r, o) = p.opQBoolS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
-                    Stack<bool> o;
-                    var r = p.opSBoolS(i, out o);
+                    var (r, o) = p.opSBoolS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (short)x).ToArray();
-                    short[] o;
-                    var r = p.opAShortS(i, out o);
+                    var (r, o) = p.opAShortS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (short)x).ToList();
-                    List<short> o;
-                    var r = p.opLShortS(i, out o);
+                    var (r, o) = p.opLShortS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                    LinkedList<short> o;
-                    var r = p.opKShortS(i, out o);
+                    var (r, o) = p.opKShortS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                    Queue<short> o;
-                    var r = p.opQShortS(i, out o);
+                    var (r, o) = p.opQShortS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                    Stack<short> o;
-                    var r = p.opSShortS(i, out o);
+                    var (r, o) = p.opSShortS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).ToArray();
-                    int[] o;
-                    var r = p.opAIntS(i, out o);
+                    var (r, o) = p.opAIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).ToList();
-                    List<int> o;
-                    var r = p.opLIntS(i, out o);
+                    var (r, o) = p.opLIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<int>(Enumerable.Range(0, Length).ToArray());
-                    LinkedList<int> o;
-                    var r = p.opKIntS(i, out o);
+                    var (r, o) = p.opKIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<int>(Enumerable.Range(0, Length).ToArray());
-                    Queue<int> o;
-                    var r = p.opQIntS(i, out o);
+                    var (r, o) = p.opQIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<int>(Enumerable.Range(0, Length).ToArray());
-                    Stack<int> o;
-                    var r = p.opSIntS(i, out o);
+                    var (r, o) = p.opSIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (long)x).ToArray();
-                    long[] o;
-                    var r = p.opALongS(i, out o);
+                    var (r, o) = p.opALongS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (long)x).ToList();
-                    List<long> o;
-                    var r = p.opLLongS(i, out o);
+                    var (r, o) = p.opLLongS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                    LinkedList<long> o;
-                    var r = p.opKLongS(i, out o);
+                    var (r, o) = p.opKLongS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                    Queue<long> o;
-                    var r = p.opQLongS(i, out o);
+                    var (r, o) = p.opQLongS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                    Stack<long> o;
-                    var r = p.opSLongS(i, out o);
+                    var (r, o) = p.opSLongS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (float)x).ToArray();
-                    float[] o;
-                    var r = p.opAFloatS(i, out o);
+                    var (r, o) = p.opAFloatS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (float)x).ToList();
-                    List<float> o;
-                    var r = p.opLFloatS(i, out o);
+                    var (r, o) = p.opLFloatS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                    LinkedList<float> o;
-                    var r = p.opKFloatS(i, out o);
+                    var (r, o) = p.opKFloatS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                    Queue<float> o;
-                    var r = p.opQFloatS(i, out o);
+                    var (r, o) = p.opQFloatS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                    Stack<float> o;
-                    var r = p.opSFloatS(i, out o);
+                    var (r, o) = p.opSFloatS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (double)x).ToArray();
-                    double[] o;
-                    var r = p.opADoubleS(i, out o);
+                    var (r, o) = p.opADoubleS(i);
                     test(o.SequenceEqual(i));
                     test(r.SequenceEqual(i));
 
@@ -274,88 +243,77 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (double)x).ToList();
-                    List<double> o;
-                    var r = p.opLDoubleS(i, out o);
+                    var (r, o) = p.opLDoubleS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                    LinkedList<double> o;
-                    var r = p.opKDoubleS(i, out o);
+                    var (r, o) = p.opKDoubleS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                    Queue<double> o;
-                    var r = p.opQDoubleS(i, out o);
+                    var (r, o) = p.opQDoubleS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                    Stack<double> o;
-                    var r = p.opSDoubleS(i, out o);
+                    var (r, o) = p.opSDoubleS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray();
-                    string[] o;
-                    var r = p.opAStringS(i, out o);
+                    var (r, o) = p.opAStringS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => x.ToString()).ToList();
-                    List<string> o;
-                    var r = p.opLStringS(i, out o);
+                    var (r, o) = p.opLStringS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                    LinkedList<string> o;
-                    var r = p.opKStringS(i, out o);
+                    var (r, o) = p.opKStringS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                    Queue<string> o;
-                    var r = p.opQStringS(i, out o);
+                    var (r, o) = p.opQStringS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                    Stack<string> o;
-                    var r = p.opSStringS(i, out o);
+                    var (r, o) = p.opSStringS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToArray();
-                    Value[] o;
-                    var r = p.opAObjectS(i, out o);
+                    var (r, o) = p.opAObjectS(i);
                     test(r.SequenceEqual(i, new CVComparer()));
                     test(o.SequenceEqual(i, new CVComparer()));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToList();
-                    List<Value> o;
-                    var r = p.opLObjectS(i, out o);
+                    var (r, o) = p.opLObjectS(i);
                     test(r.SequenceEqual(i, new CVComparer()));
                     test(o.SequenceEqual(i, new CVComparer()));
                 }
@@ -363,8 +321,7 @@ namespace Ice
                 {
                     var i = Enumerable.Range(0, Length).Select(
                         x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray();
-                    IObjectPrx[] o;
-                    var r = p.opAObjectPrxS(i, out o);
+                    var (r, o) = p.opAObjectPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -372,8 +329,7 @@ namespace Ice
                 {
                     var i = Enumerable.Range(0, Length).Select(
                         x => IObjectPrx.Parse(x.ToString(), communicator)).ToList();
-                    List<IObjectPrx> o;
-                    var r = p.opLObjectPrxS(i, out o);
+                    var (r, o) = p.opLObjectPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -381,8 +337,7 @@ namespace Ice
                 {
                     var i = new LinkedList<IObjectPrx>(Enumerable.Range(0, Length).Select(
                         x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                    LinkedList<IObjectPrx> o;
-                    var r = p.opKObjectPrxS(i, out o);
+                    var (r, o) = p.opKObjectPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -390,8 +345,7 @@ namespace Ice
                 {
                     var i = new Queue<IObjectPrx>(Enumerable.Range(0, Length).Select(
                         x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                    Queue<IObjectPrx> o;
-                    var r = p.opQObjectPrxS(i, out o);
+                    var (r, o) = p.opQObjectPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -399,160 +353,140 @@ namespace Ice
                 {
                     var i = new Stack<IObjectPrx>(Enumerable.Range(0, Length).Select(
                         x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                    Stack<IObjectPrx> o;
-                    var r = p.opSObjectPrxS(i, out o);
+                    var (r, o) = p.opSObjectPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.S(x)).ToArray();
-                    Test.S[] o;
-                    var r = p.opAStructS(i, out o);
+                    var (r, o) = p.opAStructS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.S(x)).ToList();
-                    List<Test.S> o;
-                    var r = p.opLStructS(i, out o);
+                    var (r, o) = p.opLStructS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<Test.S>(Enumerable.Range(0, Length).Select(x => new Test.S(x)).ToArray());
-                    LinkedList<Test.S> o;
-                    var r = p.opKStructS(i, out o);
+                    var (r, o) = p.opKStructS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<Test.S>(Enumerable.Range(0, Length).Select(x => new Test.S(x)).ToArray());
-                    Queue<Test.S> o;
-                    var r = p.opQStructS(i, out o);
+                    var (r, o) = p.opQStructS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<Test.S>(Enumerable.Range(0, Length).Select(x => new Test.S(x)).ToArray());
-                    Stack<Test.S> o;
-                    var r = p.opSStructS(i, out o);
+                    var (r, o) = p.opSStructS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.SD(x)).ToArray();
-                    Test.SD[] o;
-                    var r = p.opAStructSD(i, out o);
+                    var (r, o) = p.opAStructSD(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.SD(x)).ToList();
-                    List<Test.SD> o;
-                    var r = p.opLStructSD(i, out o);
+                    var (r, o) = p.opLStructSD(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<Test.SD>(Enumerable.Range(0, Length).Select(x => new Test.SD(x)).ToList());
-                    LinkedList<Test.SD> o;
-                    var r = p.opKStructSD(i, out o);
+                    var (r, o) = p.opKStructSD(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<Test.SD>(Enumerable.Range(0, Length).Select(x => new Test.SD(x)).ToList());
-                    Queue<Test.SD> o;
-                    var r = p.opQStructSD(i, out o);
+                    var (r, o) = p.opQStructSD(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<Test.SD>(Enumerable.Range(0, Length).Select(x => new Test.SD(x)).ToList());
-                    Stack<Test.SD> o;
-                    var r = p.opSStructSD(i, out o);
+                    var (r, o) = p.opSStructSD(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x)).ToArray();
-                    Test.CV[] o;
-                    var r = p.opACVS(i, out o);
+                    var (r, o) = p.opACVS(i);
                     test(r.SequenceEqual(i, new CVComparer()));
                     test(o.SequenceEqual(i, new CVComparer()));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x)).ToList();
-                    List<Test.CV> o;
-                    var r = p.opLCVS(i, out o);
+                    var (r, o) = p.opLCVS(i);
                     test(r.SequenceEqual(i, new CVComparer()));
                     test(o.SequenceEqual(i, new CVComparer()));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CR(new Test.CV(x))).ToArray();
-                    Test.CR[] o;
-                    var r = p.opACRS(i, out o);
+                    var (r, o) = p.opACRS(i);
                     test(r.SequenceEqual(i, new CRComparer()));
                     test(o.SequenceEqual(i, new CRComparer()));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => new Test.CR(new Test.CV(x))).ToList();
-                    List<Test.CR> o;
-                    var r = p.opLCRS(i, out o);
+                    var (r, o) = p.opLCRS(i);
                     test(r.SequenceEqual(i, new CRComparer()));
                     test(o.SequenceEqual(i, new CRComparer()));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (Test.En)(x % 3)).ToArray();
-                    Test.En[] o;
-                    var r = p.opAEnS(i, out o);
+                    var (r, o) = p.opAEnS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (Test.En)(x % 3)).ToList();
-                    List<Test.En> o;
-                    var r = p.opLEnS(i, out o);
+                    var (r, o) = p.opLEnS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new LinkedList<Test.En>(Enumerable.Range(0, Length).Select(x => (Test.En)(x % 3)).ToList());
-                    LinkedList<Test.En> o;
-                    var r = p.opKEnS(i, out o);
+                    var (r, o) = p.opKEnS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Queue<Test.En>(Enumerable.Range(0, Length).Select(x => (Test.En)(x % 3)).ToList());
-                    Queue<Test.En> o;
-                    var r = p.opQEnS(i, out o);
+                    var (r, o) = p.opQEnS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Stack<Test.En>(Enumerable.Range(0, Length).Select(x => (Test.En)(x % 3)).ToList());
-                    Stack<Test.En> o;
-                    var r = p.opSEnS(i, out o);
+                    var (r, o) = p.opSEnS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -560,8 +494,7 @@ namespace Ice
                 {
                     var i = Enumerable.Range(0, Length).Select(
                         x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray();
-                    Test.IPrx[] o;
-                    var r = p.opAIPrxS(i, out o);
+                    var (r, o) = p.opAIPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -569,8 +502,7 @@ namespace Ice
                 {
                     var i = Enumerable.Range(0, Length).Select(
                         x => Test.IPrx.Parse(x.ToString(), communicator)).ToList();
-                    List<Test.IPrx> o;
-                    var r = p.opLIPrxS(i, out o);
+                    var (r, o) = p.opLIPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -578,8 +510,7 @@ namespace Ice
                 {
                     var i = new LinkedList<Test.IPrx>(Enumerable.Range(0, Length).Select(
                         x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
-                    LinkedList<Test.IPrx> o;
-                    var r = p.opKIPrxS(i, out o);
+                    var (r, o) = p.opKIPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -587,8 +518,7 @@ namespace Ice
                 {
                     var i = new Queue<Test.IPrx>(Enumerable.Range(0, Length).Select(
                         x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
-                    Queue<Test.IPrx> o;
-                    var r = p.opQIPrxS(i, out o);
+                    var (r, o) = p.opQIPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -596,24 +526,21 @@ namespace Ice
                 {
                     var i = new Stack<Test.IPrx>(Enumerable.Range(0, Length).Select(
                         x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
-                    Stack<Test.IPrx> o;
-                    var r = p.opSIPrxS(i, out o);
+                    var (r, o) = p.opSIPrxS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Custom<int>(Enumerable.Range(0, Length).ToList());
-                    Custom<int> o;
-                    var r = p.opCustomIntS(i, out o);
+                    var (r, o) = p.opCustomIntS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
                     var i = new Custom<Test.CV>(Enumerable.Range(0, Length).Select(x => new Test.CV(x)).ToList());
-                    Custom<Test.CV> o;
-                    var r = p.opCustomCVS(i, out o);
+                    var (r, o) = p.opCustomCVS(i);
                     test(r.SequenceEqual(i, new CVComparer()));
                     test(o.SequenceEqual(i, new CVComparer()));
                 }
@@ -624,8 +551,7 @@ namespace Ice
                     {
                         i.Add(new Custom<int>(Enumerable.Range(0, Length).ToList()));
                     }
-                    Custom<Custom<int>> o;
-                    var r = p.opCustomIntSS(i, out o);
+                    var (r, o) = p.opCustomIntSS(i);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
@@ -636,8 +562,7 @@ namespace Ice
                     {
                         i.Add(new Custom<Test.CV>(Enumerable.Range(0, Length).Select(x => new Test.CV(x)).ToList()));
                     }
-                    Custom<Custom<Test.CV>> o;
-                    var r = p.opCustomCVSS(i, out o);
+                    var (r, o) = p.opCustomCVSS(i);
                     for (int c = 0; c < Length; ++c)
                     {
                         test(r[c].SequenceEqual(i[c], new CVComparer()));
@@ -650,7 +575,7 @@ namespace Ice
                     Serialize.Small o;
                     Serialize.Small r;
 
-                    r = p.opSerialSmallCSharp(i, out o);
+                    (r, o) = p.opSerialSmallCSharp(i);
 
                     test(o == null);
                     test(r == null);
@@ -664,7 +589,7 @@ namespace Ice
 
                     try
                     {
-                        r = p.opSerialSmallCSharp(i, out o);
+                        (r, o) = p.opSerialSmallCSharp(i);
 
                         test(o.i == 99);
                         test(r.i == 99);
@@ -692,7 +617,7 @@ namespace Ice
 
                     try
                     {
-                        r = p.opSerialLargeCSharp(i, out o);
+                        (r, o) = p.opSerialLargeCSharp(i);
 
                         test(o.d1 == 1.0);
                         test(o.d2 == 2.0);
@@ -732,7 +657,7 @@ namespace Ice
 
                     try
                     {
-                        r = p.opSerialStructCSharp(i, out o);
+                        (r, o) = p.opSerialStructCSharp(i);
 
                         test(o.o == null);
                         test(o.o2 != null);

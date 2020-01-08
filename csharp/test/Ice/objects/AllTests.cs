@@ -116,11 +116,7 @@ namespace Ice
 
                     output.Write("getting B1, B2, C, and D all at once... ");
                     output.Flush();
-                    B b1out;
-                    B b2out;
-                    C cout;
-                    D dout;
-                    initial.getAll(out b1out, out b2out, out cout, out dout);
+                    var (b1out, b2out, cout, dout) = initial.getAll();
                     test(b1out != null);
                     test(b2out != null);
                     test(cout != null);
@@ -156,25 +152,22 @@ namespace Ice
                     output.Write("testing Value as parameter... ");
                     output.Flush();
                     {
-                        Ice.Value v1 = new L("l");
-                        Ice.Value v2;
-                        Ice.Value v3 = initial.opValue(v1, out v2);
+                        Value v1 = new L("l");
+                        var (v3, v2) = initial.opValue(v1);
                         test(((L)v2).data.Equals("l"));
                         test(((L)v3).data.Equals("l"));
                     }
                     {
                         L l = new L("l");
-                        Ice.Value[] v1 = new Ice.Value[] { l };
-                        Ice.Value[] v2;
-                        Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
+                        Value[] v1 = new Value[] { l };
+                        var (v3, v2) = initial.opValueSeq(v1);
                         test(((L)v2[0]).data.Equals("l"));
                         test(((L)v3[0]).data.Equals("l"));
                     }
                     {
                         L l = new L("l");
-                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value> { { "l", l } };
-                        Dictionary<string, Ice.Value> v2;
-                        Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
+                        Dictionary<string, Value> v1 = new Dictionary<string, Value> { { "l", l } };
+                        var (v3, v2) = initial.opValueMap(v1);
                         test(((L)v2["l"]).data.Equals("l"));
                         test(((L)v3["l"]).data.Equals("l"));
                     }
@@ -221,14 +214,12 @@ namespace Ice
                     output.Flush();
                     try
                     {
-                        Base[] inS = new Test.Base[0];
-                        Base[] outS;
-                        Base[] retS;
-                        retS = initial.opBaseSeq(inS, out outS);
+                        Base[] inS = new Base[0];
+                        var (retS, outS) = initial.opBaseSeq(inS);
 
-                        inS = new Test.Base[1];
-                        inS[0] = new Test.Base(new S(), "");
-                        retS = initial.opBaseSeq(inS, out outS);
+                        inS = new Base[1];
+                        inS[0] = new Base(new S(), "");
+                        (retS, outS) = initial.opBaseSeq(inS);
                         test(retS.Length == 1 && outS.Length == 1);
                     }
                     catch (Ice.OperationNotExistException)
@@ -340,8 +331,7 @@ namespace Ice
                         m.v[k1] = new L("one");
                         var k2 = new StructKey(2, "2");
                         m.v[k2] = new L("two");
-                        Test.M m1;
-                        var m2 = initial.opM(m, out m1);
+                        var (m2, m1) = initial.opM(m);
                         test(m1.v.Count == 2);
                         test(m2.v.Count == 2);
 
@@ -357,21 +347,18 @@ namespace Ice
                     output.Write("testing forward declared types... ");
                     output.Flush();
                     {
-                        F1 f12;
-                        F1 f11 = initial.opF1(new F1("F11"), out f12);
+                        var (f11, f12) = initial.opF1(new F1("F11"));
                         test(f11.name.Equals("F11"));
                         test(f12.name.Equals("F12"));
 
-                        F2Prx f22;
-                        F2Prx f21 = initial.opF2(F2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator), out f22);
+                        var (f21, f22) = initial.opF2(F2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator));
                         test(f21.Identity.name.Equals("F21"));
                         f21.op();
                         test(f22.Identity.name.Equals("F22"));
 
                         if (initial.hasF3())
                         {
-                            F3 f32;
-                            F3 f31 = initial.opF3(new F3(new F1("F11"), F2Prx.Parse("F21", communicator)), out f32);
+                            var (f31, f32) = initial.opF3(new F3(new F1("F11"), F2Prx.Parse("F21", communicator)));
 
                             test(f31.f1.name.Equals("F11"));
                             test(f31.f2.Identity.name.Equals("F21"));

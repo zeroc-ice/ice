@@ -38,10 +38,9 @@ namespace Ice
                 }
 
                 {
-                    byte b;
                     try
                     {
-                        p.opByte(0xff, 0x0f, out b);
+                        var (b1, b2) = p.opByte(0xff, 0x0f);
                         test(false);
                     }
                     catch (TwowayOnlyException)

@@ -547,7 +547,7 @@ public class AllTests : Test.AllTests
             {
                 B b1;
                 B b2;
-                testPrx.paramTest1(out b1, out b2);
+                (b1, b2) = testPrx.paramTest1();
 
                 test(b1 != null);
                 test(b1.ice_id().Equals("::Test::D1"));
@@ -601,7 +601,7 @@ public class AllTests : Test.AllTests
             {
                 B b2;
                 B b1;
-                testPrx.paramTest2(out b2, out b1);
+                (b2, b1) = testPrx.paramTest2();
 
                 test(b1 != null);
                 test(b1.ice_id().Equals("::Test::D1"));
@@ -652,9 +652,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.returnTest1(out p1, out p2);
+                var (ret, p1, p2) = testPrx.returnTest1();
                 test(ret == p1);
             }
             catch (System.Exception ex)
@@ -678,9 +676,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.returnTest2(out p1, out p2);
+                var (ret, p1, p2) = testPrx.returnTest2();
                 test(ret == p1);
             }
             catch (System.Exception ex)
@@ -908,9 +904,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.paramTest3(out p1, out p2);
+                var (ret, p1, p2) = testPrx.paramTest3();
 
                 test(p1 != null);
                 test(p1.sb.Equals("D2.sb (p1 1)"));
@@ -965,8 +959,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B b;
-                B ret = testPrx.paramTest4(out b);
+                var (ret, b) = testPrx.paramTest4();
 
                 test(b != null);
                 test(b.sb.Equals("D4.sb (1)"));
@@ -1322,7 +1315,7 @@ public class AllTests : Test.AllTests
                     bin[i] = d1;
                 }
 
-                ret = testPrx.dictionaryTest(bin, out bout);
+                (ret, bout) = testPrx.dictionaryTest(bin);
 
                 test(bout.Count == 10);
                 for (i = 0; i < 10; ++i)
@@ -1638,8 +1631,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                Forward f;
-                testPrx.useForward(out f);
+                Forward f = testPrx.useForward();
                 test(f != null);
             }
             catch (System.Exception ex)

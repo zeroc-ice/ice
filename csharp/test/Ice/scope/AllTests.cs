@@ -21,40 +21,34 @@ namespace Ice
                     var i = Test.IPrx.CheckedCast(obj);
 
                     var s1 = new Test.S(0);
-                    Test.S s2;
-                    var s3 = i.opS(s1, out s2);
+                    var (s3, s2) = i.opS(s1);
                     test(s2.Equals(s1));
                     test(s3.Equals(s1));
 
                     var sseq1 = new Test.S[] { s1 };
-                    Test.S[] sseq2;
-                    var sseq3 = i.opSSeq(sseq1, out sseq2);
+                    var (sseq3, sseq2) = i.opSSeq(sseq1);
                     test(sseq2[0].Equals(s1));
                     test(sseq3[0].Equals(s1));
 
-                    Dictionary<String, Test.S> smap1 = new Dictionary<string, Test.S>();
+                    Dictionary<string, Test.S> smap1 = new Dictionary<string, Test.S>();
                     smap1["a"] = s1;
-                    Dictionary<String, Test.S> smap2;
-                    Dictionary<String, Test.S> smap3 = i.opSMap(smap1, out smap2);
+                    var (smap3, smap2) = i.opSMap(smap1);
                     test(smap2["a"].Equals(s1));
                     test(smap3["a"].Equals(s1));
 
                     var c1 = new Test.C(s1);
-                    Test.C c2;
-                    var c3 = i.opC(c1, out c2);
+                    var (c3, c2) = i.opC(c1);
                     test(c2.s.Equals(c1.s));
                     test(c3.s.Equals(c1.s));
 
                     var cseq1 = new Test.C[] { c1 };
-                    Test.C[] cseq2;
-                    var cseq3 = i.opCSeq(cseq1, out cseq2);
+                    var (cseq3, cseq2) = i.opCSeq(cseq1);
                     test(cseq2[0].s.Equals(s1));
                     test(cseq3[0].s.Equals(s1));
 
-                    var cmap1 = new Dictionary<String, Test.C>();
+                    var cmap1 = new Dictionary<string, Test.C>();
                     cmap1["a"] = c1;
-                    Dictionary<String, Test.C> cmap2;
-                    var cmap3 = i.opCMap(cmap1, out cmap2);
+                    var (cmap3, cmap2) = i.opCMap(cmap1);
                     test(cmap2["a"].s.Equals(s1));
                     test(cmap3["a"].s.Equals(s1));
 
@@ -84,7 +78,7 @@ namespace Ice
                             test(opSSeqResult.returnValue[0].Equals(s1));
                             test(opSSeqResult.s2[0].Equals(s1));
 
-                            var smap1 = new Dictionary<String, Test.S>();
+                            var smap1 = new Dictionary<string, Test.S>();
                             smap1["a"] = s1;
                             var opSMapResult = await i.opSMapAsync(smap1);
                             test(opSMapResult.returnValue["a"].Equals(s1));
@@ -122,40 +116,34 @@ namespace Ice
                     Test.Inner.IPrx i = Test.Inner.IPrx.CheckedCast(obj);
 
                     Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
-                    Test.Inner.Inner2.S s2;
-                    Test.Inner.Inner2.S s3 = i.opS(s1, out s2);
+                    var (s3, s2) = i.opS(s1);
                     test(s2.Equals(s1));
                     test(s3.Equals(s1));
 
                     Test.Inner.Inner2.S[] sseq1 = new Test.Inner.Inner2.S[] { s1 };
-                    Test.Inner.Inner2.S[] sseq2;
-                    Test.Inner.Inner2.S[] sseq3 = i.opSSeq(sseq1, out sseq2);
+                    var (sseq3, sseq2) = i.opSSeq(sseq1);
                     test(sseq2[0].Equals(s1));
                     test(sseq3[0].Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.S> smap1 = new Dictionary<String, Test.Inner.Inner2.S>();
+                    var smap1 = new Dictionary<string, Test.Inner.Inner2.S>();
                     smap1["a"] = s1;
-                    Dictionary<String, Test.Inner.Inner2.S> smap2;
-                    Dictionary<String, Test.Inner.Inner2.S> smap3 = i.opSMap(smap1, out smap2);
+                    var (smap3, smap2) = i.opSMap(smap1);
                     test(smap2["a"].Equals(s1));
                     test(smap3["a"].Equals(s1));
 
-                    Test.Inner.Inner2.C c1 = new Test.Inner.Inner2.C(s1);
-                    Test.Inner.Inner2.C c2;
-                    Test.Inner.Inner2.C c3 = i.opC(c1, out c2);
+                    var c1 = new Test.Inner.Inner2.C(s1);
+                    var (c3, c2) = i.opC(c1);
                     test(c2.s.Equals(c1.s));
                     test(c3.s.Equals(c1.s));
 
-                    Test.Inner.Inner2.C[] cseq1 = new Test.Inner.Inner2.C[] { c1 };
-                    Test.Inner.Inner2.C[] cseq2;
-                    Test.Inner.Inner2.C[] cseq3 = i.opCSeq(cseq1, out cseq2);
+                    var cseq1 = new Test.Inner.Inner2.C[] { c1 };
+                    var (cseq3, cseq2) = i.opCSeq(cseq1);
                     test(cseq2[0].s.Equals(s1));
                     test(cseq3[0].s.Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.C> cmap1 = new Dictionary<String, Test.Inner.Inner2.C>();
+                    var cmap1 = new Dictionary<string, Test.Inner.Inner2.C>();
                     cmap1["a"] = c1;
-                    Dictionary<String, Test.Inner.Inner2.C> cmap2;
-                    Dictionary<String, Test.Inner.Inner2.C> cmap3 = i.opCMap(cmap1, out cmap2);
+                    var (cmap3, cmap2) = i.opCMap(cmap1);
                     test(cmap2["a"].s.Equals(s1));
                     test(cmap3["a"].s.Equals(s1));
                 }
@@ -204,41 +192,35 @@ namespace Ice
                     var obj = IObjectPrx.Parse($"i3:{helper.getTestEndpoint()}", communicator);
                     Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrx.CheckedCast(obj);
 
-                    Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
-                    Test.Inner.Inner2.S s2;
-                    Test.Inner.Inner2.S s3 = i.opS(s1, out s2);
+                    var s1 = new Test.Inner.Inner2.S(0);
+                    var (s3, s2) = i.opS(s1);
                     test(s2.Equals(s1));
                     test(s3.Equals(s1));
 
-                    Test.Inner.Inner2.S[] sseq1 = new Test.Inner.Inner2.S[] { s1 };
-                    Test.Inner.Inner2.S[] sseq2;
-                    Test.Inner.Inner2.S[] sseq3 = i.opSSeq(sseq1, out sseq2);
+                    var sseq1 = new Test.Inner.Inner2.S[] { s1 };
+                    var (sseq3, sseq2) = i.opSSeq(sseq1);
                     test(sseq2[0].Equals(s1));
                     test(sseq3[0].Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.S> smap1 = new Dictionary<String, Test.Inner.Inner2.S>();
+                    var smap1 = new Dictionary<string, Test.Inner.Inner2.S>();
                     smap1["a"] = s1;
-                    Dictionary<String, Test.Inner.Inner2.S> smap2;
-                    Dictionary<String, Test.Inner.Inner2.S> smap3 = i.opSMap(smap1, out smap2);
+                    var (smap3, smap2) = i.opSMap(smap1);
                     test(smap2["a"].Equals(s1));
                     test(smap3["a"].Equals(s1));
 
-                    Test.Inner.Inner2.C c1 = new Test.Inner.Inner2.C(s1);
-                    Test.Inner.Inner2.C c2;
-                    Test.Inner.Inner2.C c3 = i.opC(c1, out c2);
+                    var c1 = new Test.Inner.Inner2.C(s1);
+                    var (c3, c2) = i.opC(c1);
                     test(c2.s.Equals(c1.s));
                     test(c3.s.Equals(c1.s));
 
-                    Test.Inner.Inner2.C[] cseq1 = new Test.Inner.Inner2.C[] { c1 };
-                    Test.Inner.Inner2.C[] cseq2;
-                    Test.Inner.Inner2.C[] cseq3 = i.opCSeq(cseq1, out cseq2);
+                    var cseq1 = new Test.Inner.Inner2.C[] { c1 };
+                    var (cseq3, cseq2) = i.opCSeq(cseq1);
                     test(cseq2[0].s.Equals(s1));
                     test(cseq3[0].s.Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.C> cmap1 = new Dictionary<String, Test.Inner.Inner2.C>();
+                    var cmap1 = new Dictionary<string, Test.Inner.Inner2.C>();
                     cmap1["a"] = c1;
-                    Dictionary<String, Test.Inner.Inner2.C> cmap2;
-                    Dictionary<String, Test.Inner.Inner2.C> cmap3 = i.opCMap(cmap1, out cmap2);
+                    var (cmap3, cmap2) = i.opCMap(cmap1);
                     test(cmap2["a"].s.Equals(s1));
                     test(cmap3["a"].s.Equals(s1));
                 }
@@ -289,40 +271,34 @@ namespace Ice
                     Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrx.CheckedCast(obj);
 
                     Test.S s1 = new Test.S(0);
-                    Test.S s2;
-                    Test.S s3 = i.opS(s1, out s2);
+                    var (s3, s2) = i.opS(s1);
                     test(s2.Equals(s1));
                     test(s3.Equals(s1));
 
-                    Test.S[] sseq1 = new Test.S[] { s1 };
-                    Test.S[] sseq2;
-                    Test.S[] sseq3 = i.opSSeq(sseq1, out sseq2);
+                    var sseq1 = new Test.S[] { s1 };
+                    var (sseq3, sseq2) = i.opSSeq(sseq1);
                     test(sseq2[0].Equals(s1));
                     test(sseq3[0].Equals(s1));
 
-                    Dictionary<String, Test.S> smap1 = new Dictionary<String, Test.S>();
+                    var smap1 = new Dictionary<string, Test.S>();
                     smap1["a"] = s1;
-                    Dictionary<String, Test.S> smap2;
-                    Dictionary<String, Test.S> smap3 = i.opSMap(smap1, out smap2);
+                    var (smap3, smap2) = i.opSMap(smap1);
                     test(smap2["a"].Equals(s1));
                     test(smap3["a"].Equals(s1));
 
                     Test.C c1 = new Test.C(s1);
-                    Test.C c2;
-                    Test.C c3 = i.opC(c1, out c2);
+                    var (c3, c2) = i.opC(c1);
                     test(c2.s.Equals(c1.s));
                     test(c3.s.Equals(c1.s));
 
-                    Test.C[] cseq1 = new Test.C[] { c1 };
-                    Test.C[] cseq2;
-                    Test.C[] cseq3 = i.opCSeq(cseq1, out cseq2);
+                    var cseq1 = new Test.C[] { c1 };
+                    var (cseq3, cseq2) = i.opCSeq(cseq1);
                     test(cseq2[0].s.Equals(s1));
                     test(cseq3[0].s.Equals(s1));
 
-                    Dictionary<String, Test.C> cmap1 = new Dictionary<String, Test.C>();
+                    var cmap1 = new Dictionary<string, Test.C>();
                     cmap1["a"] = c1;
-                    Dictionary<String, Test.C> cmap2;
-                    Dictionary<String, Test.C> cmap3 = i.opCMap(cmap1, out cmap2);
+                    var (cmap3, cmap2) = i.opCMap(cmap1);
                     test(cmap2["a"].s.Equals(s1));
                     test(cmap3["a"].s.Equals(s1));
                 }

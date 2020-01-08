@@ -73,8 +73,7 @@ namespace IceInternal
                 }
             }
 
-            bool? hasRoutingTable;
-            var proxy = _router.GetClientProxy(out hasRoutingTable);
+            var (proxy, hasRoutingTable) = _router.GetClientProxy();
             return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 

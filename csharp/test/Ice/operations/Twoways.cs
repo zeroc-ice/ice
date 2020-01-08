@@ -154,7 +154,7 @@ namespace Ice
                     byte b;
                     byte r;
 
-                    r = p.opByte(0xff, 0x0f, out b);
+                    (r, b) = p.opByte(0xff, 0x0f);
                     test(b == 0xf0);
                     test(r == 0xff);
                 }
@@ -163,7 +163,7 @@ namespace Ice
                     bool b;
                     bool r;
 
-                    r = p.opBool(true, false, out b);
+                    (r, b) = p.opBool(true, false);
                     test(b);
                     test(!r);
                 }
@@ -174,23 +174,23 @@ namespace Ice
                     long l;
                     long r;
 
-                    r = p.opShortIntLong(10, 11, 12L, out s, out i, out l);
+                    (r, s, i, l) = p.opShortIntLong(10, 11, 12L);
                     test(s == 10);
                     test(i == 11);
                     test(l == 12);
                     test(r == 12L);
 
-                    r = p.opShortIntLong(Int16.MinValue, Int32.MinValue, Int64.MinValue, out s, out i, out l);
-                    test(s == Int16.MinValue);
-                    test(i == Int32.MinValue);
-                    test(l == Int64.MinValue);
-                    test(r == Int64.MinValue);
+                    (r, s, i, l) = p.opShortIntLong(short.MinValue, int.MinValue, long.MinValue);
+                    test(s == short.MinValue);
+                    test(i == int.MinValue);
+                    test(l == long.MinValue);
+                    test(r == long.MinValue);
 
-                    r = p.opShortIntLong(Int16.MaxValue, Int32.MaxValue, Int64.MaxValue, out s, out i, out l);
-                    test(s == Int16.MaxValue);
-                    test(i == Int32.MaxValue);
-                    test(l == Int64.MaxValue);
-                    test(r == Int64.MaxValue);
+                    (r, s, i, l) = p.opShortIntLong(short.MaxValue, int.MaxValue, long.MaxValue);
+                    test(s == short.MaxValue);
+                    test(i == int.MaxValue);
+                    test(l == long.MaxValue);
+                    test(r == long.MaxValue);
                 }
 
                 {
@@ -198,27 +198,27 @@ namespace Ice
                     double d;
                     double r;
 
-                    r = p.opFloatDouble(3.14f, 1.1e10, out f, out d);
+                    (r, f, d) = p.opFloatDouble(3.14f, 1.1e10);
                     test(f == 3.14f);
                     test(d == 1.1e10);
                     test(r == 1.1e10);
 
-                    r = p.opFloatDouble(Single.Epsilon, Double.MinValue, out f, out d);
-                    test(f == Single.Epsilon);
-                    test(d == Double.MinValue);
-                    test(r == Double.MinValue);
+                    (r, f, d) = p.opFloatDouble(float.Epsilon, double.MinValue);
+                    test(f == float.Epsilon);
+                    test(d == double.MinValue);
+                    test(r == double.MinValue);
 
-                    r = p.opFloatDouble(Single.MaxValue, Double.MaxValue, out f, out d);
-                    test(f == Single.MaxValue);
-                    test(d == Double.MaxValue);
-                    test(r == Double.MaxValue);
+                    (r, f, d) = p.opFloatDouble(float.MaxValue, double.MaxValue);
+                    test(f == float.MaxValue);
+                    test(d == double.MaxValue);
+                    test(r == double.MaxValue);
                 }
 
                 {
                     string s;
                     string r;
 
-                    r = p.opString("hello", "world", out s);
+                    (r, s) = p.opString("hello", "world");
                     test(s.Equals("world hello"));
                     test(r.Equals("hello world"));
                 }
@@ -227,7 +227,7 @@ namespace Ice
                     Test.MyEnum e;
                     Test.MyEnum r;
 
-                    r = p.opMyEnum(Test.MyEnum.enum2, out e);
+                    (r, e) = p.opMyEnum(Test.MyEnum.enum2);
                     test(e == Test.MyEnum.enum2);
                     test(r == Test.MyEnum.enum3);
                 }
@@ -237,7 +237,7 @@ namespace Ice
                     Test.MyClassPrx c2;
                     Test.MyClassPrx r;
 
-                    r = p.opMyClass(p, out c1, out c2);
+                    (r, c1, c2) = p.opMyClass(p);
                     ProxyIdentityFacetComparer comparer;
                     test(comparer.Compare(c1, p) == 0);
                     test(comparer.Compare(c2, p) != 0);
@@ -256,7 +256,7 @@ namespace Ice
                     {
                     }
 
-                    r = p.opMyClass(null, out c1, out c2);
+                    (r, c1, c2) = p.opMyClass(null);
                     test(c1 == null);
                     test(c2 != null);
                     test(comparer.Compare(r, p) == 0);
@@ -275,8 +275,7 @@ namespace Ice
                     si2.s = new Test.AnotherStruct();
                     si2.s.s = "def";
 
-                    Test.Structure so;
-                    Test.Structure rso = p.opStruct(si1, si2, out so);
+                    var (rso, so) = p.opStruct(si1, si2);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum2);
                     test(rso.s.s.Equals("def"));
@@ -291,7 +290,7 @@ namespace Ice
                     si1 = new Test.Structure();
                     si2 = new Test.Structure();
 
-                    rso = p.opStruct(si1, si2, out so);
+                    (rso, so) = p.opStruct(si1, si2);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum1);
                     test(rso.s.s.Equals(""));
@@ -307,7 +306,7 @@ namespace Ice
                     byte[] bso;
                     byte[] rso;
 
-                    rso = p.opByteS(bsi1, bsi2, out bso);
+                    (rso, bso) = p.opByteS(bsi1, bsi2);
                     test(bso.Length == 4);
                     test(bso[0] == 0x22);
                     test(bso[1] == 0x12);
@@ -331,7 +330,7 @@ namespace Ice
                     bool[] bso;
                     bool[] rso;
 
-                    rso = p.opBoolS(bsi1, bsi2, out bso);
+                    (rso, bso) = p.opBoolS(bsi1, bsi2);
                     test(bso.Length == 4);
                     test(bso[0]);
                     test(bso[1]);
@@ -353,7 +352,7 @@ namespace Ice
                     long[] lso;
                     long[] rso;
 
-                    rso = p.opShortIntLongS(ssi, isi, lsi, out sso, out iso, out lso);
+                    (rso, sso, iso, lso) = p.opShortIntLongS(ssi, isi, lsi);
                     test(sso.Length == 3);
                     test(sso[0] == 1);
                     test(sso[1] == 2);
@@ -384,7 +383,7 @@ namespace Ice
                     double[] dso;
                     double[] rso;
 
-                    rso = p.opFloatDoubleS(fsi, dsi, out fso, out dso);
+                    (rso, fso, dso) = p.opFloatDoubleS(fsi, dsi);
                     test(fso.Length == 2);
                     test(fso[0] == 3.14f);
                     test(fso[1] == 1.11f);
@@ -407,7 +406,7 @@ namespace Ice
                     string[] sso;
                     string[] rso;
 
-                    rso = p.opStringS(ssi1, ssi2, out sso);
+                    (rso, sso) = p.opStringS(ssi1, ssi2);
                     test(sso.Length == 4);
                     test(sso[0].Equals("abc"));
                     test(sso[1].Equals("de"));
@@ -431,7 +430,7 @@ namespace Ice
                     byte[][] bso;
                     byte[][] rso;
 
-                    rso = p.opByteSS(bsi1, bsi2, out bso);
+                    (rso, bso) = p.opByteSS(bsi1, bsi2);
                     test(bso.Length == 2);
                     test(bso[0].Length == 1);
                     test(bso[0][0] == 0xff);
@@ -465,7 +464,7 @@ namespace Ice
                     bool[][] rso;
                     bool[][] bso;
 
-                    rso = p.opBoolSS(bsi1, bsi2, out bso);
+                    (rso, bso) = p.opBoolSS(bsi1, bsi2);
                     test(bso.Length == 4);
                     test(bso[0].Length == 1);
                     test(bso[0][0]);
@@ -506,7 +505,7 @@ namespace Ice
                     long[][] lso;
                     long[][] rso;
 
-                    rso = p.opShortIntLongSS(ssi, isi, lsi, out sso, out iso, out lso);
+                    (rso, sso, iso, lso) = p.opShortIntLongSS(ssi, isi, lsi);
                     test(rso.Length == 1);
                     test(rso[0].Length == 2);
                     test(rso[0][0] == 496);
@@ -547,7 +546,7 @@ namespace Ice
                     double[][] dso;
                     double[][] rso;
 
-                    rso = p.opFloatDoubleSS(fsi, dsi, out fso, out dso);
+                    (rso, fso, dso) = p.opFloatDoubleSS(fsi, dsi);
                     test(fso.Length == 3);
                     test(fso[0].Length == 1);
                     test(fso[0][0] == 3.14f);
@@ -583,7 +582,7 @@ namespace Ice
                     string[][] sso;
                     string[][] rso;
 
-                    rso = p.opStringSS(ssi1, ssi2, out sso);
+                    (rso, sso) = p.opStringSS(ssi1, ssi2);
                     test(sso.Length == 5);
                     test(sso[0].Length == 1);
                     test(sso[0][0].Equals("abc"));
@@ -620,7 +619,7 @@ namespace Ice
                     string[][][] ssso;
                     string[][][] rsso;
 
-                    rsso = p.opStringSSS(sssi1, sssi2, out ssso);
+                    (rsso, ssso) = p.opStringSSS(sssi1, sssi2);
                     test(ssso.Length == 5);
                     test(ssso[0].Length == 2);
                     test(ssso[0][0].Length == 2);
@@ -664,8 +663,7 @@ namespace Ice
                     di2[11] = false;
                     di2[101] = true;
 
-                    Dictionary<byte, bool> _do;
-                    Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
+                    var (ro, _do) = p.opByteBoolD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -684,8 +682,7 @@ namespace Ice
                     di2[111] = -100;
                     di2[1101] = 0;
 
-                    Dictionary<short, int> _do;
-                    Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
+                    var (ro, _do) = p.opShortIntD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -704,8 +701,7 @@ namespace Ice
                     di2[999999120L] = -100.4f;
                     di2[999999130L] = 0.5f;
 
-                    Dictionary<long, float> _do;
-                    Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
+                    var (ro, _do) = p.opLongFloatD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -724,8 +720,7 @@ namespace Ice
                     di2["FOO"] = "abc -100.4";
                     di2["BAR"] = "abc 0.5";
 
-                    Dictionary<string, string> _do;
-                    Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
+                    var (ro, _do) = p.opStringStringD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -744,8 +739,7 @@ namespace Ice
                     di2["qwerty"] = Test.MyEnum.enum3;
                     di2["Hello!!"] = Test.MyEnum.enum2;
 
-                    Dictionary<string, Test.MyEnum> _do;
-                    Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
+                    var (ro, _do) = p.opStringMyEnumD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -762,10 +756,9 @@ namespace Ice
                     di2[Test.MyEnum.enum2] = "Hello!!";
                     di2[Test.MyEnum.enum3] = "qwerty";
 
-                    Dictionary<Test.MyEnum, string> _do;
-                    var ro = p.opMyEnumStringD(di1, di2, out _do);
+                    var (ro, _do) = p.opMyEnumStringD(di1, di2);
 
-                    test(Ice.Collections.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 3);
                     test(ro[Test.MyEnum.enum1].Equals("abc"));
                     test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
@@ -786,8 +779,7 @@ namespace Ice
                     di2[s22] = Test.MyEnum.enum3;
                     di2[s23] = Test.MyEnum.enum2;
 
-                    Dictionary<Test.MyStruct, Test.MyEnum> _do;
-                    Dictionary<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, out _do);
+                    var (ro, _do) = p.opMyStructMyEnumD(di1, di2);
 
                     test(Ice.Collections.Equals(_do, di1));
                     test(ro.Count == 4);
@@ -816,8 +808,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<byte, bool>[] _do;
-                    Dictionary<byte, bool>[] ro = p.opByteBoolDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opByteBoolDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -859,8 +850,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<short, int>[] _do;
-                    Dictionary<short, int>[] ro = p.opShortIntDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opShortIntDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -901,8 +891,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<long, float>[] _do;
-                    Dictionary<long, float>[] ro = p.opLongFloatDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opLongFloatDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -944,8 +933,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<string, string>[] _do;
-                    Dictionary<string, string>[] ro = p.opStringStringDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opStringStringDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -986,8 +974,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<string, Test.MyEnum>[] _do;
-                    Dictionary<string, Test.MyEnum>[] ro = p.opStringMyEnumDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opStringMyEnumDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -1026,8 +1013,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<Test.MyEnum, string>[] _do;
-                    var ro = p.opMyEnumStringDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opMyEnumStringDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 2);
@@ -1070,8 +1056,7 @@ namespace Ice
                     dsi1[1] = di2;
                     dsi2[0] = di3;
 
-                    Dictionary<Test.MyStruct, Test.MyEnum>[] _do;
-                    var ro = p.opMyStructMyEnumDS(dsi1, dsi2, out _do);
+                    var (ro, _do) = p.opMyStructMyEnumDS(dsi1, dsi2);
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
@@ -1106,8 +1091,7 @@ namespace Ice
                     sdi1[0x22] = si2;
                     sdi2[0xf1] = si3;
 
-                    Dictionary<byte, byte[]> _do;
-                    var ro = p.opByteByteSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opByteByteSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[0xf1].Length == 2);
@@ -1136,8 +1120,7 @@ namespace Ice
                     sdi1[true] = si2;
                     sdi2[false] = si1;
 
-                    Dictionary<bool, bool[]> _do;
-                    var ro = p.opBoolBoolSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opBoolBoolSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[false].Length == 2);
@@ -1165,8 +1148,7 @@ namespace Ice
                     sdi1[2] = si2;
                     sdi2[4] = si3;
 
-                    Dictionary<short, short[]> _do;
-                    var ro = p.opShortShortSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opShortShortSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[4].Length == 2);
@@ -1198,8 +1180,7 @@ namespace Ice
                     sdi1[200] = si2;
                     sdi2[400] = si3;
 
-                    Dictionary<int, int[]> _do;
-                    var ro = p.opIntIntSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opIntIntSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[400].Length == 2);
@@ -1231,8 +1212,7 @@ namespace Ice
                     sdi1[999999991L] = si2;
                     sdi2[999999992L] = si3;
 
-                    Dictionary<long, long[]> _do;
-                    var ro = p.opLongLongSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opLongLongSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[999999992L].Length == 2);
@@ -1263,8 +1243,7 @@ namespace Ice
                     sdi1["ABC"] = si2;
                     sdi2["aBc"] = si3;
 
-                    Dictionary<string, float[]> _do;
-                    var ro = p.opStringFloatSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opStringFloatSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do["aBc"].Length == 2);
@@ -1296,8 +1275,7 @@ namespace Ice
                     sdi1["Goodbye"] = si2;
                     sdi2[""] = si3;
 
-                    Dictionary<string, double[]> _do;
-                    var ro = p.opStringDoubleSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opStringDoubleSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[""].Length == 2);
@@ -1328,8 +1306,7 @@ namespace Ice
                     sdi1["def"] = si2;
                     sdi2["ghi"] = si3;
 
-                    Dictionary<string, string[]> _do;
-                    var ro = p.opStringStringSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opStringStringSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do["ghi"].Length == 2);
@@ -1361,8 +1338,7 @@ namespace Ice
                     sdi1[Test.MyEnum.enum2] = si2;
                     sdi2[Test.MyEnum.enum1] = si3;
 
-                    Dictionary<Test.MyEnum, Test.MyEnum[]> _do;
-                    Dictionary<Test.MyEnum, Test.MyEnum[]> ro = p.opMyEnumMyEnumSD(sdi1, sdi2, out _do);
+                    var (ro, _do) = p.opMyEnumMyEnumSD(sdi1, sdi2);
 
                     test(_do.Count == 1);
                     test(_do[Test.MyEnum.enum1].Length == 2);
@@ -1541,7 +1517,7 @@ namespace Ice
                     var p1 = p.opMStruct1();
                     p1.e = Test.MyEnum.enum3;
                     Test.Structure p2, p3;
-                    p3 = p.opMStruct2(p1, out p2);
+                    (p3, p2) = p.opMStruct2(p1);
                     test(p2.Equals(p1) && p3.Equals(p1));
                 }
 
@@ -1551,7 +1527,7 @@ namespace Ice
                     string[] p1 = new string[1];
                     p1[0] = "test";
                     string[] p2, p3;
-                    p3 = p.opMSeq2(p1, out p2);
+                    (p3, p2) = p.opMSeq2(p1);
                     test(Ice.Collections.Equals(p2, p1) &&
                          Ice.Collections.Equals(p3, p1));
                 }
@@ -1562,7 +1538,7 @@ namespace Ice
                     Dictionary<string, string> p1 = new Dictionary<string, string>();
                     p1["test"] = "test";
                     Dictionary<string, string> p2, p3;
-                    p3 = p.opMDict2(p1, out p2);
+                    (p3, p2) = p.opMDict2(p1);
                     test(Ice.Collections.Equals(p2, p1) &&
                          Ice.Collections.Equals(p3, p1));
                 }

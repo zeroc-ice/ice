@@ -98,29 +98,33 @@ namespace Ice
                 output.Write("testing enum operations... ");
                 output.Flush();
 
-                Test.ByteEnum byteEnum;
-                test(proxy.opByte(Test.ByteEnum.benum1, out byteEnum) == Test.ByteEnum.benum1);
-                test(byteEnum == Test.ByteEnum.benum1);
-                test(proxy.opByte(Test.ByteEnum.benum11, out byteEnum) == Test.ByteEnum.benum11);
-                test(byteEnum == Test.ByteEnum.benum11);
+                {
+                    var (r, o) = proxy.opByte(Test.ByteEnum.benum1);
+                    test(r == Test.ByteEnum.benum1 && o == Test.ByteEnum.benum1);
+                    (r, o) = proxy.opByte(Test.ByteEnum.benum11);
+                    test(r == Test.ByteEnum.benum11 && o == Test.ByteEnum.benum11);
+                }
 
-                Test.ShortEnum shortEnum;
-                test(proxy.opShort(Test.ShortEnum.senum1, out shortEnum) == Test.ShortEnum.senum1);
-                test(shortEnum == Test.ShortEnum.senum1);
-                test(proxy.opShort(Test.ShortEnum.senum11, out shortEnum) == Test.ShortEnum.senum11);
-                test(shortEnum == Test.ShortEnum.senum11);
+                {
+                    var (r, o) = proxy.opShort(Test.ShortEnum.senum1);
+                    test(r == Test.ShortEnum.senum1 && o == Test.ShortEnum.senum1);
+                    (r, o) = proxy.opShort(Test.ShortEnum.senum11);
+                    test(r == Test.ShortEnum.senum11 && o == Test.ShortEnum.senum11);
+                }
 
-                Test.IntEnum intEnum;
-                test(proxy.opInt(Test.IntEnum.ienum1, out intEnum) == Test.IntEnum.ienum1);
-                test(intEnum == Test.IntEnum.ienum1);
-                test(proxy.opInt(Test.IntEnum.ienum11, out intEnum) == Test.IntEnum.ienum11);
-                test(intEnum == Test.IntEnum.ienum11);
-                test(proxy.opInt(Test.IntEnum.ienum12, out intEnum) == Test.IntEnum.ienum12);
-                test(intEnum == Test.IntEnum.ienum12);
+                {
+                    var (r, o) = proxy.opInt(Test.IntEnum.ienum1);
+                    test(r == Test.IntEnum.ienum1 && o == Test.IntEnum.ienum1);
+                    (r, o) = proxy.opInt(Test.IntEnum.ienum11);
+                    test(r == Test.IntEnum.ienum11 && o == Test.IntEnum.ienum11);
+                    (r, o) = proxy.opInt(Test.IntEnum.ienum12);
+                    test(r == Test.IntEnum.ienum12 && o == Test.IntEnum.ienum12);
+                }
 
-                Test.SimpleEnum s;
-                test(proxy.opSimple(Test.SimpleEnum.green, out s) == Test.SimpleEnum.green);
-                test(s == Test.SimpleEnum.green);
+                {
+                    var (r, o) = proxy.opSimple(Test.SimpleEnum.green);
+                    test(r == Test.SimpleEnum.green && o == Test.SimpleEnum.green);
+                }
 
                 output.WriteLine("ok");
 
@@ -143,8 +147,7 @@ namespace Ice
                                     Test.ByteEnum.benum11
                             };
 
-                    Test.ByteEnum[] b2;
-                    Test.ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
+                    var (b3, b2) = proxy.opByteSeq(b1);
 
                     for (int i = 0; i < b1.Length; ++i)
                     {
@@ -169,8 +172,7 @@ namespace Ice
                                 Test.ShortEnum.senum11
                         };
 
-                    Test.ShortEnum[] s2;
-                    Test.ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
+                    var (s3, s2) = proxy.opShortSeq(s1);
 
                     for (int i = 0; i < s1.Length; ++i)
                     {
@@ -195,8 +197,7 @@ namespace Ice
                                     Test.IntEnum.ienum11
                             };
 
-                    Test.IntEnum[] i2;
-                    Test.IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
+                    var (i3, i2) = proxy.opIntSeq(i1);
 
                     for (int i = 0; i < i1.Length; ++i)
                     {
@@ -213,8 +214,7 @@ namespace Ice
                                     Test.SimpleEnum.blue
                             };
 
-                    Test.SimpleEnum[] s2;
-                    Test.SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
+                    var (s3, s2) = proxy.opSimpleSeq(s1);
 
                     for (int i = 0; i < s1.Length; ++i)
                     {

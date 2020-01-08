@@ -321,12 +321,10 @@ namespace Ice
                     LoggerAdminPrx logger = LoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
                     test(logger != null);
 
-                    string prefix = null;
-
                     //
                     // Get all
                     //
-                    LogMessage[] logMessages = logger.GetLog(null, null, -1, out prefix);
+                    var (logMessages, prefix) = logger.GetLog(null, null, -1);
 
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
@@ -345,7 +343,7 @@ namespace Ice
 
                     LogMessageType[] messageTypes = { LogMessageType.ErrorMessage, LogMessageType.WarningMessage };
 
-                    logMessages = logger.GetLog(messageTypes, null, -1, out prefix);
+                    (logMessages, prefix) = logger.GetLog(messageTypes, null, -1);
 
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
@@ -364,7 +362,7 @@ namespace Ice
 
                     messageTypes = new LogMessageType[] { LogMessageType.ErrorMessage, LogMessageType.TraceMessage };
                     string[] categories = { "testCat" };
-                    logMessages = logger.GetLog(messageTypes, categories, -1, out prefix);
+                    (logMessages, prefix) = logger.GetLog(messageTypes, categories, -1);
                     test(logMessages.Length == 5);
                     test(prefix.Equals("NullLogger"));
 
@@ -379,7 +377,7 @@ namespace Ice
                     //
                     com.error("error3");
 
-                    logMessages = logger.GetLog(messageTypes, categories, 2, out prefix);
+                    (logMessages, prefix) = logger.GetLog(messageTypes, categories, 2);
                     test(logMessages.Length == 2);
                     test(prefix.Equals("NullLogger"));
 
@@ -401,7 +399,7 @@ namespace Ice
                     //
                     // No filtering
                     //
-                    logMessages = logger.GetLog(null, null, -1, out prefix);
+                    (logMessages, prefix) = logger.GetLog(null, null, -1);
 
                     logger.AttachRemoteLogger(myProxy, null, null, -1);
                     remoteLogger.Wait(1);
@@ -429,7 +427,7 @@ namespace Ice
                     //
                     // Use Error + Trace with "traceCat" filter with 4 limit
                     //
-                    logMessages = logger.GetLog(messageTypes, categories, 4, out prefix);
+                    (logMessages, prefix) = logger.GetLog(messageTypes, categories, 4);
                     test(logMessages.Length == 4);
 
                     logger.AttachRemoteLogger(myProxy, messageTypes, categories, 4);

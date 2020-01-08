@@ -27,7 +27,7 @@ namespace Ice
 
                     Dictionary<int, int> o;
                     Dictionary<int, int> r;
-                    r = p.opNV(i, out o);
+                    (r, o) = p.opNV(i);
 
                     test(Ice.Collections.Equals(i, o));
                     test(Ice.Collections.Equals(i, r));
@@ -40,7 +40,7 @@ namespace Ice
 
                     Dictionary<string, string> o;
                     Dictionary<string, string> r;
-                    r = p.opNR(i, out o);
+                    (r, o) = p.opNR(i);
 
                     test(Ice.Collections.Equals(i, o));
                     test(Ice.Collections.Equals(i, r));
@@ -56,7 +56,7 @@ namespace Ice
 
                     Dictionary<string, Dictionary<int, int>> o;
                     Dictionary<string, Dictionary<int, int>> r;
-                    r = p.opNDV(i, out o);
+                    (r, o) = p.opNDV(i);
 
                     foreach (string key in i.Keys)
                     {
@@ -75,7 +75,7 @@ namespace Ice
 
                     Dictionary<string, Dictionary<string, string>> o;
                     Dictionary<string, Dictionary<string, string>> r;
-                    r = p.opNDR(i, out o);
+                    (r, o) = p.opNDR(i);
 
                     foreach (string key in i.Keys)
                     {
@@ -92,7 +92,7 @@ namespace Ice
 
                     Dictionary<string, int[]> o;
                     Dictionary<string, int[]> r;
-                    r = p.opNDAIS(i, out o);
+                    (r, o) = p.opNDAIS(i);
 
                     foreach (string key in i.Keys)
                     {
@@ -111,7 +111,7 @@ namespace Ice
 
                     Dictionary<string, List<int>> o;
                     Dictionary<string, List<int>> r;
-                    r = p.opNDGIS(i, out o);
+                    (r, o) = p.opNDGIS(i);
 
                     foreach (string key in i.Keys)
                     {
@@ -128,7 +128,7 @@ namespace Ice
 
                     Dictionary<string, string[]> o;
                     Dictionary<string, string[]> r;
-                    r = p.opNDASS(i, out o);
+                    (r, o) = p.opNDASS(i);
 
                     foreach (string key in i.Keys)
                     {
@@ -147,7 +147,7 @@ namespace Ice
 
                     Dictionary<string, List<string>> o;
                     Dictionary<string, List<string>> r;
-                    r = p.opNDGSS(i, out o);
+                    (r, o) = p.opNDGSS(i);
 
                     foreach (string key in i.Keys)
                     {

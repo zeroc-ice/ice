@@ -69,7 +69,7 @@ public class Client : Test.TestHelper
         int c2 = 0;
         if (c1 != null)
         {
-            c1.@catch(0, out c2);
+            c2 = c1.@catch(0);
         }
         @abstract.@decimal d = new decimalI();
         test(d != null);
@@ -86,7 +86,7 @@ public class Client : Test.TestHelper
         @abstract.@explicitPrx f1 = null;
         if (f1 != null)
         {
-            f1.@catch(0, out c2);
+            c2 = f1.@catch(0);
             f1.@default();
         }
         test(f1 == null);
