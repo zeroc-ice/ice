@@ -1875,7 +1875,7 @@ namespace Ice
                     // Note that as soon as the process proxy is registered, the communicator might be
                     // shutdown by a remote client and admin facets might start receiving calls.
                     //
-                    locator.getRegistry().setServerProcessProxy(serverId, process);
+                    locator.GetRegistry().SetServerProcessProxy(serverId, process);
                 }
                 catch (ServerNotFoundException)
                 {

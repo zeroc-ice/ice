@@ -19,472 +19,472 @@ namespace Ice
                     return null;
                 }
 
-                public Task<Test.MyClass.opAByteSResult>
+                public Task<Test.MyClass.OpAByteSReturnValue>
                 opAByteSAsync(byte[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAByteSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAByteSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLByteSResult>
+                public Task<Test.MyClass.OpLByteSReturnValue>
                 opLByteSAsync(List<byte> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLByteSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLByteSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKByteSResult>
+                public Task<Test.MyClass.OpKByteSReturnValue>
                 opKByteSAsync(LinkedList<byte> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKByteSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKByteSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQByteSResult>
+                public Task<Test.MyClass.OpQByteSReturnValue>
                 opQByteSAsync(Queue<byte> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQByteSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQByteSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSByteSResult>
+                public Task<Test.MyClass.OpSByteSReturnValue>
                 opSByteSAsync(Stack<byte> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSByteSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSByteSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opABoolSResult>
+                public Task<Test.MyClass.OpABoolSReturnValue>
                 opABoolSAsync(bool[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opABoolSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpABoolSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLBoolSResult>
+                public Task<Test.MyClass.OpLBoolSReturnValue>
                 opLBoolSAsync(List<bool> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLBoolSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLBoolSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKBoolSResult>
+                public Task<Test.MyClass.OpKBoolSReturnValue>
                 opKBoolSAsync(LinkedList<bool> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKBoolSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKBoolSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQBoolSResult>
+                public Task<Test.MyClass.OpQBoolSReturnValue>
                 opQBoolSAsync(Queue<bool> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQBoolSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQBoolSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSBoolSResult>
+                public Task<Test.MyClass.OpSBoolSReturnValue>
                 opSBoolSAsync(Stack<bool> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSBoolSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSBoolSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAShortSResult>
+                public Task<Test.MyClass.OpAShortSReturnValue>
                 opAShortSAsync(short[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAShortSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAShortSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLShortSResult>
+                public Task<Test.MyClass.OpLShortSReturnValue>
                 opLShortSAsync(List<short> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLShortSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLShortSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKShortSResult>
+                public Task<Test.MyClass.OpKShortSReturnValue>
                 opKShortSAsync(LinkedList<short> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKShortSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKShortSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQShortSResult>
+                public Task<Test.MyClass.OpQShortSReturnValue>
                 opQShortSAsync(Queue<short> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQShortSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQShortSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSShortSResult>
+                public Task<Test.MyClass.OpSShortSReturnValue>
                 opSShortSAsync(Stack<short> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSShortSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSShortSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAIntSResult>
+                public Task<Test.MyClass.OpAIntSReturnValue>
                 opAIntSAsync(int[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLIntSResult>
+                public Task<Test.MyClass.OpLIntSReturnValue>
                 opLIntSAsync(List<int> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKIntSResult>
+                public Task<Test.MyClass.OpKIntSReturnValue>
                 opKIntSAsync(LinkedList<int> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQIntSResult>
+                public Task<Test.MyClass.OpQIntSReturnValue>
                 opQIntSAsync(Queue<int> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSIntSResult>
+                public Task<Test.MyClass.OpSIntSReturnValue>
                 opSIntSAsync(Stack<int> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opALongSResult>
+                public Task<Test.MyClass.OpALongSReturnValue>
                 opALongSAsync(long[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opALongSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpALongSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLLongSResult>
+                public Task<Test.MyClass.OpLLongSReturnValue>
                 opLLongSAsync(List<long> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLLongSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLLongSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKLongSResult>
+                public Task<Test.MyClass.OpKLongSReturnValue>
                 opKLongSAsync(LinkedList<long> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKLongSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKLongSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQLongSResult>
+                public Task<Test.MyClass.OpQLongSReturnValue>
                 opQLongSAsync(Queue<long> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQLongSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQLongSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSLongSResult>
+                public Task<Test.MyClass.OpSLongSReturnValue>
                 opSLongSAsync(Stack<long> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSLongSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSLongSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAFloatSResult>
+                public Task<Test.MyClass.OpAFloatSReturnValue>
                 opAFloatSAsync(float[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAFloatSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAFloatSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLFloatSResult>
+                public Task<Test.MyClass.OpLFloatSReturnValue>
                 opLFloatSAsync(List<float> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLFloatSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLFloatSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKFloatSResult>
+                public Task<Test.MyClass.OpKFloatSReturnValue>
                 opKFloatSAsync(LinkedList<float> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKFloatSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKFloatSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQFloatSResult>
+                public Task<Test.MyClass.OpQFloatSReturnValue>
                 opQFloatSAsync(Queue<float> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQFloatSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQFloatSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSFloatSResult>
+                public Task<Test.MyClass.OpSFloatSReturnValue>
                 opSFloatSAsync(Stack<float> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSFloatSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSFloatSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opADoubleSResult>
+                public Task<Test.MyClass.OpADoubleSReturnValue>
                 opADoubleSAsync(double[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opADoubleSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpADoubleSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLDoubleSResult>
+                public Task<Test.MyClass.OpLDoubleSReturnValue>
                 opLDoubleSAsync(List<double> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLDoubleSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLDoubleSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKDoubleSResult>
+                public Task<Test.MyClass.OpKDoubleSReturnValue>
                 opKDoubleSAsync(LinkedList<double> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKDoubleSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKDoubleSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQDoubleSResult>
+                public Task<Test.MyClass.OpQDoubleSReturnValue>
                 opQDoubleSAsync(Queue<double> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQDoubleSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQDoubleSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSDoubleSResult>
+                public Task<Test.MyClass.OpSDoubleSReturnValue>
                 opSDoubleSAsync(Stack<double> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSDoubleSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSDoubleSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAStringSResult>
+                public Task<Test.MyClass.OpAStringSReturnValue>
                 opAStringSAsync(string[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAStringSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAStringSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLStringSResult>
+                public Task<Test.MyClass.OpLStringSReturnValue>
                 opLStringSAsync(List<string> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLStringSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLStringSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKStringSResult>
+                public Task<Test.MyClass.OpKStringSReturnValue>
                 opKStringSAsync(LinkedList<string> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKStringSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKStringSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQStringSResult>
+                public Task<Test.MyClass.OpQStringSReturnValue>
                 opQStringSAsync(Queue<string> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQStringSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQStringSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSStringSResult>
+                public Task<Test.MyClass.OpSStringSReturnValue>
                 opSStringSAsync(Stack<string> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSStringSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSStringSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAObjectSResult>
+                public Task<Test.MyClass.OpAObjectSReturnValue>
                 opAObjectSAsync(Value[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAObjectSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAObjectSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLObjectSResult>
+                public Task<Test.MyClass.OpLObjectSReturnValue>
                 opLObjectSAsync(List<Value> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLObjectSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLObjectSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAObjectPrxSResult>
+                public Task<Test.MyClass.OpAObjectPrxSReturnValue>
                 opAObjectPrxSAsync(IObjectPrx[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAObjectPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAObjectPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLObjectPrxSResult>
+                public Task<Test.MyClass.OpLObjectPrxSReturnValue>
                 opLObjectPrxSAsync(List<IObjectPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLObjectPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLObjectPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKObjectPrxSResult>
+                public Task<Test.MyClass.OpKObjectPrxSReturnValue>
                 opKObjectPrxSAsync(LinkedList<IObjectPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKObjectPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKObjectPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQObjectPrxSResult>
+                public Task<Test.MyClass.OpQObjectPrxSReturnValue>
                 opQObjectPrxSAsync(Queue<IObjectPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQObjectPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQObjectPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSObjectPrxSResult>
+                public Task<Test.MyClass.OpSObjectPrxSReturnValue>
                 opSObjectPrxSAsync(Stack<IObjectPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSObjectPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSObjectPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAStructSResult>
+                public Task<Test.MyClass.OpAStructSReturnValue>
                 opAStructSAsync(Test.S[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAStructSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAStructSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLStructSResult>
+                public Task<Test.MyClass.OpLStructSReturnValue>
                 opLStructSAsync(List<Test.S> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLStructSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLStructSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKStructSResult>
+                public Task<Test.MyClass.OpKStructSReturnValue>
                 opKStructSAsync(LinkedList<Test.S> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKStructSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKStructSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQStructSResult>
+                public Task<Test.MyClass.OpQStructSReturnValue>
                 opQStructSAsync(Queue<Test.S> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQStructSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQStructSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSStructSResult>
+                public Task<Test.MyClass.OpSStructSReturnValue>
                 opSStructSAsync(Stack<Test.S> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSStructSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSStructSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAStructSDResult>
+                public Task<Test.MyClass.OpAStructSDReturnValue>
                 opAStructSDAsync(Test.SD[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAStructSDResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAStructSDReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLStructSDResult>
+                public Task<Test.MyClass.OpLStructSDReturnValue>
                 opLStructSDAsync(List<Test.SD> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLStructSDResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLStructSDReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKStructSDResult>
+                public Task<Test.MyClass.OpKStructSDReturnValue>
                 opKStructSDAsync(LinkedList<Test.SD> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKStructSDResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKStructSDReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQStructSDResult>
+                public Task<Test.MyClass.OpQStructSDReturnValue>
                 opQStructSDAsync(Queue<Test.SD> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQStructSDResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQStructSDReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSStructSDResult>
+                public Task<Test.MyClass.OpSStructSDReturnValue>
                 opSStructSDAsync(Stack<Test.SD> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSStructSDResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSStructSDReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opACVSResult>
+                public Task<Test.MyClass.OpACVSReturnValue>
                 opACVSAsync(Test.CV[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opACVSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpACVSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLCVSResult>
+                public Task<Test.MyClass.OpLCVSReturnValue>
                 opLCVSAsync(List<Test.CV> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLCVSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLCVSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAIPrxSResult>
+                public Task<Test.MyClass.OpAIPrxSReturnValue>
                 opAIPrxSAsync(Test.IPrx[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAIPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAIPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLIPrxSResult>
+                public Task<Test.MyClass.OpLIPrxSReturnValue>
                 opLIPrxSAsync(List<Test.IPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLIPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLIPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKIPrxSResult>
+                public Task<Test.MyClass.OpKIPrxSReturnValue>
                 opKIPrxSAsync(LinkedList<Test.IPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKIPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKIPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQIPrxSResult>
+                public Task<Test.MyClass.OpQIPrxSReturnValue>
                 opQIPrxSAsync(Queue<Test.IPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQIPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQIPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSIPrxSResult>
+                public Task<Test.MyClass.OpSIPrxSReturnValue>
                 opSIPrxSAsync(Stack<Test.IPrx> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSIPrxSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSIPrxSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opACRSResult>
+                public Task<Test.MyClass.OpACRSReturnValue>
                 opACRSAsync(Test.CR[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opACRSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpACRSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLCRSResult>
+                public Task<Test.MyClass.OpLCRSReturnValue>
                 opLCRSAsync(List<Test.CR> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLCRSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLCRSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opAEnSResult>
+                public Task<Test.MyClass.OpAEnSReturnValue>
                 opAEnSAsync(Test.En[] i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opAEnSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpAEnSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opLEnSResult>
+                public Task<Test.MyClass.OpLEnSReturnValue>
                 opLEnSAsync(List<Test.En> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opLEnSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpLEnSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opKEnSResult>
+                public Task<Test.MyClass.OpKEnSReturnValue>
                 opKEnSAsync(LinkedList<Test.En> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opKEnSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpKEnSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opQEnSResult>
+                public Task<Test.MyClass.OpQEnSReturnValue>
                 opQEnSAsync(Queue<Test.En> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opQEnSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpQEnSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSEnSResult>
+                public Task<Test.MyClass.OpSEnSReturnValue>
                 opSEnSAsync(Stack<Test.En> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSEnSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSEnSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opCustomIntSResult>
+                public Task<Test.MyClass.OpCustomIntSReturnValue>
                 opCustomIntSAsync(Custom<int> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opCustomIntSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpCustomIntSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opCustomCVSResult>
+                public Task<Test.MyClass.OpCustomCVSReturnValue>
                 opCustomCVSAsync(Custom<Test.CV> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opCustomCVSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpCustomCVSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opCustomIntSSResult>
+                public Task<Test.MyClass.OpCustomIntSSReturnValue>
                 opCustomIntSSAsync(Custom<Custom<int>> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opCustomIntSSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpCustomIntSSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opCustomCVSSResult>
+                public Task<Test.MyClass.OpCustomCVSSReturnValue>
                 opCustomCVSSAsync(Custom<Custom<Test.CV>> i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opCustomCVSSResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpCustomCVSSReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSerialSmallCSharpResult>
+                public Task<Test.MyClass.OpSerialSmallCSharpReturnValue>
                 opSerialSmallCSharpAsync(Serialize.Small i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSerialSmallCSharpResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSerialSmallCSharpReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSerialLargeCSharpResult>
+                public Task<Test.MyClass.OpSerialLargeCSharpReturnValue>
                 opSerialLargeCSharpAsync(Serialize.Large i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSerialLargeCSharpResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSerialLargeCSharpReturnValue(i, i));
                 }
 
-                public Task<Test.MyClass.opSerialStructCSharpResult>
+                public Task<Test.MyClass.OpSerialStructCSharpReturnValue>
                 opSerialStructCSharpAsync(Serialize.Struct i, Current current)
                 {
-                    return Task.FromResult(new Test.MyClass.opSerialStructCSharpResult(i, i));
+                    return Task.FromResult(new Test.MyClass.OpSerialStructCSharpReturnValue(i, i));
                 }
             }
         }

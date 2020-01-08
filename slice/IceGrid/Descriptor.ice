@@ -9,7 +9,7 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["js:module:ice"]]
 
 [["python:pkgdir:IceGrid"]]

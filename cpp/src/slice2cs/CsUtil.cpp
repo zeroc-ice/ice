@@ -21,6 +21,18 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+std::string
+Slice::operationName(const OperationPtr& op)
+{
+    auto fileMetaData = op->unit()->findDefinitionContext(op->file())->getMetaData();
+    if(find(begin(fileMetaData), end(fileMetaData), "normalize-case") != end(fileMetaData) ||
+       find(begin(fileMetaData), end(fileMetaData), "cs:normalize-case") != end(fileMetaData))
+    {
+        return pascalCase(op->name());
+    }
+    return op->name();
+}
+
 bool
 Slice::isNullable(const TypePtr& type)
 {
@@ -523,18 +535,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::marshaledResultStructName(const string& className, const string& opName)
-{
-    ostringstream s;
-    s << className
-      << "_"
-      << IceUtilInternal::toUpper(opName.substr(0, 1))
-      << opName.substr(1)
-      << "MarshaledResult";
-    return s.str();
-}
-
-string
 Slice::returnValueName(const ParamDeclList& outParams)
 {
     for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
@@ -557,12 +557,15 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     }
     else if(dispatch && op->hasMarshaledResult())
     {
-        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." + op->name() +
-            "MarshaledResult";
+        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." +
+            pascalCase(op->name()) +
+            "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
     {
-        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." + op->name() + "Result";
+        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." +
+            pascalCase(op->name()) +
+            "ReturnValue";
     }
     else
     {

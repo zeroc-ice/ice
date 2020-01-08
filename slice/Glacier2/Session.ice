@@ -9,6 +9,8 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:Glacier2/Config.h"]]
 
+[["normalize-case"]]
+
 [["js:module:ice"]]
 
 [["python:pkgdir:Glacier2"]]

@@ -37,7 +37,7 @@ public class AllTests : Test.AllTests
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
         Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
-        test(finder.getLocator() != null);
+        test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing discovery... ");
@@ -46,9 +46,9 @@ public class AllTests : Test.AllTests
             IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
                 communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
 
-            IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
-            session.getAdmin().addObjectWithType(@base, "::Test");
-            session.destroy();
+            IceGrid.AdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
+            session.GetAdmin().AddObjectWithType(@base, "::Test");
+            session.Destroy();
 
             //
             // Ensure the IceGrid discovery locator can discover the
@@ -66,9 +66,9 @@ public class AllTests : Test.AllTests
             IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
             IObjectPrx.Parse("test", com).IcePing();
 
-            test(com.getDefaultLocator().getRegistry() != null);
-            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
-            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
+            test(com.getDefaultLocator().GetRegistry() != null);
+            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry() != null);
+            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalQuery() != null);
 
             Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
@@ -98,11 +98,11 @@ public class AllTests : Test.AllTests
             catch (Ice.NoEndpointException)
             {
             }
-            test(com.getDefaultLocator().getRegistry() == null);
+            test(com.getDefaultLocator().GetRegistry() == null);
             test(IceGrid.LocatorPrx.CheckedCast(com.getDefaultLocator()) == null);
             try
             {
-                IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalRegistry();
+                IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry();
             }
             catch (Ice.OperationNotExistException)
             {
@@ -276,12 +276,12 @@ public class AllTests : Test.AllTests
 
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
             communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
-        IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
-        session.GetConnection().setACM(registry.getACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
+        IceGrid.AdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
+        session.GetConnection().setACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
-        IceGrid.AdminPrx admin = session.getAdmin();
-        admin.enableServer("server", false);
-        admin.stopServer("server");
+        IceGrid.AdminPrx admin = session.GetAdmin();
+        admin.EnableServer("server", false);
+        admin.StopServer("server");
 
         Console.Out.Write("testing whether server is still reachable... ");
         Console.Out.Flush();
@@ -304,7 +304,7 @@ public class AllTests : Test.AllTests
 
         try
         {
-            admin.enableServer("server", true);
+            admin.EnableServer("server", true);
         }
         catch (IceGrid.ServerNotExistException)
         {
@@ -335,7 +335,7 @@ public class AllTests : Test.AllTests
 
         try
         {
-            admin.stopServer("server");
+            admin.StopServer("server");
         }
         catch (IceGrid.ServerNotExistException)
         {
@@ -350,6 +350,6 @@ public class AllTests : Test.AllTests
             test(false);
         }
 
-        session.destroy();
+        session.Destroy();
     }
 }

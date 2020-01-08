@@ -74,7 +74,7 @@ namespace IceInternal
             }
 
             bool? hasRoutingTable;
-            var proxy = _router.getClientProxy(out hasRoutingTable);
+            var proxy = _router.GetClientProxy(out hasRoutingTable);
             return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
@@ -92,7 +92,7 @@ namespace IceInternal
                 return;
             }
 
-            _router.getClientProxyAsync().ContinueWith(
+            _router.GetClientProxyAsync().ContinueWith(
                 (t) =>
                 {
                     try
@@ -112,7 +112,7 @@ namespace IceInternal
 
         public EndpointI[] getServerEndpoints()
         {
-            Ice.IObjectPrx serverProxy = _router.getServerProxy();
+            Ice.IObjectPrx serverProxy = _router.GetServerProxy();
             if (serverProxy == null)
             {
                 throw new Ice.NoEndpointException();
@@ -136,7 +136,7 @@ namespace IceInternal
                 }
             }
 
-            addAndEvictProxies(proxy, _router.addProxies(new Ice.IObjectPrx[] { proxy }));
+            addAndEvictProxies(proxy, _router.AddProxies(new Ice.IObjectPrx[] { proxy }));
         }
 
         public bool addProxy(Ice.IObjectPrx proxy, AddProxyCallback callback)
@@ -157,7 +157,7 @@ namespace IceInternal
                 }
             }
 
-            _router.addProxiesAsync(new Ice.IObjectPrx[] { proxy }).ContinueWith(
+            _router.AddProxiesAsync(new Ice.IObjectPrx[] { proxy }).ContinueWith(
                 (t) =>
                 {
                     try

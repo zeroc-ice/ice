@@ -11,12 +11,12 @@ namespace IceInternal
             _communicator = communicator;
         }
 
-        public void shutdown(Ice.Current current)
+        public void Shutdown(Ice.Current current)
         {
             _communicator.shutdown();
         }
 
-        public void writeMessage(string message, int fd, Ice.Current current)
+        public void WriteMessage(string message, int fd, Ice.Current current)
         {
             switch (fd)
             {

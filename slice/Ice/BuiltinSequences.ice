@@ -8,6 +8,8 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
+[["normalize-case"]]
+
 [["ice-prefix"]]
 
 [["js:module:ice"]]

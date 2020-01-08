@@ -36,13 +36,13 @@ public class AllTests : Test.AllTests
             //
             // Test: PropertiesAdmin::getProperty()
             //
-            test(pa.getProperty("Prop1") == "1");
-            test(pa.getProperty("Bogus") == "");
+            test(pa.GetProperty("Prop1") == "1");
+            test(pa.GetProperty("Bogus") == "");
 
             //
             // Test: PropertiesAdmin::getProperties()
             //
-            Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
+            Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
             test(pd.Count == 6);
             test(pd["Prop1"] == "1");
             test(pd["Prop2"] == "2");
@@ -62,12 +62,12 @@ public class AllTests : Test.AllTests
             setProps.Add("Prop3", ""); // Removed
             setProps.Add("Prop4", "4"); // Added
             setProps.Add("Prop5", "5"); // Added
-            pa.setProperties(setProps);
-            test(pa.getProperty("Prop1") == "10");
-            test(pa.getProperty("Prop2") == "20");
-            test(pa.getProperty("Prop3") == "");
-            test(pa.getProperty("Prop4") == "4");
-            test(pa.getProperty("Prop5") == "5");
+            pa.SetProperties(setProps);
+            test(pa.GetProperty("Prop1") == "10");
+            test(pa.GetProperty("Prop2") == "20");
+            test(pa.GetProperty("Prop3") == "");
+            test(pa.GetProperty("Prop4") == "4");
+            test(pa.GetProperty("Prop5") == "5");
             changes = facet.getChanges();
             test(changes.Count == 5);
             test(changes["Prop1"] == "10");
@@ -75,7 +75,7 @@ public class AllTests : Test.AllTests
             test(changes["Prop3"] == "");
             test(changes["Prop4"] == "4");
             test(changes["Prop5"] == "5");
-            pa.setProperties(setProps);
+            pa.SetProperties(setProps);
             changes = facet.getChanges();
             test(changes.Count == 0);
         }
@@ -89,21 +89,21 @@ public class AllTests : Test.AllTests
 
             string[] views;
             string[] disabledViews;
-            views = ma.getMetricsViewNames(out disabledViews);
+            views = ma.GetMetricsViewNames(out disabledViews);
             test(views.Length == 0);
 
             Dictionary<string, string> setProps = new Dictionary<string, string>();
             setProps.Add("IceMX.Metrics.Debug.GroupBy", "id");
             setProps.Add("IceMX.Metrics.All.GroupBy", "none");
             setProps.Add("IceMX.Metrics.Parent.GroupBy", "parent");
-            pa.setProperties(setProps);
-            pa.setProperties(new Dictionary<string, string>());
+            pa.SetProperties(setProps);
+            pa.SetProperties(new Dictionary<string, string>());
 
-            views = ma.getMetricsViewNames(out disabledViews);
+            views = ma.GetMetricsViewNames(out disabledViews);
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).getMetricsViewNames(out disabledViews).Length == 0);
+            test(IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).GetMetricsViewNames(out disabledViews).Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

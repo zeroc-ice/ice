@@ -51,6 +51,14 @@ splitScopedName(const std::string&);
 bool
 ciequals(const std::string& a, const std::string& b);
 
+enum CaseConvention { SliceCase, CamelCase, PascalCase, SnakeCase };
+
+CaseConvention caseConventionFromString(const std::string&);
+
+std::string camelCase(const std::string&);
+std::string pascalCase(const std::string&);
+std::string snakeCase(const std::string&);
+
 }
 
 #endif

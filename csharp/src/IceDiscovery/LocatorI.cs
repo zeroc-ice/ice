@@ -19,7 +19,7 @@ namespace IceDiscovery
         }
 
         public Task
-        setAdapterDirectProxyAsync(string adapterId, IObjectPrx proxy, Current current)
+        SetAdapterDirectProxyAsync(string adapterId, IObjectPrx proxy, Current current)
         {
             lock (this)
             {
@@ -36,8 +36,8 @@ namespace IceDiscovery
         }
 
         public Task
-        setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.IObjectPrx proxy,
-                                             Ice.Current current)
+        SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx proxy,
+                                             Current current)
         {
             lock (this)
             {
@@ -70,12 +70,12 @@ namespace IceDiscovery
         }
 
         public Task
-        setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
+        SetServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
         {
             return null;
         }
 
-        internal Ice.IObjectPrx findObject(Ice.Identity id)
+        internal IObjectPrx FindObject(Ice.Identity id)
         {
             lock (this)
             {
@@ -122,7 +122,7 @@ namespace IceDiscovery
             }
         }
 
-        internal Ice.IObjectPrx findAdapter(string adapterId, out bool isReplicaGroup)
+        internal Ice.IObjectPrx FindAdapter(string adapterId, out bool isReplicaGroup)
         {
             lock (this)
             {
@@ -179,18 +179,18 @@ namespace IceDiscovery
         }
 
         public Task<Ice.IObjectPrx>
-        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
+        FindObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             return _lookup.findObject(id);
         }
 
         public Task<Ice.IObjectPrx>
-        findAdapterByIdAsync(string adapterId, Ice.Current current)
+        FindAdapterByIdAsync(string adapterId, Current current)
         {
-            return _lookup.findAdapter(adapterId);
+            return _lookup.FindAdapter(adapterId);
         }
 
-        public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+        public Ice.LocatorRegistryPrx GetRegistry(Current current)
         {
             return _registry;
         }

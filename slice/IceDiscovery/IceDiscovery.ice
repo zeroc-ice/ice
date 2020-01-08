@@ -8,7 +8,7 @@
 [["cpp:header-ext:h"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["js:module:ice"]]
 
 [["python:pkgdir:IceDiscovery"]]

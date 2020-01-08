@@ -818,7 +818,7 @@ namespace IceInternal
             }
         }
 
-        public string[] getMetricsViewNames(out string[] disabledViews, Ice.Current current)
+        public string[] GetMetricsViewNames(out string[] disabledViews, Ice.Current current)
         {
             lock (this)
             {
@@ -827,7 +827,7 @@ namespace IceInternal
             }
         }
 
-        public void enableMetricsView(string name, Ice.Current current)
+        public void EnableMetricsView(string name, Ice.Current current)
         {
             lock (this)
             {
@@ -837,7 +837,7 @@ namespace IceInternal
             updateViews();
         }
 
-        public void disableMetricsView(string name, Ice.Current current)
+        public void DisableMetricsView(string name, Ice.Current current)
         {
             lock (this)
             {
@@ -847,7 +847,7 @@ namespace IceInternal
             updateViews();
         }
 
-        public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp, Ice.Current current)
+        public Dictionary<string, IceMX.Metrics[]> GetMetricsView(string viewName, out long timestamp, Ice.Current current)
         {
             lock (this)
             {
@@ -861,7 +861,7 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures[]? getMapMetricsFailures(string viewName, string mapName, Ice.Current c)
+        public IceMX.MetricsFailures[]? GetMapMetricsFailures(string viewName, string mapName, Ice.Current c)
         {
             lock (this)
             {
@@ -874,7 +874,7 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures? getMetricsFailures(string viewName, string mapName, string id, Ice.Current c)
+        public IceMX.MetricsFailures? GetMetricsFailures(string viewName, string mapName, string id, Ice.Current c)
         {
             lock (this)
             {

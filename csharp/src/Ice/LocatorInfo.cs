@@ -194,7 +194,7 @@ namespace IceInternal
             {
                 try
                 {
-                    _locatorInfo.getLocator().findObjectByIdAsync(_ref.getIdentity()).ContinueWith(
+                    _locatorInfo.getLocator().FindObjectByIdAsync(_ref.getIdentity()).ContinueWith(
                         (Task<Ice.IObjectPrx> p) =>
                         {
                             try
@@ -225,7 +225,7 @@ namespace IceInternal
             {
                 try
                 {
-                    _locatorInfo.getLocator().findAdapterByIdAsync(_ref.getAdapterId()).ContinueWith(
+                    _locatorInfo.getLocator().FindAdapterByIdAsync(_ref.getAdapterId()).ContinueWith(
                         (Task<Ice.IObjectPrx> p) =>
                         {
                             try
@@ -298,7 +298,7 @@ namespace IceInternal
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
+            Ice.LocatorRegistryPrx locatorRegistry = _locator.GetRegistry();
             if (locatorRegistry == null)
             {
                 return null;

@@ -23,7 +23,7 @@ public class Client : Test.TestHelper
             //
             // Shutdown the IceBox server.
             //
-            ProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).shutdown();
+            ProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
         }
     }
 

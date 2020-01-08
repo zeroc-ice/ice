@@ -10,7 +10,7 @@
 [["cpp:include:IceStorm/Config.h"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["python:pkgdir:IceStorm"]]
 
 #include <Ice/Metrics.ice>

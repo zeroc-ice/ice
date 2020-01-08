@@ -221,7 +221,7 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                connectImpl((RouterPrx router) => router.createSessionFromSecureConnection(context));
+                connectImpl((RouterPrx router) => router.CreateSessionFromSecureConnection(context));
             }
         }
 
@@ -239,7 +239,7 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                connectImpl((RouterPrx router) => router.createSession(username, password, context));
+                connectImpl((RouterPrx router) => router.CreateSession(username, password, context));
             }
         }
 
@@ -252,11 +252,11 @@ namespace Glacier2
             Debug.Assert(router != null);
             Debug.Assert(_communicator != null);
             Connection? conn = router.GetCachedConnection();
-            string category = router.getCategoryForClient();
+            string category = router.GetCategoryForClient();
             int acmTimeout = 0;
             try
             {
-                acmTimeout = router.getACMTimeout();
+                acmTimeout = router.GetACMTimeout();
             }
             catch (OperationNotExistException)
             {
@@ -264,7 +264,7 @@ namespace Glacier2
 
             if (acmTimeout <= 0)
             {
-                acmTimeout = (int)router.getSessionTimeout();
+                acmTimeout = (int)router.GetSessionTimeout();
             }
 
             //
@@ -349,7 +349,7 @@ namespace Glacier2
 
             try
             {
-                router.destroySession();
+                router.DestroySession();
             }
             catch (ConnectionLostException)
             {
@@ -427,7 +427,7 @@ namespace Glacier2
                     var finder = RouterFinderPrx.Parse(_finderStr, _communicator);
                     try
                     {
-                        _communicator.setDefaultRouter(finder.getRouter());
+                        _communicator.setDefaultRouter(finder.GetRouter());
                     }
                     catch (CommunicatorDestroyedException ex)
                     {

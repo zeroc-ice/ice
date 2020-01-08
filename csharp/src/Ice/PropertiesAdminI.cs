@@ -27,19 +27,19 @@ namespace IceInternal
         }
 
         public string
-        getProperty(string name, Ice.Current current)
+        GetProperty(string name, Ice.Current current)
         {
             return _communicator.GetProperty(name) ?? "";
         }
 
         public Dictionary<string, string>
-        getPropertiesForPrefix(string name, Ice.Current current)
+        GetPropertiesForPrefix(string name, Ice.Current current)
         {
             return _communicator.GetProperties(forPrefix: name);
         }
 
         public void
-        setProperties(Dictionary<string, string> props, Ice.Current current)
+        SetProperties(Dictionary<string, string> props, Ice.Current current)
         {
             int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 

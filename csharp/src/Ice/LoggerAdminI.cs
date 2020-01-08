@@ -13,7 +13,7 @@ namespace IceInternal
     internal sealed class LoggerAdminI : Ice.LoggerAdmin
     {
         public void
-        attachRemoteLogger(RemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
+        AttachRemoteLogger(RemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
                            int messageMax, Current current)
         {
             if (prx == null)
@@ -77,7 +77,7 @@ namespace IceInternal
 
             try
             {
-                remoteLogger.initAsync(_logger.getPrefix(), initLogMessages.ToArray()).ContinueWith(
+                remoteLogger.InitAsync(_logger.getPrefix(), initLogMessages.ToArray()).ContinueWith(
                     (t) =>
                     {
                         try
@@ -105,7 +105,7 @@ namespace IceInternal
         }
 
         public bool
-        detachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
+        DetachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
         {
             if (remoteLogger == null)
             {
@@ -133,7 +133,7 @@ namespace IceInternal
         }
 
         public Ice.LogMessage[]
-        getLog(Ice.LogMessageType[] messageTypes, string[] categories, int messageMax, out string prefix,
+        GetLog(Ice.LogMessageType[] messageTypes, string[] categories, int messageMax, out string prefix,
                Ice.Current current)
         {
             LinkedList<Ice.LogMessage> logMessages = null;

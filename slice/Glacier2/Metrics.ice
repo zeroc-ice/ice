@@ -10,7 +10,7 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["js:module:ice"]]
 
 [["python:pkgdir:Glacier2"]]

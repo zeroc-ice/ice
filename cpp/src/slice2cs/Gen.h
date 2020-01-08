@@ -182,7 +182,7 @@ private:
 
     protected:
 
-        void writeResultStruct(const OperationPtr&);
+        void writeReturnValueStruct(const OperationPtr&);
         void writeMethodDeclaration(const OperationPtr&);
     };
 

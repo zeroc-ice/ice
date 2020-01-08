@@ -19,7 +19,7 @@ namespace Ice
                 var manager = ServerManagerPrx.Parse($"ServerManager :{helper.getTestEndpoint(0)}", communicator);
                 var locator = TestLocatorPrx.UncheckedCast(communicator.getDefaultLocator());
                 Console.WriteLine("registry checkedcast");
-                var registry = TestLocatorRegistryPrx.CheckedCast(locator.getRegistry());
+                var registry = TestLocatorRegistryPrx.CheckedCast(locator.GetRegistry());
                 test(registry != null);
 
                 var output = helper.getWriter();
@@ -319,11 +319,11 @@ namespace Ice
                     test(ex.kindOfObject == "object adapter");
                     test(ex.id.Equals("TestAdapter3"));
                 }
-                registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
+                registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
                 try
                 {
                     IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
-                    registry.setAdapterDirectProxy("TestAdapter3",
+                    registry.SetAdapterDirectProxy("TestAdapter3",
                                                    IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                     IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                 }
@@ -348,7 +348,7 @@ namespace Ice
                 catch (LocalException)
                 {
                 }
-                registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
+                registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
                 try
                 {
                     IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
@@ -373,7 +373,7 @@ namespace Ice
                     test(ex.id.Equals("TestUnknown"));
                 }
                 registry.addObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
-                registry.setAdapterDirectProxy("TestAdapter4",
+                registry.SetAdapterDirectProxy("TestAdapter4",
                                                IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                 try
                 {
@@ -383,7 +383,7 @@ namespace Ice
                 catch (LocalException)
                 {
                 }
-                registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
+                registry.SetAdapterDirectProxy("TestAdapter4", locator.FindAdapterById("TestAdapter"));
                 try
                 {
                     IObjectPrx.Parse("test3", communicator).IcePing();
@@ -393,7 +393,7 @@ namespace Ice
                     test(false);
                 }
 
-                registry.setAdapterDirectProxy("TestAdapter4",
+                registry.SetAdapterDirectProxy("TestAdapter4",
                                                IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                 try
                 {
@@ -456,7 +456,7 @@ namespace Ice
                     properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
                     Communicator ic = helper.initialize(properties);
 
-                    registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
+                    registry.SetAdapterDirectProxy("TestAdapter5", locator.FindAdapterById("TestAdapter"));
                     registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
 
                     count = locator.getRequestCount();
@@ -464,7 +464,7 @@ namespace Ice
                     IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
                     count += 3;
                     test(count == locator.getRequestCount());
-                    registry.setAdapterDirectProxy("TestAdapter5", null);
+                    registry.SetAdapterDirectProxy("TestAdapter5", null);
                     registry.addObject(IObjectPrx.Parse($"test3:{helper.getTestEndpoint(99)}", communicator));
                     IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.
                     IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.

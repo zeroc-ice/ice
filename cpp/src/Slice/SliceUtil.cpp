@@ -466,3 +466,106 @@ Slice::ciequals(const string& lhs, const string& rhs)
                                                                           return tolower(a) == tolower(b);
                                                                       });
 }
+
+CaseConvention
+Slice::caseConventionFromString(const std::string& conventionName)
+{
+    if(conventionName == "snake_case")
+    {
+        return SnakeCase;
+    }
+    else if(conventionName == "PascalCase")
+    {
+        return PascalCase;
+    }
+    else if(conventionName == "camelCase")
+    {
+        return CamelCase;
+    }
+    else if(conventionName == "SliceCase")
+    {
+        return SliceCase;
+    }
+    else
+    {
+        throw invalid_argument("usupported case convention `" + conventionName + "'");
+    }
+}
+
+std::string
+Slice::camelCase(const std::string& name)
+{
+    ostringstream os;
+    bool nextIsUpper = false;
+    for(string::size_type i = 0; i < name.size(); ++i)
+    {
+        if(i == 0 && isupper(name[i]))
+        {
+            os << static_cast<char>(tolower(name[i]));
+        }
+        else if(name[i] == '_')
+        {
+            nextIsUpper = true;
+        }
+        else if(nextIsUpper)
+        {
+            nextIsUpper = false;
+            os << static_cast<char>(toupper(name[i]));
+        }
+        else
+        {
+            os << name[i];
+        }
+    }
+    return os.str();
+}
+
+std::string
+Slice::pascalCase(const std::string& name)
+{
+    ostringstream os;
+    bool nextIsUpper = false;
+    for(string::size_type i = 0; i < name.size(); ++i)
+    {
+        if(i == 0 && islower(name[i]))
+        {
+            os << static_cast<char>(toupper(name[i]));
+        }
+        else if(name[i] == '_')
+        {
+            nextIsUpper = true;
+        }
+        else if(nextIsUpper)
+        {
+            nextIsUpper = false;
+            os << static_cast<char>(toupper(name[i]));
+        }
+        else
+        {
+            os << name[i];
+        }
+    }
+    return os.str();
+}
+
+std::string
+Slice::snakeCase(const std::string& name)
+{
+    ostringstream os;
+    for(string::size_type i = 0; i < name.size(); ++i)
+    {
+        if(isupper(name[i]))
+        {
+            if(i > 0)
+            {
+                os << '_';
+            }
+            os << static_cast<char>(tolower(name[i]));
+        }
+        else
+        {
+            os << name[i];
+        }
+    }
+    return os.str();
+}

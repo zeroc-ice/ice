@@ -16,20 +16,20 @@ public class Server : TestHelper
     internal class LocatorI : Ice.Locator
     {
         public Task<IObjectPrx>
-        findAdapterByIdAsync(string adapter, Ice.Current current)
+        FindAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
             return Task.FromResult(current.Adapter.CreateDirectProxy("dummy"));
         }
 
         public Task<IObjectPrx>
-        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
+        FindObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
             return Task.FromResult(current.Adapter.CreateDirectProxy(id));
         }
 
-        public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+        public Ice.LocatorRegistryPrx GetRegistry(Ice.Current current)
         {
             return null;
         }
@@ -44,20 +44,20 @@ public class Server : TestHelper
 
     internal class RouterI : Ice.Router
     {
-        public Ice.IObjectPrx getClientProxy(out bool? hasRoutingTable, Ice.Current current)
+        public Ice.IObjectPrx GetClientProxy(out bool? hasRoutingTable, Ice.Current current)
         {
             hasRoutingTable = true;
             _controller.checkCallPause(current);
             return null;
         }
 
-        public Ice.IObjectPrx getServerProxy(Ice.Current current)
+        public Ice.IObjectPrx GetServerProxy(Ice.Current current)
         {
             _controller.checkCallPause(current);
             return null;
         }
 
-        public Ice.IObjectPrx[] addProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
+        public Ice.IObjectPrx[] AddProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
         {
             return new Ice.IObjectPrx[0];
         }

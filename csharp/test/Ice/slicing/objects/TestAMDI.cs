@@ -144,7 +144,7 @@ public sealed class TestI : TestIntf
         return Task.FromResult<B>(d2);
     }
 
-    public Task<TestIntf.paramTest1Result>
+    public Task<TestIntf.ParamTest1ReturnValue>
     paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -157,10 +157,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new TestIntf.paramTest1Result(d1, d2));
+        return Task.FromResult(new TestIntf.ParamTest1ReturnValue(d1, d2));
     }
 
-    public Task<TestIntf.paramTest2Result>
+    public Task<TestIntf.ParamTest2ReturnValue>
     paramTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -173,10 +173,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new TestIntf.paramTest2Result(d2, d1));
+        return Task.FromResult(new TestIntf.ParamTest2ReturnValue(d2, d1));
     }
 
-    public Task<TestIntf.paramTest3Result>
+    public Task<TestIntf.ParamTest3ReturnValue>
     paramTest3Async(Ice.Current current)
     {
         D2 d2 = new D2();
@@ -203,10 +203,10 @@ public sealed class TestI : TestIntf
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return Task.FromResult(new TestIntf.paramTest3Result(d3, d2, d4));
+        return Task.FromResult(new TestIntf.ParamTest3ReturnValue(d3, d2, d4));
     }
 
-    public Task<TestIntf.paramTest4Result>
+    public Task<TestIntf.ParamTest4ReturnValue>
     paramTest4Async(Ice.Current current)
     {
         D4 d4 = new D4();
@@ -216,10 +216,10 @@ public sealed class TestI : TestIntf
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        return Task.FromResult(new TestIntf.paramTest4Result(d4.p2, d4));
+        return Task.FromResult(new TestIntf.ParamTest4ReturnValue(d4.p2, d4));
     }
 
-    public Task<TestIntf.returnTest1Result>
+    public Task<TestIntf.ReturnTest1ReturnValue>
     returnTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -232,10 +232,10 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new TestIntf.returnTest1Result(d2, d2, d1));
+        return Task.FromResult(new TestIntf.ReturnTest1ReturnValue(d2, d2, d1));
     }
 
-    public Task<TestIntf.returnTest2Result>
+    public Task<TestIntf.ReturnTest2ReturnValue>
     returnTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -248,7 +248,7 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new TestIntf.returnTest2Result(d1, d1, d2));
+        return Task.FromResult(new TestIntf.ReturnTest2ReturnValue(d1, d1, d2));
     }
 
     public Task<B>
@@ -263,7 +263,7 @@ public sealed class TestI : TestIntf
         return Task.FromResult(new SS3(p1, p2));
     }
 
-    public Task<TestIntf.dictionaryTestResult>
+    public Task<TestIntf.DictionaryTestReturnValue>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
@@ -289,14 +289,11 @@ public sealed class TestI : TestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return Task.FromResult(new TestIntf.dictionaryTestResult(r, bout));
+        return Task.FromResult(new TestIntf.DictionaryTestReturnValue(r, bout));
     }
 
     public Task<PBase>
-    exchangePBaseAsync(PBase pb, Ice.Current current)
-    {
-        return Task.FromResult<PBase>(pb);
-    }
+    exchangePBaseAsync(PBase pb, Ice.Current current) => Task.FromResult(pb);
 
     public Task<Preserved>
     PBSUnknownAsPreservedAsync(Ice.Current current)
@@ -406,10 +403,7 @@ public sealed class TestI : TestIntf
     }
 
     public Task<PNode>
-    exchangePNodeAsync(PNode pn, Ice.Current current)
-    {
-        return Task.FromResult(pn);
-    }
+    exchangePNodeAsync(PNode pn, Ice.Current current) => Task.FromResult(pn);
 
     public Task throwBaseAsBaseAsync(Ice.Current current)
     {

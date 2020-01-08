@@ -10,7 +10,7 @@
 [["cpp:include:IceBox/Config.h"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["js:module:ice"]]
 
 [["python:pkgdir:IceBox"]]

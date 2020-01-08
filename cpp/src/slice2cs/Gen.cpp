@@ -2621,7 +2621,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
 
     string ns = getNamespace(cl);
-    string opName = operation->name();
+    string opName = operationName(operation);
     string name = fixId(opName);
     string asyncName = opName + "Async";
     string internalName = "_iceI_" + opName + "Async";
@@ -2731,7 +2731,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         if(operation->returnsData())
         {
-            _out << nl << "iceCheckTwowayOnly(\"" << opName << "\");";
+            _out << nl << "iceCheckTwowayOnly(\"" << operation->name() << "\");";
         }
 
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
@@ -2743,7 +2743,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         _out << nl << "outAsync.invoke(";
         _out.inc();
-        _out << nl << '"' << opName << '"' << ",";
+        _out << nl << '"' << operation->name() << '"' << ",";
         _out << nl << sliceModeToIceMode(operation->sendMode(), ns) << ",";
         _out << nl << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "context,";
@@ -3048,11 +3048,11 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
+Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operation)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
-    const string opName = operation->name();
+    const string opName = pascalCase(operation->name());
 
     list<ParamInfo> outParams = getAllOutParams(operation, "", true);
     list<ParamInfo> requiredOutParams;
@@ -3062,11 +3062,12 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
     if(operation->hasMarshaledResult())
     {
         _out << sp;
-        _out << nl << "public struct " << opName << "MarshaledResult : " << getUnqualified("Ice.MarshaledResult", ns);
+        _out << nl << "public struct " << opName << "MarshaledReturnValue : "
+             << getUnqualified("Ice.MarshaledReturnValue", ns);
         _out << sb;
         _out << nl << "private " << getUnqualified("Ice.OutputStream", ns) << " _ostr;";
 
-        _out << nl << "public " << opName << "MarshaledResult" << spar
+        _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(outParams, [](const auto& p)
                                     {
                                         return p.typeStr + " iceP_" + p.name;
@@ -3090,7 +3091,7 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
         _out << sb;
         _out << nl << "if(_ostr == null)";
         _out << sb;
-        _out << nl << "return new " << opName << "MarshaledResult"<< spar;
+        _out << nl << "return new " << opName << "MarshaledReturnValue"<< spar;
         for(const auto& p : outParams)
         {
             _out << writeValue(p.type, ns);
@@ -3106,7 +3107,7 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
     if(outParams.size() > 1)
     {
         _out << sp;
-        _out << nl << "public readonly struct " << opName << "Result";
+        _out << nl << "public readonly struct " << opName << "ReturnValue";
         _out << sb;
         for(const auto& p : outParams)
         {
@@ -3114,7 +3115,7 @@ Slice::Gen::DispatcherVisitor::writeResultStruct(const OperationPtr& operation)
         }
 
         _out << sp;
-        _out << nl << "public " << opName << "Result"
+        _out << nl << "public " << opName << "ReturnValue"
              << spar << getNames(outParams, [](const auto& p)
                                             {
                                                 return p.typeStr + " " + p.name;
@@ -3151,7 +3152,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
-    const string name = fixId(operation->name() + (amd ? "Async" : ""));
+    const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
     list<ParamInfo> outParams;
     list<ParamInfo> inParams = getAllInParams(operation);
 
@@ -3197,7 +3198,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
     string ns = getNamespace(cl);
-    string opName = operation->name();
+    string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
     string internalName = "iceD_" + opName;
     string interfaceName = fixId(cl->name());
@@ -3214,7 +3215,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     string retS = resultType(operation, ns, true);
 
-    writeResultStruct(operation);
+    writeReturnValueStruct(operation);
     writeMethodDeclaration(operation);
 
     _out << sp;
@@ -3387,9 +3388,11 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     for(const auto& op : p->allOperations())
     {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
         _out << nl << "case \"" << op->name() << "\":";
         _out << sb;
-        _out << nl << "return " << getUnqualified(op, ns, "iceD_") << "(servant, incoming, current);";
+        _out << nl << "return " << getUnqualified(cl, ns) << ".iceD_" << operationName(op)
+             << "(servant, incoming, current);";
         _out << eb;
     }
 
@@ -3478,7 +3481,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     string ns = getNamespace(cl);
-    string opName = op->name();
+    string opName = operationName(op);
 
     list<ParamInfo> outParams = getAllOutParams(op);
 

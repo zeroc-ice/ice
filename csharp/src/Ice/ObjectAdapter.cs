@@ -1641,11 +1641,11 @@ namespace Ice
             {
                 if (_replicaGroupId.Length == 0)
                 {
-                    locatorRegistry.setAdapterDirectProxy(_id, proxy);
+                    locatorRegistry.SetAdapterDirectProxy(_id, proxy);
                 }
                 else
                 {
-                    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
+                    locatorRegistry.SetReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
                 }
             }
             catch (AdapterNotFoundException)

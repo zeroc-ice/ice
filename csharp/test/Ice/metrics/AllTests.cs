@@ -19,7 +19,7 @@ public class AllTests : Test.AllTests
         {
             IceMX.ConnectionMetrics s;
             long timestamp;
-            s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
+            s = (IceMX.ConnectionMetrics)metrics.GetMetricsView("View", out timestamp)["Connection"][0];
             int nRetry = 30;
             while (s.sentBytes != expected && nRetry-- > 0)
             {
@@ -28,7 +28,7 @@ public class AllTests : Test.AllTests
                 // to the operation is sent and getMetricsView can be dispatched before the metric is really
                 // updated.
                 Thread.Sleep(100);
-                s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
+                s = (IceMX.ConnectionMetrics)metrics.GetMetricsView("View", out timestamp)["Connection"][0];
             }
             return s;
         }
@@ -84,7 +84,7 @@ public class AllTests : Test.AllTests
     static private Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
-        Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
+        Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
         {
             props[e] = "";
@@ -107,7 +107,7 @@ public class AllTests : Test.AllTests
     static private Dictionary<string, string>
     getServerProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
-        Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
+        Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
         {
             props[e] = "";
@@ -149,7 +149,7 @@ public class AllTests : Test.AllTests
             // notifying the callbacks so to ensure all the update callbacks have be notified we call
             // a second time, this will block until all the notifications from the first update have
             // completed.
-            _serverProps.setProperties(new Dictionary<string, string>());
+            _serverProps.SetProperties(new Dictionary<string, string>());
 
             lock (this)
             {
@@ -177,7 +177,7 @@ public class AllTests : Test.AllTests
         while (true)
         {
             long timestamp;
-            Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView(viewName, out timestamp);
+            Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView(viewName, out timestamp);
             test(view.ContainsKey(map));
             bool ok = true;
             foreach (IceMX.Metrics m in view[map])
@@ -226,18 +226,18 @@ public class AllTests : Test.AllTests
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
         if (props.Identity.category.Equals("client"))
         {
-            props.setProperties(getClientProps(props, dict, map));
+            props.SetProperties(getClientProps(props, dict, map));
             update.waitForUpdate();
         }
         else
         {
-            props.setProperties(getServerProps(props, dict, map));
-            props.setProperties(new Dictionary<string, string>());
+            props.SetProperties(getServerProps(props, dict, map));
+            props.SetProperties(new Dictionary<string, string>());
         }
 
         func();
         long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
+        Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView("View", out timestamp);
         if (!view.ContainsKey(map) || view[map].Length == 0)
         {
             if (value.Length > 0)
@@ -255,13 +255,13 @@ public class AllTests : Test.AllTests
         dict.Clear();
         if (props.Identity.category.Equals("client"))
         {
-            props.setProperties(getClientProps(props, dict, map));
+            props.SetProperties(getClientProps(props, dict, map));
             update.waitForUpdate();
         }
         else
         {
-            props.setProperties(getServerProps(props, dict, map));
-            props.setProperties(new Dictionary<string, string>());
+            props.SetProperties(getServerProps(props, dict, map));
+            props.SetProperties(new Dictionary<string, string>());
         }
     }
 
@@ -317,8 +317,8 @@ public class AllTests : Test.AllTests
     {
         if (sprops.GetConnection() != null)
         {
-            cprops.setProperties(getClientProps(cprops, props, map));
-            sprops.setProperties(getServerProps(sprops, props, map));
+            cprops.SetProperties(getClientProps(cprops, props, map));
+            sprops.SetProperties(getServerProps(sprops, props, map));
         }
         else
         {
@@ -331,7 +331,7 @@ public class AllTests : Test.AllTests
                     serverProps.Add(p.Key, p.Value);
                 }
             }
-            cprops.setProperties(serverProps);
+            cprops.SetProperties(serverProps);
         }
         callback.waitForUpdate();
     }
@@ -341,23 +341,23 @@ public class AllTests : Test.AllTests
     {
         Dictionary<string, string> dict;
 
-        dict = cprops.getPropertiesForPrefix("IceMX.Metrics");
+        dict = cprops.GetPropertiesForPrefix("IceMX.Metrics");
         dict["IceMX.Metrics.View.Disabled"] = "1";
-        cprops.setProperties(dict);
+        cprops.SetProperties(dict);
 
-        dict = sprops.getPropertiesForPrefix("IceMX.Metrics");
+        dict = sprops.GetPropertiesForPrefix("IceMX.Metrics");
         dict["IceMX.Metrics.View.Disabled"] = "1";
-        sprops.setProperties(dict);
+        sprops.SetProperties(dict);
 
         callback.waitForUpdate();
 
-        dict = cprops.getPropertiesForPrefix("IceMX.Metrics");
+        dict = cprops.GetPropertiesForPrefix("IceMX.Metrics");
         dict["IceMX.Metrics.View.Disabled"] = "";
-        cprops.setProperties(dict);
+        cprops.SetProperties(dict);
 
-        dict = sprops.getPropertiesForPrefix("IceMX.Metrics");
+        dict = sprops.GetPropertiesForPrefix("IceMX.Metrics");
         dict["IceMX.Metrics.View.Disabled"] = "";
-        sprops.setProperties(dict);
+        sprops.SetProperties(dict);
 
         callback.waitForUpdate();
     }
@@ -365,7 +365,7 @@ public class AllTests : Test.AllTests
     static void
     checkFailure(IceMX.MetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
     {
-        IceMX.MetricsFailures f = m.getMetricsFailures("View", map, id);
+        IceMX.MetricsFailures f = m.GetMetricsFailures("View", map, id);
         if (!f.failures.ContainsKey(failure))
         {
             output.WriteLine("couldn't find failure `" + failure + "' for `" + id + "'");
@@ -429,7 +429,7 @@ public class AllTests : Test.AllTests
         props.Add("IceMX.Metrics.View.GroupBy", "none");
         updateProps(clientProps, serverProps, update, props, "");
         long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
+        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.GetMetricsView("View", out timestamp);
         if (!collocated)
         {
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
@@ -453,7 +453,7 @@ public class AllTests : Test.AllTests
         waitForCurrent(clientMetrics, "View", "Invocation", 0);
         waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
-        view = clientMetrics.getMetricsView("View", out timestamp);
+        view = clientMetrics.GetMetricsView("View", out timestamp);
         test(view["Thread"].Length == 5);
         if (!collocated)
         {
@@ -476,7 +476,7 @@ public class AllTests : Test.AllTests
             test(invoke.collocated[0].total == 5);
         }
 
-        view = serverMetrics.getMetricsView("View", out timestamp);
+        view = serverMetrics.GetMetricsView("View", out timestamp);
         // With Ice for .NET, a new dispatching thread isn't necessarily created.
         //test(view["Thread"].Length > 5);
         if (!collocated)
@@ -519,18 +519,18 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            test(clientMetrics.getMetricsView("View", out timestamp)["Connection"].Length == 0);
-            test(serverMetrics.getMetricsView("View", out timestamp)["Connection"].Length == 0);
+            test(clientMetrics.GetMetricsView("View", out timestamp)["Connection"].Length == 0);
+            test(serverMetrics.GetMetricsView("View", out timestamp)["Connection"].Length == 0);
 
             metrics.IcePing();
 
             IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             sm1 = getServerConnectionMetrics(serverMetrics, 25);
 
             metrics.IcePing();
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
             test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for IcePing request
@@ -544,7 +544,7 @@ public class AllTests : Test.AllTests
             byte[] bs = new byte[0];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + cm2.receivedBytes - cm1.receivedBytes);
             long requestSz = cm2.sentBytes - cm1.sentBytes;
             long replySz = cm2.receivedBytes - cm1.receivedBytes;
@@ -555,7 +555,7 @@ public class AllTests : Test.AllTests
             bs = new byte[456];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
@@ -569,7 +569,7 @@ public class AllTests : Test.AllTests
             bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
@@ -580,28 +580,28 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(serverMetrics.GetMetricsView("View", out timestamp)["Connection"]);
 
             test(map["active"].current == 1);
 
             ControllerPrx controller = ControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", communicator);
             controller.hold();
 
-            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(clientMetrics.GetMetricsView("View", out timestamp)["Connection"]);
             test(map["active"].current == 1);
-            map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(serverMetrics.GetMetricsView("View", out timestamp)["Connection"]);
             test(map["holding"].current == 1);
 
             metrics.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
-            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(clientMetrics.GetMetricsView("View", out timestamp)["Connection"]);
             test(map["closing"].current == 1);
-            map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(serverMetrics.GetMetricsView("View", out timestamp)["Connection"]);
             test(map["holding"].current == 1);
 
             controller.resume();
 
-            map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
+            map = toMap(serverMetrics.GetMetricsView("View", out timestamp)["Connection"]);
             test(map["holding"].current == 0);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
@@ -621,10 +621,10 @@ public class AllTests : Test.AllTests
             }
             controller.resume();
 
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+            cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
             while (true)
             {
-                sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+                sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View", out timestamp)["Connection"][0];
                 if (sm1.failures >= 2)
                 {
                     break;
@@ -675,12 +675,12 @@ public class AllTests : Test.AllTests
 
             props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
             updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
-            test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 0);
+            test(clientMetrics.GetMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 0);
 
             metrics.IcePing();
 
-            test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
-            IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
+            test(clientMetrics.GetMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
+            IceMX.Metrics m1 = clientMetrics.GetMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
 
             metrics.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
@@ -698,8 +698,8 @@ public class AllTests : Test.AllTests
                 test(false);
             }
             controller.resume();
-            test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
-            m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
+            test(clientMetrics.GetMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
+            m1 = clientMetrics.GetMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.id.Equals(hostAndPort) && m1.total == 3 && m1.failures == 2);
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2, output);
@@ -728,7 +728,7 @@ public class AllTests : Test.AllTests
 
             props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 0);
+            test(clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"].Length == 0);
 
             var prx = IObjectPrx.Parse($"metrics:{protocol} -p {port} -h localhost -t 500", communicator);
             try
@@ -740,8 +740,8 @@ public class AllTests : Test.AllTests
             {
             }
 
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
-            m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
+            test(clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
+            m1 = clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"][0];
             test(m1.current <= 1 && m1.total == 1);
 
             bool dnsException = false;
@@ -758,11 +758,11 @@ public class AllTests : Test.AllTests
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
-            test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
-            m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
+            test(clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
+            m1 = clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"][0];
             if (!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
             {
-                m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
+                m1 = clientMetrics.GetMetricsView("View", out timestamp)["EndpointLookup"][1];
             }
             test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
@@ -794,7 +794,7 @@ public class AllTests : Test.AllTests
 
         props["IceMX.Metrics.View.Map.Dispatch.GroupBy"] = "operation";
         updateProps(clientProps, serverProps, update, props, "Dispatch");
-        test(serverMetrics.getMetricsView("View", out timestamp)["Dispatch"].Length == 0);
+        test(serverMetrics.GetMetricsView("View", out timestamp)["Dispatch"].Length == 0);
 
         metrics.op();
         try
@@ -841,7 +841,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Dispatch"]);
+        map = toMap(serverMetrics.GetMetricsView("View", out timestamp)["Dispatch"]);
         test(collocated ? map.Count == 5 : map.Count == 6);
 
         IceMX.DispatchMetrics dm1;
@@ -918,7 +918,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "id";
         props["IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy"] = "id";
         updateProps(clientProps, serverProps, update, props, "Invocation");
-        test(serverMetrics.getMetricsView("View", out timestamp)["Invocation"].Length == 0);
+        test(serverMetrics.GetMetricsView("View", out timestamp)["Invocation"].Length == 0);
 
         metrics.op();
         metrics.opAsync().Wait();
@@ -1020,7 +1020,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        map = toMap(clientMetrics.GetMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == (collocated ? 5 : 6));
 
         IceMX.InvocationMetrics im1;
@@ -1102,7 +1102,7 @@ public class AllTests : Test.AllTests
         metricsOneway.op();
         metricsOneway.opAsync().Wait();
 
-        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        map = toMap(clientMetrics.GetMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
 
         im1 = (IceMX.InvocationMetrics)map["op"];
@@ -1122,25 +1122,25 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.GroupBy"] = "none";
         props["IceMX.Metrics.View.Disabled"] = "0";
         updateProps(clientProps, serverProps, update, props, "Thread");
-        test(clientMetrics.getMetricsView("View", out timestamp)["Thread"].Length != 0);
-        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
+        test(clientMetrics.GetMetricsView("View", out timestamp)["Thread"].Length != 0);
+        test(clientMetrics.GetMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
 
         props["IceMX.Metrics.View.Disabled"] = "1";
         updateProps(clientProps, serverProps, update, props, "Thread");
-        test(!clientMetrics.getMetricsView("View", out timestamp).ContainsKey("Thread"));
-        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
+        test(!clientMetrics.GetMetricsView("View", out timestamp).ContainsKey("Thread"));
+        test(clientMetrics.GetMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
 
-        clientMetrics.enableMetricsView("View");
-        test(clientMetrics.getMetricsView("View", out timestamp)["Thread"].Length != 0);
-        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
+        clientMetrics.EnableMetricsView("View");
+        test(clientMetrics.GetMetricsView("View", out timestamp)["Thread"].Length != 0);
+        test(clientMetrics.GetMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
 
-        clientMetrics.disableMetricsView("View");
-        test(!clientMetrics.getMetricsView("View", out timestamp).ContainsKey("Thread"));
-        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
+        clientMetrics.DisableMetricsView("View");
+        test(!clientMetrics.GetMetricsView("View", out timestamp).ContainsKey("Thread"));
+        test(clientMetrics.GetMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
 
         try
         {
-            clientMetrics.enableMetricsView("UnknownView");
+            clientMetrics.EnableMetricsView("UnknownView");
         }
         catch (IceMX.UnknownMetricsView)
         {

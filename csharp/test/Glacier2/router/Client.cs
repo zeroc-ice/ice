@@ -47,7 +47,7 @@ public class Client : Test.TestHelper
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
                 RouterFinderPrx finder = RouterFinderPrx.Parse($"Ice/RouterFinder:{getTestEndpoint(50)}", communicator);
-                test(finder.getRouter().Identity.Equals(router.Identity));
+                test(finder.GetRouter().Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
 
@@ -61,8 +61,8 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("getting the session timeout... ");
                 Console.Out.Flush();
-                long sessionTimeout = router.getSessionTimeout();
-                long acmTimeout = router.getACMTimeout();
+                long sessionTimeout = router.GetSessionTimeout();
+                long acmTimeout = router.GetACMTimeout();
                 test(sessionTimeout == 30 && acmTimeout == 30);
                 Console.Out.WriteLine("ok");
             }
@@ -98,7 +98,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    router.createSession("userid", "xxx");
+                    router.CreateSession("userid", "xxx");
                     test(false);
                 }
                 catch (Glacier2.PermissionDeniedException)
@@ -116,7 +116,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    router.destroySession();
+                    router.DestroySession();
                     test(false);
                 }
                 catch (Glacier2.SessionNotExistException)
@@ -130,7 +130,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    router.createSession("userid", "abc123");
+                    router.CreateSession("userid", "abc123");
                 }
                 catch (Glacier2.PermissionDeniedException)
                 {
@@ -148,7 +148,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    router.createSession("userid", "abc123");
+                    router.CreateSession("userid", "abc123");
                     test(false);
                 }
                 catch (Glacier2.PermissionDeniedException)
@@ -207,7 +207,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("getting category from router... ");
                 Console.Out.Flush();
-                category = router.getCategoryForClient();
+                category = router.GetCategoryForClient();
                 Console.Out.WriteLine("ok");
             }
 
@@ -359,7 +359,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    router.destroySession();
+                    router.DestroySession();
                 }
                 catch (Ice.LocalException)
                 {
@@ -420,7 +420,7 @@ public class Client : Test.TestHelper
                 }
 
                 Console.Out.Write("testing Glacier2 shutdown... ");
-                process.shutdown();
+                process.Shutdown();
                 try
                 {
                     process.IcePing();

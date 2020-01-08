@@ -234,7 +234,7 @@ namespace Ice
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
                     ProcessPrx proc = ProcessPrx.UncheckedCast(obj.Clone(facet: "Process"));
-                    proc.shutdown();
+                    proc.Shutdown();
                     com.waitForShutdown();
                     com.destroy();
                 }
@@ -256,13 +256,13 @@ namespace Ice
                     //
                     // Test: PropertiesAdmin::getProperty()
                     //
-                    test(pa.getProperty("Prop2") == "2");
-                    test(pa.getProperty("Bogus") == "");
+                    test(pa.GetProperty("Prop2") == "2");
+                    test(pa.GetProperty("Bogus") == "");
 
                     //
                     // Test: PropertiesAdmin::getProperties()
                     //
-                    Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
+                    Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
                     test(pd.Count == 6);
                     test(pd["Ice.ProgramName"] == "server");
                     test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
@@ -282,12 +282,12 @@ namespace Ice
                     setProps.Add("Prop3", ""); // Removed
                     setProps.Add("Prop4", "4"); // Added
                     setProps.Add("Prop5", "5"); // Added
-                    pa.setProperties(setProps);
-                    test(pa.getProperty("Prop1").Equals("10"));
-                    test(pa.getProperty("Prop2").Equals("20"));
-                    test(pa.getProperty("Prop3").Equals(""));
-                    test(pa.getProperty("Prop4").Equals("4"));
-                    test(pa.getProperty("Prop5").Equals("5"));
+                    pa.SetProperties(setProps);
+                    test(pa.GetProperty("Prop1").Equals("10"));
+                    test(pa.GetProperty("Prop2").Equals("20"));
+                    test(pa.GetProperty("Prop3").Equals(""));
+                    test(pa.GetProperty("Prop4").Equals("4"));
+                    test(pa.GetProperty("Prop5").Equals("5"));
                     changes = com.getChanges();
                     test(changes.Count == 5);
                     test(changes["Prop1"].Equals("10"));
@@ -295,7 +295,7 @@ namespace Ice
                     test(changes["Prop3"].Equals(""));
                     test(changes["Prop4"].Equals("4"));
                     test(changes["Prop5"].Equals("5"));
-                    pa.setProperties(setProps);
+                    pa.SetProperties(setProps);
                     changes = com.getChanges();
                     test(changes.Count == 0);
 
@@ -326,7 +326,7 @@ namespace Ice
                     //
                     // Get all
                     //
-                    LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
+                    LogMessage[] logMessages = logger.GetLog(null, null, -1, out prefix);
 
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
@@ -345,7 +345,7 @@ namespace Ice
 
                     LogMessageType[] messageTypes = { LogMessageType.ErrorMessage, LogMessageType.WarningMessage };
 
-                    logMessages = logger.getLog(messageTypes, null, -1, out prefix);
+                    logMessages = logger.GetLog(messageTypes, null, -1, out prefix);
 
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
@@ -364,7 +364,7 @@ namespace Ice
 
                     messageTypes = new LogMessageType[] { LogMessageType.ErrorMessage, LogMessageType.TraceMessage };
                     string[] categories = { "testCat" };
-                    logMessages = logger.getLog(messageTypes, categories, -1, out prefix);
+                    logMessages = logger.GetLog(messageTypes, categories, -1, out prefix);
                     test(logMessages.Length == 5);
                     test(prefix.Equals("NullLogger"));
 
@@ -379,7 +379,7 @@ namespace Ice
                     //
                     com.error("error3");
 
-                    logMessages = logger.getLog(messageTypes, categories, 2, out prefix);
+                    logMessages = logger.GetLog(messageTypes, categories, 2, out prefix);
                     test(logMessages.Length == 2);
                     test(prefix.Equals("NullLogger"));
 
@@ -401,14 +401,14 @@ namespace Ice
                     //
                     // No filtering
                     //
-                    logMessages = logger.getLog(null, null, -1, out prefix);
+                    logMessages = logger.GetLog(null, null, -1, out prefix);
 
-                    logger.attachRemoteLogger(myProxy, null, null, -1);
-                    remoteLogger.wait(1);
+                    logger.AttachRemoteLogger(myProxy, null, null, -1);
+                    remoteLogger.Wait(1);
 
                     foreach (var m in logMessages)
                     {
-                        remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
+                        remoteLogger.CheckNextInit(prefix, m.type, m.message, m.traceCategory);
                     }
 
                     com.trace("testCat", "rtrace");
@@ -416,28 +416,28 @@ namespace Ice
                     com.error("rerror");
                     com.print("rprint");
 
-                    remoteLogger.wait(4);
+                    remoteLogger.Wait(4);
 
-                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
 
-                    test(logger.detachRemoteLogger(myProxy));
-                    test(!logger.detachRemoteLogger(myProxy));
+                    test(logger.DetachRemoteLogger(myProxy));
+                    test(!logger.DetachRemoteLogger(myProxy));
 
                     //
                     // Use Error + Trace with "traceCat" filter with 4 limit
                     //
-                    logMessages = logger.getLog(messageTypes, categories, 4, out prefix);
+                    logMessages = logger.GetLog(messageTypes, categories, 4, out prefix);
                     test(logMessages.Length == 4);
 
-                    logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
-                    remoteLogger.wait(1);
+                    logger.AttachRemoteLogger(myProxy, messageTypes, categories, 4);
+                    remoteLogger.Wait(1);
 
                     foreach (var m in logMessages)
                     {
-                        remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
+                        remoteLogger.CheckNextInit(prefix, m.type, m.message, m.traceCategory);
                     }
 
                     com.warning("rwarning2");
@@ -446,17 +446,17 @@ namespace Ice
                     com.error("rerror2");
                     com.print("rprint2");
 
-                    remoteLogger.wait(2);
+                    remoteLogger.Wait(2);
 
-                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
+                    remoteLogger.CheckNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
 
                     //
                     // Attempt reconnection with slightly different proxy
                     //
                     try
                     {
-                        logger.attachRemoteLogger(myProxy.Clone(oneway: true), messageTypes, categories, 4);
+                        logger.AttachRemoteLogger(myProxy.Clone(oneway: true), messageTypes, categories, 4);
                         test(false);
                     }
                     catch (Ice.RemoteLoggerAlreadyAttachedException)
@@ -589,7 +589,7 @@ namespace Ice
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
                     PropertiesAdminPrx pa = PropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
-                    test(pa.getProperty("Ice.Admin.InstanceName").Equals("Test"));
+                    test(pa.GetProperty("Ice.Admin.InstanceName").Equals("Test"));
                     var tf = TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     tf!.op();
                     try
@@ -624,7 +624,7 @@ namespace Ice
                     var tf = Test.TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     tf.op();
                     ProcessPrx proc = Ice.ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
-                    proc.shutdown();
+                    proc.Shutdown();
                     com.waitForShutdown();
                     com.destroy();
                 }
@@ -635,7 +635,7 @@ namespace Ice
 
             private class RemoteLoggerI : Ice.RemoteLogger
             {
-                public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
+                public void Init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
                 {
                     lock (this)
                     {
@@ -649,7 +649,7 @@ namespace Ice
                     }
                 }
 
-                public void log(Ice.LogMessage message, Ice.Current current)
+                public void Log(Ice.LogMessage message, Ice.Current current)
                 {
                     lock (this)
                     {
@@ -659,7 +659,7 @@ namespace Ice
                     }
                 }
 
-                internal void checkNextInit(string prefix, Ice.LogMessageType type, string message, string category)
+                internal void CheckNextInit(string prefix, Ice.LogMessageType type, string message, string category)
                 {
                     lock (this)
                     {
@@ -672,7 +672,7 @@ namespace Ice
                     }
                 }
 
-                internal void checkNextLog(Ice.LogMessageType type, string message, string category)
+                internal void CheckNextLog(Ice.LogMessageType type, string message, string category)
                 {
                     lock (this)
                     {
@@ -684,7 +684,7 @@ namespace Ice
                     }
                 }
 
-                internal void wait(int calls)
+                internal void Wait(int calls)
                 {
                     lock (this)
                     {

@@ -18,14 +18,13 @@ namespace Ice
 
         public class RouterI : Router
         {
-            public Ice.IObjectPrx getClientProxy(out bool? hasRoutingTable,
-                Ice.Current current)
+            public IObjectPrx GetClientProxy(out bool? hasRoutingTable, Current current)
             {
                 hasRoutingTable = false;
                 return null;
             }
 
-            public Ice.IObjectPrx getServerProxy(Ice.Current current)
+            public Ice.IObjectPrx GetServerProxy(Ice.Current current)
             {
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
@@ -33,7 +32,7 @@ namespace Ice
                 return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
             }
 
-            public Ice.IObjectPrx[] addProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
+            public Ice.IObjectPrx[] AddProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
             {
                 return null;
             }

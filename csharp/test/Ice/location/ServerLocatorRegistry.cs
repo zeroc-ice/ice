@@ -18,7 +18,7 @@ namespace Ice
             }
 
             public Task
-            setAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
+            SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
             {
                 if (obj != null)
                 {
@@ -32,7 +32,7 @@ namespace Ice
             }
 
             public Task
-            setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.IObjectPrx obj,
+            SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.IObjectPrx obj,
                 Ice.Current current)
             {
                 if (obj != null)
@@ -49,7 +49,7 @@ namespace Ice
             }
 
             public Task
-            setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
+            SetServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
             {
                 return null;
             }

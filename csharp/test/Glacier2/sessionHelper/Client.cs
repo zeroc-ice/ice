@@ -416,7 +416,7 @@ public class Client : Test.TestHelper
             }
 
             Console.Out.Write("testing Glacier2 shutdown... ");
-            process.shutdown();
+            process.Shutdown();
             try
             {
                 process.IcePing();

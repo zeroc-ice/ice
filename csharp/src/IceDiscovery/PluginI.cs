@@ -95,7 +95,7 @@ namespace IceDiscovery
             LookupReplyI lookupReply = new LookupReplyI(lookup);
             _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
-            lookup.setLookupReply(LookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
+            lookup.SetLookupReply(LookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
 
             //
             // Setup locator on the communicator.

@@ -115,19 +115,19 @@ namespace IceLocatorDiscovery
     internal class VoidLocatorI : Locator
     {
         public Task<Ice.IObjectPrx>
-        findObjectByIdAsync(Ice.Identity id, Current current)
+        FindObjectByIdAsync(Ice.Identity id, Current current)
         {
             return null;
         }
 
         public Task<IObjectPrx?>
-        findAdapterByIdAsync(string id, Ice.Current current)
+        FindAdapterByIdAsync(string id, Ice.Current current)
         {
             return null;
         }
 
         public Ice.LocatorRegistryPrx
-        getRegistry(Current current)
+        GetRegistry(Current current)
         {
             return null;
         }
@@ -432,7 +432,7 @@ namespace IceLocatorDiscovery
 
                             foreach (var l in _lookups)
                             {
-                                l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
+                                l.Key.FindLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
                                 {
                                     try
                                     {
@@ -554,7 +554,7 @@ namespace IceLocatorDiscovery
 
                         foreach (var l in _lookups)
                         {
-                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
+                            l.Key.FindLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
                             {
                                 try
                                 {
@@ -635,7 +635,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        foundLocator(Ice.LocatorPrx locator, Ice.Current current)
+        FoundLocator(Ice.LocatorPrx locator, Ice.Current current)
         {
             _locator.foundLocator(locator);
         }

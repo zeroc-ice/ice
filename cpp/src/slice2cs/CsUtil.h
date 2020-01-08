@@ -6,6 +6,7 @@
 #define CS_UTIL_H
 
 #include <Slice/Parser.h>
+#include <Slice/Util.h>
 #include <IceUtil/OutputUtil.h>
 #include <functional>
 
@@ -14,7 +15,8 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
-std::string marshaledResultStructName(const std::string&, const std::string&);
+std::string operationName(const OperationPtr&);
+
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);

@@ -276,52 +276,52 @@ namespace Ice
             {
             }
 
-            public Test.Initial.opMStruct1MarshaledResult
+            public Test.Initial.OpMStruct1MarshaledReturnValue
             opMStruct1(Current current)
             {
-                return new Test.Initial.opMStruct1MarshaledResult(new Test.SmallStruct(), current);
+                return new Test.Initial.OpMStruct1MarshaledReturnValue(new Test.SmallStruct(), current);
             }
 
-            public Test.Initial.opMStruct2MarshaledResult
+            public Test.Initial.OpMStruct2MarshaledReturnValue
             opMStruct2(Test.SmallStruct? p1, Current current)
             {
-                return new Test.Initial.opMStruct2MarshaledResult(p1, p1, current);
+                return new Test.Initial.OpMStruct2MarshaledReturnValue(p1, p1, current);
             }
 
-            public Test.Initial.opMSeq1MarshaledResult
+            public Test.Initial.OpMSeq1MarshaledReturnValue
             opMSeq1(Current current)
             {
-                return new Test.Initial.opMSeq1MarshaledResult(new string[0], current);
+                return new Test.Initial.OpMSeq1MarshaledReturnValue(new string[0], current);
             }
 
-            public Test.Initial.opMSeq2MarshaledResult
+            public Test.Initial.OpMSeq2MarshaledReturnValue
             opMSeq2(string[]? p1, Current current)
             {
-                return new Test.Initial.opMSeq2MarshaledResult(p1, p1, current);
+                return new Test.Initial.OpMSeq2MarshaledReturnValue(p1, p1, current);
             }
 
-            public Test.Initial.opMDict1MarshaledResult
+            public Test.Initial.OpMDict1MarshaledReturnValue
             opMDict1(Current current)
             {
-                return new Test.Initial.opMDict1MarshaledResult(new Dictionary<string, int>(), current);
+                return new Test.Initial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
             }
 
-            public Test.Initial.opMDict2MarshaledResult
+            public Test.Initial.OpMDict2MarshaledReturnValue
             opMDict2(Dictionary<string, int>? p1, Current current)
             {
-                return new Test.Initial.opMDict2MarshaledResult(p1, p1, current);
+                return new Test.Initial.OpMDict2MarshaledReturnValue(p1, p1, current);
             }
 
-            public Test.Initial.opMG1MarshaledResult
+            public Test.Initial.OpMG1MarshaledReturnValue
             opMG1(Current current)
             {
-                return new Test.Initial.opMG1MarshaledResult(new Test.G(), current);
+                return new Test.Initial.OpMG1MarshaledReturnValue(new Test.G(), current);
             }
 
-            public Test.Initial.opMG2MarshaledResult
+            public Test.Initial.OpMG2MarshaledReturnValue
             opMG2(Test.G? p1, Current current)
             {
-                return new Test.Initial.opMG2MarshaledResult(p1, p1, current);
+                return new Test.Initial.OpMG2MarshaledReturnValue(p1, p1, current);
             }
 
             public bool supportsRequiredParams(Current current)

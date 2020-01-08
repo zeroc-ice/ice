@@ -12,7 +12,7 @@
 [["cpp:include:list"]]
 
 [["ice-prefix"]]
-
+[["normalize-case"]]
 [["js:module:ice"]]
 
 [["python:pkgdir:Ice"]]

@@ -41,7 +41,7 @@ namespace IceBox
             _traceServiceObserver = _communicator.GetPropertyAsInt("IceBox.Trace.ServiceObserver") ?? 0;
         }
 
-        public void startService(string name, Current current)
+        public void StartService(string name, Current current)
         {
             ServiceInfo? info;
             lock (this)
@@ -94,7 +94,7 @@ namespace IceBox
             }
         }
 
-        public void stopService(string name, Current current)
+        public void StopService(string name, Current current)
         {
             ServiceInfo? info;
             lock (this)
@@ -144,7 +144,7 @@ namespace IceBox
             }
         }
 
-        public void addObserver(ServiceObserverPrx observer, Ice.Current current)
+        public void AddObserver(ServiceObserverPrx observer, Ice.Current current)
         {
             List<string> activeServices = new List<string>();
 
@@ -181,12 +181,12 @@ namespace IceBox
 
             if (activeServices.Count > 0)
             {
-                observer!.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t),
+                observer!.ServicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t),
                     TaskScheduler.Current);
             }
         }
 
-        public void shutdown(Ice.Current current)
+        public void Shutdown(Ice.Current current)
         {
             _communicator.shutdown();
         }
@@ -295,7 +295,7 @@ namespace IceBox
 
                 foreach (StartServiceInfo s in servicesInfo)
                 {
-                    startService(s.Name, s.EntryPoint, s.Args);
+                    StartService(s.Name, s.EntryPoint, s.Args);
                 }
 
                 //
@@ -351,7 +351,7 @@ namespace IceBox
             return 0;
         }
 
-        private void startService(string service, string entryPoint, string[] args)
+        private void StartService(string service, string entryPoint, string[] args)
         {
             lock (this)
             {
@@ -642,7 +642,7 @@ namespace IceBox
 
                 foreach (ServiceObserverPrx observer in observers)
                 {
-                    observer.servicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
+                    observer.ServicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
                         TaskScheduler.Current);
                 }
             }
@@ -660,7 +660,7 @@ namespace IceBox
 
                 foreach (ServiceObserverPrx observer in observers)
                 {
-                    observer.servicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
+                    observer.ServicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
                         TaskScheduler.Current);
                 }
             }

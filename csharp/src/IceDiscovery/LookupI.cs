@@ -141,12 +141,12 @@ namespace IceDiscovery
 
         public void runTimerTask()
         {
-            lookup_.adapterRequestTimedOut(this);
+            lookup_.AdapterRequestTimedOut(this);
         }
 
         protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
         {
-            lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
+            lookup.FindAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
             {
                 try
                 {
@@ -154,7 +154,7 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.adapterRequestException(this, ex.InnerException);
+                    lookup_.AdapterRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);
         }
@@ -205,7 +205,7 @@ namespace IceDiscovery
 
         protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
         {
-            lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
+            lookup.FindObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
             {
                 try
                 {
@@ -213,7 +213,7 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.objectRequestException(this, ex.InnerException);
+                    lookup_.ObjectRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);
         }
@@ -244,7 +244,7 @@ namespace IceDiscovery
             Debug.Assert(_lookups.Count > 0);
         }
 
-        public void setLookupReply(LookupReplyPrx lookupReply)
+        public void SetLookupReply(LookupReplyPrx lookupReply)
         {
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
@@ -274,15 +274,14 @@ namespace IceDiscovery
             }
         }
 
-        public void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
-                                            Ice.Current current)
+        public void FindObjectById(string domainId, Identity id, LookupReplyPrx reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
                 return; // Ignore
             }
 
-            Ice.IObjectPrx proxy = _registry.findObject(id);
+            IObjectPrx proxy = _registry.FindObject(id);
             if (proxy != null)
             {
                 //
@@ -290,17 +289,16 @@ namespace IceDiscovery
                 //
                 try
                 {
-                    reply.foundObjectByIdAsync(id, proxy);
+                    reply.FoundObjectByIdAsync(id, proxy);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     // Ignore.
                 }
             }
         }
 
-        public void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply,
-                                             Ice.Current current)
+        public void FindAdapterById(string domainId, string adapterId, LookupReplyPrx reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
@@ -308,7 +306,7 @@ namespace IceDiscovery
             }
 
             bool isReplicaGroup;
-            Ice.IObjectPrx proxy = _registry.findAdapter(adapterId, out isReplicaGroup);
+            IObjectPrx proxy = _registry.FindAdapter(adapterId, out isReplicaGroup);
             if (proxy != null)
             {
                 //
@@ -316,16 +314,16 @@ namespace IceDiscovery
                 //
                 try
                 {
-                    reply.foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
+                    reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     // Ignore.
                 }
             }
         }
 
-        internal Task<Ice.IObjectPrx> findObject(Ice.Identity id)
+        internal Task<IObjectPrx> findObject(Identity id)
         {
             lock (this)
             {
@@ -354,7 +352,7 @@ namespace IceDiscovery
             }
         }
 
-        internal Task<Ice.IObjectPrx> findAdapter(string adapterId)
+        internal Task<IObjectPrx> FindAdapter(string adapterId)
         {
             lock (this)
             {
@@ -383,7 +381,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void foundObject(Ice.Identity id, string requestId, Ice.IObjectPrx proxy)
+        internal void FoundObject(Identity id, string requestId, IObjectPrx proxy)
         {
             lock (this)
             {
@@ -398,7 +396,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void foundAdapter(string adapterId, string requestId, Ice.IObjectPrx proxy, bool isReplicaGroup)
+        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx proxy, bool isReplicaGroup)
         {
             lock (this)
             {
@@ -444,7 +442,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void objectRequestException(ObjectRequest request, System.Exception ex)
+        internal void ObjectRequestException(ObjectRequest request, System.Exception ex)
         {
             lock (this)
             {
@@ -474,7 +472,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void adapterRequestTimedOut(AdapterRequest request)
+        internal void AdapterRequestTimedOut(AdapterRequest request)
         {
             lock (this)
             {
@@ -492,7 +490,7 @@ namespace IceDiscovery
                         _timer.schedule(request, _timeout);
                         return;
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                     }
                 }
@@ -503,7 +501,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void adapterRequestException(AdapterRequest request, System.Exception ex)
+        internal void AdapterRequestException(AdapterRequest request, System.Exception ex)
         {
             lock (this)
             {
@@ -564,14 +562,14 @@ namespace IceDiscovery
             _lookup = lookup;
         }
 
-        public void foundObjectById(Identity id, IObjectPrx proxy, Current c)
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c)
         {
-            _lookup.foundObject(id, c.Id.name, proxy);
+            _lookup.FoundObject(id, c.Id.name, proxy);
         }
 
-        public void foundAdapterById(string adapterId, Ice.IObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
+        public void FoundAdapterById(string adapterId, IObjectPrx proxy, bool isReplicaGroup, Current c)
         {
-            _lookup.foundAdapter(adapterId, c.Id.name, proxy, isReplicaGroup);
+            _lookup.FoundAdapter(adapterId, c.Id.name, proxy, isReplicaGroup);
         }
 
         private readonly LookupI _lookup;

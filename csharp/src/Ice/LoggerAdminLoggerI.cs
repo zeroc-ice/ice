@@ -163,7 +163,7 @@ namespace IceInternal
                         //
                         // p is a proxy associated with the _sendLogCommunicator
                         //
-                        p.logAsync(job.logMessage).ContinueWith(
+                        p.LogAsync(job.logMessage).ContinueWith(
                             (t) =>
                             {
                                 try

@@ -19,7 +19,7 @@ namespace Ice
             }
 
             public Task<Ice.IObjectPrx>
-            findAdapterByIdAsync(string adapter, Ice.Current current)
+            FindAdapterByIdAsync(string adapter, Ice.Current current)
             {
                 ++_requestCount;
                 if (adapter.Equals("TestAdapter10") || adapter.Equals("TestAdapter10-2"))
@@ -37,7 +37,7 @@ namespace Ice
             }
 
             public Task<Ice.IObjectPrx>
-            findObjectByIdAsync(Ice.Identity id, Ice.Current current)
+            FindObjectByIdAsync(Ice.Identity id, Ice.Current current)
             {
                 ++_requestCount;
                 // We add a small delay to make sure locator request queuing gets tested when
@@ -46,7 +46,7 @@ namespace Ice
                 return Task.FromResult(_registry.getObject(id));
             }
 
-            public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+            public Ice.LocatorRegistryPrx GetRegistry(Ice.Current current)
             {
                 return _registryPrx;
             }

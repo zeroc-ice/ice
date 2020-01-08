@@ -147,14 +147,14 @@ namespace Ice
                 throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
             }
 
-            public Test.Initial.getMBMarshaledResult getMB(Current current)
+            public Test.Initial.GetMBMarshaledReturnValue getMB(Current current)
             {
-                return new Test.Initial.getMBMarshaledResult(_b1, current);
+                return new Test.Initial.GetMBMarshaledReturnValue(_b1, current);
             }
 
-            public Task<Test.Initial.getAMDMBMarshaledResult> getAMDMBAsync(Current current)
+            public Task<Test.Initial.GetAMDMBMarshaledReturnValue> getAMDMBAsync(Current current)
             {
-                return Task.FromResult(new Test.Initial.getAMDMBMarshaledResult(_b1, current));
+                return Task.FromResult(new Test.Initial.GetAMDMBMarshaledReturnValue(_b1, current));
             }
 
             public Test.M

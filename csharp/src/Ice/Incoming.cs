@@ -4,12 +4,10 @@
 
 namespace Ice
 {
-
-    public interface MarshaledResult
+    public interface MarshaledReturnValue
     {
         OutputStream getOutputStream(Current current);
     };
-
 }
 
 namespace IceInternal
@@ -253,7 +251,7 @@ namespace IceInternal
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
-        public Task<Ice.OutputStream>? setMarshaledResult<T>(T result) where T : struct, Ice.MarshaledResult
+        public Task<Ice.OutputStream>? setMarshaledResult<T>(T result) where T : struct, Ice.MarshaledReturnValue
         {
             Debug.Assert(_current != null);
             _os = result.getOutputStream(_current);
@@ -324,7 +322,7 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? setMarshaledResultTask<T>(Task<T> task) where T : struct, Ice.MarshaledResult
+        public Task<Ice.OutputStream?>? setMarshaledResultTask<T>(Task<T> task) where T : struct, Ice.MarshaledReturnValue
         {
             Debug.Assert(_current != null);
             if (task == null)
