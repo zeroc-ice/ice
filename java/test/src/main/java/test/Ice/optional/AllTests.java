@@ -546,7 +546,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing tagged memebrs with default values... ");
+        out.print("testing tagged members with default values... ");
         out.flush();
         {
             WD wd = (WD)initial.pingPong(new WD());
@@ -2001,7 +2001,7 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing exception with tagged members... ");
+        out.print("testing exceptions with tagged members... ");
         out.flush();
         {
             try
