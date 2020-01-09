@@ -69,7 +69,6 @@ public:
     std::shared_ptr<IceStormElection::NodeI> node() const;
     std::shared_ptr<IceStormElection::NodePrx> nodeProxy() const;
     std::shared_ptr<TraceLevels> traceLevels() const;
-    IceUtil::TimerPtr batchFlusher() const;
     IceUtil::TimerPtr timer() const;
     std::shared_ptr<Ice::ObjectPrx> topicReplicaProxy() const;
     std::shared_ptr<Ice::ObjectPrx> publisherReplicaProxy() const;
@@ -105,7 +104,6 @@ private:
     const std::shared_ptr<TopicReaper> _topicReaper;
     std::shared_ptr<IceStormElection::NodeI> _node;
     std::shared_ptr<IceStormElection::Observers> _observers;
-    IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;
     std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
 };

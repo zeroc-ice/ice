@@ -13,7 +13,6 @@
 
 #include<condition_variable>
 
-
 namespace IceStorm
 {
 

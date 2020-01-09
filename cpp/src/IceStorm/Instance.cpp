@@ -85,7 +85,6 @@ Instance::Instance(const string& instanceName,
             }
         }
 
-        _batchFlusher = new IceUtil::Timer();
         _timer = new IceUtil::Timer();
 
         string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
@@ -198,12 +197,6 @@ Instance::traceLevels() const
 }
 
 IceUtil::TimerPtr
-Instance::batchFlusher() const
-{
-    return _batchFlusher;
-}
-
-IceUtil::TimerPtr
 Instance::timer() const
 {
     return _timer;
@@ -285,11 +278,6 @@ Instance::shutdown()
 void
 Instance::destroy()
 {
-    if(_batchFlusher)
-    {
-        _batchFlusher->destroy();
-    }
-
     // The node instance must be cleared as the node holds the
     // replica (TopicManager) which holds the instance causing a
     // cyclic reference.
