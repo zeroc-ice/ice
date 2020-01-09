@@ -18,226 +18,106 @@ namespace Ice
         {
             class I1 : Test.I
             {
-                public Test.S
-                opS(Test.S s1, out Test.S s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.I.OpSReturnValue
+                opS(Test.S s1, Current current) => new Test.I.OpSReturnValue(s1, s1);
 
-                public Test.S[]
-                opSSeq(Test.S[] s1, out Test.S[] s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.I.OpSSeqReturnValue
+                opSSeq(Test.S[] s1, Current current) => new Test.I.OpSSeqReturnValue(s1, s1);
 
-                public Dictionary<String, Test.S>
-                opSMap(Dictionary<String, Test.S> s1, out Dictionary<String, Test.S> s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.I.OpSMapReturnValue
+                opSMap(Dictionary<string, Test.S> s1, Current current) => new Test.I.OpSMapReturnValue(s1, s1);
 
-                public Test.C
-                opC(Test.C c1, out Test.C c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.I.OpCReturnValue
+                opC(Test.C c1, Current current) => new Test.I.OpCReturnValue(c1, c1);
 
-                public Test.C[]
-                opCSeq(Test.C[] c1, out Test.C[] c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.I.OpCSeqReturnValue
+                opCSeq(Test.C[] c1, Current current) => new Test.I.OpCSeqReturnValue(c1, c1);
 
-                public Dictionary<String, Test.C>
-                opCMap(Dictionary<String, Test.C> c1, out Dictionary<String, Test.C> c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.I.OpCMapReturnValue
+                opCMap(Dictionary<string, Test.C> c1, Current current) => new Test.I.OpCMapReturnValue(c1, c1);
 
-                public Test.E1
-                opE1(Test.E1 e1, Ice.Current current)
-                {
-                    return e1;
-                }
+                public E1 opE1(E1 e1, Current current) => e1;
 
-                public Test.S1
-                opS1(Test.S1 s1, Ice.Current current)
-                {
-                    return s1;
-                }
+                public S1 opS1(S1 s1, Current current) => s1;
 
-                public Test.C1
-                opC1(Test.C1 c1, Ice.Current current)
-                {
-                    return c1;
-                }
+                public C1 opC1(C1 c1, Current current) => c1;
 
-                public void shutdown(Ice.Current current)
-                {
-                    current.Adapter.Communicator.shutdown();
-                }
+                public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
             }
 
             class I2 : Test.Inner.I
             {
-                public Test.Inner.Inner2.S
-                opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.I.OpSReturnValue
+                opS(Test.Inner.Inner2.S s1, Current current) => new Test.Inner.I.OpSReturnValue(s1, s1);
 
-                public Test.Inner.Inner2.S[]
-                opSSeq(Test.Inner.Inner2.S[] s1, out Test.Inner.Inner2.S[] s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.I.OpSSeqReturnValue
+                opSSeq(Test.Inner.Inner2.S[] s1, Current current) => new Test.Inner.I.OpSSeqReturnValue(s1, s1);
 
-                public Dictionary<String, Test.Inner.Inner2.S>
-                opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
-                       Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.I.OpSMapReturnValue
+                opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) =>
+                    new Test.Inner.I.OpSMapReturnValue(s1, s1);
 
-                public Test.Inner.Inner2.C
-                opC(Test.Inner.Inner2.C c1, out Test.Inner.Inner2.C c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.I.OpCReturnValue
+                opC(Test.Inner.Inner2.C c1, Current current) => new Test.Inner.I.OpCReturnValue(c1, c1);
 
-                public Test.Inner.Inner2.C[]
-                opCSeq(Test.Inner.Inner2.C[] c1, out Test.Inner.Inner2.C[] c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.I.OpCSeqReturnValue
+                opCSeq(Test.Inner.Inner2.C[] c1, Current current) => new Test.Inner.I.OpCSeqReturnValue(c1, c1);
 
-                public Dictionary<String, Test.Inner.Inner2.C>
-                opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
-                       Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.I.OpCMapReturnValue
+                opCMap(Dictionary<string, Test.Inner.Inner2.C> c1, Current current) =>
+                    new Test.Inner.I.OpCMapReturnValue(c1, c1);
 
-                public void shutdown(Ice.Current current)
-                {
-                    current.Adapter.Communicator.shutdown();
-                }
+                public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
             }
 
             class I3 : Test.Inner.Inner2.I
             {
-                public Test.Inner.Inner2.S
-                opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.Inner2.I.OpSReturnValue
+                opS(Test.Inner.Inner2.S s1, Current current) => new Test.Inner.Inner2.I.OpSReturnValue(s1, s1);
 
-                public Test.Inner.Inner2.S[]
-                opSSeq(Test.Inner.Inner2.S[] s1, out Test.Inner.Inner2.S[] s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.Inner2.I.OpSSeqReturnValue
+                opSSeq(Test.Inner.Inner2.S[] s1, Current current) => new Test.Inner.Inner2.I.OpSSeqReturnValue(s1, s1);
 
-                public Dictionary<String, Test.Inner.Inner2.S>
-                opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
-                       Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Test.Inner.Inner2.I.OpSMapReturnValue
+                opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) =>
+                    new Test.Inner.Inner2.I.OpSMapReturnValue(s1, s1);
 
-                public Test.Inner.Inner2.C
-                opC(Test.Inner.Inner2.C c1, out Test.Inner.Inner2.C c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.Inner2.I.OpCReturnValue
+                opC(Test.Inner.Inner2.C c1, Current current) => new Test.Inner.Inner2.I.OpCReturnValue(c1, c1);
 
-                public Test.Inner.Inner2.C[]
-                opCSeq(Test.Inner.Inner2.C[] c1, out Test.Inner.Inner2.C[] c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.Inner2.I.OpCSeqReturnValue
+                opCSeq(Test.Inner.Inner2.C[] c1, Current current) => new Test.Inner.Inner2.I.OpCSeqReturnValue(c1, c1);
 
-                public Dictionary<String, Test.Inner.Inner2.C>
-                opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
-                       Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Test.Inner.Inner2.I.OpCMapReturnValue
+                opCMap(Dictionary<string, Test.Inner.Inner2.C> c1, Current current) =>
+                    new Test.Inner.Inner2.I.OpCMapReturnValue(c1, c1);
 
-                public void shutdown(Ice.Current current)
-                {
-                    current.Adapter.Communicator.shutdown();
-                }
+                public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
             }
 
             class I4 : Inner.Test.Inner2.I
             {
-                public Test.S
-                opS(Test.S s1, out Test.S s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Inner.Test.Inner2.I.OpSReturnValue
+                opS(Test.S s1, Current current) => new Inner.Test.Inner2.I.OpSReturnValue(s1, s1);
 
-                public Test.S[]
-                opSSeq(Test.S[] s1, out Test.S[] s2, Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Inner.Test.Inner2.I.OpSSeqReturnValue
+                opSSeq(Test.S[] s1, Current current) => new Inner.Test.Inner2.I.OpSSeqReturnValue(s1, s1);
 
-                public Dictionary<String, Test.S>
-                opSMap(Dictionary<String, Test.S> s1, out Dictionary<String, Test.S> s2,
-                       Ice.Current current)
-                {
-                    s2 = s1;
-                    return s1;
-                }
+                public Inner.Test.Inner2.I.OpSMapReturnValue
+                opSMap(Dictionary<string, Test.S> s1, Current current) =>
+                    new Inner.Test.Inner2.I.OpSMapReturnValue(s1, s1);
 
-                public Test.C
-                opC(Test.C c1, out Test.C c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Inner.Test.Inner2.I.OpCReturnValue
+                opC(Test.C c1, Current current) => new Inner.Test.Inner2.I.OpCReturnValue(c1, c1);
 
-                public Test.C[]
-                opCSeq(Test.C[] c1, out Test.C[] c2, Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Inner.Test.Inner2.I.OpCSeqReturnValue
+                opCSeq(Test.C[] c1, Current current) => new Inner.Test.Inner2.I.OpCSeqReturnValue(c1, c1);
 
-                public Dictionary<String, Test.C>
-                opCMap(Dictionary<String, Test.C> c1, out Dictionary<String, Test.C> c2,
-                       Ice.Current current)
-                {
-                    c2 = c1;
-                    return c1;
-                }
+                public Inner.Test.Inner2.I.OpCMapReturnValue
+                opCMap(Dictionary<string, Test.C> c1, Current current) =>
+                    new Inner.Test.Inner2.I.OpCMapReturnValue(c1, c1);
 
-                public void shutdown(Ice.Current current)
-                {
-                    current.Adapter.Communicator.shutdown();
-                }
+                public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
             }
 
             public override void run(string[] args)

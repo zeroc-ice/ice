@@ -178,12 +178,8 @@ namespace Ice
 
         public class TestII : Test.Outer.Inner.TestIntf
         {
-            public int
-            op(int i, out int j, Ice.Current current)
-            {
-                j = i;
-                return i;
-            }
+            public Test.Outer.Inner.TestIntf.OpReturnValue
+            op(int i, Current current) => new Test.Outer.Inner.TestIntf.OpReturnValue(i, i);
         }
 
         public class TestControllerI : Test.TestIntfController

@@ -1475,7 +1475,7 @@ namespace Ice
                     test(p2 == null && p3 == null);
 
                     p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
-                    (p2, p3) = initial.opStringSeq(p1 );
+                    (p2, p3) = initial.opStringSeq(p1);
                     test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opStringSeqAsync(p1).Result;
                     test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));

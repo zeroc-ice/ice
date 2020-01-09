@@ -154,7 +154,7 @@ public sealed class TestI : TestIntf
         return d2;
     }
 
-    public void paramTest1(out B p1, out B p2, Ice.Current current)
+    public TestIntf.ParamTest1ReturnValue paramTest1(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -166,22 +166,21 @@ public sealed class TestI : TestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        p1 = d1;
-        p2 = d2;
+        return new TestIntf.ParamTest1ReturnValue(d1, d2);
     }
 
-    public void paramTest2(out B p1, out B p2, Ice.Current current)
+    public TestIntf.ParamTest2ReturnValue paramTest2(Ice.Current current)
     {
-        paramTest1(out p2, out p1, current);
+        var r = paramTest1(current);
+        return new TestIntf.ParamTest2ReturnValue(r.p2, r.p1);
     }
 
-    public B paramTest3(out B p1, out B p2, Ice.Current current)
+    public TestIntf.ParamTest3ReturnValue paramTest3(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
-        p1 = d2;
 
         D1 d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
@@ -194,7 +193,6 @@ public sealed class TestI : TestIntf
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
-        p2 = d4;
 
         D1 d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
@@ -203,10 +201,10 @@ public sealed class TestI : TestIntf
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return d3;
+        return new TestIntf.ParamTest3ReturnValue(d3, d2, d4);
     }
 
-    public B paramTest4(out B p1, Ice.Current current)
+    public TestIntf.ParamTest4ReturnValue paramTest4(Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -215,20 +213,19 @@ public sealed class TestI : TestIntf
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        p1 = d4;
-        return d4.p2;
+        return new TestIntf.ParamTest4ReturnValue(d4.p2, d4);
     }
 
-    public B returnTest1(out B p1, out B p2, Ice.Current current)
+    public TestIntf.ReturnTest1ReturnValue returnTest1(Ice.Current current)
     {
-        paramTest1(out p1, out p2, current);
-        return p1;
+        var r = paramTest1(current);
+        return new TestIntf.ReturnTest1ReturnValue(r.p1, r.p1, r.p2);
     }
 
-    public B returnTest2(out B p1, out B p2, Ice.Current current)
+    public TestIntf.ReturnTest2ReturnValue returnTest2(Ice.Current current)
     {
-        paramTest1(out p2, out p1, current);
-        return p1;
+        var r = paramTest1(current);
+        return new TestIntf.ReturnTest2ReturnValue(r.p2, r.p2, r.p1);
     }
 
     public B returnTest3(B p1, B p2, Ice.Current current)
@@ -244,10 +241,9 @@ public sealed class TestI : TestIntf
         return ss;
     }
 
-    public Dictionary<int, B> dictionaryTest(Dictionary<int, B> bin, out Dictionary<int, B> bout,
-                                                      Ice.Current current)
+    public TestIntf.DictionaryTestReturnValue dictionaryTest(Dictionary<int, B> bin, Ice.Current current)
     {
-        bout = new Dictionary<int, B>();
+        var bout = new Dictionary<int, B>();
         int i;
         for (i = 0; i < 10; ++i)
         {
@@ -270,7 +266,7 @@ public sealed class TestI : TestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return r;
+        return new TestIntf.DictionaryTestReturnValue(r, bout);
     }
 
     public PBase exchangePBase(PBase pb, Ice.Current current)
@@ -453,10 +449,11 @@ public sealed class TestI : TestIntf
         throw ue;
     }
 
-    public void useForward(out Forward f, Ice.Current current)
+    public Forward useForward(Ice.Current current)
     {
-        f = new Forward();
+        var f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
+        return f;
     }
 }

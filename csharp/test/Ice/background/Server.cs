@@ -13,23 +13,23 @@ using System.Threading.Tasks;
 
 public class Server : TestHelper
 {
-    internal class LocatorI : Ice.Locator
+    internal class LocatorI : Locator
     {
         public Task<IObjectPrx>
-        FindAdapterByIdAsync(string adapter, Ice.Current current)
+        FindAdapterByIdAsync(string adapter, Current current)
         {
             _controller.checkCallPause(current);
             return Task.FromResult(current.Adapter.CreateDirectProxy("dummy"));
         }
 
         public Task<IObjectPrx>
-        FindObjectByIdAsync(Ice.Identity id, Ice.Current current)
+        FindObjectByIdAsync(Identity id, Current current)
         {
             _controller.checkCallPause(current);
             return Task.FromResult(current.Adapter.CreateDirectProxy(id));
         }
 
-        public Ice.LocatorRegistryPrx GetRegistry(Ice.Current current)
+        public LocatorRegistryPrx GetRegistry(Current current)
         {
             return null;
         }
@@ -42,24 +42,23 @@ public class Server : TestHelper
         private BackgroundControllerI _controller;
     }
 
-    internal class RouterI : Ice.Router
+    internal class RouterI : Router
     {
-        public Ice.IObjectPrx GetClientProxy(out bool? hasRoutingTable, Ice.Current current)
+        public Router.GetClientProxyReturnValue GetClientProxy(Current current)
         {
-            hasRoutingTable = true;
+            _controller.checkCallPause(current);
+            return new Router.GetClientProxyReturnValue(null, true);
+        }
+
+        public IObjectPrx GetServerProxy(Current current)
+        {
             _controller.checkCallPause(current);
             return null;
         }
 
-        public Ice.IObjectPrx GetServerProxy(Ice.Current current)
+        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
         {
-            _controller.checkCallPause(current);
-            return null;
-        }
-
-        public Ice.IObjectPrx[] AddProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
-        {
-            return new Ice.IObjectPrx[0];
+            return new IObjectPrx[0];
         }
 
         internal RouterI(BackgroundControllerI controller)
@@ -116,8 +115,8 @@ public class Server : TestHelper
                 communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
             }
 
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
             BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
 

@@ -132,11 +132,10 @@ namespace IceInternal
             return found;
         }
 
-        public Ice.LogMessage[]
-        GetLog(Ice.LogMessageType[] messageTypes, string[] categories, int messageMax, out string prefix,
-               Ice.Current current)
+        public LoggerAdmin.GetLogReturnValue
+        GetLog(LogMessageType[] messageTypes, string[] categories, int messageMax, Current current)
         {
-            LinkedList<Ice.LogMessage> logMessages = null;
+            LinkedList<Ice.LogMessage> logMessages;
             lock (this)
             {
                 if (messageMax != 0)
@@ -149,14 +148,14 @@ namespace IceInternal
                 }
             }
 
-            prefix = _logger.getPrefix();
+            var prefix = _logger.getPrefix();
 
             if (logMessages.Count > 0)
             {
                 Filters filters = new Filters(messageTypes, categories);
                 filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
             }
-            return logMessages.ToArray();
+            return new LoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
         }
 
         internal LoggerAdminI(Ice.Communicator communicator, LoggerAdminLoggerI logger)

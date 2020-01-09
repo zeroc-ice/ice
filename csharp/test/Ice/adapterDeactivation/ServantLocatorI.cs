@@ -18,13 +18,10 @@ namespace Ice
 
         public class RouterI : Router
         {
-            public IObjectPrx GetClientProxy(out bool? hasRoutingTable, Current current)
-            {
-                hasRoutingTable = false;
-                return null;
-            }
+            public Router.GetClientProxyReturnValue GetClientProxy(Current current) =>
+                new Router.GetClientProxyReturnValue(null, false);
 
-            public Ice.IObjectPrx GetServerProxy(Ice.Current current)
+            public IObjectPrx GetServerProxy(Current current)
             {
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
@@ -32,7 +29,7 @@ namespace Ice
                 return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
             }
 
-            public Ice.IObjectPrx[] AddProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
+            public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
             {
                 return null;
             }
@@ -40,7 +37,7 @@ namespace Ice
             private int _nextPort = 23456;
         }
 
-        public sealed class ServantLocatorI : Ice.ServantLocator
+        public sealed class ServantLocatorI : ServantLocator
         {
             public ServantLocatorI()
             {
@@ -63,7 +60,7 @@ namespace Ice
                 }
             }
 
-            public Ice.Disp locate(Current current, out object cookie)
+            public Disp locate(Current current, out object cookie)
             {
                 lock (this)
                 {

@@ -34,13 +34,8 @@ namespace Ice
                 _d.theC = null; // Reference to a C.
             }
 
-            public void getAll(out Test.B b1, out Test.B b2, out Test.C c, out Test.D d, Current current)
-            {
-                b1 = _b1;
-                b2 = _b2;
-                c = _c;
-                d = _d;
-            }
+            public Test.Initial.GetAllReturnValue
+            getAll(Current current) => new Test.Initial.GetAllReturnValue(_b1, _b2, _c, _d);
 
             public Test.B getB1(Current current)
             {
@@ -67,25 +62,14 @@ namespace Ice
                 return new Test.K(new Test.L("l"));
             }
 
-            public Value opValue(Value v1, out Value v2, Current current)
-            {
-                v2 = v1;
-                return v1;
-            }
+            public Test.Initial.OpValueReturnValue
+            opValue(Value v1, Current current) => new Test.Initial.OpValueReturnValue(v1, v1);
 
-            public Value[] opValueSeq(Value[] v1, out Value[] v2, Current current)
-            {
-                v2 = v1;
-                return v1;
-            }
+            public Test.Initial.OpValueSeqReturnValue
+            opValueSeq(Value[] v1, Current current) => new Test.Initial.OpValueSeqReturnValue(v1, v1);
 
-            public Dictionary<string, Value>
-            opValueMap(Dictionary<string, Value> v1, out Dictionary<string, Value> v2,
-                       Current current)
-            {
-                v2 = v1;
-                return v1;
-            }
+            public Test.Initial.OpValueMapReturnValue
+            opValueMap(Dictionary<string, Value> v1, Current current) => new Test.Initial.OpValueMapReturnValue(v1, v1);
 
             public void setRecursive(Test.Recursive r, Current current)
             {
@@ -109,87 +93,46 @@ namespace Ice
             public void setG(Test.G theG, Current current)
             {
             }
-            public Test.Base[] opBaseSeq(Test.Base[] inS, out Test.Base[] outS, Current current)
-            {
-                outS = inS;
-                return inS;
-            }
+            public Test.Initial.OpBaseSeqReturnValue
+            opBaseSeq(Test.Base[] inS, Current current) => new Test.Initial.OpBaseSeqReturnValue(inS, inS);
 
-            public Test.Compact getCompact(Current current)
-            {
-                return new Test.CompactExt();
-            }
+            public Test.Compact getCompact(Current current) => new Test.CompactExt();
 
-            public void shutdown(Current current)
-            {
-                _adapter.Communicator.shutdown();
-            }
+            public void shutdown(Current current) => _adapter.Communicator.shutdown();
 
             public Test.Inner.A
-            getInnerA(Current current)
-            {
-                return new Test.Inner.A(_b1);
-            }
+            getInnerA(Current current) => new Test.Inner.A(_b1);
 
             public Test.Inner.Sub.A
-            getInnerSubA(Current current)
-            {
-                return new Test.Inner.Sub.A(new Test.Inner.A(_b1));
-            }
+            getInnerSubA(Current current) => new Test.Inner.Sub.A(new Test.Inner.A(_b1));
 
-            public void throwInnerEx(Current current)
-            {
-                throw new Test.Inner.Ex("Inner::Ex");
-            }
+            public void throwInnerEx(Current current) => throw new Test.Inner.Ex("Inner::Ex");
 
-            public void throwInnerSubEx(Current current)
-            {
-                throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
-            }
+            public void throwInnerSubEx(Current current) => throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
 
-            public Test.Initial.GetMBMarshaledReturnValue getMB(Current current)
-            {
-                return new Test.Initial.GetMBMarshaledReturnValue(_b1, current);
-            }
+            public Test.Initial.GetMBMarshaledReturnValue getMB(Current current) =>
+                new Test.Initial.GetMBMarshaledReturnValue(_b1, current);
 
-            public Task<Test.Initial.GetAMDMBMarshaledReturnValue> getAMDMBAsync(Current current)
-            {
-                return Task.FromResult(new Test.Initial.GetAMDMBMarshaledReturnValue(_b1, current));
-            }
+            public Task<Test.Initial.GetAMDMBMarshaledReturnValue>
+            getAMDMBAsync(Current current) =>
+                Task.FromResult(new Test.Initial.GetAMDMBMarshaledReturnValue(_b1, current));
 
-            public Test.M
-            opM(Test.M v1, out Test.M v2, Current current)
-            {
-                v2 = v1;
-                return v1;
-            }
+            public Test.Initial.OpMReturnValue
+            opM(Test.M v1, Current current) => new Test.Initial.OpMReturnValue(v1, v1);
 
-            public Test.F1
-            opF1(Test.F1 f11, out Test.F1 f12, Current current)
-            {
-                f12 = new Test.F1("F12");
-                return f11;
-            }
+            public Test.Initial.OpF1ReturnValue
+            opF1(Test.F1 f11, Current current) => new Test.Initial.OpF1ReturnValue(f11, new Test.F1("F12"));
 
-            public Test.F2Prx
-            opF2(Test.F2Prx f21, out Test.F2Prx f22, Current current)
-            {
-                f22 = Test.F2Prx.Parse("F22", current.Adapter.Communicator);
-                return f21;
-            }
+            public Test.Initial.OpF2ReturnValue
+            opF2(Test.F2Prx f21, Current current) =>
+                new Test.Initial.OpF2ReturnValue(f21, Test.F2Prx.Parse("F22", current.Adapter.Communicator));
 
-            public Test.F3
-            opF3(Test.F3 f31, out Test.F3 f32, Current current)
-            {
-                f32 = new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.Adapter.Communicator));
-                return f31;
-            }
+            public Test.Initial.OpF3ReturnValue
+            opF3(Test.F3 f31, Current current) =>
+                new Test.Initial.OpF3ReturnValue(f31,
+                    new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.Adapter.Communicator)));
 
-            public bool
-            hasF3(Current current)
-            {
-                return true;
-            }
+            public bool hasF3(Current current) => true;
 
             private ObjectAdapter _adapter;
             private Test.B _b1;

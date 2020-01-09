@@ -3137,7 +3137,6 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     string ns = getNamespace(cl);
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
-    list<ParamInfo> outParams;
     list<ParamInfo> inParams = getAllInParams(operation);
 
     _out << sp;
@@ -3147,20 +3146,9 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     {
         _out << resultTask(operation, ns, true);
     }
-    else if(operation->hasMarshaledResult())
-    {
-        _out << resultType(operation, ns, true);
-    }
-    else if(operation->returnType())
-    {
-        outParams = getAllOutParams(operation);
-        _out << outParams.back().typeStr;
-        outParams.pop_back();
-    }
     else
     {
-        outParams = getAllOutParams(operation);
-        _out << "void";
+        _out << resultType(operation, ns, true);
     }
 
     _out << " " << name << spar;
@@ -3168,10 +3156,6 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
                                {
                                    return param.typeStr + " " + param.name;
                                });
-    _out << getNames(outParams, [](const auto& param)
-                                {
-                                    return "out " + param.typeStr + " " + param.name;
-                                });
     _out << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(operation, "current"));
     _out << epar << ';';
 }
@@ -3277,27 +3261,18 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     }
     else
     {
-        for(const auto& p : outParams)
-        {
-            _out << nl << p.typeStr << " " << p.name << ";";
-        }
-
         _out << nl;
-        if(operation->returnType())
+        if(outParams.size() > 1)
         {
-            _out << outParams.back().name << " = ";
-            outParams.pop_back();
+            _out << "var " << spar << getNames(getAllOutParams(operation, "iceP_", true)) << epar << " = ";
+        }
+        else if(outParams.size() == 1)
+        {
+            _out << "var " << outParams.front().name << " = ";
         }
 
-        _out << "obj." << name << spar
-             << getNames(inParams)
-             << getNames(outParams, [](const auto& param)
-                                    {
-                                        return "out " + param.name;
-                                    })
-             << "current" << epar << ";";
+        _out << "obj." << name << spar << getNames(inParams) << "current" << epar << ";";
 
-        outParams = getAllOutParams(operation, "iceP_");
         if(outParams.size() == 0)
         {
             _out << nl << "return inS.setResult(inS.writeEmptyParams());";

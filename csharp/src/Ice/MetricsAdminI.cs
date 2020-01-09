@@ -818,12 +818,14 @@ namespace IceInternal
             }
         }
 
-        public string[] GetMetricsViewNames(out string[] disabledViews, Ice.Current current)
+        public IceMX.MetricsAdmin.GetMetricsViewNamesReturnValue
+        GetMetricsViewNames(Ice.Current current)
         {
             lock (this)
             {
-                disabledViews = _disabledViews.ToArray();
-                return new List<string>(_views.Keys).ToArray();
+                return new IceMX.MetricsAdmin.GetMetricsViewNamesReturnValue(
+                    new List<string>(_views.Keys).ToArray(),
+                    _disabledViews.ToArray());
             }
         }
 
@@ -847,17 +849,14 @@ namespace IceInternal
             updateViews();
         }
 
-        public Dictionary<string, IceMX.Metrics[]> GetMetricsView(string viewName, out long timestamp, Ice.Current current)
+        public IceMX.MetricsAdmin.GetMetricsViewReturnValue GetMetricsView(string viewName, Ice.Current current)
         {
             lock (this)
             {
                 MetricsViewI? view = getMetricsView(viewName);
-                timestamp = Time.currentMonotonicTimeMillis();
-                if (view != null)
-                {
-                    return view.getMetrics();
-                }
-                return new Dictionary<string, IceMX.Metrics[]>();
+                return new IceMX.MetricsAdmin.GetMetricsViewReturnValue(
+                    view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.getMetrics(),
+                    Time.currentMonotonicTimeMillis());
             }
         }
 
