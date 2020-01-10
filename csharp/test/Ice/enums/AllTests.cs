@@ -71,8 +71,6 @@ namespace Ice
                 Ice.OutputStream ostr;
                 byte[] bytes;
 
-                bool encoding_1_0 = communicator.GetProperty("Ice.Default.EncodingVersion") == "1.0";
-
                 ostr = new OutputStream(communicator);
                 ostr.WriteEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);
                 bytes = ostr.Finished();
@@ -81,12 +79,12 @@ namespace Ice
                 ostr = new OutputStream(communicator);
                 ostr.WriteEnum((int)Test.ShortEnum.senum11, (int)Test.ShortEnum.senum11);
                 bytes = ostr.Finished();
-                test(bytes.Length == (encoding_1_0 ? 2 : 5));
+                test(bytes.Length == 5);
 
                 ostr = new OutputStream(communicator);
                 ostr.WriteEnum((int)Test.IntEnum.ienum11, (int)Test.IntEnum.ienum12);
                 bytes = ostr.Finished();
-                test(bytes.Length == (encoding_1_0 ? 4 : 5));
+                test(bytes.Length == 5);
 
                 ostr = new OutputStream(communicator);
                 ostr.WriteEnum((int)Test.SimpleEnum.blue, (int)Test.SimpleEnum.blue);

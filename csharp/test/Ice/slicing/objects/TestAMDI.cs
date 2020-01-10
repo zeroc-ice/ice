@@ -67,16 +67,9 @@ public sealed class TestI : TestIntf
 
     public Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(obj is SUnknown));
-        }
-        else
-        {
-            test(obj is SUnknown);
-            SUnknown su = (SUnknown)obj;
-            test(su.su.Equals("SUnknown.su"));
-        }
+        test(obj is SUnknown);
+        SUnknown su = (SUnknown)obj;
+        test(su.su.Equals("SUnknown.su"));
         return null;
     }
 
@@ -303,35 +296,19 @@ public sealed class TestI : TestIntf
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if (!current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            //
-            // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
-            // from unread slice.
-            //
-            r.cl = new MyClass(15);
-        }
+        r.cl = new MyClass(15);
         return Task.FromResult<Preserved>(r);
     }
 
     public Task
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-            var pu = p as PSUnknown;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
-            test(pu.graph == null);
-            test(pu.cl != null && pu.cl.i == 15);
-        }
+        var pu = p as PSUnknown;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.psu.Equals("unknown"));
+        test(pu.graph == null);
+        test(pu.cl != null && pu.cl.i == 15);
         return Task.CompletedTask;
     }
 
@@ -352,23 +329,14 @@ public sealed class TestI : TestIntf
     public Task
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-            test(p is PSUnknown);
-            var pu = (PSUnknown)p;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
-            test(pu.graph != pu.graph.next);
-            test(pu.graph.next != pu.graph.next.next);
-            test(pu.graph.next.next.next == pu.graph);
-        }
+        test(p is PSUnknown);
+        var pu = (PSUnknown)p;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.psu.Equals("unknown"));
+        test(pu.graph != pu.graph.next);
+        test(pu.graph.next != pu.graph.next.next);
+        test(pu.graph.next.next.next == pu.graph);
         return Task.CompletedTask;
     }
 
@@ -385,20 +353,10 @@ public sealed class TestI : TestIntf
     public Task
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown2));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-
-            var pu = (PSUnknown2)p;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.pb == pu);
-        }
+        var pu = (PSUnknown2)p;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.pb == pu);
         return Task.CompletedTask;
     }
 

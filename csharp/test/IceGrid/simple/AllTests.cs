@@ -222,28 +222,6 @@ public class AllTests : Test.AllTests
 
         Console.Out.Write("testing encoding versioning... ");
         Console.Out.Flush();
-        IObjectPrx base10 = IObjectPrx.Parse("test10 @ TestAdapter10", communicator);
-        IObjectPrx base102 = IObjectPrx.Parse("test10", communicator);
-        try
-        {
-            base10.IcePing();
-            test(false);
-        }
-        catch (Ice.NoEndpointException)
-        {
-        }
-        try
-        {
-            base102.IcePing();
-            test(false);
-        }
-        catch (Ice.NoEndpointException)
-        {
-        }
-        base10 = base10.Clone(encodingVersion: Util.Encoding_1_0);
-        base102 = base102.Clone(encodingVersion: Util.Encoding_1_0);
-        base10.IcePing();
-        base102.IcePing();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing reference with unknown identity... ");

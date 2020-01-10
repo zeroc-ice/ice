@@ -369,17 +369,14 @@ namespace Ice
                 byte[] outEncaps;
 
                 //
-                // Use the 1.0 encoding with operations whose only class parameters are optional.
+                // TODO: simplify test. It was using the 1.0 encoding with operations whose
+                // only class parameters were optional.
                 //
                 Test.OneOptional? oo = new Test.OneOptional(53);
                 initial.sendOptionalClass(true, oo);
-                var initial2 = initial.Clone(encodingVersion: Util.Encoding_1_0);
-                initial2.sendOptionalClass(true, oo);
 
                 oo = initial.returnOptionalClass(true);
                 test(oo != null);
-                oo = initial2.returnOptionalClass(true);
-                test(oo == null);
 
                 Test.Recursive[] recursive1 = new Test.Recursive[1];
                 recursive1[0] = new Test.Recursive();
@@ -1984,23 +1981,6 @@ namespace Ice
                         test(ex.a == 30);
                         test(ex.b == "test");
                         test(ex.o!.a == 53);
-                    }
-
-                    try
-                    {
-                        //
-                        // Use the 1.0 encoding with an exception whose only class members are optional.
-                        //
-                        int? a = 30;
-                        string? b = "test";
-                        Test.OneOptional? o = new Test.OneOptional(53);
-                        initial2.opOptionalException(a, b, o);
-                    }
-                    catch (Test.OptionalException ex)
-                    {
-                        test(ex.a == null);
-                        test(ex.b == null);
-                        test(ex.o == null);
                     }
 
                     try

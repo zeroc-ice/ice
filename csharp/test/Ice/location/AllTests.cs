@@ -531,10 +531,6 @@ namespace Ice
                 count = locator.getRequestCount();
                 IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encodingVersion: Util.Encoding_1_1).IcePing();
                 test(count == locator.getRequestCount());
-                IObjectPrx.Parse("test@TestAdapter10", communicator).Clone(encodingVersion: Util.Encoding_1_0).IcePing();
-                test(++count == locator.getRequestCount());
-                IObjectPrx.Parse("test -e 1.0@TestAdapter10-2", communicator).IcePing();
-                test(++count == locator.getRequestCount());
                 output.WriteLine("ok");
 
                 output.Write("shutdown server... ");

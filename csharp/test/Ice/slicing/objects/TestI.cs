@@ -78,16 +78,9 @@ public sealed class TestI : TestIntf
 
     public void checkSUnknown(Ice.Value obj, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(obj is SUnknown));
-        }
-        else
-        {
-            test(obj is SUnknown);
-            SUnknown su = (SUnknown)obj;
-            test(su.su.Equals("SUnknown.su"));
-        }
+        test(obj is SUnknown);
+        SUnknown su = (SUnknown)obj;
+        test(su.su.Equals("SUnknown.su"));
     }
 
     public B oneElementCycle(Ice.Current current)
@@ -281,35 +274,20 @@ public sealed class TestI : TestIntf
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if (!current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            //
-            // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
-            // from unread slice.
-            //
-            r.cl = new MyClass(15);
-        }
+        r.cl = new MyClass(15);
         return r;
     }
 
     public void checkPBSUnknown(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-            test(p is PSUnknown);
-            PSUnknown pu = (PSUnknown)p;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
-            test(pu.graph == null);
-            test(pu.cl != null && pu.cl.i == 15);
-        }
+
+        test(p is PSUnknown);
+        PSUnknown pu = (PSUnknown)p;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.psu.Equals("unknown"));
+        test(pu.graph == null);
+        test(pu.cl != null && pu.cl.i == 15);
     }
 
     public Task<Preserved>
@@ -328,23 +306,14 @@ public sealed class TestI : TestIntf
 
     public void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-            test(p is PSUnknown);
-            PSUnknown pu = (PSUnknown)p;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
-            test(pu.graph != pu.graph.next);
-            test(pu.graph.next != pu.graph.next.next);
-            test(pu.graph.next.next.next == pu.graph);
-        }
+        test(p is PSUnknown);
+        PSUnknown pu = (PSUnknown)p;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.psu.Equals("unknown"));
+        test(pu.graph != pu.graph.next);
+        test(pu.graph.next != pu.graph.next.next);
+        test(pu.graph.next.next.next == pu.graph);
     }
 
     public Task<Preserved>
@@ -359,20 +328,11 @@ public sealed class TestI : TestIntf
 
     public void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
     {
-        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
-        {
-            test(!(p is PSUnknown2));
-            test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
-        }
-        else
-        {
-            test(p is PSUnknown2);
-            PSUnknown2 pu = (PSUnknown2)p;
-            test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.pb == pu);
-        }
+        test(p is PSUnknown2);
+        PSUnknown2 pu = (PSUnknown2)p;
+        test(pu.pi == 5);
+        test(pu.ps.Equals("preserved"));
+        test(pu.pb == pu);
     }
 
     public PNode exchangePNode(PNode pn, Ice.Current current)

@@ -22,18 +22,10 @@ namespace Ice
             FindAdapterByIdAsync(string adapter, Ice.Current current)
             {
                 ++_requestCount;
-                if (adapter.Equals("TestAdapter10") || adapter.Equals("TestAdapter10-2"))
-                {
-                    Debug.Assert(current.Encoding.Equals(Util.Encoding_1_0));
-                    return Task.FromResult(_registry.getAdapter("TestAdapter"));
-                }
-                else
-                {
-                    // We add a small delay to make sure locator request queuing gets tested when
-                    // running the test on a fast machine
-                    System.Threading.Thread.Sleep(1);
-                    return Task.FromResult(_registry.getAdapter(adapter));
-                }
+                // We add a small delay to make sure locator request queuing gets tested when
+                // running the test on a fast machine
+                System.Threading.Thread.Sleep(1);
+                return Task.FromResult(_registry.getAdapter(adapter));
             }
 
             public Task<Ice.IObjectPrx>

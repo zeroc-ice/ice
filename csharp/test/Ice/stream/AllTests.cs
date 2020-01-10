@@ -258,27 +258,6 @@ namespace Ice
                 }
 
                 {
-                    outS = new OutputStream(communicator, Util.Encoding_1_0);
-                    var o = new Test.OptionalClass();
-                    o.bo = true;
-                    o.by = 5;
-                    o.sh = 4;
-                    o.i = 3;
-                    outS.WriteValue(o);
-                    outS.WritePendingValues();
-                    byte[] data = outS.Finished();
-                    inS = new InputStream(communicator, Util.Encoding_1_0, data);
-                    var cb = new TestReadValueCallback();
-                    inS.ReadValue(cb.invoke);
-                    inS.ReadPendingValues();
-                    var o2 = (Test.OptionalClass)cb.obj;
-                    test(o2.bo == o.bo);
-                    test(o2.by == o.by);
-                    test(!o2.sh.HasValue);
-                    test(!o2.i.HasValue);
-                }
-
-                {
                     bool[] arr = { true, false, true, false };
                     outS = new OutputStream(communicator);
                     BoolSeqHelper.Write(outS, arr);

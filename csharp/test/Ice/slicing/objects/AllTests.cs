@@ -176,39 +176,24 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
+
+        try
         {
-            try
-            {
-                SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompact();
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
-            }
-            catch (System.Exception ex)
-            {
-                output.WriteLine(ex.ToString());
-                test(false);
-            }
+            //
+            // This test fails when using the compact format because the instance cannot
+            // be sliced to a known type.
+            //
+            testPrx.SBSUnknownDerivedAsSBaseCompact();
+            test(false);
         }
-        else
+        catch (Ice.NoValueFactoryException)
         {
-            try
-            {
-                //
-                // This test fails when using the compact format because the instance cannot
-                // be sliced to a known type.
-                //
-                testPrx.SBSUnknownDerivedAsSBaseCompact();
-                test(false);
-            }
-            catch (Ice.NoValueFactoryException)
-            {
-                // Expected.
-            }
-            catch (System.Exception ex)
-            {
-                output.WriteLine(ex.ToString());
-                test(false);
-            }
+            // Expected.
+        }
+        catch (System.Exception ex)
+        {
+            output.WriteLine(ex.ToString());
+            test(false);
         }
         output.WriteLine("ok");
 
@@ -218,30 +203,18 @@ public class AllTests : Test.AllTests
             SBase sb = testPrx.SBSUnknownDerivedAsSBaseAsync().Result;
             test(sb.sb.Equals("SBSUnknownDerived.sb"));
         }
-        if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
+
+        //
+        // This test fails when using the compact format because the instance cannot
+        // be sliced to a known type.
+        //
+        try
         {
-            //
-            // This test succeeds for the 1.0 encoding.
-            //
-            {
-                SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompactAsync().Result;
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
-            }
+            SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompactAsync().Result;
         }
-        else
+        catch (AggregateException ae)
         {
-            //
-            // This test fails when using the compact format because the instance cannot
-            // be sliced to a known type.
-            //
-            try
-            {
-                SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompactAsync().Result;
-            }
-            catch (AggregateException ae)
-            {
-                test(ae.InnerException is Ice.NoValueFactoryException);
-            }
+            test(ae.InnerException is Ice.NoValueFactoryException);
         }
         output.WriteLine("ok");
 
@@ -251,7 +224,6 @@ public class AllTests : Test.AllTests
             try
             {
                 Ice.Value o = testPrx.SUnknownAsObject();
-                test(!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
                 test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                 test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
@@ -259,7 +231,7 @@ public class AllTests : Test.AllTests
             }
             catch (Ice.NoValueFactoryException)
             {
-                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
+                test(false);
             }
             catch (System.Exception ex)
             {
@@ -274,37 +246,16 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
+                try
                 {
-                    try
-                    {
-                        var o = testPrx.SUnknownAsObjectAsync().Result;
-                    }
-                    catch (AggregateException ae)
-                    {
-                        try
-                        {
-                            throw ae.InnerException;
-                        }
-                        catch (Ice.Exception ex)
-                        {
-                            test(ex.GetType().FullName.Equals("Ice.NoValueFactoryException"));
-                        }
-                    }
+                    var o = testPrx.SUnknownAsObjectAsync().Result;
+                    test(o is Ice.UnknownSlicedValue);
+                    test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                 }
-                else
+                catch (AggregateException ex)
                 {
-                    try
-                    {
-                        var o = testPrx.SUnknownAsObjectAsync().Result;
-                        test(o is Ice.UnknownSlicedValue);
-                        test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
-                    }
-                    catch (AggregateException ex)
-                    {
-                        output.WriteLine(ex.ToString());
-                        test(false);
-                    }
+                    output.WriteLine(ex.ToString());
+                    test(false);
                 }
             }
             catch (System.Exception ex)
@@ -1700,17 +1651,9 @@ public class AllTests : Test.AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                test(!(r is PCDerived));
-                test(r.pi == 3);
-            }
-            else
-            {
-                PCDerived p2 = r as PCDerived;
-                test(p2.pi == 3);
-                test(p2.pbs[0] == p2);
-            }
+            PCDerived p2 = r as PCDerived;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
         }
         catch (Ice.OperationNotExistException)
         {
@@ -1727,17 +1670,9 @@ public class AllTests : Test.AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                test(!(r is CompactPCDerived));
-                test(r.pi == 3);
-            }
-            else
-            {
-                CompactPCDerived p2 = r as CompactPCDerived;
-                test(p2.pi == 3);
-                test(p2.pbs[0] == p2);
-            }
+            CompactPCDerived p2 = r as CompactPCDerived;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
         }
         catch (Ice.OperationNotExistException)
         {
@@ -1768,27 +1703,18 @@ public class AllTests : Test.AllTests
             pcd.pcd3 = pcd.pbs[10];
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
+            PCDerived3 p3 = r as PCDerived3;
+            test(p3.pi == 3);
+            for (i = 0; i < 300; ++i)
             {
-                test(!(r is PCDerived3));
-                test(r is Preserved);
-                test(r.pi == 3);
+                PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                test(p2.pi == i);
+                test(p2.pbs.Length == 1);
+                test(p2.pbs[0] == null);
+                test(p2.pcd2 == i);
             }
-            else
-            {
-                PCDerived3 p3 = r as PCDerived3;
-                test(p3.pi == 3);
-                for (i = 0; i < 300; ++i)
-                {
-                    PCDerived2 p2 = p3.pbs[i] as PCDerived2;
-                    test(p2.pi == i);
-                    test(p2.pbs.Length == 1);
-                    test(p2.pbs[0] == null);
-                    test(p2.pcd2 == i);
-                }
-                test(p3.pcd2 == p3.pi);
-                test(p3.pcd3 == p3.pbs[10]);
-            }
+            test(p3.pcd2 == p3.pi);
+            test(p3.pcd3 == p3.pbs[10]);
         }
         catch (Ice.OperationNotExistException)
         {
@@ -1803,17 +1729,9 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            if (!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                SlicedData slicedData = p.ice_getSlicedData();
-                test(slicedData.slices.Length == 1);
-                test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
-                testPrx.Clone(encodingVersion: Util.Encoding_1_0).checkPBSUnknown(p);
-            }
-            else
-            {
-                test(p.ice_getSlicedData() == null);
-            }
+            SlicedData slicedData = p.ice_getSlicedData();
+            test(slicedData.slices.Length == 1);
+            test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
         }
         catch (OperationNotExistException)
         {
@@ -1860,19 +1778,10 @@ public class AllTests : Test.AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                test(!(r is PCDerived));
-                test(r.pi == 3);
-            }
-            else
-            {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived p2 = (PCDerived)r;
-                test(p2.pi == 3);
-                test(p2.pbs[0] == p2);
-            }
+            PBase r = testPrx.exchangePBaseAsync(pcd).Result;
+            PCDerived p2 = (PCDerived)r;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
         }
 
         {
@@ -1884,19 +1793,10 @@ public class AllTests : Test.AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                test(!(r is CompactPCDerived));
-                test(r.pi == 3);
-            }
-            else
-            {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                CompactPCDerived p2 = (CompactPCDerived)r;
-                test(p2.pi == 3);
-                test(p2.pbs[0] == p2);
-            }
+            PBase r = testPrx.exchangePBaseAsync(pcd).Result;
+            CompactPCDerived p2 = (CompactPCDerived)r;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
         }
 
         {
@@ -1921,29 +1821,19 @@ public class AllTests : Test.AllTests
             pcd.pcd2 = pcd.pi;
             pcd.pcd3 = pcd.pbs[10];
 
-            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
+            PBase r = testPrx.exchangePBaseAsync(pcd).Result;
+            PCDerived3 p3 = (PCDerived3)r;
+            test(p3.pi == 3);
+            for (int i = 0; i < 300; ++i)
             {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                test(!(r is PCDerived3));
-                test(r is Preserved);
-                test(r.pi == 3);
+                PCDerived2 p2 = (PCDerived2)p3.pbs[i];
+                test(p2.pi == i);
+                test(p2.pbs.Length == 1);
+                test(p2.pbs[0] == null);
+                test(p2.pcd2 == i);
             }
-            else
-            {
-                PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived3 p3 = (PCDerived3)r;
-                test(p3.pi == 3);
-                for (int i = 0; i < 300; ++i)
-                {
-                    PCDerived2 p2 = (PCDerived2)p3.pbs[i];
-                    test(p2.pi == i);
-                    test(p2.pbs.Length == 1);
-                    test(p2.pbs[0] == null);
-                    test(p2.pcd2 == i);
-                }
-                test(p3.pcd2 == p3.pi);
-                test(p3.pcd3 == p3.pbs[10]);
-            }
+            test(p3.pcd2 == p3.pi);
+            test(p3.pcd3 == p3.pbs[10]);
         }
 
         try
@@ -1955,10 +1845,6 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            if (!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-            {
-                testPrx.Clone(encodingVersion: Util.Encoding_1_0).checkPBSUnknown(p);
-            }
         }
         catch (Ice.OperationNotExistException)
         {

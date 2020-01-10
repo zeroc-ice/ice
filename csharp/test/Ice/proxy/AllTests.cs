@@ -900,12 +900,6 @@ namespace Ice
                     // Server 2.0 endpoint doesn't support 1.1 version.
                 }
 
-                string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
-                Test.IMyClassPrx cl10 = Test.IMyClassPrx.Parse(ref10, communicator);
-                cl10.IcePing();
-                cl10.Clone(encodingVersion: Util.Encoding_1_0).IcePing();
-                cl.Clone(encodingVersion: Util.Encoding_1_0).IcePing();
-
                 // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
                 // call will use the 1.1 encoding
                 string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
@@ -968,10 +962,6 @@ namespace Ice
                 {
                     // Server 2.0 proxy doesn't support 1.0 version.
                 }
-
-                ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
-                cl10 = Test.IMyClassPrx.Parse(ref10, communicator);
-                cl10.IcePing();
 
                 // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
                 // call will use the 1.1 protocol
@@ -1122,24 +1112,24 @@ namespace Ice
                     bool tcp = communicator.GetProperty("Default.Protocol") == "tcp";
 
                     // Two legal TCP endpoints expressed as opaque endpoints
-                    p1 = IObjectPrx.Parse("test -e 1.0:" + "" +
-                        "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
-                        "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
+                    p1 = IObjectPrx.Parse("test -e 1.1:" + "" +
+                        "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
+                        "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
                     pstr = p1.ToString();
-                    test(pstr.Equals("test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+                    test(pstr.Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
                     // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
-                    p1 = IObjectPrx.Parse("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch",
+                    p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
                         communicator);
                     pstr = p1.ToString();
                     if (ssl)
                     {
-                        test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
+                        test(pstr.Equals("test -t -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
                     }
                     else if (tcp)
                     {
                         test(pstr.Equals(
-                            "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
+                            "test -t -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
                     }
                 }
 

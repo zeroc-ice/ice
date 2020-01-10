@@ -715,10 +715,7 @@ public class AllTests : Test.AllTests
             }
             catch (Base)
             {
-                //
-                // For the 1.0 encoding, the unknown exception is sliced to Base.
-                //
-                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
+                test(false);
             }
             catch (Ice.UnknownUserException)
             {
@@ -726,7 +723,6 @@ public class AllTests : Test.AllTests
                 // A MarshalException is raised for the compact format because the
                 // most-derived type is unknown and the exception cannot be sliced.
                 //
-                test(!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
             }
             catch (Ice.OperationNotExistException)
             {
@@ -748,18 +744,11 @@ public class AllTests : Test.AllTests
             }
             catch (Base ex)
             {
-                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-                {
-                    test(ex.ice_getSlicedData() == null);
-                }
-                else
-                {
-                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
-                    test(slicedData != null);
-                    test(slicedData.slices.Length == 2);
-                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
-                }
+                Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.Length == 2);
+                test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
             }
 
             try
@@ -770,18 +759,11 @@ public class AllTests : Test.AllTests
             catch (KnownPreserved ex)
             {
                 test(ex.kp.Equals("preserved"));
-                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
-                {
-                    test(ex.ice_getSlicedData() == null);
-                }
-                else
-                {
-                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
-                    test(slicedData != null);
-                    test(slicedData.slices.Length == 2);
-                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
-                }
+                Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.Length == 2);
+                test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
@@ -843,16 +825,6 @@ public class AllTests : Test.AllTests
                 test(pc.pc.Equals("pc"));
                 test(ex.p2 == ex.p1);
             }
-            catch (KnownPreservedDerived ex)
-            {
-                //
-                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                //
-                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-            }
             catch (Ice.OperationNotExistException)
             {
             }
@@ -876,16 +848,6 @@ public class AllTests : Test.AllTests
                 test(pc.bc.Equals("bc"));
                 test(pc.pc.Equals("pc"));
                 test(ex.p2 == ex.p1);
-            }
-            catch (KnownPreservedDerived ex)
-            {
-                //
-                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                //
-                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
             }
             catch (Ice.OperationNotExistException)
             {
