@@ -144,7 +144,7 @@ TransientTopicManagerImpl::shutdown()
 {
     lock_guard<mutex> lg(_mutex);
 
-    for(const auto topic : _topics)
+    for(const auto& topic : _topics)
     {
         topic.second->shutdown();
     }

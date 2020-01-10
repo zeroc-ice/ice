@@ -41,7 +41,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation;
+            long long generation;
             auto master = getMaster(generation, __FILE__, __LINE__);
             if(master)
             {
@@ -90,7 +90,7 @@ public:
 
 private:
 
-    shared_ptr<TopicManagerPrx> getMaster(Ice::Long& generation, const char* file, int line) const
+    shared_ptr<TopicManagerPrx> getMaster(long long& generation, const char* file, int line) const
     {
         auto node = _instance->node();
         if(node)
