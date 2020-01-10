@@ -3091,38 +3091,40 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     if(outParams.size() > 1)
     {
         _out << sp;
-        _out << nl << "public readonly struct " << opName << "ReturnValue";
+        _out << nl << "public struct " << opName << "ReturnValue";
         _out << sb;
         for(const auto& p : outParams)
         {
-            _out << nl << "public readonly " << p.typeStr << " " << p.name << ";";
+            _out << nl << "public " << p.typeStr << " " << paramName(p) << ";";
         }
 
         _out << sp;
         _out << nl << "public " << opName << "ReturnValue"
              << spar << getNames(outParams, [](const auto& p)
                                             {
-                                                return p.typeStr + " " + p.name;
+                                                return p.typeStr + " " + paramName(p);
                                             })
              << epar;
         _out << sb;
         for(const auto& p : outParams)
         {
-            _out << nl << "this." << p.name << " = " << p.name << ";";
+            const string name = paramName(p);
+            _out << nl << "this." << name << " = " << name << ";";
         }
         _out << eb;
 
         _out << sp;
-        _out << nl << "public void Deconstruct"
+        _out << nl << "public readonly void Deconstruct"
              << spar << getNames(outParams, [](const auto& p)
                                             {
-                                                return "out " + p.typeStr + " " + p.name;
+                                                return "out " + p.typeStr + " " + paramName(p);
                                             })
              << epar;
         _out << sb;
         for(const auto& p : outParams)
         {
-            _out << nl << p.name << " = this." << p.name << ";";
+            const string name = paramName(p);
+            _out << nl << name << " = this." << name << ";";
         }
         _out << eb;
 

@@ -21,16 +21,27 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-std::string
-Slice::operationName(const OperationPtr& op)
+bool
+Slice::normalizeCase(const ContainedPtr& c)
 {
-    auto fileMetaData = op->unit()->findDefinitionContext(op->file())->getMetaData();
+    auto fileMetaData = c->unit()->findDefinitionContext(c->file())->getMetaData();
     if(find(begin(fileMetaData), end(fileMetaData), "normalize-case") != end(fileMetaData) ||
        find(begin(fileMetaData), end(fileMetaData), "cs:normalize-case") != end(fileMetaData))
     {
-        return pascalCase(op->name());
+        return true;
     }
-    return op->name();
+    return false;
+}
+std::string
+Slice::operationName(const OperationPtr& op)
+{
+    return normalizeCase(op) ? pascalCase(op->name()) : op->name();
+}
+
+std::string
+Slice::paramName(const ParamInfo& info)
+{
+    return normalizeCase(info.operation) ? pascalCase(info.name) : info.name;
 }
 
 bool
@@ -707,8 +718,14 @@ Slice::isValueType(const TypePtr& type)
     return s && isImmutableType(s);
 }
 
-Slice::ParamInfo::ParamInfo(const string& pName, const TypePtr& pType, bool pTagged, int pTag, const string& pPrefix)
+Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
+                            const string& pName,
+                            const TypePtr& pType,
+                            bool pTagged,
+                            int pTag,
+                            const string& pPrefix)
 {
+    this->operation = pOperation;
     this->name = CsGenerator::fixId(pPrefix + pName);
     this->type = pType;
     this->typeStr = CsGenerator::typeToString(pType, "", pTagged);
@@ -720,6 +737,7 @@ Slice::ParamInfo::ParamInfo(const string& pName, const TypePtr& pType, bool pTag
 
 Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
 {
+    this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = CsGenerator::fixId(pPrefix + pParam->name());
     this->type = pParam->type();
     this->typeStr = CsGenerator::typeToString(type, "", pParam->tagged());
@@ -777,7 +795,8 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
 
     if(op->returnType())
     {
-        auto ret = ParamInfo(returnValueName(op->outParameters()),
+        auto ret = ParamInfo(op,
+                             returnValueName(op->outParameters()),
                              op->returnType(),
                              op->returnIsTagged(),
                              op->returnTag(),

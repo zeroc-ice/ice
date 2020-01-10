@@ -97,8 +97,8 @@ namespace IceInternal
                     try
                     {
                         var r = t.Result;
-                        callback.setEndpoints(setClientEndpoints(r.returnValue,
-                                                    r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
+                        callback.setEndpoints(setClientEndpoints(r.ReturnValue,
+                            r.HasRoutingTable.HasValue ? r.HasRoutingTable.Value : true));
                     }
                     catch (System.AggregateException ae)
                     {

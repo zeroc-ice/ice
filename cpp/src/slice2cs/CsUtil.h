@@ -15,7 +15,25 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
+struct ParamInfo
+{
+    std::string name;
+    TypePtr type;
+    std::string typeStr;
+    bool nullable;
+    bool tagged;
+    int tag;
+    ParamDeclPtr param; // 0 == return value
+    OperationPtr operation;
+
+    ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool tagged, int tag,
+              const std::string& prefix = "");
+    ParamInfo(const ParamDeclPtr& param, const std::string& prefix = "");
+};
+
+bool normalizeCase(const ContainedPtr&);
 std::string operationName(const OperationPtr&);
+std::string paramName(const ParamInfo&);
 
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
@@ -28,20 +46,6 @@ bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
 bool isImmutableType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
-
-struct ParamInfo
-{
-    std::string name;
-    TypePtr type;
-    std::string typeStr;
-    bool nullable;
-    bool tagged;
-    int tag;
-    ParamDeclPtr param; // 0 == return value
-
-    ParamInfo(const std::string& name, const TypePtr& type, bool tagged, int tag, const std::string& prefix = "");
-    ParamInfo(const ParamDeclPtr& param, const std::string& prefix = "");
-};
 
 std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");
 void getInParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
