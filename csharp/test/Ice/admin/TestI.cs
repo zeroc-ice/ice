@@ -90,7 +90,7 @@ namespace Ice
 
         public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactory
         {
-            public Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+            public Test.IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
             {
                 //
                 // Prepare the property set using the given properties.

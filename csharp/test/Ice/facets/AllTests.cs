@@ -11,7 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.GPrx allTests(global::Test.TestHelper helper)
+            public static Test.IGPrx allTests(global::Test.TestHelper helper)
             {
 
                 Communicator communicator = helper.communicator();
@@ -100,31 +100,31 @@ namespace Ice
 
                 output.Write("testing unchecked cast... ");
                 output.Flush();
-                var d = DPrx.UncheckedCast(prx);
+                var d = IDPrx.UncheckedCast(prx);
                 test(d.Facet.Length == 0);
-                var df = DPrx.UncheckedCast(prx.Clone(facet: "facetABCD"));
+                var df = IDPrx.UncheckedCast(prx.Clone(facet: "facetABCD"));
                 test(df.Facet == "facetABCD");
-                var df2 = DPrx.UncheckedCast(df);
+                var df2 = IDPrx.UncheckedCast(df);
                 test(df2.Facet == "facetABCD");
-                var df3 = DPrx.UncheckedCast(df.Clone(facet: ""));
+                var df3 = IDPrx.UncheckedCast(df.Clone(facet: ""));
                 test(df3.Facet.Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                d = DPrx.CheckedCast(prx);
+                d = IDPrx.CheckedCast(prx);
                 test(d.Facet.Length == 0);
-                df = DPrx.CheckedCast(prx.Clone(facet: "facetABCD"));
+                df = IDPrx.CheckedCast(prx.Clone(facet: "facetABCD"));
                 test(df.Facet == "facetABCD");
-                df2 = DPrx.CheckedCast(df);
+                df2 = IDPrx.CheckedCast(df);
                 test(df2.Facet == "facetABCD");
-                df3 = DPrx.CheckedCast(df.Clone(facet: ""));
+                df3 = IDPrx.CheckedCast(df.Clone(facet: ""));
                 test(df3.Facet.Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing non-facets A, B, C, and D... ");
                 output.Flush();
-                d = DPrx.CheckedCast(prx);
+                d = IDPrx.CheckedCast(prx);
                 test(d != null);
                 test(d.Equals(prx));
                 test(d.callA().Equals("A"));
@@ -135,7 +135,7 @@ namespace Ice
 
                 output.Write("testing facets A, B, C, and D... ");
                 output.Flush();
-                df = DPrx.CheckedCast(d.Clone(facet: "facetABCD"));
+                df = IDPrx.CheckedCast(d.Clone(facet: "facetABCD"));
                 test(df != null);
                 test(df.callA().Equals("A"));
                 test(df.callB().Equals("B"));
@@ -145,20 +145,20 @@ namespace Ice
 
                 output.Write("testing facets E and F... ");
                 output.Flush();
-                var ff = FPrx.CheckedCast(d.Clone(facet: "facetEF"));
+                var ff = IFPrx.CheckedCast(d.Clone(facet: "facetEF"));
                 test(ff.callE().Equals("E"));
                 test(ff.callF().Equals("F"));
                 output.WriteLine("ok");
 
                 output.Write("testing facet G... ");
                 output.Flush();
-                var gf = GPrx.CheckedCast(ff.Clone(facet: "facetGH"));
+                var gf = IGPrx.CheckedCast(ff.Clone(facet: "facetGH"));
                 test(gf.callG().Equals("G"));
                 output.WriteLine("ok");
 
                 output.Write("testing whether casting preserves the facet... ");
                 output.Flush();
-                var hf = HPrx.CheckedCast(gf);
+                var hf = IHPrx.CheckedCast(gf);
                 test(hf.callG().Equals("G"));
                 test(hf.callH().Equals("H"));
                 output.WriteLine("ok");

@@ -10,7 +10,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static void testExceptions(Test.TestIntfPrx obj)
+            public static void testExceptions(Test.ITestIntfPrx obj)
             {
                 try
                 {
@@ -192,7 +192,7 @@ namespace Ice
                 }
             }
 
-            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            public static Test.ITestIntfPrx allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -205,7 +205,7 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrx.CheckedCast(@base);
+                var obj = Test.ITestIntfPrx.CheckedCast(@base);
                 test(obj.Equals(@base));
                 output.WriteLine("ok");
 
@@ -245,10 +245,10 @@ namespace Ice
                 output.Write("testing servant locator...");
                 output.Flush();
                 @base = IObjectPrx.Parse($"category/locate:{helper.getTestEndpoint(0)}", communicator);
-                obj = Test.TestIntfPrx.CheckedCast(@base);
+                obj = Test.ITestIntfPrx.CheckedCast(@base);
                 try
                 {
-                    Test.TestIntfPrx.Parse($"category/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
+                    Test.ITestIntfPrx.Parse($"category/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -258,19 +258,19 @@ namespace Ice
                 output.Write("testing default servant locator...");
                 output.Flush();
                 @base = IObjectPrx.Parse($"anothercat/locate:{helper.getTestEndpoint(0)}", communicator);
-                obj = Test.TestIntfPrx.CheckedCast(@base);
+                obj = Test.ITestIntfPrx.CheckedCast(@base);
                 @base = IObjectPrx.Parse($"locate:{helper.getTestEndpoint(0)}", communicator);
-                obj = Test.TestIntfPrx.CheckedCast(@base);
+                obj = Test.ITestIntfPrx.CheckedCast(@base);
                 try
                 {
-                    Test.TestIntfPrx.Parse($"anothercat/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
+                    Test.ITestIntfPrx.Parse($"anothercat/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
                 }
                 try
                 {
-                    Test.TestIntfPrx.Parse($"unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
+                    Test.ITestIntfPrx.Parse($"unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -280,14 +280,14 @@ namespace Ice
                 output.Write("testing locate exceptions... ");
                 output.Flush();
                 @base = IObjectPrx.Parse($"category/locate:{helper.getTestEndpoint(0)}", communicator);
-                obj = Test.TestIntfPrx.CheckedCast(@base);
+                obj = Test.ITestIntfPrx.CheckedCast(@base);
                 testExceptions(obj);
                 output.WriteLine("ok");
 
                 output.Write("testing finished exceptions... ");
                 output.Flush();
                 @base = IObjectPrx.Parse($"category/finished:{helper.getTestEndpoint(0)}", communicator);
-                obj = Test.TestIntfPrx.CheckedCast(@base);
+                obj = Test.ITestIntfPrx.CheckedCast(@base);
                 testExceptions(obj);
 
                 //
@@ -331,7 +331,7 @@ namespace Ice
                 output.Write("testing servant locator removal... ");
                 output.Flush();
                 @base = IObjectPrx.Parse($"test/activation:{helper.getTestEndpoint(0)}", communicator);
-                var activation = Test.TestActivationPrx.CheckedCast(@base);
+                var activation = Test.ITestActivationPrx.CheckedCast(@base);
                 activation.activateServantLocator(false);
                 try
                 {

@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Ice
@@ -60,13 +59,13 @@ namespace Ice
 
             public class AllTests : global::Test.AllTests
             {
-                public static Test.InitialPrx allTests(global::Test.TestHelper helper)
+                public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
                 {
                     Ice.Communicator communicator = helper.communicator();
 
                     var output = helper.getWriter();
 
-                    var initial = InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
+                    var initial = IInitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                     output.Write("getting B1... ");
                     output.Flush();
@@ -280,7 +279,7 @@ namespace Ice
 
                     output.Write("testing UnexpectedObjectException...");
                     output.Flush();
-                    var uoet = UnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.getTestEndpoint(0)}", communicator);
+                    var uoet = IUnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.getTestEndpoint(0)}", communicator);
                     try
                     {
                         uoet.op();
@@ -351,14 +350,14 @@ namespace Ice
                         test(f11.name.Equals("F11"));
                         test(f12.name.Equals("F12"));
 
-                        var (f21, f22) = initial.opF2(F2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator));
+                        var (f21, f22) = initial.opF2(IF2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator));
                         test(f21.Identity.name.Equals("F21"));
                         f21.op();
                         test(f22.Identity.name.Equals("F22"));
 
                         if (initial.hasF3())
                         {
-                            var (f31, f32) = initial.opF3(new F3(new F1("F11"), F2Prx.Parse("F21", communicator)));
+                            var (f31, f32) = initial.opF3(new F3(new F1("F11"), IF2Prx.Parse("F21", communicator)));
 
                             test(f31.f1.name.Equals("F11"));
                             test(f31.f2.Identity.name.Equals("F21"));

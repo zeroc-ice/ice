@@ -22,7 +22,7 @@ namespace IceInternal
             void setException(Ice.LocalException ex);
         }
 
-        internal RouterInfo(Ice.RouterPrx router)
+        internal RouterInfo(IRouterPrx router)
         {
             _router = router;
 
@@ -55,7 +55,7 @@ namespace IceInternal
             return _router.GetHashCode();
         }
 
-        public Ice.RouterPrx getRouter()
+        public IRouterPrx getRouter()
         {
             //
             // No mutex lock necessary, _router is immutable.
@@ -274,7 +274,7 @@ namespace IceInternal
             }
         }
 
-        private readonly RouterPrx _router;
+        private readonly IRouterPrx _router;
         private EndpointI[]? _clientEndpoints;
         private ObjectAdapter? _adapter;
         private HashSet<Identity> _identities = new HashSet<Identity>();
@@ -286,7 +286,7 @@ namespace IceInternal
     {
         internal RouterManager()
         {
-            _table = new Dictionary<RouterPrx, RouterInfo>();
+            _table = new Dictionary<IRouterPrx, RouterInfo>();
         }
 
         internal void destroy()
@@ -305,12 +305,12 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo get(RouterPrx rtr)
+        public RouterInfo get(IRouterPrx rtr)
         {
             //
             // The router cannot be routed.
             //
-            RouterPrx router = rtr.Clone(clearRouter: true);
+            IRouterPrx router = rtr.Clone(clearRouter: true);
 
             lock (this)
             {
@@ -328,7 +328,7 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo? erase(RouterPrx? rtr)
+        public RouterInfo? erase(IRouterPrx? rtr)
         {
             RouterInfo? info = null;
             if (rtr != null)
@@ -336,7 +336,7 @@ namespace IceInternal
                 //
                 // The router cannot be routed.
                 //
-                RouterPrx router = rtr.Clone(clearRouter: true);
+                IRouterPrx router = rtr.Clone(clearRouter: true);
 
                 lock (this)
                 {
@@ -349,7 +349,7 @@ namespace IceInternal
             return info;
         }
 
-        private Dictionary<RouterPrx, RouterInfo> _table;
+        private Dictionary<IRouterPrx, RouterInfo> _table;
     }
 
 }

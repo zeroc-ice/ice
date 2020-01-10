@@ -10,7 +10,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.InitialPrx allTests(TestHelper helper)
+            public static Test.IInitialPrx allTests(TestHelper helper)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -21,7 +21,7 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var initial = Test.InitialPrx.CheckedCast(@base);
+                var initial = Test.IInitialPrx.CheckedCast(@base);
                 test(initial != null);
                 test(initial.Equals(@base));
                 output.WriteLine("ok");

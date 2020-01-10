@@ -10,10 +10,10 @@ public class AllTests : Test.AllTests
     public static void allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        var service1 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-        var service2 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
-        var service3 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(2)}", communicator);
-        var service4 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(3)}", communicator);
+        var service1 = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+        var service2 = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
+        var service3 = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(2)}", communicator);
+        var service4 = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(3)}", communicator);
 
         if (service1.getProperty("IceBox.InheritProperties") == "")
         {

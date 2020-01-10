@@ -20,22 +20,22 @@ namespace Ice
                 _ic = adapter.Add(new ICI());
             }
 
-            public Test.MA.IAPrx iaop(Ice.Current current)
+            public Test.MA.IIAPrx iaop(Ice.Current current)
             {
                 return _ia;
             }
 
-            public Test.MB.IB1Prx ib1op(Ice.Current current)
+            public Test.MB.IIB1Prx ib1op(Ice.Current current)
             {
                 return _ib1;
             }
 
-            public Test.MB.IB2Prx ib2op(Ice.Current current)
+            public Test.MB.IIB2Prx ib2op(Ice.Current current)
             {
                 return _ib2;
             }
 
-            public Test.MA.ICPrx icop(Ice.Current current)
+            public Test.MA.IICPrx icop(Ice.Current current)
             {
                 return _ic;
             }
@@ -45,10 +45,10 @@ namespace Ice
                 current.Adapter.Communicator.shutdown();
             }
 
-            private Test.MA.IAPrx _ia;
-            private Test.MB.IB1Prx _ib1;
-            private Test.MB.IB2Prx _ib2;
-            private Test.MA.ICPrx _ic;
+            private Test.MA.IIAPrx _ia;
+            private Test.MB.IIB1Prx _ib1;
+            private Test.MB.IIB2Prx _ib2;
+            private Test.MA.IICPrx _ic;
         }
     }
 }

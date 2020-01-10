@@ -90,7 +90,7 @@ internal sealed class ServerFactoryI : ServerFactory
         _defaultDir = defaultDir;
     }
 
-    public ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
+    public IServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         props["IceSSL.DefaultDir"] = _defaultDir;
         Ice.Communicator communicator = new Ice.Communicator(props);
@@ -102,7 +102,7 @@ internal sealed class ServerFactoryI : ServerFactory
         return prx;
     }
 
-    public void destroyServer(ServerPrx srv, Ice.Current current)
+    public void destroyServer(IServerPrx srv, Ice.Current current)
     {
         ServerI? server;
         if (_servers.TryGetValue(srv.Identity, out server))

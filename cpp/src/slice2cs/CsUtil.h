@@ -34,6 +34,8 @@ struct ParamInfo
 bool normalizeCase(const ContainedPtr&);
 std::string operationName(const OperationPtr&);
 std::string paramName(const ParamInfo&);
+std::string interfaceName(const ProxyPtr&);
+std::string interfaceName(const ClassDefPtr&);
 
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);

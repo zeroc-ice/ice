@@ -49,7 +49,7 @@ namespace Ice
             }
 
             public Task
-            SetServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
+            SetServerProcessProxyAsync(string id, Ice.IProcessPrx proxy, Ice.Current current)
             {
                 return null;
             }

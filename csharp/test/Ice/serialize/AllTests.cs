@@ -68,7 +68,7 @@ namespace Ice
                 output.Write("testing serialization... ");
                 output.Flush();
 
-                var proxy = Test.MyInterfacePrx.Parse("test", communicator);
+                var proxy = Test.IMyInterfacePrx.Parse("test", communicator);
 
                 Test.MyException ex, ex2;
                 ex = new Test.MyException();
@@ -114,7 +114,7 @@ namespace Ice
                 ex.i = 3;
                 ex.l = 4;
                 ex.vs = new Test.ValStruct(true, 1, 2, 3, 4, Test.MyEnum.enum2);
-                ex.rs = new Test.RefStruct("RefStruct", "prop", null, proxy, new Test.MyInterfacePrx[] { proxy, null, proxy });
+                ex.rs = new Test.RefStruct("RefStruct", "prop", null, proxy, new Test.IMyInterfacePrx[] { proxy, null, proxy });
                 ex.vss = new Test.ValStruct[1];
                 ex.vss[0] = ex.vs;
                 ex.vsl = new List<Test.ValStruct>();
@@ -129,7 +129,7 @@ namespace Ice
                 ex.isd[5] = "five";
                 ex.ivd = new Dictionary<int, Test.ValStruct>();
                 ex.ivd[1] = ex.vs;
-                ex.ipd = new Dictionary<int, Test.MyInterfacePrx>() { { 1, proxy }, { 2, null }, { 3, proxy } };
+                ex.ipd = new Dictionary<int, Test.IMyInterfacePrx>() { { 1, proxy }, { 2, null }, { 3, proxy } };
                 ex.issd = new SortedDictionary<int, string>();
                 ex.issd[3] = "three";
                 ex.optName = "MyException";
@@ -169,8 +169,8 @@ namespace Ice
                 rs.s = "RefStruct";
                 rs.sp = "prop";
                 rs.c = null;
-                rs.p = Test.MyInterfacePrx.Parse("test", communicator);
-                rs.seq = new Test.MyInterfacePrx[] { rs.p };
+                rs.p = Test.IMyInterfacePrx.Parse("test", communicator);
+                rs.seq = new Test.IMyInterfacePrx[] { rs.p };
                 rs2 = inOut(rs, communicator);
                 test(rs.Equals(rs2));
 

@@ -22,7 +22,7 @@ namespace Ice
 
             class PerThreadContextInvokeThread
             {
-                public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
+                public PerThreadContextInvokeThread(Test.IMyClassPrx proxy)
                 {
                     _proxy = proxy;
                 }
@@ -47,11 +47,11 @@ namespace Ice
                     test(Ice.Collections.Equals(_proxy.opContext(), ctx));
                 }
 
-                private Test.MyClassPrx _proxy;
+                private Test.IMyClassPrx _proxy;
                 private Thread _thread;
             }
 
-            internal static void twoways(global::Test.TestHelper helper, Test.MyClassPrx p)
+            internal static void twoways(global::Test.TestHelper helper, Test.IMyClassPrx p)
             {
                 Ice.Communicator communicator = helper.communicator();
                 string[] literals = p.opStringLiterals();
@@ -233,9 +233,9 @@ namespace Ice
                 }
 
                 {
-                    Test.MyClassPrx c1;
-                    Test.MyClassPrx c2;
-                    Test.MyClassPrx r;
+                    Test.IMyClassPrx c1;
+                    Test.IMyClassPrx c2;
+                    Test.IMyClassPrx r;
 
                     (r, c1, c2) = p.opMyClass(p);
                     ProxyIdentityFacetComparer comparer;
@@ -1421,7 +1421,7 @@ namespace Ice
                         ctx["two"] = "TWO";
                         ctx["three"] = "THREE";
 
-                        var p3 = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
+                        var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                         ic.getImplicitContext().setContext(ctx);
                         test(Ice.Collections.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -1494,7 +1494,7 @@ namespace Ice
                     test(p.opStringS2(null).Length == 0);
                     test(p.opByteBoolD2(null).Count == 0);
 
-                    var d = Test.MyDerivedClassPrx.UncheckedCast(p);
+                    var d = Test.IMyDerivedClassPrx.UncheckedCast(p);
                     var s = new Test.MyStruct1();
                     s.tesT = "MyStruct1.s";
                     s.myClass = null;

@@ -12,14 +12,14 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.InitialPrx allTests(global::Test.TestHelper helper)
+            public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
                 // FactoryI factory = new FactoryI();
                 // communicator.getValueFactoryManager().add(factory.create, "");
 
                 var output = helper.getWriter();
-                var initial = Test.InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
+                var initial = Test.IInitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("testing optional data members... ");
                 output.Flush();

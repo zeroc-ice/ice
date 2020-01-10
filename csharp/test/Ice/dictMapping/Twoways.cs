@@ -18,7 +18,7 @@ namespace Ice
                 }
             }
 
-            internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+            internal static void twoways(Ice.Communicator communicator, Test.IMyClassPrx p)
             {
                 {
                     Dictionary<int, int> i = new Dictionary<int, int>();

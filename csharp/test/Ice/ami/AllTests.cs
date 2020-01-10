@@ -165,8 +165,8 @@ namespace Ice
             {
                 Communicator communicator = helper.communicator();
 
-                var p = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-                var testController = TestIntfControllerPrx.Parse($"testController:{helper.getTestEndpoint(1)}", communicator);
+                var p = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var testController = ITestIntfControllerPrx.Parse($"testController:{helper.getTestEndpoint(1)}", communicator);
 
                 var output = helper.getWriter();
 
@@ -375,7 +375,7 @@ namespace Ice
                 output.Write("testing local exceptions with async tasks... ");
                 output.Flush();
                 {
-                    TestIntfPrx indirect = p.Clone(adapterId: "dummy");
+                    ITestIntfPrx indirect = p.Clone(adapterId: "dummy");
 
                     try
                     {
@@ -406,7 +406,7 @@ namespace Ice
                     {
                         Communicator ic = helper.initialize(communicator.GetProperties());
                         IObjectPrx o = IObjectPrx.Parse(p.ToString(), ic);
-                        TestIntfPrx p2 = Test.TestIntfPrx.CheckedCast(o);
+                        ITestIntfPrx p2 = ITestIntfPrx.CheckedCast(o);
                         ic.destroy();
 
                         try
@@ -425,7 +425,7 @@ namespace Ice
                 output.Write("testing exception with async task... ");
                 output.Flush();
                 {
-                    TestIntfPrx i = p.Clone(adapterId: "dummy");
+                    ITestIntfPrx i = p.Clone(adapterId: "dummy");
 
                     try
                     {
@@ -920,7 +920,7 @@ namespace Ice
                 output.Write("testing result struct... ");
                 output.Flush();
                 {
-                    var q = Test.Outer.Inner.TestIntfPrx.Parse($"test2:{helper.getTestEndpoint(0)}", communicator);
+                    var q = Test.Outer.Inner.ITestIntfPrx.Parse($"test2:{helper.getTestEndpoint(0)}", communicator);
                     q.opAsync(1).ContinueWith(t =>
                         {
                             var r = t.Result;

@@ -38,7 +38,7 @@ public class Collocated : Test.TestHelper
             controllerAdapter.Add(new ControllerI(adapter), "controller");
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            Test.MetricsPrx metrics = AllTests.allTests(this, observer);
+            Test.IMetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
     }

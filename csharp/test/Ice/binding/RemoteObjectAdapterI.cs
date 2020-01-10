@@ -17,7 +17,7 @@ namespace Ice
                 _adapter.Activate();
             }
 
-            public Test.TestIntfPrx
+            public Test.ITestIntfPrx
             getTestIntf(Ice.Current current)
             {
                 return _testIntf;
@@ -36,7 +36,7 @@ namespace Ice
             }
 
             private Ice.ObjectAdapter _adapter;
-            private Test.TestIntfPrx _testIntf;
+            private Test.ITestIntfPrx _testIntf;
         }
     }
 }

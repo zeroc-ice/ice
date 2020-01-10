@@ -11,7 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
+            public static Test.IMyClassPrx allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -521,7 +521,7 @@ namespace Ice
                 output.Write("testing proxyToProperty... ");
                 output.Flush();
 
-                var router = RouterPrx.Parse("router", communicator).Clone(
+                var router = IRouterPrx.Parse("router", communicator).Clone(
                     collocationOptimized: false,
                     connectionCached: true,
                     preferSecure: true,
@@ -529,7 +529,7 @@ namespace Ice
                     locatorCacheTimeout: 200,
                     invocationTimeout: 1500);
 
-                var locator = LocatorPrx.Parse("locator", communicator).Clone(
+                var locator = ILocatorPrx.Parse("locator", communicator).Clone(
                     collocationOptimized: true,
                     connectionCached: false,
                     preferSecure: true,
@@ -734,16 +734,16 @@ namespace Ice
                 test(compObj.Clone(connectionTimeout: 10).ConnectionTimeout.Value == 10);
                 test(compObj.Clone(connectionTimeout: 20).ConnectionTimeout.Value == 20);
 
-                LocatorPrx loc1 = LocatorPrx.Parse("loc1:default -p 10000", communicator);
-                LocatorPrx loc2 = LocatorPrx.Parse("loc2:default -p 10000", communicator);
+                ILocatorPrx loc1 = ILocatorPrx.Parse("loc1:default -p 10000", communicator);
+                ILocatorPrx loc2 = ILocatorPrx.Parse("loc2:default -p 10000", communicator);
                 test(compObj.Clone(clearLocator: true).Equals(compObj.Clone(clearLocator: true)));
                 test(compObj.Clone(locator: loc1).Equals(compObj.Clone(locator: loc1)));
                 test(!compObj.Clone(locator: loc1).Equals(compObj.Clone(clearLocator: true)));
                 test(!compObj.Clone(clearLocator: true).Equals(compObj.Clone(locator: loc2)));
                 test(!compObj.Clone(locator: loc1).Equals(compObj.Clone(locator: loc2)));
 
-                RouterPrx rtr1 = RouterPrx.Parse("rtr1:default -p 10000", communicator);
-                RouterPrx rtr2 = RouterPrx.Parse("rtr2:default -p 10000", communicator);
+                IRouterPrx rtr1 = IRouterPrx.Parse("rtr1:default -p 10000", communicator);
+                IRouterPrx rtr2 = IRouterPrx.Parse("rtr2:default -p 10000", communicator);
                 test(compObj.Clone(clearRouter: true).Equals(compObj.Clone(clearRouter: true)));
                 test(compObj.Clone(router: rtr1).Equals(compObj.Clone(router: rtr1)));
                 test(!compObj.Clone(router: rtr1).Equals(compObj.Clone(clearRouter: true)));
@@ -801,16 +801,16 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                Test.MyClassPrx cl = Test.MyClassPrx.CheckedCast(baseProxy);
+                Test.IMyClassPrx cl = Test.IMyClassPrx.CheckedCast(baseProxy);
                 test(cl != null);
-                Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrx.CheckedCast(cl);
+                Test.IMyDerivedClassPrx derived = Test.IMyDerivedClassPrx.CheckedCast(cl);
                 test(derived != null);
                 test(cl.Equals(baseProxy));
                 test(derived.Equals(baseProxy));
                 test(cl.Equals(derived));
                 try
                 {
-                    Test.MyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet"));
+                    Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet"));
                     test(false);
                 }
                 catch (FacetNotExistException)
@@ -827,7 +827,7 @@ namespace Ice
                 c = new Dictionary<string, string>();
                 c["one"] = "hello";
                 c["two"] = "world";
-                cl = Test.MyClassPrx.CheckedCast(baseProxy, c);
+                cl = Test.IMyClassPrx.CheckedCast(baseProxy, c);
                 Dictionary<string, string> c2 = cl.getContext();
                 test(Collections.Equals(c, c2));
                 output.WriteLine("ok");
@@ -839,7 +839,7 @@ namespace Ice
                     if (connection != null)
                     {
                         test(!cl.IsFixed);
-                        Test.MyClassPrx prx = cl.Clone(fixedConnection: connection);
+                        Test.IMyClassPrx prx = cl.Clone(fixedConnection: connection);
                         test(prx.IsFixed);
                         prx.IcePing();
                         try
@@ -889,7 +889,7 @@ namespace Ice
                 output.Write("testing encoding versioning... ");
                 output.Flush();
                 string ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
-                Test.MyClassPrx cl20 = Test.MyClassPrx.Parse(ref20, communicator);
+                Test.IMyClassPrx cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
                 try
                 {
                     cl20.IcePing();
@@ -901,7 +901,7 @@ namespace Ice
                 }
 
                 string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
-                Test.MyClassPrx cl10 = Test.MyClassPrx.Parse(ref10, communicator);
+                Test.IMyClassPrx cl10 = Test.IMyClassPrx.Parse(ref10, communicator);
                 cl10.IcePing();
                 cl10.Clone(encodingVersion: Util.Encoding_1_0).IcePing();
                 cl.Clone(encodingVersion: Util.Encoding_1_0).IcePing();
@@ -909,7 +909,7 @@ namespace Ice
                 // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
                 // call will use the 1.1 encoding
                 string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-                Test.MyClassPrx cl13 = Test.MyClassPrx.Parse(ref13, communicator);
+                Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
                 cl13.IcePing();
                 cl13.IcePingAsync().Wait();
 
@@ -958,7 +958,7 @@ namespace Ice
                 output.Write("testing protocol versioning... ");
                 output.Flush();
                 ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
-                cl20 = Test.MyClassPrx.Parse(ref20, communicator);
+                cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
                 try
                 {
                     cl20.IcePing();
@@ -970,13 +970,13 @@ namespace Ice
                 }
 
                 ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
-                cl10 = Test.MyClassPrx.Parse(ref10, communicator);
+                cl10 = Test.IMyClassPrx.Parse(ref10, communicator);
                 cl10.IcePing();
 
                 // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
                 // call will use the 1.1 protocol
                 ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-                cl13 = Test.MyClassPrx.Parse(ref13, communicator);
+                cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
                 cl13.IcePing();
                 cl13.IcePingAsync().Wait();
                 output.WriteLine("ok");

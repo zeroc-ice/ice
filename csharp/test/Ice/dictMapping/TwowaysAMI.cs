@@ -103,7 +103,7 @@ namespace Ice
                 private bool _called;
             }
 
-            internal static void twowaysAMI(Communicator communicator, Test.MyClassPrx p)
+            internal static void twowaysAMI(Communicator communicator, Test.IMyClassPrx p)
             {
                 {
                     Dictionary<int, int> i = new Dictionary<int, int>();

@@ -34,11 +34,11 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            Glacier2.RouterPrx router;
+            Glacier2.IRouterPrx router;
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
-                router = Glacier2.RouterPrx.CheckedCast(routerBase);
+                router = Glacier2.IRouterPrx.CheckedCast(routerBase);
                 test(router != null);
                 Console.Out.WriteLine("ok");
             }
@@ -46,7 +46,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                RouterFinderPrx finder = RouterFinderPrx.Parse($"Ice/RouterFinder:{getTestEndpoint(50)}", communicator);
+                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder:{getTestEndpoint(50)}", communicator);
                 test(finder.GetRouter().Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
@@ -181,12 +181,12 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            CallbackPrx twoway;
+            ICallbackPrx twoway;
 
             {
                 Console.Out.Write("testing checked cast for server object... ");
                 Console.Out.Flush();
-                twoway = CallbackPrx.CheckedCast(@base);
+                twoway = ICallbackPrx.CheckedCast(@base);
                 test(twoway != null);
                 Console.Out.WriteLine("ok");
             }
@@ -213,8 +213,8 @@ public class Client : Test.TestHelper
 
             CallbackReceiverI callbackReceiverImpl;
             CallbackReceiver callbackReceiver;
-            CallbackReceiverPrx twowayR;
-            CallbackReceiverPrx fakeTwowayR;
+            ICallbackReceiverPrx twowayR;
+            ICallbackReceiverPrx fakeTwowayR;
 
             {
                 Console.Out.Write("creating and adding callback receiver object... ");
@@ -235,8 +235,8 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing oneway callback... ");
                 Console.Out.Flush();
-                CallbackPrx oneway = twoway.Clone(oneway: true);
-                CallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
+                ICallbackPrx oneway = twoway.Clone(oneway: true);
+                ICallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "o";
                 oneway.initiateCallback(onewayR, context);
@@ -294,8 +294,8 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
-                CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c2/callback")));
+                ICallbackPrx otherCategoryTwoway =
+                    ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -308,8 +308,8 @@ public class Client : Test.TestHelper
                 context["_fwd"] = "t";
                 try
                 {
-                    CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c3/callback")));
+                    ICallbackPrx otherCategoryTwoway =
+                        ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
@@ -324,8 +324,8 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
-                CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("_userid/callback")));
+                ICallbackPrx otherCategoryTwoway =
+                    ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -411,10 +411,10 @@ public class Client : Test.TestHelper
                   }
                 */
 
-                ProcessPrx process;
+                IProcessPrx process;
                 {
                     Console.Out.Write("testing checked cast for process object... ");
-                    process = ProcessPrx.CheckedCast(processBase);
+                    process = IProcessPrx.CheckedCast(processBase);
                     process.IcePing();
                     Console.Out.WriteLine("ok");
                 }

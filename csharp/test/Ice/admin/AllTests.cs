@@ -219,7 +219,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                var factory = RemoteCommunicatorFactoryPrx.Parse($"factory:{helper.getTestEndpoint(0)} -t 10000",
+                var factory = IRemoteCommunicatorFactoryPrx.Parse($"factory:{helper.getTestEndpoint(0)} -t 10000",
                     communicator);
 
                 output.Write("testing process facet... ");
@@ -233,7 +233,7 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
-                    ProcessPrx proc = ProcessPrx.UncheckedCast(obj.Clone(facet: "Process"));
+                    IProcessPrx proc = IProcessPrx.UncheckedCast(obj.Clone(facet: "Process"));
                     proc.Shutdown();
                     com.waitForShutdown();
                     com.destroy();
@@ -251,7 +251,7 @@ namespace Ice
                     props.Add("Prop3", "3");
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
-                    PropertiesAdminPrx pa = PropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
+                    IPropertiesAdminPrx pa = IPropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
 
                     //
                     // Test: PropertiesAdmin::getProperty()
@@ -318,7 +318,7 @@ namespace Ice
                     com.print("print");
 
                     IObjectPrx obj = com.getAdmin();
-                    LoggerAdminPrx logger = LoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
+                    ILoggerAdminPrx logger = ILoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
                     test(logger != null);
 
                     //
@@ -392,7 +392,7 @@ namespace Ice
 
                     RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
-                    RemoteLoggerPrx myProxy = adapter.Add(remoteLogger);
+                    IRemoteLoggerPrx myProxy = adapter.Add(remoteLogger);
 
                     adapter.Activate();
 
@@ -477,7 +477,7 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
-                    var tf = TestFacetPrx.UncheckedCast(obj.Clone(facet: "TestFacet"));
+                    var tf = ITestFacetPrx.UncheckedCast(obj.Clone(facet: "TestFacet"));
                     tf.op();
                     com.destroy();
                 }
@@ -498,7 +498,7 @@ namespace Ice
                     IObjectPrx obj = com.getAdmin();
                     try
                     {
-                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -507,7 +507,7 @@ namespace Ice
 
                     try
                     {
-                        TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                        ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -528,7 +528,7 @@ namespace Ice
                     IObjectPrx obj = com.getAdmin();
                     try
                     {
-                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -537,7 +537,7 @@ namespace Ice
 
                     try
                     {
-                        TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                        ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -558,7 +558,7 @@ namespace Ice
                     IObjectPrx obj = com.getAdmin();
                     try
                     {
-                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -567,7 +567,7 @@ namespace Ice
 
                     try
                     {
-                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -586,13 +586,13 @@ namespace Ice
                     props.Add("Ice.Admin.Facets", "Properties TestFacet");
                     var com = factory.createCommunicator(props);
                     IObjectPrx obj = com.getAdmin();
-                    PropertiesAdminPrx pa = PropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
+                    IPropertiesAdminPrx pa = IPropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
                     test(pa.GetProperty("Ice.Admin.InstanceName").Equals("Test"));
-                    var tf = TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                    var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     tf!.op();
                     try
                     {
-                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                         test(false);
                     }
                     catch (FacetNotExistException)
@@ -613,15 +613,15 @@ namespace Ice
                     IObjectPrx obj = com.getAdmin();
                     try
                     {
-                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                         test(false);
                     }
                     catch (FacetNotExistException)
                     {
                     }
-                    var tf = Test.TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                    var tf = Test.ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     tf.op();
-                    ProcessPrx proc = Ice.ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                    IProcessPrx proc = Ice.IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                     proc.Shutdown();
                     com.waitForShutdown();
                     com.destroy();

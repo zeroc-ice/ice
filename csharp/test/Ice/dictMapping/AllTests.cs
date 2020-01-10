@@ -8,12 +8,12 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper, bool collocated)
+            public static Test.IMyClassPrx allTests(global::Test.TestHelper helper, bool collocated)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
 
-                var cl = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var cl = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("testing twoway operations... ");
                 output.Flush();

@@ -107,13 +107,13 @@ public class AllTests : Test.AllTests
         var obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
-        TestIntfPrx p = TestIntfPrx.UncheckedCast(obj);
+        ITestIntfPrx p = ITestIntfPrx.UncheckedCast(obj);
 
         sref = "testController:" + helper.getTestEndpoint(1);
         obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
-        var testController = TestIntfControllerPrx.UncheckedCast(obj);
+        var testController = ITestIntfControllerPrx.UncheckedCast(obj);
 
         output.Write("testing dispatcher with continuations... ");
         output.Flush();
@@ -155,7 +155,7 @@ public class AllTests : Test.AllTests
                 // The continuation might be (rarely) executed on the current thread if the setup of the
                 // continuation occurs after the invocation timeout.
                 var thread = Thread.CurrentThread;
-                TestIntfPrx to = p.Clone(invocationTimeout: 20);
+                ITestIntfPrx to = p.Clone(invocationTimeout: 20);
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -188,7 +188,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                TestIntfPrx to = p.Clone(invocationTimeout: 10);
+                ITestIntfPrx to = p.Clone(invocationTimeout: 10);
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -253,7 +253,7 @@ public class AllTests : Test.AllTests
 
                     try
                     {
-                        TestIntfPrx i = p.Clone(adapterId: "dummy");
+                        ITestIntfPrx i = p.Clone(adapterId: "dummy");
                         await i.opAsync();
                         test(false);
                     }
@@ -262,7 +262,7 @@ public class AllTests : Test.AllTests
                         test(Dispatcher.isDispatcherThread());
                     }
 
-                    TestIntfPrx to = p.Clone(invocationTimeout: 10);
+                    ITestIntfPrx to = p.Clone(invocationTimeout: 10);
                     try
                     {
                         await to.sleepAsync(500);

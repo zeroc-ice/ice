@@ -8,11 +8,11 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.InitialPrx allTests(global::Test.TestHelper helper)
+            public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
-                var initial = Test.InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
+                var initial = Test.IInitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("getting proxies for interface hierarchy... ");
                 output.Flush();
@@ -29,10 +29,10 @@ namespace Ice
 
                 output.Write("invoking proxy operations on interface hierarchy... ");
                 output.Flush();
-                Test.MA.IAPrx iao;
-                Test.MB.IB1Prx ib1o;
-                Test.MB.IB2Prx ib2o;
-                Test.MA.ICPrx ico;
+                Test.MA.IIAPrx iao;
+                Test.MB.IIB1Prx ib1o;
+                Test.MB.IIB2Prx ib2o;
+                Test.MA.IICPrx ico;
 
                 iao = ia.iaop(ia);
                 test(iao.Equals(ia));

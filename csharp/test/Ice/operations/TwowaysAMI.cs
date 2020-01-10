@@ -188,7 +188,7 @@ namespace Ice
                     called();
                 }
 
-                public void opMyClass(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
+                public void opMyClass(Test.IMyClassPrx r, Test.IMyClassPrx c1, Test.IMyClassPrx c2)
                 {
                     test(c1.Identity.Equals(Identity.Parse("test")));
                     test(c2.Identity.Equals(Identity.Parse("noSuchIdentity")));
@@ -996,7 +996,7 @@ namespace Ice
                 private Dictionary<string, string> _d;
             }
 
-            internal static void twowaysAMI(global::Test.TestHelper helper, Test.MyClassPrx p)
+            internal static void twowaysAMI(global::Test.TestHelper helper, Test.IMyClassPrx p)
             {
                 Communicator communicator = helper.communicator();
 
@@ -1679,7 +1679,7 @@ namespace Ice
                         ctx["two"] = "TWO";
                         ctx["three"] = "THREE";
 
-                        var p3 = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
+                        var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                         ic.getImplicitContext().setContext(ctx);
                         test(Collections.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -1738,7 +1738,7 @@ namespace Ice
                 }
 
                 {
-                    var derived = Test.MyDerivedClassPrx.CheckedCast(p);
+                    var derived = Test.IMyDerivedClassPrx.CheckedCast(p);
                     test(derived != null);
                     var cb = new Callback();
                     derived.opDerivedAsync().Wait();

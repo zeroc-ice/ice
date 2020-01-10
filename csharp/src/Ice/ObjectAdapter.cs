@@ -915,7 +915,7 @@ namespace Ice
         /// <param name="locator">The locator used by this object adapter.
         ///
         /// </param>
-        public void SetLocator(LocatorPrx? locator)
+        public void SetLocator(ILocatorPrx? locator)
         {
             lock (this)
             {
@@ -940,7 +940,7 @@ namespace Ice
         /// used by this object adapter.
         ///
         /// </returns>
-        public LocatorPrx? GetLocator()
+        public ILocatorPrx? GetLocator()
         {
             lock (this)
             {
@@ -1246,7 +1246,7 @@ namespace Ice
         //
         internal ObjectAdapter(Communicator communicator,
                                ObjectAdapterFactory objectAdapterFactory, string name,
-                               RouterPrx? router, bool noConfig)
+                               IRouterPrx? router, bool noConfig)
         {
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
@@ -1333,7 +1333,7 @@ namespace Ice
                     _threadPool = new ThreadPool(_communicator, _name + ".ThreadPool", 0);
                 }
 
-                router ??= communicator.GetPropertyAsProxy($"{_name}.Router", RouterPrx.Factory);
+                router ??= communicator.GetPropertyAsProxy($"{_name}.Router", IRouterPrx.Factory);
 
                 if (router != null)
                 {
@@ -1397,7 +1397,7 @@ namespace Ice
                 // Parse published endpoints.
                 //
                 _publishedEndpoints = ComputePublishedEndpoints();
-                LocatorPrx? locator = communicator.GetPropertyAsProxy($"{_name}.Locator", LocatorPrx.Factory);
+                ILocatorPrx? locator = communicator.GetPropertyAsProxy($"{_name}.Locator", ILocatorPrx.Factory);
                 if (locator != null)
                 {
                     SetLocator(locator);
@@ -1630,7 +1630,7 @@ namespace Ice
             // Call on the locator registry outside the synchronization to
             // blocking other threads that need to lock this OA.
             //
-            LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
+            ILocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
             if (locatorRegistry == null)
             {
                 return;

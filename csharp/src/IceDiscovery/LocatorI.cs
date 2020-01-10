@@ -70,12 +70,12 @@ namespace IceDiscovery
         }
 
         public Task
-        SetServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
+        SetServerProcessProxyAsync(string id, IProcessPrx process, Current current)
         {
             return null;
         }
 
-        internal IObjectPrx FindObject(Ice.Identity id)
+        internal IObjectPrx FindObject(Identity id)
         {
             lock (this)
             {
@@ -84,7 +84,7 @@ namespace IceDiscovery
                     return null;
                 }
 
-                Ice.IObjectPrx prx = _wellKnownProxy.Clone(id);
+                IObjectPrx prx = _wellKnownProxy.Clone(id);
 
                 List<string> adapterIds = new List<string>();
                 foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
@@ -100,14 +100,14 @@ namespace IceDiscovery
                 }
                 if (adapterIds.Count == 0)
                 {
-                    foreach (KeyValuePair<string, Ice.IObjectPrx> entry in _adapters)
+                    foreach (KeyValuePair<string, IObjectPrx> entry in _adapters)
                     {
                         try
                         {
                             prx.Clone(adapterId: entry.Key).IcePing();
                             adapterIds.Add(entry.Key);
                         }
-                        catch (Ice.Exception)
+                        catch (Exception)
                         {
                         }
                     }
@@ -172,7 +172,7 @@ namespace IceDiscovery
 
     internal class LocatorI : Ice.Locator
     {
-        public LocatorI(LookupI lookup, Ice.LocatorRegistryPrx registry)
+        public LocatorI(LookupI lookup, Ice.ILocatorRegistryPrx registry)
         {
             _lookup = lookup;
             _registry = registry;
@@ -190,12 +190,12 @@ namespace IceDiscovery
             return _lookup.FindAdapter(adapterId);
         }
 
-        public Ice.LocatorRegistryPrx GetRegistry(Current current)
+        public Ice.ILocatorRegistryPrx GetRegistry(Current current)
         {
             return _registry;
         }
 
         private LookupI _lookup;
-        private Ice.LocatorRegistryPrx _registry;
+        private Ice.ILocatorRegistryPrx _registry;
     };
 }

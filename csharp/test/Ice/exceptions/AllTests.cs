@@ -11,7 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.ThrowerPrx allTests(global::Test.TestHelper helper)
+            public static Test.IThrowerPrx allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -123,7 +123,7 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var thrower = Test.ThrowerPrx.CheckedCast(@base);
+                var thrower = Test.IThrowerPrx.CheckedCast(@base);
 
                 test(thrower != null);
                 test(thrower.Equals(@base));
@@ -377,7 +377,7 @@ namespace Ice
 
                     try
                     {
-                        var thrower2 = ThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(1), communicator);
+                        var thrower2 = IThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(1), communicator);
                         try
                         {
                             thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
@@ -385,7 +385,7 @@ namespace Ice
                         catch (MemoryLimitException)
                         {
                         }
-                        var thrower3 = Test.ThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(2), communicator);
+                        var thrower3 = IThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(2), communicator);
                         try
                         {
                             thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
@@ -410,7 +410,7 @@ namespace Ice
                     Identity id = Identity.Parse("does not exist");
                     try
                     {
-                        var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(id));
+                        var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
                         thrower2.IcePing();
                         test(false);
                     }
@@ -431,7 +431,7 @@ namespace Ice
 
                 try
                 {
-                    var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
                         thrower2.IcePing();
@@ -454,7 +454,7 @@ namespace Ice
 
                 try
                 {
-                    var thrower2 = Test.WrongOperationPrx.UncheckedCast(thrower);
+                    var thrower2 = Test.IWrongOperationPrx.UncheckedCast(thrower);
                     thrower2.noSuchOperation();
                     test(false);
                 }
@@ -825,7 +825,7 @@ namespace Ice
 
                 {
                     Identity id = Identity.Parse("does not exist");
-                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
+                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -854,7 +854,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -885,7 +885,7 @@ namespace Ice
                 {
                     try
                     {
-                        var thrower4 = Test.WrongOperationPrx.UncheckedCast(thrower);
+                        var thrower4 = Test.IWrongOperationPrx.UncheckedCast(thrower);
                         thrower4.noSuchOperationAsync().Wait();
                         test(false);
                     }
@@ -1069,7 +1069,7 @@ namespace Ice
 
                 {
                     Identity id = Identity.Parse("does not exist");
-                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
+                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -1098,7 +1098,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -1127,7 +1127,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower4 = Test.WrongOperationPrx.UncheckedCast(thrower);
+                    var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
                     try
                     {
                         thrower4.noSuchOperationAsync().Wait();

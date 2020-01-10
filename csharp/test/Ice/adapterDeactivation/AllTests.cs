@@ -10,7 +10,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            public static Test.ITestIntfPrx allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -23,7 +23,7 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrx.CheckedCast(@base);
+                var obj = Test.ITestIntfPrx.CheckedCast(@base);
                 test(obj != null);
                 test(obj.Equals(@base));
                 output.WriteLine("ok");
@@ -118,7 +118,7 @@ namespace Ice
                 {
                     var routerId = new Identity();
                     routerId.name = "router";
-                    var router = RouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
+                    var router = IRouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
                     var adapter = communicator.createObjectAdapterWithRouter("", router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
@@ -139,7 +139,7 @@ namespace Ice
                     try
                     {
                         routerId.name = "test";
-                        router = RouterPrx.UncheckedCast(@base.Clone(routerId));
+                        router = IRouterPrx.UncheckedCast(@base.Clone(routerId));
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }
@@ -150,7 +150,7 @@ namespace Ice
 
                     try
                     {
-                        router = RouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
+                        router = IRouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }

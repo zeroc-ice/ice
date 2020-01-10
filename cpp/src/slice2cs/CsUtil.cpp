@@ -44,6 +44,20 @@ Slice::paramName(const ParamInfo& info)
     return normalizeCase(info.operation) ? pascalCase(info.name) : info.name;
 }
 
+std::string
+Slice::interfaceName(const ClassDefPtr& c)
+{
+    string name = normalizeCase(c) ? pascalCase(c->name()) : c->name();
+    return name.find("II") == 0 ? name : "I" + name;
+}
+
+std::string
+Slice::interfaceName(const ProxyPtr& p)
+{
+    string name = normalizeCase(p->_class()) ? pascalCase(p->_class()->name()) : p->_class()->name();
+    return name.find("II") == 0 ? name : "I" + name;
+}
+
 bool
 Slice::isNullable(const TypePtr& type)
 {
@@ -480,7 +494,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         ClassDefPtr def = proxy->_class()->definition();
         if(!def || def->isAbstract())
         {
-            return getUnqualified(proxy->_class(), package, "", "Prx");
+            return getUnqualified(getNamespace(proxy->_class()) + "." +
+                                  interfaceName(proxy) + "Prx", package);
         }
         else
         {

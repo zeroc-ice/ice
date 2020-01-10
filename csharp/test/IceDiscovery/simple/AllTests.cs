@@ -14,19 +14,19 @@ public class AllTests : Test.AllTests
     {
         var output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
-        List<ControllerPrx> proxies = new List<ControllerPrx>();
-        List<ControllerPrx> indirectProxies = new List<ControllerPrx>();
+        List<IControllerPrx> proxies = new List<IControllerPrx>();
+        List<IControllerPrx> indirectProxies = new List<IControllerPrx>();
         for (int i = 0; i < num; ++i)
         {
             string id = "controller" + i;
-            proxies.Add(ControllerPrx.Parse(id, communicator));
-            indirectProxies.Add(ControllerPrx.Parse($"{id}@control{i}", communicator));
+            proxies.Add(IControllerPrx.Parse(id, communicator));
+            indirectProxies.Add(IControllerPrx.Parse($"{id}@control{i}", communicator));
         }
 
         output.Write("testing indirect proxies... ");
         output.Flush();
         {
-            foreach (ControllerPrx prx in indirectProxies)
+            foreach (IControllerPrx prx in indirectProxies)
             {
                 prx.IcePing();
             }
@@ -36,7 +36,7 @@ public class AllTests : Test.AllTests
         output.Write("testing well-known proxies... ");
         output.Flush();
         {
-            foreach (ControllerPrx prx in proxies)
+            foreach (IControllerPrx prx in proxies)
             {
                 prx.IcePing();
             }
@@ -153,7 +153,7 @@ public class AllTests : Test.AllTests
             adapterIds.Add("oa1");
             adapterIds.Add("oa2");
             adapterIds.Add("oa3");
-            TestIntfPrx intf = TestIntfPrx.Parse("object", communicator).Clone(
+            ITestIntfPrx intf = ITestIntfPrx.Parse("object", communicator).Clone(
                 connectionCached: false,
                 locatorCacheTimeout: 0);
             while (adapterIds.Count > 0)
@@ -166,7 +166,7 @@ public class AllTests : Test.AllTests
                 adapterIds.Add("oa1");
                 adapterIds.Add("oa2");
                 adapterIds.Add("oa3");
-                intf = TestIntfPrx.Parse("object @ rg", communicator).Clone(connectionCached: false);
+                intf = ITestIntfPrx.Parse("object @ rg", communicator).Clone(connectionCached: false);
                 int nRetry = 100;
                 while (adapterIds.Count > 0 && --nRetry > 0)
                 {
@@ -183,12 +183,12 @@ public class AllTests : Test.AllTests
 
             proxies[0].deactivateObjectAdapter("oa");
             proxies[1].deactivateObjectAdapter("oa");
-            test(TestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa3"));
+            test(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa3"));
             proxies[2].deactivateObjectAdapter("oa");
 
             proxies[0].activateObjectAdapter("oa", "oa1", "rg");
             proxies[0].addObject("oa", "object");
-            test(TestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa1"));
+            test(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa1"));
             proxies[0].deactivateObjectAdapter("oa");
         }
         output.WriteLine("ok");
@@ -241,7 +241,7 @@ public class AllTests : Test.AllTests
 
         output.Write("shutting down... ");
         output.Flush();
-        foreach (ControllerPrx prx in proxies)
+        foreach (IControllerPrx prx in proxies)
         {
             prx.shutdown();
         }

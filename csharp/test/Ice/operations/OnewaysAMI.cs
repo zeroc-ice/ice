@@ -70,10 +70,10 @@ namespace Ice
                 }
             }
 
-            internal static void onewaysAMI(global::Test.TestHelper helper, Test.MyClassPrx proxy)
+            internal static void onewaysAMI(global::Test.TestHelper helper, Test.IMyClassPrx proxy)
             {
                 Communicator communicator = helper.communicator();
-                Test.MyClassPrx p = proxy.Clone(oneway: true);
+                Test.IMyClassPrx p = proxy.Clone(oneway: true);
 
                 {
                     Callback cb = new Callback();

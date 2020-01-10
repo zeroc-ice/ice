@@ -2473,12 +2473,14 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     writeDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
-    _out << nl << "public interface " << name << "Prx : ";
+    _out << nl << "public interface " << interfaceName(p) << "Prx : ";
 
-    vector<string> baseInterfaces = mapfn<ClassDefPtr>(p->bases(), [&ns](const auto& c)
-                                                       {
-                                                           return getUnqualified(c, ns, "", "Prx");
-                                                       });
+    vector<string> baseInterfaces =
+        mapfn<ClassDefPtr>(p->bases(), [&ns](const auto& c)
+                           {
+                               return getUnqualified(getNamespace(c) + "." +
+                                                     interfaceName(c) + "Prx", ns);
+                           });
 
     if(baseInterfaces.empty())
     {
@@ -2503,15 +2505,17 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string ns = getNamespace(p);
     ClassList bases = p->bases();
+
+    string name = interfaceName(p) + "Prx";
     //
     // Proxy static methods
     //
     _out << sp;
-    _out << nl << "public static new " << getUnqualified("Ice.ProxyFactory", ns) << "<" << p->name()
-         << "Prx> Factory = (reference) => new _" << p->name() << "Prx(reference);";
+    _out << nl << "public static new " << getUnqualified("Ice.ProxyFactory", ns) << "<" << name
+         << "> Factory = (reference) => new _" << p->name() << "Prx(reference);";
 
     _out << sp;
-    _out << nl << "public static new " <<p->name() << "Prx Parse("
+    _out << nl << "public static new " << name << " Parse("
          << "string s, "
          << getUnqualified("Ice.Communicator", ns) << " communicator)";
     _out << sb;
@@ -2522,7 +2526,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "public static bool TryParse("
          << "string s, "
          << getUnqualified("Ice.Communicator", ns) << " communicator, "
-         << "out " << p->name() << "Prx? prx)";
+         << "out " <<name << "? prx)";
     _out << sb;
     _out << nl << "try";
     _out << sb;
@@ -2542,7 +2546,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         _out << "new ";
     }
-    _out << p->name() << "Prx UncheckedCast("
+    _out << name << " UncheckedCast("
          << getUnqualified("Ice.IObjectPrx", ns) << " prx)";
     _out << sb;
     _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
@@ -2554,7 +2558,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         _out << "new ";
     }
-    _out << p->name() << "Prx? CheckedCast("
+    _out << name << "? CheckedCast("
          << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
     _out << sb;
@@ -2578,7 +2582,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "[global::System.Serializable]";
     _out << nl << "internal sealed class _" << p->name() << "Prx : " << getUnqualified("Ice.ObjectPrx", ns) << ", "
-         << p->name() << "Prx";
+         << name;
     _out << sb;
 
     _out << nl << "internal _" << p->name() << "Prx("
@@ -3374,25 +3378,26 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "public static class " << fixId(p->name() + "Extensions");
     _out << sb;
 
-    _out << nl << "public static " << p->name() << "Prx Add("
+    const string name = interfaceName(p);
+    _out << nl << "public static " << name << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
          << fixId(p->name()) << " servant, "
          << "string id, "
          << "string facet = \"\")";
     _out << sb;
     _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
-    _out << nl << "return " << p->name() << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
+    _out << nl << "return " << name << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
          << "traits.Dispatch(servant, incoming, current), id, facet));";
     _out << eb;
 
-    _out << nl << "public static " << p->name() << "Prx Add("
+    _out << nl << "public static " << name << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
          << fixId(p->name()) << " servant, "
          << getUnqualified("Ice.Identity", ns) << "? id = null, "
          << "string facet = \"\")";
     _out << sb;
     _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
-    _out << nl << "return " << p->name() << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
+    _out << nl << "return " << name << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
          << "traits.Dispatch(servant, incoming, current), id, facet));";
     _out << eb;
 

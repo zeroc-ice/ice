@@ -103,7 +103,7 @@ namespace IceInternal
 
         internal void log(Ice.LogMessage logMessage)
         {
-            List<Ice.RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
+            List<Ice.IRemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
 
             if (remoteLoggers != null)
             {
@@ -210,13 +210,13 @@ namespace IceInternal
 
         private class Job
         {
-            internal Job(List<Ice.RemoteLoggerPrx> r, Ice.LogMessage l)
+            internal Job(List<Ice.IRemoteLoggerPrx> r, Ice.LogMessage l)
             {
                 remoteLoggers = r;
                 logMessage = l;
             }
 
-            internal readonly List<Ice.RemoteLoggerPrx> remoteLoggers;
+            internal readonly List<Ice.IRemoteLoggerPrx> remoteLoggers;
             internal readonly Ice.LogMessage logMessage;
         }
 

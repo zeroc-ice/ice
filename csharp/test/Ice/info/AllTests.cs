@@ -150,7 +150,7 @@ namespace Ice
                 var @base = IObjectPrx.Parse("test:" +
                                              helper.getTestEndpoint(0) + ":" +
                                              helper.getTestEndpoint(0, "udp"), communicator);
-                var testIntf = Test.TestIntfPrx.CheckedCast(@base);
+                var testIntf = Test.ITestIntfPrx.CheckedCast(@base);
 
                 string defaultHost = communicator.GetProperty("Ice.Default.Host") ?? "";
 

@@ -82,7 +82,7 @@ public class AllTests : Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx obj = TestIntfPrx.CheckedCast(basePrx);
+        ITestIntfPrx obj = ITestIntfPrx.CheckedCast(basePrx);
         test(obj != null);
         test(obj.Equals(basePrx));
         output.WriteLine("ok");

@@ -13,7 +13,7 @@ using Test;
 public class AllTests : Test.AllTests
 {
     static IceMX.ConnectionMetrics
-    getServerConnectionMetrics(IceMX.MetricsAdminPrx metrics, long expected)
+    getServerConnectionMetrics(IceMX.IMetricsAdminPrx metrics, long expected)
     {
         try
         {
@@ -75,13 +75,13 @@ public class AllTests : Test.AllTests
     };
 
     static string
-    getPort(PropertiesAdminPrx p)
+    getPort(IPropertiesAdminPrx p)
     {
         return TestHelper.getTestPort(p.Communicator.GetProperties(), 0).ToString();
     }
 
     static private Dictionary<string, string>
-    getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
+    getClientProps(Ice.IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
@@ -104,7 +104,7 @@ public class AllTests : Test.AllTests
     }
 
     static private Dictionary<string, string>
-    getServerProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
+    getServerProps(Ice.IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
@@ -127,7 +127,7 @@ public class AllTests : Test.AllTests
 
     class UpdateCallbackI
     {
-        public UpdateCallbackI(Ice.PropertiesAdminPrx serverProps)
+        public UpdateCallbackI(Ice.IPropertiesAdminPrx serverProps)
         {
             _updated = false;
             _serverProps = serverProps;
@@ -167,11 +167,11 @@ public class AllTests : Test.AllTests
         }
 
         private bool _updated;
-        private Ice.PropertiesAdminPrx _serverProps;
+        private Ice.IPropertiesAdminPrx _serverProps;
     };
 
     static void
-    waitForCurrent(IceMX.MetricsAdminPrx metrics, string viewName, string map, int value)
+    waitForCurrent(IceMX.IMetricsAdminPrx metrics, string viewName, string map, int value)
     {
         while (true)
         {
@@ -211,8 +211,8 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
-                  Ice.PropertiesAdminPrx props,
+    testAttribute(IceMX.IMetricsAdminPrx metrics,
+                  Ice.IPropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
                   string attr,
@@ -285,7 +285,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    static void invokeOp(MetricsPrx proxy)
+    static void invokeOp(IMetricsPrx proxy)
     {
         Dictionary<string, string> ctx = new Dictionary<string, string>();
         ctx.Add("entry1", "test");
@@ -294,8 +294,8 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics,
-                  Ice.PropertiesAdminPrx props,
+    testAttribute(IceMX.IMetricsAdminPrx metrics,
+                  Ice.IPropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
                   string attr,
@@ -306,8 +306,8 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    updateProps(Ice.PropertiesAdminPrx cprops,
-                Ice.PropertiesAdminPrx sprops,
+    updateProps(Ice.IPropertiesAdminPrx cprops,
+                Ice.IPropertiesAdminPrx sprops,
                 UpdateCallbackI callback,
                 Dictionary<string, string> props,
                 string map)
@@ -334,7 +334,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    clearView(Ice.PropertiesAdminPrx cprops, Ice.PropertiesAdminPrx sprops, UpdateCallbackI callback)
+    clearView(Ice.IPropertiesAdminPrx cprops, Ice.IPropertiesAdminPrx sprops, UpdateCallbackI callback)
     {
         Dictionary<string, string> dict;
 
@@ -360,7 +360,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    checkFailure(IceMX.MetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
+    checkFailure(IceMX.IMetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
     {
         IceMX.MetricsFailures f = m.GetMetricsFailures("View", map, id);
         if (!f.failures.ContainsKey(failure))
@@ -387,7 +387,7 @@ public class AllTests : Test.AllTests
         return m;
     }
 
-    public static MetricsPrx allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
+    public static IMetricsPrx allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
     {
         Ice.Communicator communicator = helper.communicator();
 
@@ -398,19 +398,19 @@ public class AllTests : Test.AllTests
         string endpoint = protocol + " -h " + host + " -p " + port;
         string timeout = communicator.GetProperty("Ice.Default.Timeout") ?? "60000";
 
-        MetricsPrx metrics = MetricsPrx.Parse($"metrics:{endpoint}", communicator);
+        IMetricsPrx metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
         bool collocated = metrics.GetConnection() == null;
         var output = helper.getWriter();
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
         IObjectPrx admin = communicator.getAdmin();
-        PropertiesAdminPrx clientProps = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
-        IceMX.MetricsAdminPrx clientMetrics = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
+        IPropertiesAdminPrx clientProps = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
+        IceMX.IMetricsAdminPrx clientMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
         test(clientProps != null && clientMetrics != null);
 
         admin = metrics.getAdmin();
-        Ice.PropertiesAdminPrx serverProps = Ice.PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
-        IceMX.MetricsAdminPrx serverMetrics = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
+        Ice.IPropertiesAdminPrx serverProps = Ice.IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
+        IceMX.IMetricsAdminPrx serverMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
@@ -580,7 +580,7 @@ public class AllTests : Test.AllTests
 
             test(map["active"].current == 1);
 
-            ControllerPrx controller = ControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", communicator);
+            IControllerPrx controller = IControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", communicator);
             controller.hold();
 
             map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
@@ -633,7 +633,7 @@ public class AllTests : Test.AllTests
             checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::ConnectTimeoutException", 1, output);
             checkFailure(serverMetrics, "Connection", sm1.id, "::Ice::ConnectionLostException", 0, output);
 
-            MetricsPrx m = metrics.Clone(connectionTimeout: 500, connectionId: "Con1");
+            IMetricsPrx m = metrics.Clone(connectionTimeout: 500, connectionId: "Con1");
             m.IcePing();
 
             testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
@@ -1094,7 +1094,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
         updateProps(clientProps, serverProps, update, props, "Invocation");
 
-        MetricsPrx metricsOneway = metrics.Clone(oneway: true);
+        IMetricsPrx metricsOneway = metrics.Clone(oneway: true);
         metricsOneway.op();
         metricsOneway.opAsync().Wait();
 

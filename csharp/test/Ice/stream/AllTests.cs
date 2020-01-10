@@ -221,7 +221,7 @@ namespace Ice
                     s.d = 6.0;
                     s.str = "7";
                     s.e = Test.MyEnum.enum2;
-                    s.p = Test.MyInterfacePrx.Parse("test:default", communicator);
+                    s.p = Test.IMyInterfacePrx.Parse("test:default", communicator);
                     Test.SmallStruct.ice_write(outS, s);
                     var data = outS.Finished();
                     var s2 = Test.SmallStruct.ice_read(new InputStream(communicator, data));
@@ -475,7 +475,7 @@ namespace Ice
                     smallStructArray[i].d = 6.0;
                     smallStructArray[i].str = "7";
                     smallStructArray[i].e = Test.MyEnum.enum2;
-                    smallStructArray[i].p = Test.MyInterfacePrx.Parse("test:default", communicator);
+                    smallStructArray[i].p = Test.IMyInterfacePrx.Parse("test:default", communicator);
                 }
 
                 var myClassArray = new Test.MyClass[4];
@@ -794,11 +794,11 @@ namespace Ice
                 }
 
                 {
-                    var arr = new Test.MyInterfacePrx[2];
-                    arr[0] = Test.MyInterfacePrx.Parse("zero", communicator);
-                    arr[1] = Test.MyInterfacePrx.Parse("one", communicator);
+                    var arr = new Test.IMyInterfacePrx[2];
+                    arr[0] = Test.IMyInterfacePrx.Parse("zero", communicator);
+                    arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
                     outS = new OutputStream(communicator);
-                    var l = new List<Test.MyInterfacePrx>(arr);
+                    var l = new List<Test.IMyInterfacePrx>(arr);
                     Test.MyInterfaceProxyListHelper.Write(outS, l);
                     byte[] data = outS.Finished();
                     inS = new InputStream(communicator, data);
@@ -907,11 +907,11 @@ namespace Ice
                 }
 
                 {
-                    var arr = new Test.MyInterfacePrx[2];
-                    arr[0] = Test.MyInterfacePrx.Parse("zero", communicator);
-                    arr[1] = Test.MyInterfacePrx.Parse("one", communicator);
+                    var arr = new Test.IMyInterfacePrx[2];
+                    arr[0] = Test.IMyInterfacePrx.Parse("zero", communicator);
+                    arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
                     outS = new OutputStream(communicator);
-                    var l = new Stack<Test.MyInterfacePrx>(arr);
+                    var l = new Stack<Test.IMyInterfacePrx>(arr);
                     Test.MyInterfaceProxyStackHelper.Write(outS, l);
                     var data = outS.Finished();
                     inS = new InputStream(communicator, data);

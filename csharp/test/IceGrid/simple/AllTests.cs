@@ -18,12 +18,12 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing IceGrid.Locator is present... ");
-        IceGrid.LocatorPrx locator = IceGrid.LocatorPrx.UncheckedCast(@base);
+        IceGrid.ILocatorPrx locator = IceGrid.ILocatorPrx.UncheckedCast(@base);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestIntfPrx obj = TestIntfPrx.CheckedCast(@base);
+        ITestIntfPrx obj = ITestIntfPrx.CheckedCast(@base);
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");
 
@@ -36,17 +36,17 @@ public class AllTests : Test.AllTests
         Ice.Identity finderId = new Ice.Identity();
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
-        Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
+        Ice.ILocatorFinderPrx finder = Ice.ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing discovery... ");
         {
             // Add test well-known object
-            IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
+            IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
                 communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
 
-            IceGrid.AdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
+            IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
             session.GetAdmin().AddObjectWithType(@base, "::Test");
             session.Destroy();
 
@@ -67,8 +67,8 @@ public class AllTests : Test.AllTests
             IObjectPrx.Parse("test", com).IcePing();
 
             test(com.getDefaultLocator().GetRegistry() != null);
-            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry() != null);
-            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalQuery() != null);
+            test(IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry() != null);
+            test(IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalQuery() != null);
 
             Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
@@ -99,10 +99,10 @@ public class AllTests : Test.AllTests
             {
             }
             test(com.getDefaultLocator().GetRegistry() == null);
-            test(IceGrid.LocatorPrx.CheckedCast(com.getDefaultLocator()) == null);
+            test(IceGrid.ILocatorPrx.CheckedCast(com.getDefaultLocator()) == null);
             try
             {
-                IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry();
+                IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry();
             }
             catch (Ice.OperationNotExistException)
             {
@@ -208,9 +208,9 @@ public class AllTests : Test.AllTests
 
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestIntfPrx obj = TestIntfPrx.CheckedCast(@base);
+        ITestIntfPrx obj = ITestIntfPrx.CheckedCast(@base);
         test(obj.Equals(@base));
-        TestIntfPrx obj2 = TestIntfPrx.CheckedCast(@base2);
+        ITestIntfPrx obj2 = ITestIntfPrx.CheckedCast(@base2);
         test(obj2.Equals(@base2));
         Console.Out.WriteLine("ok");
 
@@ -274,12 +274,12 @@ public class AllTests : Test.AllTests
         }
         Console.Out.WriteLine("ok");
 
-        IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
+        IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
             communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
-        IceGrid.AdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
+        IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
         session.GetConnection().setACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
-        IceGrid.AdminPrx admin = session.GetAdmin();
+        IceGrid.IAdminPrx admin = session.GetAdmin();
         admin.EnableServer("server", false);
         admin.StopServer("server");
 
@@ -287,7 +287,7 @@ public class AllTests : Test.AllTests
         Console.Out.Flush();
         try
         {
-            obj = TestIntfPrx.CheckedCast(@base);
+            obj = ITestIntfPrx.CheckedCast(@base);
             test(false);
         }
         catch (Ice.NoEndpointException)
@@ -295,7 +295,7 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            obj2 = TestIntfPrx.CheckedCast(@base2);
+            obj2 = ITestIntfPrx.CheckedCast(@base2);
             test(false);
         }
         catch (Ice.NoEndpointException)
@@ -317,7 +317,7 @@ public class AllTests : Test.AllTests
 
         try
         {
-            obj = TestIntfPrx.CheckedCast(@base);
+            obj = ITestIntfPrx.CheckedCast(@base);
         }
         catch (Ice.NoEndpointException)
         {
@@ -325,7 +325,7 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            obj2 = TestIntfPrx.CheckedCast(@base2);
+            obj2 = ITestIntfPrx.CheckedCast(@base2);
         }
         catch (Ice.NoEndpointException)
         {

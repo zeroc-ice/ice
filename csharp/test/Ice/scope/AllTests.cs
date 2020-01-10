@@ -18,7 +18,7 @@ namespace Ice
                 var communicator = helper.communicator();
                 {
                     var obj = IObjectPrx.Parse($"i1:{helper.getTestEndpoint()}", communicator);
-                    var i = Test.IPrx.CheckedCast(obj);
+                    var i = Test.IIPrx.CheckedCast(obj);
 
                     var s1 = new Test.S(0);
                     var (s3, s2) = i.opS(s1);
@@ -64,7 +64,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i1:{helper.getTestEndpoint()}", communicator);
-                    var i = Test.IPrx.CheckedCast(obj);
+                    var i = Test.IIPrx.CheckedCast(obj);
 
                     Task.Run(async () =>
                         {
@@ -113,7 +113,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i2:{helper.getTestEndpoint()}", communicator);
-                    Test.Inner.IPrx i = Test.Inner.IPrx.CheckedCast(obj);
+                    Test.Inner.IIPrx i = Test.Inner.IIPrx.CheckedCast(obj);
 
                     Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
                     var (s3, s2) = i.opS(s1);
@@ -150,7 +150,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i2:{helper.getTestEndpoint()}", communicator);
-                    Test.Inner.IPrx i = Test.Inner.IPrx.CheckedCast(obj);
+                    Test.Inner.IIPrx i = Test.Inner.IIPrx.CheckedCast(obj);
 
                     Task.Run(async () =>
                         {
@@ -190,7 +190,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i3:{helper.getTestEndpoint()}", communicator);
-                    Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrx.CheckedCast(obj);
+                    Test.Inner.Inner2.IIPrx i = Test.Inner.Inner2.IIPrx.CheckedCast(obj);
 
                     var s1 = new Test.Inner.Inner2.S(0);
                     var (s3, s2) = i.opS(s1);
@@ -227,7 +227,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i3:{helper.getTestEndpoint()}", communicator);
-                    Test.Inner.Inner2.IPrx? i = Test.Inner.Inner2.IPrx.CheckedCast(obj);
+                    Test.Inner.Inner2.IIPrx? i = Test.Inner.Inner2.IIPrx.CheckedCast(obj);
                     System.Diagnostics.Debug.Assert(i != null);
 
                     Task.Run(async () =>
@@ -268,7 +268,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i4:{helper.getTestEndpoint()}", communicator);
-                    Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrx.CheckedCast(obj);
+                    Inner.Test.Inner2.IIPrx i = Inner.Test.Inner2.IIPrx.CheckedCast(obj);
 
                     Test.S s1 = new Test.S(0);
                     var (s3, s2) = i.opS(s1);
@@ -305,7 +305,7 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i4:{helper.getTestEndpoint()}", communicator);
-                    Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrx.CheckedCast(obj);
+                    Inner.Test.Inner2.IIPrx i = Inner.Test.Inner2.IIPrx.CheckedCast(obj);
 
                     Task.Run(async () =>
                         {
@@ -344,7 +344,7 @@ namespace Ice
                 }
 
                 {
-                    Test.IPrx.Parse($"i1:{helper.getTestEndpoint()}", communicator).shutdown();
+                    Test.IIPrx.Parse($"i1:{helper.getTestEndpoint()}", communicator).shutdown();
                 }
             }
         }

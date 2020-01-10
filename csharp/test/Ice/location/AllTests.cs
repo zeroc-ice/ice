@@ -16,10 +16,10 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                var manager = ServerManagerPrx.Parse($"ServerManager :{helper.getTestEndpoint(0)}", communicator);
-                var locator = TestLocatorPrx.UncheckedCast(communicator.getDefaultLocator());
+                var manager = IServerManagerPrx.Parse($"ServerManager :{helper.getTestEndpoint(0)}", communicator);
+                var locator = ITestLocatorPrx.UncheckedCast(communicator.getDefaultLocator());
                 Console.WriteLine("registry checkedcast");
-                var registry = TestLocatorRegistryPrx.CheckedCast(locator.GetRegistry());
+                var registry = ITestLocatorRegistryPrx.CheckedCast(locator.GetRegistry());
                 test(registry != null);
 
                 var output = helper.getWriter();
@@ -35,7 +35,7 @@ namespace Ice
 
                 output.Write("testing ice_locator and ice_getLocator... ");
                 test(default(ProxyIdentityComparer).Compare(@base.Locator, communicator.getDefaultLocator()) == 0);
-                var anotherLocator = LocatorPrx.Parse("anotherLocator", communicator);
+                var anotherLocator = ILocatorPrx.Parse("anotherLocator", communicator);
                 @base = @base.Clone(locator: anotherLocator);
                 test(default(ProxyIdentityComparer).Compare(@base.Locator, anotherLocator) == 0);
                 communicator.setDefaultLocator(null);
@@ -52,10 +52,10 @@ namespace Ice
                 // test/Ice/router test?)
                 //
                 test(@base.Router == null);
-                var anotherRouter = RouterPrx.Parse("anotherRouter", communicator);
+                var anotherRouter = IRouterPrx.Parse("anotherRouter", communicator);
                 @base = @base.Clone(router: anotherRouter);
                 test(default(ProxyIdentityComparer).Compare(@base.Router, anotherRouter) == 0);
-                var router = RouterPrx.Parse("dummyrouter", communicator);
+                var router = IRouterPrx.Parse("dummyrouter", communicator);
                 communicator.setDefaultRouter(router);
                 @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
                 test(default(ProxyIdentityComparer).Compare(@base.Router, communicator.getDefaultRouter()) == 0);
@@ -71,17 +71,17 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrx.CheckedCast(@base);
+                var obj = Test.ITestIntfPrx.CheckedCast(@base);
                 test(obj != null);
-                var obj2 = Test.TestIntfPrx.CheckedCast(base2);
+                var obj2 = Test.ITestIntfPrx.CheckedCast(base2);
                 test(obj2 != null);
-                var obj3 = Test.TestIntfPrx.CheckedCast(base3);
+                var obj3 = Test.ITestIntfPrx.CheckedCast(base3);
                 test(obj3 != null);
-                var obj4 = Test.ServerManagerPrx.CheckedCast(base4);
+                var obj4 = Test.IServerManagerPrx.CheckedCast(base4);
                 test(obj4 != null);
-                var obj5 = Test.TestIntfPrx.CheckedCast(base5);
+                var obj5 = Test.ITestIntfPrx.CheckedCast(base5);
                 test(obj5 != null);
-                var obj6 = Test.TestIntfPrx.CheckedCast(base6);
+                var obj6 = Test.ITestIntfPrx.CheckedCast(base6);
                 test(obj6 != null);
                 output.WriteLine("ok");
 
@@ -175,7 +175,7 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj5 = Test.TestIntfPrx.CheckedCast(base5);
+                    obj5 = Test.ITestIntfPrx.CheckedCast(base5);
                     obj5.IcePing();
                 }
                 catch (LocalException)
@@ -254,7 +254,7 @@ namespace Ice
 
                 output.Write("testing proxy from server... ");
                 output.Flush();
-                obj = TestIntfPrx.Parse("test@TestAdapter", communicator);
+                obj = ITestIntfPrx.Parse("test@TestAdapter", communicator);
                 var hello = obj.getHello();
                 test(hello.AdapterId.Equals("TestAdapter"));
                 hello.sayHello();
@@ -515,7 +515,7 @@ namespace Ice
 
                 output.Write("testing object migration... ");
                 output.Flush();
-                hello = HelloPrx.Parse("hello", communicator);
+                hello = IHelloPrx.Parse("hello", communicator);
                 obj.migrateHello();
                 hello.GetConnection().close(ConnectionClose.GracefullyWithWait);
                 hello.sayHello();
@@ -527,7 +527,7 @@ namespace Ice
 
                 output.Write("testing locator encoding resolution... ");
                 output.Flush();
-                hello = HelloPrx.Parse("hello", communicator);
+                hello = IHelloPrx.Parse("hello", communicator);
                 count = locator.getRequestCount();
                 IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encodingVersion: Util.Encoding_1_1).IcePing();
                 test(count == locator.getRequestCount());
@@ -581,15 +581,15 @@ namespace Ice
                 adapter.Activate();
 
                 // Ensure that calls on the well-known proxy is collocated.
-                HelloPrx? helloPrx = HelloPrx.Parse("\"" + id.ToString(communicator.ToStringMode) + "\"", communicator);
+                IHelloPrx? helloPrx = IHelloPrx.Parse("\"" + id.ToString(communicator.ToStringMode) + "\"", communicator);
                 test(helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-                helloPrx = HelloPrx.CheckedCast(adapter.CreateIndirectProxy(id));
+                helloPrx = IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id));
                 test(helloPrx != null && helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the direct proxy is collocated
-                helloPrx = HelloPrx.CheckedCast(adapter.CreateDirectProxy(id));
+                helloPrx = IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id));
                 test(helloPrx != null && helloPrx.GetConnection() == null);
 
                 output.WriteLine("ok");

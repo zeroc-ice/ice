@@ -80,9 +80,9 @@ namespace IceDiscovery
             // Setup locatory registry.
             //
             LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
-            LocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry);
+            ILocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry);
 
-            LookupPrx lookupPrx = LookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
+            ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
                 clearRouter: true, collocationOptimized: false); // No colloc optimization or router for the multicast proxy!
 
             //
@@ -95,7 +95,7 @@ namespace IceDiscovery
             LookupReplyI lookupReply = new LookupReplyI(lookup);
             _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
-            lookup.SetLookupReply(LookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
+            lookup.SetLookupReply(ILookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
 
             //
             // Setup locator on the communicator.
@@ -124,7 +124,7 @@ namespace IceDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            LocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            ILocatorPrx? defaultLocator = _communicator.getDefaultLocator();
             if (defaultLocator != null && defaultLocator.Equals(_locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
@@ -136,8 +136,8 @@ namespace IceDiscovery
         private ObjectAdapter? _multicastAdapter;
         private ObjectAdapter? _replyAdapter;
         private ObjectAdapter? _locatorAdapter;
-        private LocatorPrx? _locator;
-        private LocatorPrx? _defaultLocator;
+        private ILocatorPrx? _locator;
+        private ILocatorPrx? _defaultLocator;
     }
 
     public class Util

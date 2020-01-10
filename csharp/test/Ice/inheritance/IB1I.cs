@@ -12,12 +12,12 @@ namespace Ice
             {
             }
 
-            public Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
+            public Test.MA.IIAPrx iaop(Test.MA.IIAPrx p, Ice.Current current)
             {
                 return p;
             }
 
-            public Test.MB.IB1Prx ib1op(Test.MB.IB1Prx p, Ice.Current current)
+            public Test.MB.IIB1Prx ib1op(Test.MB.IIB1Prx p, Ice.Current current)
             {
                 return p;
             }

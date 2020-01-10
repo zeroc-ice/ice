@@ -144,7 +144,7 @@ namespace IceBox
             }
         }
 
-        public void AddObserver(ServiceObserverPrx observer, Ice.Current current)
+        public void AddObserver(IServiceObserverPrx observer, Ice.Current current)
         {
             List<string> activeServices = new List<string>();
 
@@ -630,7 +630,7 @@ namespace IceBox
             }
         }
 
-        private void servicesStarted(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
+        private void servicesStarted(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
         {
             //
             // Must be called with 'this' unlocked
@@ -640,7 +640,7 @@ namespace IceBox
             {
                 string[] servicesArray = services.ToArray();
 
-                foreach (ServiceObserverPrx observer in observers)
+                foreach (IServiceObserverPrx observer in observers)
                 {
                     observer.ServicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
                         TaskScheduler.Current);
@@ -648,7 +648,7 @@ namespace IceBox
             }
         }
 
-        private void servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
+        private void servicesStopped(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
         {
             //
             // Must be called with 'this' unlocked
@@ -658,7 +658,7 @@ namespace IceBox
             {
                 string[] servicesArray = services.ToArray();
 
-                foreach (ServiceObserverPrx observer in observers)
+                foreach (IServiceObserverPrx observer in observers)
                 {
                     observer.ServicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
                         TaskScheduler.Current);
@@ -667,7 +667,7 @@ namespace IceBox
         }
 
         private void
-        observerCompleted(ServiceObserverPrx observer, Task t)
+        observerCompleted(IServiceObserverPrx observer, Task t)
         {
             try
             {
@@ -685,7 +685,7 @@ namespace IceBox
             }
         }
 
-        private void observerRemoved(ServiceObserverPrx observer, System.Exception ex)
+        private void observerRemoved(IServiceObserverPrx observer, System.Exception ex)
         {
             if (_traceServiceObserver >= 1)
             {
@@ -858,7 +858,7 @@ namespace IceBox
         private string[] _argv; // Filtered server argument vector
         private List<ServiceInfo> _services = new List<ServiceInfo>();
         private bool _pendingStatusChanges = false;
-        private Dictionary<ServiceObserverPrx, bool> _observers = new Dictionary<ServiceObserverPrx, bool>();
+        private Dictionary<IServiceObserverPrx, bool> _observers = new Dictionary<IServiceObserverPrx, bool>();
         private int _traceServiceObserver = 0;
     }
 

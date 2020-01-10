@@ -8,13 +8,13 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            public static Test.ITestIntfPrx allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 string sref = "test:" + helper.getTestEndpoint(0);
                 var obj = IObjectPrx.Parse(sref, communicator);
                 test(obj != null);
-                var proxy = Test.TestIntfPrx.UncheckedCast(obj);
+                var proxy = Test.ITestIntfPrx.UncheckedCast(obj);
                 test(proxy != null);
 
                 var output = helper.getWriter();

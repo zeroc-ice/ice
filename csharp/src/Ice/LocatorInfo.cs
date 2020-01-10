@@ -245,7 +245,7 @@ namespace IceInternal
             }
         }
 
-        internal LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, bool background)
+        internal LocatorInfo(ILocatorPrx locator, LocatorTable table, bool background)
         {
             _locator = locator;
             _table = table;
@@ -277,7 +277,7 @@ namespace IceInternal
             return _locator.GetHashCode();
         }
 
-        public Ice.LocatorPrx getLocator()
+        public ILocatorPrx getLocator()
         {
             //
             // No synchronization necessary, _locator is immutable.
@@ -285,7 +285,7 @@ namespace IceInternal
             return _locator;
         }
 
-        public Ice.LocatorRegistryPrx getLocatorRegistry()
+        public ILocatorRegistryPrx getLocatorRegistry()
         {
             lock (this)
             {
@@ -298,7 +298,7 @@ namespace IceInternal
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = _locator.GetRegistry();
+            ILocatorRegistryPrx locatorRegistry = _locator.GetRegistry();
             if (locatorRegistry == null)
             {
                 return null;
@@ -686,8 +686,8 @@ namespace IceInternal
             }
         }
 
-        private readonly LocatorPrx _locator;
-        private LocatorRegistryPrx? _locatorRegistry;
+        private readonly ILocatorPrx _locator;
+        private ILocatorRegistryPrx? _locatorRegistry;
         private readonly LocatorTable _table;
         private readonly bool _background;
 
@@ -699,7 +699,7 @@ namespace IceInternal
     {
         private struct LocatorKey
         {
-            public LocatorKey(Ice.LocatorPrx prx)
+            public LocatorKey(ILocatorPrx prx)
             {
                 Reference r = prx.IceReference;
                 _id = r.getIdentity();
@@ -732,9 +732,9 @@ namespace IceInternal
             private Ice.EncodingVersion _encoding;
         }
 
-        internal LocatorManager(Ice.Communicator communicator)
+        internal LocatorManager(Communicator communicator)
         {
-            _table = new Dictionary<Ice.LocatorPrx, LocatorInfo>();
+            _table = new Dictionary<ILocatorPrx, LocatorInfo>();
             _locatorTables = new Dictionary<LocatorKey, LocatorTable>();
             _background = communicator.GetPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
@@ -756,7 +756,7 @@ namespace IceInternal
         // Returns locator info for a given locator. Automatically creates
         // the locator info if it doesn't exist yet.
         //
-        public LocatorInfo get(LocatorPrx loc)
+        public LocatorInfo get(ILocatorPrx loc)
         {
             if (loc == null)
             {
@@ -766,7 +766,7 @@ namespace IceInternal
             //
             // The locator can't be located.
             //
-            LocatorPrx locator = loc.Clone(clearLocator: true);
+            ILocatorPrx locator = loc.Clone(clearLocator: true);
 
             //
             // TODO: reap unused locator info objects?
@@ -797,7 +797,7 @@ namespace IceInternal
             }
         }
 
-        private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
+        private Dictionary<ILocatorPrx, LocatorInfo> _table;
         private Dictionary<LocatorKey, LocatorTable> _locatorTables;
         private readonly bool _background;
     }

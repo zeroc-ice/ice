@@ -13,7 +13,7 @@ namespace IceInternal
     internal sealed class LoggerAdminI : Ice.LoggerAdmin
     {
         public void
-        AttachRemoteLogger(RemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
+        AttachRemoteLogger(IRemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
                            int messageMax, Current current)
         {
             if (prx == null)
@@ -105,7 +105,7 @@ namespace IceInternal
         }
 
         public bool
-        DetachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
+        DetachRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.Current current)
         {
             if (remoteLogger == null)
             {
@@ -190,11 +190,11 @@ namespace IceInternal
             }
         }
 
-        internal List<Ice.RemoteLoggerPrx> log(Ice.LogMessage logMessage)
+        internal List<IRemoteLoggerPrx> log(LogMessage logMessage)
         {
             lock (this)
             {
-                List<Ice.RemoteLoggerPrx> remoteLoggers = null;
+                List<IRemoteLoggerPrx> remoteLoggers = null;
 
                 //
                 // Put message in _queue
@@ -278,7 +278,7 @@ namespace IceInternal
                         {
                             if (remoteLoggers == null)
                             {
-                                remoteLoggers = new List<Ice.RemoteLoggerPrx>();
+                                remoteLoggers = new List<IRemoteLoggerPrx>();
                             }
                             remoteLoggers.Add(p.remoteLogger);
                         }
@@ -289,7 +289,7 @@ namespace IceInternal
             }
         }
 
-        internal void deadRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex,
+        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex,
                                        string operation)
         {
             //
@@ -310,7 +310,7 @@ namespace IceInternal
             return _traceLevel;
         }
 
-        private bool removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)
+        private bool removeRemoteLogger(IRemoteLoggerPrx remoteLogger)
         {
             lock (this)
             {
@@ -379,9 +379,9 @@ namespace IceInternal
         //
         // Change this proxy's communicator, while keeping its invocation timeout
         //
-        private static RemoteLoggerPrx changeCommunicator(Ice.RemoteLoggerPrx prx, Ice.Communicator communicator)
+        private static IRemoteLoggerPrx changeCommunicator(IRemoteLoggerPrx prx, Communicator communicator)
         {
-            return RemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
+            return IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
         }
 
         private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger)
@@ -419,13 +419,13 @@ namespace IceInternal
 
         private class RemoteLoggerData
         {
-            internal RemoteLoggerData(Ice.RemoteLoggerPrx prx, Filters f)
+            internal RemoteLoggerData(IRemoteLoggerPrx prx, Filters f)
             {
                 remoteLogger = prx;
                 filters = f;
             }
 
-            internal readonly Ice.RemoteLoggerPrx remoteLogger;
+            internal readonly IRemoteLoggerPrx remoteLogger;
             internal readonly Filters filters;
         }
 

@@ -16,7 +16,7 @@ namespace Ice
                 }
             }
 
-            internal static void oneways(global::Test.TestHelper helper, Test.MyClassPrx p)
+            internal static void oneways(global::Test.TestHelper helper, Test.IMyClassPrx p)
             {
                 Communicator communicator = helper.communicator();
                 p = p.Clone(oneway: true);

@@ -433,7 +433,7 @@ namespace Ice
         /// </summary>
         /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
         /// is null.</returns>
-        public RouterPrx? Router
+        public IRouterPrx? Router
         {
             get
             {
@@ -446,7 +446,7 @@ namespace Ice
         /// Returns the locator for this proxy.
         /// </summary>
         /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
-        public LocatorPrx? Locator
+        public ILocatorPrx? Locator
         {
             get
             {
@@ -1034,11 +1034,11 @@ namespace Ice
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
-                                       LocatorPrx? locator = null,
+                                       ILocatorPrx? locator = null,
                                        int? locatorCacheTimeout = null,
                                        bool? oneway = null,
                                        bool? preferSecure = null,
-                                       RouterPrx? router = null,
+                                       IRouterPrx? router = null,
                                        bool? secure = null)
         {
             var reference = prx.IceReference.Clone(
@@ -1085,11 +1085,11 @@ namespace Ice
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
-                                       LocatorPrx? locator = null,
+                                       ILocatorPrx? locator = null,
                                        int? locatorCacheTimeout = null,
                                        bool? oneway = null,
                                        bool? preferSecure = null,
-                                       RouterPrx? router = null,
+                                       IRouterPrx? router = null,
                                        bool? secure = null)
         {
             var reference = prx.IceReference.Clone(
@@ -1135,11 +1135,11 @@ namespace Ice
                                      Connection? fixedConnection = null,
                                      InvocationMode? invocationMode = null,
                                      int? invocationTimeout = null,
-                                     LocatorPrx? locator = null,
+                                     ILocatorPrx? locator = null,
                                      int? locatorCacheTimeout = null,
                                      bool? oneway = null,
                                      bool? preferSecure = null,
-                                     RouterPrx? router = null,
+                                     IRouterPrx? router = null,
                                      bool? secure = null) where Prx : IObjectPrx
         {
             var reference = prx.IceReference.Clone(

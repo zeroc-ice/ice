@@ -32,7 +32,7 @@ namespace Ice
 
             public static void allTests(global::Test.TestHelper helper)
             {
-                var controller = ControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", helper.communicator());
+                var controller = IControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", helper.communicator());
                 try
                 {
                     allTestsWithController(helper, controller);
@@ -47,11 +47,11 @@ namespace Ice
 
             }
 
-            public static void allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
+            public static void allTestsWithController(global::Test.TestHelper helper, Test.IControllerPrx controller)
             {
                 var communicator = helper.communicator();
                 string sref = "timeout:" + helper.getTestEndpoint(0);
-                var timeout = TimeoutPrx.Parse(sref, communicator);
+                var timeout = ITimeoutPrx.Parse(sref, communicator);
                 var output = helper.getWriter();
                 output.Write("testing connect timeout... ");
                 output.Flush();
@@ -272,7 +272,7 @@ namespace Ice
                     properties["Ice.Override.ConnectTimeout"] = "250";
                     properties["Ice.Override.Timeout"] = "100";
                     var comm = helper.initialize(properties);
-                    var to = TimeoutPrx.Parse(sref, comm);
+                    var to = ITimeoutPrx.Parse(sref, comm);
                     connect(to);
                     controller.holdAdapter(-1);
                     try
@@ -314,7 +314,7 @@ namespace Ice
                     properties["Ice.Override.ConnectTimeout"] = "250";
                     var comm = helper.initialize(properties);
                     controller.holdAdapter(-1);
-                    var to = TimeoutPrx.Parse(sref, comm);
+                    var to = ITimeoutPrx.Parse(sref, comm);
                     try
                     {
                         to.op();

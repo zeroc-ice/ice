@@ -25,14 +25,14 @@ namespace Ice
                 _adapter1.Communicator.shutdown();
             }
 
-            public Test.HelloPrx getHello(Ice.Current current)
+            public Test.IHelloPrx getHello(Ice.Current current)
             {
-                return Test.HelloPrx.UncheckedCast(_adapter1.CreateIndirectProxy("hello"));
+                return Test.IHelloPrx.UncheckedCast(_adapter1.CreateIndirectProxy("hello"));
             }
 
-            public Test.HelloPrx getReplicatedHello(Ice.Current current)
+            public Test.IHelloPrx getReplicatedHello(Ice.Current current)
             {
-                return Test.HelloPrx.UncheckedCast(_adapter1.CreateProxy("hello"));
+                return Test.IHelloPrx.UncheckedCast(_adapter1.CreateProxy("hello"));
             }
 
             public void migrateHello(Ice.Current current)

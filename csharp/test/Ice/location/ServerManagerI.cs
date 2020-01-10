@@ -62,7 +62,7 @@ namespace Ice
                         adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-                        var locator = LocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
+                        var locator = ILocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
                         adapter.SetLocator(locator);
                         adapter2.SetLocator(locator);
 

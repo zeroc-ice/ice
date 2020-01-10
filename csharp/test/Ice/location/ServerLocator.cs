@@ -11,7 +11,7 @@ namespace Ice
     {
         public class ServerLocator : Test.TestLocator
         {
-            public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
+            public ServerLocator(ServerLocatorRegistry registry, Ice.ILocatorRegistryPrx registryPrx)
             {
                 _registry = registry;
                 _registryPrx = registryPrx;
@@ -46,7 +46,7 @@ namespace Ice
                 return Task.FromResult(_registry.getObject(id));
             }
 
-            public Ice.LocatorRegistryPrx GetRegistry(Ice.Current current)
+            public Ice.ILocatorRegistryPrx GetRegistry(Ice.Current current)
             {
                 return _registryPrx;
             }
@@ -57,7 +57,7 @@ namespace Ice
             }
 
             private ServerLocatorRegistry _registry;
-            private Ice.LocatorRegistryPrx _registryPrx;
+            private Ice.ILocatorRegistryPrx _registryPrx;
             private int _requestCount;
         }
     }

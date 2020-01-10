@@ -416,7 +416,7 @@ namespace Ice
         /// <returns>The new object adapter.
         ///
         /// </returns>
-        public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
+        public ObjectAdapter createObjectAdapterWithRouter(string name, IRouterPrx router)
         {
             if (name.Length == 0)
             {
@@ -495,7 +495,7 @@ namespace Ice
         /// <returns>The default router for this communicator.
         ///
         /// </returns>
-        public RouterPrx? getDefaultRouter()
+        public IRouterPrx? getDefaultRouter()
         {
             lock (this)
             {
@@ -522,7 +522,7 @@ namespace Ice
         /// <param name="router">The default router to use for this communicator.
         ///
         /// </param>
-        public void setDefaultRouter(RouterPrx router)
+        public void setDefaultRouter(IRouterPrx router)
         {
             lock (this)
             {
@@ -541,7 +541,7 @@ namespace Ice
         /// <returns>The default locator for this communicator.
         ///
         /// </returns>
-        public LocatorPrx? getDefaultLocator()
+        public ILocatorPrx? getDefaultLocator()
         {
             lock (this)
             {
@@ -569,7 +569,7 @@ namespace Ice
         /// <param name="locator">The default locator to use for this communicator.
         ///
         /// </param>
-        public void setDefaultLocator(LocatorPrx? locator)
+        public void setDefaultLocator(ILocatorPrx? locator)
         {
             lock (this)
             {
@@ -1382,7 +1382,7 @@ namespace Ice
                 //
                 if (getDefaultRouter() == null)
                 {
-                    RouterPrx? router = GetPropertyAsProxy("Ice.Default.Router", RouterPrx.Factory);
+                    IRouterPrx? router = GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
                     if (router != null)
                     {
                         setDefaultRouter(router);
@@ -1391,7 +1391,7 @@ namespace Ice
 
                 if (getDefaultLocator() == null)
                 {
-                    LocatorPrx? locator = GetPropertyAsProxy("Ice.Default.Locator", LocatorPrx.Factory);
+                    ILocatorPrx? locator = GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
                     if (locator != null)
                     {
                         setDefaultLocator(locator);
@@ -1863,12 +1863,12 @@ namespace Ice
         internal void setServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity);
-            LocatorPrx? locator = adminAdapter.GetLocator();
+            ILocatorPrx? locator = adminAdapter.GetLocator();
             string? serverId = GetProperty("Ice.Admin.ServerId");
 
             if (locator != null && serverId != null)
             {
-                ProcessPrx process = ProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
+                IProcessPrx process = IProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
                 try
                 {
                     //
@@ -2659,7 +2659,7 @@ namespace Ice
                 }
 
                 string property = $"{propertyPrefix}.Locator";
-                LocatorPrx? locator = GetPropertyAsProxy(property, LocatorPrx.Factory);
+                ILocatorPrx? locator = GetPropertyAsProxy(property, ILocatorPrx.Factory);
                 if (locator != null)
                 {
                     if (!locator.IceReference.getEncoding().Equals(encoding))
@@ -2673,7 +2673,7 @@ namespace Ice
                 }
 
                 property = $"{propertyPrefix}.Router";
-                RouterPrx? router = GetPropertyAsProxy(property, RouterPrx.Factory);
+                IRouterPrx? router = GetPropertyAsProxy(property, IRouterPrx.Factory);
                 if (router != null)
                 {
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
@@ -2804,8 +2804,8 @@ namespace Ice
 
         private readonly int[] _retryIntervals;
 
-        private RouterPrx? _defaultRouter;
-        private LocatorPrx? _defaultLocator;
+        private IRouterPrx? _defaultRouter;
+        private ILocatorPrx? _defaultLocator;
 
         private static string[] _emptyArgs = Array.Empty<string>();
     }

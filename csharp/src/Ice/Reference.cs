@@ -400,11 +400,11 @@ namespace IceInternal
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
-                                       LocatorPrx? locator = null,
+                                       ILocatorPrx? locator = null,
                                        int? locatorCacheTimeout = null,
                                        bool? oneway = null,
                                        bool? preferSecure = null,
-                                       RouterPrx? router = null,
+                                       IRouterPrx? router = null,
                                        bool? secure = null)
         {
             Reference reference = this;
@@ -665,11 +665,11 @@ namespace IceInternal
                                         Connection? fixedConnection = null,
                                         InvocationMode? invocationMode = null,
                                         int? invocationTimeout = null,
-                                        LocatorPrx? locator = null,
+                                        ILocatorPrx? locator = null,
                                         int? locatorCacheTimeout = null,
                                         bool? oneway = null,
                                         bool? preferSecure = null,
-                                        RouterPrx? router = null,
+                                        IRouterPrx? router = null,
                                         bool? secure = null)
         {
             if (locator != null && clearLocator)
@@ -1020,11 +1020,11 @@ namespace IceInternal
                                         Connection? fixedConnection = null,
                                         InvocationMode? invocationMode = null,
                                         int? invocationTimeout = null,
-                                        LocatorPrx? locator = null,
+                                        ILocatorPrx? locator = null,
                                         int? locatorCacheTimeout = null,
                                         bool? oneway = null,
                                         bool? preferSecure = null,
-                                        RouterPrx? router = null,
+                                        IRouterPrx? router = null,
                                         bool? secure = null)
         {
             if (locator != null && clearLocator)

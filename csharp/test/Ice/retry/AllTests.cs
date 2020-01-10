@@ -44,7 +44,7 @@ namespace Ice
                 private bool _called;
             }
 
-            static public Test.RetryPrx
+            static public Test.IRetryPrx
             allTests(global::Test.TestHelper helper,
                      Ice.Communicator communicator,
                      Ice.Communicator communicator2,
@@ -61,9 +61,9 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                Test.RetryPrx retry1 = Test.RetryPrx.CheckedCast(base1);
+                Test.IRetryPrx retry1 = Test.IRetryPrx.CheckedCast(base1);
                 test(retry1.Equals(base1));
-                Test.RetryPrx retry2 = Test.RetryPrx.CheckedCast(base2);
+                Test.IRetryPrx retry2 = Test.IRetryPrx.CheckedCast(base2);
                 test(retry2.Equals(base2));
                 output.WriteLine("ok");
 
@@ -204,7 +204,7 @@ namespace Ice
                     output.Write("testing invocation timeout and retries... ");
                     output.Flush();
 
-                    retry2 = Test.RetryPrx.Parse(retry1.ToString(), communicator2);
+                    retry2 = Test.IRetryPrx.Parse(retry1.ToString(), communicator2);
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
@@ -220,7 +220,7 @@ namespace Ice
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
-                        Test.RetryPrx prx = retry2.Clone(invocationTimeout: 500);
+                        Test.IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
                         prx.opIdempotentAsync(4).Wait();
                         test(false);
                     }
@@ -236,7 +236,7 @@ namespace Ice
                         // The timeout might occur on connection establishment or because of the sleep. What's
                         // important here is to make sure there are 4 retries and that no calls succeed to
                         // ensure retries with the old connection timeout semantics work.
-                        Test.RetryPrx retryWithTimeout = retry1.Clone(invocationTimeout: -2, connectionTimeout: 200);
+                        Test.IRetryPrx retryWithTimeout = retry1.Clone(invocationTimeout: -2, connectionTimeout: 200);
                         try
                         {
                             retryWithTimeout.sleep(500);

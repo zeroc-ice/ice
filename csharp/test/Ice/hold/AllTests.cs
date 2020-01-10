@@ -72,10 +72,10 @@ namespace Ice
                 var output = helper.getWriter();
 
                 output.Flush();
-                var hold = Test.HoldPrx.Parse($"hold:{helper.getTestEndpoint(0)}", communicator);
+                var hold = Test.IHoldPrx.Parse($"hold:{helper.getTestEndpoint(0)}", communicator);
                 var holdOneway = hold.Clone(oneway: true);
 
-                var holdSerialized = Test.HoldPrx.Parse($"hold:{helper.getTestEndpoint(1)}", communicator);
+                var holdSerialized = Test.IHoldPrx.Parse($"hold:{helper.getTestEndpoint(1)}", communicator);
                 var holdSerializedOneway = holdSerialized.Clone(oneway: true);
 
                 output.Write("changing state between active and hold rapidly... ");

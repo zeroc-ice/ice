@@ -64,7 +64,7 @@ public class Client : Test.TestHelper
         test(b.@readonly == 0);
         @abstract.@case c = new caseI();
         test(c != null);
-        @abstract.@casePrx c1 = null;
+        @abstract.IcasePrx c1 = null;
         test(c1 == null);
         int c2 = 0;
         if (c1 != null)
@@ -73,7 +73,7 @@ public class Client : Test.TestHelper
         }
         @abstract.@decimal d = new decimalI();
         test(d != null);
-        @abstract.@decimalPrx d1 = null;
+        @abstract.IdecimalPrx d1 = null;
         if (d1 != null)
         {
             d1.@default();
@@ -83,7 +83,7 @@ public class Client : Test.TestHelper
         test(e != null);
         @abstract.@delegate e1 = null;
         test(e1 == null);
-        @abstract.@explicitPrx f1 = null;
+        @abstract.IexplicitPrx f1 = null;
         if (f1 != null)
         {
             c2 = f1.@catch(0);
@@ -117,16 +117,16 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            @abstract.@decimalPrx p = @abstract.@decimalPrx.UncheckedCast(adapter.CreateProxy("test"));
+            @abstract.IdecimalPrx p = @abstract.IdecimalPrx.UncheckedCast(adapter.CreateProxy("test"));
             p.@default();
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.TestPrx t1 = @abstract.System.TestPrx.UncheckedCast(adapter.CreateProxy("test1"));
+            @abstract.System.ITestPrx t1 = @abstract.System.ITestPrx.UncheckedCast(adapter.CreateProxy("test1"));
             t1.op();
 
-            System.TestPrx t2 = System.TestPrx.UncheckedCast(adapter.CreateProxy("test2"));
+            System.ITestPrx t2 = System.ITestPrx.UncheckedCast(adapter.CreateProxy("test2"));
 
             t2.op();
             Console.Out.WriteLine("ok");

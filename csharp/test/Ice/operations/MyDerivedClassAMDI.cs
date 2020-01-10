@@ -268,12 +268,12 @@ namespace Ice
                 }
 
                 public Task<Test.MyClass.OpMyClassReturnValue>
-                opMyClassAsync(Test.MyClassPrx p1, Current current)
+                opMyClassAsync(Test.IMyClassPrx p1, Current current)
                 {
                     var p2 = p1;
-                    var p3 = Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
+                    var p3 = Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
                     return Task.FromResult(new Test.MyClass.OpMyClassReturnValue(
-                        Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
+                        Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
                 }
 
                 public Task<Test.MyClass.OpMyEnumReturnValue>

@@ -15,7 +15,7 @@ namespace Ice
                     var output = getWriter();
                     output.Write("testing server priority... ");
                     output.Flush();
-                    var priority = Test.PriorityPrx.Parse($"test:{getTestEndpoint(0)} -t 10000", communicator);
+                    var priority = Test.IPriorityPrx.Parse($"test:{getTestEndpoint(0)} -t 10000", communicator);
                     test("AboveNormal".Equals(priority.getPriority()));
                     output.WriteLine("ok");
                     priority.shutdown();

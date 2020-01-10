@@ -119,7 +119,7 @@ public class AllTests
 
     private class OpThread
     {
-        internal OpThread(BackgroundPrx background)
+        internal OpThread(IBackgroundPrx background)
         {
             _background = background.Clone(oneway: true);
             Start();
@@ -175,16 +175,16 @@ public class AllTests
         }
 
         private bool _destroyed = false;
-        private BackgroundPrx _background;
+        private IBackgroundPrx _background;
         private Thread? _thread;
     }
 
-    public static Test.BackgroundPrx allTests(Test.TestHelper helper)
+    public static Test.IBackgroundPrx allTests(Test.TestHelper helper)
     {
         Communicator communicator = helper.communicator();
-        var background = BackgroundPrx.Parse($"background:{helper.getTestEndpoint(0)}", communicator);
+        var background = IBackgroundPrx.Parse($"background:{helper.getTestEndpoint(0)}", communicator);
 
-        var backgroundController = BackgroundControllerPrx.Parse("backgroundController:" + helper.getTestEndpoint(1, "tcp"), communicator);
+        var backgroundController = IBackgroundControllerPrx.Parse("backgroundController:" + helper.getTestEndpoint(1, "tcp"), communicator);
 
         Configuration configuration = Configuration.getInstance();
 
@@ -220,7 +220,7 @@ public class AllTests
         Console.Out.Flush();
         {
 
-            var locator = LocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(
+            var locator = ILocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(
                 invocationTimeout: 250);
             var obj = IObjectPrx.Parse("background@Test", communicator).Clone(locator: locator, oneway: true);
 
@@ -235,10 +235,10 @@ public class AllTests
             }
             backgroundController.resumeCall("findAdapterById");
 
-            locator = LocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(locator: locator);
+            locator = ILocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(locator: locator);
             locator.IcePing();
 
-            var bg = BackgroundPrx.Parse("background@Test", communicator).Clone(locator: locator);
+            var bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(locator: locator);
 
             backgroundController.pauseCall("findAdapterById");
             var t1 = bg.opAsync();
@@ -256,7 +256,7 @@ public class AllTests
         Console.Write("testing router... ");
         Console.Out.Flush();
         {
-            var router = RouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator).Clone(
+            var router = IRouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator).Clone(
                 invocationTimeout: 250);
             var obj = IObjectPrx.Parse("background@Test", communicator).Clone(router: router, oneway: true);
 
@@ -271,8 +271,8 @@ public class AllTests
             }
             backgroundController.resumeCall("getClientProxy");
 
-            router = RouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator);
-            var bg = BackgroundPrx.Parse("background@Test", communicator).Clone(router: router);
+            router = IRouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator);
+            var bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(router: router);
             test(bg.Router != null);
 
             backgroundController.pauseCall("getClientProxy");
@@ -335,7 +335,7 @@ public class AllTests
         return background;
     }
 
-    private static void connectTests(Configuration configuration, Test.BackgroundPrx background)
+    private static void connectTests(Configuration configuration, Test.IBackgroundPrx background)
     {
         try
         {
@@ -358,7 +358,7 @@ public class AllTests
             {
                 configuration.connectException(new SocketException());
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
+            IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
             try
             {
@@ -459,8 +459,8 @@ public class AllTests
         }
     }
 
-    private static void initializeTests(Configuration configuration, BackgroundPrx background,
-        BackgroundControllerPrx ctl)
+    private static void initializeTests(Configuration configuration, IBackgroundPrx background,
+        IBackgroundControllerPrx ctl)
     {
         try
         {
@@ -482,7 +482,7 @@ public class AllTests
             {
                 continue;
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
+            IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
             try
             {
@@ -646,8 +646,7 @@ public class AllTests
         cb.check();
     }
 
-    private static void validationTests(Configuration configuration, Test.BackgroundPrx background,
-                                        Test.BackgroundControllerPrx ctl)
+    private static void validationTests(Configuration configuration, IBackgroundPrx background, IBackgroundControllerPrx ctl)
     {
         try
         {
@@ -674,7 +673,7 @@ public class AllTests
         for (int i = 0; i < 2; ++i)
         {
             configuration.readException(new SocketException());
-            BackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
+            IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
             bool sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
@@ -810,8 +809,7 @@ public class AllTests
 
     }
 
-    private static void readWriteTests(Configuration configuration, Test.BackgroundPrx background,
-                                       Test.BackgroundControllerPrx ctl)
+    private static void readWriteTests(Configuration configuration, IBackgroundPrx background, IBackgroundControllerPrx ctl)
     {
         try
         {
@@ -825,7 +823,7 @@ public class AllTests
 
         for (int i = 0; i < 2; ++i)
         {
-            BackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
+            IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
 
             try
             {
@@ -929,7 +927,7 @@ public class AllTests
 
         for (int i = 0; i < 2; ++i)
         {
-            BackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
+            IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
 
             background.IcePing();
             configuration.writeReady(false);
@@ -1009,7 +1007,7 @@ public class AllTests
 
         background.IcePing(); // Establish the connection
 
-        BackgroundPrx backgroundOneway = background.Clone(oneway: true);
+        IBackgroundPrx backgroundOneway = background.Clone(oneway: true);
         test(backgroundOneway.GetConnection() == background.GetConnection());
 
         ctl.holdAdapter(); // Hold to block in request send.

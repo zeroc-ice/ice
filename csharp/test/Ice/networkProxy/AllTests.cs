@@ -27,7 +27,7 @@ public class AllTests : Test.AllTests
         int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
                         communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-        Test.TestIntfPrx? testPrx = Test.TestIntfPrx.CheckedCast(obj);
+        Test.ITestIntfPrx? testPrx = Test.ITestIntfPrx.CheckedCast(obj);
         var output = helper.getWriter();
         output.Write("testing connection... ");
         output.Flush();

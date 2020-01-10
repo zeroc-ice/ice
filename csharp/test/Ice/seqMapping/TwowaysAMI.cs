@@ -23,7 +23,7 @@ namespace Ice
 
             const int Length = 100;
 
-            internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
+            internal static void twowaysAMI(Ice.Communicator communicator, Test.IMyClassPrx p)
             {
                 {
                     var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();
@@ -402,7 +402,7 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray();
+                        x => Test.IIPrx.Parse(x.ToString(), communicator)).ToArray();
                     var r = p.opAIPrxSAsync(i).Result;
                     test(r.o.SequenceEqual(i));
                     test(r.returnValue.SequenceEqual(i));
@@ -410,31 +410,31 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToList();
+                        x => Test.IIPrx.Parse(x.ToString(), communicator)).ToList();
                     var r = p.opLIPrxSAsync(i).Result;
                     test(r.o.SequenceEqual(i));
                     test(r.returnValue.SequenceEqual(i));
                 }
 
                 {
-                    var i = new LinkedList<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray());
+                    var i = new LinkedList<Test.IIPrx>(Enumerable.Range(0, Length).Select(
+                        x => Test.IIPrx.Parse(x.ToString(), communicator)).ToArray());
                     var r = p.opKIPrxSAsync(i).Result;
                     test(r.o.SequenceEqual(i));
                     test(r.returnValue.SequenceEqual(i));
                 }
 
                 {
-                    var i = new Queue<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray());
+                    var i = new Queue<Test.IIPrx>(Enumerable.Range(0, Length).Select(
+                        x => Test.IIPrx.Parse(x.ToString(), communicator)).ToArray());
                     var r = p.opQIPrxSAsync(i).Result;
                     test(r.o.SequenceEqual(i));
                     test(r.returnValue.SequenceEqual(i));
                 }
 
                 {
-                    var i = new Stack<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray());
+                    var i = new Stack<Test.IIPrx>(Enumerable.Range(0, Length).Select(
+                        x => Test.IIPrx.Parse(x.ToString(), communicator)).ToArray());
                     var r = p.opSIPrxSAsync(i).Result;
                     test(r.o.SequenceEqual(i));
                     test(r.returnValue.SequenceEqual(i));

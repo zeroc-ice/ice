@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.inheritance.Test.MA;
+
 namespace Ice
 {
     namespace inheritance
@@ -12,7 +14,7 @@ namespace Ice
             {
             }
 
-            public Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
+            public Test.MA.IIAPrx iaop(Test.MA.IIAPrx p, Ice.Current current)
             {
                 return p;
             }

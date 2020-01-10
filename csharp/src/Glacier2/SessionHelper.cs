@@ -156,7 +156,7 @@ namespace Glacier2
         /// established yet or the session has already been destroyed.
         /// </summary>
         /// <returns>The session proxy, or null if no session exists.</returns>
-        public SessionPrx?
+        public ISessionPrx?
         session()
         {
             lock (_mutex)
@@ -221,7 +221,7 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                connectImpl((RouterPrx router) => router.CreateSessionFromSecureConnection(context));
+                connectImpl((IRouterPrx router) => router.CreateSessionFromSecureConnection(context));
             }
         }
 
@@ -239,12 +239,12 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                connectImpl((RouterPrx router) => router.CreateSession(username, password, context));
+                connectImpl((IRouterPrx router) => router.CreateSession(username, password, context));
             }
         }
 
         private void
-        connected(RouterPrx router, SessionPrx session)
+        connected(IRouterPrx router, ISessionPrx session)
         {
             //
             // Remote invocation should be done without acquiring a mutex lock.
@@ -330,7 +330,7 @@ namespace Glacier2
         private void
         destroyInternal()
         {
-            RouterPrx router;
+            IRouterPrx router;
             Communicator? communicator;
             lock (_mutex)
             {
@@ -389,7 +389,7 @@ namespace Glacier2
             communicator.destroy();
         }
 
-        private delegate SessionPrx ConnectStrategy(RouterPrx router);
+        private delegate ISessionPrx ConnectStrategy(IRouterPrx router);
 
         private void
         connectImpl(ConnectStrategy factory)
@@ -424,7 +424,7 @@ namespace Glacier2
 
                 if (_communicator.getDefaultRouter() == null)
                 {
-                    var finder = RouterFinderPrx.Parse(_finderStr, _communicator);
+                    var finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
                     try
                     {
                         _communicator.setDefaultRouter(finder.GetRouter());
@@ -440,17 +440,17 @@ namespace Glacier2
                         // In case of error getting router identity from RouterFinder use default identity.
                         //
                         _communicator.setDefaultRouter(
-                                Ice.RouterPrx.UncheckedCast(finder.Clone(new Identity("router", "Glacier2"))));
+                                Ice.IRouterPrx.UncheckedCast(finder.Clone(new Identity("router", "Glacier2"))));
                     }
                 }
 
                 try
                 {
                     dispatchCallbackAndWait(() => _callback.createdCommunicator(this));
-                    Ice.RouterPrx? defaultRouter = _communicator.getDefaultRouter();
+                    Ice.IRouterPrx? defaultRouter = _communicator.getDefaultRouter();
                     Debug.Assert(defaultRouter != null);
-                    RouterPrx routerPrx = RouterPrx.UncheckedCast(defaultRouter);
-                    SessionPrx session = factory(routerPrx);
+                    IRouterPrx routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
+                    ISessionPrx session = factory(routerPrx);
                     connected(routerPrx, session);
                 }
                 catch (System.Exception ex)
@@ -495,8 +495,8 @@ namespace Glacier2
 
         private Communicator? _communicator;
         private ObjectAdapter? _adapter;
-        private RouterPrx? _router;
-        private SessionPrx? _session;
+        private IRouterPrx? _router;
+        private ISessionPrx? _session;
         private bool _connected = false;
         private string? _category;
         private string _finderStr;

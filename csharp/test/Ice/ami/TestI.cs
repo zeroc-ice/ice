@@ -113,7 +113,7 @@ namespace Ice
             }
 
             public void
-            pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
+            pingBiDir(Test.IPingReplyPrx reply, Ice.Current current)
             {
                 reply = reply.Clone(fixedConnection: current.Connection);
                 Thread dispatchThread = Thread.CurrentThread;
@@ -127,10 +127,10 @@ namespace Ice
                     reply.Scheduler).Wait();
             }
 
-            Test.TestIntfPrx
+            Test.ITestIntfPrx
             self(Ice.Current current)
             {
-                return Test.TestIntfPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id));
+                return Test.ITestIntfPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id));
             }
 
             public Task

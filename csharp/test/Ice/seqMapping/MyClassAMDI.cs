@@ -374,31 +374,31 @@ namespace Ice
                 }
 
                 public Task<Test.MyClass.OpAIPrxSReturnValue>
-                opAIPrxSAsync(Test.IPrx[] i, Current current)
+                opAIPrxSAsync(Test.IIPrx[] i, Current current)
                 {
                     return Task.FromResult(new Test.MyClass.OpAIPrxSReturnValue(i, i));
                 }
 
                 public Task<Test.MyClass.OpLIPrxSReturnValue>
-                opLIPrxSAsync(List<Test.IPrx> i, Current current)
+                opLIPrxSAsync(List<Test.IIPrx> i, Current current)
                 {
                     return Task.FromResult(new Test.MyClass.OpLIPrxSReturnValue(i, i));
                 }
 
                 public Task<Test.MyClass.OpKIPrxSReturnValue>
-                opKIPrxSAsync(LinkedList<Test.IPrx> i, Current current)
+                opKIPrxSAsync(LinkedList<Test.IIPrx> i, Current current)
                 {
                     return Task.FromResult(new Test.MyClass.OpKIPrxSReturnValue(i, i));
                 }
 
                 public Task<Test.MyClass.OpQIPrxSReturnValue>
-                opQIPrxSAsync(Queue<Test.IPrx> i, Current current)
+                opQIPrxSAsync(Queue<Test.IIPrx> i, Current current)
                 {
                     return Task.FromResult(new Test.MyClass.OpQIPrxSReturnValue(i, i));
                 }
 
                 public Task<Test.MyClass.OpSIPrxSReturnValue>
-                opSIPrxSAsync(Stack<Test.IPrx> i, Current current)
+                opSIPrxSAsync(Stack<Test.IIPrx> i, Current current)
                 {
                     return Task.FromResult(new Test.MyClass.OpSIPrxSReturnValue(i, i));
                 }

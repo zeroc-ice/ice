@@ -30,7 +30,7 @@ namespace Test
 
 public class AllTests : Test.AllTests
 {
-    public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
+    public static ITestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
         var output = helper.getWriter();
@@ -41,7 +41,7 @@ public class AllTests : Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx testPrx = TestIntfPrx.CheckedCast(basePrx);
+        ITestIntfPrx testPrx = ITestIntfPrx.CheckedCast(basePrx);
         test(testPrx.Equals(basePrx));
         output.WriteLine("ok");
 

@@ -31,7 +31,7 @@ namespace Ice
 
                     for (int i = 0; i < num; ++i)
                     {
-                        Test.TestIntfPrx.Parse("control:" + getTestEndpoint(i, "tcp"), communicator).shutdown();
+                        Test.ITestIntfPrx.Parse("control:" + getTestEndpoint(i, "tcp"), communicator).shutdown();
                     }
                 }
             }

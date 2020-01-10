@@ -17,7 +17,7 @@ namespace Ice
         }
         public class Client : TestHelper
         {
-            private void runTest(Test.MyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
+            private void runTest(Test.IMyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
             {
                 var output = getWriter();
                 output.Write("testing simple interceptor... ");
@@ -102,7 +102,7 @@ namespace Ice
                 output.WriteLine("ok");
             }
 
-            private void runAmdTest(Test.MyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
+            private void runAmdTest(Test.IMyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
             {
                 var output = getWriter();
                 output.Write("testing simple interceptor... ");
@@ -206,7 +206,7 @@ namespace Ice
 
                     var interceptor = new InterceptorI<MyObject, MyObjectTraits>(new MyObjectI());
 
-                    var prx = MyObjectPrx.UncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
+                    var prx = IMyObjectPrx.UncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
 
                     var output = getWriter();
 
@@ -234,7 +234,7 @@ namespace Ice
                 return TestDriver.runTest<Client>(args);
             }
 
-            private void testInterceptorExceptions(Test.MyObjectPrx prx)
+            private void testInterceptorExceptions(Test.IMyObjectPrx prx)
             {
                 var exceptions = new List<(string operation, string kind)>();
                 exceptions.Add(("raiseBeforeDispatch", "user"));

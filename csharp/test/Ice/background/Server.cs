@@ -29,7 +29,7 @@ public class Server : TestHelper
             return Task.FromResult(current.Adapter.CreateDirectProxy(id));
         }
 
-        public LocatorRegistryPrx GetRegistry(Current current)
+        public ILocatorRegistryPrx GetRegistry(Current current)
         {
             return null;
         }

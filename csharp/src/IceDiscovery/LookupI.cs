@@ -38,14 +38,14 @@ namespace IceDiscovery
             return --retryCount_ >= 0;
         }
 
-        public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx?> lookups)
+        public void invoke(string domainId, Dictionary<ILookupPrx, ILookupReplyPrx?> lookups)
         {
             _lookupCount = lookups.Count;
             _failureCount = 0;
             Ice.Identity id = new Ice.Identity(_requestId, "");
             foreach (var entry in lookups)
             {
-                invokeWithLookup(domainId, entry.Key, LookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
+                invokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
             }
         }
 
@@ -66,7 +66,7 @@ namespace IceDiscovery
 
         public abstract void finished(IObjectPrx? proxy);
 
-        protected abstract void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
+        protected abstract void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
 
         private readonly string _requestId;
 
@@ -144,7 +144,7 @@ namespace IceDiscovery
             lookup_.AdapterRequestTimedOut(this);
         }
 
-        protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
             lookup.FindAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
             {
@@ -203,7 +203,7 @@ namespace IceDiscovery
             lookup_.objectRequestTimedOut(this);
         }
 
-        protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
             lookup.FindObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
             {
@@ -221,7 +221,7 @@ namespace IceDiscovery
 
     internal class LookupI : Lookup
     {
-        public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Communicator communicator)
+        public LookupI(LocatorRegistryI registry, ILookupPrx lookup, Communicator communicator)
         {
             _registry = registry;
             _lookup = lookup;
@@ -244,13 +244,13 @@ namespace IceDiscovery
             Debug.Assert(_lookups.Count > 0);
         }
 
-        public void SetLookupReply(LookupReplyPrx lookupReply)
+        public void SetLookupReply(ILookupReplyPrx lookupReply)
         {
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
             var single = new Ice.Endpoint[1];
-            foreach (var key in new List<LookupPrx>(_lookups.Keys))
+            foreach (var key in new List<ILookupPrx>(_lookups.Keys))
             {
                 var info = (Ice.UDPEndpointInfo)key.Endpoints[0].getInfo();
                 if (info.mcastInterface.Length > 0)
@@ -274,7 +274,7 @@ namespace IceDiscovery
             }
         }
 
-        public void FindObjectById(string domainId, Identity id, LookupReplyPrx reply, Current current)
+        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
@@ -298,7 +298,7 @@ namespace IceDiscovery
             }
         }
 
-        public void FindAdapterById(string domainId, string adapterId, LookupReplyPrx reply, Current current)
+        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
@@ -542,8 +542,8 @@ namespace IceDiscovery
         }
 
         private readonly LocatorRegistryI _registry;
-        private readonly LookupPrx _lookup;
-        private readonly Dictionary<LookupPrx, LookupReplyPrx?> _lookups = new Dictionary<LookupPrx, LookupReplyPrx?>();
+        private readonly ILookupPrx _lookup;
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups = new Dictionary<ILookupPrx, ILookupReplyPrx?>();
         private readonly int _timeout;
         private readonly int _retryCount;
         private readonly int _latencyMultiplier;

@@ -10,7 +10,7 @@ namespace Ice
     {
         public class RemoteCommunicatorI : RemoteCommunicator
         {
-            public RemoteObjectAdapterPrx
+            public IRemoteObjectAdapterPrx
             createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
             {
                 Communicator communicator = current.Adapter.Communicator;
@@ -53,7 +53,7 @@ namespace Ice
                 _adapter.Activate();
             }
 
-            public TestIntfPrx getTestIntf(Current current)
+            public ITestIntfPrx getTestIntf(Current current)
             {
                 return _testIntf;
             }
@@ -80,7 +80,7 @@ namespace Ice
             }
 
             private ObjectAdapter _adapter;
-            private TestIntfPrx _testIntf;
+            private ITestIntfPrx _testIntf;
         }
 
         public class TestI : TestIntf

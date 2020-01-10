@@ -334,7 +334,7 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing checked cast for server object... ");
             Console.Out.Flush();
-            CallbackPrx twoway = CallbackPrx.CheckedCast(@base);
+            ICallbackPrx twoway = ICallbackPrx.CheckedCast(@base);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing server shutdown... ");
@@ -407,10 +407,10 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            ProcessPrx process;
+            IProcessPrx process;
             {
                 Console.Out.Write("testing checked cast for admin object... ");
-                process = Ice.ProcessPrx.CheckedCast(processBase);
+                process = Ice.IProcessPrx.CheckedCast(processBase);
                 test(process != null);
                 Console.Out.WriteLine("ok");
             }

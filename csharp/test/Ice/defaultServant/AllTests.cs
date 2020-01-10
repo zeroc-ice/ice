@@ -43,17 +43,17 @@ namespace Ice
 
                 string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-                MyObjectPrx prx = null;
+                IMyObjectPrx prx = null;
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                    prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                     prx.IcePing();
                     test(prx.getName() == names[idx]);
                 }
 
                 identity.name = "ObjectNotExist";
-                prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.IcePing();
@@ -75,7 +75,7 @@ namespace Ice
                 }
 
                 identity.name = "FacetNotExist";
-                prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.IcePing();
@@ -100,7 +100,7 @@ namespace Ice
                 for (int idx = 0; idx < 5; idx++)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                    prx = Test.IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
 
                     try
                     {
@@ -125,7 +125,7 @@ namespace Ice
 
                 oa.RemoveDefaultServant("foo");
                 identity.category = "foo";
-                prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = Test.IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.IcePing();
@@ -151,7 +151,7 @@ namespace Ice
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                    prx = Test.IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                     prx.IcePing();
                     test(prx.getName() == names[idx]);
                 }

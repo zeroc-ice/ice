@@ -61,12 +61,12 @@ namespace Ice
                 communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
                 ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
                 PingReplyI replyI = new PingReplyI();
-                PingReplyPrx reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
+                IPingReplyPrx reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
                 adapter.Activate();
 
                 Console.Out.Write("testing udp... ");
                 Console.Out.Flush();
-                var obj = TestIntfPrx.Parse("test:" + helper.getTestEndpoint(0, "udp"),
+                var obj = ITestIntfPrx.Parse("test:" + helper.getTestEndpoint(0, "udp"),
                                             communicator).Clone(invocationMode: InvocationMode.Datagram);
 
                 int nRetry = 5;
@@ -167,7 +167,7 @@ namespace Ice
                 }
                 endpoint.Append(" -p ");
                 endpoint.Append(helper.getTestPort(10));
-                var objMcast = TestIntfPrx.Parse($"test -d:{endpoint}", communicator);
+                var objMcast = ITestIntfPrx.Parse($"test -d:{endpoint}", communicator);
 
                 nRetry = 5;
                 while (nRetry-- > 0)

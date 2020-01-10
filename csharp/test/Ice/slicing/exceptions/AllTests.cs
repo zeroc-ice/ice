@@ -52,7 +52,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
+    public static ITestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
         var output = helper.getWriter();
@@ -65,7 +65,7 @@ public class AllTests : Test.AllTests
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx testPrx = TestIntfPrx.CheckedCast(@base);
+        ITestIntfPrx testPrx = ITestIntfPrx.CheckedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
         output.WriteLine("ok");
@@ -785,7 +785,7 @@ public class AllTests : Test.AllTests
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-            RelayPrx relay = adapter.Add(new RelayI());
+            IRelayPrx relay = adapter.Add(new RelayI());
             adapter.Activate();
             testPrx.GetConnection().setAdapter(adapter);
 

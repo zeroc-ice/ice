@@ -10,7 +10,7 @@ namespace Ice
     {
         public class RemoteCommunicatorI : Test.RemoteCommunicator
         {
-            public Test.RemoteObjectAdapterPrx
+            public Test.IRemoteObjectAdapterPrx
             createObjectAdapter(string name, string endpts, Current current)
             {
                 int retry = 5;
@@ -40,7 +40,7 @@ namespace Ice
             }
 
             public void
-            deactivateObjectAdapter(Test.RemoteObjectAdapterPrx adapter, Ice.Current current)
+            deactivateObjectAdapter(Test.IRemoteObjectAdapterPrx adapter, Ice.Current current)
             {
                 adapter.deactivate(); // Collocated call.
             }

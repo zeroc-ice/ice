@@ -206,12 +206,12 @@ namespace Ice
                 return new Test.MyClass.OpLongFloatDReturnValue(r, p1);
             }
 
-            public Test.MyClass.OpMyClassReturnValue opMyClass(Test.MyClassPrx p1, Current current)
+            public Test.MyClass.OpMyClassReturnValue opMyClass(Test.IMyClassPrx p1, Current current)
             {
                 return new Test.MyClass.OpMyClassReturnValue(
-                    Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)),
+                    Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)),
                     p1,
-                    Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity")));
+                    Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity")));
             }
 
             public Test.MyClass.OpMyEnumReturnValue

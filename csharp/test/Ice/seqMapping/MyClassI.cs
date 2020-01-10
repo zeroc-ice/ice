@@ -214,19 +214,19 @@ namespace Ice
             opSEnS(Stack<Test.En> i, Current current) => new Test.MyClass.OpSEnSReturnValue(i, i);
 
             public Test.MyClass.OpAIPrxSReturnValue
-            opAIPrxS(Test.IPrx[] i, Current current) => new Test.MyClass.OpAIPrxSReturnValue(i, i);
+            opAIPrxS(Test.IIPrx[] i, Current current) => new Test.MyClass.OpAIPrxSReturnValue(i, i);
 
             public Test.MyClass.OpLIPrxSReturnValue
-            opLIPrxS(List<Test.IPrx> i, Current current) => new Test.MyClass.OpLIPrxSReturnValue(i, i);
+            opLIPrxS(List<Test.IIPrx> i, Current current) => new Test.MyClass.OpLIPrxSReturnValue(i, i);
 
             public Test.MyClass.OpKIPrxSReturnValue
-            opKIPrxS(LinkedList<Test.IPrx> i, Current current) => new Test.MyClass.OpKIPrxSReturnValue(i, i);
+            opKIPrxS(LinkedList<Test.IIPrx> i, Current current) => new Test.MyClass.OpKIPrxSReturnValue(i, i);
 
             public Test.MyClass.OpQIPrxSReturnValue
-            opQIPrxS(Queue<Test.IPrx> i, Current current) => new Test.MyClass.OpQIPrxSReturnValue(i, i);
+            opQIPrxS(Queue<Test.IIPrx> i, Current current) => new Test.MyClass.OpQIPrxSReturnValue(i, i);
 
             public Test.MyClass.OpSIPrxSReturnValue
-            opSIPrxS(Stack<Test.IPrx> i, Current current) => new Test.MyClass.OpSIPrxSReturnValue(i, i);
+            opSIPrxS(Stack<Test.IIPrx> i, Current current) => new Test.MyClass.OpSIPrxSReturnValue(i, i);
 
             public Test.MyClass.OpCustomIntSReturnValue
             opCustomIntS(Custom<int> i, Current current) => new Test.MyClass.OpCustomIntSReturnValue(i, i);

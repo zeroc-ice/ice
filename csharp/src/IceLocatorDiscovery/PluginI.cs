@@ -23,7 +23,7 @@ namespace IceLocatorDiscovery
 
     public interface Plugin : Ice.Plugin
     {
-        List<Ice.LocatorPrx> getLocators(string instanceName, int waitTime);
+        List<Ice.ILocatorPrx> getLocators(string instanceName, int waitTime);
     }
 
     internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
@@ -42,7 +42,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        invoke(Ice.LocatorPrx l)
+        invoke(Ice.ILocatorPrx l)
         {
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
@@ -108,7 +108,7 @@ namespace IceLocatorDiscovery
         private readonly Dictionary<string, string>? _context;
         private readonly byte[] _inParams;
 
-        private LocatorPrx? _locatorPrx;
+        private ILocatorPrx? _locatorPrx;
         private System.Exception? _exception;
     }
 
@@ -126,7 +126,7 @@ namespace IceLocatorDiscovery
             return null;
         }
 
-        public Ice.LocatorRegistryPrx
+        public ILocatorRegistryPrx
         GetRegistry(Current current)
         {
             return null;
@@ -136,7 +136,7 @@ namespace IceLocatorDiscovery
     internal class LocatorI : BlobjectAsync, IceInternal.TimerTask
     {
         public
-        LocatorI(string name, LookupPrx lookup, Communicator communicator, string instanceName, LocatorPrx voidLocator)
+        LocatorI(string name, ILookupPrx lookup, Communicator communicator, string instanceName, ILocatorPrx voidLocator)
         {
             _lookup = lookup;
             _timeout = communicator.GetPropertyAsInt($"{name}.Timeout") ?? 300;
@@ -179,15 +179,15 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        setLookupReply(LookupReplyPrx lookupReply)
+        setLookupReply(ILookupReplyPrx lookupReply)
         {
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
-            var single = new Ice.Endpoint[1];
-            foreach (var key in new List<LookupPrx>(_lookups.Keys))
+            var single = new Endpoint[1];
+            foreach (var key in new List<ILookupPrx>(_lookups.Keys))
             {
-                var info = (Ice.UDPEndpointInfo)key.Endpoints[0].getInfo();
+                var info = (UDPEndpointInfo)key.Endpoints[0].getInfo();
                 if (info.mcastInterface.Length > 0)
                 {
                     foreach (var q in lookupReply.Endpoints)
@@ -220,7 +220,7 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public List<Ice.LocatorPrx>
+        public List<Ice.ILocatorPrx>
         getLocators(string instanceName, int waitTime)
         {
             //
@@ -259,12 +259,12 @@ namespace IceLocatorDiscovery
             //
             lock (this)
             {
-                return new List<Ice.LocatorPrx>(_locators.Values);
+                return new List<Ice.ILocatorPrx>(_locators.Values);
             }
         }
 
         public void
-        foundLocator(LocatorPrx locator)
+        foundLocator(ILocatorPrx locator)
         {
             lock (this)
             {
@@ -322,7 +322,7 @@ namespace IceLocatorDiscovery
                     _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                 }
 
-                LocatorPrx? l = null;
+                ILocatorPrx? l = null;
                 if (_pendingRequests.Count == 0)
                 {
                     _locators.TryGetValue(locator.Identity.category, out _locator);
@@ -391,7 +391,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        invoke(LocatorPrx? locator, Request? request)
+        invoke(ILocatorPrx? locator, Request? request)
         {
             lock (this)
             {
@@ -446,7 +446,7 @@ namespace IceLocatorDiscovery
                             }
                             _timer.schedule(this, _timeout);
                         }
-                        catch (Ice.LocalException ex)
+                        catch (LocalException ex)
                         {
                             if (_traceLevel > 0)
                             {
@@ -605,8 +605,8 @@ namespace IceLocatorDiscovery
             }
         }
 
-        private readonly LookupPrx _lookup;
-        private readonly Dictionary<LookupPrx, LookupReplyPrx?> _lookups = new Dictionary<LookupPrx, LookupReplyPrx?>();
+        private readonly ILookupPrx _lookup;
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups = new Dictionary<ILookupPrx, ILookupReplyPrx?>();
         private readonly int _timeout;
         private readonly IceInternal.Timer _timer;
         private readonly int _traceLevel;
@@ -615,9 +615,9 @@ namespace IceLocatorDiscovery
 
         private string _instanceName;
         private bool _warned;
-        private LocatorPrx? _locator;
-        private readonly LocatorPrx _voidLocator;
-        private readonly Dictionary<string, LocatorPrx> _locators = new Dictionary<string, LocatorPrx>();
+        private ILocatorPrx? _locator;
+        private readonly ILocatorPrx _voidLocator;
+        private readonly Dictionary<string, ILocatorPrx> _locators = new Dictionary<string, ILocatorPrx>();
 
         private bool _pending;
         private int _pendingRetryCount;
@@ -635,7 +635,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        FoundLocator(Ice.LocatorPrx locator, Ice.Current current)
+        FoundLocator(ILocatorPrx locator, Current current)
         {
             _locator.foundLocator(locator);
         }
@@ -703,18 +703,18 @@ namespace IceLocatorDiscovery
             _replyAdapter.SetLocator(null);
             _locatorAdapter.SetLocator(null);
 
-            var lookupPrx = LookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", _communicator);
+            var lookupPrx = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", _communicator);
             // No colloc optimization or router for the multicast proxy!
             lookupPrx = lookupPrx.Clone(clearRouter: false, collocationOptimized: false);
 
-            LocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI());
+            ILocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI());
 
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
             _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
-            _locatorPrx = LocatorPrx.UncheckedCast(
+            _locatorPrx = ILocatorPrx.UncheckedCast(
                 _locatorAdapter.Add((current, incoming) => _locator.Dispatch(current, incoming)));
             _communicator.setDefaultLocator(_locatorPrx);
 
@@ -737,7 +737,7 @@ namespace IceLocatorDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            LocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            ILocatorPrx? defaultLocator = _communicator.getDefaultLocator();
             if (defaultLocator != null && defaultLocator.Equals(_locatorPrx))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
@@ -750,8 +750,8 @@ namespace IceLocatorDiscovery
         private ObjectAdapter? _locatorAdapter;
         private ObjectAdapter? _replyAdapter;
         private LocatorI? _locator;
-        private LocatorPrx? _locatorPrx;
-        private LocatorPrx? _defaultLocator;
+        private ILocatorPrx? _locatorPrx;
+        private ILocatorPrx? _defaultLocator;
     }
 
     public class Util

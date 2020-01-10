@@ -10,7 +10,7 @@ namespace Ice
     {
         public sealed class TestIntfI : Test.TestIntf
         {
-            public void ping(Test.PingReplyPrx reply, Ice.Current current)
+            public void ping(Test.IPingReplyPrx reply, Ice.Current current)
             {
                 try
                 {
@@ -22,7 +22,7 @@ namespace Ice
                 }
             }
 
-            public void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
+            public void sendByteSeq(byte[] seq, Test.IPingReplyPrx reply, Ice.Current current)
             {
                 try
                 {
@@ -45,14 +45,14 @@ namespace Ice
                     try
                     {
                         byte[] seq = new byte[32 * 1024];
-                        Test.TestIntfPrx.UncheckedCast(current.Connection.createProxy(id)).sendByteSeq(seq, null);
+                        Test.ITestIntfPrx.UncheckedCast(current.Connection.createProxy(id)).sendByteSeq(seq, null);
                     }
                     catch (Ice.DatagramLimitException)
                     {
                         // Expected.
                     }
 
-                    Test.PingReplyPrx.UncheckedCast(current.Connection.createProxy(id)).reply();
+                    Test.IPingReplyPrx.UncheckedCast(current.Connection.createProxy(id)).reply();
                 }
                 catch (Ice.LocalException)
                 {
@@ -60,10 +60,7 @@ namespace Ice
                 }
             }
 
-            public void shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
+            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
         }
     }
 }

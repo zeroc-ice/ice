@@ -11,7 +11,7 @@ public class Client : Test.TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            TestIntfPrx test = AllTests.allTests(this, false);
+            ITestIntfPrx test = AllTests.allTests(this, false);
             test.shutdown();
         }
     }

@@ -124,13 +124,13 @@ namespace Ice
             opF1(Test.F1 f11, Current current) => new Test.Initial.OpF1ReturnValue(f11, new Test.F1("F12"));
 
             public Test.Initial.OpF2ReturnValue
-            opF2(Test.F2Prx f21, Current current) =>
-                new Test.Initial.OpF2ReturnValue(f21, Test.F2Prx.Parse("F22", current.Adapter.Communicator));
+            opF2(Test.IF2Prx f21, Current current) =>
+                new Test.Initial.OpF2ReturnValue(f21, Test.IF2Prx.Parse("F22", current.Adapter.Communicator));
 
             public Test.Initial.OpF3ReturnValue
             opF3(Test.F3 f31, Current current) =>
                 new Test.Initial.OpF3ReturnValue(f31,
-                    new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.Adapter.Communicator)));
+                    new Test.F3(new Test.F1("F12"), Test.IF2Prx.Parse("F22", current.Adapter.Communicator)));
 
             public bool hasF3(Current current) => true;
 

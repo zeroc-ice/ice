@@ -15,7 +15,7 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         var admin = IObjectPrx.Parse("DemoIceBox/admin:default -p 9996 -t 10000", communicator);
 
-        TestFacetPrx facet = null;
+        ITestFacetPrx facet = null;
 
         Console.Out.Write("testing custom facet... ");
         Console.Out.Flush();
@@ -23,7 +23,7 @@ public class AllTests : Test.AllTests
             //
             // Test: Verify that the custom facet is present.
             //
-            facet = TestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet"));
+            facet = ITestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet"));
             facet.IcePing();
         }
         Console.Out.WriteLine("ok");
@@ -31,7 +31,7 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing properties facet... ");
         Console.Out.Flush();
         {
-            var pa = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
+            var pa = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
 
             //
             // Test: PropertiesAdmin::getProperty()
@@ -84,8 +84,8 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            var ma = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Metrics"));
-            var pa = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
+            var ma = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Metrics"));
+            var pa = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
 
             string[] views;
             string[] disabledViews;
@@ -103,7 +103,7 @@ public class AllTests : Test.AllTests
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            (views, disabledViews) = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).GetMetricsViewNames();
+            (views, disabledViews) = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).GetMetricsViewNames();
             test(views.Length == 0);
         }
         Console.Out.WriteLine("ok");

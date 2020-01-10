@@ -14,10 +14,10 @@ namespace Ice
         {
             private static string testString = "This is a test string";
 
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
+            public static Test.IMyClassPrx allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                var cl = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var cl = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
                 var oneway = cl.Clone(oneway: true);
 
                 var output = helper.getWriter();
