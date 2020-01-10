@@ -38,51 +38,37 @@ Ice::StringConverterPtr windowsConsoleConverter = 0;
 namespace
 {
 
-class UnknownManagerException : public Exception
+class UnknownManagerException : public std::exception
 {
 public:
 
-    UnknownManagerException(const string& nameP, const char* file, int line) :
-        Exception(file, line),
-        name(nameP)
+    explicit UnknownManagerException(const std::string& name) : _name(name)
     {
     }
 
-#ifndef ICE_CPP11_COMPILER
-    virtual
-    ~UnknownManagerException() throw()
+    const char* what() const noexcept override
     {
-    }
-#endif
-
-    virtual string
-    ice_id() const
-    {
-        return "::UnknownManagerException";
+        return _name.c_str();
     }
 
-    virtual Exception*
-    ice_clone() const
-    {
-        return new UnknownManagerException(*this);
-    }
-
-    virtual void
-    ice_throw() const
-    {
-        throw *this;
-    }
-
-    const string name;
+private:
+    const string _name;
 };
 
 }
 
-ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-                     const map<Ice::Identity, TopicManagerPrx>& managers)
+Parser::Parser(shared_ptr<Communicator> communicator, shared_ptr<TopicManagerPrx> admin,
+               map<Ice::Identity, shared_ptr<TopicManagerPrx>> managers) :
+    _communicator(move(communicator)),
+    _defaultManager(move(admin)),
+    _managers(move(managers))
 {
-    return new Parser(communicator, admin, managers);
+#ifdef _WIN32
+    if(!windowsConsoleConverter)
+    {
+        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
+    }
+#endif
 }
 
 void
@@ -115,17 +101,17 @@ Parser::create(const list<string>& args)
         return;
     }
 
-    for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+    for(const auto& arg : args)
     {
         try
         {
             string topicName;
-            TopicManagerPrx manager = findManagerById(*i, topicName);
+            auto manager = findManagerById(arg, topicName);
             manager->create(topicName);
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception&)
         {
-            exception(ex, args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
+            exception(current_exception(), args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
         }
     }
 }
@@ -139,15 +125,15 @@ Parser::destroy(const list<string>& args)
         return;
     }
 
-    for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+    for(const auto& arg : args)
     {
         try
         {
-            findTopic(*i)->destroy();
+            findTopic(arg)->destroy();
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception&)
         {
-            exception(ex, args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
+            exception(current_exception(), args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
         }
     }
 }
@@ -165,15 +151,15 @@ Parser::link(const list<string>& args)
     {
         list<string>::const_iterator p = args.begin();
 
-        TopicPrx fromTopic = findTopic(*p++);
-        TopicPrx toTopic = findTopic(*p++);
-        Ice::Int cost = p != args.end() ? atoi(p->c_str()) : 0;
+        auto fromTopic = findTopic(*p++);
+        auto toTopic = findTopic(*p++);
+        auto cost = p != args.end() ? atoi(p->c_str()) : 0;
 
         fromTopic->link(toTopic, cost);
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -190,14 +176,14 @@ Parser::unlink(const list<string>& args)
     {
         list<string>::const_iterator p = args.begin();
 
-        TopicPrx fromTopic = findTopic(*p++);
-        TopicPrx toTopic = findTopic(*p++);
+        auto fromTopic = findTopic(*p++);
+        auto toTopic = findTopic(*p++);
 
         fromTopic->unlink(toTopic);
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -212,7 +198,7 @@ Parser::links(const list<string>& args)
 
     try
     {
-        TopicManagerPrx manager;
+        shared_ptr<TopicManagerPrx> manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -222,19 +208,17 @@ Parser::links(const list<string>& args)
             manager = findManagerByCategory(args.front());
         }
 
-        TopicDict d = manager->retrieveAll();
-        for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+        for(const auto& topic : manager->retrieveAll())
         {
-            LinkInfoSeq links = i->second->getLinkInfoSeq();
-            for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
+            for(const auto& linkInfo : topic.second->getLinkInfoSeq())
             {
-                consoleOut << i->first << " to " << p->name << " with cost " << p->cost << endl;
+                consoleOut << topic.first << " to " << linkInfo.name << " with cost " << linkInfo.cost << endl;
             }
         }
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -249,7 +233,7 @@ Parser::topics(const list<string>& args)
 
     try
     {
-        TopicManagerPrx manager;
+        shared_ptr<TopicManagerPrx> manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -259,15 +243,14 @@ Parser::topics(const list<string>& args)
             manager = findManagerByCategory(args.front());
         }
 
-        TopicDict d = manager->retrieveAll();
-        for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+        for(const auto& topic : manager->retrieveAll())
         {
-            consoleOut << i->first << endl;
+            consoleOut << topic.first << endl;
         }
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -282,7 +265,7 @@ Parser::replica(const list<string>& args)
 
     try
     {
-        TopicManagerPrx m;
+        shared_ptr<TopicManagerPrx> m;
         if(args.size() == 0)
         {
             m = _defaultManager;
@@ -291,63 +274,63 @@ Parser::replica(const list<string>& args)
         {
             m = findManagerByCategory(args.front());
         }
-        TopicManagerInternalPrx manager = TopicManagerInternalPrx::uncheckedCast(m);
-        IceStormElection::NodePrx node = manager->getReplicaNode();
+        auto manager = Ice::uncheckedCast<TopicManagerInternalPrx>(m);
+        auto node = manager->getReplicaNode();
         if(!node)
         {
             error("This topic is not replicated");
         }
-        IceStormElection::NodeInfoSeq nodes = node->nodes();
+        auto nodes = node->nodes();
         consoleOut << "replica count: " << nodes.size() << endl;
-        for(IceStormElection::NodeInfoSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+        for(const auto& n : nodes)
         {
             try
             {
-                IceStormElection::QueryInfo info = p->n->query();
-                consoleOut << p->id << ": id:         " << info.id << endl;
-                consoleOut << p->id << ": coord:      " << info.coord << endl;
-                consoleOut << p->id << ": group name: " << info.group << endl;
-                consoleOut << p->id << ": state:      ";
+                auto info = n.n->query();
+                consoleOut << n.id << ": id:         " << info.id << endl;
+                consoleOut << n.id << ": coord:      " << info.coord << endl;
+                consoleOut << n.id << ": group name: " << info.group << endl;
+                consoleOut << n.id << ": state:      ";
                 switch(info.state)
                 {
-                case IceStormElection::NodeStateInactive:
+                case IceStormElection::NodeState::NodeStateInactive:
                     consoleOut << "inactive";
                     break;
-                case IceStormElection::NodeStateElection:
+                case IceStormElection::NodeState::NodeStateElection:
                     consoleOut << "election";
                     break;
-                case IceStormElection::NodeStateReorganization:
+                case IceStormElection::NodeState::NodeStateReorganization:
                     consoleOut << "reorganization";
                     break;
-                case IceStormElection::NodeStateNormal:
+                case IceStormElection::NodeState::NodeStateNormal:
                     consoleOut << "normal";
                     break;
                 default:
                     consoleOut << "unknown";
                 }
                 consoleOut << endl;
-                consoleOut << p->id << ": group:      ";
-                for(IceStormElection::GroupInfoSeq::const_iterator q = info.up.begin(); q != info.up.end(); ++q)
+                consoleOut << n.id << ": group:      ";
+                for(auto q = info.up.cbegin(); q != info.up.cend(); ++q)
                 {
-                    if(q != info.up.begin())
+                    if(q != info.up.cbegin())
                     {
                         consoleOut << ",";
                     }
                     consoleOut << q->id;
                 }
                 consoleOut << endl;
-                consoleOut << p->id << ": max:        " << info.max
+                consoleOut << n.id << ": max:        " << info.max
                            << endl;
             }
             catch(const Exception& ex)
             {
-                consoleOut << p->id << ": " << ex.ice_id() << endl;
+                consoleOut << n.id << ": " << ex.ice_id() << endl;
             }
         }
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -361,20 +344,19 @@ Parser::subscribers(const list<string>& args)
     }
     try
     {
-        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+        for(const auto& arg : args)
         {
-            TopicPrx topic = _defaultManager->retrieve(*i);
-            consoleOut << (*i) << ": subscribers:" << endl;
-            IdentitySeq subscribers = topic->getSubscribers();
-            for(IdentitySeq::const_iterator j = subscribers.begin(); j != subscribers.end(); ++j)
+            auto topic = _defaultManager->retrieve(arg);
+            consoleOut << arg << ": subscribers:" << endl;
+            for(const auto& subscriber : topic->getSubscribers())
             {
-                consoleOut << "\t" << _communicator->identityToString(*j) << endl;
+                consoleOut << "\t" << _communicator->identityToString(subscriber) << endl;
             }
         }
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -394,13 +376,13 @@ Parser::current(const list<string>& args)
 
     try
     {
-        TopicManagerPrx manager = findManagerByCategory(args.front());
+        auto manager = findManagerByCategory(args.front());
         manager->ice_ping();
         _defaultManager = manager;
     }
-    catch(const Exception& ex)
+    catch(const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -623,67 +605,51 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-TopicManagerPrx
+shared_ptr<TopicManagerPrx>
 Parser::findManagerById(const string& full, string& arg) const
 {
-    Ice::Identity id = Ice::stringToIdentity(full);
+    auto id = Ice::stringToIdentity(full);
     arg = id.name;
     if(id.category.empty())
     {
         return _defaultManager;
     }
     id.name = "TopicManager";
-    map<Ice::Identity, TopicManagerPrx>::const_iterator p = _managers.find(id);
+    auto p = _managers.find(id);
     if(p == _managers.end())
     {
-        throw UnknownManagerException(id.category, __FILE__, __LINE__);
+        throw UnknownManagerException(id.category);
     }
     return p->second;
 }
 
-TopicManagerPrx
+shared_ptr<TopicManagerPrx>
 Parser::findManagerByCategory(const string& full) const
 {
-    Ice::Identity id;
-    id.category = full;
-    id.name = "TopicManager";
-    map<Ice::Identity, TopicManagerPrx>::const_iterator p = _managers.find(id);
+    Ice::Identity id = {"TopicManager", full};
+    auto p = _managers.find(id);
     if(p == _managers.end())
     {
-        throw UnknownManagerException(id.category, __FILE__, __LINE__);
+        throw UnknownManagerException(id.category);
     }
     return p->second;
 }
 
-TopicPrx
+shared_ptr<TopicPrx>
 Parser::findTopic(const string& full) const
 {
     string topicName;
-    TopicManagerPrx manager = findManagerById(full, topicName);
+    auto manager = findManagerById(full, topicName);
     return manager->retrieve(topicName);
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-               const map<Ice::Identity, TopicManagerPrx>& managers) :
-    _communicator(communicator),
-    _defaultManager(admin),
-    _managers(managers)
-{
-#ifdef _WIN32
-    if(!windowsConsoleConverter)
-    {
-        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
-    }
-#endif
-}
-
 void
-Parser::exception(const Ice::Exception& pex, bool warn)
+Parser::exception(exception_ptr pex, bool warn)
 {
     ostringstream os;
     try
     {
-        pex.ice_throw();
+        rethrow_exception(pex);
     }
     catch(const LinkExists& ex)
     {
@@ -703,7 +669,7 @@ Parser::exception(const Ice::Exception& pex, bool warn)
     }
     catch(const UnknownManagerException& ex)
     {
-        os << "couldn't find IceStorm service `" << ex.name << "'";
+        os << "couldn't find IceStorm service `" << ex.what() << "'";
     }
     catch(const IdentityParseException& ex)
     {
@@ -716,6 +682,10 @@ Parser::exception(const Ice::Exception& pex, bool warn)
     catch(const Ice::Exception& ex)
     {
         os << ex;
+    }
+    catch(const std::exception& ex)
+    {
+        os << ex.what();
     }
 
     if(warn)

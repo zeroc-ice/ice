@@ -8,27 +8,15 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/PropertiesF.h>
-#include <IceUtil/Time.h>
 #include <IceStorm/Election.h>
 #include <IceStorm/Instrumentation.h>
 #include <IceStorm/Util.h>
-
-namespace IceUtil
-{
-
-class Timer;
-typedef IceUtil::Handle<Timer> TimerPtr;
-
-}
 
 namespace IceStormElection
 {
 
 class Observers;
-typedef IceUtil::Handle<Observers> ObserversPtr;
-
 class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 }
 
@@ -36,9 +24,8 @@ namespace IceStorm
 {
 
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class TopicReaper : public IceUtil::Shared, private IceUtil::Mutex
+class TopicReaper
 {
 public:
 
@@ -48,10 +35,11 @@ public:
 private:
 
     std::vector<std::string> _topics;
-};
-typedef IceUtil::Handle<TopicReaper> TopicReaperPtr;
 
-class Instance : public IceUtil::Shared
+    std::mutex _mutex;
+};
+
+class Instance
 {
 public:
 
@@ -61,32 +49,35 @@ public:
         DropEvents
     };
 
-    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
-             const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0, const IceStormElection::NodePrx& = 0);
+    Instance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
+             std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
+             std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+             std::shared_ptr<IceStormElection::NodePrx> = nullptr);
 
-    void setNode(const IceStormElection::NodeIPtr&);
+    virtual ~Instance();
+
+    void setNode(std::shared_ptr<IceStormElection::NodeI>);
 
     std::string instanceName() const;
     std::string serviceName() const;
-    Ice::CommunicatorPtr communicator() const;
-    Ice::PropertiesPtr properties() const;
-    Ice::ObjectAdapterPtr publishAdapter() const;
-    Ice::ObjectAdapterPtr topicAdapter() const;
-    Ice::ObjectAdapterPtr nodeAdapter() const;
-    IceStormElection::ObserversPtr observers() const;
-    IceStormElection::NodeIPtr node() const;
-    IceStormElection::NodePrx nodeProxy() const;
-    TraceLevelsPtr traceLevels() const;
-    IceUtil::TimerPtr batchFlusher() const;
+    std::shared_ptr<Ice::Communicator> communicator() const;
+    std::shared_ptr<Ice::Properties> properties() const;
+    std::shared_ptr<Ice::ObjectAdapter> publishAdapter() const;
+    std::shared_ptr<Ice::ObjectAdapter> topicAdapter() const;
+    std::shared_ptr<Ice::ObjectAdapter> nodeAdapter() const;
+    std::shared_ptr<IceStormElection::Observers> observers() const;
+    std::shared_ptr<IceStormElection::NodeI> node() const;
+    std::shared_ptr<IceStormElection::NodePrx> nodeProxy() const;
+    std::shared_ptr<TraceLevels> traceLevels() const;
     IceUtil::TimerPtr timer() const;
-    Ice::ObjectPrx topicReplicaProxy() const;
-    Ice::ObjectPrx publisherReplicaProxy() const;
-    IceStorm::Instrumentation::TopicManagerObserverPtr observer() const;
-    TopicReaperPtr topicReaper() const;
+    std::shared_ptr<Ice::ObjectPrx> topicReplicaProxy() const;
+    std::shared_ptr<Ice::ObjectPrx> publisherReplicaProxy() const;
+    std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
+    std::shared_ptr<TopicReaper> topicReaper() const;
 
-    IceUtil::Time discardInterval() const;
-    IceUtil::Time flushInterval() const;
-    int sendTimeout() const;
+    std::chrono::seconds discardInterval() const;
+    std::chrono::milliseconds flushInterval() const;
+    std::chrono::milliseconds sendTimeout() const;
     int sendQueueSizeMax() const;
     SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
@@ -97,45 +88,45 @@ private:
 
     const std::string _instanceName;
     const std::string _serviceName;
-    const Ice::CommunicatorPtr _communicator;
-    const Ice::ObjectAdapterPtr _publishAdapter;
-    const Ice::ObjectAdapterPtr _topicAdapter;
-    const Ice::ObjectAdapterPtr _nodeAdapter;
-    const IceStormElection::NodePrx _nodeProxy;
-    const TraceLevelsPtr _traceLevels;
-    const IceUtil::Time _discardInterval;
-    const IceUtil::Time _flushInterval;
-    const int _sendTimeout;
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    const std::shared_ptr<Ice::ObjectAdapter> _publishAdapter;
+    const std::shared_ptr<Ice::ObjectAdapter> _topicAdapter;
+    const std::shared_ptr<Ice::ObjectAdapter> _nodeAdapter;
+    const std::shared_ptr<IceStormElection::NodePrx> _nodeProxy;
+    const std::shared_ptr<TraceLevels> _traceLevels;
+    const std::chrono::seconds _discardInterval;
+    const std::chrono::milliseconds _flushInterval;
+    const std::chrono::milliseconds _sendTimeout;
     const int _sendQueueSizeMax;
     const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
-    const Ice::ObjectPrx _topicReplicaProxy;
-    const Ice::ObjectPrx _publisherReplicaProxy;
-    const TopicReaperPtr _topicReaper;
-    IceStormElection::NodeIPtr _node;
-    IceStormElection::ObserversPtr _observers;
-    IceUtil::TimerPtr _batchFlusher;
+    const std::shared_ptr<Ice::ObjectPrx> _topicReplicaProxy;
+    const std::shared_ptr<Ice::ObjectPrx> _publisherReplicaProxy;
+    const std::shared_ptr<TopicReaper> _topicReaper;
+    std::shared_ptr<IceStormElection::NodeI> _node;
+    std::shared_ptr<IceStormElection::Observers> _observers;
     IceUtil::TimerPtr _timer;
-    IceStorm::Instrumentation::TopicManagerObserverPtr _observer;
-
+    std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
 };
-typedef IceUtil::Handle<Instance> InstancePtr;
 
-typedef IceDB::ReadWriteCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-        SubscriberMapRWCursor;
+using SubscriberMapRWCursor = IceDB::ReadWriteCursor<SubscriberRecordKey,
+                                                     SubscriberRecord,
+                                                     IceDB::IceContext,
+                                                     Ice::OutputStream>;
 
-class PersistentInstance : public Instance
+class PersistentInstance final : public Instance
 {
 public:
 
-    PersistentInstance(const std::string&, const std::string&, const Ice::CommunicatorPtr&,
-                       const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0,
-                       const IceStormElection::NodePrx& = 0);
+    PersistentInstance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
+                       std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
+                       std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+                       std::shared_ptr<IceStormElection::NodePrx> = nullptr);
 
     const IceDB::Env& dbEnv() const { return _dbEnv; }
     LLUMap lluMap() const { return _lluMap; }
     SubscriberMap subscriberMap() const { return _subscriberMap; }
 
-    virtual void destroy();
+    void destroy() override;
 
 private:
 
@@ -144,7 +135,6 @@ private:
     LLUMap _lluMap;
     SubscriberMap _subscriberMap;
 };
-typedef IceUtil::Handle<PersistentInstance> PersistentInstancePtr;
 
 } // End namespace IceStorm
 

@@ -10,43 +10,31 @@
 namespace IceStorm
 {
 
-//
-// Forward declarations.
-//
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
-
 class TransientTopicImpl;
-typedef IceUtil::Handle<TransientTopicImpl> TransientTopicImplPtr;
 
-//
-// TopicManager implementation.
-//
-class TransientTopicManagerImpl : public TopicManagerInternal, public IceUtil::Mutex
+class TransientTopicManagerImpl final : public TopicManagerInternal
 {
 public:
 
-    TransientTopicManagerImpl(const InstancePtr&);
-    ~TransientTopicManagerImpl();
+    TransientTopicManagerImpl(std::shared_ptr<Instance>);
 
     // TopicManager methods.
-    virtual TopicPrx create(const std::string&, const Ice::Current&);
-    virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;
-    virtual TopicDict retrieveAll(const Ice::Current&) const;
-    virtual IceStormElection::NodePrx getReplicaNode(const Ice::Current&) const;
+    std::shared_ptr<TopicPrx> create(std::string, const Ice::Current&) override;
+    std::shared_ptr<TopicPrx> retrieve(std::string, const Ice::Current&) override;
+    TopicDict retrieveAll(const Ice::Current&) override;
+    std::shared_ptr<IceStormElection::NodePrx> getReplicaNode(const Ice::Current&) const override;
 
     void reap();
-
     void shutdown();
-
-    Ice::ObjectPtr getServant() const;
 
 private:
 
-    const InstancePtr _instance;
-    std::map<std::string, TransientTopicImplPtr> _topics;
+    const std::shared_ptr<Instance> _instance;
+    std::map<std::string, std::shared_ptr<TransientTopicImpl>> _topics;
+
+    std::mutex _mutex;
 };
-typedef IceUtil::Handle<TransientTopicManagerImpl> TransientTopicManagerImplPtr;
 
 } // End namespace IceStorm
 

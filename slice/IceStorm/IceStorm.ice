@@ -361,7 +361,7 @@ interface TopicManager
      * @throws NoSuchTopic Raised if the topic does not exist.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent Topic* retrieve(string name) throws NoSuchTopic;
+    idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
     /**
      *
@@ -370,7 +370,7 @@ interface TopicManager
      * @return A dictionary of string, topic proxy pairs.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
+    idempotent TopicDict retrieveAll();
 }
 
 /**

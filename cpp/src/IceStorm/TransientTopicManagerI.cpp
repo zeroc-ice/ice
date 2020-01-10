@@ -15,19 +15,15 @@
 using namespace IceStorm;
 using namespace std;
 
-TransientTopicManagerImpl::TransientTopicManagerImpl(const InstancePtr& instance) :
-    _instance(instance)
+TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instance) :
+    _instance(move(instance))
 {
 }
 
-TransientTopicManagerImpl::~TransientTopicManagerImpl()
+shared_ptr<TopicPrx>
+TransientTopicManagerImpl::create(string name, const Ice::Current&)
 {
-}
-
-TopicPrx
-TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
-{
-    Lock sync(*this);
+    lock_guard<mutex> lg(_mutex);
 
     reap();
 
@@ -41,7 +37,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
     //
     // Called by constructor or with 'this' mutex locked.
     //
-    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    auto traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
@@ -52,25 +48,24 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
     //
     // Create topic implementation
     //
-    TransientTopicImplPtr topicImpl = new TransientTopicImpl(_instance, name, id);
+    auto topicImpl = TransientTopicImpl::create(_instance, name, id);
 
     //
     // The identity is the name of the Topic.
     //
-    TopicPrx prx = TopicPrx::uncheckedCast(_instance->topicAdapter()->add(topicImpl, id));
-    _topics.insert(map<string, TransientTopicImplPtr>::value_type(name, topicImpl));
+    auto prx = Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->add(topicImpl, id));
+    _topics.insert({ name, topicImpl });
     return prx;
 }
 
-TopicPrx
-TransientTopicManagerImpl::retrieve(const string& name, const Ice::Current&) const
+shared_ptr<TopicPrx>
+TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lg(_mutex);
 
-    TransientTopicManagerImpl* This = const_cast<TransientTopicManagerImpl*>(this);
-    This->reap();
+    reap();
 
-    map<string, TransientTopicImplPtr>::const_iterator p = _topics.find(name);
+    auto p = _topics.find(name);
     if(p == _topics.end())
     {
         throw NoSuchTopic(name);
@@ -79,54 +74,51 @@ TransientTopicManagerImpl::retrieve(const string& name, const Ice::Current&) con
     // Here we cannot just reconstruct the identity since the
     // identity could be either instanceName/topic name, or if
     // created with pre-3.2 IceStorm / topic name.
-    return TopicPrx::uncheckedCast(_instance->topicAdapter()->createProxy(p->second->id()));
+    return Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->createProxy(p->second->id()));
 }
 
 TopicDict
-TransientTopicManagerImpl::retrieveAll(const Ice::Current&) const
+TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lg(_mutex);
 
-    TransientTopicManagerImpl* This = const_cast<TransientTopicManagerImpl*>(this);
-    This->reap();
+    reap();
 
     TopicDict all;
-    for(map<string, TransientTopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    for(const auto& topic : _topics)
     {
         //
         // Here we cannot just reconstruct the identity since the
         // identity could be either "<instanceName>/topic.<topicname>"
         // name, or if created with pre-3.2 IceStorm "/<topicname>".
         //
-        all.insert(TopicDict::value_type(
-                       p->first, TopicPrx::uncheckedCast(_instance->topicAdapter()->createProxy(p->second->id()))));
+        all.insert({ topic.first,
+                     Ice::uncheckedCast<TopicPrx>(_instance->topicAdapter()->createProxy(topic.second->id())) });
     }
 
     return all;
 }
 
-IceStormElection::NodePrx
+shared_ptr<IceStormElection::NodePrx>
 TransientTopicManagerImpl::getReplicaNode(const Ice::Current&) const
 {
-    return IceStormElection::NodePrx();
+    return nullptr;
 }
 
 void
 TransientTopicManagerImpl::reap()
 {
     //
-    // Always called with mutex locked.
-    //
-    // Lock sync(*this);
+    // Must be called called with mutex locked.
     //
     vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
     for(vector<string>::const_iterator p = reaped.begin(); p != reaped.end(); ++p)
     {
-        map<string, TransientTopicImplPtr>::iterator i = _topics.find(*p);
+        auto i = _topics.find(*p);
         if(i != _topics.end() && i->second->destroyed())
         {
-            Ice::Identity id = i->second->id();
-            TraceLevelsPtr traceLevels = _instance->traceLevels();
+            auto id = i->second->id();
+            auto traceLevels = _instance->traceLevels();
             if(traceLevels->topicMgr > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
@@ -150,10 +142,10 @@ TransientTopicManagerImpl::reap()
 void
 TransientTopicManagerImpl::shutdown()
 {
-    Lock sync(*this);
+    lock_guard<mutex> lg(_mutex);
 
-    for(map<string, TransientTopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    for(const auto& topic : _topics)
     {
-        p->second->shutdown();
+        topic.second->shutdown();
     }
 }
