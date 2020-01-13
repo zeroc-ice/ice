@@ -2303,10 +2303,7 @@ namespace Ice
 
             protected string readTypeId(bool isIndex)
             {
-                if (_typeIdMap == null)
-                {
-                    _typeIdMap = new Dictionary<int, string>();
-                }
+                _typeIdMap ??= new Dictionary<int, string>();
 
                 if (isIndex)
                 {
@@ -2764,6 +2761,11 @@ namespace Ice
                     Debug.Assert(index > 0);
                     if (index == 1)
                     {
+                        if (++_classGraphDepth > _classGraphDepthMax)
+                        {
+                            throw new MarshalException("maximum class graph depth reached");
+                        }
+
                         // Read/skip this instance
                         byte sliceFlags = 0;
                         do
@@ -2776,6 +2778,7 @@ namespace Ice
                             else if ((sliceFlags &
                                 (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                             {
+                                // This can update the typeIdMap
                                 readTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                             }
                             else
@@ -2794,6 +2797,7 @@ namespace Ice
                                 SkipIndirectionTable();
                             }
                         } while ((sliceFlags & Protocol.FLAG_IS_LAST_SLICE) == 0);
+                        _classGraphDepth--;
                     }
                 }
             }
