@@ -15,9 +15,9 @@ namespace IceBox
     //
     // NOTE: the class isn't final on purpose to allow users to extend it.
     //
-    public class ServiceManagerI : ServiceManager
+    public class ServiceManager : IServiceManager
     {
-        public ServiceManagerI(Communicator communicator, string[] args)
+        public ServiceManager(Communicator communicator, string[] args)
         {
             _communicator = communicator;
             _logger = _communicator.Logger;
@@ -186,10 +186,7 @@ namespace IceBox
             }
         }
 
-        public void Shutdown(Ice.Current current)
-        {
-            _communicator.shutdown();
-        }
+        public void Shutdown(Current current) => _communicator.shutdown();
 
         public int run()
         {
@@ -301,7 +298,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.AddAdminFacet<ServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
+                _communicator.AddAdminFacet<IServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
                 _communicator.getAdmin();
                 if (adapter != null)
                 {
@@ -427,7 +424,7 @@ namespace IceBox
 
                 ServiceInfo info = new ServiceInfo(service, ServiceStatus.Stopped, args);
 
-                Logger? logger = null;
+                ILogger? logger = null;
                 //
                 // If IceBox.UseSharedCommunicator.<name> is defined, create a
                 // communicator for the service. The communicator inherits
@@ -854,7 +851,7 @@ namespace IceBox
         private bool _adminEnabled = false;
         private HashSet<string>? _adminFacetFilter = null;
         private Communicator? _sharedCommunicator = null;
-        private Logger _logger;
+        private ILogger _logger;
         private string[] _argv; // Filtered server argument vector
         private List<ServiceInfo> _services = new List<ServiceInfo>();
         private bool _pendingStatusChanges = false;

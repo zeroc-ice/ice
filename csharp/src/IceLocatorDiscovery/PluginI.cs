@@ -12,21 +12,18 @@ using System.Threading.Tasks;
 
 namespace IceLocatorDiscovery
 {
-    public sealed class PluginFactory : Ice.PluginFactory
+    public sealed class PluginFactory : Ice.IPluginFactory
     {
-        public Ice.Plugin
-        create(Ice.Communicator communicator, string name, string[] args)
-        {
-            return new PluginI(name, communicator);
-        }
+        public Ice.IPlugin
+        create(Communicator communicator, string name, string[] args) => new PluginI(name, communicator);
     }
 
-    public interface Plugin : Ice.Plugin
+    public interface IPlugin : Ice.IPlugin
     {
-        List<Ice.ILocatorPrx> getLocators(string instanceName, int waitTime);
+        List<ILocatorPrx> getLocators(string instanceName, int waitTime);
     }
 
-    internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
+    internal class Request : TaskCompletionSource<Object_Ice_invokeResult>
     {
         public Request(LocatorI locator,
                        string operation,
@@ -112,7 +109,7 @@ namespace IceLocatorDiscovery
         private System.Exception? _exception;
     }
 
-    internal class VoidLocatorI : Locator
+    internal class VoidLocatorI : ILocator
     {
         public Task<Ice.IObjectPrx>
         FindObjectByIdAsync(Ice.Identity id, Current current)
@@ -133,7 +130,7 @@ namespace IceLocatorDiscovery
         }
     }
 
-    internal class LocatorI : BlobjectAsync, IceInternal.TimerTask
+    internal class LocatorI : BlobjectAsync, IceInternal.ITimerTask
     {
         public
         LocatorI(string name, ILookupPrx lookup, Communicator communicator, string instanceName, ILocatorPrx voidLocator)
@@ -169,7 +166,7 @@ namespace IceLocatorDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new Endpoint[1];
+            var single = new IEndpoint[1];
             foreach (var endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
@@ -184,7 +181,7 @@ namespace IceLocatorDiscovery
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
-            var single = new Endpoint[1];
+            var single = new IEndpoint[1];
             foreach (var key in new List<ILookupPrx>(_lookups.Keys))
             {
                 var info = (UDPEndpointInfo)key.Endpoints[0].getInfo();
@@ -338,14 +335,14 @@ namespace IceLocatorDiscovery
                     // We found another locator replica, append its endpoints to the
                     // current locator proxy endpoints.
                     //
-                    List<Endpoint> newEndpoints = new List<Endpoint>(l.Endpoints);
-                    foreach (Endpoint p in locator.Endpoints)
+                    List<IEndpoint> newEndpoints = new List<IEndpoint>(l.Endpoints);
+                    foreach (IEndpoint p in locator.Endpoints)
                     {
                         //
                         // Only add endpoints if not already in the locator proxy endpoints
                         //
                         bool found = false;
-                        foreach (Endpoint q in newEndpoints)
+                        foreach (IEndpoint q in newEndpoints)
                         {
                             if (p.Equals(q))
                             {
@@ -627,7 +624,7 @@ namespace IceLocatorDiscovery
         private long _nextRetry;
     };
 
-    internal class LookupReplyI : LookupReply
+    internal class LookupReplyI : ILookupReply
     {
         public LookupReplyI(LocatorI locator)
         {
@@ -643,7 +640,7 @@ namespace IceLocatorDiscovery
         private readonly LocatorI _locator;
     }
 
-    internal class PluginI : Ice.Plugin
+    internal class PluginI : Ice.IPlugin
     {
         public
         PluginI(string name, Ice.Communicator communicator)
@@ -718,7 +715,7 @@ namespace IceLocatorDiscovery
                 _locatorAdapter.Add((current, incoming) => _locator.Dispatch(current, incoming)));
             _communicator.setDefaultLocator(_locatorPrx);
 
-            LookupReply lookupReplyI = new LookupReplyI(_locator);
+            ILookupReply lookupReplyI = new LookupReplyI(_locator);
             _locator.setLookupReply(_replyAdapter.Add(lookupReplyI).Clone(invocationMode: InvocationMode.Datagram));
 
             _replyAdapter.Activate();

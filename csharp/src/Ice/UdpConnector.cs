@@ -6,9 +6,9 @@ namespace IceInternal
 {
     using System.Net;
 
-    internal sealed class UdpConnector : Connector
+    internal sealed class UdpConnector : IConnector
     {
-        public Transceiver connect()
+        public ITransceiver connect()
         {
             return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
         }

@@ -20,9 +20,9 @@ namespace IceInternal
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class Incoming : Ice.Request
+    public class Incoming : Ice.IRequest
     {
-        public Incoming(Ice.Communicator communicator, ResponseHandler handler, Ice.ConnectionI? connection,
+        public Incoming(Ice.Communicator communicator, IResponseHandler handler, Ice.ConnectionI? connection,
                         Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _communicator = communicator;
@@ -40,7 +40,7 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Ice.Communicator communicator, ResponseHandler handler, Ice.ConnectionI connection,
+        public void reset(Ice.Communicator communicator, IResponseHandler handler, Ice.ConnectionI connection,
                           Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _communicator = communicator;
@@ -136,7 +136,7 @@ namespace IceInternal
                 context[first] = second;
             }
             _current = new Ice.Current(_adapter, id, facet, operation, (Ice.OperationMode)mode, context, _requestId, _connection);
-            Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
+            Ice.Instrumentation.ICommunicatorObserver? obsv = _communicator.Observer;
             if (obsv != null)
             {
                 // Read the encapsulation size.
@@ -925,10 +925,10 @@ namespace IceInternal
         private Ice.Communicator _communicator;
         private Ice.Current? _current;
         private Ice.Disp? _servant;
-        private Ice.ServantLocator? _locator;
+        private Ice.IServantLocator? _locator;
         private object? _cookie;
-        private Ice.Instrumentation.DispatchObserver? _observer;
-        private ResponseHandler? _responseHandler;
+        private Ice.Instrumentation.IDispatchObserver? _observer;
+        private IResponseHandler? _responseHandler;
 
         private bool _response;
         private byte _compress;

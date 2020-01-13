@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    public interface ResponseHandler
+    public interface IResponseHandler
     {
         void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd);
         void sendNoResponse();

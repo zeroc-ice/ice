@@ -4,26 +4,18 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                var properties = createTestProperties(ref args);
-                properties["Ice.Default.Locator"] = $"locator:{getTestEndpoint(properties, 0)}";
-                using (var communicator = initialize(properties))
-                {
-                    AllTests.allTests(this);
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            var properties = createTestProperties(ref args);
+            properties["Ice.Default.Locator"] = $"locator:{getTestEndpoint(properties, 0)}";
+            using var communicator = initialize(properties);
+            AllTests.allTests(this);
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
     }
 }

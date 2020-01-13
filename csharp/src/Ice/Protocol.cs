@@ -165,16 +165,12 @@ namespace IceInternal
         }
 
         internal static bool
-        isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)
-        {
-            return version.major == supported.major && version.minor <= supported.minor;
-        }
+        isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
+            version.major == supported.major && version.minor <= supported.minor;
 
         internal static bool
-        isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported)
-        {
-            return version.major == supported.major && version.minor <= supported.minor;
-        }
+        isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
+            version.major == supported.major && version.minor <= supported.minor;
     }
 
 }

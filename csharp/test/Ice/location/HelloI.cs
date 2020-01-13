@@ -2,15 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
+    public class Hello : Test.IHello
     {
-        public class HelloI : Test.Hello
+        public void sayHello(Current current)
         {
-            public void sayHello(Ice.Current current)
-            {
-            }
         }
     }
 }

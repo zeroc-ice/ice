@@ -4,14 +4,14 @@
 
 namespace IceSSL
 {
-    internal class AcceptorI : IceInternal.Acceptor
+    internal class Acceptor : IceInternal.IAcceptor
     {
         public void close()
         {
             _delegate.close();
         }
 
-        public IceInternal.EndpointI listen()
+        public IceInternal.Endpoint listen()
         {
             _endpoint = _endpoint.endpoint(_delegate.listen());
             return _endpoint;
@@ -34,9 +34,9 @@ namespace IceSSL
             _delegate.finishAccept();
         }
 
-        public IceInternal.Transceiver accept()
+        public IceInternal.ITransceiver accept()
         {
-            return new TransceiverI(_instance, _delegate.accept(), _adapterName, true);
+            return new Transceiver(_instance, _delegate.accept(), _adapterName, true);
         }
 
         public string protocol()
@@ -54,7 +54,7 @@ namespace IceSSL
             return _delegate.toDetailedString();
         }
 
-        internal AcceptorI(EndpointI endpoint, Instance instance, IceInternal.Acceptor del, string adapterName)
+        internal Acceptor(Endpoint endpoint, Instance instance, IceInternal.IAcceptor del, string adapterName)
         {
             _endpoint = endpoint;
             _delegate = del;
@@ -73,8 +73,8 @@ namespace IceSSL
             }
         }
 
-        private EndpointI _endpoint;
-        private IceInternal.Acceptor _delegate;
+        private Endpoint _endpoint;
+        private IceInternal.IAcceptor _delegate;
         private Instance _instance;
         private string _adapterName;
     }

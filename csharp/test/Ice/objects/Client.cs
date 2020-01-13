@@ -4,24 +4,18 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using var communicator = initialize(createTestProperties(ref args),
-                                                    typeIdNamespaces: new string[] { "Ice.objects.TypeId" });
-                var initial = Test.AllTests.allTests(this);
-                initial.shutdown();
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            using var communicator = initialize(createTestProperties(ref args),
+                                                typeIdNamespaces: new string[] { "Ice.objects.TypeId" });
+            var initial = Test.AllTests.allTests(this);
+            initial.shutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
     }
 }

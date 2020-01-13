@@ -31,7 +31,7 @@ namespace Ice
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
         public Reference IceReference { get; }
-        public RequestHandler? RequestHandler { get; set; }
+        public IRequestHandler? RequestHandler { get; set; }
         public LinkedList<StreamCacheEntry>? StreamCache { get; set; }
 
         public IObjectPrx Clone(Reference reference);
@@ -107,7 +107,7 @@ namespace Ice
 
         private void iceI_ice_isA(string id,
                                   Dictionary<string, string>? context,
-                                  OutgoingAsyncCompletionCallback completed,
+                                  IOutgoingAsyncCompletionCallback completed,
                                   bool synchronous)
         {
             iceCheckAsyncTwowayOnly("ice_isA");
@@ -159,7 +159,7 @@ namespace Ice
             return completed.Task;
         }
 
-        private void iceI_IcePing(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed, bool synchronous)
+        private void iceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             getOutgoingAsync<object>(completed).invoke("ice_ping",
                                                        OperationMode.Nonmutating,
@@ -212,7 +212,7 @@ namespace Ice
             return completed.Task;
         }
 
-        private void iceI_ice_ids(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed, bool synchronous)
+        private void iceI_ice_ids(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             iceCheckAsyncTwowayOnly("ice_ids");
             getOutgoingAsync<string[]>(completed).invoke("ice_ids",
@@ -263,7 +263,7 @@ namespace Ice
         }
 
         private void iceI_ice_id(Dictionary<string, string>? context,
-                                 OutgoingAsyncCompletionCallback completed,
+                                 IOutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
         {
             getOutgoingAsync<string>(completed).invoke("ice_id",
@@ -337,11 +337,11 @@ namespace Ice
         /// Returns the endpoints used by this proxy.
         /// </summary>
         /// <returns>The endpoints used by this proxy.</returns>
-        public Endpoint[] Endpoints
+        public IEndpoint[] Endpoints
         {
             get
             {
-                return (Endpoint[])IceReference.getEndpoints().Clone();
+                return (IEndpoint[])IceReference.getEndpoints().Clone();
             }
         }
 
@@ -631,7 +631,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public int IceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
+        public int IceHandleException(Exception ex, IRequestHandler handler, OperationMode mode, bool sent,
                                       ref int cnt)
         {
             IceUpdateRequestHandler(handler, null); // Clear the request handler
@@ -676,7 +676,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public RequestHandler IceGetRequestHandler()
+        public IRequestHandler IceGetRequestHandler()
         {
             if (IceReference.getCacheConnection())
             {
@@ -692,8 +692,8 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public RequestHandler
-        IceSetRequestHandler(RequestHandler handler)
+        public IRequestHandler
+        IceSetRequestHandler(IRequestHandler handler)
         {
             if (IceReference.getCacheConnection())
             {
@@ -710,7 +710,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceUpdateRequestHandler(RequestHandler previous, RequestHandler? handler)
+        public void IceUpdateRequestHandler(IRequestHandler previous, IRequestHandler? handler)
         {
             if (IceReference.getCacheConnection() && previous != null)
             {
@@ -732,7 +732,7 @@ namespace Ice
         }
 
         protected OutgoingAsyncT<T>
-        getOutgoingAsync<T>(OutgoingAsyncCompletionCallback completed)
+        getOutgoingAsync<T>(IOutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
             InputStream? iss = null;
@@ -764,7 +764,7 @@ namespace Ice
         }
 
         internal InvokeOutgoingAsyncT
-        getInvokeOutgoingAsync(OutgoingAsyncCompletionCallback completed)
+        getInvokeOutgoingAsync(IOutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
             InputStream? iss = null;
@@ -854,7 +854,7 @@ namespace Ice
     internal class InvokeOutgoingAsyncT : OutgoingAsync
     {
         public InvokeOutgoingAsyncT(IObjectPrx prx,
-                                    OutgoingAsyncCompletionCallback completionCallback,
+                                    IOutgoingAsyncCompletionCallback completionCallback,
                                     OutputStream? os = null,
                                     InputStream? iss = null) : base(prx, completionCallback, os, iss)
         {
@@ -940,7 +940,7 @@ namespace Ice
     public class ObjectPrx : IObjectPrx, ISerializable
     {
         public Reference IceReference { get; private set; }
-        public RequestHandler? RequestHandler { get; set; }
+        public IRequestHandler? RequestHandler { get; set; }
         public LinkedList<IObjectPrx.StreamCacheEntry>? StreamCache { get; set; }
 
         public virtual IObjectPrx Clone(Reference reference)
@@ -948,7 +948,7 @@ namespace Ice
             return new ObjectPrx(reference);
         }
 
-        public ObjectPrx(Reference reference, RequestHandler? requestHandler = null)
+        public ObjectPrx(Reference reference, IRequestHandler? requestHandler = null)
         {
             if (reference == null)
             {
@@ -1030,7 +1030,7 @@ namespace Ice
                                        Dictionary<string, string>? context = null,
                                        EncodingVersion? encodingVersion = null,
                                        EndpointSelectionType? endpointSelectionType = null,
-                                       Endpoint[]? endpoints = null,
+                                       IEndpoint[]? endpoints = null,
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
@@ -1081,7 +1081,7 @@ namespace Ice
                                        Dictionary<string, string>? context = null,
                                        EncodingVersion? encodingVersion = null,
                                        EndpointSelectionType? endpointSelectionType = null,
-                                       Endpoint[]? endpoints = null,
+                                       IEndpoint[]? endpoints = null,
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
@@ -1131,7 +1131,7 @@ namespace Ice
                                      Dictionary<string, string>? context = null,
                                      EncodingVersion? encodingVersion = null,
                                      EndpointSelectionType? endpointSelectionType = null,
-                                     Endpoint[]? endpoints = null,
+                                     IEndpoint[]? endpoints = null,
                                      Connection? fixedConnection = null,
                                      InvocationMode? invocationMode = null,
                                      int? invocationTimeout = null,
@@ -1214,7 +1214,7 @@ namespace Ice
             return completed.Task;
         }
 
-        private static void iceI_getConnection(IObjectPrx prx, OutgoingAsyncCompletionCallback completed, bool synchronous)
+        private static void iceI_getConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             var outgoing = new ProxyGetConnection(prx, completed);
             try
@@ -1237,7 +1237,7 @@ namespace Ice
         /// collocated object.</exception>
         public static Connection? GetCachedConnection(this IObjectPrx prx)
         {
-            RequestHandler? handler;
+            IRequestHandler? handler;
             lock (prx)
             {
                 handler = prx.RequestHandler;
@@ -1333,7 +1333,7 @@ namespace Ice
                                      OperationMode mode,
                                      byte[] inEncaps,
                                      Dictionary<string, string>? context,
-                                     OutgoingAsyncCompletionCallback completed,
+                                     IOutgoingAsyncCompletionCallback completed,
                                      bool synchronous)
         {
             prx.getInvokeOutgoingAsync(completed).invoke(operation, mode, inEncaps, context, synchronous);

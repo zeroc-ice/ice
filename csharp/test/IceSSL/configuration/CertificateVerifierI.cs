@@ -2,14 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-
-public class CertificateVerifierI : IceSSL.CertificateVerifier
+public class CertificateVerifier : IceSSL.CertificateVerifier
 {
-    public CertificateVerifierI()
-    {
-        reset();
-    }
+    public CertificateVerifier() => reset();
 
     public bool verify(IceSSL.ConnectionInfo info)
     {
@@ -25,20 +20,11 @@ public class CertificateVerifierI : IceSSL.CertificateVerifier
         _hadCert = false;
     }
 
-    internal void returnValue(bool b)
-    {
-        _returnValue = b;
-    }
+    internal void returnValue(bool b) => _returnValue = b;
 
-    internal bool invoked()
-    {
-        return _invoked;
-    }
+    internal bool invoked() => _invoked;
 
-    internal bool hadCert()
-    {
-        return _hadCert;
-    }
+    internal bool hadCert() => _hadCert;
 
     private bool _returnValue;
     private bool _invoked;

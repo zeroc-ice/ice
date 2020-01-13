@@ -4,74 +4,59 @@
 
 using System.Threading;
 
-namespace Ice
+namespace Ice.timeout
 {
-    namespace timeout
+    internal class ActivateAdapterThread
     {
-        internal class ActivateAdapterThread
+        internal ActivateAdapterThread(ObjectAdapter adapter, int timeout)
         {
-            internal ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
-            {
-                _adapter = adapter;
-                _timeout = timeout;
-            }
-
-            internal void run()
-            {
-                _adapter.WaitForHold();
-                Thread.Sleep(_timeout);
-                _adapter.Activate();
-            }
-
-            private Ice.ObjectAdapter _adapter;
-            private int _timeout;
+            _adapter = adapter;
+            _timeout = timeout;
         }
 
-        internal class TimeoutI : Test.Timeout
+        internal void run()
         {
-            public void op(Ice.Current current)
-            {
-            }
+            _adapter.WaitForHold();
+            Thread.Sleep(_timeout);
+            _adapter.Activate();
+        }
 
-            public void sendData(byte[] seq, Ice.Current current)
-            {
-            }
+        private ObjectAdapter _adapter;
+        private int _timeout;
+    }
 
-            public void sleep(int to, Ice.Current current)
+    internal class Timeout : Test.ITimeout
+    {
+        public void op(Current current)
+        {
+        }
+
+        public void sendData(byte[] seq, Current current)
+        {
+        }
+
+        public void sleep(int to, Current current) => Thread.Sleep(to);
+    }
+
+    internal class Controller : Test.IController
+    {
+        public Controller(ObjectAdapter adapter) => _adapter = adapter;
+
+        public void holdAdapter(int to, Current current)
+        {
+            _adapter.Hold();
+            if (to >= 0)
             {
-                Thread.Sleep(to);
+                ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
+                Thread thread = new Thread(new ThreadStart(act.run));
+                thread.Start();
             }
         }
 
-        internal class ControllerI : Test.Controller
-        {
-            public ControllerI(Ice.ObjectAdapter adapter)
-            {
-                _adapter = adapter;
-            }
+        public void resumeAdapter(Current current) => _adapter.Activate();
 
-            public void holdAdapter(int to, Ice.Current current)
-            {
-                _adapter.Hold();
-                if (to >= 0)
-                {
-                    ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
-                    Thread thread = new Thread(new ThreadStart(act.run));
-                    thread.Start();
-                }
-            }
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
 
-            public void resumeAdapter(Ice.Current current)
-            {
-                _adapter.Activate();
-            }
-
-            public void shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
-
-            private ObjectAdapter _adapter;
-        }
+        private ObjectAdapter _adapter;
     }
 }

@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Diagnostics;
 using System.Reflection;
 using Ice;
 using Test;
@@ -12,11 +10,11 @@ using Test;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : Test.TestHelper
+public class Collocated : TestHelper
 {
     public override void run(string[] args)
     {
-        CommunicatorObserverI observer = new CommunicatorObserverI();
+        var observer = new CommunicatorObserver();
 
         var properties = createTestProperties(ref args);
         properties["Ice.Admin.Endpoints"] = "tcp";
@@ -29,22 +27,22 @@ public class Collocated : Test.TestHelper
         using (var communicator = initialize(properties, observer: observer))
         {
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new MetricsI(), "metrics");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new Metrics(), "metrics");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add(new ControllerI(adapter), "controller");
+            ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            controllerAdapter.Add(new Controller(adapter), "controller");
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            Test.IMetricsPrx metrics = AllTests.allTests(this, observer);
+            IMetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
     }
 
     public static int Main(string[] args)
     {
-        return Test.TestDriver.runTest<Collocated>(args);
+        return TestDriver.runTest<Collocated>(args);
     }
 }

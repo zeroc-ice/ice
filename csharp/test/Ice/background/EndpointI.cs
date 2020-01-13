@@ -5,11 +5,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-internal class EndpointI : IceInternal.EndpointI
+internal class Endpoint : IceInternal.Endpoint
 {
     internal static short TYPE_BASE = 100;
 
-    internal EndpointI(IceInternal.EndpointI endpoint)
+    internal Endpoint(IceInternal.Endpoint endpoint)
     {
         _endpoint = endpoint;
         _configuration = Configuration.getInstance();
@@ -46,16 +46,16 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.timeout();
     }
 
-    public override IceInternal.EndpointI timeout(int timeout)
+    public override IceInternal.Endpoint timeout(int timeout)
     {
-        IceInternal.EndpointI endpoint = _endpoint.timeout(timeout);
+        var endpoint = _endpoint.timeout(timeout);
         if (endpoint == _endpoint)
         {
             return this;
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new Endpoint(endpoint);
         }
     }
 
@@ -64,16 +64,16 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.connectionId();
     }
 
-    public override IceInternal.EndpointI connectionId(string connectionId)
+    public override IceInternal.Endpoint connectionId(string connectionId)
     {
-        IceInternal.EndpointI endpoint = _endpoint.connectionId(connectionId);
+        IceInternal.Endpoint endpoint = _endpoint.connectionId(connectionId);
         if (endpoint == _endpoint)
         {
             return this;
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new Endpoint(endpoint);
         }
     }
 
@@ -82,16 +82,16 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.compress();
     }
 
-    public override IceInternal.EndpointI compress(bool compress)
+    public override IceInternal.Endpoint compress(bool compress)
     {
-        IceInternal.EndpointI endpoint = _endpoint.compress(compress);
+        IceInternal.Endpoint endpoint = _endpoint.compress(compress);
         if (endpoint == _endpoint)
         {
             return this;
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new Endpoint(endpoint);
         }
     }
 
@@ -105,9 +105,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.secure();
     }
 
-    public override IceInternal.Transceiver? transceiver()
+    public override IceInternal.ITransceiver? transceiver()
     {
-        IceInternal.Transceiver? transceiver = _endpoint.transceiver();
+        IceInternal.ITransceiver? transceiver = _endpoint.transceiver();
         if (transceiver != null)
         {
             return new Transceiver(transceiver);
@@ -118,17 +118,17 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    private class ConnectorsCallback : IceInternal.EndpointI_connectors
+    private class ConnectorsCallback : IceInternal.IEndpointConnectors
     {
-        internal ConnectorsCallback(IceInternal.EndpointI_connectors cb)
+        internal ConnectorsCallback(IceInternal.IEndpointConnectors cb)
         {
             _callback = cb;
         }
 
-        public void connectors(List<IceInternal.Connector> cons)
+        public void connectors(List<IceInternal.IConnector> cons)
         {
-            List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
-            foreach (IceInternal.Connector connector in cons)
+            var connectors = new List<IceInternal.IConnector>();
+            foreach (IceInternal.IConnector connector in cons)
             {
                 connectors.Add(new Connector(connector));
             }
@@ -140,10 +140,10 @@ internal class EndpointI : IceInternal.EndpointI
             _callback.exception(exception);
         }
 
-        private IceInternal.EndpointI_connectors _callback;
+        private IceInternal.IEndpointConnectors _callback;
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType, IceInternal.EndpointI_connectors cb)
+    public override void connectors_async(Ice.EndpointSelectionType selType, IceInternal.IEndpointConnectors cb)
     {
         try
         {
@@ -156,14 +156,14 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override IceInternal.Acceptor acceptor(string adapterName)
+    public override IceInternal.IAcceptor acceptor(string adapterName)
     {
         var acceptor = _endpoint.acceptor(adapterName);
         Debug.Assert(acceptor != null);
         return new Acceptor(this, acceptor);
     }
 
-    public EndpointI endpoint(IceInternal.EndpointI delEndp)
+    public Endpoint endpoint(IceInternal.Endpoint delEndp)
     {
         if (delEndp == _endpoint)
         {
@@ -171,41 +171,41 @@ internal class EndpointI : IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(delEndp);
+            return new Endpoint(delEndp);
         }
     }
 
-    public override List<IceInternal.EndpointI> expandIfWildcard()
+    public override List<IceInternal.Endpoint> expandIfWildcard()
     {
-        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
+        var endps = new List<IceInternal.Endpoint>();
+        foreach (var endpt in _endpoint.expandIfWildcard())
         {
-            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+            endps.Add(endpt == _endpoint ? this : new Endpoint(endpt));
         }
         return endps;
     }
 
-    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI? publish)
+    public override List<IceInternal.Endpoint> expandHost(out IceInternal.Endpoint? publish)
     {
-        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
+        var endps = new List<IceInternal.Endpoint>();
+        foreach (var endpt in _endpoint.expandHost(out publish))
         {
-            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+            endps.Add(endpt == _endpoint ? this : new Endpoint(endpt));
         }
         if (publish != null)
         {
-            publish = publish == _endpoint ? this : new EndpointI(publish);
+            publish = publish == _endpoint ? this : new Endpoint(publish);
         }
         return endps;
     }
 
-    public override bool equivalent(IceInternal.EndpointI endpoint)
+    public override bool equivalent(IceInternal.Endpoint endpoint)
     {
-        if (!(endpoint is EndpointI))
+        if (!(endpoint is Endpoint))
         {
             return false;
         }
-        return ((EndpointI)endpoint)._endpoint.equivalent(_endpoint);
+        return ((Endpoint)endpoint)._endpoint.equivalent(_endpoint);
     }
 
     public override string options()
@@ -218,26 +218,26 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.GetHashCode();
     }
 
-    public override int CompareTo(IceInternal.EndpointI obj)
+    public override int CompareTo(IceInternal.Endpoint obj)
     {
         if (ReferenceEquals(this, obj))
         {
             return 0;
         }
 
-        if (!(obj is EndpointI))
+        if (!(obj is Endpoint))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
-        return _endpoint.CompareTo(((EndpointI)obj)._endpoint);
+        return _endpoint.CompareTo(((Endpoint)obj)._endpoint);
     }
 
-    public IceInternal.EndpointI getDelegate()
+    public IceInternal.Endpoint getDelegate()
     {
         return _endpoint;
     }
 
-    private IceInternal.EndpointI _endpoint;
+    private IceInternal.Endpoint _endpoint;
     private Configuration _configuration;
 }

@@ -7,7 +7,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public class RetryTask : TimerTask, CancellationHandler
+    public class RetryTask : ITimerTask, ICancellationHandler
     {
         public RetryTask(Ice.Communicator communicator, RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
         {

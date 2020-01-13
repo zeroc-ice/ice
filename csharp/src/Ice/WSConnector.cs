@@ -4,19 +4,16 @@
 
 namespace IceInternal
 {
-    internal sealed class WSConnector : IceInternal.Connector
+    internal sealed class WSConnector : IConnector
     {
-        public IceInternal.Transceiver connect()
-        {
-            return new WSTransceiver(_instance, _delegate.connect(), _host, _resource);
-        }
+        public ITransceiver connect() => new WSTransceiver(_instance, _delegate.connect(), _host, _resource);
 
         public short type()
         {
             return _delegate.type();
         }
 
-        internal WSConnector(ProtocolInstance instance, IceInternal.Connector del, string host, string resource)
+        internal WSConnector(ProtocolInstance instance, IConnector del, string host, string resource)
         {
             _instance = instance;
             _delegate = del;
@@ -50,18 +47,12 @@ namespace IceInternal
             return true;
         }
 
-        public override string ToString()
-        {
-            return _delegate.ToString();
-        }
+        public override string ToString() => _delegate.ToString();
 
-        public override int GetHashCode()
-        {
-            return _delegate.GetHashCode();
-        }
+        public override int GetHashCode() => _delegate.GetHashCode();
 
         private ProtocolInstance _instance;
-        private Connector _delegate;
+        private IConnector _delegate;
         private string _host;
         private string _resource;
     }

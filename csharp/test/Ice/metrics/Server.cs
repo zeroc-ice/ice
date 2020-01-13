@@ -22,24 +22,19 @@ public class Server : TestHelper
         properties["Ice.MessageSizeMax"] = "50000";
         properties["Ice.Default.Host"] = "127.0.0.1";
 
-        using (var communicator = initialize(properties))
-        {
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new MetricsI(), "metrics");
-            adapter.Activate();
+        using var communicator = initialize(properties);
+        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.Add(new Metrics(), "metrics");
+        adapter.Activate();
 
-            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add(new ControllerI(adapter), "controller");
-            controllerAdapter.Activate();
+        communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+        Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+        controllerAdapter.Add(new Controller(adapter), "controller");
+        controllerAdapter.Activate();
 
-            communicator.waitForShutdown();
-        }
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

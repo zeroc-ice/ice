@@ -81,7 +81,7 @@ namespace IceInternal
 
         public void waitUntilFinished()
         {
-            Dictionary<Connector, ICollection<Ice.ConnectionI>> connections;
+            Dictionary<IConnector, ICollection<Ice.ConnectionI>> connections;
             lock (this)
             {
                 //
@@ -99,7 +99,7 @@ namespace IceInternal
                 // We want to wait until all connections are finished outside the
                 // thread synchronization.
                 //
-                connections = new Dictionary<Connector, ICollection<Ice.ConnectionI>>(_connections);
+                connections = new Dictionary<IConnector, ICollection<Ice.ConnectionI>>(_connections);
             }
 
             //
@@ -142,7 +142,7 @@ namespace IceInternal
             _monitor.destroy();
         }
 
-        public void create(EndpointI[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
+        public void create(Endpoint[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
                            CreateConnectionCallback callback)
         {
             Debug.Assert(endpts.Length > 0);
@@ -150,7 +150,7 @@ namespace IceInternal
             //
             // Apply the overrides.
             //
-            List<EndpointI> endpoints = applyOverrides(endpts);
+            List<Endpoint> endpoints = applyOverrides(endpts);
 
             //
             // Try to find a connection to one of the given endpoints.
@@ -178,7 +178,7 @@ namespace IceInternal
         {
             Debug.Assert(routerInfo != null);
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-            EndpointI[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
+            Endpoint[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
 
             lock (this)
             {
@@ -196,7 +196,7 @@ namespace IceInternal
                 DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
                 for (int i = 0; i < endpoints.Length; i++)
                 {
-                    EndpointI endpoint = endpoints[i];
+                    Endpoint endpoint = endpoints[i];
 
                     //
                     // Modify endpoints with overrides.
@@ -264,10 +264,10 @@ namespace IceInternal
             _pendingConnectCount = 0;
         }
 
-        private List<EndpointI> applyOverrides(EndpointI[] endpts)
+        private List<Endpoint> applyOverrides(Endpoint[] endpts)
         {
             DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
-            List<EndpointI> endpoints = new List<EndpointI>();
+            List<Endpoint> endpoints = new List<Endpoint>();
             for (int i = 0; i < endpts.Length; i++)
             {
                 //
@@ -286,7 +286,7 @@ namespace IceInternal
             return endpoints;
         }
 
-        private Ice.ConnectionI? findConnection(List<EndpointI> endpoints, out bool compress)
+        private Ice.ConnectionI? findConnection(List<Endpoint> endpoints, out bool compress)
         {
             lock (this)
             {
@@ -298,7 +298,7 @@ namespace IceInternal
                 DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
                 Debug.Assert(endpoints.Count > 0);
 
-                foreach (EndpointI endpoint in endpoints)
+                foreach (Endpoint endpoint in endpoints)
                 {
                     ICollection<Ice.ConnectionI> connectionList;
                     if (!_connectionsByEndpoint.TryGetValue(endpoint, out connectionList))
@@ -489,7 +489,7 @@ namespace IceInternal
             return null;
         }
 
-        private Ice.ConnectionI createConnection(Transceiver transceiver, ConnectorInfo ci)
+        private Ice.ConnectionI createConnection(ITransceiver transceiver, ConnectorInfo ci)
         {
             lock (this)
             {
@@ -756,7 +756,7 @@ namespace IceInternal
 
         private class ConnectorInfo
         {
-            internal ConnectorInfo(Connector c, EndpointI e)
+            internal ConnectorInfo(IConnector c, Endpoint e)
             {
                 connector = c;
                 endpoint = e;
@@ -773,13 +773,13 @@ namespace IceInternal
                 return connector.GetHashCode();
             }
 
-            public Connector connector;
-            public EndpointI endpoint;
+            public IConnector connector;
+            public Endpoint endpoint;
         }
 
-        private class ConnectCallback : Ice.ConnectionI.StartCallback, EndpointI_connectors
+        private class ConnectCallback : Ice.ConnectionI.StartCallback, IEndpointConnectors
         {
-            internal ConnectCallback(OutgoingConnectionFactory f, List<EndpointI> endpoints, bool more,
+            internal ConnectCallback(OutgoingConnectionFactory f, List<Endpoint> endpoints, bool more,
                                      CreateConnectionCallback cb, Ice.EndpointSelectionType selType)
             {
                 _factory = f;
@@ -815,9 +815,9 @@ namespace IceInternal
             //
             // Methods from EndpointI_connectors
             //
-            public void connectors(List<Connector> cons)
+            public void connectors(List<IConnector> cons)
             {
-                foreach (Connector connector in cons)
+                foreach (IConnector connector in cons)
                 {
                     _connectors.Add(new ConnectorInfo(connector, _currentEndpoint));
                 }
@@ -974,7 +974,7 @@ namespace IceInternal
                         Debug.Assert(_iter < _connectors.Count);
                         _current = _connectors[_iter++];
 
-                        Ice.Instrumentation.CommunicatorObserver? obsv = _factory._communicator.Observer;
+                        Ice.Instrumentation.ICommunicatorObserver? obsv = _factory._communicator.Observer;
                         if (obsv != null)
                         {
                             _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
@@ -1047,32 +1047,32 @@ namespace IceInternal
             private readonly OutgoingConnectionFactory _factory;
             private readonly bool _hasMore;
             private readonly CreateConnectionCallback _callback;
-            private readonly List<EndpointI> _endpoints;
+            private readonly List<Endpoint> _endpoints;
             private readonly Ice.EndpointSelectionType _selType;
             private int _endpointsIter;
-            private EndpointI? _currentEndpoint;
+            private Endpoint? _currentEndpoint;
             private readonly List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
             private int _iter;
             private ConnectorInfo? _current;
-            private Ice.Instrumentation.Observer? _observer;
+            private Ice.Instrumentation.IObserver? _observer;
         }
 
         private readonly Ice.Communicator _communicator;
         private readonly FactoryACMMonitor _monitor;
         private bool _destroyed;
 
-        private readonly MultiDictionary<Connector, Ice.ConnectionI> _connections =
-            new MultiDictionary<Connector, Ice.ConnectionI>();
-        private readonly MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint =
-            new MultiDictionary<EndpointI, Ice.ConnectionI>();
-        private readonly Dictionary<Connector, HashSet<ConnectCallback>> _pending =
-            new Dictionary<Connector, HashSet<ConnectCallback>>();
+        private readonly MultiDictionary<IConnector, Ice.ConnectionI> _connections =
+            new MultiDictionary<IConnector, Ice.ConnectionI>();
+        private readonly MultiDictionary<Endpoint, Ice.ConnectionI> _connectionsByEndpoint =
+            new MultiDictionary<Endpoint, Ice.ConnectionI>();
+        private readonly Dictionary<IConnector, HashSet<ConnectCallback>> _pending =
+            new Dictionary<IConnector, HashSet<ConnectCallback>>();
         private int _pendingConnectCount;
     }
 
     public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.StartCallback
     {
-        private class StartAcceptor : TimerTask
+        private class StartAcceptor : ITimerTask
         {
             public StartAcceptor(IncomingConnectionFactory factory)
             {
@@ -1233,7 +1233,7 @@ namespace IceInternal
             _monitor.destroy();
         }
 
-        public bool isLocal(EndpointI endpoint)
+        public bool isLocal(Endpoint endpoint)
         {
             if (_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint))
             {
@@ -1245,7 +1245,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI endpoint()
+        public Endpoint endpoint()
         {
             if (_publishedEndpoint != null)
             {
@@ -1371,7 +1371,7 @@ namespace IceInternal
                     //
                     // Now accept a new connection.
                     //
-                    Transceiver transceiver;
+                    ITransceiver transceiver;
                     try
                     {
                         transceiver = _acceptor!.accept();
@@ -1511,7 +1511,7 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Ice.Communicator communicator, EndpointI endpoint, EndpointI publish,
+        public IncomingConnectionFactory(Ice.Communicator communicator, Endpoint endpoint, Endpoint publish,
                                          Ice.ObjectAdapter adapter)
         {
             _communicator = communicator;
@@ -1761,10 +1761,10 @@ namespace IceInternal
         private readonly Ice.Communicator _communicator;
         private readonly FactoryACMMonitor _monitor;
 
-        private Acceptor? _acceptor;
-        private readonly Transceiver _transceiver;
-        private EndpointI _endpoint;
-        private readonly EndpointI _publishedEndpoint;
+        private IAcceptor? _acceptor;
+        private readonly ITransceiver _transceiver;
+        private Endpoint _endpoint;
+        private readonly Endpoint _publishedEndpoint;
 
         private Ice.ObjectAdapter? _adapter;
 

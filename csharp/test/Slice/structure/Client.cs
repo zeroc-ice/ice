@@ -41,14 +41,9 @@ public class Client : TestHelper
 
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            allTests(communicator);
-        }
+        using var communicator = initialize(ref args);
+        allTests(communicator);
     }
 
-    public static int Main(string[] args)
-    {
-        return TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
 }

@@ -8,9 +8,9 @@ using Ice;
 
 public class AllTests : Test.AllTests
 {
-    public static void allTests(Test.TestHelper helper)
+    public static void allTests(TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         string rf = "test @ TestAdapter";
@@ -33,10 +33,10 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing locator finder... ");
-        Ice.Identity finderId = new Ice.Identity();
+        Identity finderId = new Identity();
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
-        Ice.ILocatorFinderPrx finder = Ice.ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
+        ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
 

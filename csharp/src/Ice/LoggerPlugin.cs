@@ -9,7 +9,7 @@ namespace Ice
     /// instantiate a LoggerPlugin with a custom logger and
     /// return the instance from their PluginFactory implementation.
     /// </summary>
-    public class LoggerPlugin : Plugin
+    public class LoggerPlugin : IPlugin
     {
         /// <summary>
         /// Installs a custom logger for a communicator.
@@ -17,7 +17,7 @@ namespace Ice
         /// <param name="communicator">The communicator using the custom logger.</param>
         /// <param name="logger">The custom logger for the communicator.</param>
         public
-        LoggerPlugin(Communicator communicator, Logger logger)
+        LoggerPlugin(Communicator communicator, ILogger logger)
         {
             communicator.setLogger(logger);
         }

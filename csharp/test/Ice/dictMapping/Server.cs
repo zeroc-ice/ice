@@ -5,29 +5,21 @@
 using Test;
 using Ice.dictMapping.Test;
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
+    public class Server : TestHelper
     {
-        public class Server : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new MyClassI(), "test");
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            using var communicator = initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new MyClass(), "test");
+            adapter.Activate();
+            serverReady();
+            communicator.waitForShutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
     }
 }

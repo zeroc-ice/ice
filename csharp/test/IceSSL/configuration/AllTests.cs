@@ -1099,7 +1099,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                CertificateVerifierI verifier = new CertificateVerifierI();
+                var verifier = new CertificateVerifier();
                 plugin.setCertificateVerifier(verifier);
 
                 var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
@@ -1152,7 +1152,7 @@ public class AllTests
                 // Verify that verifier is installed via property.
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                clientProperties["IceSSL.CertVerifier"] = "CertificateVerifierI";
+                clientProperties["IceSSL.CertVerifier"] = "CertificateVerifier";
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
@@ -1414,7 +1414,7 @@ public class AllTests
                 using var comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI("bogus");
+                var cb = new PasswordCallback("bogus");
                 plugin.setPasswordCallback(cb);
                 try
                 {
@@ -1437,7 +1437,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI();
+                var cb = new PasswordCallback();
                 plugin.setPasswordCallback(cb);
                 test(plugin.getPasswordCallback() == cb);
                 try
@@ -1456,7 +1456,7 @@ public class AllTests
                 // Test password callback property.
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                clientProperties["IceSSL.PasswordCallback"] = "PasswordCallbackI";
+                clientProperties["IceSSL.PasswordCallback"] = "PasswordCallback";
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);

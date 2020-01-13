@@ -3,8 +3,9 @@
 //
 
 using Test;
+using Ice;
 
-public sealed class TestI : TestIntf
+public sealed class TestIntf : ITestIntf
 {
     private static void test(bool b)
     {
@@ -14,162 +15,69 @@ public sealed class TestI : TestIntf
         }
     }
 
-    public void shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
 
-    public void baseAsBase(Ice.Current current)
-    {
-        Base b = new Base();
-        b.b = "Base.b";
-        throw b;
-    }
+    public void baseAsBase(Current current) => throw new Base("Base.b");
 
-    public void unknownDerivedAsBase(Ice.Current current)
-    {
-        UnknownDerived d = new UnknownDerived();
-        d.b = "UnknownDerived.b";
-        d.ud = "UnknownDerived.ud";
-        throw d;
-    }
+    public void unknownDerivedAsBase(Current current) =>
+        throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
 
-    public void knownDerivedAsBase(Ice.Current current)
-    {
-        KnownDerived d = new KnownDerived();
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        throw d;
-    }
+    public void knownDerivedAsBase(Current current) => throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-    public void knownDerivedAsKnownDerived(Ice.Current current)
-    {
-        KnownDerived d = new KnownDerived();
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        throw d;
-    }
+    public void knownDerivedAsKnownDerived(Current current) =>
+        throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-    public void unknownIntermediateAsBase(Ice.Current current)
-    {
-        UnknownIntermediate ui = new UnknownIntermediate();
-        ui.b = "UnknownIntermediate.b";
-        ui.ui = "UnknownIntermediate.ui";
-        throw ui;
-    }
+    public void unknownIntermediateAsBase(Current current) =>
+        throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
 
-    public void knownIntermediateAsBase(Ice.Current current)
-    {
-        KnownIntermediate ki = new KnownIntermediate();
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        throw ki;
-    }
+    public void knownIntermediateAsBase(Current current) =>
+        throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-    public void knownMostDerivedAsBase(Ice.Current current)
-    {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
-    }
+    public void knownMostDerivedAsBase(Current current) =>
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-    public void knownIntermediateAsKnownIntermediate(Ice.Current current)
-    {
-        KnownIntermediate ki = new KnownIntermediate();
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        throw ki;
-    }
+    public void knownIntermediateAsKnownIntermediate(Current current) =>
+        throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-    public void knownMostDerivedAsKnownIntermediate(Ice.Current current)
-    {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
-    }
+    public void knownMostDerivedAsKnownIntermediate(Current current) =>
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-    public void knownMostDerivedAsKnownMostDerived(Ice.Current current)
-    {
-        KnownMostDerived kmd = new KnownMostDerived();
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
-    }
+    public void knownMostDerivedAsKnownMostDerived(Current current) =>
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-    public void unknownMostDerived1AsBase(Ice.Current current)
-    {
-        UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        throw umd1;
-    }
+    public void unknownMostDerived1AsBase(Current current) =>
+        throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-    public void unknownMostDerived1AsKnownIntermediate(Ice.Current current)
-    {
-        UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        throw umd1;
-    }
+    public void unknownMostDerived1AsKnownIntermediate(Current current) =>
+        throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-    public void unknownMostDerived2AsBase(Ice.Current current)
-    {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        throw umd2;
-    }
+    public void unknownMostDerived2AsBase(Current current) =>
+        throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-    public void unknownMostDerived2AsBaseCompact(Ice.Current current)
-    {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        throw umd2;
-    }
+    public void unknownMostDerived2AsBaseCompact(Current current) =>
+        throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-    public void knownPreservedAsBase(Ice.Current current)
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
+    public void knownPreservedAsBase(Current current) =>
+        throw new KnownPreservedDerived("base", "preserved", "derived");
 
-    public void knownPreservedAsKnownPreserved(Ice.Current current)
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
+    public void knownPreservedAsKnownPreserved(Current current) =>
+        throw new KnownPreservedDerived("base", "preserved", "derived");
 
-    public void relayKnownPreservedAsBase(IRelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsBase(IRelayPrx r, Current current)
     {
         IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.knownPreservedAsBase();
         test(false);
     }
 
-    public void relayKnownPreservedAsKnownPreserved(IRelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsKnownPreserved(IRelayPrx r, Current current)
     {
         IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.knownPreservedAsKnownPreserved();
         test(false);
     }
 
-    public void unknownPreservedAsBase(Ice.Current current)
+    public void unknownPreservedAsBase(Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -180,7 +88,7 @@ public sealed class TestI : TestIntf
         throw ex;
     }
 
-    public void unknownPreservedAsKnownPreserved(Ice.Current current)
+    public void unknownPreservedAsKnownPreserved(Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -191,7 +99,7 @@ public sealed class TestI : TestIntf
         throw ex;
     }
 
-    public void relayUnknownPreservedAsBase(IRelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsBase(IRelayPrx r, Current current)
     {
         IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.unknownPreservedAsBase();

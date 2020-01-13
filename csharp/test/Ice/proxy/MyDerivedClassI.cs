@@ -5,39 +5,24 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ice
+namespace Ice.proxy
 {
-    namespace proxy
+    public sealed class MyDerivedClass : Object<Test.IMyDerivedClass, Test.MyDerivedClassTraits>, Test.IMyDerivedClass
     {
-        public sealed class MyDerivedClassI : Ice.Object<Test.MyDerivedClass, Test.MyDerivedClassTraits>, Test.MyDerivedClass
+
+        public IObjectPrx echo(IObjectPrx obj, Current c) => obj;
+
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+
+        public Dictionary<string, string> getContext(Current current) => _ctx;
+
+        public override bool IceIsA(string s, Current current)
         {
-            public MyDerivedClassI()
-            {
-            }
-
-            public Ice.IObjectPrx echo(Ice.IObjectPrx obj, Ice.Current c)
-            {
-                return obj;
-            }
-
-            public void shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
-
-            public Dictionary<string, string> getContext(Ice.Current current)
-            {
-                return _ctx;
-            }
-
-            public override bool IceIsA(string s, Ice.Current current)
-            {
-                _ctx = current.Context;
-                Test.MyDerivedClassTraits myDerivedClassT = default;
-                return myDerivedClassT.Ids.Contains(s);
-            }
-
-            private Dictionary<string, string> _ctx;
+            _ctx = current.Context;
+            Test.MyDerivedClassTraits myDerivedClassT = default;
+            return myDerivedClassT.Ids.Contains(s);
         }
+
+        private Dictionary<string, string> _ctx;
     }
 }

@@ -4,14 +4,14 @@
 
 namespace IceInternal
 {
-    public interface CancellationHandler
+    public interface ICancellationHandler
     {
         void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
     }
 
-    public interface RequestHandler : CancellationHandler
+    public interface IRequestHandler : ICancellationHandler
     {
-        RequestHandler? update(RequestHandler previousHandler, RequestHandler? newHandler);
+        IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler);
 
         int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
 

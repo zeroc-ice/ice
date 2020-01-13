@@ -6,19 +6,19 @@ namespace IceInternal
 {
     using System.Collections.Generic;
 
-    public interface EndpointFactory
+    public interface IEndpointFactory
     {
         void initialize();
         short type();
         string protocol();
-        EndpointI create(List<string> args, bool oaEndpoint);
-        EndpointI read(Ice.InputStream s);
+        Endpoint create(List<string> args, bool oaEndpoint);
+        Endpoint read(Ice.InputStream s);
         void destroy();
 
-        EndpointFactory clone(ProtocolInstance instance);
+        IEndpointFactory clone(ProtocolInstance instance);
     }
 
-    public abstract class EndpointFactoryWithUnderlying : EndpointFactory
+    public abstract class EndpointFactoryWithUnderlying : IEndpointFactory
     {
         public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
         {
@@ -32,7 +32,7 @@ namespace IceInternal
             // Get the endpoint factory for the underlying type and clone it with
             // our protocol instance.
             //
-            EndpointFactory factory = instance_.getEndpointFactory(_type);
+            IEndpointFactory factory = instance_.getEndpointFactory(_type);
             if (factory != null)
             {
                 _underlying = factory.clone(instance_);
@@ -50,7 +50,7 @@ namespace IceInternal
             return instance_.protocol();
         }
 
-        public EndpointI create(List<string> args, bool oaEndpoint)
+        public Endpoint create(List<string> args, bool oaEndpoint)
         {
             if (_underlying == null)
             {
@@ -59,7 +59,7 @@ namespace IceInternal
             return createWithUnderlying(_underlying.create(args, oaEndpoint), args, oaEndpoint);
         }
 
-        public EndpointI read(Ice.InputStream s)
+        public Endpoint read(Ice.InputStream s)
         {
             if (_underlying == null)
             {
@@ -77,19 +77,19 @@ namespace IceInternal
             instance_ = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance)
+        public IEndpointFactory clone(ProtocolInstance instance)
         {
             return cloneWithUnderlying(instance, _type);
         }
 
-        public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
+        public abstract IEndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
 
-        protected abstract EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint);
-        protected abstract EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
+        protected abstract Endpoint createWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint);
+        protected abstract Endpoint readWithUnderlying(Endpoint underlying, Ice.InputStream s);
 
         protected ProtocolInstance instance_;
 
         private readonly short _type;
-        private EndpointFactory _underlying;
+        private IEndpointFactory _underlying;
     }
 }

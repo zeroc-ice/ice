@@ -14,24 +14,19 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using var communicator = initialize(ref args);
+        if (args.Length < 1)
         {
-            if (args.Length < 1)
-            {
-                throw new ArgumentException("Usage: server testdir");
-            }
-
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new ServerFactoryI(args[0] + "/../certs"), "factory");
-            adapter.Activate();
-
-            communicator.waitForShutdown();
+            throw new ArgumentException("Usage: server testdir");
         }
+
+        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.Add(new ServerFactory(args[0] + "/../certs"), "factory");
+        adapter.Activate();
+
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

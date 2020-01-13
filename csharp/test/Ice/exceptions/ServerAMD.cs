@@ -11,7 +11,7 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class DummyLogger : Ice.Logger
+            public sealed class DummyLogger : ILogger
             {
                 public void print(string message)
                 {
@@ -29,15 +29,9 @@ namespace Ice
                 {
                 }
 
-                public string getPrefix()
-                {
-                    return "";
-                }
+                public string getPrefix() => "";
 
-                public Ice.Logger cloneWithPrefix(string prefix)
-                {
-                    return new DummyLogger();
-                }
+                public ILogger cloneWithPrefix(string prefix) => new DummyLogger();
             }
 
             public class Server : TestHelper
@@ -69,10 +63,7 @@ namespace Ice
                     communicator.waitForShutdown();
                 }
 
-                public static int Main(string[] args)
-                {
-                    return TestDriver.runTest<Server>(args);
-                }
+                public static int Main(string[] args) => TestDriver.runTest<Server>(args);
             }
         }
     }

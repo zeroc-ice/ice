@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    internal sealed class ReplyStatus
+    internal static class ReplyStatus
     {
         public const byte replyOK = 0;
         public const byte replyUserException = 1;
@@ -14,9 +14,5 @@ namespace IceInternal
         public const byte replyUnknownLocalException = 5;
         public const byte replyUnknownUserException = 6;
         public const byte replyUnknownException = 7;
-
-        private ReplyStatus()
-        {
-        }
     }
 }

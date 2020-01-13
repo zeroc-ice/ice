@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public abstract class BasePluginFail : Ice.Plugin
+public abstract class BasePluginFail : Ice.IPlugin
 {
     public BasePluginFail(Ice.Communicator communicator)
     {
@@ -11,15 +11,9 @@ public abstract class BasePluginFail : Ice.Plugin
         _destroyed = false;
     }
 
-    public bool isInitialized()
-    {
-        return _initialized;
-    }
+    public bool isInitialized() => _initialized;
 
-    public bool isDestroyed()
-    {
-        return _destroyed;
-    }
+    public bool isDestroyed() => _destroyed;
 
     protected static void test(bool b)
     {

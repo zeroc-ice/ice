@@ -39,7 +39,7 @@ namespace Ice
 
     public sealed partial class Communicator : IDisposable
     {
-        private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
+        private class ObserverUpdaterI : Ice.Instrumentation.IObserverUpdater
         {
             public ObserverUpdaterI(Communicator communicator)
             {
@@ -137,9 +137,9 @@ namespace Ice
             }
 
             {
-                if (_logger is LoggerAdminLogger)
+                if (_logger is ILoggerAdminLogger)
                 {
-                    ((LoggerAdminLogger)_logger).destroy();
+                    ((ILoggerAdminLogger)_logger).destroy();
                 }
             }
 
@@ -222,10 +222,10 @@ namespace Ice
             //
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
             //
-            List<(string Name, Plugin Plugin)> plugins;
+            List<(string Name, IPlugin Plugin)> plugins;
             lock (this)
             {
-                plugins = new List<(string Name, Plugin Plugin)>(_plugins);
+                plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
             }
             plugins.Reverse();
             foreach (var p in plugins)
@@ -441,7 +441,7 @@ namespace Ice
         /// <returns>This communicator's logger.
         ///
         /// </returns>
-        public Logger Logger
+        public ILogger Logger
         {
             get
             {
@@ -456,7 +456,7 @@ namespace Ice
                 return _dispatcher;
             }
         }
-        public Instrumentation.CommunicatorObserver? Observer
+        public Instrumentation.ICommunicatorObserver? Observer
         {
             get
             {
@@ -484,7 +484,7 @@ namespace Ice
         /// Get the observer resolver object for this communicator.
         /// </summary>
         /// <returns>This communicator's observer resolver object.</returns>
-        public Instrumentation.CommunicatorObserver? getObserver()
+        public Instrumentation.ICommunicatorObserver? getObserver()
         {
             return _observer;
         }
@@ -587,7 +587,7 @@ namespace Ice
         /// <returns>The implicit context associated with this communicator;
         /// returns null when the property Ice.ImplicitContext is not set
         /// or is set to None.</returns>
-        public ImplicitContext getImplicitContext()
+        public IImplicitContext getImplicitContext()
         {
             return _implicitContext;
         }
@@ -932,8 +932,8 @@ namespace Ice
         public Communicator(Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
                             Action<Action, Connection?>? dispatcher = null,
-                            Logger? logger = null,
-                            Instrumentation.CommunicatorObserver? observer = null,
+                            ILogger? logger = null,
+                            Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
                             string[]? typeIdNamespaces = null) :
@@ -954,8 +954,8 @@ namespace Ice
                             Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
                             Action<Action, Connection?>? dispatcher = null,
-                            Logger? logger = null,
-                            Instrumentation.CommunicatorObserver? observer = null,
+                            ILogger? logger = null,
+                            Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
                             string[]? typeIdNamespaces = null) :
@@ -976,8 +976,8 @@ namespace Ice
                             Dictionary<string, string>? properties = null,
                             Func<int, string>? compactIdResolver = null,
                             Action<Action, Connection?>? dispatcher = null,
-                            Logger? logger = null,
-                            Instrumentation.CommunicatorObserver? observer = null,
+                            ILogger? logger = null,
+                            Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
                             string[]? typeIdNamespaces = null) :
@@ -999,8 +999,8 @@ namespace Ice
                             Dictionary<string, string>? properties = null,
                             Func<int, string>? compactIdResolver = null,
                             Action<Action, Connection?>? dispatcher = null,
-                            Logger? logger = null,
-                            Instrumentation.CommunicatorObserver? observer = null,
+                            ILogger? logger = null,
+                            Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
                             string[]? typeIdNamespaces = null)
@@ -1165,7 +1165,7 @@ namespace Ice
 
                 _cacheMessageBuffers = GetPropertyAsInt("Ice.CacheMessageBuffers") ?? 2;
 
-                _implicitContext = ImplicitContextI.Create(GetProperty("Ice.ImplicitContext"));
+                _implicitContext = ImplicitContext.Create(GetProperty("Ice.ImplicitContext"));
                 _routerManager = new RouterManager();
 
                 _locatorManager = new LocatorManager(this);
@@ -1285,7 +1285,7 @@ namespace Ice
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
                         ProcessTraits traits = default;
-                        Process process = new ProcessI(this);
+                        IProcess process = new IceInternal.Process(this);
                         Disp disp = (current, incoming) => traits.Dispatch(process, current, incoming);
                         _adminFacets.Add(processFacetName, (process, disp));
                     }
@@ -1296,10 +1296,10 @@ namespace Ice
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
-                        LoggerAdminLogger loggerAdminLogger = new LoggerAdminLoggerI(this, _logger);
+                        ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLoggerI(this, _logger);
                         setLogger(loggerAdminLogger);
                         LoggerAdminTraits traits = default;
-                        LoggerAdmin servant = loggerAdminLogger.getFacet();
+                        ILoggerAdmin servant = loggerAdminLogger.getFacet();
                         Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
                         _adminFacets.Add(loggerFacetName, (servant, disp));
                     }
@@ -1308,10 +1308,10 @@ namespace Ice
                     // Properties facet
                     //
                     string propertiesFacetName = "Properties";
-                    PropertiesAdminI? propsAdmin = null;
+                    PropertiesAdmin? propsAdmin = null;
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                     {
-                        propsAdmin = new PropertiesAdminI(this);
+                        propsAdmin = new PropertiesAdmin(this);
                         PropertiesAdminTraits traits = default;
                         Disp disp = (current, incoming) => traits.Dispatch(propsAdmin, current, incoming);
                         _adminFacets.Add(propertiesFacetName, (propsAdmin, disp));
@@ -1457,7 +1457,7 @@ namespace Ice
         }
 
         internal void
-       setLogger(Logger logger)
+       setLogger(ILogger logger)
         {
             //
             // No locking, as it can only be called during plug-in loading
@@ -1632,7 +1632,7 @@ namespace Ice
             }
         }
 
-        internal NetworkProxy? NetworkProxy
+        internal INetworkProxy? NetworkProxy
         {
             get
             {
@@ -1909,7 +1909,7 @@ namespace Ice
             }
         }
 
-        private NetworkProxy? createNetworkProxy(int protocolSupport)
+        private INetworkProxy? createNetworkProxy(int protocolSupport)
         {
             string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
             if (proxyHost != null)
@@ -1932,7 +1932,7 @@ namespace Ice
 
         internal int CheckRetryAfterException(LocalException ex, Reference @ref, ref int cnt)
         {
-            Ice.Logger logger = Logger;
+            Ice.ILogger logger = Logger;
 
             if (@ref.getMode() == InvocationMode.BatchOneway || @ref.getMode() == InvocationMode.BatchDatagram)
             {
@@ -2061,7 +2061,7 @@ namespace Ice
         }
 
         internal Reference
-        CreateReference(Identity ident, string facet, Reference tmpl, EndpointI[] endpoints)
+        CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
         {
             return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
                           endpoints, null, null);
@@ -2074,7 +2074,7 @@ namespace Ice
             // Create new reference
             //
             return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                          Array.Empty<EndpointI>(), adapterId, null);
+                          Array.Empty<Endpoint>(), adapterId, null);
         }
 
         internal Reference CreateReference(Identity ident, ConnectionI connection)
@@ -2332,11 +2332,11 @@ namespace Ice
 
             if (beg == -1)
             {
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<EndpointI>(),
+                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<Endpoint>(),
                     null, propertyPrefix);
             }
 
-            List<EndpointI> endpoints = new List<EndpointI>();
+            List<Endpoint> endpoints = new List<Endpoint>();
 
             if (s[beg] == ':')
             {
@@ -2391,7 +2391,7 @@ namespace Ice
                     }
 
                     string es = s.Substring(beg, end - beg);
-                    EndpointI endp = endpointFactoryManager().create(es, false);
+                    Endpoint endp = endpointFactoryManager().create(es, false);
                     if (endp != null)
                     {
                         endpoints.Add(endp);
@@ -2419,7 +2419,7 @@ namespace Ice
                     Logger.warning(msg.ToString());
                 }
 
-                EndpointI[] ep = endpoints.ToArray();
+                Endpoint[] ep = endpoints.ToArray();
                 return CreateReference(ident, facet, mode, secure, protocol, encoding, ep, null, propertyPrefix);
             }
             else if (s[beg] == '@')
@@ -2464,7 +2464,7 @@ namespace Ice
                 {
                     throw new ArgumentException($"empty adapter id in `{s}'");
                 }
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<EndpointI>(),
+                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<Endpoint>(),
                     adapter, propertyPrefix);
             }
 
@@ -2522,13 +2522,13 @@ namespace Ice
                 encoding = Ice.Util.Encoding_1_0;
             }
 
-            EndpointI[] endpoints;
+            Endpoint[] endpoints;
             string adapterId = "";
 
             int sz = s.ReadSize();
             if (sz > 0)
             {
-                endpoints = new EndpointI[sz];
+                endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
                     endpoints[i] = endpointFactoryManager().read(s);
@@ -2536,7 +2536,7 @@ namespace Ice
             }
             else
             {
-                endpoints = Array.Empty<EndpointI>();
+                endpoints = Array.Empty<Endpoint>();
                 adapterId = s.ReadString();
             }
 
@@ -2613,7 +2613,7 @@ namespace Ice
             bool secure,
             ProtocolVersion protocol,
             EncodingVersion encoding,
-            EndpointI[] endpoints,
+            Endpoint[] endpoints,
             string? adapterId,
             string? propertyPrefix)
         {
@@ -2759,8 +2759,8 @@ namespace Ice
         private const int StateDestroyed = 2;
         private int _state;
 
-        private Ice.Logger _logger;
-        private Instrumentation.CommunicatorObserver? _observer;
+        private Ice.ILogger _logger;
+        private Instrumentation.ICommunicatorObserver? _observer;
         private Action? _threadStart;
         private Action? _threadStop;
         private Action<Action, Connection?>? _dispatcher;
@@ -2775,7 +2775,7 @@ namespace Ice
         private readonly int _cacheMessageBuffers; // Immutable, not reset by destroy().
         private readonly ACMConfig _clientACM; // Immutable, not reset by destroy().
         private readonly ACMConfig _serverACM; // Immutable, not reset by destroy().
-        private readonly ImplicitContextI? _implicitContext; // Immutable
+        private readonly ImplicitContext? _implicitContext; // Immutable
         private RouterManager? _routerManager;
         private LocatorManager? _locatorManager;
         private RequestHandlerFactory? _requestHandlerFactory;
@@ -2783,7 +2783,7 @@ namespace Ice
         private ObjectAdapterFactory? _objectAdapterFactory;
         private readonly int _protocolSupport;
         private readonly bool _preferIPv6;
-        private readonly NetworkProxy? _networkProxy;
+        private readonly INetworkProxy? _networkProxy;
         private IceInternal.ThreadPool? _clientThreadPool;
         private IceInternal.ThreadPool? _serverThreadPool;
         private AsyncIOThread? _asyncIOThread;

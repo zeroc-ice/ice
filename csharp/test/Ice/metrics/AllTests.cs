@@ -195,7 +195,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    waitForObserverCurrent(ObserverI observer, int value)
+    waitForObserverCurrent(Observer observer, int value)
     {
         for (int i = 0; i < 10; ++i)
         {
@@ -387,9 +387,9 @@ public class AllTests : Test.AllTests
         return m;
     }
 
-    public static IMetricsPrx allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
+    public static IMetricsPrx allTests(TestHelper helper, CommunicatorObserver obsv)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
 
         string host = helper.getTestHost();
         string port = helper.getTestPort(0).ToString();
@@ -409,12 +409,12 @@ public class AllTests : Test.AllTests
         test(clientProps != null && clientMetrics != null);
 
         admin = metrics.getAdmin();
-        Ice.IPropertiesAdminPrx serverProps = Ice.IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
+        IPropertiesAdminPrx serverProps = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
         IceMX.IMetricsAdminPrx serverMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((Ice.NativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).addUpdateCallback(update.updated);
+        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).addUpdateCallback(update.updated);
 
         output.WriteLine("ok");
 

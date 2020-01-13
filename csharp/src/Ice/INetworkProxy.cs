@@ -9,7 +9,7 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Text;
 
-    public interface NetworkProxy
+    public interface INetworkProxy
     {
         //
         // Write the connection request on the connection established
@@ -39,7 +39,7 @@ namespace IceInternal
         // This is called from the endpoint host resolver thread, so
         // it's safe if this this method blocks.
         //
-        NetworkProxy resolveHost(int protocolSupport);
+        INetworkProxy resolveHost(int protocolSupport);
 
         //
         // Returns the IP address of the network proxy. This method
@@ -59,7 +59,7 @@ namespace IceInternal
         int getProtocolSupport();
     }
 
-    public sealed class SOCKSNetworkProxy : NetworkProxy
+    public sealed class SOCKSNetworkProxy : INetworkProxy
     {
         public SOCKSNetworkProxy(string host, int port)
         {
@@ -133,7 +133,7 @@ namespace IceInternal
             }
         }
 
-        public NetworkProxy resolveHost(int protocolSupport)
+        public INetworkProxy resolveHost(int protocolSupport)
         {
             Debug.Assert(_host != null);
             return new SOCKSNetworkProxy(Network.getAddresses(_host,
@@ -165,7 +165,7 @@ namespace IceInternal
         private readonly EndPoint? _address;
     }
 
-    public sealed class HTTPNetworkProxy : NetworkProxy
+    public sealed class HTTPNetworkProxy : INetworkProxy
     {
         public HTTPNetworkProxy(string host, int port)
         {
@@ -246,7 +246,7 @@ namespace IceInternal
             }
         }
 
-        public NetworkProxy resolveHost(int protocolSupport)
+        public INetworkProxy resolveHost(int protocolSupport)
         {
             Debug.Assert(_host != null);
             return new HTTPNetworkProxy(Network.getAddresses(_host,

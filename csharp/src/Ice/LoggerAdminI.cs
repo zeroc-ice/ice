@@ -10,7 +10,7 @@ using Ice;
 
 namespace IceInternal
 {
-    internal sealed class LoggerAdminI : Ice.LoggerAdmin
+    internal sealed class LoggerAdminI : Ice.ILoggerAdmin
     {
         public void
         AttachRemoteLogger(IRemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
@@ -132,7 +132,7 @@ namespace IceInternal
             return found;
         }
 
-        public LoggerAdmin.GetLogReturnValue
+        public ILoggerAdmin.GetLogReturnValue
         GetLog(LogMessageType[] messageTypes, string[] categories, int messageMax, Current current)
         {
             LinkedList<Ice.LogMessage> logMessages;
@@ -155,7 +155,7 @@ namespace IceInternal
                 Filters filters = new Filters(messageTypes, categories);
                 filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
             }
-            return new LoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
+            return new ILoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
         }
 
         internal LoggerAdminI(Ice.Communicator communicator, LoggerAdminLoggerI logger)
@@ -289,7 +289,7 @@ namespace IceInternal
             }
         }
 
-        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex,
+        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.ILogger logger, Ice.LocalException ex,
                                        string operation)
         {
             //
@@ -384,7 +384,7 @@ namespace IceInternal
             return IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
         }
 
-        private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger)
+        private static Communicator createSendLogCommunicator(Communicator communicator, ILogger logger)
         {
             Dictionary<string, string> properties = communicator.GetProperties().Where(
                 p => p.Key == "Ice.Default.Locator" || p.Key == "Ice.Plugin.IceSSL" || p.Key.StartsWith("IceSSL.")

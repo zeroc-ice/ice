@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace facets
     {
-        public sealed class EI : Test.E
+        public sealed class E : Test.IE
         {
-            public EI()
+            public E()
             {
             }
 

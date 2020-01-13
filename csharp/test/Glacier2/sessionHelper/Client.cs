@@ -487,8 +487,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
 }

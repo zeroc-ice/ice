@@ -4,15 +4,11 @@
 
 using Test;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
-internal sealed class ServerI : Test.Server
+internal sealed class SSLServer : IServer
 {
-    internal ServerI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    internal SSLServer(Ice.Communicator communicator) => _communicator = communicator;
 
     public void
     noCert(Ice.Current current)
@@ -59,10 +55,7 @@ internal sealed class ServerI : Test.Server
         }
     }
 
-    internal void destroy()
-    {
-        _communicator.destroy();
-    }
+    internal void destroy() => _communicator.destroy();
 
     private static void test(bool b)
     {
@@ -75,7 +68,7 @@ internal sealed class ServerI : Test.Server
     private Ice.Communicator _communicator;
 }
 
-internal sealed class ServerFactoryI : ServerFactory
+internal sealed class ServerFactory : IServerFactory
 {
     private static void test(bool b)
     {
@@ -85,17 +78,14 @@ internal sealed class ServerFactoryI : ServerFactory
         }
     }
 
-    public ServerFactoryI(string defaultDir)
-    {
-        _defaultDir = defaultDir;
-    }
+    public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
     public IServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         props["IceSSL.DefaultDir"] = _defaultDir;
         Ice.Communicator communicator = new Ice.Communicator(props);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-        ServerI server = new ServerI(communicator);
+        var server = new SSLServer(communicator);
         var prx = adapter.Add(server);
         _servers[prx.Identity] = server;
         adapter.Activate();
@@ -104,7 +94,7 @@ internal sealed class ServerFactoryI : ServerFactory
 
     public void destroyServer(IServerPrx srv, Ice.Current current)
     {
-        ServerI? server;
+        SSLServer? server;
         if (_servers.TryGetValue(srv.Identity, out server))
         {
             server.destroy();
@@ -119,5 +109,5 @@ internal sealed class ServerFactoryI : ServerFactory
     }
 
     private string _defaultDir;
-    private Dictionary<Ice.Identity, ServerI> _servers = new Dictionary<Ice.Identity, ServerI>();
+    private Dictionary<Ice.Identity, SSLServer> _servers = new Dictionary<Ice.Identity, SSLServer>();
 }

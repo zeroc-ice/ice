@@ -2,19 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
+    public sealed class F2 : Test.IF2
     {
-        public sealed class F2I : Test.F2
+        public void op(Current current)
         {
-            public F2I()
-            {
-            }
-
-            public void op(Ice.Current current)
-            {
-            }
         }
     }
 }

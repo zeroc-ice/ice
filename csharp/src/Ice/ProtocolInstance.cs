@@ -29,12 +29,12 @@ namespace IceInternal
             return traceCategory_;
         }
 
-        public Ice.Logger logger()
+        public Ice.ILogger logger()
         {
             return logger_;
         }
 
-        public EndpointFactory getEndpointFactory(short type)
+        public IEndpointFactory getEndpointFactory(short type)
         {
             return communicator_.endpointFactoryManager().get(type);
         }
@@ -89,7 +89,7 @@ namespace IceInternal
             return communicator_.defaultsAndOverrides().defaultTimeout;
         }
 
-        public NetworkProxy? networkProxy()
+        public INetworkProxy? networkProxy()
         {
             return communicator_.NetworkProxy;
         }
@@ -100,7 +100,7 @@ namespace IceInternal
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
-                            EndpointI_connectors callback)
+                            IEndpointConnectors callback)
         {
             communicator_.endpointHostResolver().resolve(host, port, type, endpt, callback);
         }
@@ -123,7 +123,7 @@ namespace IceInternal
         protected Ice.Communicator communicator_;
         protected int traceLevel_;
         protected string traceCategory_;
-        protected Ice.Logger logger_;
+        protected Ice.ILogger logger_;
         protected string protocol_;
         protected short type_;
         protected bool secure_;

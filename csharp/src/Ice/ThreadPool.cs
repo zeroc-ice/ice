@@ -761,7 +761,7 @@ namespace IceInternal
         private sealed class WorkerThread
         {
             private ThreadPool _threadPool;
-            private Ice.Instrumentation.ThreadObserver? _observer;
+            private Ice.Instrumentation.IThreadObserver? _observer;
             private Ice.Instrumentation.ThreadState _state;
 
             internal WorkerThread(ThreadPool threadPool, string name) : base()
@@ -775,7 +775,7 @@ namespace IceInternal
             public void updateObserver()
             {
                 // Must be called with the thread pool mutex locked
-                Ice.Instrumentation.CommunicatorObserver? obsv = _threadPool._communicator.Observer;
+                Ice.Instrumentation.ICommunicatorObserver? obsv = _threadPool._communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);

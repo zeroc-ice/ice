@@ -51,7 +51,7 @@ namespace Ice
         HeartbeatAlways
     }
 
-    [global::System.Serializable]
+    [System.Serializable]
     public partial struct ACM
     {
         public int timeout;
@@ -71,10 +71,10 @@ namespace Ice
         public override int GetHashCode()
         {
             int h_ = 5381;
-            global::IceInternal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
-            global::IceInternal.HashUtil.hashAdd(ref h_, timeout);
-            global::IceInternal.HashUtil.hashAdd(ref h_, close);
-            global::IceInternal.HashUtil.hashAdd(ref h_, heartbeat);
+            IceInternal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
+            IceInternal.HashUtil.hashAdd(ref h_, timeout);
+            IceInternal.HashUtil.hashAdd(ref h_, close);
+            IceInternal.HashUtil.hashAdd(ref h_, heartbeat);
             return h_;
         }
 
@@ -181,7 +181,7 @@ namespace Ice
         /// Get the endpoint from which the connection was created.
         /// </summary>
         /// <returns>The endpoint from which the connection was created.</returns>
-        Endpoint getEndpoint();
+        IEndpoint getEndpoint();
 
         /// <summary>
         /// Set a close callback on the connection.
@@ -278,7 +278,7 @@ namespace Ice
         void throwException();
     }
 
-    [global::System.Serializable]
+    [System.Serializable]
     public partial class IPConnectionInfo : ConnectionInfo
     {
         public string localAddress;
@@ -307,7 +307,7 @@ namespace Ice
         }
     }
 
-    [global::System.Serializable]
+    [System.Serializable]
     public partial class TCPConnectionInfo : IPConnectionInfo
     {
         public int rcvSize;
@@ -330,7 +330,7 @@ namespace Ice
         }
     }
 
-    [global::System.Serializable]
+    [System.Serializable]
     public partial class UDPConnectionInfo : IPConnectionInfo
     {
         public string mcastAddress;
@@ -359,10 +359,10 @@ namespace Ice
         }
     }
 
-    [global::System.Serializable]
+    [System.Serializable]
     public partial class WSConnectionInfo : ConnectionInfo
     {
-        public global::System.Collections.Generic.Dictionary<string, string> headers;
+        public System.Collections.Generic.Dictionary<string, string> headers;
 
         partial void ice_initialize();
 
@@ -371,7 +371,7 @@ namespace Ice
             ice_initialize();
         }
 
-        public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, global::System.Collections.Generic.Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId)
+        public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, System.Collections.Generic.Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId)
         {
             this.headers = headers;
             ice_initialize();
@@ -381,7 +381,7 @@ namespace Ice
     public sealed class HeaderDictHelper
     {
         public static void write(OutputStream ostr,
-                                 global::System.Collections.Generic.Dictionary<string, string> v)
+                                 System.Collections.Generic.Dictionary<string, string> v)
         {
             if (v == null)
             {
@@ -390,7 +390,7 @@ namespace Ice
             else
             {
                 ostr.WriteSize(v.Count);
-                foreach (global::System.Collections.Generic.KeyValuePair<string, string> e in v)
+                foreach (System.Collections.Generic.KeyValuePair<string, string> e in v)
                 {
                     ostr.WriteString(e.Key);
                     ostr.WriteString(e.Value);
@@ -398,10 +398,10 @@ namespace Ice
             }
         }
 
-        public static global::System.Collections.Generic.Dictionary<string, string> read(InputStream istr)
+        public static System.Collections.Generic.Dictionary<string, string> read(InputStream istr)
         {
             int sz = istr.ReadSize();
-            global::System.Collections.Generic.Dictionary<string, string> r = new global::System.Collections.Generic.Dictionary<string, string>();
+            System.Collections.Generic.Dictionary<string, string> r = new System.Collections.Generic.Dictionary<string, string>();
             for (int i = 0; i < sz; ++i)
             {
                 string k;

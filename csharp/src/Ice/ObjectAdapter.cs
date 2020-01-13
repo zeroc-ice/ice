@@ -386,7 +386,7 @@ namespace Ice
                 _communicator = null;
                 _threadPool = null;
                 _routerInfo = null;
-                _publishedEndpoints = Array.Empty<EndpointI>();
+                _publishedEndpoints = Array.Empty<Endpoint>();
                 _locatorInfo = null;
                 _reference = null;
                 _objectAdapterFactory = null;
@@ -716,7 +716,7 @@ namespace Ice
         /// not belong to any specific category.
         ///
         /// </param>
-        public void AddServantLocator(ServantLocator locator, string category)
+        public void AddServantLocator(IServantLocator locator, string category)
         {
             lock (this)
             {
@@ -738,7 +738,7 @@ namespace Ice
         /// if no Servant Locator was found for the given category.
         ///
         /// </returns>
-        public ServantLocator RemoveServantLocator(string category)
+        public IServantLocator RemoveServantLocator(string category)
         {
             lock (this)
             {
@@ -760,7 +760,7 @@ namespace Ice
         /// found for the given category.
         ///
         /// </returns>
-        public ServantLocator FindServantLocator(string category)
+        public IServantLocator FindServantLocator(string category)
         {
             lock (this)
             {
@@ -963,11 +963,11 @@ namespace Ice
         /// <returns>The set of endpoints.
         ///
         /// </returns>
-        public Endpoint[] GetEndpoints()
+        public IEndpoint[] GetEndpoints()
         {
             lock (this)
             {
-                List<Endpoint> endpoints = new List<Endpoint>();
+                List<IEndpoint> endpoints = new List<IEndpoint>();
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.Add(factory.endpoint());
@@ -988,7 +988,7 @@ namespace Ice
         public void RefreshPublishedEndpoints()
         {
             LocatorInfo locatorInfo = null;
-            EndpointI[] oldPublishedEndpoints;
+            Endpoint[] oldPublishedEndpoints;
 
             lock (this)
             {
@@ -1024,11 +1024,11 @@ namespace Ice
         /// <returns>The set of published endpoints.
         ///
         /// </returns>
-        public Endpoint[] GetPublishedEndpoints()
+        public IEndpoint[] GetPublishedEndpoints()
         {
             lock (this)
             {
-                return (Endpoint[])_publishedEndpoints.Clone();
+                return (IEndpoint[])_publishedEndpoints.Clone();
             }
         }
 
@@ -1039,10 +1039,10 @@ namespace Ice
         /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies.
         ///
         /// </param>
-        public void SetPublishedEndpoints(Endpoint[] newEndpoints)
+        public void SetPublishedEndpoints(IEndpoint[] newEndpoints)
         {
             LocatorInfo locatorInfo = null;
-            EndpointI[] oldPublishedEndpoints;
+            Endpoint[] oldPublishedEndpoints;
 
             lock (this)
             {
@@ -1054,7 +1054,7 @@ namespace Ice
                 }
 
                 oldPublishedEndpoints = _publishedEndpoints;
-                _publishedEndpoints = Array.ConvertAll(newEndpoints, endpt => (EndpointI)endpt);
+                _publishedEndpoints = Array.ConvertAll(newEndpoints, endpt => (Endpoint)endpt);
                 locatorInfo = _locatorInfo;
             }
 
@@ -1101,7 +1101,7 @@ namespace Ice
             }
             else
             {
-                EndpointI[] endpoints = r.getEndpoints();
+                Endpoint[] endpoints = r.getEndpoints();
 
                 lock (this)
                 {
@@ -1114,7 +1114,7 @@ namespace Ice
                     //
                     for (int i = 0; i < endpoints.Length; ++i)
                     {
-                        foreach (EndpointI endpoint in _publishedEndpoints)
+                        foreach (Endpoint endpoint in _publishedEndpoints)
                         {
                             if (endpoints[i].equivalent(endpoint))
                             {
@@ -1253,7 +1253,7 @@ namespace Ice
             _servantManager = new ServantManager(communicator, name);
             _name = name;
             _incomingConnectionFactories = new List<IncomingConnectionFactory>();
-            _publishedEndpoints = Array.Empty<EndpointI>();
+            _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
             _directCount = 0;
             _noConfig = noConfig;
@@ -1369,11 +1369,11 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<EndpointI> endpoints = ParseEndpoints(communicator.GetProperty($"{_name}.Endpoints") ?? "", true);
-                    foreach (EndpointI endp in endpoints)
+                    List<Endpoint> endpoints = ParseEndpoints(communicator.GetProperty($"{_name}.Endpoints") ?? "", true);
+                    foreach (Endpoint endp in endpoints)
                     {
-                        EndpointI publishedEndpoint;
-                        foreach (EndpointI expanded in endp.expandHost(out publishedEndpoint))
+                        Endpoint publishedEndpoint;
+                        foreach (Endpoint expanded in endp.expandHost(out publishedEndpoint))
                         {
                             IncomingConnectionFactory factory = new IncomingConnectionFactory(communicator,
                                                                                               expanded,
@@ -1465,7 +1465,7 @@ namespace Ice
             }
         }
 
-        private List<EndpointI> ParseEndpoints(string endpts, bool oaEndpoints)
+        private List<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
         {
             Debug.Assert(_communicator != null);
             int beg;
@@ -1473,7 +1473,7 @@ namespace Ice
 
             string delim = " \t\n\r";
 
-            List<EndpointI> endpoints = new List<EndpointI>();
+            List<Endpoint> endpoints = new List<Endpoint>();
             while (end < endpts.Length)
             {
                 beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
@@ -1535,7 +1535,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                EndpointI endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
+                Endpoint endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
                 if (endp == null)
                 {
                     throw new FormatException($"invalid object adapter endpoint `{s}'");
@@ -1548,17 +1548,17 @@ namespace Ice
             return endpoints;
         }
 
-        private EndpointI[] ComputePublishedEndpoints()
+        private Endpoint[] ComputePublishedEndpoints()
         {
             Debug.Assert(_communicator != null);
-            List<EndpointI> endpoints;
+            List<Endpoint> endpoints;
             if (_routerInfo != null)
             {
                 //
                 // Get the router's server proxy endpoints and use them as the published endpoints.
                 //
-                endpoints = new List<EndpointI>();
-                foreach (EndpointI endpt in _routerInfo.getServerEndpoints())
+                endpoints = new List<Endpoint>();
+                foreach (Endpoint endpt in _routerInfo.getServerEndpoints())
                 {
                     if (!endpoints.Contains(endpt))
                     {
@@ -1582,7 +1582,7 @@ namespace Ice
                     //
                     foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                     {
-                        foreach (EndpointI endpt in factory.endpoint().expandIfWildcard())
+                        foreach (Endpoint endpt in factory.endpoint().expandIfWildcard())
                         {
                             //
                             // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
@@ -1604,7 +1604,7 @@ namespace Ice
                 s.Append(_name);
                 s.Append("':\n");
                 bool first = true;
-                foreach (EndpointI endpoint in endpoints)
+                foreach (Endpoint endpoint in endpoints)
                 {
                     if (!first)
                     {
@@ -1719,7 +1719,7 @@ namespace Ice
                 s.Append("endpoints = ");
                 if (proxy != null)
                 {
-                    Endpoint[] endpoints = proxy.Endpoints;
+                    IEndpoint[] endpoints = proxy.Endpoints;
                     for (int i = 0; i < endpoints.Length; i++)
                     {
                         s.Append(endpoints[i].ToString());
@@ -1835,7 +1835,7 @@ namespace Ice
         private Reference _reference;
         private List<IncomingConnectionFactory>? _incomingConnectionFactories;
         private RouterInfo? _routerInfo;
-        private EndpointI[] _publishedEndpoints;
+        private Endpoint[] _publishedEndpoints;
         private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;

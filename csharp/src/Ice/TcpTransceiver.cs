@@ -8,7 +8,7 @@ namespace IceInternal
     using System.Net;
     using System.Net.Sockets;
 
-    internal sealed class TcpTransceiver : Transceiver
+    internal sealed class TcpTransceiver : ITransceiver
     {
         public Socket fd()
         {
@@ -32,7 +32,7 @@ namespace IceInternal
             _stream.close();
         }
 
-        public EndpointI bind()
+        public Endpoint bind()
         {
             Debug.Assert(false);
             return null;

@@ -10,7 +10,7 @@ namespace IceInternal
     using System.Globalization;
     using System.Net;
 
-    public abstract class IPEndpointI : EndpointI
+    public abstract class IPEndpointI : Endpoint
     {
         public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
         {
@@ -94,7 +94,7 @@ namespace IceInternal
             return connectionId_;
         }
 
-        public override EndpointI connectionId(string connectionId)
+        public override Endpoint connectionId(string connectionId)
         {
             if (connectionId.Equals(connectionId_))
             {
@@ -106,14 +106,14 @@ namespace IceInternal
             }
         }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType selType, IEndpointConnectors callback)
         {
             instance_.resolve(host_, port_, selType, this, callback);
         }
 
-        public override List<EndpointI> expandIfWildcard()
+        public override List<Endpoint> expandIfWildcard()
         {
-            List<EndpointI> endps = new List<EndpointI>();
+            List<Endpoint> endps = new List<Endpoint>();
             List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
             if (hosts == null || hosts.Count == 0)
             {
@@ -129,13 +129,13 @@ namespace IceInternal
             return endps;
         }
 
-        public override List<EndpointI> expandHost(out EndpointI? publish)
+        public override List<Endpoint> expandHost(out Endpoint? publish)
         {
             //
             // If this endpoint has an empty host (wildcard address), don't expand, just return
             // this endpoint.
             //
-            var endpoints = new List<EndpointI>();
+            var endpoints = new List<Endpoint>();
             if (host_.Length == 0)
             {
                 publish = null;
@@ -173,7 +173,7 @@ namespace IceInternal
             return endpoints;
         }
 
-        public override bool equivalent(EndpointI endpoint)
+        public override bool equivalent(Endpoint endpoint)
         {
             if (!(endpoint is IPEndpointI))
             {
@@ -184,9 +184,9 @@ namespace IceInternal
                 Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
         }
 
-        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy? proxy)
+        public virtual List<IConnector> connectors(List<EndPoint> addresses, INetworkProxy? proxy)
         {
-            List<Connector> connectors = new List<Connector>();
+            List<IConnector> connectors = new List<IConnector>();
             foreach (EndPoint p in addresses)
             {
                 connectors.Add(createConnector(p, proxy));
@@ -253,7 +253,7 @@ namespace IceInternal
             return _hashValue;
         }
 
-        public override int CompareTo(EndpointI obj)
+        public override int CompareTo(Endpoint obj)
         {
             if (!(obj is IPEndpointI))
             {
@@ -404,7 +404,7 @@ namespace IceInternal
             return true;
         }
 
-        protected abstract Connector createConnector(EndPoint addr, NetworkProxy? proxy);
+        protected abstract IConnector createConnector(EndPoint addr, INetworkProxy? proxy);
         protected abstract IPEndpointI createEndpoint(string? host, int port, string connectionId);
 
         protected ProtocolInstance instance_;

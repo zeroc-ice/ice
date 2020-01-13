@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-public sealed class TestI : TestIntf
+public sealed class TestIntf : ITestIntf
 {
     private static void test(bool b)
     {
@@ -22,38 +22,25 @@ public sealed class TestI : TestIntf
         return null;
     }
 
-    public Task baseAsBaseAsync(Ice.Current current)
-    {
-        throw new Base("Base.b");
-    }
+    public Task baseAsBaseAsync(Ice.Current current) => throw new Base("Base.b");
 
-    public Task unknownDerivedAsBaseAsync(Ice.Current current)
-    {
+    public Task unknownDerivedAsBaseAsync(Ice.Current current) =>
         throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
-    }
 
-    public Task knownDerivedAsBaseAsync(Ice.Current current)
-    {
+    public Task knownDerivedAsBaseAsync(Ice.Current current) =>
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
-    }
 
     public Task
-    knownDerivedAsKnownDerivedAsync(Ice.Current current)
-    {
+    knownDerivedAsKnownDerivedAsync(Ice.Current current) =>
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
-    }
 
     public Task
-    unknownIntermediateAsBaseAsync(Ice.Current current)
-    {
+    unknownIntermediateAsBaseAsync(Ice.Current current) =>
         throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
-    }
 
     public Task
-    knownIntermediateAsBaseAsync(Ice.Current current)
-    {
+    knownIntermediateAsBaseAsync(Ice.Current current) =>
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
-    }
 
     public Task
     knownMostDerivedAsBaseAsync(Ice.Current current)
@@ -62,57 +49,39 @@ public sealed class TestI : TestIntf
     }
 
     public Task
-    knownIntermediateAsKnownIntermediateAsync(Ice.Current current)
-    {
+    knownIntermediateAsKnownIntermediateAsync(Ice.Current current) =>
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
-    }
 
     public Task
-    knownMostDerivedAsKnownIntermediateAsync(Ice.Current current)
-    {
+    knownMostDerivedAsKnownIntermediateAsync(Ice.Current current) =>
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
-    }
 
     public Task
-    knownMostDerivedAsKnownMostDerivedAsync(Ice.Current current)
-    {
+    knownMostDerivedAsKnownMostDerivedAsync(Ice.Current current) =>
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
-    }
 
     public Task
-    unknownMostDerived1AsBaseAsync(Ice.Current current)
-    {
+    unknownMostDerived1AsBaseAsync(Ice.Current current) =>
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
-    }
 
     public Task
-    unknownMostDerived1AsKnownIntermediateAsync(Ice.Current current)
-    {
+    unknownMostDerived1AsKnownIntermediateAsync(Ice.Current current) =>
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
-    }
 
     public Task
-    unknownMostDerived2AsBaseAsync(Ice.Current current)
-    {
+    unknownMostDerived2AsBaseAsync(Ice.Current current) =>
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
-    }
 
     public Task
-    unknownMostDerived2AsBaseCompactAsync(Ice.Current current)
-    {
+    unknownMostDerived2AsBaseCompactAsync(Ice.Current current) =>
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
-    }
 
-    public Task knownPreservedAsBaseAsync(Ice.Current current)
-    {
+    public Task knownPreservedAsBaseAsync(Ice.Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
-    }
 
     public Task
-    knownPreservedAsKnownPreservedAsync(Ice.Current current)
-    {
+    knownPreservedAsKnownPreservedAsync(Ice.Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
-    }
 
     public Task
     relayKnownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)

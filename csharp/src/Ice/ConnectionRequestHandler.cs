@@ -4,9 +4,9 @@
 
 namespace IceInternal
 {
-    public class ConnectionRequestHandler : RequestHandler
+    public class ConnectionRequestHandler : IRequestHandler
     {
-        public RequestHandler? update(RequestHandler previousHandler, RequestHandler? newHandler)
+        public IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler)
         {
             try
             {

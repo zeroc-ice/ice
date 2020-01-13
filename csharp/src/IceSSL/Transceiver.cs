@@ -12,7 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL
 {
-    internal sealed class TransceiverI : IceInternal.Transceiver
+    internal sealed class Transceiver : IceInternal.ITransceiver
     {
         public Socket? fd()
         {
@@ -98,7 +98,7 @@ namespace IceSSL
             _delegate.close();
         }
 
-        public IceInternal.EndpointI bind()
+        public IceInternal.Endpoint bind()
         {
             Debug.Assert(false);
             return null;
@@ -356,7 +356,7 @@ namespace IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, IceInternal.Transceiver del, string hostOrAdapterName, bool incoming)
+        internal Transceiver(Instance instance, IceInternal.ITransceiver del, string hostOrAdapterName, bool incoming)
         {
             _instance = instance;
             _delegate = del;
@@ -788,7 +788,7 @@ namespace IceSSL
         }
 
         private readonly Instance _instance;
-        private readonly IceInternal.Transceiver _delegate;
+        private readonly IceInternal.ITransceiver _delegate;
         private readonly string? _host;
         private readonly string? _adapterName;
         private readonly bool _incoming;

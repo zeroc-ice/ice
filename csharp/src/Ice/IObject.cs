@@ -12,7 +12,7 @@ namespace Ice
     /// <summary>
     /// Interface for incoming requests.
     /// </summary>
-    public interface Request
+    public interface IRequest
     {
         /// <summary>
         /// Returns the {@link Current} object for this the request.

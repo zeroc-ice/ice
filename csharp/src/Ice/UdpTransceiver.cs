@@ -11,7 +11,7 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Text;
 
-    internal sealed class UdpTransceiver : Transceiver
+    internal sealed class UdpTransceiver : ITransceiver
     {
         public Socket? fd()
         {
@@ -74,7 +74,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI bind()
+        public Endpoint bind()
         {
             Debug.Assert(_fd != null);
             if (Network.isMulticast((IPEndPoint)_addr))

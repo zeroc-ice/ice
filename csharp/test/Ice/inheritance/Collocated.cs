@@ -5,27 +5,19 @@
 using Test;
 using Ice.inheritance.Test;
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
+    public class Collocated : TestHelper
     {
-        public class Collocated : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new InitialI(adapter), "initial");
-                    AllTests.allTests(this);
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            using var communicator = initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            var adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new InitialI(adapter), "initial");
+            AllTests.allTests(this);
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);
     }
 }

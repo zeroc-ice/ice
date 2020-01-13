@@ -44,18 +44,13 @@ public class Server : TestHelper
             throw new ArgumentException("Server: no port specified");
         }
 
-        using (var communicator = initialize(properties))
-        {
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(port));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), "test");
-            adapter.Activate();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(properties);
+        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.Add(new TestIntf(), "test");
+        adapter.Activate();
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

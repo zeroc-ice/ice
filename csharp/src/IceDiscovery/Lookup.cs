@@ -14,7 +14,7 @@ namespace IceDiscovery
 {
     internal abstract class Request<T>
     {
-        protected Request(LookupI lookup, T id, int retryCount)
+        protected Request(Lookup lookup, T id, int retryCount)
         {
             lookup_ = lookup;
             retryCount_ = retryCount;
@@ -70,7 +70,7 @@ namespace IceDiscovery
 
         private readonly string _requestId;
 
-        protected LookupI lookup_;
+        protected Lookup lookup_;
         protected int retryCount_;
         protected int _lookupCount;
         protected int _failureCount;
@@ -79,9 +79,9 @@ namespace IceDiscovery
         protected T _id;
     };
 
-    internal class AdapterRequest : Request<string>, IceInternal.TimerTask
+    internal class AdapterRequest : Request<string>, IceInternal.ITimerTask
     {
-        public AdapterRequest(LookupI lookup, string id, int retryCount) : base(lookup, id, retryCount)
+        public AdapterRequest(Lookup lookup, string id, int retryCount) : base(lookup, id, retryCount)
         {
             _start = DateTime.Now.Ticks;
         }
@@ -91,7 +91,7 @@ namespace IceDiscovery
             return _proxies.Count == 0 && --retryCount_ >= 0;
         }
 
-        public bool response(Ice.IObjectPrx proxy, bool isReplicaGroup)
+        public bool response(IObjectPrx proxy, bool isReplicaGroup)
         {
             if (isReplicaGroup)
             {
@@ -124,7 +124,7 @@ namespace IceDiscovery
             }
             else
             {
-                List<Endpoint> endpoints = new List<Endpoint>();
+                List<IEndpoint> endpoints = new List<IEndpoint>();
                 IObjectPrx? result = null;
                 foreach (IObjectPrx prx in _proxies)
                 {
@@ -139,10 +139,7 @@ namespace IceDiscovery
             }
         }
 
-        public void runTimerTask()
-        {
-            lookup_.AdapterRequestTimedOut(this);
-        }
+        public void runTimerTask() => lookup_.AdapterRequestTimedOut(this);
 
         protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
@@ -178,16 +175,13 @@ namespace IceDiscovery
         private long _latency;
     };
 
-    internal class ObjectRequest : Request<Ice.Identity>, IceInternal.TimerTask
+    internal class ObjectRequest : Request<Identity>, IceInternal.ITimerTask
     {
-        public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount) : base(lookup, id, retryCount)
+        public ObjectRequest(Lookup lookup, Identity id, int retryCount) : base(lookup, id, retryCount)
         {
         }
 
-        public void response(IObjectPrx proxy)
-        {
-            finished(proxy);
-        }
+        public void response(IObjectPrx proxy) => finished(proxy);
 
         public override void finished(IObjectPrx? proxy)
         {
@@ -198,10 +192,7 @@ namespace IceDiscovery
             callbacks_.Clear();
         }
 
-        public void runTimerTask()
-        {
-            lookup_.objectRequestTimedOut(this);
-        }
+        public void runTimerTask() => lookup_.objectRequestTimedOut(this);
 
         protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
@@ -219,9 +210,9 @@ namespace IceDiscovery
         }
     };
 
-    internal class LookupI : Lookup
+    internal class Lookup : ILookup
     {
-        public LookupI(LocatorRegistryI registry, ILookupPrx lookup, Communicator communicator)
+        public Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator)
         {
             _registry = registry;
             _lookup = lookup;
@@ -235,7 +226,7 @@ namespace IceDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new Ice.Endpoint[1];
+            var single = new Ice.IEndpoint[1];
             foreach (var endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
@@ -249,7 +240,7 @@ namespace IceDiscovery
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
-            var single = new Ice.Endpoint[1];
+            var single = new Ice.IEndpoint[1];
             foreach (var key in new List<ILookupPrx>(_lookups.Keys))
             {
                 var info = (Ice.UDPEndpointInfo)key.Endpoints[0].getInfo();
@@ -531,17 +522,11 @@ namespace IceDiscovery
             }
         }
 
-        internal IceInternal.Timer timer()
-        {
-            return _timer;
-        }
+        internal IceInternal.Timer timer() => _timer;
 
-        internal int latencyMultiplier()
-        {
-            return _latencyMultiplier;
-        }
+        internal int latencyMultiplier() => _latencyMultiplier;
 
-        private readonly LocatorRegistryI _registry;
+        private readonly LocatorRegistry _registry;
         private readonly ILookupPrx _lookup;
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups = new Dictionary<ILookupPrx, ILookupReplyPrx?>();
         private readonly int _timeout;
@@ -555,24 +540,16 @@ namespace IceDiscovery
         private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     };
 
-    internal class LookupReplyI : LookupReply
+    internal class LookupReply : ILookupReply
     {
-        public LookupReplyI(LookupI lookup)
-        {
-            _lookup = lookup;
-        }
+        public LookupReply(Lookup lookup) => _lookup = lookup;
 
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c)
-        {
-            _lookup.FoundObject(id, c.Id.name, proxy);
-        }
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c) => _lookup.FoundObject(id, c.Id.name, proxy);
 
-        public void FoundAdapterById(string adapterId, IObjectPrx proxy, bool isReplicaGroup, Current c)
-        {
+        public void FoundAdapterById(string adapterId, IObjectPrx proxy, bool isReplicaGroup, Current c) =>
             _lookup.FoundAdapter(adapterId, c.Id.name, proxy, isReplicaGroup);
-        }
 
-        private readonly LookupI _lookup;
+        private readonly Lookup _lookup;
     };
 
 }

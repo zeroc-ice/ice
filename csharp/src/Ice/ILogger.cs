@@ -4,7 +4,7 @@
 //
 namespace Ice
 {
-    public partial interface Logger
+    public partial interface ILogger
     {
         /// <summary>
         /// Print a message.
@@ -52,6 +52,6 @@ namespace Ice
         /// <param name="prefix">The new prefix for the logger.
         /// </param>
         /// <returns>A logger instance.</returns>
-        Logger cloneWithPrefix(string prefix);
+        ILogger cloneWithPrefix(string prefix);
     }
 }

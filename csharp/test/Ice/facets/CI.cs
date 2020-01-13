@@ -2,25 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
+    public sealed class C : Test.IC
     {
-        public sealed class CI : Test.C
-        {
-            public CI()
-            {
-            }
+        public string callA(Current current) => "A";
 
-            public string callA(Ice.Current current)
-            {
-                return "A";
-            }
-
-            public string callC(Ice.Current current)
-            {
-                return "C";
-            }
-        }
+        public string callC(Current current) => "C";
     }
 }

@@ -3,7 +3,7 @@
 //
 namespace Ice
 {
-    public partial interface Plugin
+    public partial interface IPlugin
     {
         /// <summary>
         /// Perform any necessary initialization steps.

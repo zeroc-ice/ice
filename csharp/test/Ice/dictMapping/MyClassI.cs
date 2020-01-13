@@ -4,37 +4,34 @@
 
 using System.Collections.Generic;
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
+    public sealed class MyClass : Test.IMyClass
     {
-        public sealed class MyClassI : Test.MyClass
-        {
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
 
-            public Test.MyClass.OpNVReturnValue
-            opNV(Dictionary<int, int> i, Current current) => new Test.MyClass.OpNVReturnValue(i, i);
+        public Test.IMyClass.OpNVReturnValue
+        opNV(Dictionary<int, int> i, Current current) => new Test.IMyClass.OpNVReturnValue(i, i);
 
-            public Test.MyClass.OpNRReturnValue
-            opNR(Dictionary<string, string> i, Current current) => new Test.MyClass.OpNRReturnValue(i, i);
+        public Test.IMyClass.OpNRReturnValue
+        opNR(Dictionary<string, string> i, Current current) => new Test.IMyClass.OpNRReturnValue(i, i);
 
-            public Test.MyClass.OpNDVReturnValue
-            opNDV(Dictionary<string, Dictionary<int, int>> i, Current current) => new Test.MyClass.OpNDVReturnValue(i, i);
+        public Test.IMyClass.OpNDVReturnValue
+        opNDV(Dictionary<string, Dictionary<int, int>> i, Current current) => new Test.IMyClass.OpNDVReturnValue(i, i);
 
-            public Test.MyClass.OpNDRReturnValue
-            opNDR(Dictionary<string, Dictionary<string, string>> i, Current current) => new Test.MyClass.OpNDRReturnValue(i, i);
+        public Test.IMyClass.OpNDRReturnValue
+        opNDR(Dictionary<string, Dictionary<string, string>> i, Current current) => new Test.IMyClass.OpNDRReturnValue(i, i);
 
-            public Test.MyClass.OpNDAISReturnValue
-            opNDAIS(Dictionary<string, int[]> i, Current current) => new Test.MyClass.OpNDAISReturnValue(i, i);
+        public Test.IMyClass.OpNDAISReturnValue
+        opNDAIS(Dictionary<string, int[]> i, Current current) => new Test.IMyClass.OpNDAISReturnValue(i, i);
 
-            public Test.MyClass.OpNDGISReturnValue
-            opNDGIS(Dictionary<string, List<int>> i, Current current) => new Test.MyClass.OpNDGISReturnValue(i, i);
+        public Test.IMyClass.OpNDGISReturnValue
+        opNDGIS(Dictionary<string, List<int>> i, Current current) => new Test.IMyClass.OpNDGISReturnValue(i, i);
 
-            public Test.MyClass.OpNDASSReturnValue
-            opNDASS(Dictionary<string, string[]> i, Current current) => new Test.MyClass.OpNDASSReturnValue(i, i);
+        public Test.IMyClass.OpNDASSReturnValue
+        opNDASS(Dictionary<string, string[]> i, Current current) => new Test.IMyClass.OpNDASSReturnValue(i, i);
 
-            public Test.MyClass.OpNDGSSReturnValue
-            opNDGSS(Dictionary<string, List<string>> i, Current current) => new Test.MyClass.OpNDGSSReturnValue(i, i);
-        }
+        public Test.IMyClass.OpNDGSSReturnValue
+        opNDGSS(Dictionary<string, List<string>> i, Current current) => new Test.IMyClass.OpNDGSSReturnValue(i, i);
     }
 }

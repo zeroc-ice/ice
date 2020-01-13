@@ -4,107 +4,77 @@
 
 using System.Threading.Tasks;
 
-namespace Ice
+namespace Ice.servantLocator.AMD
 {
-    namespace servantLocator
+    public sealed class TestIntf : Test.ITestIntf
     {
-        namespace AMD
+        public Task requestFailedExceptionAsync(Current current) => null;
+
+        public Task unknownUserExceptionAsync(Current current) => null;
+
+        public Task unknownLocalExceptionAsync(Current current) => null;
+
+        public Task unknownExceptionAsync(Current current) => null;
+
+        public Task localExceptionAsync(Current current) => null;
+
+        public Task userExceptionAsync(Current current) => null;
+
+        public Task csExceptionAsync(Current current) => null;
+
+        public Task
+        unknownExceptionWithServantExceptionAsync(Current current) => throw new ObjectNotExistException();
+
+        public Task<string>
+        impossibleExceptionAsync(bool @throw, Current current)
         {
-            public sealed class TestI : Test.TestIntf
+            if (@throw)
             {
-                public Task requestFailedExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task unknownUserExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task unknownLocalExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task unknownExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task localExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task userExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task csExceptionAsync(Ice.Current current)
-                {
-                    return null;
-                }
-
-                public Task
-                unknownExceptionWithServantExceptionAsync(Ice.Current current)
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
-
-                public Task<string>
-                impossibleExceptionAsync(bool @throw, Ice.Current current)
-                {
-                    if (@throw)
-                    {
-                        throw new Test.TestImpossibleException();
-                    }
-                    else
-                    {
-                        //
-                        // Return a value so we can be sure that the stream position
-                        // is reset correctly iuf finished throws.
-                        //
-                        return Task.FromResult<string>("Hello");
-                    }
-                }
-
-                public Task<string>
-                intfUserExceptionAsync(bool @throw, Ice.Current current)
-                {
-                    if (@throw)
-                    {
-                        throw new Test.TestIntfUserException();
-                    }
-                    else
-                    {
-                        //
-                        // Return a value so we can be sure that the stream position
-                        // is reset correctly iuf finished throws.
-                        //
-                        return Task.FromResult<string>("Hello");
-                    }
-                }
-
-                public Task asyncResponseAsync(Ice.Current current)
-                {
-                    return null;
-                    throw new Ice.ObjectNotExistException();
-                }
-
-                public Task asyncExceptionAsync(Ice.Current current)
-                {
-                    throw new Test.TestIntfUserException();
-                    throw new Ice.ObjectNotExistException();
-                }
-
-                public Task shutdownAsync(Ice.Current current)
-                {
-                    current.Adapter.Deactivate();
-                    return null;
-                }
+                throw new Test.TestImpossibleException();
             }
+            else
+            {
+                //
+                // Return a value so we can be sure that the stream position
+                // is reset correctly iuf finished throws.
+                //
+                return Task.FromResult("Hello");
+            }
+        }
+
+        public Task<string>
+        intfUserExceptionAsync(bool @throw, Current current)
+        {
+            if (@throw)
+            {
+                throw new Test.TestIntfUserException();
+            }
+            else
+            {
+                //
+                // Return a value so we can be sure that the stream position
+                // is reset correctly iuf finished throws.
+                //
+                return Task.FromResult("Hello");
+            }
+        }
+
+        public Task asyncResponseAsync(Current current)
+        {
+            return null;
+            throw new ObjectNotExistException();
+        }
+
+        public Task asyncExceptionAsync(Ice.Current current)
+        {
+            throw new Test.TestIntfUserException();
+            throw new Ice.ObjectNotExistException();
+        }
+
+        public Task shutdownAsync(Current current)
+        {
+            current.Adapter.Deactivate();
+            return null;
         }
     }
 }

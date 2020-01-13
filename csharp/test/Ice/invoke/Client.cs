@@ -4,25 +4,17 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.invoke
 {
-    namespace invoke
+    public class Client : TestHelper
     {
-        public class Client : global::Test.TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using (var communicator = initialize(ref args))
-                {
-                    var myClass = AllTests.allTests(this);
-                    myClass.shutdown();
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            using var communicator = initialize(ref args);
+            var myClass = AllTests.allTests(this);
+            myClass.shutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
     }
 }

@@ -8,12 +8,9 @@ namespace IceInternal
 {
     public class RequestHandlerFactory
     {
-        internal RequestHandlerFactory(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
+        internal RequestHandlerFactory(Ice.Communicator communicator) => _communicator = communicator;
 
-        public RequestHandler
+        public IRequestHandler
         getRequestHandler(RoutableReference rf, Ice.IObjectPrx proxy)
         {
             if (rf.getCollocationOptimized())
@@ -53,7 +50,7 @@ namespace IceInternal
         }
 
         internal void
-        removeRequestHandler(Reference rf, RequestHandler handler)
+        removeRequestHandler(Reference rf, IRequestHandler handler)
         {
             if (rf.getCacheConnection())
             {

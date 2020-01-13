@@ -14,7 +14,7 @@ namespace IceSSL
 {
     internal class SSLEngine
     {
-        internal SSLEngine(IceInternal.ProtocolPluginFacade facade)
+        internal SSLEngine(IceInternal.IProtocolPluginFacade facade)
         {
             _communicator = facade.getCommunicator();
             _logger = _communicator.Logger;
@@ -899,8 +899,8 @@ namespace IceSSL
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly Ice.Logger _logger;
-        private readonly IceInternal.ProtocolPluginFacade _facade;
+        private readonly Ice.ILogger _logger;
+        private readonly IceInternal.IProtocolPluginFacade _facade;
         private readonly int _securityTraceLevel;
         private readonly string _securityTraceCategory;
         private bool _initialized;

@@ -4,27 +4,19 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.namespacemd
 {
-    namespace namespacemd
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
+        override public void run(string[] args)
         {
-            override public void run(string[] args)
-            {
-                var properties = createTestProperties(ref args);
-                properties["Ice.Warn.Dispatch"] = "0";
-                using (var communicator = initialize(properties))
-                {
-                    var initial = AllTests.allTests(this);
-                    initial.shutdown();
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            var properties = createTestProperties(ref args);
+            properties["Ice.Warn.Dispatch"] = "0";
+            using var communicator = initialize(properties);
+            var initial = AllTests.allTests(this);
+            initial.shutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
     }
 }

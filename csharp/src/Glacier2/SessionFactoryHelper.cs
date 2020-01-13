@@ -38,8 +38,8 @@ namespace Glacier2
                              Dictionary<string, string> properties,
                              Func<int, string>? compactIdResolver = null,
                              Action<Action, Ice.Connection?>? dispatcher = null,
-                             Ice.Logger? logger = null,
-                             Ice.Instrumentation.CommunicatorObserver? observer = null,
+                             Ice.ILogger? logger = null,
+                             Ice.Instrumentation.ICommunicatorObserver? observer = null,
                              Action? threadStart = null,
                              Action? threadStop = null,
                              string[]? typeIdNamespaces = null)
@@ -367,8 +367,8 @@ namespace Glacier2
         private Dictionary<string, string> _properties;
         private Func<int, string>? _compactIdResolver;
         private Action<Action, Ice.Connection?>? _dispatcher;
-        private Ice.Logger? _logger;
-        private Ice.Instrumentation.CommunicatorObserver? _observer;
+        private Ice.ILogger? _logger;
+        private Ice.Instrumentation.ICommunicatorObserver? _observer;
         private Action? _threadStart;
         private Action? _threadStop;
         private string[]? _typeIdNamespaces;

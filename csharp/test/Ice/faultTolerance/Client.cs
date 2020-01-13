@@ -17,19 +17,14 @@ public class Client : Test.TestHelper
     {
         var properties = createTestProperties(ref args);
         properties["Ice.Warn.Connections"] = "0";
-        using (var communicator = initialize(properties))
+        using var communicator = initialize(properties);
+        List<int> ports = args.Select(v => int.Parse(v)).ToList();
+        if (ports.Count == 0)
         {
-            List<int> ports = args.Select(v => int.Parse(v)).ToList();
-            if (ports.Count == 0)
-            {
-                throw new ArgumentException("Client: no ports specified");
-            }
-            AllTests.allTests(this, ports);
+            throw new ArgumentException("Client: no ports specified");
         }
+        AllTests.allTests(this, ports);
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

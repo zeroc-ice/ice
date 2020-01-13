@@ -12,17 +12,12 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                using (var communicator = initialize(ref args))
-                {
-                    var proxy = AllTests.allTests(this);
-                    proxy.shutdown();
-                }
+                using var communicator = initialize(ref args);
+                var proxy = AllTests.allTests(this);
+                proxy.shutdown();
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            public static int Main(string[] args) => TestDriver.runTest<Client>(args);
         }
     }
 }

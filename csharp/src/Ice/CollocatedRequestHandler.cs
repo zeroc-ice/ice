@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-    public class CollocatedRequestHandler : RequestHandler, ResponseHandler
+    public class CollocatedRequestHandler : IRequestHandler, IResponseHandler
     {
         private void
         fillInValue(Ice.OutputStream os, int pos, int value)
@@ -29,7 +29,7 @@ namespace IceInternal
             _requestId = 0;
         }
 
-        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        public IRequestHandler update(IRequestHandler previousHandler, IRequestHandler newHandler)
         {
             return previousHandler == this ? newHandler : this;
         }
@@ -335,7 +335,7 @@ namespace IceInternal
         private readonly bool _dispatcher;
         private readonly bool _response;
         private readonly Ice.ObjectAdapter _adapter;
-        private readonly Ice.Logger _logger;
+        private readonly Ice.ILogger _logger;
         private readonly TraceLevels _traceLevels;
 
         private int _requestId;

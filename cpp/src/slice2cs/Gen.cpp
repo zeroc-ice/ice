@@ -2594,7 +2594,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "internal _" << p->name() << "Prx("
          << "IceInternal.Reference reference, "
-         << "IceInternal.RequestHandler? requestHandler = null) : base(reference, requestHandler)";
+         << "IceInternal.IRequestHandler? requestHandler = null) : base(reference, requestHandler)";
     _out << sb;
     _out << eb;
 
@@ -3011,7 +3011,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
-    string name = p->name();
+    string name = interfaceName(p);
     string ns = getNamespace(p);
 
     _out << sp;
@@ -3024,7 +3024,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << " : ";
         }
-        _out << getUnqualified(*q, ns);
+        _out << getUnqualified(getNamespace(*q) + "." + interfaceName(*q), ns);
         if(++q != bases.end())
         {
             _out << ", ";
@@ -3175,7 +3175,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
     string internalName = "iceD_" + opName;
-    string interfaceName = fixId(cl->name());
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
@@ -3196,7 +3195,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
     _out << nl << "public static global::System.Threading.Tasks.Task<"
          << getUnqualified("Ice.OutputStream", ns) << "?>?";
-    _out << nl << internalName << "(" << interfaceName << " obj, "
+    _out << nl << internalName << "(" << interfaceName(cl) << " obj, "
          << "global::IceInternal.Incoming inS, "
          << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
@@ -3302,11 +3301,12 @@ void
 Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     const string ns = getNamespace(p);
+    const string name = interfaceName(p);
     _out << eb;
 
     _out << sp;
     _out << nl << "public struct " << fixId(p->name() + "Traits") << " : global::Ice.IInterfaceTraits<"
-         << fixId(p->name()) << ">";
+         << fixId(name) << ">";
     _out << sb;
     _out << nl << "public string Id => \"" << p->scoped() << "\";";
 
@@ -3322,13 +3322,13 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "static private " << getUnqualified("Ice.Object", ns)
-         << "<" << fixId(p->name()) << ", " << fixId(p->name() + "Traits") << ">"
+         << "<" << fixId(name) << ", " << fixId(p->name() + "Traits") << ">"
          << " _defaultObject = new " << getUnqualified("Ice.Object", ns)
-         << "<" << fixId(p->name()) << ", " << fixId(p->name() + "Traits") << ">();";
+         << "<" << fixId(name) << ", " << fixId(p->name() + "Traits") << ">();";
 
     _out << sp;
     _out << nl << "public global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? Dispatch("
-         << fixId(p->name()) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
+         << fixId(name) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
     _out << sb;
 
     _out << nl << "incoming.startOver();";
@@ -3356,7 +3356,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
         _out << nl << "case \"" << op->name() << "\":";
         _out << sb;
-        _out << nl << "return " << getUnqualified(cl, ns) << ".iceD_" << operationName(op)
+        _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
+             << ".iceD_" << operationName(op)
              << "(servant, incoming, current);";
         _out << eb;
     }
@@ -3375,13 +3376,12 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // ObjectAdapter extension methods to create an add a servant dispatcher
     //
     _out << sp;
-    _out << nl << "public static class " << fixId(p->name() + "Extensions");
+    _out << nl << "public static class " << fixId(name + "Extensions");
     _out << sb;
 
-    const string name = interfaceName(p);
     _out << nl << "public static " << name << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
-         << fixId(p->name()) << " servant, "
+         << fixId(name) << " servant, "
          << "string id, "
          << "string facet = \"\")";
     _out << sb;
@@ -3392,7 +3392,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << nl << "public static " << name << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
-         << fixId(p->name()) << " servant, "
+         << fixId(name) << " servant, "
          << getUnqualified("Ice.Identity", ns) << "? id = null, "
          << "string facet = \"\")";
     _out << sb;

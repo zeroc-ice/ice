@@ -6,13 +6,13 @@ using Ice;
 
 public class AllTests : Test.AllTests
 {
-    private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
+    private static IPConnectionInfo getIPConnectionInfo(ConnectionInfo info)
     {
         for (; info != null; info = info.underlying)
         {
-            if (info is Ice.IPConnectionInfo)
+            if (info is IPConnectionInfo)
             {
-                return info as Ice.IPConnectionInfo;
+                return info as IPConnectionInfo;
             }
         }
         return null;
@@ -20,7 +20,7 @@ public class AllTests : Test.AllTests
 
     public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
         var obj = IObjectPrx.Parse(sref, communicator);
 

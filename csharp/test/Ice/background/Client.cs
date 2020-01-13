@@ -39,18 +39,13 @@ public class Client : Test.TestHelper
         }
         properties["Ice.Default.Protocol"] = $"test-{protocol}";
 
-        using (var communicator = initialize(properties))
-        {
-            PluginI plugin = new PluginI(communicator);
-            plugin.initialize();
-            communicator.AddPlugin("Test", plugin);
-            Test.IBackgroundPrx background = AllTests.allTests(this);
-            background.shutdown();
-        }
+        using var communicator = initialize(properties);
+        Plugin plugin = new Plugin(communicator);
+        plugin.initialize();
+        communicator.AddPlugin("Test", plugin);
+        Test.IBackgroundPrx background = AllTests.allTests(this);
+        background.shutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

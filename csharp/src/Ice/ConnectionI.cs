@@ -14,7 +14,7 @@ using Ice.Instrumentation;
 
 namespace Ice
 {
-    public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, CancellationHandler, Connection
+    public sealed class ConnectionI : IceInternal.EventHandler, IResponseHandler, ICancellationHandler, Connection
     {
         public interface StartCallback
         {
@@ -22,7 +22,7 @@ namespace Ice
             void connectionStartFailed(ConnectionI connection, LocalException ex);
         }
 
-        private class TimeoutCallback : TimerTask
+        private class TimeoutCallback : ITimerTask
         {
             public TimeoutCallback(ConnectionI connection)
             {
@@ -516,7 +516,7 @@ namespace Ice
         {
             public HeartbeatAsync(ConnectionI connection,
                                   Communicator communicator,
-                                  OutgoingAsyncCompletionCallback completionCallback) :
+                                  IOutgoingAsyncCompletionCallback completionCallback) :
                 base(communicator, completionCallback)
             {
                 _connection = connection;
@@ -801,12 +801,12 @@ namespace Ice
             }
         }
 
-        public EndpointI endpoint()
+        public Endpoint endpoint()
         {
             return _endpoint; // No mutex protection necessary, _endpoint is immutable.
         }
 
-        public Connector connector()
+        public IConnector connector()
         {
             return _connector; // No mutex protection necessary, _endpoint is immutable.
         }
@@ -846,7 +846,7 @@ namespace Ice
             }
         }
 
-        public Endpoint getEndpoint()
+        public IEndpoint getEndpoint()
         {
             return _endpoint; // No mutex protection necessary, _endpoint is immutable.
         }
@@ -1627,10 +1627,10 @@ namespace Ice
         }
 
         internal ConnectionI(Communicator communicator,
-                             ACMMonitor? monitor,
-                             Transceiver transceiver,
-                             Connector? connector,
-                             EndpointI endpoint,
+                             IACMMonitor? monitor,
+                             ITransceiver transceiver,
+                             IConnector? connector,
+                             Endpoint endpoint,
                              ObjectAdapter? adapter)
         {
             _communicator = communicator;
@@ -2971,24 +2971,24 @@ namespace Ice
         }
 
         private readonly Communicator _communicator;
-        private ACMMonitor? _monitor;
-        private readonly Transceiver _transceiver;
+        private IACMMonitor? _monitor;
+        private readonly ITransceiver _transceiver;
         private string _desc;
         private readonly string _type;
-        private readonly Connector? _connector;
-        private readonly EndpointI _endpoint;
+        private readonly IConnector? _connector;
+        private readonly Endpoint _endpoint;
 
         private ObjectAdapter? _adapter;
         private ServantManager? _servantManager;
 
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
         private readonly TraceLevels _traceLevels;
         private readonly IceInternal.ThreadPool _threadPool;
 
         private readonly IceInternal.Timer _timer;
-        private readonly TimerTask _writeTimeout;
+        private readonly ITimerTask _writeTimeout;
         private bool _writeTimeoutScheduled;
-        private readonly TimerTask _readTimeout;
+        private readonly ITimerTask _readTimeout;
         private bool _readTimeoutScheduled;
 
         private StartCallback? _startCallback = null;
@@ -3014,8 +3014,8 @@ namespace Ice
         private bool _readHeader;
         private OutputStream _writeStream;
 
-        private CommunicatorObserver? _communicatorObserver;
-        private ConnectionObserver? _observer;
+        private ICommunicatorObserver? _communicatorObserver;
+        private IConnectionObserver? _observer;
         private int _readStreamPos;
         private int _writeStreamPos;
 

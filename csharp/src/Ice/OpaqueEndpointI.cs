@@ -9,7 +9,7 @@ namespace IceInternal
     using System.Globalization;
     using System;
 
-    internal sealed class OpaqueEndpointI : EndpointI
+    internal sealed class OpaqueEndpointI : Endpoint
     {
         public OpaqueEndpointI(List<string> args)
         {
@@ -130,7 +130,7 @@ namespace IceInternal
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public override EndpointI timeout(int t)
+        public override Endpoint timeout(int t)
         {
             return this;
         }
@@ -143,7 +143,7 @@ namespace IceInternal
         //
         // Return a new endpoint with a different connection id.
         //
-        public override EndpointI connectionId(string id)
+        public override Endpoint connectionId(string id)
         {
             return this;
         }
@@ -162,7 +162,7 @@ namespace IceInternal
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        public override EndpointI compress(bool compress)
+        public override Endpoint compress(bool compress)
         {
             return this;
         }
@@ -195,7 +195,7 @@ namespace IceInternal
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override Transceiver? transceiver()
+        public override ITransceiver? transceiver()
         {
             return null;
         }
@@ -204,16 +204,16 @@ namespace IceInternal
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override void connectors_async(Ice.EndpointSelectionType endSel, EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType endSel, IEndpointConnectors callback)
         {
-            callback.connectors(new List<Connector>());
+            callback.connectors(new List<IConnector>());
         }
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor? acceptor(string adapterName)
+        public override IAcceptor? acceptor(string adapterName)
         {
             return null;
         }
@@ -223,21 +223,21 @@ namespace IceInternal
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public override List<EndpointI> expandIfWildcard()
+        public override List<Endpoint> expandIfWildcard()
         {
-            return new List<EndpointI> { this };
+            return new List<Endpoint> { this };
         }
 
-        public override List<EndpointI> expandHost(out EndpointI? publishedEndpoint)
+        public override List<Endpoint> expandHost(out Endpoint? publishedEndpoint)
         {
             publishedEndpoint = null;
-            return new List<EndpointI>() { this };
+            return new List<Endpoint>() { this };
         }
 
         //
         // Check whether the endpoint is equivalent to another one.
         //
-        public override bool equivalent(EndpointI endpoint)
+        public override bool equivalent(Endpoint endpoint)
         {
             return false;
         }
@@ -265,7 +265,7 @@ namespace IceInternal
         //
         // Compare endpoints for sorting purposes
         //
-        public override int CompareTo(EndpointI obj)
+        public override int CompareTo(Endpoint obj)
         {
             if (!(obj is OpaqueEndpointI))
             {

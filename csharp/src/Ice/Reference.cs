@@ -80,7 +80,7 @@ namespace IceInternal
             return _communicator;
         }
 
-        public abstract EndpointI[] getEndpoints();
+        public abstract Endpoint[] getEndpoints();
         public abstract string getAdapterId();
         public abstract LocatorInfo? getLocatorInfo();
         public abstract RouterInfo? getRouterInfo();
@@ -298,7 +298,7 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> ToProperty(string prefix);
 
-        public abstract RequestHandler getRequestHandler(IObjectPrx proxy);
+        public abstract IRequestHandler getRequestHandler(IObjectPrx proxy);
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
         {
@@ -396,7 +396,7 @@ namespace IceInternal
                                        Dictionary<string, string>? context = null,
                                        EncodingVersion? encodingVersion = null,
                                        EndpointSelectionType? endpointSelectionType = null,
-                                       Endpoint[]? endpoints = null,
+                                       IEndpoint[]? endpoints = null,
                                        Connection? fixedConnection = null,
                                        InvocationMode? invocationMode = null,
                                        int? invocationTimeout = null,
@@ -588,9 +588,9 @@ namespace IceInternal
             }
         }
 
-        public override EndpointI[] getEndpoints()
+        public override Endpoint[] getEndpoints()
         {
-            return Array.Empty<EndpointI>();
+            return Array.Empty<Endpoint>();
         }
 
         public override string getAdapterId()
@@ -661,7 +661,7 @@ namespace IceInternal
                                         Dictionary<string, string>? context = null,
                                         EncodingVersion? encodingVersion = null,
                                         EndpointSelectionType? endpointSelectionType = null,
-                                        Endpoint[]? endpoints = null,
+                                        IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
                                         InvocationMode? invocationMode = null,
                                         int? invocationTimeout = null,
@@ -844,7 +844,7 @@ namespace IceInternal
             throw new NotSupportedException("You cannot convert a fixed proxy to propery dictionary");
         }
 
-        public override RequestHandler getRequestHandler(IObjectPrx proxy)
+        public override IRequestHandler getRequestHandler(IObjectPrx proxy)
         {
             switch (getMode())
             {
@@ -936,7 +936,7 @@ namespace IceInternal
 
     public class RoutableReference : Reference
     {
-        public override EndpointI[] getEndpoints()
+        public override Endpoint[] getEndpoints()
         {
             return _endpoints;
         }
@@ -1016,7 +1016,7 @@ namespace IceInternal
                                         Dictionary<string, string>? context = null,
                                         EncodingVersion? encodingVersion = null,
                                         EndpointSelectionType? endpointSelectionType = null,
-                                        Endpoint[]? endpoints = null,
+                                        IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
                                         InvocationMode? invocationMode = null,
                                         int? invocationTimeout = null,
@@ -1097,7 +1097,7 @@ namespace IceInternal
                     reference = (RoutableReference)Clone();
                 }
                 reference._adapterId = adapterId;
-                reference._endpoints = Array.Empty<EndpointI>();
+                reference._endpoints = Array.Empty<Endpoint>();
             }
 
             if (collocationOptimized is bool collocationOptimizedValue && collocationOptimizedValue != _collocationOptimized)
@@ -1174,7 +1174,7 @@ namespace IceInternal
                     reference = (RoutableReference)Clone();
                 }
                 reference._adapterId = "";
-                reference._endpoints = reference.applyOverrides(endpoints.Select(e => (EndpointI)e).ToArray());
+                reference._endpoints = reference.applyOverrides(endpoints.Select(e => (Endpoint)e).ToArray());
             }
 
             if (locator != null)
@@ -1271,7 +1271,7 @@ namespace IceInternal
             if (_endpoints.Length > 0)
             {
                 Debug.Assert(_adapterId!.Length == 0);
-                foreach (EndpointI endpoint in _endpoints)
+                foreach (Endpoint endpoint in _endpoints)
                 {
                     s.WriteShort(endpoint.type());
                     endpoint.streamWrite(s);
@@ -1461,7 +1461,7 @@ namespace IceInternal
                 _cb = cb;
             }
 
-            public void setEndpoints(EndpointI[] endpts)
+            public void setEndpoints(Endpoint[] endpts)
             {
                 if (endpts.Length > 0)
                 {
@@ -1482,7 +1482,7 @@ namespace IceInternal
             private GetConnectionCallback _cb;
         }
 
-        public override RequestHandler getRequestHandler(IObjectPrx proxy)
+        public override IRequestHandler getRequestHandler(IObjectPrx proxy)
         {
             return _communicator.requestHandlerFactory().getRequestHandler(this, proxy);
         }
@@ -1503,7 +1503,7 @@ namespace IceInternal
             }
         }
 
-        private sealed class LocatorEndpointsCallback : LocatorInfo.GetEndpointsCallback
+        private sealed class LocatorEndpointsCallback : LocatorInfo.IGetEndpointsCallback
         {
             internal LocatorEndpointsCallback(RoutableReference ir, GetConnectionCallback cb)
             {
@@ -1511,7 +1511,7 @@ namespace IceInternal
                 _cb = cb;
             }
 
-            public void setEndpoints(EndpointI[] endpoints, bool cached)
+            public void setEndpoints(Endpoint[] endpoints, bool cached)
             {
                 if (endpoints.Length == 0)
                 {
@@ -1605,7 +1605,7 @@ namespace IceInternal
                                  bool secure,
                                  ProtocolVersion protocol,
                                  EncodingVersion encoding,
-                                 EndpointI[] endpoints,
+                                 Endpoint[] endpoints,
                                  string? adapterId,
                                  LocatorInfo? locatorInfo,
                                  RouterInfo? routerInfo,
@@ -1643,7 +1643,7 @@ namespace IceInternal
             Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
         }
 
-        protected EndpointI[] applyOverrides(EndpointI[] endpts)
+        protected Endpoint[] applyOverrides(Endpoint[] endpts)
         {
             return endpts.Select(endpoint =>
                 {
@@ -1661,9 +1661,9 @@ namespace IceInternal
                 }).ToArray();
         }
 
-        private EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
+        private Endpoint[] filterEndpoints(Endpoint[] allEndpoints)
         {
-            List<EndpointI> endpoints = new List<EndpointI>();
+            List<Endpoint> endpoints = new List<Endpoint>();
 
             //
             // Filter out unknown endpoints.
@@ -1688,8 +1688,8 @@ namespace IceInternal
                         //
                         // Filter out datagram endpoints.
                         //
-                        List<EndpointI> tmp = new List<EndpointI>();
-                        foreach (EndpointI endpoint in endpoints)
+                        List<Endpoint> tmp = new List<Endpoint>();
+                        foreach (Endpoint endpoint in endpoints)
                         {
                             if (!endpoint.datagram())
                             {
@@ -1706,8 +1706,8 @@ namespace IceInternal
                         //
                         // Filter out non-datagram endpoints.
                         //
-                        List<EndpointI> tmp = new List<EndpointI>();
-                        foreach (EndpointI endpoint in endpoints)
+                        List<Endpoint> tmp = new List<Endpoint>();
+                        foreach (Endpoint endpoint in endpoints)
                         {
                             if (endpoint.datagram())
                             {
@@ -1734,7 +1734,7 @@ namespace IceInternal
                                 Debug.Assert(r >= i && r < endpoints.Count);
                                 if (r != i)
                                 {
-                                    EndpointI tmp = endpoints[i];
+                                    Endpoint tmp = endpoints[i];
                                     endpoints[i] = endpoints[r];
                                     endpoints[r] = tmp;
                                 }
@@ -1780,7 +1780,7 @@ namespace IceInternal
 
         private sealed class CreateConnectionCallback : OutgoingConnectionFactory.CreateConnectionCallback
         {
-            internal CreateConnectionCallback(RoutableReference rr, EndpointI[]? endpoints, GetConnectionCallback cb)
+            internal CreateConnectionCallback(RoutableReference rr, Endpoint[]? endpoints, GetConnectionCallback cb)
             {
                 _rr = rr;
                 _endpoints = endpoints;
@@ -1815,20 +1815,20 @@ namespace IceInternal
                 }
 
                 bool more = _i != _endpoints.Length - 1;
-                EndpointI[] endpoint = new EndpointI[] { _endpoints[_i] };
+                Endpoint[] endpoint = new Endpoint[] { _endpoints[_i] };
                 _rr._communicator.outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
             }
 
             private RoutableReference _rr;
-            private EndpointI[]? _endpoints;
+            private Endpoint[]? _endpoints;
             private GetConnectionCallback _callback;
             private int _i = 0;
             private LocalException? _exception = null;
         }
 
-        protected void createConnection(EndpointI[] allEndpoints, GetConnectionCallback callback)
+        protected void createConnection(Endpoint[] allEndpoints, GetConnectionCallback callback)
         {
-            EndpointI[] endpoints = filterEndpoints(allEndpoints);
+            Endpoint[] endpoints = filterEndpoints(allEndpoints);
             if (endpoints.Length == 0)
             {
                 callback.setException(new NoEndpointException(ToString()));
@@ -1858,19 +1858,19 @@ namespace IceInternal
                 // connection for one of the endpoints.
                 //
 
-                factory.create(new EndpointI[] { endpoints[0] }, true, getEndpointSelection(),
+                factory.create(new Endpoint[] { endpoints[0] }, true, getEndpointSelection(),
                                new CreateConnectionCallback(this, endpoints, callback));
             }
         }
 
-        private class EndpointComparator : IComparer<EndpointI>
+        private class EndpointComparator : IComparer<Endpoint>
         {
             public EndpointComparator(bool preferSecure)
             {
                 _preferSecure = preferSecure;
             }
 
-            public int Compare(EndpointI le, EndpointI re)
+            public int Compare(Endpoint le, Endpoint re)
             {
                 bool ls = le.secure();
                 bool rs = re.secure();
@@ -1905,9 +1905,9 @@ namespace IceInternal
             private bool _preferSecure;
         }
 
-        private static EndpointI[] _emptyEndpoints = Array.Empty<EndpointI>();
+        private static Endpoint[] _emptyEndpoints = Array.Empty<Endpoint>();
 
-        private EndpointI[] _endpoints;
+        private Endpoint[] _endpoints;
         private string? _adapterId;
         private LocatorInfo? _locatorInfo; // Null if no locator is used.
         private RouterInfo? _routerInfo; // Null if no router is used.

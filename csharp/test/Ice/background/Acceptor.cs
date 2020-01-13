@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-internal class Acceptor : IceInternal.Acceptor
+internal class Acceptor : IceInternal.IAcceptor
 {
     public void close()
     {
         _acceptor.close();
     }
 
-    public IceInternal.EndpointI listen()
+    public IceInternal.Endpoint listen()
     {
         _endpoint = _endpoint.endpoint(_acceptor.listen());
         return _endpoint;
@@ -25,7 +25,7 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.finishAccept();
     }
 
-    public IceInternal.Transceiver accept()
+    public IceInternal.ITransceiver accept()
     {
         return new Transceiver(_acceptor.accept());
     }
@@ -45,17 +45,17 @@ internal class Acceptor : IceInternal.Acceptor
         return _acceptor.toDetailedString();
     }
 
-    public IceInternal.Acceptor getDelegate()
+    public IceInternal.IAcceptor getDelegate()
     {
         return _acceptor;
     }
 
-    internal Acceptor(EndpointI endpoint, IceInternal.Acceptor acceptor)
+    internal Acceptor(Endpoint endpoint, IceInternal.IAcceptor acceptor)
     {
         _endpoint = endpoint;
         _acceptor = acceptor;
     }
 
-    private EndpointI _endpoint;
-    private IceInternal.Acceptor _acceptor;
+    private Endpoint _endpoint;
+    private IceInternal.IAcceptor _acceptor;
 }

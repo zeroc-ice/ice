@@ -4,7 +4,7 @@
 
 using Test;
 
-internal class BackgroundI : Background
+internal class Background : IBackground
 {
     public void op(Ice.Current current)
     {
@@ -21,10 +21,10 @@ internal class BackgroundI : Background
         current.Adapter.Communicator.shutdown();
     }
 
-    internal BackgroundI(BackgroundControllerI controller)
+    internal Background(BackgroundController controller)
     {
         _controller = controller;
     }
 
-    private BackgroundControllerI _controller;
+    private BackgroundController _controller;
 }

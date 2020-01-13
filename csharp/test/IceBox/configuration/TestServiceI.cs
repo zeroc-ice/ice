@@ -5,13 +5,13 @@
 using IceBox;
 using Test;
 
-class TestServiceI : Service
+class TestService : Service
 {
     public void
     start(string name, Ice.Communicator communicator, string[] args)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.Add(new TestI(args), "test");
+        adapter.Add(new TestIntf(args), "test");
         adapter.Activate();
     }
 

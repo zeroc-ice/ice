@@ -2,33 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
+    public sealed class H : Test.IH
     {
-        public sealed class HI : Test.H
-        {
-            public HI(Ice.Communicator communicator)
-            {
-                _communicator = communicator;
-            }
+        public H(Communicator communicator) => _communicator = communicator;
 
-            public string callG(Ice.Current current)
-            {
-                return "G";
-            }
+        public string callG(Ice.Current current) => "G";
 
-            public string callH(Ice.Current current)
-            {
-                return "H";
-            }
+        public string callH(Current current) => "H";
 
-            public void shutdown(Ice.Current current)
-            {
-                _communicator.shutdown();
-            }
+        public void shutdown(Current current) => _communicator.shutdown();
 
-            private Ice.Communicator _communicator;
-        }
+        private Communicator _communicator;
     }
 }

@@ -9,7 +9,7 @@ namespace IceSSL
     /// <summary>
     /// Plug-in factories must implement this interface.
     /// </summary>
-    public sealed class PluginFactory : Ice.PluginFactory
+    public sealed class PluginFactory : Ice.IPluginFactory
     {
         /// <summary>
         /// Returns a new plug-in.
@@ -21,7 +21,7 @@ namespace IceSSL
         /// <returns>The new plug-in. null can be returned to indicate
         /// that a general error occurred. Alternatively, create can throw
         /// PluginInitializationException to provide more detailed information.</returns>
-        public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
+        public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args)
         {
             return new PluginI(communicator);
         }
@@ -31,7 +31,7 @@ namespace IceSSL
     {
         public PluginI(Ice.Communicator communicator)
         {
-            IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
+            IceInternal.IProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
 
             _engine = new SSLEngine(facade);
 

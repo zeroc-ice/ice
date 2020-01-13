@@ -22,13 +22,13 @@ namespace IceInternal
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
-                            EndpointI_connectors callback)
+                            IEndpointConnectors callback)
         {
             //
             // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
             // entry and the thread will take care of getting the endpoint addresses.
             //
-            NetworkProxy? networkProxy = _communicator.NetworkProxy;
+            INetworkProxy? networkProxy = _communicator.NetworkProxy;
             if (networkProxy == null)
             {
                 try
@@ -58,7 +58,7 @@ namespace IceInternal
                 entry.endpoint = endpoint;
                 entry.callback = callback;
 
-                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
+                Ice.Instrumentation.ICommunicatorObserver? obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     entry.observer = obsv.getEndpointLookupObserver(endpoint);
@@ -96,7 +96,7 @@ namespace IceInternal
             while (true)
             {
                 ResolveEntry r;
-                Ice.Instrumentation.ThreadObserver threadObserver;
+                Ice.Instrumentation.IThreadObserver threadObserver;
 
                 lock (this)
                 {
@@ -124,7 +124,7 @@ namespace IceInternal
                 try
                 {
 
-                    NetworkProxy? networkProxy = _communicator.NetworkProxy;
+                    INetworkProxy? networkProxy = _communicator.NetworkProxy;
                     int protocol = _protocol;
                     if (networkProxy != null)
                     {
@@ -186,7 +186,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.Observer;
+                Ice.Instrumentation.ICommunicatorObserver obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -207,8 +207,8 @@ namespace IceInternal
             internal int port;
             internal Ice.EndpointSelectionType selType;
             internal IPEndpointI endpoint;
-            internal EndpointI_connectors callback;
-            internal Ice.Instrumentation.Observer observer;
+            internal IEndpointConnectors callback;
+            internal Ice.Instrumentation.IObserver observer;
         }
 
         private readonly Ice.Communicator _communicator;
@@ -216,7 +216,7 @@ namespace IceInternal
         private readonly bool _preferIPv6;
         private bool _destroyed;
         private LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
-        private Ice.Instrumentation.ThreadObserver _observer;
+        private Ice.Instrumentation.IThreadObserver _observer;
 
         private sealed class HelperThread
         {

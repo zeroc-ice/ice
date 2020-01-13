@@ -7,22 +7,16 @@ using System;
 
 namespace IceDiscovery
 {
-    public sealed class PluginFactory : Ice.PluginFactory
+    public sealed class PluginFactory : Ice.IPluginFactory
     {
-        public Plugin
-        create(Communicator communicator, string name, string[] args)
-        {
-            return new PluginI(communicator);
-        }
+        public IPlugin
+        create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 
-    public sealed class PluginI : Plugin
+    public sealed class Plugin : IPlugin
     {
         public
-        PluginI(Communicator communicator)
-        {
-            _communicator = communicator;
-        }
+        Plugin(Communicator communicator) => _communicator = communicator;
 
         public void initialize()
         {
@@ -79,7 +73,7 @@ namespace IceDiscovery
             //
             // Setup locatory registry.
             //
-            LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
+            LocatorRegistry locatorRegistry = new LocatorRegistry(_communicator);
             ILocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry);
 
             ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
@@ -88,11 +82,11 @@ namespace IceDiscovery
             //
             // Add lookup and lookup reply Ice objects
             //
-            LookupI lookup = new LookupI(locatorRegistry, lookupPrx, _communicator);
+            Lookup lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
             _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
             LookupReplyTraits lookupT = default;
-            LookupReplyI lookupReply = new LookupReplyI(lookup);
+            LookupReply lookupReply = new LookupReply(lookup);
             _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
             lookup.SetLookupReply(ILookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
@@ -100,7 +94,7 @@ namespace IceDiscovery
             //
             // Setup locator on the communicator.
             //
-            _locator = _locatorAdapter.Add(new LocatorI(lookup, locatorRegistryPrx));
+            _locator = _locatorAdapter.Add(new Locator(lookup, locatorRegistryPrx));
             _defaultLocator = _communicator.getDefaultLocator();
             _communicator.setDefaultLocator(_locator);
 

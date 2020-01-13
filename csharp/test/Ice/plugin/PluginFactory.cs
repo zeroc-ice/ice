@@ -4,19 +4,13 @@
 
 using System;
 
-public class PluginFactory : Ice.PluginFactory
+public class PluginFactory : Ice.IPluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new Plugin(communicator, args);
-    }
+    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new Plugin(args);
 
-    internal class Plugin : Ice.Plugin
+    internal class Plugin : Ice.IPlugin
     {
-        public Plugin(Ice.Communicator communicator, string[] args)
-        {
-            _args = args;
-        }
+        public Plugin(string[] args) => _args = args;
 
         public void initialize()
         {
@@ -27,10 +21,7 @@ public class PluginFactory : Ice.PluginFactory
             test(_args[2] == "C:\\Program Files\\Application\\db");
         }
 
-        public void destroy()
-        {
-            _destroyed = true;
-        }
+        public void destroy() => _destroyed = true;
 
         ~Plugin()
         {
@@ -48,7 +39,7 @@ public class PluginFactory : Ice.PluginFactory
         {
             if (!b)
             {
-                throw new System.Exception();
+                throw new Exception();
             }
         }
 

@@ -12,7 +12,7 @@ namespace IceInternal
     {
         public interface GetClientEndpointsCallback
         {
-            void setEndpoints(EndpointI[] endpoints);
+            void setEndpoints(Endpoint[] endpoints);
             void setException(Ice.LocalException ex);
         }
 
@@ -33,7 +33,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                _clientEndpoints = System.Array.Empty<EndpointI>();
+                _clientEndpoints = System.Array.Empty<Endpoint>();
                 _adapter = null;
                 _identities.Clear();
             }
@@ -63,7 +63,7 @@ namespace IceInternal
             return _router;
         }
 
-        public EndpointI[] getClientEndpoints()
+        public Endpoint[] getClientEndpoints()
         {
             lock (this)
             {
@@ -79,7 +79,7 @@ namespace IceInternal
 
         public void getClientEndpoints(GetClientEndpointsCallback callback)
         {
-            EndpointI[]? clientEndpoints = null;
+            Endpoint[]? clientEndpoints = null;
             lock (this)
             {
                 clientEndpoints = _clientEndpoints;
@@ -109,7 +109,7 @@ namespace IceInternal
                 System.Threading.Tasks.TaskScheduler.Current);
         }
 
-        public EndpointI[] getServerEndpoints()
+        public Endpoint[] getServerEndpoints()
         {
             Ice.IObjectPrx serverProxy = _router.GetServerProxy();
             if (serverProxy == null)
@@ -198,7 +198,7 @@ namespace IceInternal
             }
         }
 
-        private EndpointI[] setClientEndpoints(Ice.IObjectPrx clientProxy, bool hasRoutingTable)
+        private Endpoint[] setClientEndpoints(Ice.IObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock (this)
             {
@@ -275,7 +275,7 @@ namespace IceInternal
         }
 
         private readonly IRouterPrx _router;
-        private EndpointI[]? _clientEndpoints;
+        private Endpoint[]? _clientEndpoints;
         private ObjectAdapter? _adapter;
         private HashSet<Identity> _identities = new HashSet<Identity>();
         private List<Identity> _evictedIdentities = new List<Identity>();

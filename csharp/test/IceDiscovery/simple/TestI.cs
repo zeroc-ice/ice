@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Test;
 
-public sealed class ControllerI : Test.Controller
+public sealed class Controller : IController
 {
     public void
     activateObjectAdapter(string name, string adapterId, string replicaGroupId, Ice.Current current)
@@ -31,7 +31,7 @@ public sealed class ControllerI : Test.Controller
     addObject(string oaName, string id, Ice.Current current)
     {
         Debug.Assert(_adapters.ContainsKey(oaName));
-        _adapters[oaName].Add(new TestIntfI(), id);
+        _adapters[oaName].Add(new TestIntf(), id);
     }
 
     public void
@@ -42,19 +42,14 @@ public sealed class ControllerI : Test.Controller
     }
 
     public void
-    shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
 
     private Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
 }
 
-public sealed class TestIntfI : Test.TestIntf
+public sealed class TestIntf : ITestIntf
 {
     public string
-    getAdapterId(Ice.Current current)
-    {
-        return current.Adapter.Communicator.GetProperty($"{current.Adapter.GetName()}.AdapterId") ?? "";
-    }
+    getAdapterId(Ice.Current current) =>
+        current.Adapter.Communicator.GetProperty($"{current.Adapter.GetName()}.AdapterId") ?? "";
 }

@@ -576,6 +576,7 @@ Slice::returnValueName(const ParamDeclList& outParams)
 string
 Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
 {
+    ClassDefPtr cls = ClassDefPtr::dynamicCast(op->container());
     list<ParamInfo> outParams = getAllOutParams(op);
     if(outParams.size() == 0)
     {
@@ -583,15 +584,13 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     }
     else if(dispatch && op->hasMarshaledResult())
     {
-        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." +
-            pascalCase(op->name()) +
-            "MarshaledReturnValue";
+        string name = CsGenerator::getNamespace(cls) + "." + interfaceName(cls);
+        return CsGenerator::getUnqualified(name, ns) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
     {
-        return CsGenerator::getUnqualified(ClassDefPtr::dynamicCast(op->container()), ns) + "." +
-            pascalCase(op->name()) +
-            "ReturnValue";
+        string name = CsGenerator::getNamespace(cls) + "." + interfaceName(cls);
+        return CsGenerator::getUnqualified(name, ns) + "." + pascalCase(op->name()) + "ReturnValue";
     }
     else
     {

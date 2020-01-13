@@ -6,16 +6,9 @@ using System.Collections.Generic;
 
 using Test;
 
-public class TestFacetI : TestFacet
+public class TestFacet : ITestFacet
 {
-    public TestFacetI()
-    {
-    }
-
-    public Dictionary<string, string> getChanges(Ice.Current current)
-    {
-        return _changes;
-    }
+    public Dictionary<string, string> getChanges(Ice.Current current) => _changes;
 
     public void updated(Dictionary<string, string> changes)
     {

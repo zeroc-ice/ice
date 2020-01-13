@@ -11,7 +11,7 @@ using System.Text;
 
 namespace IceInternal
 {
-    internal class TcpAcceptor : Acceptor
+    internal class TcpAcceptor : IAcceptor
     {
         public virtual void close()
         {
@@ -27,7 +27,7 @@ namespace IceInternal
             }
         }
 
-        public virtual EndpointI listen()
+        public virtual Endpoint listen()
         {
             try
             {
@@ -80,7 +80,7 @@ namespace IceInternal
             }
         }
 
-        public virtual Transceiver accept()
+        public virtual ITransceiver accept()
         {
             if (_acceptFd == null)
             {

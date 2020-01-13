@@ -4,39 +4,33 @@
 
 using Ice.binding.Test;
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
+    public class RemoteObjectAdapter : IRemoteObjectAdapter
     {
-        public class RemoteObjectAdapterI : Test.RemoteObjectAdapter
+        public RemoteObjectAdapter(ObjectAdapter adapter)
         {
-            public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
-            {
-                _adapter = adapter;
-                _testIntf = _adapter.Add(new TestI(), "test");
-                _adapter.Activate();
-            }
-
-            public Test.ITestIntfPrx
-            getTestIntf(Ice.Current current)
-            {
-                return _testIntf;
-            }
-
-            public void
-            deactivate(Ice.Current current)
-            {
-                try
-                {
-                    _adapter.Destroy();
-                }
-                catch (Ice.ObjectAdapterDeactivatedException)
-                {
-                }
-            }
-
-            private Ice.ObjectAdapter _adapter;
-            private Test.ITestIntfPrx _testIntf;
+            _adapter = adapter;
+            _testIntf = _adapter.Add(new TestIntf(), "test");
+            _adapter.Activate();
         }
+
+        public ITestIntfPrx
+        getTestIntf(Current current) => _testIntf;
+
+        public void
+        deactivate(Current current)
+        {
+            try
+            {
+                _adapter.Destroy();
+            }
+            catch (ObjectAdapterDeactivatedException)
+            {
+            }
+        }
+
+        private ObjectAdapter _adapter;
+        private ITestIntfPrx _testIntf;
     }
 }

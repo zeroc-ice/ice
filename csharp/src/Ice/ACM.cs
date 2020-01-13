@@ -16,7 +16,7 @@ namespace IceInternal
             close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
         }
 
-        public ACMConfig(Ice.Communicator communicator, Ice.Logger logger, string prefix, ACMConfig defaults)
+        public ACMConfig(Ice.Communicator communicator, Ice.ILogger logger, string prefix, ACMConfig defaults)
         {
             Debug.Assert(prefix != null);
 
@@ -71,17 +71,17 @@ namespace IceInternal
         public Ice.ACMClose close;
     }
 
-    public interface ACMMonitor : TimerTask
+    public interface IACMMonitor : ITimerTask
     {
         void add(Ice.ConnectionI con);
         void remove(Ice.ConnectionI con);
         void reap(Ice.ConnectionI con);
 
-        ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
+        IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
         Ice.ACM getACM();
     }
 
-    public class FactoryACMMonitor : ACMMonitor
+    public class FactoryACMMonitor : IACMMonitor
     {
         internal class Change
         {
@@ -185,7 +185,7 @@ namespace IceInternal
             }
         }
 
-        public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
+        public IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
         {
             Debug.Assert(_communicator != null);
 
@@ -298,7 +298,7 @@ namespace IceInternal
         private List<Ice.ConnectionI> _reapedConnections = new List<Ice.ConnectionI>();
     }
 
-    internal class ConnectionACMMonitor : ACMMonitor
+    internal class ConnectionACMMonitor : IACMMonitor
     {
         internal ConnectionACMMonitor(FactoryACMMonitor parent, Timer timer, ACMConfig config)
         {
@@ -338,7 +338,7 @@ namespace IceInternal
             _parent.reap(connection);
         }
 
-        public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
+        public IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
         {
             return _parent.acm(timeout, c, h);
         }

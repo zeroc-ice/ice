@@ -5,7 +5,7 @@
 using Test;
 using System.Threading;
 
-public class TestI : TestIntf
+public class TestIntf : ITestIntf
 {
     private static void test(bool b)
     {
@@ -15,26 +15,13 @@ public class TestI : TestIntf
         }
     }
 
-    public TestI()
-    {
-    }
+    public void
+    op(Ice.Current current) => test(Dispatcher.isDispatcherThread());
 
     public void
-    op(Ice.Current current)
-    {
-        test(Dispatcher.isDispatcherThread());
-    }
+    opWithPayload(byte[] seq, Ice.Current current) => test(Dispatcher.isDispatcherThread());
 
-    public void
-    opWithPayload(byte[] seq, Ice.Current current)
-    {
-        test(Dispatcher.isDispatcherThread());
-    }
-
-    public void sleep(int to, Ice.Current current)
-    {
-        Thread.Sleep(to);
-    }
+    public void sleep(int to, Ice.Current current) => Thread.Sleep(to);
 
     public void
     shutdown(Ice.Current current)
@@ -44,7 +31,7 @@ public class TestI : TestIntf
     }
 }
 
-public class TestControllerI : TestIntfController
+public class TestController : ITestIntfController
 {
     private static void test(bool b)
     {
@@ -68,11 +55,7 @@ public class TestControllerI : TestIntfController
         _adapter.Activate();
     }
 
-    public
-    TestControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    public TestController(Ice.ObjectAdapter adapter) => _adapter = adapter;
 
     private Ice.ObjectAdapter _adapter;
 };

@@ -8,9 +8,9 @@ using System.Threading;
 
 namespace IceInternal
 {
-    public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
+    public class ConnectRequestHandler : IRequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        public RequestHandler connect(Ice.IObjectPrx proxy)
+        public IRequestHandler connect(Ice.IObjectPrx proxy)
         {
             lock (this)
             {
@@ -22,7 +22,7 @@ namespace IceInternal
             }
         }
 
-        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        public IRequestHandler update(IRequestHandler previousHandler, IRequestHandler newHandler)
         {
             return previousHandler == this ? newHandler : this;
         }
@@ -320,6 +320,6 @@ namespace IceInternal
         private bool _flushing;
 
         private LinkedList<ProxyOutgoingAsyncBase> _requests = new LinkedList<ProxyOutgoingAsyncBase>();
-        private RequestHandler _requestHandler;
+        private IRequestHandler _requestHandler;
     }
 }

@@ -259,7 +259,7 @@ namespace IceMX
         private AttributeResolver _attributes;
     }
 
-    public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
+    public class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
     {
         public delegate void MetricsUpdate(T m);
 

@@ -6,7 +6,7 @@ namespace IceInternal
 {
     using System.Net.Sockets;
 
-    public interface Transceiver
+    public interface ITransceiver
     {
         Socket? fd();
         int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
@@ -14,7 +14,7 @@ namespace IceInternal
         void close();
         void destroy();
 
-        EndpointI bind();
+        Endpoint bind();
         int write(Buffer buf);
         int read(Buffer buf, ref bool hasMoreData);
 

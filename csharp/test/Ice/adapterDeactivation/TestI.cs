@@ -2,26 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
+    public sealed class TestIntf : Test.ITestIntf
     {
-        public sealed class TestI : Test.TestIntf
+        public void transient(Current current)
         {
-            public void transient(Ice.Current current)
-            {
-                Ice.Communicator communicator = current.Adapter.Communicator;
 
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                adapter.Activate();
-                adapter.Destroy();
-            }
+            var adapter = current.Adapter.Communicator.createObjectAdapterWithEndpoints(
+                "TransientTestAdapter", "default");
+            adapter.Activate();
+            adapter.Destroy();
+        }
 
-            public void deactivate(Ice.Current current)
-            {
-                current.Adapter.Deactivate();
-                System.Threading.Thread.Sleep(100);
-            }
+        public void deactivate(Current current)
+        {
+            current.Adapter.Deactivate();
+            System.Threading.Thread.Sleep(100);
         }
     }
 }

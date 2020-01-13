@@ -5,33 +5,25 @@
 using Test;
 using Ice.facets.Test;
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
+    public class Collocated : TestHelper
     {
-        public class Collocated : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    var d = new DI();
-                    adapter.Add(d, "d");
-                    adapter.Add(d, "d", "facetABCD");
-                    var f = new FI();
-                    adapter.Add(f, "d", "facetEF");
-                    var h = new HI(communicator);
-                    adapter.Add(h, "d", "facetGH");
-                    AllTests.allTests(this);
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            using var communicator = initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            var d = new D();
+            adapter.Add(d, "d");
+            adapter.Add(d, "d", "facetABCD");
+            var f = new F();
+            adapter.Add(f, "d", "facetEF");
+            var h = new H(communicator);
+            adapter.Add(h, "d", "facetGH");
+            AllTests.allTests(this);
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);
     }
 }

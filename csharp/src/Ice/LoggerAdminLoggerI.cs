@@ -10,13 +10,13 @@ using System.Threading;
 namespace IceInternal
 {
 
-    internal interface LoggerAdminLogger : Ice.Logger
+    internal interface ILoggerAdminLogger : Ice.ILogger
     {
-        Ice.LoggerAdmin getFacet();
+        Ice.ILoggerAdmin getFacet();
         void destroy();
     }
 
-    internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
+    internal sealed class LoggerAdminLoggerI : ILoggerAdminLogger
     {
         public void print(string message)
         {
@@ -51,12 +51,12 @@ namespace IceInternal
             return _localLogger.getPrefix();
         }
 
-        public Ice.Logger cloneWithPrefix(string prefix)
+        public Ice.ILogger cloneWithPrefix(string prefix)
         {
             return _localLogger.cloneWithPrefix(prefix);
         }
 
-        public Ice.LoggerAdmin getFacet()
+        public Ice.ILoggerAdmin getFacet()
         {
             return _loggerAdmin;
         }
@@ -83,7 +83,7 @@ namespace IceInternal
             _loggerAdmin.destroy();
         }
 
-        internal LoggerAdminLoggerI(Ice.Communicator communicator, Ice.Logger localLogger)
+        internal LoggerAdminLoggerI(Ice.Communicator communicator, Ice.ILogger localLogger)
         {
             if (localLogger is LoggerAdminLoggerI)
             {
@@ -96,7 +96,7 @@ namespace IceInternal
             _loggerAdmin = new LoggerAdminI(communicator, this);
         }
 
-        internal Ice.Logger getLocalLogger()
+        internal Ice.ILogger getLocalLogger()
         {
             return _localLogger;
         }
@@ -220,7 +220,7 @@ namespace IceInternal
             internal readonly Ice.LogMessage logMessage;
         }
 
-        private readonly Ice.Logger _localLogger;
+        private readonly Ice.ILogger _localLogger;
         private readonly LoggerAdminI _loggerAdmin;
         private bool _destroyed = false;
         private Thread _sendLogThread;

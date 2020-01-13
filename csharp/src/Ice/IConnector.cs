@@ -4,13 +4,13 @@
 
 namespace IceInternal
 {
-    public interface Connector
+    public interface IConnector
     {
         //
         // Create a transceiver without blocking. The transceiver may not be fully connected
         // until its initialize method is called.
         //
-        Transceiver connect();
+        ITransceiver connect();
 
         short type();
     }

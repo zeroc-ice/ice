@@ -93,7 +93,7 @@ namespace IceInternal
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public override EndpointI timeout(int timeout)
+        public override Endpoint timeout(int timeout)
         {
             return this;
         }
@@ -112,7 +112,7 @@ namespace IceInternal
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        public override EndpointI compress(bool compress)
+        public override Endpoint compress(bool compress)
         {
             if (compress == _compress)
             {
@@ -137,7 +137,7 @@ namespace IceInternal
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override Transceiver transceiver()
+        public override ITransceiver transceiver()
         {
             return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface, _connect);
         }
@@ -146,7 +146,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor? acceptor(string adapterName)
+        public override IAcceptor? acceptor(string adapterName)
         {
             return null;
         }
@@ -229,7 +229,7 @@ namespace IceInternal
         //
         // Compare endpoints for sorting purposes
         //
-        public override int CompareTo(EndpointI obj)
+        public override int CompareTo(Endpoint obj)
         {
             if (!(obj is UdpEndpointI))
             {
@@ -400,7 +400,7 @@ namespace IceInternal
             return true;
         }
 
-        protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
+        protected override IConnector createConnector(EndPoint addr, INetworkProxy proxy)
         {
             return new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
         }
@@ -417,7 +417,7 @@ namespace IceInternal
         private bool _compress;
     }
 
-    internal sealed class UdpEndpointFactory : EndpointFactory
+    internal sealed class UdpEndpointFactory : IEndpointFactory
     {
         internal UdpEndpointFactory(ProtocolInstance instance)
         {
@@ -438,14 +438,14 @@ namespace IceInternal
             return _instance.protocol();
         }
 
-        public EndpointI create(List<string> args, bool oaEndpoint)
+        public Endpoint create(List<string> args, bool oaEndpoint)
         {
             IPEndpointI endpt = new UdpEndpointI(_instance);
             endpt.initWithOptions(args, oaEndpoint);
             return endpt;
         }
 
-        public EndpointI read(Ice.InputStream s)
+        public Endpoint read(Ice.InputStream s)
         {
             return new UdpEndpointI(_instance, s);
         }
@@ -455,7 +455,7 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance)
+        public IEndpointFactory clone(ProtocolInstance instance)
         {
             return new UdpEndpointFactory(instance);
         }

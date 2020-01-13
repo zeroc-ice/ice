@@ -10,7 +10,7 @@ namespace IceInternal
     using System.Security.Cryptography;
     using System.Text;
 
-    internal sealed class WSTransceiver : Transceiver
+    internal sealed class WSTransceiver : ITransceiver
     {
         public Socket fd()
         {
@@ -311,7 +311,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI bind()
+        public Endpoint bind()
         {
             Debug.Assert(false);
             return null;
@@ -675,7 +675,7 @@ namespace IceInternal
         }
 
         internal
-        WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource) : this(instance, del)
+        WSTransceiver(ProtocolInstance instance, ITransceiver del, string host, string resource) : this(instance, del)
         {
             _host = host;
             _resource = resource;
@@ -697,7 +697,7 @@ namespace IceInternal
             Debug.Assert(_readBufferSize > 256);
         }
 
-        internal WSTransceiver(ProtocolInstance instance, Transceiver del)
+        internal WSTransceiver(ProtocolInstance instance, ITransceiver del)
         {
             _instance = instance;
             _delegate = del;
@@ -1599,7 +1599,7 @@ namespace IceInternal
         }
 
         private readonly ProtocolInstance _instance;
-        private readonly Transceiver _delegate;
+        private readonly ITransceiver _delegate;
         private readonly string _host;
         private string _resource;
         private readonly bool _incoming;

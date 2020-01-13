@@ -2,11 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public sealed class TestI : Test.TestIntf
+public sealed class TestIntf : Test.ITestIntf
 {
     public void
-    shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
 }

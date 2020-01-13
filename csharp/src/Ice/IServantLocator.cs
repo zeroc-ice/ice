@@ -4,7 +4,7 @@
 
 namespace Ice
 {
-    public partial interface ServantLocator
+    public partial interface IServantLocator
     {
         /// <summary>
         /// Called before a request is dispatched if a

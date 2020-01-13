@@ -83,11 +83,11 @@ public class Client : Test.TestHelper
                     @base.IcePing();
                     test(false);
                 }
-                catch (Ice.ConnectionLostException)
+                catch (ConnectionLostException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Ice.SocketException)
+                catch (SocketException)
                 {
                     test(false);
                 }
@@ -175,7 +175,7 @@ public class Client : Test.TestHelper
                 {
                     baseC.IcePing();
                 }
-                catch (Ice.ObjectNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -211,15 +211,15 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            CallbackReceiverI callbackReceiverImpl;
-            CallbackReceiver callbackReceiver;
+            CallbackReceiver callbackReceiverImpl;
+            ICallbackReceiver callbackReceiver;
             ICallbackReceiverPrx twowayR;
             ICallbackReceiverPrx fakeTwowayR;
 
             {
                 Console.Out.Write("creating and adding callback receiver object... ");
                 Console.Out.Flush();
-                callbackReceiverImpl = new CallbackReceiverI();
+                callbackReceiverImpl = new CallbackReceiver();
                 callbackReceiver = callbackReceiverImpl;
                 Ice.Identity callbackReceiverIdent = new Ice.Identity();
                 callbackReceiverIdent.name = "callbackReceiver";
@@ -313,7 +313,7 @@ public class Client : Test.TestHelper
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
-                catch (Ice.ObjectNotExistException)
+                catch (ObjectNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -361,7 +361,7 @@ public class Client : Test.TestHelper
                 {
                     router.DestroySession();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -377,11 +377,11 @@ public class Client : Test.TestHelper
                     @base.IcePing();
                     test(false);
                 }
-                catch (Ice.ConnectionLostException)
+                catch (ConnectionLostException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Ice.SocketException)
+                catch (SocketException)
                 {
                     test(false);
                 }
@@ -434,8 +434,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
 }

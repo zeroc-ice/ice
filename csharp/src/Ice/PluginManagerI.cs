@@ -13,7 +13,7 @@ namespace Ice
     /// Applications implement this interface to provide a plug-in factory
     /// to the Ice run time.
     /// </summary>
-    public interface PluginFactory
+    public interface IPluginFactory
     {
         /// <summary>
         /// Called by the Ice run time to create a new plug-in.
@@ -23,12 +23,12 @@ namespace Ice
         /// <param name="name">The name of the plug-in.</param>
         /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
         /// <returns>The plug-in that was created by this method.</returns>
-        Plugin create(Communicator communicator, string name, string[] args);
+        IPlugin create(Communicator communicator, string name, string[] args);
     }
 
     public sealed partial class Communicator
     {
-        public static void RegisterPluginFactory(string name, PluginFactory factory, bool loadOnInit)
+        public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
         {
             if (!_factories.ContainsKey(name))
             {
@@ -52,7 +52,7 @@ namespace Ice
             //
             // Invoke initialize() on the plug-ins, in the order they were loaded.
             //
-            List<Plugin> initializedPlugins = new List<Plugin>();
+            List<IPlugin> initializedPlugins = new List<IPlugin>();
             try
             {
                 foreach (var p in _plugins)
@@ -68,7 +68,7 @@ namespace Ice
                 // reverse order.
                 //
                 initializedPlugins.Reverse();
-                foreach (Plugin p in initializedPlugins)
+                foreach (IPlugin p in initializedPlugins)
                 {
                     try
                     {
@@ -98,7 +98,7 @@ namespace Ice
             }
         }
 
-        public Plugin? GetPlugin(string name)
+        public IPlugin? GetPlugin(string name)
         {
             lock (this)
             {
@@ -111,7 +111,7 @@ namespace Ice
             }
         }
 
-        public void AddPlugin(string name, Plugin plugin)
+        public void AddPlugin(string name, IPlugin plugin)
         {
             lock (this)
             {
@@ -320,7 +320,7 @@ namespace Ice
             // precedence over the the entryPoint specified in the plugin
             // property value.
             //
-            PluginFactory? pluginFactory;
+            IPluginFactory? pluginFactory;
             if (!_factories.TryGetValue(name, out pluginFactory))
             {
                 //
@@ -398,7 +398,7 @@ namespace Ice
 
                 try
                 {
-                    pluginFactory = (PluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
+                    pluginFactory = (IPluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
                 }
                 catch (System.Exception ex)
                 {
@@ -415,15 +415,15 @@ namespace Ice
             _plugins.Add((name, pluginFactory.create(this, name, args)));
         }
 
-        private Plugin? FindPlugin(string name)
+        private IPlugin? FindPlugin(string name)
         {
             return _plugins.FirstOrDefault(p => p.Name == name).Plugin;
         }
 
-        private readonly List<(string Name, Plugin Plugin)> _plugins = new List<(string Name, Plugin Plugin)>();
+        private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
         private bool _initialized;
 
-        private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
+        private static Dictionary<string, IPluginFactory> _factories = new Dictionary<string, IPluginFactory>();
         private static List<string> _loadOnInitialization = new List<string>();
     }
 }

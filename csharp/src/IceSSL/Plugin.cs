@@ -46,7 +46,7 @@ namespace IceSSL
     /// <summary>
     /// Interface that allows applications to interact with the IceSSL plug-in.
     /// </summary>
-    public abstract class Plugin : Ice.Plugin
+    public abstract class Plugin : Ice.IPlugin
     {
         public abstract void initialize();
 
