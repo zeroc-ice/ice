@@ -591,30 +591,10 @@ namespace Ice
         }
 
         /// <summary>
-        /// Indicates that unmarshaling is complete, except for any class instances. The application must call this
-        /// method only if the stream actually contains class instances. Calling readPendingValues triggers the
-        /// calls to the System.Action delegates to inform the application that unmarshaling of an instance
-        /// is complete.
+        /// No-op, to be removed
         /// </summary>
         public void ReadPendingValues()
         {
-            if (_encapsStack != null && _encapsStack.decoder != null)
-            {
-                _encapsStack.decoder.readPendingValues();
-            }
-            else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
-            {
-                //
-                // If using the 1.0 encoding and no instances were read, we
-                // still read an empty sequence of pending instances if
-                // requested (i.e.: if this is called).
-                //
-                // This is required by the 1.0 encoding, even if no instances
-                // are written we do marshal an empty sequence if marshaled
-                // data types use classes.
-                //
-                skipSize();
-            }
         }
 
         /// <summary>
@@ -2015,10 +1995,11 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue(Action<Value> cb)
+        public void ReadValue(Action<Value?>? cb)
         {
             initEncaps();
-            _encapsStack.decoder.readValue(cb);
+            var obj = _encapsStack.decoder.readValue();
+            cb?.Invoke(obj);
         }
 
         /// <summary>
@@ -2050,7 +2031,7 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue(int tag, System.Action<Value> cb)
+        public void ReadValue(int tag, System.Action<Value?>? cb)
         {
             if (ReadOptional(tag, OptionalFormat.Class))
             {
@@ -2289,22 +2270,10 @@ namespace Ice
         private object? _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
-        private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+        private enum SliceType { ValueSlice, ExceptionSlice }
 
         private abstract class EncapsDecoder
         {
-            protected struct PatchEntry
-            {
-                public PatchEntry(System.Action<Value> cb, int classGraphDepth)
-                {
-                    this.cb = cb;
-                    this.classGraphDepth = classGraphDepth;
-                }
-
-                public System.Action<Value> cb;
-                public int classGraphDepth;
-            };
-
             internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
                                    int classGraphDepthMax, System.Func<string, Type> cr)
             {
@@ -2318,7 +2287,7 @@ namespace Ice
                 _unmarshaledMap = new Dictionary<int, Value>();
             }
 
-            internal abstract void readValue(System.Action<Value> cb);
+            internal abstract Value? readValue();
             internal abstract void throwException(UserExceptionFactory? factory);
 
             internal abstract void startInstance(SliceType type);
@@ -2330,10 +2299,6 @@ namespace Ice
             internal virtual bool readOptional(int tag, OptionalFormat format)
             {
                 return false;
-            }
-
-            internal virtual void readPendingValues()
-            {
             }
 
             protected string readTypeId(bool isIndex)
@@ -2455,7 +2420,7 @@ namespace Ice
                 _valueIdIndex = 1;
             }
 
-            internal override void readValue(System.Action<Value> cb)
+            internal override Value? readValue()
             {
                 int index = _stream.ReadSize();
                 if (index < 0)
@@ -2464,7 +2429,7 @@ namespace Ice
                 }
                 else if (index == 0)
                 {
-                    cb?.Invoke(null);
+                    return null;
                 }
                 else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
@@ -2477,17 +2442,16 @@ namespace Ice
                     index--;
                     if (_current.IndirectionTable != null && index < _current.IndirectionTable.Length)
                     {
-                        cb?.Invoke(_unmarshaledMap[_current.IndirectionTable[index]]);
+                        if (_unmarshaledMap.TryGetValue(_current.IndirectionTable[index], out var obj))
+                        {
+                            return obj;
+                        }
                     }
-                    else
-                    {
-                        throw new MarshalException("index not found in indirection table");
-                    }
+                    throw new MarshalException("index not found in indirection table");
                 }
                 else
                 {
-                    var obj = readInstance(index).Obj;
-                    cb?.Invoke(obj);
+                    return readInstance(index).Obj;
                 }
             }
 
