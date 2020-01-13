@@ -4,7 +4,6 @@
 
 namespace Ice
 {
-
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -700,6 +699,11 @@ namespace Ice
                 throw new UnmarshalOutOfBoundsException();
             }
             */
+
+            if (_buf.b.position() + sz * minSize > _buf.size())
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
 
             return sz;
         }
@@ -3267,5 +3271,4 @@ namespace Ice
             read(istr);
         }
     }
-
 }
