@@ -2464,10 +2464,7 @@ namespace Ice
                 }
                 else if (index == 0)
                 {
-                    if (cb != null)
-                    {
-                        cb(null);
-                    }
+                    cb?.Invoke(null);
                 }
                 else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
@@ -2480,7 +2477,7 @@ namespace Ice
                     index--;
                     if (_current.IndirectionTable != null && index < _current.IndirectionTable.Length)
                     {
-                        cb(_unmarshaledMap[_current.IndirectionTable[index]]);
+                        cb?.Invoke(_unmarshaledMap[_current.IndirectionTable[index]]);
                     }
                     else
                     {
@@ -2489,7 +2486,8 @@ namespace Ice
                 }
                 else
                 {
-                    readInstance(index, cb);
+                    var obj = readInstance(index).Obj;
+                    cb?.Invoke(obj);
                 }
             }
 
@@ -2841,7 +2839,7 @@ namespace Ice
                 var indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
                 for (int i = 0; i < indirectionTable.Length; ++i)
                 {
-                    indirectionTable[i] = readInstance(_stream.ReadSize(), null);
+                    indirectionTable[i] = readInstance(_stream.ReadSize()).Index;
                 }
                 return indirectionTable;
             }
@@ -2897,24 +2895,17 @@ namespace Ice
                 //
                 v.iceRead(_stream);
             }
-            private int readInstance(int index, Action<Value> cb)
+            private (int Index, Value Obj) readInstance(int index)
             {
                 Debug.Assert(index > 0);
 
                 if (index > 1)
                 {
-                    if (cb != null)
+                    if (_unmarshaledMap.TryGetValue(index, out var obj))
                     {
-                        if (_unmarshaledMap.TryGetValue(index, out var obj))
-                        {
-                            cb(obj);
-                        }
-                        else
-                        {
-                            throw new MarshalException($"could not find index {index} in unmarshaledMap");
-                        }
-                    }
-                    return index;
+                        return (index, obj);
+;                   }
+                    throw new MarshalException($"could not find index {index} in unmarshaledMap");
                 }
 
                 push(SliceType.ValueSlice);
@@ -3071,8 +3062,7 @@ namespace Ice
 
                 --_classGraphDepth;
 
-                cb?.Invoke(v);
-                return index;
+               return (index, v);
             }
 
             private SlicedData? readSlicedData()
