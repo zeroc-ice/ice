@@ -2758,33 +2758,25 @@ namespace Ice
                 if (_current.sliceType == SliceType.ValueSlice)
                 {
                     _current.DeferredIndirectionTableList ??= new List<int>();
+                    if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                    {
+                        _current.DeferredIndirectionTableList.Add(_stream.pos());
+                        SkipIndirectionTable();
+                    }
+                    else
+                    {
+                        _current.DeferredIndirectionTableList.Add(0);
+                    }
                 }
                 else
                 {
                     _current.IndirectionTableList ??= new List<int[]?>();
-                }
-
-                if (_current.IndirectionTable != null)
-                {
-                    // We've already read the indirection table:
-                    Debug.Assert(_current.sliceType == SliceType.ExceptionSlice, "slice type is not Exception Slice");
-                    Debug.Assert(_current.PosAfterIndirectionTable.HasValue, "pos after indirection table is not set");
-                    _current.IndirectionTableList.Add(_current.IndirectionTable);
-                    _stream.pos(_current.PosAfterIndirectionTable.Value);
-                    _current.PosAfterIndirectionTable = null;
-                    _current.IndirectionTable = null;
-                }
-                else if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-                {
-                    Debug.Assert(_current.sliceType == SliceType.ValueSlice);
-                    _current.DeferredIndirectionTableList.Add(_stream.pos());
-                    SkipIndirectionTable();
-                }
-                else
-                {
-                    if (_current.sliceType == SliceType.ValueSlice)
+                    if (_current.IndirectionTable != null)
                     {
-                        _current.DeferredIndirectionTableList.Add(0);
+                        _current.IndirectionTableList.Add(_current.IndirectionTable);
+                        _stream.pos(_current.PosAfterIndirectionTable.Value);
+                        _current.PosAfterIndirectionTable = null;
+                        _current.IndirectionTable = null;
                     }
                     else
                     {
