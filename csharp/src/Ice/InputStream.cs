@@ -570,7 +570,7 @@ namespace Ice
         public string StartSlice() // Returns type ID of next slice
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.startSlice();
+            return _encapsStack.decoder.startSlice(true);
         }
 
         /// <summary>
@@ -660,6 +660,9 @@ namespace Ice
                 return 0;
             }
 
+            /*
+            TODO: Disabled, should be later refactored out. This useless check does not work well with the new indirection table processing.
+
             //
             // The _startSeq variable points to the start of the sequence for which
             // we expect to read at least _minSeqSize bytes from the stream.
@@ -696,6 +699,7 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
+            */
 
             return sz;
         }
@@ -2315,7 +2319,7 @@ namespace Ice
 
             internal abstract void startInstance(SliceType type);
             internal abstract SlicedData endInstance(bool preserve);
-            internal abstract string startSlice();
+            internal abstract string startSlice(bool readIndirectionTable);
             internal abstract void endSlice();
             internal abstract void skipSlice();
 
@@ -2348,7 +2352,16 @@ namespace Ice
                 else
                 {
                     string typeId = _stream.ReadString();
-                    _typeIdMap.Add(++_typeIdIndex, typeId);
+
+                    // We only want to insert this typeId in the map and increment the index
+                    // when it's the first time we read it, so we save the largest pos we
+                    // read to figure when to insert.
+                    if (_stream.pos() > _posAfterLatestInsertedTypeId)
+                    {
+                        _posAfterLatestInsertedTypeId = _stream.pos();
+                        _typeIdMap.Add(++_typeIdIndex, typeId);
+                    }
+
                     return typeId;
                 }
             }
@@ -2410,88 +2423,6 @@ namespace Ice
                 return v;
             }
 
-            protected void addPatchEntry(int index, System.Action<Value> cb)
-            {
-                Debug.Assert(index > 0);
-
-                //
-                // Check if we already unmarshaled the instance. If that's the case,
-                // just call the callback and we're done.
-                //
-                Value obj;
-                if (_unmarshaledMap.TryGetValue(index, out obj))
-                {
-                    cb(obj);
-                    return;
-                }
-
-                if (_patchMap == null)
-                {
-                    _patchMap = new Dictionary<int, LinkedList<PatchEntry>>();
-                }
-
-                //
-                // Add patch entry if the instance isn't unmarshaled yet,
-                // the callback will be called when the instance is
-                // unmarshaled.
-                //
-                LinkedList<PatchEntry> l;
-                if (!_patchMap.TryGetValue(index, out l))
-                {
-                    //
-                    // We have no outstanding instances to be patched for this
-                    // index, so make a new entry in the patch map.
-                    //
-                    l = new LinkedList<PatchEntry>();
-                    _patchMap.Add(index, l);
-                }
-
-                //
-                // Append a patch entry for this instance.
-                //
-                l.AddLast(new PatchEntry(cb, _classGraphDepth));
-            }
-
-            protected void unmarshal(int index, Value v)
-            {
-                //
-                // Add the instance to the map of unmarshaled instances, this must
-                // be done before reading the instances (for circular references).
-                //
-                _unmarshaledMap.Add(index, v);
-
-                //
-                // Read the instance.
-                //
-                v.iceRead(_stream);
-
-                if (_patchMap != null)
-                {
-                    //
-                    // Patch all instances now that the instance is unmarshaled.
-                    //
-                    LinkedList<PatchEntry> l;
-                    if (_patchMap.TryGetValue(index, out l))
-                    {
-                        Debug.Assert(l.Count > 0);
-
-                        //
-                        // Patch all pointers that refer to the instance.
-                        //
-                        foreach (PatchEntry entry in l)
-                        {
-                            entry.cb(v);
-                        }
-
-                        //
-                        // Clear out the patch map for that index -- there is nothing left
-                        // to patch for that index for the time being.
-                        //
-                        _patchMap.Remove(index);
-                    }
-                }
-            }
-
             protected readonly InputStream _stream;
             protected readonly Encaps _encaps;
             protected readonly bool _sliceValues;
@@ -2502,10 +2433,10 @@ namespace Ice
             //
             // Encapsulation attributes for object unmarshaling.
             //
-            protected Dictionary<int, LinkedList<PatchEntry>> _patchMap;
-            private Dictionary<int, Value> _unmarshaledMap;
+            protected Dictionary<int, Value> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
+            private int _posAfterLatestInsertedTypeId = 0;
             private Dictionary<string, Type> _typeIdCache;
         }
 
@@ -2537,26 +2468,19 @@ namespace Ice
                 else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     //
-                    // When reading an instance within a slice and there's an
-                    // indirect instance table, always read an indirect reference
-                    // that points to an instance from the indirect instance table
-                    // marshaled at the end of the Slice.
+                    // When reading an instance within a slice and there is an
+                    // indirection table, we have an index within this indirection table.
                     //
-                    // Maintain a list of indirect references. Note that the
-                    // indirect index starts at 1, so we decrement it by one to
-                    // derive an index into the indirection table that we'll read
-                    // at the end of the slice.
-                    //
-                    if (cb != null)
+                    // We need to decrement index since position 0 in the indirection table
+                    // corresponds to index 1.
+                    index--;
+                    if (_current.IndirectionTable != null && index < _current.IndirectionTable.Length)
                     {
-                        if (_current.indirectPatchList == null)
-                        {
-                            _current.indirectPatchList = new Stack<IndirectPatchEntry>();
-                        }
-                        IndirectPatchEntry e = new IndirectPatchEntry();
-                        e.index = index - 1;
-                        e.patcher = cb;
-                        _current.indirectPatchList.Push(e);
+                        cb(_unmarshaledMap[_current.IndirectionTable[index]]);
+                    }
+                    else
+                    {
+                        throw new MarshalException("index not found in indirection table");
                     }
                 }
                 else
@@ -2574,7 +2498,8 @@ namespace Ice
                 //
                 // Read the first slice header.
                 //
-                startSlice();
+                startSlice(true); // we read the indirection table immediately
+
                 string mostDerivedId = _current.typeId;
                 while (true)
                 {
@@ -2628,7 +2553,7 @@ namespace Ice
                         }
                     }
 
-                    startSlice();
+                    startSlice(true);
                 }
             }
 
@@ -2645,16 +2570,16 @@ namespace Ice
                 {
                     slicedData = readSlicedData();
                 }
-                if (_current.slices != null)
-                {
-                    _current.slices.Clear();
-                    _current.indirectionTables.Clear();
-                }
+
+                // We may reuse this instance data (current) so we need to clean it well (see push)
+                _current.slices?.Clear();
+                _current.IndirectionTableList?.Clear();
+                Debug.Assert(_current.DeferredIndirectionTableList == null || _current.DeferredIndirectionTableList.Count == 0);
                 _current = _current.previous;
                 return slicedData;
             }
 
-            internal override string startSlice()
+            internal override string startSlice(bool readIndirectionTable)
             {
                 //
                 // If first slice, don't read the header, it was already read in
@@ -2663,59 +2588,80 @@ namespace Ice
                 if (_current.skipFirstSlice)
                 {
                     _current.skipFirstSlice = false;
-                    return _current.typeId;
                 }
-
-                _current.sliceFlags = _stream.ReadByte();
-
-                //
-                // Read the type ID, for instance slices the type ID is encoded as a
-                // string or as an index, for exceptions it's always encoded as a
-                // string.
-                //
-                if (_current.sliceType == SliceType.ValueSlice)
+                else
                 {
+                    _current.sliceFlags = _stream.ReadByte();
+
                     //
-                    // Must be checked first!
+                    // Read the type ID, for instance slices the type ID is encoded as a
+                    // string or as an index, for exceptions it's always encoded as a
+                    // string.
                     //
-                    if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                    if (_current.sliceType == SliceType.ValueSlice)
                     {
-                        _current.typeId = "";
-                        _current.compactId = _stream.ReadSize();
-                    }
-                    else if ((_current.sliceFlags &
-                            (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
-                    {
-                        _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
-                        _current.compactId = -1;
+                        //
+                        // Must be checked first!
+                        //
+                        if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                        {
+                            _current.typeId = "";
+                            _current.compactId = _stream.ReadSize();
+                        }
+                        else if ((_current.sliceFlags &
+                                (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                        {
+                            _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                            _current.compactId = -1;
+                        }
+                        else
+                        {
+                            // Only the most derived slice encodes the type ID for the compact format.
+                            _current.typeId = "";
+                            _current.compactId = -1;
+                        }
                     }
                     else
                     {
-                        // Only the most derived slice encodes the type ID for the compact format.
-                        _current.typeId = "";
+                        _current.typeId = _stream.ReadString();
                         _current.compactId = -1;
                     }
-                }
-                else
-                {
-                    _current.typeId = _stream.ReadString();
-                    _current.compactId = -1;
-                }
 
-                //
-                // Read the slice size if necessary.
-                //
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
-                {
-                    _current.sliceSize = _stream.ReadInt();
-                    if (_current.sliceSize < 4)
+                    //
+                    // Read the slice size if necessary.
+                    //
+                    if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
                     {
-                        throw new UnmarshalOutOfBoundsException();
+                        _current.sliceSize = _stream.ReadInt();
+                        if (_current.sliceSize < 4)
+                        {
+                            throw new UnmarshalOutOfBoundsException();
+                        }
+                    }
+                    else
+                    {
+                        _current.sliceSize = 0;
                     }
                 }
-                else
+
+                // Read the indirection table now
+                if (readIndirectionTable && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    _current.sliceSize = 0;
+                    if (_current.IndirectionTable != null)
+                    {
+                        // We already read it (skipFirstSlice was true and it's an exception), so nothing to do
+                        // Note that for classes, we only read the indirection table for the first slice
+                        // when skipFirstSlice is true
+                    }
+                    else
+                    {
+                        int savedPos = _stream.pos();
+                        Debug.Assert(_current.sliceSize >= 4);
+                        _stream.pos(savedPos + _current.sliceSize - 4);
+                        _current.IndirectionTable = ReadIndirectionTable();
+                        _current.PosAfterIndirectionTable = _stream.pos();
+                        _stream.pos(savedPos);
+                    }
                 }
 
                 return _current.typeId;
@@ -2727,53 +2673,11 @@ namespace Ice
                 {
                     _stream.skipOptionals();
                 }
-
-                //
-                // Read the indirection table if one is present and transform the
-                // indirect patch list into patch entries with direct references.
-                //
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                if (_current.PosAfterIndirectionTable.HasValue)
                 {
-                    //
-                    // The table is written as a sequence<size> to conserve space.
-                    //
-                    int[] indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
-                    for (int i = 0; i < indirectionTable.Length; ++i)
-                    {
-                        indirectionTable[i] = readInstance(_stream.ReadSize(), null);
-                    }
-
-                    //
-                    // Sanity checks. If there are optional members, it's possible
-                    // that not all instance references were read if they are from
-                    // unknown optional data members.
-                    //
-                    if (indirectionTable.Length == 0)
-                    {
-                        throw new MarshalException("empty indirection table");
-                    }
-                    if ((_current.indirectPatchList == null || _current.indirectPatchList.Count == 0) &&
-                       (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
-                    {
-                        throw new MarshalException("no references to indirection table");
-                    }
-
-                    //
-                    // Convert indirect references into direct references.
-                    //
-                    if (_current.indirectPatchList != null)
-                    {
-                        foreach (IndirectPatchEntry e in _current.indirectPatchList)
-                        {
-                            Debug.Assert(e.index >= 0);
-                            if (e.index >= indirectionTable.Length)
-                            {
-                                throw new MarshalException("indirection out of range");
-                            }
-                            addPatchEntry(indirectionTable[e.index], e.patcher);
-                        }
-                        _current.indirectPatchList.Clear();
-                    }
+                    _stream.pos(_current.PosAfterIndirectionTable.Value);
+                    _current.PosAfterIndirectionTable = null;
+                    _current.IndirectionTable = null;
                 }
             }
 
@@ -2792,6 +2696,8 @@ namespace Ice
                         IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
                     }
                 }
+
+                _current.slices ??= new List<SliceInfo>();
 
                 int start = _stream.pos();
 
@@ -2845,33 +2751,103 @@ namespace Ice
                 b.position(end);
 
                 var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<Value>(), hasOptionalMembers, isLastSlice);
+                _current.slices.Add(info);
 
-                if (_current.slices == null)
+                // The deferred indirection table is only used by classes. For exceptions, the indirection table is
+                // unmarshaled immediately.
+                if (_current.sliceType == SliceType.ValueSlice)
                 {
-                    _current.slices = new List<SliceInfo>();
-                    _current.indirectionTables = new List<int[]>();
-                }
-
-                //
-                // Read the indirect instance table. We read the instances or their
-                // IDs if the instance is a reference to an already unmarshaled
-                // instance.
-                //
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-                {
-                    int[] indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
-                    for (int i = 0; i < indirectionTable.Length; ++i)
-                    {
-                        indirectionTable[i] = readInstance(_stream.ReadSize(), null);
-                    }
-                    _current.indirectionTables.Add(indirectionTable);
+                    _current.DeferredIndirectionTableList ??= new List<int>();
                 }
                 else
                 {
-                    _current.indirectionTables.Add(null);
+                    _current.IndirectionTableList ??= new List<int[]?>();
                 }
 
-                _current.slices.Add(info);
+                if (_current.IndirectionTable != null)
+                {
+                    // We've already read the indirection table:
+                    Debug.Assert(_current.sliceType == SliceType.ExceptionSlice, "slice type is not Exception Slice");
+                    Debug.Assert(_current.PosAfterIndirectionTable.HasValue, "pos after indirection table is not set");
+                    _current.IndirectionTableList.Add(_current.IndirectionTable);
+                    _stream.pos(_current.PosAfterIndirectionTable.Value);
+                    _current.PosAfterIndirectionTable = null;
+                    _current.IndirectionTable = null;
+                }
+                else if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                {
+                    Debug.Assert(_current.sliceType == SliceType.ValueSlice);
+                    _current.DeferredIndirectionTableList.Add(_stream.pos());
+                    SkipIndirectionTable();
+                }
+                else
+                {
+                    if (_current.sliceType == SliceType.ValueSlice)
+                    {
+                        _current.DeferredIndirectionTableList.Add(0);
+                    }
+                    else
+                    {
+                        _current.IndirectionTableList.Add(null);
+                    }
+                }
+            }
+
+            // Skip the indirection table. The caller must save the current stream position before calling
+            // SkipIndirectionTable (to read the indirection table at a later point) except when the caller
+            // is SkipIndirectionTable itself.
+            private void SkipIndirectionTable()
+            {
+                Debug.Assert(_current.sliceType == SliceType.ValueSlice); // we should never skip an exception's indirection table
+                var tableSize = _stream.ReadAndCheckSeqSize(1);
+                for (int i = 0; i < tableSize; ++i)
+                {
+                    var index = _stream.ReadSize();
+                    Debug.Assert(index > 0);
+                    if (index == 1)
+                    {
+                        // Read/skip this instance
+                        byte sliceFlags = 0;
+                        do
+                        {
+                            sliceFlags = _stream.ReadByte();
+                            if ((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                            {
+                                _stream.ReadSize(); // compact type-id
+                            }
+                            else if ((sliceFlags &
+                                (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                            {
+                                readTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                            }
+                            else
+                            {
+                                throw new MarshalException("indirection table cannot hold an instance without a type-id");
+                            }
+
+                            // Read the slice size, then skip the slice
+                            Debug.Assert((sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0);
+                            int sliceSize = _stream.ReadInt();
+                            _stream.pos(_stream.pos() + sliceSize - 4);
+
+                            // If this slice has an indirection table, skip it too
+                            if ((sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                            {
+                                SkipIndirectionTable();
+                            }
+                        } while ((sliceFlags & Protocol.FLAG_IS_LAST_SLICE) == 0);
+                    }
+                }
+            }
+
+            private int[] ReadIndirectionTable()
+            {
+                var indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
+                for (int i = 0; i < indirectionTable.Length; ++i)
+                {
+                    indirectionTable[i] = readInstance(_stream.ReadSize(), null);
+                }
+                return indirectionTable;
             }
 
             internal override bool readOptional(int readTag, OptionalFormat expectedFormat)
@@ -2887,6 +2863,44 @@ namespace Ice
                 return false;
             }
 
+            private void Unmarshal(int index, Value v)
+            {
+                //
+                // Add the instance to the map of unmarshaled instances, this must
+                // be done before reading the instances (for circular references).
+                //
+                _unmarshaledMap.Add(index, v);
+
+                //
+                // Read all the deferred indirection tables now that the instance is inserted in _unmarshaledMap.
+                //
+                if (_current.DeferredIndirectionTableList?.Count > 0)
+                {
+                    int savedPos = _stream.pos();
+
+                    Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
+                    _current.IndirectionTableList ??= new List<int[]?>(_current.DeferredIndirectionTableList.Count);
+                    foreach (int pos in _current.DeferredIndirectionTableList)
+                    {
+                        if (pos > 0)
+                        {
+                            _stream.pos(pos);
+                            _current.IndirectionTableList.Add(ReadIndirectionTable());
+                        }
+                        else
+                        {
+                            _current.IndirectionTableList.Add(null);
+                        }
+                    }
+                    _stream.pos(savedPos);
+                    _current.DeferredIndirectionTableList.Clear();
+                }
+
+                //
+                // Read the instance.
+                //
+                v.iceRead(_stream);
+            }
             private int readInstance(int index, Action<Value> cb)
             {
                 Debug.Assert(index > 0);
@@ -2895,7 +2909,14 @@ namespace Ice
                 {
                     if (cb != null)
                     {
-                        addPatchEntry(index, cb);
+                        if (_unmarshaledMap.TryGetValue(index, out var obj))
+                        {
+                            cb(obj);
+                        }
+                        else
+                        {
+                            throw new MarshalException($"could not find index {index} in unmarshaledMap");
+                        }
                     }
                     return index;
                 }
@@ -2912,7 +2933,7 @@ namespace Ice
                 //
                 // Read the first slice header.
                 //
-                startSlice();
+                startSlice(false);
                 string mostDerivedId = _current.typeId;
                 Value? v = null;
                 while (true)
@@ -3039,7 +3060,7 @@ namespace Ice
                         break;
                     }
 
-                    startSlice(); // Read next Slice header for next iteration.
+                    startSlice(false); // Read next Slice header for next iteration.
                 }
 
                 if (++_classGraphDepth > _classGraphDepthMax)
@@ -3050,18 +3071,9 @@ namespace Ice
                 //
                 // Unmarshal the instance.
                 //
-                unmarshal(index, v);
+                Unmarshal(index, v);
 
                 --_classGraphDepth;
-
-                if (_current == null && _patchMap != null && _patchMap.Count > 0)
-                {
-                    //
-                    // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
-                    // to supply the instance.
-                    //
-                    throw new MarshalException("index for class received, but no instance");
-                }
 
                 cb?.Invoke(v);
                 return index;
@@ -3078,7 +3090,7 @@ namespace Ice
                 // The _indirectionTables member holds the indirection table for each slice
                 // in _slices.
                 //
-                Debug.Assert(_current.slices.Count == _current.indirectionTables.Count);
+                Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
                 for (int n = 0; n < _current.slices.Count; ++n)
                 {
                     //
@@ -3087,13 +3099,20 @@ namespace Ice
                     // been read yet in the case of a circular reference to an
                     // enclosing instance.
                     //
-                    int[] table = _current.indirectionTables[n];
+                    int[] table = _current.IndirectionTableList[n];
                     SliceInfo info = _current.slices[n];
                     info.instances = new Value[table != null ? table.Length : 0];
                     for (int j = 0; j < info.instances.Length; ++j)
                     {
-                        var cj = j;
-                        addPatchEntry(table[j], (Value v) => info.instances[cj] = v);
+                        int index = table[j];
+                        if (_unmarshaledMap.TryGetValue(index, out var obj))
+                        {
+                            info.instances[j] = obj;
+                        }
+                        else
+                        {
+                            throw new MarshalException($"could not find index {index} in unmarshaledMap");
+                        }
                     }
                 }
 
@@ -3113,13 +3132,6 @@ namespace Ice
                 _current.sliceType = sliceType;
                 _current.skipFirstSlice = false;
             }
-
-            private sealed class IndirectPatchEntry
-            {
-                public int index;
-                public System.Action<Value> patcher;
-            }
-
             private sealed class InstanceData
             {
                 internal InstanceData(InstanceData? previous)
@@ -3136,15 +3148,21 @@ namespace Ice
                 internal SliceType sliceType;
                 internal bool skipFirstSlice;
                 internal List<SliceInfo> slices;     // Preserved slices.
-                internal List<int[]> indirectionTables;
+                internal List<int[]?>? IndirectionTableList;
+
+                // Position in the stream of indirection tables that we skipped for now and that will
+                // unmarshal (into IndirectionTableList) once the instance is created
+                internal List<int>? DeferredIndirectionTableList;
 
                 // Slice attributes
                 internal byte sliceFlags;
                 internal int sliceSize;
                 internal string typeId;
                 internal int compactId;
-                internal Stack<IndirectPatchEntry> indirectPatchList;
 
+                // Indirection table of the current slice
+                internal int[]? IndirectionTable;
+                internal int? PosAfterIndirectionTable;
                 internal InstanceData? previous;
                 internal InstanceData? next;
             }
