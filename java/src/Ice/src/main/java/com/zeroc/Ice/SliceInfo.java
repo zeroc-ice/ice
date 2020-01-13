@@ -30,9 +30,9 @@ public class SliceInfo
     public com.zeroc.Ice.Value[] instances;
 
     /**
-     * Whether or not the slice contains optional members.
+     * Whether or not the slice contains tagged members.
      **/
-    public boolean hasOptionalMembers;
+    public boolean hasTaggedMembers;
 
     /**
      * Whether or not this is the last slice.

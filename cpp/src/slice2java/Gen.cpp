@@ -885,7 +885,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     if(member->tagged())
     {
         assert(!forStruct);
-        out << nl << "if(_" << member->name() << " = istr_.readOptional(" << member->tag() << ", "
+        out << nl << "if(_" << member->name() << " = istr_.readTag(" << member->tag() << ", "
             << getTagFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), TaggedMember, 0, fixKwd(member->name()), false,
@@ -3266,7 +3266,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(ostr.writeTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(p->isVariableLength())
     {
@@ -3287,7 +3287,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "static public " << addAnnotation(name, "@Nullable") << " ice_read(" <<
         getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(istr.readTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(p->isVariableLength())
     {
@@ -3433,7 +3433,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             if(isTagged &&
                (!validateMethod(ops, "has" + capName, 0, file, line) ||
                 !validateMethod(ops, "clear" + capName, 0, file, line) ||
-                !validateMethod(ops, "optional" + capName, 0, file, line)))
+                !validateMethod(ops, "tagged" + capName, 0, file, line)))
             {
                 return;
             }
@@ -3511,7 +3511,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public void optional" << capName << '(' << typeN << " v)";
+            out << nl << "public void tagged" << capName << '(' << typeN << " v)";
             out << sb;
             out << nl << "if(v == null)";
             out << sb;
@@ -3530,7 +3530,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public " << typeN << " optional" << capName << "()";
+            out << nl << "public " << typeN << " tagged" << capName << "()";
             out << sb;
             out << nl << "if(_" << p->name() << ')';
             out << sb;
@@ -3733,7 +3733,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(ostr.writeTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     out << nl << "ice_write(ostr, v);";
     out << eb;
@@ -3744,7 +3744,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "public static " << addAnnotation(name, "@Nullable") << " ice_read("
         << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(istr.readTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     out << nl << "return ice_read(istr);";
     out << eb;
@@ -3978,7 +3978,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         out << nl << "if(v != null)";
         out << sb;
-        out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
+        out << nl << "if(ostr.writeTag(tag, " << getTagFormat(p) << "))";
         out << sb;
         if(p->type()->isVariableLength())
         {
@@ -3996,7 +3996,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
             if(sz > 1)
             {
                 string metaData;
-                out << nl << "final int optSize = v == null ? 0 : ";
+                out << nl << "final int taggedSize = v == null ? 0 : ";
                 if(findMetaData("java:buffer", p->getMetaData(), metaData))
                 {
                     out << "v.remaining() / " << sz << ";";
@@ -4009,7 +4009,8 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
                 {
                     out << "v.length;";
                 }
-                out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
+                out << nl << "ostr.writeSize(taggedSize > 254 ? taggedSize * " << sz << " + 5 : taggedSize * " << sz
+                    << " + 1);";
             }
             writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
         }
@@ -4028,7 +4029,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
+        out << nl << "if(istr.readTag(tag, " << getTagFormat(p) << "))";
         out << sb;
         if(p->type()->isVariableLength())
         {
@@ -4101,7 +4102,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "if(v != null)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(ostr.writeTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     TypePtr keyType = p->keyType();
     TypePtr valueType = p->valueType();
@@ -4114,8 +4115,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     else
     {
         const size_t sz = keyType->minWireSize() + valueType->minWireSize();
-        out << nl << "final int optSize = v == null ? 0 : v.size();";
-        out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
+        out << nl << "final int taggedSize = v == null ? 0 : v.size();";
+        out << nl << "ostr.writeSize(taggedSize > 254 ? taggedSize * " << sz << " + 5 : taggedSize * " << sz
+            << " + 1);";
         writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
     }
     out << eb;
@@ -4126,7 +4128,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static " << addAnnotation(formalType, "@Nullable") << " read("
         << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getTagFormat(p) << "))";
+    out << nl << "if(istr.readTag(tag, " << getTagFormat(p) << "))";
     out << sb;
     if(keyType->isVariableLength() || valueType->isVariableLength())
     {
