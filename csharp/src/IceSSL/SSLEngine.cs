@@ -114,7 +114,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (CertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -149,7 +149,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (PasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -382,12 +382,12 @@ namespace IceSSL
             _certs = certs;
         }
 
-        internal void setCertificateVerifier(CertificateVerifier verifier)
+        internal void setCertificateVerifier(ICertificateVerifier verifier)
         {
             _verifier = verifier;
         }
 
-        internal CertificateVerifier? getCertificateVerifier()
+        internal ICertificateVerifier? getCertificateVerifier()
         {
             return _verifier;
         }
@@ -397,12 +397,12 @@ namespace IceSSL
             return _checkCertName;
         }
 
-        internal void setPasswordCallback(PasswordCallback callback)
+        internal void setPasswordCallback(IPasswordCallback callback)
         {
             _passwordCallback = callback;
         }
 
-        internal PasswordCallback? getPasswordCallback()
+        internal IPasswordCallback? getPasswordCallback()
         {
             return _passwordCallback;
         }
@@ -912,8 +912,8 @@ namespace IceSSL
         private X509Certificate2Collection? _certs;
         private bool _useMachineContext;
         private X509Certificate2Collection? _caCerts;
-        private CertificateVerifier? _verifier;
-        private PasswordCallback? _passwordCallback;
+        private ICertificateVerifier? _verifier;
+        private IPasswordCallback? _passwordCallback;
         private readonly TrustManager _trustManager;
     }
 }

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class CertificateVerifier : IceSSL.CertificateVerifier
+public class CertificateVerifier : IceSSL.ICertificateVerifier
 {
     public CertificateVerifier() => reset();
 
