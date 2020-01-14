@@ -255,7 +255,7 @@ public class AllTests : Test.AllTests
         IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
             communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
         IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
-        session.GetConnection().setACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
+        session.GetConnection().SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.IAdminPrx admin = session.GetAdmin();
         admin.EnableServer("server", false);

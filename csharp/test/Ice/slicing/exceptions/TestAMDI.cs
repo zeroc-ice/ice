@@ -86,7 +86,7 @@ public sealed class TestIntf : ITestIntf
     public Task
     relayKnownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
     {
-        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
+        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.CreateProxy(r.Identity));
         p.knownPreservedAsBase();
         test(false);
         return null;
@@ -95,7 +95,7 @@ public sealed class TestIntf : ITestIntf
     public Task
     relayKnownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
     {
-        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
+        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.CreateProxy(r.Identity));
         p.knownPreservedAsKnownPreserved();
         test(false);
         return null;
@@ -127,7 +127,7 @@ public sealed class TestIntf : ITestIntf
     public Task
     relayUnknownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
     {
-        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
+        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.CreateProxy(r.Identity));
         p.unknownPreservedAsBase();
         test(false);
         return null;
@@ -136,7 +136,7 @@ public sealed class TestIntf : ITestIntf
     public Task
     relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
     {
-        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
+        IRelayPrx p = IRelayPrx.UncheckedCast(current.Connection.CreateProxy(r.Identity));
         p.unknownPreservedAsKnownPreserved();
         test(false);
         return null;

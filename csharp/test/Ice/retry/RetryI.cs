@@ -14,7 +14,7 @@ namespace Ice.retry
             {
                 if (current.Connection != null)
                 {
-                    current.Connection.close(Ice.ConnectionClose.Forcefully);
+                    current.Connection.Close(Ice.ConnectionClose.Forcefully);
                 }
                 else
                 {

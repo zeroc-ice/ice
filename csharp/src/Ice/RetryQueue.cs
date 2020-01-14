@@ -16,7 +16,7 @@ namespace IceInternal
             _outAsync = outAsync;
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
             _outAsync.retry();
 
@@ -29,7 +29,7 @@ namespace IceInternal
             _retryQueue.remove(this);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             Debug.Assert(_outAsync == outAsync);
             if (_retryQueue.cancel(this))

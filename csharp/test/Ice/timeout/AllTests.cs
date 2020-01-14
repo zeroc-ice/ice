@@ -191,7 +191,7 @@ namespace Ice.timeout
                 {
                     try
                     {
-                        con.getInfo();
+                        _ = con.ConnectionInfo;
                         test(false);
                     }
                     catch (TimeoutException)
@@ -211,7 +211,7 @@ namespace Ice.timeout
                 {
                     try
                     {
-                        con.getInfo();
+                        _ = con.ConnectionInfo;
                         test(false);
                     }
                     catch (TimeoutException)
@@ -229,10 +229,10 @@ namespace Ice.timeout
                 var to = timeout.Clone(connectionTimeout: 250);
                 var connection = connect(to);
                 controller.holdAdapter(-1);
-                connection.close(Ice.ConnectionClose.GracefullyWithWait);
+                connection.Close(Ice.ConnectionClose.GracefullyWithWait);
                 try
                 {
-                    connection.getInfo(); // getInfo() doesn't throw in the closing state.
+                    _ = connection.ConnectionInfo; // getInfo() doesn't throw in the closing state.
                 }
                 catch (LocalException)
                 {
@@ -243,7 +243,7 @@ namespace Ice.timeout
                 {
                     try
                     {
-                        connection.getInfo();
+                        _ = connection.ConnectionInfo;
                         Thread.Sleep(10);
                     }
                     catch (ConnectionManuallyClosedException ex)

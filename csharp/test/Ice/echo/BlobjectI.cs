@@ -12,7 +12,7 @@ public class BlobjectI : Ice.BlobjectAsync
     ice_invokeAsync(byte[] inEncaps, Ice.Current current)
     {
         Debug.Assert(current.Connection != null);
-        var prx = current.Connection.createProxy(current.Id).Clone(facet: current.Facet, oneway: current.RequestId == 0);
+        var prx = current.Connection.CreateProxy(current.Id).Clone(facet: current.Facet, oneway: current.RequestId == 0);
         return prx.InvokeAsync(current.Operation, current.Mode, inEncaps, current.Context);
     }
 }

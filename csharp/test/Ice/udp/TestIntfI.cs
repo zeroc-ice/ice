@@ -43,14 +43,14 @@ namespace Ice.udp
                 try
                 {
                     byte[] seq = new byte[32 * 1024];
-                    Test.ITestIntfPrx.UncheckedCast(current.Connection.createProxy(id)).sendByteSeq(seq, null);
+                    Test.ITestIntfPrx.UncheckedCast(current.Connection.CreateProxy(id)).sendByteSeq(seq, null);
                 }
                 catch (Ice.DatagramLimitException)
                 {
                     // Expected.
                 }
 
-                Test.IPingReplyPrx.UncheckedCast(current.Connection.createProxy(id)).reply();
+                Test.IPingReplyPrx.UncheckedCast(current.Connection.CreateProxy(id)).reply();
             }
             catch (LocalException)
             {

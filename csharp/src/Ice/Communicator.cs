@@ -2077,7 +2077,7 @@ namespace Ice
                           Array.Empty<Endpoint>(), adapterId, null);
         }
 
-        internal Reference CreateReference(Identity ident, ConnectionI connection)
+        internal Reference CreateReference(Identity ident, Connection connection)
         {
             //
             // Create new reference
@@ -2086,8 +2086,8 @@ namespace Ice
                 this,
                 ident,
                 "", // Facet
-                connection.endpoint().datagram() ? Ice.InvocationMode.Datagram : Ice.InvocationMode.Twoway,
-                connection.endpoint().secure(),
+                ((Endpoint)connection.Endpoint).datagram() ? Ice.InvocationMode.Datagram : Ice.InvocationMode.Twoway,
+                ((Endpoint)connection.Endpoint).secure(),
                 Util.Protocol_1_0,
                 _defaultsAndOverrides.defaultEncoding,
                 connection,

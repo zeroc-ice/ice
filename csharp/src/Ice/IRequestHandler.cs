@@ -6,7 +6,7 @@ namespace IceInternal
 {
     public interface ICancellationHandler
     {
-        void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
+        void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex);
     }
 
     public interface IRequestHandler : ICancellationHandler
@@ -17,6 +17,6 @@ namespace IceInternal
 
         Reference getReference();
 
-        Ice.ConnectionI getConnection();
+        Ice.Connection getConnection();
     }
 }

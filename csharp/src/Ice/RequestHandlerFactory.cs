@@ -10,7 +10,7 @@ namespace IceInternal
     {
         internal RequestHandlerFactory(Ice.Communicator communicator) => _communicator = communicator;
 
-        public IRequestHandler
+        internal IRequestHandler
         getRequestHandler(RoutableReference rf, Ice.IObjectPrx proxy)
         {
             if (rf.getCollocationOptimized())

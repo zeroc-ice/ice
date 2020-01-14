@@ -26,7 +26,7 @@ public sealed class Metrics : IMetrics
     {
     }
 
-    public void fail(Ice.Current current) => current.Connection.close(Ice.ConnectionClose.Forcefully);
+    public void fail(Ice.Current current) => current.Connection.Close(Ice.ConnectionClose.Forcefully);
 
     public void opWithUserException(Ice.Current current) => throw new UserEx();
 

@@ -29,7 +29,7 @@ public sealed class Metrics : IMetrics
     public Task failAsync(Ice.Current current)
     {
         Debug.Assert(current != null);
-        current.Connection.close(Ice.ConnectionClose.Forcefully);
+        current.Connection.Close(Ice.ConnectionClose.Forcefully);
         return null;
     }
 

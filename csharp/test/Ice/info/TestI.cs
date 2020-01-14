@@ -39,7 +39,7 @@ namespace Ice.info
         {
             Debug.Assert(current.Connection != null);
             Dictionary<string, string> ctx = new Dictionary<string, string>();
-            Ice.EndpointInfo info = current.Connection.getEndpoint().getInfo();
+            Ice.EndpointInfo info = current.Connection.Endpoint.getInfo();
             ctx["timeout"] = info.timeout.ToString();
             ctx["compress"] = info.compress ? "true" : "false";
             ctx["datagram"] = info.datagram() ? "true" : "false";
@@ -65,7 +65,7 @@ namespace Ice.info
         {
             Debug.Assert(current.Connection != null);
             Dictionary<string, string> ctx = new Dictionary<string, string>();
-            ConnectionInfo info = current.Connection.getInfo();
+            ConnectionInfo info = current.Connection.ConnectionInfo;
             ctx["adapterName"] = info.AdapterName;
             ctx["incoming"] = info.Incoming ? "true" : "false";
 

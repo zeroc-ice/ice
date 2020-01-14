@@ -45,7 +45,7 @@ namespace IceInternal
             return outAsync.invokeRemote(_connection, _compress, _response);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock (this)
             {
@@ -73,7 +73,7 @@ namespace IceInternal
                     Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
                 }
             }
-            _connection.asyncRequestCanceled(outAsync, ex);
+            _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
         public Reference getReference()
@@ -81,7 +81,7 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI getConnection()
+        public Ice.Connection getConnection()
         {
             lock (this)
             {
@@ -106,7 +106,7 @@ namespace IceInternal
         // Implementation of Reference.GetConnectionCallback
         //
 
-        public void setConnection(Ice.ConnectionI connection, bool compress)
+        public void setConnection(Ice.Connection connection, bool compress)
         {
             lock (this)
             {
@@ -313,7 +313,7 @@ namespace IceInternal
         private Ice.IObjectPrx? _proxy;
         private HashSet<Ice.IObjectPrx> _proxies = new HashSet<Ice.IObjectPrx>();
 
-        private Ice.ConnectionI? _connection;
+        private Ice.Connection? _connection;
         private bool _compress;
         private Ice.LocalException? _exception;
         private bool _initialized;

@@ -73,9 +73,9 @@ namespace IceInternal
 
     public interface IACMMonitor : ITimerTask
     {
-        void add(Ice.ConnectionI con);
-        void remove(Ice.ConnectionI con);
-        void reap(Ice.ConnectionI con);
+        void add(Ice.Connection con);
+        void remove(Ice.Connection con);
+        void reap(Ice.Connection con);
 
         IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
         Ice.ACM getACM();
@@ -85,13 +85,13 @@ namespace IceInternal
     {
         internal class Change
         {
-            internal Change(Ice.ConnectionI connection, bool remove)
+            internal Change(Ice.Connection connection, bool remove)
             {
                 this.connection = connection;
                 this.remove = remove;
             }
 
-            public readonly Ice.ConnectionI connection;
+            public readonly Ice.Connection connection;
             public readonly bool remove;
         }
 
@@ -141,7 +141,7 @@ namespace IceInternal
             }
         }
 
-        public void add(Ice.ConnectionI connection)
+        public void add(Ice.Connection connection)
         {
             if (_config.timeout == 0)
             {
@@ -163,7 +163,7 @@ namespace IceInternal
             }
         }
 
-        public void remove(Ice.ConnectionI connection)
+        public void remove(Ice.Connection connection)
         {
             if (_config.timeout == 0)
             {
@@ -177,7 +177,7 @@ namespace IceInternal
             }
         }
 
-        public void reap(Ice.ConnectionI connection)
+        public void reap(Ice.Connection connection)
         {
             lock (this)
             {
@@ -215,7 +215,7 @@ namespace IceInternal
             };
         }
 
-        internal List<Ice.ConnectionI>? swapReapedConnections()
+        internal List<Ice.Connection>? swapReapedConnections()
         {
             lock (this)
             {
@@ -223,13 +223,13 @@ namespace IceInternal
                 {
                     return null;
                 }
-                List<Ice.ConnectionI> connections = _reapedConnections;
-                _reapedConnections = new List<Ice.ConnectionI>();
+                List<Ice.Connection> connections = _reapedConnections;
+                _reapedConnections = new List<Ice.Connection>();
                 return connections;
             }
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
             lock (this)
             {
@@ -265,11 +265,11 @@ namespace IceInternal
             // that connections can be added or removed during monitoring.
             //
             long now = Time.currentMonotonicTimeMillis();
-            foreach (Ice.ConnectionI connection in _connections)
+            foreach (var connection in _connections)
             {
                 try
                 {
-                    connection.monitor(now, _config);
+                    connection.Monitor(now, _config);
                 }
                 catch (System.Exception ex)
                 {
@@ -293,9 +293,9 @@ namespace IceInternal
         private Ice.Communicator? _communicator;
         private readonly ACMConfig _config;
 
-        private readonly HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
+        private readonly HashSet<Ice.Connection> _connections = new HashSet<Ice.Connection>();
         private readonly List<Change> _changes = new List<Change>();
-        private List<Ice.ConnectionI> _reapedConnections = new List<Ice.ConnectionI>();
+        private List<Ice.Connection> _reapedConnections = new List<Ice.Connection>();
     }
 
     internal class ConnectionACMMonitor : IACMMonitor
@@ -307,7 +307,7 @@ namespace IceInternal
             _config = config;
         }
 
-        public void add(Ice.ConnectionI connection)
+        public void add(Ice.Connection connection)
         {
             lock (this)
             {
@@ -320,7 +320,7 @@ namespace IceInternal
             }
         }
 
-        public void remove(Ice.ConnectionI connection)
+        public void remove(Ice.Connection connection)
         {
             lock (this)
             {
@@ -333,7 +333,7 @@ namespace IceInternal
             }
         }
 
-        public void reap(Ice.ConnectionI connection)
+        public void reap(Ice.Connection connection)
         {
             _parent.reap(connection);
         }
@@ -353,9 +353,9 @@ namespace IceInternal
             };
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
-            Ice.ConnectionI connection;
+            Ice.Connection connection;
             lock (this)
             {
                 if (_connection == null)
@@ -367,7 +367,7 @@ namespace IceInternal
 
             try
             {
-                connection.monitor(Time.currentMonotonicTimeMillis(), _config);
+                connection.Monitor(Time.currentMonotonicTimeMillis(), _config);
             }
             catch (System.Exception ex)
             {
@@ -379,6 +379,6 @@ namespace IceInternal
         private readonly Timer _timer;
         private readonly ACMConfig _config;
 
-        private Ice.ConnectionI? _connection;
+        private Ice.Connection? _connection;
     }
 }

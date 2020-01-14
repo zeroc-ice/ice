@@ -355,21 +355,21 @@ namespace IceInternal
         {
             if (_current.Connection != null)
             {
-                return _current.Connection.getInfo();
+                return _current.Connection.ConnectionInfo;
             }
             return null;
         }
 
-        public Ice.IEndpoint getEndpoint()
+        public IEndpoint getEndpoint()
         {
             if (_current.Connection != null)
             {
-                return _current.Connection.getEndpoint();
+                return _current.Connection.Endpoint;
             }
             return null;
         }
 
-        public Ice.Connection getConnection()
+        public Connection getConnection()
         {
             return _current.Connection;
         }
@@ -378,7 +378,7 @@ namespace IceInternal
         {
             if (_current.Connection != null && _endpointInfo == null)
             {
-                _endpointInfo = _current.Connection.getEndpoint().getInfo();
+                _endpointInfo = _current.Connection.Endpoint.getInfo();
             }
             return _endpointInfo;
         }

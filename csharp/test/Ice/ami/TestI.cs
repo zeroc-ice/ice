@@ -37,7 +37,7 @@ namespace Ice.ami
         public void
         close(Test.CloseMode mode, Current current)
         {
-            current.Connection.close((ConnectionClose)((int)mode));
+            current.Connection.Close((ConnectionClose)((int)mode));
         }
 
         public void sleep(int ms, Current current) => Thread.Sleep(ms);

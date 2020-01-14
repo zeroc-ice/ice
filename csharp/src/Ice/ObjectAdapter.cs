@@ -1226,12 +1226,12 @@ namespace Ice
             return _acm;
         }
 
-        internal void setAdapterOnConnection(Ice.ConnectionI connection)
+        internal void setAdapterOnConnection(Ice.Connection connection)
         {
             lock (this)
             {
                 checkForDeactivation();
-                connection.setAdapterAndServantManager(this, _servantManager);
+                connection.SetAdapterAndServantManager(this, _servantManager);
             }
         }
 

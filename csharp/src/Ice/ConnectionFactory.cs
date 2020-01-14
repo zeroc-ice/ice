@@ -39,7 +39,7 @@ namespace IceInternal
     {
         public interface CreateConnectionCallback
         {
-            void setConnection(Ice.ConnectionI connection, bool compress);
+            void setConnection(Ice.Connection connection, bool compress);
             void setException(Ice.LocalException ex);
         }
 
@@ -52,11 +52,11 @@ namespace IceInternal
                     return;
                 }
 
-                foreach (ICollection<Ice.ConnectionI> connections in _connections.Values)
+                foreach (ICollection<Ice.Connection> connections in _connections.Values)
                 {
-                    foreach (Ice.ConnectionI c in connections)
+                    foreach (var c in connections)
                     {
-                        c.destroy(Ice.ConnectionI.CommunicatorDestroyed);
+                        c.Destroy(Ice.Connection.CommunicatorDestroyed);
                     }
                 }
 
@@ -69,11 +69,11 @@ namespace IceInternal
         {
             lock (this)
             {
-                foreach (ICollection<Ice.ConnectionI> connections in _connections.Values)
+                foreach (ICollection<Ice.Connection> connections in _connections.Values)
                 {
-                    foreach (Ice.ConnectionI c in connections)
+                    foreach (var c in connections)
                     {
-                        c.updateObserver();
+                        c.UpdateObserver();
                     }
                 }
             }
@@ -81,7 +81,7 @@ namespace IceInternal
 
         public void waitUntilFinished()
         {
-            Dictionary<IConnector, ICollection<Ice.ConnectionI>> connections;
+            Dictionary<IConnector, ICollection<Ice.Connection>> connections;
             lock (this)
             {
                 //
@@ -99,28 +99,28 @@ namespace IceInternal
                 // We want to wait until all connections are finished outside the
                 // thread synchronization.
                 //
-                connections = new Dictionary<IConnector, ICollection<Ice.ConnectionI>>(_connections);
+                connections = new Dictionary<IConnector, ICollection<Ice.Connection>>(_connections);
             }
 
             //
             // Now we wait until the destruction of each connection is finished.
             //
-            foreach (ICollection<Ice.ConnectionI> cl in connections.Values)
+            foreach (ICollection<Ice.Connection> cl in connections.Values)
             {
-                foreach (Ice.ConnectionI c in cl)
+                foreach (var c in cl)
                 {
-                    c.waitUntilFinished();
+                    c.WaitUntilFinished();
                 }
             }
 
             lock (this)
             {
                 // Ensure all the connections are finished and reapable at this point.
-                ICollection<Ice.ConnectionI>? cons = _monitor.swapReapedConnections();
+                ICollection<Ice.Connection>? cons = _monitor.swapReapedConnections();
                 if (cons != null)
                 {
                     int size = 0;
-                    foreach (ICollection<Ice.ConnectionI> cl in _connections.Values)
+                    foreach (ICollection<Ice.Connection> cl in _connections.Values)
                     {
                         size += cl.Count;
                     }
@@ -158,7 +158,7 @@ namespace IceInternal
             try
             {
                 bool compress;
-                Ice.ConnectionI? connection = findConnection(endpoints, out compress);
+                Ice.Connection? connection = findConnection(endpoints, out compress);
                 if (connection != null)
                 {
                     callback.setConnection(connection, compress);
@@ -217,13 +217,13 @@ namespace IceInternal
                     //
                     endpoint = endpoint.compress(false);
 
-                    foreach (ICollection<Ice.ConnectionI> connections in _connections.Values)
+                    foreach (ICollection<Ice.Connection> connections in _connections.Values)
                     {
-                        foreach (Ice.ConnectionI connection in connections)
+                        foreach (var connection in connections)
                         {
-                            if (connection.endpoint().Equals(endpoint))
+                            if (connection.Endpoint.Equals(endpoint))
                             {
-                                connection.setAdapter(adapter);
+                                connection.SetAdapter(adapter);
                             }
                         }
                     }
@@ -240,13 +240,13 @@ namespace IceInternal
                     return;
                 }
 
-                foreach (ICollection<Ice.ConnectionI> connectionList in _connections.Values)
+                foreach (ICollection<Ice.Connection> connectionList in _connections.Values)
                 {
-                    foreach (Ice.ConnectionI connection in connectionList)
+                    foreach (var connection in connectionList)
                     {
-                        if (connection.getAdapter() == adapter)
+                        if (connection.GetAdapter() == adapter)
                         {
-                            connection.setAdapter(null);
+                            connection.SetAdapter(null);
                         }
                     }
                 }
@@ -286,7 +286,7 @@ namespace IceInternal
             return endpoints;
         }
 
-        private Ice.ConnectionI? findConnection(List<Endpoint> endpoints, out bool compress)
+        private Ice.Connection? findConnection(List<Endpoint> endpoints, out bool compress)
         {
             lock (this)
             {
@@ -300,15 +300,15 @@ namespace IceInternal
 
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    ICollection<Ice.ConnectionI> connectionList;
+                    ICollection<Ice.Connection> connectionList;
                     if (!_connectionsByEndpoint.TryGetValue(endpoint, out connectionList))
                     {
                         continue;
                     }
 
-                    foreach (Ice.ConnectionI connection in connectionList)
+                    foreach (var connection in connectionList)
                     {
-                        if (connection.isActiveOrHolding()) // Don't return destroyed or unvalidated connections
+                        if (connection.ActiveOrHolding) // Don't return destroyed or unvalidated connections
                         {
                             if (defaultsAndOverrides.overrideCompress)
                             {
@@ -331,7 +331,7 @@ namespace IceInternal
         //
         // Must be called while synchronized.
         //
-        private Ice.ConnectionI? findConnection(List<ConnectorInfo> connectors, out bool compress)
+        private Ice.Connection? findConnection(List<ConnectorInfo> connectors, out bool compress)
         {
             DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
             foreach (ConnectorInfo ci in connectors)
@@ -341,15 +341,15 @@ namespace IceInternal
                     continue;
                 }
 
-                ICollection<Ice.ConnectionI> connectionList;
+                ICollection<Ice.Connection> connectionList;
                 if (!_connections.TryGetValue(ci.connector, out connectionList))
                 {
                     continue;
                 }
 
-                foreach (Ice.ConnectionI connection in connectionList)
+                foreach (Ice.Connection connection in connectionList)
                 {
-                    if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
+                    if (connection.ActiveOrHolding) // Don't return destroyed or un-validated connections
                     {
                         if (defaultsAndOverrides.overrideCompress)
                         {
@@ -401,7 +401,7 @@ namespace IceInternal
             }
         }
 
-        private Ice.ConnectionI? getConnection(List<ConnectorInfo> connectors, ConnectCallback cb, out bool compress)
+        private Ice.Connection? getConnection(List<ConnectorInfo> connectors, ConnectCallback cb, out bool compress)
         {
             lock (this)
             {
@@ -413,14 +413,14 @@ namespace IceInternal
                 //
                 // Reap closed connections
                 //
-                ICollection<Ice.ConnectionI>? cons = _monitor.swapReapedConnections();
+                ICollection<Ice.Connection>? cons = _monitor.swapReapedConnections();
                 if (cons != null)
                 {
-                    foreach (Ice.ConnectionI c in cons)
+                    foreach (var c in cons)
                     {
-                        _connections.Remove(c.connector(), c);
-                        _connectionsByEndpoint.Remove(c.endpoint(), c);
-                        _connectionsByEndpoint.Remove(c.endpoint().compress(true), c);
+                        _connections.Remove(c.Connector, c);
+                        _connectionsByEndpoint.Remove((Endpoint)c.Endpoint, c);
+                        _connectionsByEndpoint.Remove(((Endpoint)c.Endpoint).compress(true), c);
                     }
                 }
 
@@ -439,7 +439,7 @@ namespace IceInternal
                     //
                     // Search for a matching connection. If we find one, we're done.
                     //
-                    Ice.ConnectionI? connection = findConnection(connectors, out compress);
+                    Ice.Connection? connection = findConnection(connectors, out compress);
                     if (connection != null)
                     {
                         return connection;
@@ -489,7 +489,7 @@ namespace IceInternal
             return null;
         }
 
-        private Ice.ConnectionI createConnection(ITransceiver transceiver, ConnectorInfo ci)
+        private Ice.Connection createConnection(ITransceiver transceiver, ConnectorInfo ci)
         {
             lock (this)
             {
@@ -500,7 +500,7 @@ namespace IceInternal
                 // is necessary to support the interruption of the connection initialization and validation
                 // in case the communicator is destroyed.
                 //
-                Ice.ConnectionI connection;
+                Ice.Connection connection;
                 try
                 {
                     if (_destroyed)
@@ -508,8 +508,8 @@ namespace IceInternal
                         throw new Ice.CommunicatorDestroyedException();
                     }
 
-                    connection = new Ice.ConnectionI(_communicator, _monitor, transceiver, ci.connector,
-                                                     ci.endpoint.compress(false), null);
+                    connection = new Ice.Connection(_communicator, _monitor, transceiver, ci.connector,
+                                                    ci.endpoint.compress(false), null);
                 }
                 catch (Ice.LocalException)
                 {
@@ -524,15 +524,15 @@ namespace IceInternal
                     throw;
                 }
                 _connections.Add(ci.connector, connection);
-                _connectionsByEndpoint.Add(connection.endpoint(), connection);
-                _connectionsByEndpoint.Add(connection.endpoint().compress(true), connection);
+                _connectionsByEndpoint.Add((Endpoint)connection.Endpoint, connection);
+                _connectionsByEndpoint.Add(((Endpoint)connection.Endpoint).compress(true), connection);
                 return connection;
             }
         }
 
         private void finishGetConnection(List<ConnectorInfo> connectors,
                                          ConnectorInfo ci,
-                                         Ice.ConnectionI connection,
+                                         Ice.Connection connection,
                                          ConnectCallback cb)
         {
             HashSet<ConnectCallback> connectionCallbacks = new HashSet<ConnectCallback>();
@@ -777,7 +777,7 @@ namespace IceInternal
             public Endpoint endpoint;
         }
 
-        private class ConnectCallback : Ice.ConnectionI.StartCallback, IEndpointConnectors
+        private class ConnectCallback : Ice.Connection.StartCallback, IEndpointConnectors
         {
             internal ConnectCallback(OutgoingConnectionFactory f, List<Endpoint> endpoints, bool more,
                                      CreateConnectionCallback cb, Ice.EndpointSelectionType selType)
@@ -793,18 +793,18 @@ namespace IceInternal
             //
             // Methods from ConnectionI.StartCallback
             //
-            public void connectionStartCompleted(Ice.ConnectionI connection)
+            public void connectionStartCompleted(Ice.Connection connection)
             {
                 if (_observer != null)
                 {
                     _observer.detach();
                 }
-                connection.activate();
+                connection.Activate();
                 Debug.Assert(_current != null);
                 _factory.finishGetConnection(_connectors, _current, connection, this);
             }
 
-            public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
+            public void connectionStartFailed(Ice.Connection connection, Ice.LocalException ex)
             {
                 if (connectionStartFailedImpl(ex))
                 {
@@ -862,7 +862,7 @@ namespace IceInternal
                 }
             }
 
-            public void setConnection(Ice.ConnectionI connection, bool compress)
+            public void setConnection(Ice.Connection connection, bool compress)
             {
                 //
                 // Callback from the factory: the connection to one of the callback
@@ -943,7 +943,7 @@ namespace IceInternal
                     // connection.
                     //
                     bool compress;
-                    Ice.ConnectionI? connection = _factory.getConnection(_connectors, this, out compress);
+                    Ice.Connection? connection = _factory.getConnection(_connectors, this, out compress);
                     if (connection == null)
                     {
                         //
@@ -995,8 +995,8 @@ namespace IceInternal
                                                 _factory._communicator.traceLevels().networkCat, s.ToString());
                         }
 
-                        Ice.ConnectionI connection = _factory.createConnection(_current.connector.connect(), _current);
-                        connection.start(this);
+                        Ice.Connection connection = _factory.createConnection(_current.connector.connect(), _current);
+                        connection.Start(this);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -1061,16 +1061,16 @@ namespace IceInternal
         private readonly FactoryACMMonitor _monitor;
         private bool _destroyed;
 
-        private readonly MultiDictionary<IConnector, Ice.ConnectionI> _connections =
-            new MultiDictionary<IConnector, Ice.ConnectionI>();
-        private readonly MultiDictionary<Endpoint, Ice.ConnectionI> _connectionsByEndpoint =
-            new MultiDictionary<Endpoint, Ice.ConnectionI>();
+        private readonly MultiDictionary<IConnector, Ice.Connection> _connections =
+            new MultiDictionary<IConnector, Ice.Connection>();
+        private readonly MultiDictionary<Endpoint, Ice.Connection> _connectionsByEndpoint =
+            new MultiDictionary<Endpoint, Ice.Connection>();
         private readonly Dictionary<IConnector, HashSet<ConnectCallback>> _pending =
             new Dictionary<IConnector, HashSet<ConnectCallback>>();
         private int _pendingConnectCount;
     }
 
-    public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.StartCallback
+    public sealed class IncomingConnectionFactory : EventHandler, Ice.Connection.StartCallback
     {
         private class StartAcceptor : ITimerTask
         {
@@ -1079,7 +1079,7 @@ namespace IceInternal
                 _factory = factory;
             }
 
-            public void runTimerTask()
+            public void RunTimerTask()
             {
                 _factory.startAcceptor();
             }
@@ -1137,16 +1137,16 @@ namespace IceInternal
         {
             lock (this)
             {
-                foreach (Ice.ConnectionI connection in _connections)
+                foreach (var connection in _connections)
                 {
-                    connection.updateObserver();
+                    connection.UpdateObserver();
                 }
             }
         }
 
         public void waitUntilHolding()
         {
-            ICollection<Ice.ConnectionI> connections;
+            ICollection<Ice.Connection> connections;
 
             lock (this)
             {
@@ -1163,21 +1163,21 @@ namespace IceInternal
                 // We want to wait until all connections are in holding state
                 // outside the thread synchronization.
                 //
-                connections = new List<Ice.ConnectionI>(_connections);
+                connections = new List<Ice.Connection>(_connections);
             }
 
             //
             // Now we wait until each connection is in holding state.
             //
-            foreach (Ice.ConnectionI connection in connections)
+            foreach (var connection in connections)
             {
-                connection.waitUntilHolding();
+                connection.WaitUntilHolding();
             }
         }
 
         public void waitUntilFinished()
         {
-            ICollection<Ice.ConnectionI> connections;
+            ICollection<Ice.Connection> connections;
 
             lock (this)
             {
@@ -1199,12 +1199,12 @@ namespace IceInternal
                 // We want to wait until all connections are finished outside the
                 // thread synchronization.
                 //
-                connections = new List<Ice.ConnectionI>(_connections);
+                connections = new List<Ice.Connection>(_connections);
             }
 
-            foreach (Ice.ConnectionI connection in connections)
+            foreach (var connection in connections)
             {
-                connection.waitUntilFinished();
+                connection.WaitUntilFinished();
             }
 
             lock (this)
@@ -1216,7 +1216,7 @@ namespace IceInternal
                 else
                 {
                     // Ensure all the connections are finished and reapable at this point.
-                    ICollection<Ice.ConnectionI>? cons = _monitor.swapReapedConnections();
+                    ICollection<Ice.Connection>? cons = _monitor.swapReapedConnections();
                     Debug.Assert((cons == null ? 0 : cons.Count) == _connections.Count);
                     if (cons != null)
                     {
@@ -1257,18 +1257,18 @@ namespace IceInternal
             }
         }
 
-        public ICollection<Ice.ConnectionI> connections()
+        public ICollection<Ice.Connection> connections()
         {
             lock (this)
             {
-                ICollection<Ice.ConnectionI> connections = new List<Ice.ConnectionI>();
+                var connections = new List<Ice.Connection>();
 
                 //
                 // Only copy connections which have not been destroyed.
                 //
-                foreach (Ice.ConnectionI connection in _connections)
+                foreach (var connection in _connections)
                 {
-                    if (connection.isActiveOrHolding())
+                    if (connection.ActiveOrHolding)
                     {
                         connections.Add(connection);
                     }
@@ -1281,7 +1281,7 @@ namespace IceInternal
         //
         // Operations from EventHandler.
         //
-        public override bool startAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
+        public override bool StartAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
         {
             if (_state >= StateClosed)
             {
@@ -1301,7 +1301,7 @@ namespace IceInternal
             return true;
         }
 
-        public override bool finishAsync(int unused)
+        public override bool FinishAsync(int unused)
         {
             Debug.Assert(_acceptor != null);
             Debug.Assert(_adapter != null);
@@ -1327,9 +1327,9 @@ namespace IceInternal
             return _state < StateClosed;
         }
 
-        public override void message(ref ThreadPoolCurrent current)
+        public override void Message(ref ThreadPoolCurrent current)
         {
-            Ice.ConnectionI? connection = null;
+            Ice.Connection? connection = null;
 
             ThreadPoolMessage msg = new ThreadPoolMessage(this);
 
@@ -1354,10 +1354,10 @@ namespace IceInternal
                     //
                     // Reap closed connections
                     //
-                    ICollection<Ice.ConnectionI>? cons = _monitor.swapReapedConnections();
+                    ICollection<Ice.Connection>? cons = _monitor.swapReapedConnections();
                     if (cons != null)
                     {
-                        foreach (Ice.ConnectionI c in cons)
+                        foreach (var c in cons)
                         {
                             _connections.Remove(c);
                         }
@@ -1414,7 +1414,7 @@ namespace IceInternal
 
                     try
                     {
-                        connection = new Ice.ConnectionI(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
+                        connection = new Ice.Connection(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -1443,10 +1443,10 @@ namespace IceInternal
             }
 
             Debug.Assert(connection != null);
-            connection.start(this);
+            connection.Start(this);
         }
 
-        public override void finished(ref ThreadPoolCurrent current)
+        public override void Finished(ref ThreadPoolCurrent current)
         {
             lock (this)
             {
@@ -1481,7 +1481,7 @@ namespace IceInternal
         //
         // Operations from ConnectionI.StartCallback
         //
-        public void connectionStartCompleted(Ice.ConnectionI connection)
+        public void connectionStartCompleted(Ice.Connection connection)
         {
             lock (this)
             {
@@ -1491,12 +1491,12 @@ namespace IceInternal
                 //
                 if (_state == StateActive)
                 {
-                    connection.activate();
+                    connection.Activate();
                 }
             }
         }
 
-        public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
+        public void connectionStartFailed(Ice.Connection connection, Ice.LocalException ex)
         {
             lock (this)
             {
@@ -1519,7 +1519,7 @@ namespace IceInternal
             _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
-            _connections = new HashSet<Ice.ConnectionI>();
+            _connections = new HashSet<Ice.Connection>();
             _state = StateHolding;
             _acceptorStarted = false;
             _monitor = new FactoryACMMonitor(communicator, adapter.getACM());
@@ -1550,8 +1550,8 @@ namespace IceInternal
                     }
                     _endpoint = _transceiver.bind();
 
-                    var connection = new Ice.ConnectionI(_communicator, null, _transceiver, null, _endpoint, _adapter);
-                    connection.startAndWait();
+                    var connection = new Ice.Connection(_communicator, null, _transceiver, null, _endpoint, _adapter);
+                    connection.StartAndWait();
                     _connections.Add(connection);
                 }
                 else
@@ -1625,9 +1625,9 @@ namespace IceInternal
                             _adapter!.getThreadPool().register(this, SocketOperation.Read);
                         }
 
-                        foreach (Ice.ConnectionI connection in _connections)
+                        foreach (var connection in _connections)
                         {
-                            connection.activate();
+                            connection.Activate();
                         }
                         break;
                     }
@@ -1652,9 +1652,9 @@ namespace IceInternal
                             _adapter!.getThreadPool().unregister(this, SocketOperation.Read);
                         }
 
-                        foreach (Ice.ConnectionI connection in _connections)
+                        foreach (var connection in _connections)
                         {
-                            connection.hold();
+                            connection.Hold();
                         }
                         break;
                     }
@@ -1672,9 +1672,9 @@ namespace IceInternal
                             state = StateFinished;
                         }
 
-                        foreach (Ice.ConnectionI connection in _connections)
+                        foreach (var connection in _connections)
                         {
-                            connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
+                            connection.Destroy(Ice.Connection.ObjectAdapterDeactivated);
                         }
                         break;
                     }
@@ -1770,7 +1770,7 @@ namespace IceInternal
 
         private readonly bool _warn;
 
-        private readonly HashSet<Ice.ConnectionI> _connections;
+        private readonly HashSet<Ice.Connection> _connections;
 
         private int _state;
         private bool _acceptorStarted;

@@ -125,7 +125,7 @@ namespace Ice.acm
         public void startHeartbeatCount(Current current)
         {
             _callback = new HeartbeatCallbackI();
-            current.Connection.setHeartbeatCallback(_callback.heartbeat);
+            current.Connection.SetHeartbeatCallback(_callback.heartbeat);
         }
 
         public void waitForHeartbeatCount(int count, Current current)

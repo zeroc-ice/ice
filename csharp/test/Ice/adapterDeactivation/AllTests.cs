@@ -99,12 +99,12 @@ namespace Ice
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
                     var adapter = communicator.createObjectAdapter("");
-                    obj.GetConnection().setAdapter(adapter);
-                    obj.GetConnection().setAdapter(null);
+                    obj.GetConnection().SetAdapter(adapter);
+                    obj.GetConnection().SetAdapter(null);
                     adapter.Deactivate();
                     try
                     {
-                        obj.GetConnection().setAdapter(adapter);
+                        obj.GetConnection().SetAdapter(adapter);
                         test(false);
                     }
                     catch (ObjectAdapterDeactivatedException)

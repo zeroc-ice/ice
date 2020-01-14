@@ -16,7 +16,7 @@ namespace IceInternal
 
     public interface ITimerTask
     {
-        void runTimerTask();
+        void RunTimerTask();
     }
 
     public sealed class Timer
@@ -235,7 +235,7 @@ namespace IceInternal
                                                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                             try
                             {
-                                token.task.runTimerTask();
+                                token.task.RunTimerTask();
                             }
                             finally
                             {
@@ -245,7 +245,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            token.task.runTimerTask();
+                            token.task.RunTimerTask();
                         }
                     }
                     catch (System.Exception ex)

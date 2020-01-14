@@ -39,7 +39,7 @@ namespace IceInternal
             return outAsync.invokeCollocated(this);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock (this)
             {
@@ -78,7 +78,7 @@ namespace IceInternal
             }
         }
 
-        public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
+        public void SendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
@@ -126,13 +126,13 @@ namespace IceInternal
         }
 
         public void
-        sendNoResponse()
+        SendNoResponse()
         {
             _adapter.decDirectCount();
         }
 
         public bool
-        systemException(int requestId, Ice.SystemException ex, bool amd)
+        SystemException(int requestId, Ice.SystemException ex, bool amd)
         {
             handleException(requestId, ex, amd);
             _adapter.decDirectCount();
@@ -140,7 +140,7 @@ namespace IceInternal
         }
 
         public void
-        invokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
+        InvokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
         {
             handleException(requestId, ex, amd);
             _adapter.decDirectCount();
@@ -152,7 +152,7 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI
+        public Ice.Connection
         getConnection()
         {
             return null;
@@ -286,7 +286,7 @@ namespace IceInternal
             }
             catch (Ice.LocalException ex)
             {
-                invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
+                InvokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
 
             _adapter.decDirectCount();

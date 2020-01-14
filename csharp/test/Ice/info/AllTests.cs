@@ -156,7 +156,7 @@ namespace Ice.info
             output.Write("test connection endpoint information... ");
             output.Flush();
             {
-                EndpointInfo info = @base.GetConnection().getEndpoint().getInfo();
+                EndpointInfo info = @base.GetConnection().Endpoint.getInfo();
                 TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
                 test(tcpinfo.port == endpointPort);
                 test(!tcpinfo.compress);
@@ -168,7 +168,7 @@ namespace Ice.info
                 int port = int.Parse(ctx["port"]);
                 test(port > 0);
 
-                info = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().getEndpoint().getInfo();
+                info = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint.getInfo();
                 UDPEndpointInfo udp = (UDPEndpointInfo)info;
                 test(udp.port == endpointPort);
                 test(udp.host.Equals(defaultHost));
@@ -179,9 +179,9 @@ namespace Ice.info
             output.Flush();
             {
                 Connection connection = @base.GetConnection();
-                connection.setBufferSize(1024, 2048);
+                connection.SetBufferSize(1024, 2048);
 
-                ConnectionInfo info = connection.getInfo();
+                ConnectionInfo info = connection.ConnectionInfo;
                 TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
                 test(!info.Incoming);
                 test(info.AdapterName.Length == 0);
@@ -219,9 +219,9 @@ namespace Ice.info
                 }
 
                 connection = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
-                connection.setBufferSize(2048, 1024);
+                connection.SetBufferSize(2048, 1024);
 
-                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.getInfo();
+                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.ConnectionInfo;
                 test(!udpInfo.Incoming);
                 test(udpInfo.AdapterName.Length == 0);
                 test(udpInfo.LocalPort > 0);

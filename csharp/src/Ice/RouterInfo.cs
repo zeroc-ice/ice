@@ -223,7 +223,7 @@ namespace IceInternal
                         //
                         if (_router.GetConnection() != null)
                         {
-                            clientProxy = clientProxy.Clone(connectionTimeout: _router.GetConnection().timeout());
+                            clientProxy = clientProxy.Clone(connectionTimeout: _router.GetConnection().Timeout);
                         }
 
                         _clientEndpoints = clientProxy.IceReference.getEndpoints();

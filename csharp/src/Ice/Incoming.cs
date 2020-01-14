@@ -22,7 +22,7 @@ namespace IceInternal
 
     public class Incoming : Ice.IRequest
     {
-        public Incoming(Ice.Communicator communicator, IResponseHandler handler, Ice.ConnectionI? connection,
+        public Incoming(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection? connection,
                         Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _communicator = communicator;
@@ -40,7 +40,7 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Ice.Communicator communicator, IResponseHandler handler, Ice.ConnectionI connection,
+        public void reset(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection connection,
                           Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _communicator = communicator;
@@ -377,16 +377,16 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.LocalException ex)
             {
-                _responseHandler.invokeException(_current.RequestId, ex, 1, amd);
+                _responseHandler.InvokeException(_current.RequestId, ex, 1, amd);
             }
             finally
             {
@@ -605,7 +605,7 @@ namespace IceInternal
             {
                 try
                 {
-                    for (Ice.ConnectionInfo? p = _current.Connection.getInfo(); p != null; p = p.Underlying)
+                    for (Ice.ConnectionInfo? p = _current.Connection.ConnectionInfo; p != null; p = p.Underlying)
                     {
                         if (p is Ice.IPConnectionInfo)
                         {
@@ -633,7 +633,7 @@ namespace IceInternal
 
             if (exc is Ice.SystemException)
             {
-                if (_responseHandler.systemException(_requestId, (Ice.SystemException)exc, amd))
+                if (_responseHandler.SystemException(_requestId, (Ice.SystemException)exc, amd))
                 {
                     return;
                 }
@@ -727,11 +727,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.UnknownLocalException ex)
@@ -757,11 +757,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.UnknownUserException ex)
@@ -788,11 +788,11 @@ namespace IceInternal
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
                     Debug.Assert(_responseHandler != null && _current != null);
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.UnknownException ex)
@@ -818,11 +818,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.UserException ex)
@@ -845,11 +845,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, false);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, false);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Ice.Exception ex)
@@ -875,11 +875,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
             catch (Exception ex)
@@ -905,11 +905,11 @@ namespace IceInternal
                     {
                         _observer.reply(_os.size() - Protocol.headerSize - 4);
                     }
-                    _responseHandler.sendResponse(_current.RequestId, _os, _compress, amd);
+                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
                 else
                 {
-                    _responseHandler.sendNoResponse();
+                    _responseHandler.SendNoResponse();
                 }
             }
 

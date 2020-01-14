@@ -358,7 +358,7 @@ namespace IceInternal
                     executeNonBlocking(() =>
                        {
                            ThreadPoolCurrent current = new ThreadPoolCurrent(this, handler, SocketOperation.None);
-                           handler.finished(ref current);
+                           handler.Finished(ref current);
                        });
                 }
                 else
@@ -621,7 +621,7 @@ namespace IceInternal
                 Debug.Assert((current._handler._ready & current.operation) == 0);
                 current._handler._ready |= current.operation;
                 current._handler._started &= ~current.operation;
-                if (!current._handler.finishAsync(current.operation)) // Returns false if the handler is finished.
+                if (!current._handler.FinishAsync(current.operation)) // Returns false if the handler is finished.
                 {
                     current._handler._pending &= ~current.operation;
                     if (current._handler._pending == 0 && current._handler._finish)
@@ -636,7 +636,7 @@ namespace IceInternal
             {
                 Debug.Assert((current._handler._started & current.operation) == 0);
                 bool completed = false;
-                if (!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
+                if (!current._handler.StartAsync(current.operation, getCallback(current.operation), ref completed))
                 {
                     current._handler._pending &= ~current.operation;
                     if (current._handler._pending == 0 && current._handler._finish)
@@ -678,7 +678,7 @@ namespace IceInternal
                 {
                     Debug.Assert((current._handler._ready & current.operation) == 0);
                     bool completed = false;
-                    if (!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
+                    if (!current._handler.StartAsync(current.operation, getCallback(current.operation), ref completed))
                     {
                         current._handler._pending &= ~current.operation;
                     }
@@ -727,7 +727,7 @@ namespace IceInternal
                 do
                 {
                     current.completedSynchronously = false;
-                    current._handler.message(ref current);
+                    current._handler.Message(ref current);
                 }
                 while (current.completedSynchronously);
             }

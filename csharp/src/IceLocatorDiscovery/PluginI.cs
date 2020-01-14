@@ -522,7 +522,7 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
             lock (this)
             {

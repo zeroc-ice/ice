@@ -267,7 +267,7 @@ public class AllTests : Test.AllTests
         var conn = proxy.GetCachedConnection();
         if (conn != null)
         {
-            conn.close(Ice.ConnectionClose.GracefullyWithWait);
+            conn.Close(Ice.ConnectionClose.GracefullyWithWait);
         }
 
         try
@@ -281,7 +281,7 @@ public class AllTests : Test.AllTests
         conn = proxy.GetCachedConnection();
         if (conn != null)
         {
-            conn.close(Ice.ConnectionClose.GracefullyWithWait);
+            conn.Close(Ice.ConnectionClose.GracefullyWithWait);
         }
     }
 
@@ -485,8 +485,8 @@ public class AllTests : Test.AllTests
 
         if (!collocated)
         {
-            metrics.GetConnection().close(ConnectionClose.GracefullyWithWait);
-            metrics.Clone(connectionId: "Con1").GetConnection().close(ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+            metrics.Clone(connectionId: "Con1").GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -500,7 +500,7 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.EndpointInfo endpointInfo = metrics.GetConnection().getEndpoint().getInfo();
+            Ice.EndpointInfo endpointInfo = metrics.GetConnection().Endpoint.getInfo();
             type = endpointInfo.type().ToString();
             isSecure = endpointInfo.secure() ? "True" : "False";
         }
@@ -588,7 +588,7 @@ public class AllTests : Test.AllTests
             map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]);
             test(map["holding"].Current == 1);
 
-            metrics.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
             map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
             test(map["closing"].Current == 1);
@@ -603,7 +603,7 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            metrics.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
             metrics.Clone(connectionTimeout: 500).IcePing();
             controller.hold();
@@ -659,7 +659,7 @@ public class AllTests : Test.AllTests
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
-            m.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            m.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -679,7 +679,7 @@ public class AllTests : Test.AllTests
             IceMX.Metrics m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0];
             test(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
-            metrics.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
             controller.hold();
             try
             {
@@ -730,7 +730,7 @@ public class AllTests : Test.AllTests
             try
             {
                 prx.IcePing();
-                prx.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             }
             catch (LocalException)
             {
@@ -771,9 +771,9 @@ public class AllTests : Test.AllTests
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
-                          prx.GetConnection().getEndpoint().ToString(), c, output);
+                          prx.GetConnection().Endpoint.ToString(), c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
-                          prx.GetConnection().getEndpoint().ToString(), c, output);
+                          prx.GetConnection().Endpoint.ToString(), c, output);
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);

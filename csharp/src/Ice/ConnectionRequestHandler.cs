@@ -36,9 +36,9 @@ namespace IceInternal
             return outAsync.invokeRemote(_connection, _compress, _response);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
-            _connection.asyncRequestCanceled(outAsync, ex);
+            _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
         public Reference getReference()
@@ -46,12 +46,12 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI getConnection()
+        public Ice.Connection getConnection()
         {
             return _connection;
         }
 
-        public ConnectionRequestHandler(Reference @ref, Ice.ConnectionI connection, bool compress)
+        public ConnectionRequestHandler(Reference @ref, Ice.Connection connection, bool compress)
         {
             _reference = @ref;
             _response = _reference.getMode() == Ice.InvocationMode.Twoway;
@@ -61,7 +61,7 @@ namespace IceInternal
 
         private Reference _reference;
         private bool _response;
-        private Ice.ConnectionI _connection;
+        private Ice.Connection _connection;
         private bool _compress;
     }
 }

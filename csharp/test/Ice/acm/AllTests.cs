@@ -200,7 +200,7 @@ namespace Ice.acm
             var proxy = Test.ITestIntfPrx.Parse(_adapter.getTestIntf().ToString(), _communicator);
             try
             {
-                proxy.GetConnection().setCloseCallback(_ =>
+                proxy.GetConnection().SetCloseCallback(_ =>
                 {
                     lock (this)
                     {
@@ -209,7 +209,7 @@ namespace Ice.acm
                     }
                 });
 
-                proxy.GetConnection().setHeartbeatCallback(_ =>
+                proxy.GetConnection().SetHeartbeatCallback(_ =>
                 {
                     lock (this)
                     {
@@ -525,12 +525,12 @@ namespace Ice.acm
             public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 proxy.startHeartbeatCount();
-                Ice.Connection con = proxy.GetConnection();
-                con.heartbeat();
-                con.heartbeat();
-                con.heartbeat();
-                con.heartbeat();
-                con.heartbeat();
+                Connection con = proxy.GetConnection();
+                con.Heartbeat();
+                con.Heartbeat();
+                con.Heartbeat();
+                con.Heartbeat();
+                con.Heartbeat();
                 proxy.waitForHeartbeatCount(5);
             }
         }
@@ -549,27 +549,26 @@ namespace Ice.acm
 
                 try
                 {
-                    con.setACM(-19, null, null);
+                    con.SetACM(-19, null, null);
                     test(false);
                 }
                 catch (ArgumentException)
                 {
                 }
 
-                Ice.ACM acm;
-                acm = con.getACM();
+                Ice.ACM acm = con.GetACM();
                 test(acm.Timeout == 15);
                 test(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
                 test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-                con.setACM(null, null, null);
-                acm = con.getACM();
+                con.SetACM(null, null, null);
+                acm = con.GetACM();
                 test(acm.Timeout == 15);
                 test(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
                 test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-                con.setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
-                acm = con.getACM();
+                con.SetACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
+                acm = con.GetACM();
                 test(acm.Timeout == 1);
                 test(acm.Close == Ice.ACMClose.CloseOnInvocationAndIdle);
                 test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
@@ -578,14 +577,14 @@ namespace Ice.acm
                 proxy.waitForHeartbeatCount(2);
 
                 var t1 = new TaskCompletionSource<object>();
-                con.setCloseCallback(_ => { t1.SetResult(null); });
+                con.SetCloseCallback(_ => { t1.SetResult(null); });
 
-                con.close(Ice.ConnectionClose.Gracefully);
+                con.Close(ConnectionClose.Gracefully);
                 test(t1.Task.Result == null);
 
                 try
                 {
-                    con.throwException();
+                    con.ThrowException();
                     test(false);
                 }
                 catch (Ice.ConnectionManuallyClosedException)
@@ -593,10 +592,10 @@ namespace Ice.acm
                 }
 
                 var t2 = new TaskCompletionSource<object>();
-                con.setCloseCallback(_ => { t2.SetResult(null); });
+                con.SetCloseCallback(_ => { t2.SetResult(null); });
                 test(t2.Task.Result == null);
 
-                con.setHeartbeatCallback(_ => { test(false); });
+                con.SetHeartbeatCallback(_ => { test(false); });
             }
         }
 

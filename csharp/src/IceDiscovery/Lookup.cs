@@ -139,7 +139,7 @@ namespace IceDiscovery
             }
         }
 
-        public void runTimerTask() => lookup_.AdapterRequestTimedOut(this);
+        public void RunTimerTask() => lookup_.AdapterRequestTimedOut(this);
 
         protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
@@ -192,7 +192,7 @@ namespace IceDiscovery
             callbacks_.Clear();
         }
 
-        public void runTimerTask() => lookup_.objectRequestTimedOut(this);
+        public void RunTimerTask() => lookup_.objectRequestTimedOut(this);
 
         protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {

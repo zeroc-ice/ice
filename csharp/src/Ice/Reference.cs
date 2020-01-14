@@ -17,7 +17,7 @@ namespace IceInternal
     {
         public interface GetConnectionCallback
         {
-            void setConnection(ConnectionI connection, bool compress);
+            void setConnection(Connection connection, bool compress);
             void setException(LocalException ex);
         }
 
@@ -574,7 +574,7 @@ namespace IceInternal
                               bool secure,
                               ProtocolVersion protocol,
                               EncodingVersion encoding,
-                              ConnectionI connection,
+                              Connection connection,
                               int invocationTimeout,
                               Dictionary<string, string>? context,
                               bool? compress)
@@ -645,7 +645,7 @@ namespace IceInternal
 
         public override ThreadPool getThreadPool()
         {
-            return _fixedConnection.getThreadPool();
+            return _fixedConnection.ThreadPool;
         }
 
         public override Reference Clone(Identity? identity = null,
@@ -750,8 +750,8 @@ namespace IceInternal
                 {
                     reference = (FixedReference)Clone();
                 }
-                reference._fixedConnection = (ConnectionI)fixedConnection;
-                reference.secure_ = fixedConnection.getEndpoint().getInfo().secure();
+                reference._fixedConnection = fixedConnection;
+                reference.secure_ = fixedConnection.Endpoint.getInfo().secure();
             }
 
             if (adapterId != null)
@@ -852,7 +852,7 @@ namespace IceInternal
                 case InvocationMode.Oneway:
                 case InvocationMode.BatchOneway:
                     {
-                        if (_fixedConnection.endpoint().datagram())
+                        if (((Endpoint)_fixedConnection.Endpoint).datagram())
                         {
                             throw new NoEndpointException(ToString());
                         }
@@ -862,7 +862,7 @@ namespace IceInternal
                 case InvocationMode.Datagram:
                 case InvocationMode.BatchDatagram:
                     {
-                        if (!_fixedConnection.endpoint().datagram())
+                        if (!((Endpoint)_fixedConnection.Endpoint).datagram())
                         {
                             throw new NoEndpointException(ToString());
                         }
@@ -884,12 +884,12 @@ namespace IceInternal
             {
                 secure = getSecure();
             }
-            if (secure && !_fixedConnection.endpoint().secure())
+            if (secure && !((Endpoint)_fixedConnection.Endpoint).secure())
             {
                 throw new NoEndpointException(ToString());
             }
 
-            _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
+            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
 
             bool compress = false;
             if (defaultsAndOverrides.overrideCompress)
@@ -931,7 +931,7 @@ namespace IceInternal
             return base.GetHashCode();
         }
 
-        private ConnectionI _fixedConnection;
+        private Connection _fixedConnection;
     }
 
     public class RoutableReference : Reference
@@ -1065,10 +1065,10 @@ namespace IceInternal
                                                                    reference.getIdentity(),
                                                                    reference.getFacet(),
                                                                    reference.getMode(),
-                                                                   fixedConnection.getEndpoint().getInfo().secure(),
+                                                                   fixedConnection.Endpoint.getInfo().secure(),
                                                                    reference.getProtocol(),
                                                                    reference.getEncoding(),
-                                                                   (ConnectionI)fixedConnection,
+                                                                   fixedConnection,
                                                                    reference.getInvocationTimeout(),
                                                                    reference.getContext(),
                                                                    reference.getCompress());
@@ -1540,7 +1540,7 @@ namespace IceInternal
                 _cached = cached;
             }
 
-            public void setConnection(ConnectionI connection, bool compress)
+            public void setConnection(Connection connection, bool compress)
             {
                 _cb.setConnection(connection, compress);
             }
@@ -1787,7 +1787,7 @@ namespace IceInternal
                 _callback = cb;
             }
 
-            public void setConnection(ConnectionI connection, bool compress)
+            public void setConnection(Connection connection, bool compress)
             {
                 //
                 // If we have a router, set the object adapter for this router
@@ -1796,7 +1796,7 @@ namespace IceInternal
                 //
                 if (_rr._routerInfo != null && _rr._routerInfo.getAdapter() != null)
                 {
-                    connection.setAdapter(_rr._routerInfo.getAdapter());
+                    connection.SetAdapter(_rr._routerInfo.getAdapter());
                 }
                 _callback.setConnection(connection, compress);
             }

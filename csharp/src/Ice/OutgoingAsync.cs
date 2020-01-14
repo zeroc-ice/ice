@@ -352,7 +352,7 @@ namespace IceInternal
                     handler = _cancellationHandler;
                 }
             }
-            handler.asyncRequestCanceled(this, ex);
+            handler.AsyncRequestCanceled(this, ex);
         }
 
         protected void warning(System.Exception ex)
@@ -411,7 +411,7 @@ namespace IceInternal
     //
     public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, ITimerTask
     {
-        public abstract int invokeRemote(Ice.ConnectionI connection, bool compress, bool response);
+        public abstract int invokeRemote(Ice.Connection connection, bool compress, bool response);
         public abstract int invokeCollocated(CollocatedRequestHandler handler);
 
         public override bool exception(Ice.Exception exc)
@@ -453,7 +453,7 @@ namespace IceInternal
         {
             if (proxy_.IceReference.getInvocationTimeout() == -2 && cachedConnection_ != null)
             {
-                int timeout = cachedConnection_.timeout();
+                int timeout = cachedConnection_.Timeout;
                 if (timeout > 0)
                 {
                     communicator_.timer().schedule(this, timeout);
@@ -633,7 +633,7 @@ namespace IceInternal
             return base.responseImpl(userThread, ok, invoke);
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
             if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
@@ -894,10 +894,10 @@ namespace IceInternal
             }
         }
 
-        public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
+        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
-            return connection.sendAsyncRequest(this, compress, response);
+            return connection.SendAsyncRequest(this, compress, response);
         }
 
         public override int invokeCollocated(CollocatedRequestHandler handler)
@@ -1092,7 +1092,7 @@ namespace IceInternal
         {
         }
 
-        public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
+        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
             if (responseImpl(false, true, true))

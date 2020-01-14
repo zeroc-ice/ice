@@ -198,7 +198,7 @@ namespace Ice
                         {
                             result.Wait();
                             holdSerialized.IcePing(); // Ensure everything's dispatched.
-                            holdSerialized.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            holdSerialized.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
                         }
                     }
                     result.Wait();

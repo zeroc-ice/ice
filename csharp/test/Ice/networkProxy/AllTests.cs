@@ -39,7 +39,7 @@ public class AllTests : Test.AllTests
         output.Write("testing connection information... ");
         output.Flush();
         {
-            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().getInfo());
+            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().ConnectionInfo);
             test(info.RemotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         output.WriteLine("ok");

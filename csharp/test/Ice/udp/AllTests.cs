@@ -113,7 +113,7 @@ namespace Ice.udp
                     //
                     test(seq.Length > 16384);
                 }
-                obj.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                obj.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
                 communicator.SetProperty("Ice.UDP.SndSize", "64000");
                 seq = new byte[50000];
                 try
@@ -190,8 +190,8 @@ namespace Ice.udp
 
             Console.Out.Write("testing udp bi-dir connection... ");
             Console.Out.Flush();
-            obj.GetConnection().setAdapter(adapter);
-            objMcast.GetConnection().setAdapter(adapter);
+            obj.GetConnection().SetAdapter(adapter);
+            objMcast.GetConnection().SetAdapter(adapter);
             nRetry = 5;
             while (nRetry-- > 0)
             {

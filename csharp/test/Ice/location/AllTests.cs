@@ -515,7 +515,7 @@ namespace Ice.location
             output.Flush();
             hello = IHelloPrx.Parse("hello", communicator);
             obj.migrateHello();
-            hello.GetConnection().close(ConnectionClose.GracefullyWithWait);
+            hello.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             hello.sayHello();
             obj.migrateHello();
             hello.sayHello();

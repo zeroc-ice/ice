@@ -309,8 +309,8 @@ namespace Glacier2
                 {
                     Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
-                    connection.setACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
-                    connection.setCloseCallback(_ => destroy());
+                    connection.SetACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
+                    connection.SetCloseCallback(_ => destroy());
                 }
             }
 

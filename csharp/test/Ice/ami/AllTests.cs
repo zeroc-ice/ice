@@ -680,12 +680,12 @@ namespace Ice.ami
                     //
                     Connection con = p.GetConnection();
                     CallbackBase cb = new CallbackBase();
-                    con.setCloseCallback(_ =>
+                    con.SetCloseCallback(_ =>
                         {
                             cb.called();
                         });
                     Task t = p.sleepAsync(100);
-                    con.close(ConnectionClose.GracefullyWithWait);
+                    con.Close(ConnectionClose.GracefullyWithWait);
                     t.Wait(); // Should complete successfully.
                     cb.check();
                 }
@@ -760,13 +760,13 @@ namespace Ice.ami
                             cb.called();
                         }));
                     cb.check(); // Ensure the request was sent before we close the connection.
-                    con.close(ConnectionClose.Gracefully);
+                    con.Close(ConnectionClose.Gracefully);
                     try
                     {
                         t.Wait();
                         test(false);
                     }
-                    catch (System.AggregateException ex)
+                    catch (AggregateException ex)
                     {
                         test(ex.InnerException is ConnectionManuallyClosedException);
                         test((ex.InnerException as ConnectionManuallyClosedException).graceful);
@@ -779,7 +779,7 @@ namespace Ice.ami
                     //
                     con = p.GetConnection();
                     cb = new CallbackBase();
-                    con.setCloseCallback(_ =>
+                    con.SetCloseCallback(_ =>
                         {
                             cb.called();
                         });
@@ -806,7 +806,7 @@ namespace Ice.ami
                             cb.called();
                         }));
                     cb.check(); // Ensure the request was sent before we close the connection.
-                    con.close(ConnectionClose.Forcefully);
+                    con.Close(ConnectionClose.Forcefully);
                     try
                     {
                         t.Wait();
@@ -901,7 +901,7 @@ namespace Ice.ami
                     var reply = adapter.Add(replyI);
                     adapter.Activate();
 
-                    p.GetConnection().setAdapter(adapter);
+                    p.GetConnection().SetAdapter(adapter);
                     p.pingBiDir(reply);
                     test(replyI.checkReceived());
                     adapter.Destroy();

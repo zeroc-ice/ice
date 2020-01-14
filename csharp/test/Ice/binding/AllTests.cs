@@ -132,7 +132,7 @@ namespace Ice.binding
                     test(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
-                    test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -154,7 +154,7 @@ namespace Ice.binding
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -162,7 +162,7 @@ namespace Ice.binding
                 // Deactivate an adapter and ensure that we can still
                 // establish the connection to the remaining adapters.
                 //
-                com.deactivateObjectAdapter((Test.IRemoteObjectAdapterPrx)adapters[0]);
+                com.deactivateObjectAdapter(adapters[0]);
                 names.Add("Adapter12");
                 names.Add("Adapter13");
                 while (names.Count > 0)
@@ -179,7 +179,7 @@ namespace Ice.binding
                     test(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
-                    test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -263,7 +263,7 @@ namespace Ice.binding
                     {
                         try
                         {
-                            a.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
+                            a.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
                         }
                         catch (LocalException)
                         {
@@ -304,7 +304,7 @@ namespace Ice.binding
                     test(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
-                    test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -326,7 +326,7 @@ namespace Ice.binding
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -351,7 +351,7 @@ namespace Ice.binding
                     test(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
-                    test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -384,7 +384,7 @@ namespace Ice.binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
-                    obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Random);
@@ -396,7 +396,7 @@ namespace Ice.binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
-                    obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 deactivate(com, adapters);
@@ -453,11 +453,11 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++) ;
                 test(i == nRetry);
-                obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++) ;
                 test(i == nRetry);
-                obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++) ;
                 test(i == nRetry);
@@ -732,7 +732,7 @@ namespace Ice.binding
                     for (i = 0; i < 5; i++)
                     {
                         test(obj.getAdapterName().Equals("Adapter82"));
-                        obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     var testSecure = obj.Clone(secure: true);
@@ -748,7 +748,7 @@ namespace Ice.binding
                     for (i = 0; i < 5; i++)
                     {
                         test(obj.getAdapterName().Equals("Adapter81"));
-                        obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     com.createObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Reactive tcp OA.
@@ -756,7 +756,7 @@ namespace Ice.binding
                     for (i = 0; i < 5; i++)
                     {
                         test(obj.getAdapterName().Equals("Adapter83"));
-                        obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     com.deactivateObjectAdapter(adapters[0]);
