@@ -468,10 +468,7 @@ namespace IceMX
                 updater = _updater;
             }
 
-            if (updater != null)
-            {
-                updater();
-            }
+            updater?.Invoke();
         }
 
         public void setUpdater(Action updater)

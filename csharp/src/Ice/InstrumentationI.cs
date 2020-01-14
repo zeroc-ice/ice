@@ -577,13 +577,13 @@ namespace IceInternal
             switch (_state)
             {
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    ++v.inUseForIO;
+                    ++v.InUseForIO;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    ++v.inUseForUser;
+                    ++v.InUseForUser;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    ++v.inUseForOther;
+                    ++v.InUseForOther;
                     break;
                 default:
                     break;
@@ -693,7 +693,7 @@ namespace IceInternal
 
         public override void initMetrics(RemoteMetrics v)
         {
-            v.size += _size;
+            v.Size += _size;
         }
 
         public string getId()
@@ -784,7 +784,7 @@ namespace IceInternal
 
         public override void initMetrics(CollocatedMetrics v)
         {
-            v.size += _size;
+            v.Size += _size;
         }
 
         public string getId()
@@ -836,12 +836,12 @@ namespace IceInternal
 
         private void sentBytesUpdate(ConnectionMetrics v)
         {
-            v.sentBytes += _sentBytes;
+            v.SentBytes += _sentBytes;
         }
 
         private void receivedBytesUpdate(ConnectionMetrics v)
         {
-            v.receivedBytes += _receivedBytes;
+            v.ReceivedBytes += _receivedBytes;
         }
 
         private int _sentBytes;
@@ -865,7 +865,7 @@ namespace IceInternal
         {
             forEach((DispatchMetrics v) =>
             {
-                v.replySize += size;
+                v.ReplySize += size;
             });
             if (delegate_ != null)
             {
@@ -875,7 +875,7 @@ namespace IceInternal
 
         private void userException(DispatchMetrics v)
         {
-            ++v.userException;
+            ++v.UserException;
         }
     }
 
@@ -886,7 +886,7 @@ namespace IceInternal
         {
             forEach((RemoteMetrics v) =>
             {
-                v.replySize += size;
+                v.ReplySize += size;
             });
             if (delegate_ != null)
             {
@@ -902,7 +902,7 @@ namespace IceInternal
         {
             forEach((CollocatedMetrics v) =>
             {
-                v.replySize += size;
+                v.ReplySize += size;
             });
             if (delegate_ != null)
             {
@@ -965,12 +965,12 @@ namespace IceInternal
 
         private void incrementRetry(InvocationMetrics v)
         {
-            ++v.retry;
+            ++v.Retry;
         }
 
         private void userException(InvocationMetrics v)
         {
-            ++v.userException;
+            ++v.UserException;
         }
     }
 
@@ -993,13 +993,13 @@ namespace IceInternal
             switch (_oldState)
             {
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    --v.inUseForIO;
+                    --v.InUseForIO;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    --v.inUseForUser;
+                    --v.InUseForUser;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    --v.inUseForOther;
+                    --v.InUseForOther;
                     break;
                 default:
                     break;
@@ -1007,13 +1007,13 @@ namespace IceInternal
             switch (_newState)
             {
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    ++v.inUseForIO;
+                    ++v.InUseForIO;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    ++v.inUseForUser;
+                    ++v.InUseForUser;
                     break;
                 case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    ++v.inUseForOther;
+                    ++v.InUseForOther;
                     break;
                 default:
                     break;
