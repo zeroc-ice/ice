@@ -595,36 +595,35 @@ namespace IceInternal
             Debug.Assert(_communicator != null);
             Debug.Assert(_current != null);
 
-            using (StringWriter sw = new StringWriter(CultureInfo.CurrentCulture))
+            var output = new System.Text.StringBuilder();
+
+            output.Append("dispatch exception:");
+            output.Append("\nidentity: ").Append(_current.Id.ToString(_communicator.ToStringMode));
+            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.escapeString(_current.Facet, "", _communicator.ToStringMode));
+            output.Append("\noperation: ").Append(_current.Operation);
+            if (_current.Connection != null)
             {
-                IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
-                output.setUseTab(false);
-                output.print("dispatch exception:");
-                output.print("\nidentity: " + _current.Id.ToString(_communicator.ToStringMode));
-                output.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.Facet, "", _communicator.ToStringMode));
-                output.print("\noperation: " + _current.Operation);
-                if (_current.Connection != null)
+                try
                 {
-                    try
+                    for (Ice.ConnectionInfo? p = _current.Connection.getInfo(); p != null; p = p.underlying)
                     {
-                        for (Ice.ConnectionInfo? p = _current.Connection.getInfo(); p != null; p = p.underlying)
+                        if (p is Ice.IPConnectionInfo)
                         {
-                            if (p is Ice.IPConnectionInfo)
-                            {
-                                Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)p;
-                                output.print($"\nremote host: {ipinfo.remoteAddress} remote port: {ipinfo.remotePort}");
-                                break;
-                            }
+                            Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)p;
+                            output.Append("\nremote host: ").Append(ipinfo.remoteAddress)
+                                  .Append(" remote port: ")
+                                  .Append(ipinfo.remotePort);
+                            break;
                         }
                     }
-                    catch (Ice.LocalException)
-                    {
-                    }
                 }
-                output.print("\n");
-                output.print(ex.ToString());
-                _communicator.Logger.warning(sw.ToString());
+                catch (Ice.LocalException)
+                {
+                }
             }
+            output.Append("\n");
+            output.Append(ex.ToString());
+            _communicator.Logger.warning(output.ToString());
         }
 
         private void handleException(Exception exc, bool amd)
