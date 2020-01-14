@@ -5,7 +5,7 @@
 using IceBox;
 using Test;
 
-class TestService : Service
+class TestService : IService
 {
     public void
     start(string name, Ice.Communicator communicator, string[] args)

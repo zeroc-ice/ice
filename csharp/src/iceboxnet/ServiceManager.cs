@@ -505,7 +505,7 @@ namespace IceBox
                     //
                     // Instantiate the service.
                     //
-                    Service? s;
+                    IService? s;
                     try
                     {
                         //
@@ -519,14 +519,14 @@ namespace IceBox
                         {
                             object[] parameters = new object[1];
                             parameters[0] = _communicator;
-                            s = (Service)ci.Invoke(parameters);
+                            s = (IService)ci.Invoke(parameters);
                         }
                         else
                         {
                             //
                             // Fall back to the default constructor.
                             //
-                            s = (Service?)IceInternal.AssemblyUtil.createInstance(c);
+                            s = (IService?)IceInternal.AssemblyUtil.createInstance(c);
                         }
                     }
                     catch (System.Exception ex)
@@ -718,7 +718,7 @@ namespace IceBox
             internal readonly string Name;
             internal ServiceStatus Status;
             internal string[] Args;
-            internal Service? Service;
+            internal IService? Service;
             internal Communicator? Communicator;
         }
 
