@@ -125,8 +125,6 @@ namespace Ice
             _encapsCache = null;
             _closure = null;
             _sliceValues = true;
-            _startSeq = -1;
-            _minSeqSize = 0;
         }
 
         /// <summary>
@@ -153,7 +151,6 @@ namespace Ice
                 _encapsCache.reset();
             }
 
-            _startSeq = -1;
             _sliceValues = true;
         }
 
@@ -273,14 +270,6 @@ namespace Ice
             //
             ResetEncapsulation();
             other.ResetEncapsulation();
-
-            int tmpStartSeq = other._startSeq;
-            other._startSeq = _startSeq;
-            _startSeq = tmpStartSeq;
-
-            int tmpMinSeqSize = other._minSeqSize;
-            other._minSeqSize = _minSeqSize;
-            _minSeqSize = tmpMinSeqSize;
 
             Logger tmpLogger = other._logger;
             other._logger = _logger;
@@ -628,10 +617,13 @@ namespace Ice
         }
 
         /// <summary>
-        /// Reads and validates a sequence size.
+        /// Reads a sequence size and make sure there are least size * minElementSize bytes left in the underlying
+        /// buffer. This validation is performed in part to make sure we do not allocate a large container based on an
+        /// invalid encoded size.
         /// </summary>
+        /// <param name="minElementSize">The minimum encoded size of an element of the sequence, in bytes.</param>
         /// <returns>The extracted size.</returns>
-        public int ReadAndCheckSeqSize(int minSize)
+        public int ReadAndCheckSeqSize(int minElementSize)
         {
             int sz = ReadSize();
 
@@ -640,49 +632,7 @@ namespace Ice
                 return 0;
             }
 
-            /*
-            TODO: Disabled, should be later refactored out. This useless check does not work well with the new
-            indirection table processing.
-
-            //
-            // The _startSeq variable points to the start of the sequence for which
-            // we expect to read at least _minSeqSize bytes from the stream.
-            //
-            // If not initialized or if we already read more data than _minSeqSize,
-            // we reset _startSeq and _minSeqSize for this sequence (possibly a
-            // top-level sequence or enclosed sequence it doesn't really matter).
-            //
-            // Otherwise, we are reading an enclosed sequence and we have to bump
-            // _minSeqSize by the minimum size that this sequence will  require on
-            // the stream.
-            //
-            // The goal of this check is to ensure that when we start un-marshalling
-            // a new sequence, we check the minimal size of this new sequence against
-            // the estimated remaining buffer size. This estimatation is based on
-            // the minimum size of the enclosing sequences, it's _minSeqSize.
-            //
-            if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
-            {
-                _startSeq = _buf.b.position();
-                _minSeqSize = sz * minSize;
-            }
-            else
-            {
-                _minSeqSize += sz * minSize;
-            }
-
-            //
-            // If there isn't enough data to read on the stream for the sequence (and
-            // possibly enclosed sequences), something is wrong with the marshalled
-            // data: it's claiming having more data that what is possible to read.
-            //
-            if (_startSeq + _minSeqSize > _buf.size())
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            */
-
-            if (_buf.b.position() + sz * minSize > _buf.size())
+            if (_buf.b.position() + sz * minElementSize > _buf.size())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -3216,9 +3166,6 @@ namespace Ice
         private bool _sliceValues;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
-
-        private int _startSeq;
-        private int _minSeqSize;
 
         private Logger _logger;
         private Func<int, string> _compactIdResolver;
