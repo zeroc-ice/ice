@@ -117,7 +117,7 @@ namespace Ice
                 output.Flush();
                 {
                     var routerId = new Identity();
-                    routerId.name = "router";
+                    routerId.Name = "router";
                     var router = IRouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
                     var adapter = communicator.createObjectAdapterWithRouter("", router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
@@ -138,7 +138,7 @@ namespace Ice
 
                     try
                     {
-                        routerId.name = "test";
+                        routerId.Name = "test";
                         router = IRouterPrx.UncheckedCast(@base.Clone(routerId));
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);

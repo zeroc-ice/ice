@@ -161,8 +161,8 @@ namespace IceInternal
                 _servant = servantManager.findServant(_current.Id, _current.Facet);
                 if (_servant == null)
                 {
-                    _locator = servantManager.findServantLocator(_current.Id.category);
-                    if (_locator == null && _current.Id.category.Length > 0)
+                    _locator = servantManager.findServantLocator(_current.Id.Category);
+                    if (_locator == null && _current.Id.Category.Length > 0)
                     {
                         _locator = servantManager.findServantLocator("");
                     }
@@ -660,7 +660,7 @@ namespace IceInternal
             }
             catch (Ice.RequestFailedException ex)
             {
-                if (ex.id.name == null || ex.id.name.Length == 0)
+                if (ex.id.Name == null || ex.id.Name.Length == 0)
                 {
                     ex.id = _current.Id;
                 }

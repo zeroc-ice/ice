@@ -1459,7 +1459,7 @@ namespace Ice
 
         private static void checkIdentity(Identity ident)
         {
-            if (ident.name.Length == 0)
+            if (ident.Name.Length == 0)
             {
                 throw new ArgumentException("Identity name cannot be empty", nameof(ident));
             }

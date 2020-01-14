@@ -765,9 +765,9 @@ namespace Ice
                         return null;
                     }
                     adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
-                    if (adminIdentity.category.Length == 0)
+                    if (adminIdentity.Category.Length == 0)
                     {
-                        adminIdentity.category = Guid.NewGuid().ToString();
+                        adminIdentity.Category = Guid.NewGuid().ToString();
                     }
 
                     _adminIdentity = adminIdentity;

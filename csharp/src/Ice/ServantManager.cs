@@ -152,7 +152,7 @@ namespace IceInternal
                 Ice.Disp? obj = null;
                 if (m == null)
                 {
-                    _defaultServantMap.TryGetValue(ident.category, out obj);
+                    _defaultServantMap.TryGetValue(ident.Category, out obj);
                     if (obj == null)
                     {
                         _defaultServantMap.TryGetValue("", out obj);

@@ -73,7 +73,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (id.name.Length == 0)
+                if (id.Name.Length == 0)
                 {
                     return null;
                 }

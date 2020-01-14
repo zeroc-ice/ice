@@ -58,6 +58,12 @@ Slice::interfaceName(const ProxyPtr& p)
     return name.find("II") == 0 ? name : "I" + name;
 }
 
+std::string
+Slice::dataMemberName(const DataMemberPtr& p)
+{
+    return normalizeCase(p) ? pascalCase(p->name()) : p->name();
+}
+
 bool
 Slice::isNullable(const TypePtr& type)
 {

@@ -544,10 +544,10 @@ namespace IceDiscovery
     {
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c) => _lookup.FoundObject(id, c.Id.name, proxy);
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c) => _lookup.FoundObject(id, c.Id.Name, proxy);
 
         public void FoundAdapterById(string adapterId, IObjectPrx proxy, bool isReplicaGroup, Current c) =>
-            _lookup.FoundAdapter(adapterId, c.Id.name, proxy, isReplicaGroup);
+            _lookup.FoundAdapter(adapterId, c.Id.Name, proxy, isReplicaGroup);
 
         private readonly Lookup _lookup;
     };

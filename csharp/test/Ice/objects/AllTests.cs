@@ -351,19 +351,19 @@ namespace Ice
                         test(f12.name.Equals("F12"));
 
                         var (f21, f22) = initial.opF2(IF2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator));
-                        test(f21.Identity.name.Equals("F21"));
+                        test(f21.Identity.Name.Equals("F21"));
                         f21.op();
-                        test(f22.Identity.name.Equals("F22"));
+                        test(f22.Identity.Name.Equals("F22"));
 
                         if (initial.hasF3())
                         {
                             var (f31, f32) = initial.opF3(new F3(new F1("F11"), IF2Prx.Parse("F21", communicator)));
 
                             test(f31.f1.name.Equals("F11"));
-                            test(f31.f2.Identity.name.Equals("F21"));
+                            test(f31.f2.Identity.Name.Equals("F21"));
 
                             test(f32.f1.name.Equals("F12"));
-                            test(f32.f2.Identity.name.Equals("F22"));
+                            test(f32.f2.Identity.Name.Equals("F22"));
                         }
                     }
                     output.WriteLine("ok");

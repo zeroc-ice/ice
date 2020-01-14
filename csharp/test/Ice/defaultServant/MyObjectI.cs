@@ -9,7 +9,7 @@ namespace Ice.defaultServant
         public override void
         IcePing(Current current)
         {
-            string name = current.Id.name;
+            string name = current.Id.Name;
 
             if (name == "ObjectNotExist")
             {
@@ -24,7 +24,7 @@ namespace Ice.defaultServant
         public string
         getName(Current current)
         {
-            string name = current.Id.name;
+            string name = current.Id.Name;
 
             if (name == "ObjectNotExist")
             {

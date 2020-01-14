@@ -59,15 +59,15 @@ namespace Ice.adapterDeactivation
                 test(!_deactivated);
             }
 
-            if (current.Id.name.Equals("router"))
+            if (current.Id.Name.Equals("router"))
             {
                 cookie = null;
                 RouterTraits routerT = default;
                 return (incoming, current) => routerT.Dispatch(_router, incoming, current);
             }
 
-            test(current.Id.category.Length == 0);
-            test(current.Id.name.Equals("test"));
+            test(current.Id.Category.Length == 0);
+            test(current.Id.Name.Equals("test"));
 
             cookie = new Cookie();
 
@@ -83,7 +83,7 @@ namespace Ice.adapterDeactivation
                 test(!_deactivated);
             }
 
-            if (current.Id.name.Equals("router"))
+            if (current.Id.Name.Equals("router"))
             {
                 return;
             }

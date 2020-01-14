@@ -1923,7 +1923,7 @@ namespace Ice
         {
             Identity ident = new Identity();
             ident.ice_readMembers(this);
-            if (ident.name.Length == 0)
+            if (ident.Name.Length == 0)
             {
                 return null;
             }

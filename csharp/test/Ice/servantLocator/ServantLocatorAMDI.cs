@@ -36,22 +36,22 @@ namespace Ice.servantLocator.AMD
                 test(!_deactivated);
             }
 
-            test(current.Id.category.Equals(_category) || _category.Length == 0);
+            test(current.Id.Category.Equals(_category) || _category.Length == 0);
 
-            if (current.Id.name.Equals("unknown"))
+            if (current.Id.Name.Equals("unknown"))
             {
                 cookie = null;
                 return null;
             }
 
-            if (current.Id.name.Equals("invalidReturnValue") || current.Id.name.Equals("invalidReturnType"))
+            if (current.Id.Name.Equals("invalidReturnValue") || current.Id.Name.Equals("invalidReturnType"))
             {
                 cookie = null;
                 return null;
             }
 
-            test(current.Id.name.Equals("locate") || current.Id.name.Equals("finished"));
-            if (current.Id.name.Equals("locate"))
+            test(current.Id.Name.Equals("locate") || current.Id.Name.Equals("finished"));
+            if (current.Id.Name.Equals("locate"))
             {
                 exception(current);
             }
@@ -82,10 +82,10 @@ namespace Ice.servantLocator.AMD
             test(_requestId == current.RequestId);
             _requestId = -1;
 
-            test(current.Id.category.Equals(_category) || _category.Length == 0);
-            test(current.Id.name.Equals("locate") || current.Id.name.Equals("finished"));
+            test(current.Id.Category.Equals(_category) || _category.Length == 0);
+            test(current.Id.Name.Equals("locate") || current.Id.Name.Equals("finished"));
 
-            if (current.Id.name.Equals("finished"))
+            if (current.Id.Name.Equals("finished"))
             {
                 exception(current);
             }

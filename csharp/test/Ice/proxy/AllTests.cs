@@ -20,19 +20,19 @@ namespace Ice.proxy
             test(baseProxy != null);
 
             var b1 = IObjectPrx.Parse("test", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse("test ", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse(" test ", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse(" test", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse("'test -f facet'", communicator);
-            test(b1.Identity.name.Equals("test -f facet") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test -f facet") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             try
             {
@@ -43,13 +43,13 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("\"test -f facet\"", communicator);
-            test(b1.Identity.name.Equals("test -f facet") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test -f facet") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse("\"test -f facet@test\"", communicator);
-            test(b1.Identity.name.Equals("test -f facet@test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test -f facet@test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             b1 = IObjectPrx.Parse("\"test -f facet@test @test\"", communicator);
-            test(b1.Identity.name.Equals("test -f facet@test @test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test -f facet@test @test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Length == 0);
             try
             {
@@ -60,7 +60,7 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("test\\040test", communicator);
-            test(b1.Identity.name.Equals("test test") && b1.Identity.category.Length == 0);
+            test(b1.Identity.Name.Equals("test test") && b1.Identity.Category.Length == 0);
             try
             {
                 b1 = IObjectPrx.Parse("test\\777", communicator);
@@ -70,23 +70,23 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("test\\40test", communicator);
-            test(b1.Identity.name.Equals("test test"));
+            test(b1.Identity.Name.Equals("test test"));
 
             // Test some octal and hex corner cases.
             b1 = IObjectPrx.Parse("test\\4test", communicator);
-            test(b1.Identity.name.Equals("test\u0004test"));
+            test(b1.Identity.Name.Equals("test\u0004test"));
             b1 = IObjectPrx.Parse("test\\04test", communicator);
-            test(b1.Identity.name.Equals("test\u0004test"));
+            test(b1.Identity.Name.Equals("test\u0004test"));
             b1 = IObjectPrx.Parse("test\\004test", communicator);
-            test(b1.Identity.name.Equals("test\u0004test"));
+            test(b1.Identity.Name.Equals("test\u0004test"));
             b1 = IObjectPrx.Parse("test\\1114test", communicator);
-            test(b1.Identity.name.Equals("test\u00494test"));
+            test(b1.Identity.Name.Equals("test\u00494test"));
 
             b1 = IObjectPrx.Parse("test\\b\\f\\n\\r\\t\\'\\\"\\\\test", communicator);
-            test(b1.Identity.name.Equals("test\b\f\n\r\t\'\"\\test") && b1.Identity.category.Length == 0);
+            test(b1.Identity.Name.Equals("test\b\f\n\r\t\'\"\\test") && b1.Identity.Category.Length == 0);
 
             b1 = IObjectPrx.Parse("category/test", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category") &&
                     b1.AdapterId.Length == 0);
 
             b1 = IObjectPrx.Parse("test:tcp --sourceAddress \"::1\"", communicator);
@@ -132,7 +132,7 @@ namespace Ice.proxy
             }
 
             b1 = IObjectPrx.Parse("test@adapter", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.AdapterId.Equals("adapter"));
             try
             {
@@ -143,35 +143,35 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("category/test@adapter", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category") &&
                     b1.AdapterId.Equals("adapter"));
             b1 = IObjectPrx.Parse("category/test@adapter:tcp", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category") &&
                     b1.AdapterId.Equals("adapter:tcp"));
             b1 = IObjectPrx.Parse("'category 1/test'@adapter", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category 1") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category 1") &&
                     b1.AdapterId.Equals("adapter"));
             b1 = IObjectPrx.Parse("'category/test 1'@adapter", communicator);
-            test(b1.Identity.name.Equals("test 1") && b1.Identity.category.Equals("category") &&
+            test(b1.Identity.Name.Equals("test 1") && b1.Identity.Category.Equals("category") &&
                     b1.AdapterId.Equals("adapter"));
             b1 = IObjectPrx.Parse("'category/test'@'adapter 1'", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category") &&
                     b1.AdapterId.Equals("adapter 1"));
             b1 = IObjectPrx.Parse("\"category \\/test@foo/test\"@adapter", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category /test@foo") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category /test@foo") &&
                     b1.AdapterId.Equals("adapter"));
             b1 = IObjectPrx.Parse("\"category \\/test@foo/test\"@\"adapter:tcp\"", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Equals("category /test@foo") &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Equals("category /test@foo") &&
                     b1.AdapterId.Equals("adapter:tcp"));
 
             b1 = IObjectPrx.Parse("id -f facet", communicator);
-            test(b1.Identity.name.Equals("id") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("id") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet"));
             b1 = IObjectPrx.Parse("id -f 'facet x'", communicator);
-            test(b1.Identity.name.Equals("id") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("id") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet x"));
             b1 = IObjectPrx.Parse("id -f \"facet x\"", communicator);
-            test(b1.Identity.name.Equals("id") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("id") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet x"));
             try
             {
@@ -190,19 +190,19 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("test -f facet:tcp", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet") && b1.AdapterId.Length == 0);
             b1 = IObjectPrx.Parse("test -f \"facet:tcp\"", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet:tcp") && b1.AdapterId.Length == 0);
             b1 = IObjectPrx.Parse("test -f facet@test", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet") && b1.AdapterId.Equals("test"));
             b1 = IObjectPrx.Parse("test -f 'facet@test'", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet@test") && b1.AdapterId.Length == 0);
             b1 = IObjectPrx.Parse("test -f 'facet@test'@test", communicator);
-            test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+            test(b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.Facet.Equals("facet@test") && b1.AdapterId.Equals("test"));
             try
             {
@@ -320,7 +320,7 @@ namespace Ice.proxy
 
             // Input string with various pitfalls
             id = Identity.Parse("\\342\\x82\\254\\60\\x9\\60\\");
-            test(id.name == "€0\t0\\" && id.category == "");
+            test(id.Name == "€0\t0\\" && id.Category == "");
 
             try
             {
@@ -411,7 +411,7 @@ namespace Ice.proxy
             communicator.SetProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
             test(b1 != null &&
-                    b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+                    b1.Identity.Name.Equals("test") && b1.Identity.Category.Length == 0 &&
                     b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
 
             string property;
@@ -420,7 +420,7 @@ namespace Ice.proxy
             test(b1.Locator == null);
             communicator.SetProperty(property, "locator:default -p 10000");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            test(b1 != null && b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
+            test(b1 != null && b1.Locator != null && b1.Locator.Identity.Name.Equals("locator"));
             communicator.SetProperty(property, "");
             property = propertyPrefix + ".LocatorCacheTimeout";
             test(b1.LocatorCacheTimeout == -1);
@@ -434,7 +434,7 @@ namespace Ice.proxy
             property = propertyPrefix + ".Locator";
             communicator.SetProperty(property, "locator:default -p 10000");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            test(b1 != null && b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
+            test(b1 != null && b1.Locator != null && b1.Locator.Identity.Name.Equals("locator"));
             communicator.SetProperty(property, "");
 
             property = propertyPrefix + ".LocatorCacheTimeout";
@@ -458,7 +458,7 @@ namespace Ice.proxy
             test(b1.Router == null);
             communicator.SetProperty(property, "router:default -p 10000");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            test(b1.Router != null && b1.Router.Identity.name.Equals("router"));
+            test(b1.Router != null && b1.Router.Identity.Name.Equals("router"));
             communicator.RemoveProperty(property);
 
             property = propertyPrefix + ".PreferSecure";

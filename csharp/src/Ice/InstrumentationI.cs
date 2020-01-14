@@ -323,7 +323,7 @@ namespace IceInternal
 
         public override void initMetrics(DispatchMetrics v)
         {
-            v.size += _size;
+            v.Size += _size;
         }
 
         public string getMode()
@@ -336,11 +336,11 @@ namespace IceInternal
             if (_id == null)
             {
                 StringBuilder os = new StringBuilder();
-                if (_current.Id.category != null && _current.Id.category.Length > 0)
+                if (_current.Id.Category != null && _current.Id.Category.Length > 0)
                 {
-                    os.Append(_current.Id.category).Append('/');
+                    os.Append(_current.Id.Category).Append('/');
                 }
-                os.Append(_current.Id.name).Append(" [").Append(_current.Operation).Append(']');
+                os.Append(_current.Id.Name).Append(" [").Append(_current.Operation).Append(']');
                 _id = os.ToString();
             }
             return _id;

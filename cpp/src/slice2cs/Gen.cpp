@@ -327,13 +327,13 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!m->tagged())
         {
-            writeMarshalDataMember(m, fixId(m->name()), ns);
+            writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
         }
     }
 
     for(auto m : taggedMembers)
     {
-        writeMarshalDataMember(m, fixId(m->name()), ns);
+        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
     }
     _out << nl << "ostr.EndSlice();";
     if(base)
@@ -354,12 +354,13 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!m->tagged())
         {
-            writeUnmarshalDataMember(m, fixId(m->name()), ns);
+            writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns);
         }
     }
+
     for(auto m : taggedMembers)
     {
-        writeUnmarshalDataMember(m, fixId(m->name()), ns);
+        writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns);
     }
     _out << nl << "istr.EndSlice();";
     if(base)
@@ -644,23 +645,13 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-                                              bool propertyMapping)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         if((*p)->defaultValueType())
         {
-            _out << nl << "this.";
-            if(propertyMapping)
-            {
-                _out << "_" + (*p)->name();
-            }
-            else
-            {
-                _out << fixId((*p)->name(), baseTypes);
-            }
-            _out << " = ";
+            _out << nl << "this." << dataMemberName(*p) << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
@@ -669,13 +660,13 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
             BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
             if(builtin && builtin->kind() == Builtin::KindString)
             {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = \"\";";
+                _out << nl << "this." << fixId(dataMemberName(*p), baseTypes) << " = \"\";";
             }
 
             StructPtr st = StructPtr::dynamicCast((*p)->type());
             if(st)
             {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, ns, false)
+                _out << nl << "this." << fixId(dataMemberName(*p), baseTypes) << " = new " << typeToString(st, ns, false)
                      << "();";
             }
         }
@@ -1656,30 +1647,29 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar;
-        vector<string> paramDecl;
-        for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
-        {
-            string memberName = fixId((*d)->name());
-            string memberType = typeToString((*d)->type(), ns, (*d)->tagged());
-            paramDecl.push_back(memberType + " " + memberName);
-        }
-        _out << paramDecl << epar;
+        _out << nl << "public " << name
+             << spar
+             << mapfn<DataMemberPtr>(allDataMembers,
+                                     [&ns](const auto& i)
+                                     {
+                                         return typeToString(i->type(), ns, i->tagged()) + " " + fixId(i->name());
+                                     })
+             << epar;
         if(hasBaseClass && allDataMembers.size() != dataMembers.size())
         {
             _out << " : base" << spar;
             vector<string> baseParamNames;
-            DataMemberList baseDataMembers = bases.front()->allDataMembers();
-            for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+            for(const auto& d : bases.front()->allDataMembers())
             {
-                baseParamNames.push_back(fixId((*d)->name()));
+                baseParamNames.push_back(fixId(d->name()));
             }
             _out << baseParamNames << epar;
         }
         _out << sb;
-        for(auto m : dataMembers)
+        for(const auto& d : dataMembers)
         {
-            _out << nl << "this." << fixId(m->name(), Slice::ObjectType) << " = " << fixId(m->name()) << ";";
+            _out << nl << "this." << fixId(dataMemberName(d), Slice::ObjectType) << " = "
+                 << fixId(d->name(), Slice::ObjectType) << ";";
         }
         _out << nl << "ice_initialize();";
         _out << eb;
@@ -1843,7 +1833,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 getter = "GetValue";
             }
-            string mName = fixId(m->name(), Slice::ExceptionType);
+            string mName = fixId(dataMemberName(m), Slice::ExceptionType);
             _out << nl << "this." << mName << " = ";
             if(getter == "GetValue")
             {
@@ -1897,7 +1887,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                string memberName = fixId((*q)->name(), Slice::ExceptionType);
+                string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
                 _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
             }
         }
@@ -1921,7 +1911,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                string memberName = fixId((*q)->name(), Slice::ExceptionType);
+                string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
                 _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
             }
         }
@@ -1945,7 +1935,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             DataMemberPtr m = *q;
-            string mName = fixId(m->name(), Slice::ExceptionType);
+            string mName = fixId(dataMemberName(m), Slice::ExceptionType);
             if(m->tagged() && isValueType(m->type()))
             {
                 _out << nl << "if (" << mName << " != null)";
@@ -2015,7 +2005,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "ostr.StartSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalDataMember(*q, fixId((*q)->name(), Slice::ExceptionType), ns);
+        writeMarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns);
     }
     _out << nl << "ostr.EndSlice();";
     if(base)
@@ -2032,7 +2022,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeUnmarshalDataMember(*q, fixId((*q)->name(), Slice::ExceptionType), ns);
+        writeUnmarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns);
     }
     _out << nl << "istr.EndSlice();";
     if(base)
@@ -2136,19 +2126,17 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << spar;
-    vector<string> paramDecl;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns);
-        paramDecl.push_back(memberType + " " + memberName);
-    }
-    _out << paramDecl << epar;
+    _out << nl << "public " << name
+         << spar
+         << mapfn<DataMemberPtr>(dataMembers, [&ns](const auto& i)
+                                              {
+                                                  return typeToString(i->type(), ns) + " " + fixId(i->name());
+                                              })
+         << epar;
     _out << sb;
-    for(auto m : dataMembers)
+    for(const auto& i : dataMembers)
     {
-        _out << nl << "this." << fixId(m->name(), Slice::ObjectType) << " = " << fixId(m->name()) << ";";
+        _out << nl << "this." << fixId(dataMemberName(i), Slice::ObjectType) << " = " << fixId(i->name()) << ";";
     }
     _out << nl << "ice_initialize();";
     _out << eb;
@@ -2159,7 +2147,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     _out << nl << "int h_ = 5381;";
     _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
-    writeMemberHashCode(dataMembers);
+    for(const auto& i : dataMembers)
+    {
+        _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, " << fixId(dataMemberName(i), Slice::ObjectType)
+             << ");";
+    }
     _out << nl << "return h_;";
     _out << eb;
 
@@ -2191,7 +2183,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "return ";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
     {
-        string mName = fixId((*q)->name());
+        string mName = fixId(dataMemberName(*q));
         TypePtr mType = (*q)->type();
 
         if(isCollectionType(mType))
@@ -2279,7 +2271,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeMarshalDataMember(m, fixId(m->name()), ns);
+        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
     }
     _out << eb;
 
@@ -2289,7 +2281,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeUnmarshalDataMember(m, fixId(m->name()), ns);
+        writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns);
     }
     _out << eb;
 
@@ -2413,7 +2405,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << "?";
     }
-    _out << " " << fixId(p->name(), ExceptionPtr::dynamicCast(cont) ? Slice::ExceptionType : Slice::ObjectType);
+    _out << " " << fixId(dataMemberName(p), ExceptionPtr::dynamicCast(cont) ? Slice::ExceptionType : Slice::ObjectType);
     if(cont->hasMetaData("cs:property"))
     {
         _out << "{ get; set; }";

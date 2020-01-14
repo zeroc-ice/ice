@@ -266,13 +266,13 @@ namespace IceLocatorDiscovery
             lock (this)
             {
                 if (locator == null ||
-                   (_instanceName.Length > 0 && !locator.Identity.category.Equals(_instanceName)))
+                   (_instanceName.Length > 0 && !locator.Identity.Category.Equals(_instanceName)))
                 {
                     if (_traceLevel > 2)
                     {
                         StringBuilder s = new StringBuilder("ignoring locator reply: instance name doesn't match\n");
                         s.Append("expected = ").Append(_instanceName);
-                        s.Append("received = ").Append(locator.Identity.category);
+                        s.Append("received = ").Append(locator.Identity.Category);
                         _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                     }
                     return;
@@ -283,7 +283,7 @@ namespace IceLocatorDiscovery
                 // has the same identity, otherwise ignore it.
                 //
                 if (_pendingRequests.Count > 0 &&
-                    _locator != null && !locator.Identity.category.Equals(_locator.Identity.category))
+                    _locator != null && !locator.Identity.Category.Equals(_locator.Identity.Category))
                 {
                     if (!_warned)
                     {
@@ -291,8 +291,8 @@ namespace IceLocatorDiscovery
 
                         locator.Communicator.Logger.warning(
                             "received Ice locator with different instance name:\n" +
-                            "using = `" + _locator.Identity.category + "'\n" +
-                            "received = `" + locator.Identity.category + "'\n" +
+                            "using = `" + _locator.Identity.Category + "'\n" +
+                            "received = `" + locator.Identity.Category + "'\n" +
                             "This is typically the case if multiple Ice locators with different " +
                             "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
                             "is not set.");
@@ -322,7 +322,7 @@ namespace IceLocatorDiscovery
                 ILocatorPrx? l = null;
                 if (_pendingRequests.Count == 0)
                 {
-                    _locators.TryGetValue(locator.Identity.category, out _locator);
+                    _locators.TryGetValue(locator.Identity.Category, out _locator);
                 }
                 else
                 {
@@ -364,7 +364,7 @@ namespace IceLocatorDiscovery
 
                 if (_pendingRequests.Count == 0)
                 {
-                    _locators[locator.Identity.category] = l;
+                    _locators[locator.Identity.Category] = l;
                     Monitor.Pulse(this);
                 }
                 else
@@ -372,7 +372,7 @@ namespace IceLocatorDiscovery
                     _locator = l;
                     if (_instanceName.Length == 0)
                     {
-                        _instanceName = _locator.Identity.category; // Stick to the first locator
+                        _instanceName = _locator.Identity.Category; // Stick to the first locator
                     }
 
                     //

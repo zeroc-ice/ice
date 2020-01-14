@@ -115,7 +115,7 @@ namespace IceInternal
             {
                 lock (_map)
                 {
-                    ++_object.failures;
+                    ++_object.Failures;
                     int count;
                     if (_failures == null)
                     {
@@ -159,8 +159,8 @@ namespace IceInternal
             {
                 lock (_map)
                 {
-                    _object.totalLifetime += lifetime;
-                    if (--_object.current == 0)
+                    _object.TotalLifetime += lifetime;
+                    if (--_object.Current == 0)
                     {
                         _map.detached(this);
                     }
@@ -187,21 +187,21 @@ namespace IceInternal
                     return null;
                 }
                 IceMX.MetricsFailures f = new IceMX.MetricsFailures();
-                f.id = _object.id;
-                f.failures = new Dictionary<string, int>(_failures);
+                f.Id = _object.Id;
+                f.Failures = new Dictionary<string, int>(_failures);
                 return f;
             }
 
             internal void attach(IceMX.MetricsHelper<T> helper)
             {
-                ++_object.total;
-                ++_object.current;
+                ++_object.Total;
+                ++_object.Current;
                 helper.initMetrics(_object);
             }
 
             internal bool isDetached()
             {
-                return _object.current == 0;
+                return _object.Current == 0;
             }
 
             internal IceMX.Metrics clone()
@@ -219,7 +219,7 @@ namespace IceInternal
 
             internal string getId()
             {
-                return _object.id;
+                return _object.Id;
             }
 
             private MetricsMap<T> _map;
@@ -453,7 +453,7 @@ namespace IceInternal
                     try
                     {
                         T t = new T();
-                        t.id = key;
+                        t.Id = key;
                         e = new Entry(this, t);
                         _objects.Add(key, e);
                     }

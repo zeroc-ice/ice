@@ -544,8 +544,8 @@ namespace IceInternal
             //
             // Validate string arguments.
             //
-            Debug.Assert(identity.name != null);
-            Debug.Assert(identity.category != null);
+            Debug.Assert(identity.Name != null);
+            Debug.Assert(identity.Category != null);
             Debug.Assert(facet != null);
 
             _communicator = communicator;

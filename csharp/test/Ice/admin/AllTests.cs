@@ -326,10 +326,10 @@ namespace Ice.admin
 
                 test(logMessages.Length == 4);
                 test(prefix.Equals("NullLogger"));
-                test(logMessages[0].traceCategory.Equals("testCat") && logMessages[0].message.Equals("trace"));
-                test(logMessages[1].message.Equals("warning"));
-                test(logMessages[2].message.Equals("error"));
-                test(logMessages[3].message.Equals("print"));
+                test(logMessages[0].TraceCategory.Equals("testCat") && logMessages[0].Message.Equals("trace"));
+                test(logMessages[1].Message.Equals("warning"));
+                test(logMessages[2].Message.Equals("error"));
+                test(logMessages[3].Message.Equals("print"));
 
                 //
                 // Get only errors and warnings
@@ -348,7 +348,7 @@ namespace Ice.admin
 
                 foreach (var msg in logMessages)
                 {
-                    test(msg.type == LogMessageType.ErrorMessage || msg.type == LogMessageType.WarningMessage);
+                    test(msg.Type == LogMessageType.ErrorMessage || msg.Type == LogMessageType.WarningMessage);
                 }
 
                 //
@@ -366,8 +366,8 @@ namespace Ice.admin
 
                 foreach (var msg in logMessages)
                 {
-                    test(msg.type == LogMessageType.ErrorMessage ||
-                        (msg.type == LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
+                    test(msg.Type == LogMessageType.ErrorMessage ||
+                        (msg.Type == LogMessageType.TraceMessage && msg.TraceCategory.Equals("testCat")));
                 }
 
                 //
@@ -379,8 +379,8 @@ namespace Ice.admin
                 test(logMessages.Length == 2);
                 test(prefix.Equals("NullLogger"));
 
-                test(logMessages[0].message.Equals("trace3"));
-                test(logMessages[1].message.Equals("error3"));
+                test(logMessages[0].Message.Equals("trace3"));
+                test(logMessages[1].Message.Equals("error3"));
 
                 //
                 // Now, test RemoteLogger
@@ -404,7 +404,7 @@ namespace Ice.admin
 
                 foreach (var m in logMessages)
                 {
-                    remoteLogger.CheckNextInit(prefix, m.type, m.message, m.traceCategory);
+                    remoteLogger.CheckNextInit(prefix, m.Type, m.Message, m.TraceCategory);
                 }
 
                 com.trace("testCat", "rtrace");
@@ -433,7 +433,7 @@ namespace Ice.admin
 
                 foreach (var m in logMessages)
                 {
-                    remoteLogger.CheckNextInit(prefix, m.type, m.message, m.traceCategory);
+                    remoteLogger.CheckNextInit(prefix, m.Type, m.Message, m.TraceCategory);
                 }
 
                 com.warning("rwarning2");
@@ -662,9 +662,9 @@ namespace Ice.admin
                     test(_prefix.Equals(prefix));
                     test(_initMessages.Count > 0);
                     var logMessage = _initMessages.Dequeue();
-                    test(logMessage.type == type);
-                    test(logMessage.message.Equals(message));
-                    test(logMessage.traceCategory.Equals(category));
+                    test(logMessage.Type == type);
+                    test(logMessage.Message.Equals(message));
+                    test(logMessage.TraceCategory.Equals(category));
                 }
             }
 
@@ -674,9 +674,9 @@ namespace Ice.admin
                 {
                     test(_logMessages.Count > 0);
                     var logMessage = _logMessages.Dequeue();
-                    test(logMessage.type == type);
-                    test(logMessage.message.Equals(message));
-                    test(logMessage.traceCategory.Equals(category));
+                    test(logMessage.Type == type);
+                    test(logMessage.Message.Equals(message));
+                    test(logMessage.TraceCategory.Equals(category));
                 }
             }
 

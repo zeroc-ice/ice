@@ -34,8 +34,8 @@ public class AllTests : Test.AllTests
 
         Console.Out.Write("testing locator finder... ");
         Identity finderId = new Identity();
-        finderId.category = "Ice";
-        finderId.name = "LocatorFinder";
+        finderId.Category = "Ice";
+        finderId.Name = "LocatorFinder";
         ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
@@ -44,7 +44,7 @@ public class AllTests : Test.AllTests
         {
             // Add test well-known object
             IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-                communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
+                communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
 
             IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
             session.GetAdmin().AddObjectWithType(@base, "::Test");
@@ -253,7 +253,7 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-            communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
+            communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
         IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
         session.GetConnection().setACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
