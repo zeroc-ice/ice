@@ -209,9 +209,9 @@ namespace IceInternal
         {
             return new Ice.ACM
             {
-                timeout = _config.timeout / 1000,
-                close = _config.close,
-                heartbeat = _config.heartbeat
+                Timeout = _config.timeout / 1000,
+                Close = _config.close,
+                Heartbeat = _config.heartbeat
             };
         }
 
@@ -347,9 +347,9 @@ namespace IceInternal
         {
             return new Ice.ACM
             {
-                timeout = _config.timeout / 1000,
-                close = _config.close,
-                heartbeat = _config.heartbeat
+                Timeout = _config.timeout / 1000,
+                Close = _config.close,
+                Heartbeat = _config.heartbeat
             };
         }
 

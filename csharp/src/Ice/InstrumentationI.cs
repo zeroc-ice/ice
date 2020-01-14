@@ -129,19 +129,19 @@ namespace IceInternal
         addConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
             Type cli = typeof(Ice.ConnectionInfo);
-            r.add("incoming", cl.GetMethod("getConnectionInfo"), cli.GetField("incoming"));
-            r.add("adapterName", cl.GetMethod("getConnectionInfo"), cli.GetField("adapterName"));
-            r.add("connectionId", cl.GetMethod("getConnectionInfo"), cli.GetField("connectionId"));
+            r.add("incoming", cl.GetMethod("getConnectionInfo"), cli.GetField("Incoming"));
+            r.add("adapterName", cl.GetMethod("getConnectionInfo"), cli.GetField("AdapterName"));
+            r.add("connectionId", cl.GetMethod("getConnectionInfo"), cli.GetField("ConnectionId"));
 
             cli = typeof(Ice.IPConnectionInfo);
-            r.add("localHost", cl.GetMethod("getConnectionInfo"), cli.GetField("localAddress"));
-            r.add("localPort", cl.GetMethod("getConnectionInfo"), cli.GetField("localPort"));
-            r.add("remoteHost", cl.GetMethod("getConnectionInfo"), cli.GetField("remoteAddress"));
-            r.add("remotePort", cl.GetMethod("getConnectionInfo"), cli.GetField("remotePort"));
+            r.add("localHost", cl.GetMethod("getConnectionInfo"), cli.GetField("LocalAddress"));
+            r.add("localPort", cl.GetMethod("getConnectionInfo"), cli.GetField("LocalPort"));
+            r.add("remoteHost", cl.GetMethod("getConnectionInfo"), cli.GetField("RemoteAddress"));
+            r.add("remotePort", cl.GetMethod("getConnectionInfo"), cli.GetField("RemotePort"));
 
             cli = typeof(Ice.UDPConnectionInfo);
-            r.add("mcastHost", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastAddress"));
-            r.add("mcastPort", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastPort"));
+            r.add("mcastHost", cl.GetMethod("getConnectionInfo"), cli.GetField("McastAddress"));
+            r.add("mcastPort", cl.GetMethod("getConnectionInfo"), cli.GetField("McastPort"));
 
             addEndpointAttributes<T>(r, cl);
         }
@@ -185,17 +185,17 @@ namespace IceInternal
                 Ice.IPConnectionInfo info = getIPConnectionInfo();
                 if (info != null)
                 {
-                    os.Append(info.localAddress).Append(':').Append(info.localPort);
+                    os.Append(info.LocalAddress).Append(':').Append(info.LocalPort);
                     os.Append(" -> ");
-                    os.Append(info.remoteAddress).Append(':').Append(info.remotePort);
+                    os.Append(info.RemoteAddress).Append(':').Append(info.RemotePort);
                 }
                 else
                 {
                     os.Append("connection-").Append(_connectionInfo);
                 }
-                if (_connectionInfo.connectionId.Length > 0)
+                if (_connectionInfo.ConnectionId.Length > 0)
                 {
-                    os.Append(" [").Append(_connectionInfo.connectionId).Append("]");
+                    os.Append(" [").Append(_connectionInfo.ConnectionId).Append("]");
                 }
                 _id = os.ToString();
             }
@@ -224,9 +224,9 @@ namespace IceInternal
 
         public string getParent()
         {
-            if (_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
+            if (_connectionInfo.AdapterName != null && _connectionInfo.AdapterName.Length > 0)
             {
-                return _connectionInfo.adapterName;
+                return _connectionInfo.AdapterName;
             }
             else
             {
@@ -256,7 +256,7 @@ namespace IceInternal
         private Ice.IPConnectionInfo
         getIPConnectionInfo()
         {
-            for (Ice.ConnectionInfo p = _connectionInfo; p != null; p = p.underlying)
+            for (Ice.ConnectionInfo p = _connectionInfo; p != null; p = p.Underlying)
             {
                 if (p is Ice.IPConnectionInfo)
                 {
@@ -701,9 +701,9 @@ namespace IceInternal
             if (_id == null)
             {
                 _id = _endpoint.ToString();
-                if (_connectionInfo.connectionId != null && _connectionInfo.connectionId.Length > 0)
+                if (_connectionInfo.ConnectionId != null && _connectionInfo.ConnectionId.Length > 0)
                 {
-                    _id += " [" + _connectionInfo.connectionId + "]";
+                    _id += " [" + _connectionInfo.ConnectionId + "]";
                 }
             }
             return _id;
@@ -716,9 +716,9 @@ namespace IceInternal
 
         public string getParent()
         {
-            if (_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
+            if (_connectionInfo.AdapterName != null && _connectionInfo.AdapterName.Length > 0)
             {
-                return _connectionInfo.adapterName;
+                return _connectionInfo.AdapterName;
             }
             else
             {

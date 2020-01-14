@@ -324,12 +324,12 @@ namespace IceSSL
         public Ice.ConnectionInfo getInfo()
         {
             ConnectionInfo info = new ConnectionInfo();
-            info.underlying = _delegate.getInfo();
-            info.incoming = _incoming;
-            info.adapterName = _adapterName;
-            info.cipher = _cipher;
-            info.certs = _certs;
-            info.verified = _verified;
+            info.Underlying = _delegate.getInfo();
+            info.Incoming = _incoming;
+            info.AdapterName = _adapterName;
+            info.Cipher = _cipher;
+            info.Certs = _certs;
+            info.Verified = _verified;
             return info;
         }
 

@@ -238,7 +238,7 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(!((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).verified);
+                    test(!((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).Verified);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -262,7 +262,7 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).verified);
+                    test(((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).Verified);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -341,11 +341,11 @@ public class AllTests
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
                     IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                    test(info.certs!.Length == 2);
-                    test(info.verified);
+                    test(info.Certs!.Length == 2);
+                    test(info.Verified);
 
-                    test(caCert.Equals(info.certs[1]));
-                    test(serverCert.Equals(info.certs[0]));
+                    test(caCert.Equals(info.Certs[1]));
+                    test(serverCert.Equals(info.Certs[0]));
                 }
                 catch (System.Exception ex)
                 {
@@ -751,7 +751,7 @@ public class AllTests
                         {
                             server.IcePing();
                             IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                            test(!info.verified);
+                            test(!info.Verified);
                         }
                         catch (LocalException ex)
                         {
@@ -833,8 +833,8 @@ public class AllTests
                     try
                     {
                         info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1);
-                        test(!info.verified);
+                        test(info.Certs!.Length == 1);
+                        test(!info.Verified);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -853,8 +853,8 @@ public class AllTests
                     try
                     {
                         info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1);
-                        test(!info.verified);
+                        test(info.Certs!.Length == 1);
+                        test(!info.Verified);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -874,7 +874,7 @@ public class AllTests
                     try
                     {
                         info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
+                        test(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -900,8 +900,8 @@ public class AllTests
                         try
                         {
                             info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                            test(info.certs!.Length == 2);
-                            test(info.verified);
+                            test(info.Certs!.Length == 2);
+                            test(info.Verified);
                         }
                         catch (LocalException ex)
                         {
@@ -967,8 +967,8 @@ public class AllTests
                             try
                             {
                                 info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                                test(info.certs!.Length == 3);
-                                test(info.verified);
+                                test(info.Certs!.Length == 3);
+                                test(info.Verified);
                             }
                             catch (Ice.LocalException ex)
                             {
@@ -1012,8 +1012,8 @@ public class AllTests
                             try
                             {
                                 info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                                test(info.certs!.Length == 4);
-                                test(info.verified);
+                                test(info.Certs!.Length == 4);
+                                test(info.Verified);
                             }
                             catch (Ice.LocalException ex)
                             {
@@ -1109,8 +1109,8 @@ public class AllTests
                 try
                 {
                     IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                    Debug.Assert(info.cipher != null);
-                    server.checkCipher(info.cipher);
+                    Debug.Assert(info.Cipher != null);
+                    server.checkCipher(info.Cipher);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -2368,9 +2368,9 @@ public class AllTests
                 {
                     try
                     {
-                        IceSSL.ConnectionInfo? info = (IceSSL.ConnectionInfo?)p.GetConnection().getInfo().underlying;
+                        IceSSL.ConnectionInfo? info = (IceSSL.ConnectionInfo?)p.GetConnection().getInfo().Underlying;
                         Debug.Assert(info != null);
-                        test(info.verified);
+                        test(info.Verified);
                         break;
                     }
                     catch (Ice.LocalException ex)

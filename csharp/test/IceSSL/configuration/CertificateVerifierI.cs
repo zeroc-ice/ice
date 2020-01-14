@@ -8,7 +8,7 @@ public class CertificateVerifier : IceSSL.ICertificateVerifier
 
     public bool verify(IceSSL.ConnectionInfo info)
     {
-        _hadCert = info.certs != null;
+        _hadCert = info.Certs != null;
         _invoked = true;
         return _returnValue;
     }

@@ -558,21 +558,21 @@ namespace Ice.acm
 
                 Ice.ACM acm;
                 acm = con.getACM();
-                test(acm.timeout == 15);
-                test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-                test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
+                test(acm.Timeout == 15);
+                test(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
+                test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
                 con.setACM(null, null, null);
                 acm = con.getACM();
-                test(acm.timeout == 15);
-                test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
-                test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
+                test(acm.Timeout == 15);
+                test(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
+                test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
                 con.setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
                 acm = con.getACM();
-                test(acm.timeout == 1);
-                test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
-                test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
+                test(acm.Timeout == 1);
+                test(acm.Close == Ice.ACMClose.CloseOnInvocationAndIdle);
+                test(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
 
                 proxy.startHeartbeatCount();
                 proxy.waitForHeartbeatCount(2);

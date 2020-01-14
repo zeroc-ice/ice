@@ -22,7 +22,7 @@ namespace Ice.info
 
         private static TCPConnectionInfo getTCPConnectionInfo(ConnectionInfo info)
         {
-            for (; info != null; info = info.underlying)
+            for (; info != null; info = info.Underlying)
             {
                 if (info is TCPConnectionInfo)
                 {
@@ -183,29 +183,29 @@ namespace Ice.info
 
                 ConnectionInfo info = connection.getInfo();
                 TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
-                test(!info.incoming);
-                test(info.adapterName.Length == 0);
-                test(ipInfo.remotePort == endpointPort);
-                test(ipInfo.localPort > 0);
+                test(!info.Incoming);
+                test(info.AdapterName.Length == 0);
+                test(ipInfo.RemotePort == endpointPort);
+                test(ipInfo.LocalPort > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    test(ipInfo.localAddress.Equals(defaultHost));
-                    test(ipInfo.remoteAddress.Equals(defaultHost));
+                    test(ipInfo.LocalAddress.Equals(defaultHost));
+                    test(ipInfo.RemoteAddress.Equals(defaultHost));
                 }
-                test(ipInfo.rcvSize >= 1024);
-                test(ipInfo.sndSize >= 2048);
+                test(ipInfo.RcvSize >= 1024);
+                test(ipInfo.SndSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
                 test(ctx["incoming"].Equals("true"));
                 test(ctx["adapterName"].Equals("TestAdapter"));
-                test(ctx["remoteAddress"].Equals(ipInfo.localAddress));
-                test(ctx["localAddress"].Equals(ipInfo.remoteAddress));
-                test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
-                test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
+                test(ctx["remoteAddress"].Equals(ipInfo.LocalAddress));
+                test(ctx["localAddress"].Equals(ipInfo.RemoteAddress));
+                test(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
+                test(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
                 if (@base.GetConnection().type().Equals("ws") || @base.GetConnection().type().Equals("wss"))
                 {
-                    Dictionary<string, string> headers = ((WSConnectionInfo)info).headers;
+                    Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers;
                     test(headers["Upgrade"].Equals("websocket"));
                     test(headers["Connection"].Equals("Upgrade"));
                     test(headers["Sec-WebSocket-Protocol"].Equals("zeroc.com"));
@@ -222,18 +222,18 @@ namespace Ice.info
                 connection.setBufferSize(2048, 1024);
 
                 UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.getInfo();
-                test(!udpInfo.incoming);
-                test(udpInfo.adapterName.Length == 0);
-                test(udpInfo.localPort > 0);
-                test(udpInfo.remotePort == endpointPort);
+                test(!udpInfo.Incoming);
+                test(udpInfo.AdapterName.Length == 0);
+                test(udpInfo.LocalPort > 0);
+                test(udpInfo.RemotePort == endpointPort);
 
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    test(udpInfo.remoteAddress.Equals(defaultHost));
-                    test(udpInfo.localAddress.Equals(defaultHost));
+                    test(udpInfo.RemoteAddress.Equals(defaultHost));
+                    test(udpInfo.LocalAddress.Equals(defaultHost));
                 }
-                test(udpInfo.rcvSize >= 2048);
-                test(udpInfo.sndSize >= 1024);
+                test(udpInfo.RcvSize >= 2048);
+                test(udpInfo.SndSize >= 1024);
             }
             output.WriteLine("ok");
 

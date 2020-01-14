@@ -649,8 +649,8 @@ namespace IceInternal
         public Ice.ConnectionInfo getInfo()
         {
             Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
-            info.headers = _parser.getHeaders();
-            info.underlying = _delegate.getInfo();
+            info.Headers = _parser.getHeaders();
+            info.Underlying = _delegate.getInfo();
             return info;
         }
 

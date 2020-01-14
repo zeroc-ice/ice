@@ -84,13 +84,13 @@ namespace IceInternal
             if (_stream.fd() != null)
             {
                 EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
-                info.localAddress = Network.endpointAddressToString(localEndpoint);
-                info.localPort = Network.endpointPort(localEndpoint);
+                info.LocalAddress = Network.endpointAddressToString(localEndpoint);
+                info.LocalPort = Network.endpointPort(localEndpoint);
                 EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
-                info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                info.remotePort = Network.endpointPort(remoteEndpoint);
-                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-                info.sndSize = Network.getSendBufferSize(_stream.fd());
+                info.RemoteAddress = Network.endpointAddressToString(remoteEndpoint);
+                info.RemotePort = Network.endpointPort(remoteEndpoint);
+                info.RcvSize = Network.getRecvBufferSize(_stream.fd());
+                info.SndSize = Network.getSendBufferSize(_stream.fd());
             }
             return info;
         }

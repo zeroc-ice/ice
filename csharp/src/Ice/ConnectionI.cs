@@ -600,7 +600,7 @@ namespace Ice
                 }
                 _monitor = _monitor.acm(timeout, close, heartbeat);
 
-                if (_monitor.getACM().timeout <= 0)
+                if (_monitor.getACM().Timeout <= 0)
                 {
                     _acmLastActivity = -1; // Disable the recording of last activity.
                 }
@@ -1652,7 +1652,7 @@ namespace Ice
             _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _cacheBuffers = communicator.CacheMessageBuffers > 0;
-            if (_monitor != null && _monitor.getACM().timeout > 0)
+            if (_monitor != null && _monitor.getACM().Timeout > 0)
             {
                 _acmLastActivity = Time.currentMonotonicTimeMillis();
             }
@@ -2738,11 +2738,11 @@ namespace Ice
             {
                 _info = new ConnectionInfo();
             }
-            for (ConnectionInfo info = _info; info != null; info = info.underlying)
+            for (ConnectionInfo info = _info; info != null; info = info.Underlying)
             {
-                info.connectionId = _endpoint.connectionId();
-                info.adapterName = _adapter != null ? _adapter.GetName() : "";
-                info.incoming = _connector == null;
+                info.ConnectionId = _endpoint.connectionId();
+                info.AdapterName = _adapter != null ? _adapter.GetName() : "";
+                info.Incoming = _connector == null;
             }
             return _info;
         }

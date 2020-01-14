@@ -464,10 +464,10 @@ namespace IceSSL
 
         internal void verifyPeer(string? address, ConnectionInfo info, string desc)
         {
-            if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
+            if (_verifyDepthMax > 0 && info.Certs != null && info.Certs.Length > _verifyDepthMax)
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
+                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                    "length of peer's certificate chain (" + info.Certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {
@@ -480,7 +480,7 @@ namespace IceSSL
 
             if (!_trustManager.verify(info, desc))
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
                 if (_securityTraceLevel >= 1)
                 {
@@ -494,7 +494,7 @@ namespace IceSSL
 
             if (_verifier != null && !_verifier.verify(info))
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") +
+                string msg = (info.Incoming ? "incoming" : "outgoing") +
                     " connection rejected by certificate verifier\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {

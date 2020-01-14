@@ -8,7 +8,7 @@ public class AllTests : Test.AllTests
 {
     private static IPConnectionInfo getIPConnectionInfo(ConnectionInfo info)
     {
-        for (; info != null; info = info.underlying)
+        for (; info != null; info = info.Underlying)
         {
             if (info is IPConnectionInfo)
             {
@@ -40,7 +40,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().getInfo());
-            test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
+            test(info.RemotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         output.WriteLine("ok");
 

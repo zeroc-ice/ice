@@ -23,7 +23,7 @@ namespace Ice.info
 
         private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo info)
         {
-            for (ConnectionInfo? i = info; i != null; i = i.underlying)
+            for (ConnectionInfo? i = info; i != null; i = i.Underlying)
             {
                 if (i is IPConnectionInfo)
                 {
@@ -66,20 +66,20 @@ namespace Ice.info
             Debug.Assert(current.Connection != null);
             Dictionary<string, string> ctx = new Dictionary<string, string>();
             ConnectionInfo info = current.Connection.getInfo();
-            ctx["adapterName"] = info.adapterName;
-            ctx["incoming"] = info.incoming ? "true" : "false";
+            ctx["adapterName"] = info.AdapterName;
+            ctx["incoming"] = info.Incoming ? "true" : "false";
 
             IPConnectionInfo? ipinfo = getIPConnectionInfo(info);
             Debug.Assert(ipinfo != null);
-            ctx["localAddress"] = ipinfo.localAddress;
-            ctx["localPort"] = ipinfo.localPort.ToString();
-            ctx["remoteAddress"] = ipinfo.remoteAddress;
-            ctx["remotePort"] = ipinfo.remotePort.ToString();
+            ctx["localAddress"] = ipinfo.LocalAddress;
+            ctx["localPort"] = ipinfo.LocalPort.ToString();
+            ctx["remoteAddress"] = ipinfo.RemoteAddress;
+            ctx["remotePort"] = ipinfo.RemotePort.ToString();
 
             if (info is WSConnectionInfo)
             {
                 WSConnectionInfo wsinfo = (WSConnectionInfo)info;
-                foreach (KeyValuePair<string, string> e in wsinfo.headers)
+                foreach (KeyValuePair<string, string> e in wsinfo.Headers)
                 {
                     ctx["ws." + e.Key] = e.Value;
                 }

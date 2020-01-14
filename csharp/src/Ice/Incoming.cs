@@ -605,14 +605,14 @@ namespace IceInternal
             {
                 try
                 {
-                    for (Ice.ConnectionInfo? p = _current.Connection.getInfo(); p != null; p = p.underlying)
+                    for (Ice.ConnectionInfo? p = _current.Connection.getInfo(); p != null; p = p.Underlying)
                     {
                         if (p is Ice.IPConnectionInfo)
                         {
                             Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)p;
-                            output.Append("\nremote host: ").Append(ipinfo.remoteAddress)
+                            output.Append("\nremote host: ").Append(ipinfo.RemoteAddress)
                                   .Append(" remote port: ")
-                                  .Append(ipinfo.remotePort);
+                                  .Append(ipinfo.RemotePort);
                             break;
                         }
                     }

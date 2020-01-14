@@ -2,32 +2,31 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+
 namespace Ice
 {
-    [System.Serializable]
-    public partial class ConnectionInfo
+    [Serializable]
+    public class ConnectionInfo
     {
-        public ConnectionInfo? underlying;
-        public bool incoming;
-        public string? adapterName;
-        public string connectionId;
-
-        partial void ice_initialize();
+        public ConnectionInfo? Underlying;
+        public bool Incoming;
+        public string? AdapterName;
+        public string ConnectionId;
 
         public ConnectionInfo()
         {
-            adapterName = "";
-            connectionId = "";
-            ice_initialize();
+            AdapterName = "";
+            ConnectionId = "";
         }
 
         public ConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId)
         {
-            this.underlying = underlying;
-            this.incoming = incoming;
-            this.adapterName = adapterName;
-            this.connectionId = connectionId;
-            ice_initialize();
+            Underlying = underlying;
+            Incoming = incoming;
+            AdapterName = adapterName;
+            ConnectionId = connectionId;
         }
     }
 
@@ -51,53 +50,38 @@ namespace Ice
         HeartbeatAlways
     }
 
-    [System.Serializable]
-    public partial struct ACM
+    [Serializable]
+    public struct ACM : IEquatable<ACM>
     {
-        public int timeout;
-        public ACMClose close;
-        public ACMHeartbeat heartbeat;
-
-        partial void ice_initialize();
+        public int Timeout;
+        public ACMClose Close;
+        public ACMHeartbeat Heartbeat;
 
         public ACM(int timeout, ACMClose close, ACMHeartbeat heartbeat)
         {
-            this.timeout = timeout;
-            this.close = close;
-            this.heartbeat = heartbeat;
-            ice_initialize();
+            Timeout = timeout;
+            Close = close;
+            Heartbeat = heartbeat;
         }
 
         public override int GetHashCode()
         {
             int h_ = 5381;
             IceInternal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
-            IceInternal.HashUtil.hashAdd(ref h_, timeout);
-            IceInternal.HashUtil.hashAdd(ref h_, close);
-            IceInternal.HashUtil.hashAdd(ref h_, heartbeat);
+            IceInternal.HashUtil.hashAdd(ref h_, Timeout);
+            IceInternal.HashUtil.hashAdd(ref h_, Close);
+            IceInternal.HashUtil.hashAdd(ref h_, Heartbeat);
             return h_;
+        }
+
+        public bool Equals(ACM other)
+        {
+            return Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
         }
 
         public override bool Equals(object other)
         {
-            if (!(other is ACM))
-            {
-                return false;
-            }
-            ACM o = (ACM)other;
-            if (!this.timeout.Equals(o.timeout))
-            {
-                return false;
-            }
-            if (!this.close.Equals(o.close))
-            {
-                return false;
-            }
-            if (!this.heartbeat.Equals(o.heartbeat))
-            {
-                return false;
-            }
-            return true;
+            return ReferenceEquals(this, other) || (other is ACM value && Equals(value));
         }
 
         public static bool operator ==(ACM lhs, ACM rhs)
@@ -118,7 +102,7 @@ namespace Ice
         GracefullyWithWait
     }
 
-    public partial interface Connection
+    public interface Connection
     {
         /// <summary>
         /// Manually close the connection using the specified closure mode.
@@ -209,8 +193,9 @@ namespace Ice
         /// </summary>
         void heartbeat();
 
-        System.Threading.Tasks.Task heartbeatAsync(System.IProgress<bool> progress = null,
-                                                   System.Threading.CancellationToken cancel = new System.Threading.CancellationToken());
+        System.Threading.Tasks.Task heartbeatAsync(
+            IProgress<bool>? progress = null,
+            System.Threading.CancellationToken cancel = new System.Threading.CancellationToken());
 
         /// <summary>
         /// Set the active connection management parameters.
@@ -278,139 +263,96 @@ namespace Ice
         void throwException();
     }
 
-    [System.Serializable]
-    public partial class IPConnectionInfo : ConnectionInfo
+    [Serializable]
+    public class IPConnectionInfo : ConnectionInfo
     {
-        public string localAddress;
-        public int localPort;
-        public string remoteAddress;
-        public int remotePort;
+        public string LocalAddress;
+        public int LocalPort;
+        public string RemoteAddress;
+        public int RemotePort;
 
-        partial void ice_initialize();
-
-        public IPConnectionInfo() : base()
+        public IPConnectionInfo()
         {
-            this.localAddress = "";
-            this.localPort = -1;
-            this.remoteAddress = "";
-            this.remotePort = -1;
-            ice_initialize();
+            LocalAddress = "";
+            LocalPort = -1;
+            RemoteAddress = "";
+            RemotePort = -1;
         }
 
-        public IPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, string localAddress, int localPort, string remoteAddress, int remotePort) : base(underlying, incoming, adapterName, connectionId)
+        public IPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
+                                string localAddress, int localPort, string remoteAddress, int remotePort) :
+            base(underlying, incoming, adapterName, connectionId)
         {
-            this.localAddress = localAddress;
-            this.localPort = localPort;
-            this.remoteAddress = remoteAddress;
-            this.remotePort = remotePort;
-            ice_initialize();
+            LocalAddress = localAddress;
+            LocalPort = localPort;
+            RemoteAddress = remoteAddress;
+            RemotePort = remotePort;
         }
     }
 
-    [System.Serializable]
-    public partial class TCPConnectionInfo : IPConnectionInfo
+    [Serializable]
+    public class TCPConnectionInfo : IPConnectionInfo
     {
-        public int rcvSize;
-        public int sndSize;
+        public int RcvSize;
+        public int SndSize;
 
-        partial void ice_initialize();
-
-        public TCPConnectionInfo() : base()
+        public TCPConnectionInfo()
         {
-            this.rcvSize = 0;
-            this.sndSize = 0;
-            ice_initialize();
+            RcvSize = 0;
+            SndSize = 0;
         }
 
-        public TCPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, string localAddress, int localPort, string remoteAddress, int remotePort, int rcvSize, int sndSize) : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        public TCPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
+                                 string localAddress, int localPort, string remoteAddress, int remotePort, int rcvSize,
+                                 int sndSize) :
+            base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
         {
-            this.rcvSize = rcvSize;
-            this.sndSize = sndSize;
-            ice_initialize();
+            RcvSize = rcvSize;
+            SndSize = sndSize;
         }
     }
 
-    [System.Serializable]
-    public partial class UDPConnectionInfo : IPConnectionInfo
+    [Serializable]
+    public class UDPConnectionInfo : IPConnectionInfo
     {
-        public string mcastAddress;
-        public int mcastPort;
-        public int rcvSize;
-        public int sndSize;
+        public string McastAddress;
+        public int McastPort;
+        public int RcvSize;
+        public int SndSize;
 
-        partial void ice_initialize();
-
-        public UDPConnectionInfo() : base()
+        public UDPConnectionInfo()
         {
-            this.mcastAddress = "";
-            this.mcastPort = -1;
-            this.rcvSize = 0;
-            this.sndSize = 0;
-            ice_initialize();
+            McastAddress = "";
+            McastPort = -1;
+            RcvSize = 0;
+            SndSize = 0;
         }
 
-        public UDPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, string localAddress, int localPort, string remoteAddress, int remotePort, string mcastAddress, int mcastPort, int rcvSize, int sndSize) : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        public UDPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
+                                 string localAddress, int localPort, string remoteAddress, int remotePort,
+                                 string mcastAddress, int mcastPort, int rcvSize, int sndSize) :
+            base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
         {
-            this.mcastAddress = mcastAddress;
-            this.mcastPort = mcastPort;
-            this.rcvSize = rcvSize;
-            this.sndSize = sndSize;
-            ice_initialize();
+            McastAddress = mcastAddress;
+            McastPort = mcastPort;
+            RcvSize = rcvSize;
+            SndSize = sndSize;
         }
     }
 
-    [System.Serializable]
-    public partial class WSConnectionInfo : ConnectionInfo
+    [Serializable]
+    public class WSConnectionInfo : ConnectionInfo
     {
-        public System.Collections.Generic.Dictionary<string, string> headers;
+        public Dictionary<string, string>? Headers;
 
-        partial void ice_initialize();
-
-        public WSConnectionInfo() : base()
+        public WSConnectionInfo()
         {
-            ice_initialize();
         }
 
-        public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId, System.Collections.Generic.Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId)
+        public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
+            Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId)
         {
-            this.headers = headers;
-            ice_initialize();
-        }
-    }
-
-    public sealed class HeaderDictHelper
-    {
-        public static void write(OutputStream ostr,
-                                 System.Collections.Generic.Dictionary<string, string> v)
-        {
-            if (v == null)
-            {
-                ostr.WriteSize(0);
-            }
-            else
-            {
-                ostr.WriteSize(v.Count);
-                foreach (System.Collections.Generic.KeyValuePair<string, string> e in v)
-                {
-                    ostr.WriteString(e.Key);
-                    ostr.WriteString(e.Value);
-                }
-            }
-        }
-
-        public static System.Collections.Generic.Dictionary<string, string> read(InputStream istr)
-        {
-            int sz = istr.ReadSize();
-            System.Collections.Generic.Dictionary<string, string> r = new System.Collections.Generic.Dictionary<string, string>();
-            for (int i = 0; i < sz; ++i)
-            {
-                string k;
-                k = istr.ReadString();
-                string v;
-                v = istr.ReadString();
-                r[k] = v;
-            }
-            return r;
+            Headers = headers;
         }
     }
 }

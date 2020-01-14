@@ -59,7 +59,7 @@ namespace IceMX
                             }
                             else if (obj is Ice.ConnectionInfo)
                             {
-                                obj = ((Ice.ConnectionInfo)obj).underlying;
+                                obj = ((Ice.ConnectionInfo)obj).Underlying;
                             }
                             else
                             {
