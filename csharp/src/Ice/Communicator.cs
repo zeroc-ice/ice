@@ -1296,7 +1296,7 @@ namespace Ice
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
-                        ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLoggerI(this, _logger);
+                        ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, _logger);
                         setLogger(loggerAdminLogger);
                         LoggerAdminTraits traits = default;
                         ILoggerAdmin servant = loggerAdminLogger.getFacet();

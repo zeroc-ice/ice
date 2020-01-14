@@ -158,7 +158,7 @@ namespace IceInternal
             return new ILoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
         }
 
-        internal LoggerAdmin(Communicator communicator, LoggerAdminLoggerI logger)
+        internal LoggerAdmin(Communicator communicator, LoggerAdminLogger logger)
         {
             _maxLogCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepLogs") ?? 100;
             _maxTraceCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepTraces") ?? 100;
@@ -432,7 +432,7 @@ namespace IceInternal
         private readonly Dictionary<Identity, RemoteLoggerData> _remoteLoggerMap
             = new Dictionary<Identity, RemoteLoggerData>();
 
-        private readonly LoggerAdminLoggerI _logger;
+        private readonly LoggerAdminLogger _logger;
 
         private Communicator? _sendLogCommunicator = null;
         private bool _destroyed = false;

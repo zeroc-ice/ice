@@ -16,7 +16,7 @@ namespace IceInternal
         void destroy();
     }
 
-    internal sealed class LoggerAdminLoggerI : ILoggerAdminLogger
+    internal sealed class LoggerAdminLogger : ILoggerAdminLogger
     {
         public void print(string message)
         {
@@ -83,17 +83,17 @@ namespace IceInternal
             _loggerAdmin.destroy();
         }
 
-        internal LoggerAdminLoggerI(Ice.Communicator communicator, Ice.ILogger localLogger)
+        internal LoggerAdminLogger(Ice.Communicator communicator, Ice.ILogger localLogger)
         {
-            if (localLogger is LoggerAdminLoggerI)
+            if (localLogger is LoggerAdminLogger)
             {
-                _localLogger = ((LoggerAdminLoggerI)localLogger).getLocalLogger();
+                _localLogger = ((LoggerAdminLogger)localLogger).getLocalLogger();
             }
             else
             {
                 _localLogger = localLogger;
             }
-            _loggerAdmin = new LoggerAdminI(communicator, this);
+            _loggerAdmin = new LoggerAdmin(communicator, this);
         }
 
         internal Ice.ILogger getLocalLogger()
@@ -221,7 +221,7 @@ namespace IceInternal
         }
 
         private readonly Ice.ILogger _localLogger;
-        private readonly LoggerAdminI _loggerAdmin;
+        private readonly LoggerAdmin _loggerAdmin;
         private bool _destroyed = false;
         private Thread _sendLogThread;
         private readonly Queue<Job> _jobQueue = new Queue<Job>();
