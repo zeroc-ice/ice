@@ -595,6 +595,7 @@ namespace Ice
         /// </summary>
         public void ReadPendingValues()
         {
+            // TODO: remove this method
         }
 
         /// <summary>
@@ -640,7 +641,8 @@ namespace Ice
             }
 
             /*
-            TODO: Disabled, should be later refactored out. This useless check does not work well with the new indirection table processing.
+            TODO: Disabled, should be later refactored out. This useless check does not work well with the new
+            indirection table processing.
 
             //
             // The _startSeq variable points to the start of the sequence for which
@@ -2437,14 +2439,16 @@ namespace Ice
                     // We need to decrement index since position 0 in the indirection table
                     // corresponds to index 1.
                     index--;
-                    if (_current.IndirectionTable != null && index < _current.IndirectionTable.Length)
+                    if (index < _current.IndirectionTable?.Length)
                     {
-                        if (_unmarshaledMap.TryGetValue(_current.IndirectionTable[index], out var obj))
-                        {
-                            return obj;
-                        }
+                        // we make sure the indices held by the indirection table are valid when
+                        // we create the indirection table
+                        return _unmarshaledMap[_current.IndirectionTable[index]];
                     }
-                    throw new MarshalException("index not found in indirection table");
+                    else
+                    {
+                        throw new MarshalException("index too big for indirection table");
+                    }
                 }
                 else
                 {
@@ -2537,7 +2541,8 @@ namespace Ice
                 // We may reuse this instance data (current) so we need to clean it well (see push)
                 _current.slices?.Clear();
                 _current.IndirectionTableList?.Clear();
-                Debug.Assert(_current.DeferredIndirectionTableList == null || _current.DeferredIndirectionTableList.Count == 0);
+                Debug.Assert(_current.DeferredIndirectionTableList == null ||
+                    _current.DeferredIndirectionTableList.Count == 0);
                 _current = _current.previous;
                 return slicedData;
             }
@@ -2566,7 +2571,8 @@ namespace Ice
                         //
                         // Must be checked first!
                         //
-                        if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                        if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
+                            Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                         {
                             _current.typeId = "";
                             _current.compactId = _stream.ReadSize();
@@ -2598,7 +2604,7 @@ namespace Ice
                         _current.sliceSize = _stream.ReadInt();
                         if (_current.sliceSize < 4)
                         {
-                            throw new UnmarshalOutOfBoundsException();
+                            throw new MarshalException("invalid slice size");
                         }
                     }
                     else
@@ -2639,8 +2645,9 @@ namespace Ice
                 {
                     _stream.skipOptionals();
                 }
-                if (_current.PosAfterIndirectionTable.HasValue)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
+                    Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
                     _stream.pos(_current.PosAfterIndirectionTable.Value);
                     _current.PosAfterIndirectionTable = null;
                     _current.IndirectionTable = null;
@@ -2662,8 +2669,6 @@ namespace Ice
                         IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
                     }
                 }
-
-                _current.slices ??= new List<SliceInfo>();
 
                 int start = _stream.pos();
 
@@ -2716,7 +2721,9 @@ namespace Ice
                 b.get(bytes);
                 b.position(end);
 
-                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<Value>(), hasOptionalMembers, isLastSlice);
+                _current.slices ??= new List<SliceInfo>();
+                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<Value>(), hasOptionalMembers,
+                                         isLastSlice);
                 _current.slices.Add(info);
 
                 // The deferred indirection table is only used by classes. For exceptions, the indirection table is
@@ -2737,8 +2744,9 @@ namespace Ice
                 else
                 {
                     _current.IndirectionTableList ??= new List<int[]?>();
-                    if (_current.IndirectionTable != null)
+                    if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                     {
+                        Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
                         _current.IndirectionTableList.Add(_current.IndirectionTable);
                         _stream.pos(_current.PosAfterIndirectionTable.Value);
                         _current.PosAfterIndirectionTable = null;
@@ -2756,7 +2764,8 @@ namespace Ice
             // is SkipIndirectionTable itself.
             private void SkipIndirectionTable()
             {
-                Debug.Assert(_current.sliceType == SliceType.ValueSlice); // we should never skip an exception's indirection table
+                // we should never skip an exception's indirection table
+                Debug.Assert(_current.sliceType == SliceType.ValueSlice);
                 var tableSize = _stream.ReadAndCheckSeqSize(1);
                 for (int i = 0; i < tableSize; ++i)
                 {
@@ -2789,7 +2798,8 @@ namespace Ice
                             }
                             else
                             {
-                                throw new MarshalException("indirection table cannot hold an instance without a type-id");
+                                throw new MarshalException(
+                                    "indirection table cannot hold an instance without a type-id");
                             }
 
                             // Read the slice size, then skip the slice
@@ -2882,6 +2892,7 @@ namespace Ice
                 //
                 v.iceRead(_stream);
             }
+
             private (int Index, Value Obj) readInstance(int index)
             {
                 Debug.Assert(index > 0);
@@ -3022,7 +3033,7 @@ namespace Ice
                     {
                         //
                         // Provide a factory with an opportunity to supply the instance.
-                        // We pass the "::Ice::IObject" ID to indicate that this is the
+                        // We pass the "::Ice::Object" ID to indicate that this is the
                         // last chance to preserve the instance.
                         //
                         v = newInstance(Value.ice_staticId());
