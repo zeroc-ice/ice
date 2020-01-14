@@ -208,12 +208,12 @@ namespace Ice.info
                     Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers;
                     test(headers["Upgrade"].Equals("websocket"));
                     test(headers["Connection"].Equals("Upgrade"));
-                    test(headers["Sec-WebSocket-Protocol"].Equals("zeroc.com"));
+                    test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
                     test(headers["Sec-WebSocket-Accept"] != null);
 
                     test(ctx["ws.Upgrade"].Equals("websocket"));
                     test(ctx["ws.Connection"].Equals("Upgrade"));
-                    test(ctx["ws.Sec-WebSocket-Protocol"].Equals("zeroc.com"));
+                    test(ctx["ws.Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
                     test(ctx["ws.Sec-WebSocket-Version"].Equals("13"));
                     test(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
