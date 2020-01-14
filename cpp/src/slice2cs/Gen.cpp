@@ -2355,7 +2355,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
     _out << sp;
     _out << nl << "public static void Write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
@@ -2830,7 +2830,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     string typeS = typeToString(p, ns);
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
 
     _out << sp << nl << "public static void Write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << typeS
@@ -2906,7 +2906,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
 
     _out << sp << nl << "public static void Write(";
