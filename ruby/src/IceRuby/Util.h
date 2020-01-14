@@ -175,6 +175,9 @@ VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3);
 template<typename Fun, typename T1, typename T2, typename T3, typename T4>
 VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4);
 
+template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
+
 extern "C" typedef VALUE (*RubyFunction)(VALUE);
 
 VALUE callProtected(RubyFunction, VALUE);
@@ -311,6 +314,39 @@ inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
 {
     typedef RF_4<Fun, T1, T2, T3, T4> RF;
     RF f(fun, t1, t2, t3, t4);
+    return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
+}
+
+template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+class RF_6
+{
+public:
+
+    RF_6(Fun f, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) : _f(f), _t1(t1), _t2(t2), _t3(t3), _t4(t4), _t5(t5), _t6(t6)
+    {
+    }
+    inline VALUE operator()() { return _f(_t1, _t2, _t3, _t4, _t5, _t6); }
+    static inline VALUE call(VALUE f)
+    {
+        return (*reinterpret_cast<RF_6*>(f))();
+    }
+
+private:
+
+    Fun _f;
+    T1 _t1;
+    T2 _t2;
+    T3 _t3;
+    T4 _t4;
+    T5 _t5;
+    T6 _t6;
+};
+
+template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
+{
+    typedef RF_6<Fun, T1, T2, T3, T4, T5, T6> RF;
+    RF f(fun, t1, t2, t3, t4, t5, t6);
     return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
 }
 

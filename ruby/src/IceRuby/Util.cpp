@@ -448,7 +448,7 @@ IceRuby::contextToHash(const Ice::Context& ctx)
 
 extern "C"
 VALUE
-IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg)
+IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg, int, VALUE [])
 {
     VALUE key = rb_ary_entry(val, 0);
     VALUE value = rb_ary_entry(val, 1);
@@ -465,17 +465,13 @@ IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg)
     return val;
 }
 
-extern "C"
-{
-typedef VALUE (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
-}
-
 void
 IceRuby::hashIterate(VALUE h, HashIterator& iter)
 {
     assert(TYPE(h) == T_HASH);
-    callRuby(rb_iterate, rb_each, h,
-             reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
+
+    callRuby(::rb_block_call, h, rb_intern("each"), 0, static_cast<VALUE*>(0),
+             reinterpret_cast<rb_block_call_func_t>(IceRuby_Util_hash_foreach_callback),
              reinterpret_cast<VALUE>(&iter));
 }
 
