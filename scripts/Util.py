@@ -2724,7 +2724,7 @@ class BrowserProcessController(RemoteProcessController):
                     capabilities = webdriver.DesiredCapabilities.INTERNETEXPLORER.copy()
                     capabilities["ie.ensureCleanSession"] = True
                     self.driver = webdriver.Ie(capabilities=capabilities)
-                elif driver == "Safari" and port > 0:
+                elif driver == "Safari" and int(port) > 0:
                     self.driver = webdriver.Safari(port=int(port), reuse_service=True)
                 else:
                     self.driver = getattr(webdriver, driver)()
