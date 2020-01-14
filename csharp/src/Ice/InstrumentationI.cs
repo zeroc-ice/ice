@@ -1046,8 +1046,8 @@ namespace IceInternal
             try
             {
                 Type cl = typeof(InvocationMetrics);
-                _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("remotes"));
-                _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("collocated"));
+                _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("Remotes"));
+                _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("Collocated"));
             }
             catch (System.Exception)
             {
