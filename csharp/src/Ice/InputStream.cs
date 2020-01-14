@@ -2441,9 +2441,7 @@ namespace Ice
                     index--;
                     if (index < _current.IndirectionTable?.Length)
                     {
-                        // we make sure the indices held by the indirection table are valid when
-                        // we create the indirection table
-                        return _unmarshaledMap[_current.IndirectionTable[index]];
+                        return _current.IndirectionTable[index];
                     }
                     else
                     {
@@ -2452,7 +2450,7 @@ namespace Ice
                 }
                 else
                 {
-                    return readInstance(index).Obj;
+                    return readInstance(index);
                 }
             }
 
@@ -2743,7 +2741,7 @@ namespace Ice
                 }
                 else
                 {
-                    _current.IndirectionTableList ??= new List<int[]?>();
+                    _current.IndirectionTableList ??= new List<Value[]?>();
                     if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                     {
                         Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
@@ -2826,17 +2824,17 @@ namespace Ice
                 }
             }
 
-            private int[] ReadIndirectionTable()
+            private Value[] ReadIndirectionTable()
             {
                 var size = _stream.ReadAndCheckSeqSize(1);
                 if (size == 0)
                 {
                     throw new MarshalException("invalid empty indirection table");
                 }
-                var indirectionTable = new int[size];
+                var indirectionTable = new Value[size];
                 for (int i = 0; i < indirectionTable.Length; ++i)
                 {
-                    indirectionTable[i] = readInstance(_stream.ReadSize()).Index;
+                    indirectionTable[i] = readInstance(_stream.ReadSize());
                 }
                 return indirectionTable;
             }
@@ -2870,7 +2868,7 @@ namespace Ice
                     int savedPos = _stream.pos();
 
                     Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
-                    _current.IndirectionTableList ??= new List<int[]?>(_current.DeferredIndirectionTableList.Count);
+                    _current.IndirectionTableList ??= new List<Value[]?>(_current.DeferredIndirectionTableList.Count);
                     foreach (int pos in _current.DeferredIndirectionTableList)
                     {
                         if (pos > 0)
@@ -2893,7 +2891,7 @@ namespace Ice
                 v.iceRead(_stream);
             }
 
-            private (int Index, Value Obj) readInstance(int index)
+            private Value readInstance(int index)
             {
                 Debug.Assert(index > 0);
 
@@ -2901,7 +2899,7 @@ namespace Ice
                 {
                     if (_unmarshaledMap.TryGetValue(index, out var obj))
                     {
-                        return (index, obj);
+                        return obj;
                     }
                     throw new MarshalException($"could not find index {index} in unmarshaledMap");
                 }
@@ -3060,7 +3058,7 @@ namespace Ice
 
                 --_classGraphDepth;
 
-               return (index, v);
+               return v;
             }
 
             private SlicedData? readSlicedData()
@@ -3071,7 +3069,7 @@ namespace Ice
                 }
 
                 //
-                // The _indirectionTables member holds the indirection table for each slice
+                // The IndirectionTableList member holds the indirection table for each slice
                 // in _slices.
                 //
                 Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
@@ -3083,21 +3081,8 @@ namespace Ice
                     // been read yet in the case of a circular reference to an
                     // enclosing instance.
                     //
-                    int[] table = _current.IndirectionTableList[n];
                     SliceInfo info = _current.slices[n];
-                    info.instances = new Value[table != null ? table.Length : 0];
-                    for (int j = 0; j < info.instances.Length; ++j)
-                    {
-                        int index = table[j];
-                        if (_unmarshaledMap.TryGetValue(index, out var obj))
-                        {
-                            info.instances[j] = obj;
-                        }
-                        else
-                        {
-                            throw new MarshalException($"could not find index {index} in unmarshaledMap");
-                        }
-                    }
+                    info.instances = _current.IndirectionTableList[n];
                 }
 
                 return new SlicedData(_current.slices.ToArray());
@@ -3132,7 +3117,7 @@ namespace Ice
                 internal SliceType sliceType;
                 internal bool skipFirstSlice;
                 internal List<SliceInfo> slices;     // Preserved slices.
-                internal List<int[]?>? IndirectionTableList;
+                internal List<Value[]?>? IndirectionTableList;
 
                 // Position of indirection tables that we skipped for now and that will
                 // unmarshal (into IndirectionTableList) once the instance is created
@@ -3145,7 +3130,7 @@ namespace Ice
                 internal int compactId;
 
                 // Indirection table of the current slice
-                internal int[]? IndirectionTable;
+                internal Value[]? IndirectionTable;
                 internal int? PosAfterIndirectionTable;
 
                 // Other instances
