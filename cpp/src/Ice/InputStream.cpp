@@ -381,7 +381,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
     //
     // The goal of this check is to ensure that when we start un-marshalling
     // a new sequence, we check the minimal size of this new sequence against
-    // the estimated remaining buffer size. This estimatation is based on
+    // the estimated remaining buffer size. This estimation is based on
     // the minimum size of the enclosing sequences, it's _minSeqSize.
     //
     if(_startSeq == -1 || i > (b.begin() + _startSeq + _minSeqSize))
