@@ -437,8 +437,7 @@ namespace Ice
         {
             get
             {
-                RouterInfo? ri = IceReference.getRouterInfo();
-                return ri != null ? ri.getRouter() : null;
+                return IceReference.getRouterInfo()?.getRouter();
             }
         }
 
@@ -450,8 +449,7 @@ namespace Ice
         {
             get
             {
-                LocatorInfo? li = IceReference.getLocatorInfo();
-                return li != null ? li.getLocator() : null;
+                return IceReference.getLocatorInfo()?.getLocator();
             }
         }
 
@@ -573,7 +571,7 @@ namespace Ice
                 return true;
             }
 
-            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
+            if (lhs is null || rhs is null)
             {
                 return false;
             }
@@ -888,10 +886,9 @@ namespace Ice
             try
             {
                 var ret = new Object_Ice_invokeResult();
-                EncodingVersion encoding;
                 if (proxy_.IceReference.getMode() == Ice.InvocationMode.Twoway)
                 {
-                    ret.outEncaps = is_.ReadEncapsulation(out encoding);
+                    ret.outEncaps = is_.ReadEncapsulation(out EncodingVersion _);
                 }
                 else
                 {
@@ -950,18 +947,13 @@ namespace Ice
 
         public ObjectPrx(Reference reference, IRequestHandler? requestHandler = null)
         {
-            if (reference == null)
-            {
-                throw new ArgumentNullException(nameof(reference));
-            }
-            IceReference = reference;
+            IceReference = reference ?? throw new ArgumentNullException(nameof(reference));
             RequestHandler = requestHandler;
         }
 
         protected ObjectPrx(SerializationInfo info, StreamingContext context)
         {
-            Communicator? communicator = context.Context as Communicator;
-            if (communicator == null)
+            if (!(context.Context is Communicator communicator))
             {
                 throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
             }
