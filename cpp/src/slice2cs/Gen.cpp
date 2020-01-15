@@ -2509,10 +2509,8 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "public static new " << name << " Parse("
          << "string s, "
-         << getUnqualified("Ice.Communicator", ns) << " communicator)";
-    _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(communicator.CreateReference(s));";
-    _out << eb;
+         << getUnqualified("Ice.Communicator", ns) << " communicator) => "
+         << "new _" << p->name() << "Prx(communicator.CreateReference(s));";
 
     _out << sp;
     _out << nl << "public static bool TryParse("
@@ -2539,10 +2537,8 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << "new ";
     }
     _out << name << " UncheckedCast("
-         << getUnqualified("Ice.IObjectPrx", ns) << " prx)";
-    _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
-    _out << eb;
+         << getUnqualified("Ice.IObjectPrx", ns) << " prx) =>  "
+         << "new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
 
     _out << sp;
     _out << nl << "public static ";
@@ -2592,10 +2588,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "public override " << getUnqualified("Ice.IObjectPrx", ns)
-         << " Clone(global::IceInternal.Reference reference)";
-    _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(reference);";
-    _out << eb;
+         << " Clone(global::IceInternal.Reference reference) => new _" << p->name() << "Prx(reference);";
 
     _out << eb;
 }
