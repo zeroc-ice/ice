@@ -1619,14 +1619,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
 
-    _out << sp << nl << "partial void ice_initialize();";
+    _out << sp << nl << "partial void IceInitialize();";
     if(allDataMembers.empty())
     {
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar << epar;
         _out << sb;
-        _out << nl << "ice_initialize();";
+        _out << nl << "IceInitialize();";
         _out << eb;
     }
     else
@@ -1642,7 +1642,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
         _out << sb;
         writeDataMemberInitializers(dataMembers, ns, propertyMapping);
-        _out << nl << "ice_initialize();";
+        _out << nl << "IceInitialize();";
         _out << eb;
 
         _out << sp;
@@ -1671,7 +1671,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << nl << "this." << fixId(dataMemberName(d), Slice::ObjectType) << " = "
                  << fixId(d->name(), Slice::ObjectType) << ";";
         }
-        _out << nl << "ice_initialize();";
+        _out << nl << "IceInitialize();";
         _out << eb;
     }
 
@@ -2106,7 +2106,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     const bool propertyMapping = p->hasMetaData("cs:property");
     const bool isClass = !isImmutableType(p);
-    _out << sp << nl << "partial void ice_initialize();";
+    _out << sp << nl << "partial void IceInitialize();";
     if(isClass)
     {
         //
@@ -2120,7 +2120,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << nl << "public " << name << "()";
         _out << sb;
         writeDataMemberInitializers(dataMembers, ns, propertyMapping);
-        _out << nl << "ice_initialize();";
+        _out << nl << "IceInitialize();";
         _out << eb;
     }
 
@@ -2138,7 +2138,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         _out << nl << "this." << fixId(dataMemberName(i), Slice::ObjectType) << " = " << fixId(i->name()) << ";";
     }
-    _out << nl << "ice_initialize();";
+    _out << nl << "IceInitialize();";
     _out << eb;
 
     _out << sp;

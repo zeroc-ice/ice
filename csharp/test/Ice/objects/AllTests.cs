@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 
 namespace Ice
@@ -13,7 +12,7 @@ namespace Ice
         {
             public partial class IBase
             {
-                partial void ice_initialize()
+                partial void IceInitialize()
                 {
                     id = "My id";
                 }
@@ -21,7 +20,7 @@ namespace Ice
 
             public partial class IDerived
             {
-                partial void ice_initialize()
+                partial void IceInitialize()
                 {
                     name = "My name";
                 }
@@ -35,7 +34,7 @@ namespace Ice
                     set;
                 }
 
-                partial void ice_initialize()
+                partial void IceInitialize()
                 {
                     called = true;
                 }
@@ -43,7 +42,7 @@ namespace Ice
 
             public partial struct S1
             {
-                partial void ice_initialize()
+                partial void IceInitialize()
                 {
                     id = 1;
                 }
@@ -51,7 +50,7 @@ namespace Ice
 
             public partial class SC1
             {
-                partial void ice_initialize()
+                partial void IceInitialize()
                 {
                     id = "My id";
                 }

@@ -11,7 +11,7 @@ namespace Test
 {
     public partial class PNode
     {
-        partial void ice_initialize()
+        partial void IceInitialize()
         {
             ++counter;
         }
@@ -20,7 +20,7 @@ namespace Test
 
     public partial class Preserved
     {
-        partial void ice_initialize()
+        partial void IceInitialize()
         {
             ++counter;
         }
