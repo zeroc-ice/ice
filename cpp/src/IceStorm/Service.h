@@ -35,41 +35,18 @@
 namespace IceStormInternal
 {
 
-class ServiceI final : public IceBox::Service
+class Service : public IceBox::Service
 {
 public:
 
-    ICESTORM_SERVICE_API static std::shared_ptr<ServiceI> create(const std::shared_ptr<Ice::Communicator>&,
+    ICESTORM_SERVICE_API static std::shared_ptr<Service> create(const std::shared_ptr<Ice::Communicator>&,
                                                                  const std::shared_ptr<Ice::ObjectAdapter>&,
                                                                  const std::shared_ptr<Ice::ObjectAdapter>&,
                                                                  const std::string&,
                                                                  const Ice::Identity&,
                                                                  const std::string&);
 
-    ICESTORM_SERVICE_API std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const;
-
-
-    void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
-    void stop() override;
-
-private:
-
-    void start(const std::shared_ptr<Ice::Communicator>&,
-               const std::shared_ptr<Ice::ObjectAdapter>&,
-               const std::shared_ptr<Ice::ObjectAdapter>&,
-               const std::string&,
-               const Ice::Identity&,
-               const std::string&);
-
-    void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
-    void validateProperties(const std::string&,
-                            const std::shared_ptr<Ice::Properties>&,
-                            const std::shared_ptr<Ice::Logger>&);
-
-    std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
-    std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
-    std::shared_ptr<IceStorm::TopicManagerPrx> _managerProxy;
-    std::shared_ptr<IceStorm::Instance> _instance;
+    ICESTORM_SERVICE_API virtual std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const = 0;
 };
 
 };

@@ -24,7 +24,7 @@ inline set_inserter(T& container)
 }
 
 std::string toString(const std::vector<std::string>&, const std::string& = std::string(" "));
-std::string toString(const Ice::Exception&);
+std::string toString(std::exception_ptr);
 
 std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const std::string& = std::string());
 int getPropertyAsInt(const PropertyDescriptorSeq&, const std::string&, int = 0);
@@ -33,9 +33,9 @@ bool hasProperty(const PropertyDescriptorSeq&, const std::string&);
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
 std::string escapeProperty(const std::string&, bool = false);
 
-ObjectInfo toObjectInfo(const Ice::CommunicatorPtr&, const ObjectDescriptor&, const std::string&);
+ObjectInfo toObjectInfo(const std::shared_ptr<Ice::Communicator>&, const ObjectDescriptor&, const std::string&);
 
-void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
+void setupThreadPool(const std::shared_ptr<Ice::Properties>&, const std::string&, int, int = 0, bool = false);
 
 int getMMVersion(const std::string&);
 
@@ -46,10 +46,12 @@ Ice::StringSeq readDirectory(const std::string&);
 void createDirectory(const std::string&);
 void createDirectoryRecursive(const std::string&);
 
+int secondsToInt(const std::chrono::seconds&);
+
 template<class Function>
-struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
+struct ForEachCommunicator
 {
-    ForEachCommunicator(Function f) : _function(f)
+    ForEachCommunicator(Function f) : _function(std::move(f))
     {
     }
 
@@ -61,10 +63,10 @@ struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, voi
     }
 
     void
-    operator()(const CommunicatorDescriptorPtr& descriptor)
+    operator()(const std::shared_ptr<CommunicatorDescriptor>& descriptor)
     {
         _function(descriptor);
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+        auto iceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(descriptor);
         if(iceBox)
         {
             for_each(iceBox->services.begin(), iceBox->services.end(), forEachCommunicator(_function));
@@ -72,58 +74,59 @@ struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, voi
     }
 
     void
-    operator()(const CommunicatorDescriptorPtr& oldDesc, const CommunicatorDescriptorPtr& newDesc)
+    operator()(const std::shared_ptr<CommunicatorDescriptor>& oldDesc,
+               const std::shared_ptr<CommunicatorDescriptor>& newDesc)
     {
         _function(oldDesc, newDesc);
 
-        IceBoxDescriptorPtr oldIceBox = IceBoxDescriptorPtr::dynamicCast(oldDesc);
-        IceBoxDescriptorPtr newIceBox = IceBoxDescriptorPtr::dynamicCast(newDesc);
-        ServiceInstanceDescriptorSeq::const_iterator p;
+        auto oldIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(oldDesc);
+        auto newIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(newDesc);
+
         if(oldIceBox && !newIceBox)
         {
-            for(p = oldIceBox->services.begin(); p != oldIceBox->services.end(); ++p)
+            for(const auto& service : oldIceBox->services)
             {
-                _function(p->descriptor, 0);
+                _function(service.descriptor, nullptr);
             }
         }
         else if(!oldIceBox && newIceBox)
         {
-            for(p = newIceBox->services.begin(); p != newIceBox->services.end(); ++p)
+            for(const auto& service: newIceBox->services)
             {
-                _function(0, p->descriptor);
+                _function(nullptr, service.descriptor);
             }
         }
         else if(oldIceBox && newIceBox)
         {
-            for(p = oldIceBox->services.begin(); p != oldIceBox->services.end(); ++p)
+            for(const auto& oldService : oldIceBox->services)
             {
                 ServiceInstanceDescriptorSeq::const_iterator q;
                 for(q = newIceBox->services.begin(); q != newIceBox->services.end(); ++q)
                 {
-                    if(p->descriptor->name == q->descriptor->name)
+                    if(oldService.descriptor->name == q->descriptor->name)
                     {
-                        _function(p->descriptor, q->descriptor);
+                        _function(oldService.descriptor, q->descriptor);
                         break;
                     }
                 }
                 if(q == newIceBox->services.end())
                 {
-                    _function(p->descriptor, 0);
+                    _function(oldService.descriptor, nullptr);
                 }
             }
-            for(p = newIceBox->services.begin(); p != newIceBox->services.end(); ++p)
+            for(const auto& newService : newIceBox->services)
             {
                 ServiceInstanceDescriptorSeq::const_iterator q;
                 for(q = oldIceBox->services.begin(); q != oldIceBox->services.end(); ++q)
                 {
-                    if(p->descriptor->name == q->descriptor->name)
+                    if(newService.descriptor->name == q->descriptor->name)
                     {
                         break;
                     }
                 }
                 if(q == oldIceBox->services.end())
                 {
-                    _function(0, p->descriptor);
+                    _function(nullptr, newService.descriptor);
                 }
             }
         }
@@ -132,32 +135,11 @@ struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, voi
     Function _function;
 };
 
-template<typename Function> ForEachCommunicator<Function>
-inline forEachCommunicator(Function function)
+template<typename Function>
+inline ForEachCommunicator<Function>
+forEachCommunicator(Function function)
 {
     return ForEachCommunicator<Function>(function);
-}
-
-template<class T, class A>
-struct ObjFunc : std::unary_function<A, void>
-{
-    T& _obj;
-    typedef void (T::*MemberFN)(A);
-    MemberFN _mfn;
-
-public:
-
-    explicit ObjFunc(T& obj, void (T::*f)(A)) : _obj(obj), _mfn(f) { }
-    void operator()(A arg) const
-    {
-        (_obj.*_mfn)(arg);
-    }
-};
-
-template<class T, class A> ObjFunc<T, A>
-inline objFunc(T& obj, void (T::*p)(A))
-{
-    return ObjFunc<T, A>(obj, p);
 }
 
 template <class T> std::vector<std::string>

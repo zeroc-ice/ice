@@ -7,12 +7,17 @@
 
 #include <IceGrid/FileParser.h>
 
-class FileParserI : public IceGrid::FileParser
+namespace IceGrid
+{
+
+class FileParserI : public FileParser
 {
 public:
 
-    IceGrid::ApplicationDescriptor
-    parse(const std::string& file, const IceGrid::AdminPrx& admin, const Ice::Current&);
+    ApplicationDescriptor
+    parse(std::string file, std::shared_ptr<AdminPrx> admin, const Ice::Current&) override;
 };
+
+}
 
 #endif

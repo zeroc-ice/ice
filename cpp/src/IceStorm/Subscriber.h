@@ -9,7 +9,6 @@
 #include <IceStorm/SubscriberRecord.h>
 #include <IceStorm/Instrumentation.h>
 #include <Ice/ObserverHelper.h>
-#include <IceUtil/RecMutex.h>
 
 #include<condition_variable>
 
@@ -80,7 +79,7 @@ protected:
     EventDataSeq _events; // The queue of events to send.
 
     // The next time to try sending a new event if we're offline.
-    std::chrono::system_clock::time_point _next;
+    std::chrono::steady_clock::time_point _next;
     int _currentRetry;
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::SubscriberObserver> _observer;

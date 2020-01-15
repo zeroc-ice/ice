@@ -234,7 +234,7 @@ const char* _commandsHelp[][3] = {
 int loggerCallbackCount = 0;
 
 #ifdef _WIN32
-Ice::StringConverterPtr windowsConsoleConverter = 0;
+shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
 #endif
 
 void outputNewline()
@@ -284,12 +284,12 @@ void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
 
     switch(logMessage.type)
     {
-        case Ice::PrintMessage:
+        case Ice::LogMessageType::PrintMessage:
         {
             writeMessage(timestamp + " " + logMessage.message, false);
             break;
         }
-        case Ice::TraceMessage:
+        case Ice::LogMessageType::TraceMessage:
         {
             string s = "-- " + timestamp + " " + prefix;
             if(!logMessage.traceCategory.empty())
@@ -300,12 +300,12 @@ void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
             writeMessage(s, true);
             break;
         }
-        case Ice::WarningMessage:
+        case Ice::LogMessageType::WarningMessage:
         {
             writeMessage("!- " + timestamp + " " + prefix + "warning: " + logMessage.message, true);
             break;
         }
-        case Ice::ErrorMessage:
+        case Ice::LogMessageType::ErrorMessage:
         {
             writeMessage("!! " + timestamp + " " + prefix + "error: " + logMessage.message, true);
             break;
@@ -317,26 +317,25 @@ void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
     }
 }
 
-class RemoteLoggerI : public Ice::RemoteLogger
+class RemoteLoggerI final : public Ice::RemoteLogger
 {
 public:
 
     RemoteLoggerI();
 
-    virtual void init(const string&, const Ice::LogMessageSeq&, const Ice::Current&);
-    virtual void log(const Ice::LogMessage&, const Ice::Current&);
+    void init(string, Ice::LogMessageSeq, const Ice::Current&) override;
+    void log(Ice::LogMessage, const Ice::Current&) override;
 
     void destroy();
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    mutex _mutex;
+    condition_variable _condVar;
     bool _initDone;
     bool _destroyed;
     string _prefix;
 };
-
-typedef IceUtil::Handle<RemoteLoggerI> RemoteLoggerIPtr;
 
 RemoteLoggerI::RemoteLoggerI() :
     _initDone(false),
@@ -345,31 +344,30 @@ RemoteLoggerI::RemoteLoggerI() :
 }
 
 void
-RemoteLoggerI::init(const string& prefix, const Ice::LogMessageSeq& logMessages, const Ice::Current&)
+RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     if(!_destroyed)
     {
         _prefix = prefix;
 
-        for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        for(const auto& message : logMessages)
         {
-            printLogMessage(_prefix, *p);
+            printLogMessage(_prefix, message);
         }
 
         _initDone = true;
-        _monitor.notifyAll();
+        _condVar.notify_all();
     }
 }
 
 void
-RemoteLoggerI::log(const Ice::LogMessage& logMessage, const Ice::Current&)
+RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    while(!_initDone && !_destroyed)
-    {
-        _monitor.wait();
-    }
+    unique_lock lock(_mutex);
+
+    _condVar.wait(lock, [&] { return _initDone || _destroyed; } );
+
     if(!_destroyed)
     {
         printLogMessage(_prefix, logMessage);
@@ -379,9 +377,9 @@ RemoteLoggerI::log(const Ice::LogMessage& logMessage, const Ice::Current&)
 void
 RemoteLoggerI::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     _destroyed = true;
-    _monitor.notifyAll();
+    _condVar.notify_all();
 }
 
 }
@@ -393,11 +391,31 @@ Parser* parser;
 
 }
 
-ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin,
-                     bool interactive)
+Parser::Parser(shared_ptr<Communicator> communicator,
+               shared_ptr<AdminSessionPrx> session,
+               shared_ptr<AdminPrx> admin,
+               bool interactive) :
+    _communicator(move(communicator)),
+    _session(move(session)),
+    _admin(move(admin)),
+    _interrupted(false),
+    _interactive(interactive)
 {
-    return new Parser(communicator, session, admin, interactive);
+    for(int i = 0; _commandsHelp[i][0]; i++)
+    {
+        const string category = _commandsHelp[i][0];
+        const string cmd = _commandsHelp[i][1];
+        const string help = _commandsHelp[i][2];
+        _helpCommands[category][""] += help;
+        _helpCommands[category][cmd] += help;
+    }
+
+#ifdef _WIN32
+    if(!windowsConsoleConverter)
+    {
+        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
+    }
+#endif
 }
 
 void
@@ -460,22 +478,22 @@ Parser::usage()
 void
 Parser::interrupt()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _interrupted = true;
-    notifyAll();
+    _condVar.notify_all();
 }
 
 bool
 Parser::interrupted() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _interrupted;
 }
 
 void
 Parser::resetInterrupt()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _interrupted = false;
 }
 
@@ -484,7 +502,7 @@ Parser::checkInterrupted()
 {
     if(!_interactive)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_interrupted)
         {
             throw runtime_error("interrupted with Ctrl-C");
@@ -502,9 +520,9 @@ Parser::addApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for(const auto& arg : copyArgs)
         {
-            args.push_back(*p);
+            args.push_back(arg);
         }
         args = opts.parse(args);
     }
@@ -615,9 +633,9 @@ Parser::diffApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for(const auto& arg : copyArgs)
         {
-            args.push_back(*p);
+            args.push_back(arg);
         }
         args = opts.parse(args);
     }
@@ -841,8 +859,8 @@ Parser::describeServerTemplate(const list<string>& args)
             out << nl << "parameters = `" << toString(q->second.parameters) << "'";
             out << nl;
 
-            ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
-            IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
+            auto server = dynamic_pointer_cast<ServerDescriptor>(q->second.descriptor);
+            auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(server);
             if(iceBox)
             {
                 IceBoxHelper(iceBox).print(_communicator, out);
@@ -932,7 +950,7 @@ Parser::describeServiceTemplate(const list<string>& args)
             out << nl << "parameters = `" << toString(q->second.parameters) << "'";
             out << nl;
 
-            ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
+            auto desc = dynamic_pointer_cast<ServiceDescriptor>(q->second.descriptor);
             ServiceHelper(desc).print(_communicator, out);
             out << eb;
             out << nl;
@@ -1347,8 +1365,8 @@ Parser::writeMessage(const list<string>& args, int fd)
         list<string>::const_iterator p = args.begin();
         string server = *p++;
 
-        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(server);
-        Ice::ProcessPrx process = Ice::ProcessPrx::uncheckedCast(serverAdmin, "Process");
+        auto serverAdmin = _admin->getServerAdmin(server);
+        auto process = Ice::uncheckedCast<Ice::ProcessPrx>(serverAdmin, "Process");
 
         process->writeMessage(*p,  fd);
     }
@@ -1380,7 +1398,7 @@ Parser::describeServer(const list<string>& args)
         ServerInfo info = _admin->getServerInfo(args.front());
         ostringstream os;
         Output out(os);
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if(iceBox)
         {
             IceBoxHelper(iceBox).print(_communicator, out, info);
@@ -1413,39 +1431,39 @@ Parser::stateServer(const list<string>& args)
         string enabled = _admin->isServerEnabled(args.front()) ? "enabled" : "disabled";
         switch(state)
         {
-        case Inactive:
+        case ServerState::Inactive:
         {
             consoleOut << "inactive (" << enabled << ")" << endl;
             break;
         }
-        case Activating:
+        case ServerState::Activating:
         {
             consoleOut << "activating (" << enabled << ")" << endl;
             break;
         }
-        case Active:
+        case ServerState::Active:
         {
             int pid = _admin->getServerPid(args.front());
             consoleOut << "active (pid = " << pid << ", " << enabled << ")" << endl;
             break;
         }
-        case ActivationTimedOut:
+        case ServerState::ActivationTimedOut:
         {
             int pid = _admin->getServerPid(args.front());
             consoleOut << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
             break;
         }
-        case Deactivating:
+        case ServerState::Deactivating:
         {
             consoleOut << "deactivating (" << enabled << ")" << endl;
             break;
         }
-        case Destroying:
+        case ServerState::Destroying:
         {
             consoleOut << "destroying (" << enabled << ")" << endl;
             break;
         }
-        case Destroyed:
+        case ServerState::Destroyed:
         {
             consoleOut << "destroyed (" << enabled << ")" << endl;
             break;
@@ -1503,8 +1521,8 @@ Parser::propertiesServer(const list<string>& args, bool single)
 
     try
     {
-        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(args.front());
-        Ice::PropertiesAdminPrx propAdmin = Ice::PropertiesAdminPrx::uncheckedCast(serverAdmin, "Properties");
+        auto serverAdmin = _admin->getServerAdmin(args.front());
+        auto propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(serverAdmin, "Properties");
 
         if(single)
         {
@@ -1513,10 +1531,9 @@ Parser::propertiesServer(const list<string>& args, bool single)
         }
         else
         {
-            Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
-            for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+            for(const auto& prop : propAdmin->getPropertiesForPrefix(""))
             {
-                consoleOut << p->first << "=" << p->second << endl;
+                consoleOut << prop.first << "=" << prop.second << endl;
             }
         }
     }
@@ -1595,8 +1612,8 @@ Parser::startService(const list<string>& args)
     string service = *(++args.begin());
     try
     {
-        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
-        IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::uncheckedCast(admin, "IceBox.ServiceManager");
+        auto admin = _admin->getServerAdmin(server);
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
         manager->startService(service);
     }
     catch(const IceBox::AlreadyStartedException&)
@@ -1634,8 +1651,8 @@ Parser::stopService(const list<string>& args)
     string service = *(++args.begin());
     try
     {
-        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
-        IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::uncheckedCast(admin, "IceBox.ServiceManager");
+        auto admin = _admin->getServerAdmin(server);
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
         manager->stopService(service);
     }
     catch(const IceBox::AlreadyStoppedException&)
@@ -1674,7 +1691,7 @@ Parser::describeService(const list<string>& args)
     try
     {
         ServerInfo info = _admin->getServerInfo(server);
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if(!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
@@ -1684,11 +1701,11 @@ Parser::describeService(const list<string>& args)
         ostringstream os;
         Output out(os);
         bool found = false;
-        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+        for(const auto& s : iceBox->services)
         {
-            if(p->descriptor && p->descriptor->name == service)
+            if(s.descriptor && s.descriptor->name == service)
             {
-                ServiceHelper(p->descriptor).print(_communicator, out);
+                ServiceHelper(s.descriptor).print(_communicator, out);
                 out << nl;
                 found = true;
                 break;
@@ -1733,7 +1750,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         // First, we ensure that the service exists.
         //
         ServerInfo info = _admin->getServerInfo(server);
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if(!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
@@ -1741,9 +1758,10 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
 
         bool found = false;
-        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+
+        for(const auto& s : iceBox->services)
         {
-            if(p->descriptor && p->descriptor->name == service)
+            if(s.descriptor && s.descriptor->name == service)
             {
                 found = true;
                 break;
@@ -1755,15 +1773,15 @@ Parser::propertiesService(const list<string>& args, bool single)
             return;
         }
 
-        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
-        Ice::PropertiesAdminPrx propAdmin;
+        auto admin = _admin->getServerAdmin(server);
+        shared_ptr<Ice::PropertiesAdminPrx> propAdmin;
         if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
-            propAdmin = Ice::PropertiesAdminPrx::uncheckedCast(admin, "IceBox.SharedCommunicator.Properties");
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.SharedCommunicator.Properties");
         }
         else
         {
-            propAdmin = Ice::PropertiesAdminPrx::uncheckedCast(admin, "IceBox.Service." + service + ".Properties");
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service." + service + ".Properties");
         }
 
         if(single)
@@ -1807,17 +1825,17 @@ Parser::listServices(const list<string>& args)
     try
     {
         ServerInfo info = _admin->getServerInfo(server);
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if(!iceBox)
         {
             error("server `" + server + "' is not an IceBox server");
             return;
         }
-        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+        for(const auto& s : iceBox->services)
         {
-            if(p->descriptor)
+            if(s.descriptor)
             {
-                consoleOut << p->descriptor->name << endl;
+                consoleOut << s.descriptor->name << endl;
             }
         }
     }
@@ -2155,7 +2173,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
-    FileIteratorPrx it;
+    shared_ptr<FileIteratorPrx> it;
 
     try
     {
@@ -2218,10 +2236,10 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
             while(!interrupted() && !eof && i < lineCount)
             {
                 eof = it->read(maxBytes, lines);
-                for(Ice::StringSeq::const_iterator p = lines.begin(); i < lineCount && p != lines.end(); ++p, ++i)
+                for(const auto& line : lines)
                 {
                     outputNewline();
-                    outputString(*p);
+                    outputString(line);
                     flushOutput();
                 }
             }
@@ -2232,10 +2250,10 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
             while(!interrupted() && !eof)
             {
                 eof = it->read(maxBytes, lines);
-                for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+                for(const auto& line : lines)
                 {
                     outputNewline();
-                    outputString(*p);
+                    outputString(line);
                     flushOutput();
                 }
             }
@@ -2261,12 +2279,12 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
                 if(eof)
                 {
-                    Lock sync(*this);
+                    unique_lock lock(_mutex);
                     if(_interrupted)
                     {
                         break;
                     }
-                    timedWait(IceUtil::Time::seconds(5));
+                    _condVar.wait_for(lock, 5s);
                 }
             }
         }
@@ -2300,7 +2318,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 {
     outputNewline();
 
-    Ice::ObjectPrx admin;
+    shared_ptr<Ice::ObjectPrx> admin;
 
     if(reader == "server")
     {
@@ -2321,11 +2339,11 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         return;
     }
 
-    Ice::LoggerAdminPrx loggerAdmin;
+    shared_ptr<Ice::LoggerAdminPrx> loggerAdmin;
 
     try
     {
-        loggerAdmin = Ice::LoggerAdminPrx::checkedCast(admin, "Logger");
+        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin, "Logger");
     }
     catch(const Ice::Exception&)
     {
@@ -2339,7 +2357,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
     if(follow)
     {
-        Ice::ObjectPrx adminCallbackTemplate = _session->getAdminCallbackTemplate();
+        auto adminCallbackTemplate = _session->getAdminCallbackTemplate();
 
         if(adminCallbackTemplate == 0)
         {
@@ -2350,44 +2368,39 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         const Ice::EndpointSeq endpoints = adminCallbackTemplate->ice_getEndpoints();
         string publishedEndpoints;
 
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        for(const auto& endpoint : endpoints)
         {
             if(publishedEndpoints.empty())
             {
-                publishedEndpoints = (*p)->toString();
+                publishedEndpoints = endpoint->toString();
             }
             else
             {
-                publishedEndpoints += ":" + (*p)->toString();
+                publishedEndpoints += ":" + endpoint->toString();
             }
         }
 
         _communicator->getProperties()->setProperty("RemoteLoggerAdapter.PublishedEndpoints", publishedEndpoints);
 
-        Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("RemoteLoggerAdapter");
+        auto adapter = _communicator->createObjectAdapter("RemoteLoggerAdapter");
 
         _session->ice_getConnection()->setAdapter(adapter);
 
-        Ice::Identity ident;
-        ostringstream name;
-        name << "RemoteLogger-" << loggerCallbackCount++;
-        ident.name = name.str();
-        ident.category = adminCallbackTemplate->ice_getIdentity().category;
+        ostringstream os;
+        os << "RemoteLogger-" << loggerCallbackCount++;
+        Ice::Identity ident = { os.str(),
+                                adminCallbackTemplate->ice_getIdentity().category };
 
-        RemoteLoggerIPtr servant = new RemoteLoggerI;
-        Ice::RemoteLoggerPrx prx =
-            Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, ident));
+        auto servant = make_shared<RemoteLoggerI>();
+        auto prx = Ice::uncheckedCast<Ice::RemoteLoggerPrx>(adapter->add(servant, ident));
         adapter->activate();
 
         loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
 
         resetInterrupt();
         {
-            Lock lock(*this);
-            while(!_interrupted)
-            {
-                wait();
-            }
+            unique_lock lock(_mutex);
+            _condVar.wait(lock, [&] { return _interrupted; });
         }
 
         servant->destroy();
@@ -2685,33 +2698,6 @@ Parser::parse(const std::string& commands, bool debug)
 
     parser = 0;
     return status;
-}
-
-Parser::Parser(const CommunicatorPtr& communicator,
-               const AdminSessionPrx& session,
-               const AdminPrx& admin,
-               bool interactive) :
-    _communicator(communicator),
-    _session(session),
-    _admin(admin),
-    _interrupted(false),
-    _interactive(interactive)
-{
-    for(int i = 0; _commandsHelp[i][0]; i++)
-    {
-        const string category = _commandsHelp[i][0];
-        const string cmd = _commandsHelp[i][1];
-        const string help = _commandsHelp[i][2];
-        _helpCommands[category][""] += help;
-        _helpCommands[category][cmd] += help;
-    }
-
-#ifdef _WIN32
-    if(!windowsConsoleConverter)
-    {
-        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
-    }
-#endif
 }
 
 void

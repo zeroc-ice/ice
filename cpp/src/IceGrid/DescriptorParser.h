@@ -8,19 +8,18 @@
 namespace IceGrid
 {
 
-class DescriptorParser
+namespace DescriptorParser
 {
-public:
 
-    static ApplicationDescriptor parseDescriptor(const std::string&,
-                                                 const Ice::StringSeq&,
-                                                 const std::map<std::string, std::string>&,
-                                                 const Ice::CommunicatorPtr&,
-                                                 const IceGrid::AdminPrx&);
+ApplicationDescriptor parseDescriptor(const std::string&,
+                                             const Ice::StringSeq&,
+                                             const std::map<std::string, std::string>&,
+                                             const std::shared_ptr<Ice::Communicator>&,
+                                             const std::shared_ptr<IceGrid::AdminPrx>&);
 
-    static ApplicationDescriptor parseDescriptor(const std::string&, const Ice::CommunicatorPtr&);
+ApplicationDescriptor parseDescriptor(const std::string&, const std::shared_ptr<Ice::Communicator>&);
 
-};
+}
 
 }
 

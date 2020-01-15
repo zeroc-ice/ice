@@ -34,60 +34,58 @@ using namespace IceGrid;
 namespace
 {
 
-class ProcessI : public Process
+class ProcessI final : public Process
 {
 public:
 
-    ProcessI(const ActivatorPtr&, const ProcessPtr&);
+    ProcessI(const shared_ptr<Activator>&, const shared_ptr<Process>&);
 
-    virtual void shutdown(const Current&);
-    virtual void writeMessage(const std::string&, Int, const Current&);
+    void shutdown(const Current&) override;
+    void writeMessage(std::string, int, const Current&) override;
 
 private:
 
-    ActivatorPtr _activator;
-    ProcessPtr _origProcess;
+    shared_ptr<Activator> _activator;
+    shared_ptr<Process> _origProcess;
 };
 
-class NodeService : public Service
+class NodeService final : public Service
 {
 public:
 
-    NodeService();
-    ~NodeService();
-
-    virtual bool shutdown();
+    bool shutdown() override;
 
 protected:
 
-    virtual bool start(int, char*[], int&);
+    bool start(int, char*[], int&) override;
     bool startImpl(int, char*[], int&);
-    virtual void waitForShutdown();
-    virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
+    void waitForShutdown() override;
+    bool stop() override;
+    shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
 private:
 
     void usage(const std::string&);
 
-    ActivatorPtr _activator;
+    shared_ptr<Activator> _activator;
     IceUtil::TimerPtr _timer;
-    RegistryIPtr _registry;
-    NodeIPtr _node;
-    IceInternal::UniquePtr<NodeSessionManager> _sessions;
-    Ice::ObjectAdapterPtr _adapter;
+    shared_ptr<RegistryI> _registry;
+    shared_ptr<NodeI> _node;
+    unique_ptr<NodeSessionManager> _sessions;
+    shared_ptr<ObjectAdapter> _adapter;
 };
 
-class CollocatedRegistry : public RegistryI
+class CollocatedRegistry final : public RegistryI
 {
 public:
 
-    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool, bool, const std::string&, const std::string&);
-    virtual void shutdown();
+    CollocatedRegistry(const shared_ptr<Communicator>&, const shared_ptr<Activator>&, bool, bool, const std::string&,
+                       const std::string&);
+    void shutdown() override;
 
 private:
 
-    ActivatorPtr _activator;
+    shared_ptr<Activator> _activator;
 };
 
 #ifdef _WIN32
@@ -109,13 +107,13 @@ setNoIndexingAttribute(const string& path)
 
 }
 
-CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
-                                       const ActivatorPtr& activator,
+CollocatedRegistry::CollocatedRegistry(const shared_ptr<Communicator>& com,
+                                       const shared_ptr<Activator>& activator,
                                        bool nowarn,
                                        bool readonly,
                                        const string& initFromReplica,
                                        const string& nodeName) :
-    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
+    RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
     _activator(activator)
 {
 }
@@ -126,7 +124,7 @@ CollocatedRegistry::shutdown()
     _activator->shutdown();
 }
 
-ProcessI::ProcessI(const ActivatorPtr& activator, const ProcessPtr& origProcess) :
+ProcessI::ProcessI(const shared_ptr<Activator>& activator, const shared_ptr<Process>& origProcess) :
     _activator(activator),
     _origProcess(origProcess)
 {
@@ -139,17 +137,9 @@ ProcessI::shutdown(const Current&)
 }
 
 void
-ProcessI::writeMessage(const string& message, Int fd, const Current& current)
+ProcessI::writeMessage(string message, int fd, const Current& current)
 {
-    _origProcess->writeMessage(message, fd, current);
-}
-
-NodeService::NodeService()
-{
-}
-
-NodeService::~NodeService()
-{
+    _origProcess->writeMessage(move(message), move(fd), current);
 }
 
 bool
@@ -256,7 +246,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
+    auto properties = communicator()->getProperties();
 
     string name = properties->getProperty("IceGrid.Node.Name");
     if(name.empty())
@@ -291,15 +281,15 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create the activator.
     //
-    TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Node");
-    _activator = new Activator(traceLevels);
+    auto traceLevels =  make_shared<TraceLevels>(communicator(), "IceGrid.Node");
+    _activator = make_shared<Activator>(traceLevels);
 
     //
     // Collocate the IceGrid registry if we need to.
     //
     if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry = new CollocatedRegistry(communicator(), _activator, nowarn, readonly, initFromReplica, name);
+        _registry = make_shared<CollocatedRegistry>(communicator(), _activator, nowarn, readonly, initFromReplica, name);
         if(!_registry->start())
         {
             return false;
@@ -396,12 +386,12 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
     string mapperPropertyValue = properties->getProperty(mapperProperty);
-    UserAccountMapperPrx mapper;
+    shared_ptr<UserAccountMapperPrx> mapper;
     if(!mapperPropertyValue.empty())
     {
         try
         {
-            mapper = UserAccountMapperPrx::uncheckedCast(communicator()->propertyToProxy(mapperProperty));
+            mapper = uncheckedCast<UserAccountMapperPrx>(communicator()->propertyToProxy(mapperProperty));
         }
         catch(const std::exception& ex)
         {
@@ -417,8 +407,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             try
             {
-                Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
-                mapper = UserAccountMapperPrx::uncheckedCast(object);
+                auto object = _adapter->addWithUUID(make_shared<FileUserAccountMapperI>(userAccountFileProperty));
+                mapper = uncheckedCast<UserAccountMapperPrx>(object);
             }
             catch(const exception& ex)
             {
@@ -431,7 +421,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _timer = new IceUtil::Timer();
+    _timer = new IceUtil::Timer;
 
     //
     // The IceGrid instance name.
@@ -450,7 +440,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         instanceName = "IceGrid";
     }
 
-    _sessions.reset(new NodeSessionManager(communicator(), instanceName));
+    _sessions = make_unique<NodeSessionManager>(communicator(), instanceName);
 
     //
     // Create the server factory. The server factory creates persistent objects
@@ -458,18 +448,19 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // evictors and object factories necessary to store these objects.
     //
     Identity id = stringToIdentity(instanceName + "/Node-" + name);
-    NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
+    auto nodeProxy = uncheckedCast<NodePrx>(_adapter->createProxy(id));
+    _node = make_shared<NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper,
+                               instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
-    _adapter->addDefaultServant(new NodeServerAdminRouter(_node), _node->getServerAdminCategory());
+    _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), _node->getServerAdminCategory());
 
     //
     // Keep the old default servant for backward compatibility with IceGrid registries 3.5 that
     // still forward requests to this category. This can be removed when we decide to break
     // backward compatibility with 3.5 registries.
     //
-    _adapter->addDefaultServant(new NodeServerAdminRouter(_node), instanceName + "-NodeRouter");
+    _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), instanceName + "-NodeRouter");
 
     //
     // Start the platform info thread if needed.
@@ -505,13 +496,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     if(!_registry && properties->getPropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
-        ProcessPtr origProcess = ProcessPtr::dynamicCast(communicator()->removeAdminFacet("Process"));
-        communicator()->addAdminFacet(new ProcessI(_activator, origProcess), "Process");
+        auto origProcess = dynamic_pointer_cast<Process>(communicator()->removeAdminFacet("Process"));
+        communicator()->addAdminFacet(make_shared<ProcessI>(_activator, origProcess), "Process");
 
-        Identity adminId;
-        adminId.name = "NodeAdmin-" + name;
-        adminId.category = instanceName;
-        communicator()->createAdmin(_adapter, adminId);
+        Identity adminId = { "NodeAdmin-" + name, instanceName };
+        communicator()->createAdmin(_adapter, move(adminId));
     }
 
     //
@@ -552,11 +541,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         try
         {
-            Ice::Identity regId;
-            regId.category = instanceName;
-            regId.name = "Registry";
+            Ice::Identity regId = { "Registry", instanceName };
 
-            RegistryPrx registry = RegistryPrx::checkedCast(communicator()->getDefaultLocator()->findObjectById(regId));
+            auto registry = checkedCast<RegistryPrx>(communicator()->getDefaultLocator()->findObjectById(regId));
             if(!registry)
             {
                 throw runtime_error("invalid registry");
@@ -564,7 +551,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
-            IceGrid::AdminSessionPrx session;
+            shared_ptr<AdminSessionPrx> session;
             if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();
@@ -591,9 +578,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             }
             assert(session);
 
-            AdminPrx admin = session->getAdmin();
+            auto admin = session->getAdmin();
             map<string, string> vars;
-            ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
+            auto app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
 
             try
             {
@@ -672,7 +659,7 @@ NodeService::stop()
         {
             assert(false);
         }
-        _timer = 0;
+        _timer = nullptr;
     }
 
     //
@@ -683,7 +670,7 @@ NodeService::stop()
         try
         {
             _adapter->deactivate();
-            _adapter = 0;
+            _adapter = nullptr;
         }
         catch(const std::exception& ex)
         {
@@ -728,7 +715,7 @@ NodeService::stop()
     if(_node)
     {
         _node->shutdown();
-        _node = 0;
+        _node = nullptr;
     }
 
     //
@@ -737,13 +724,13 @@ NodeService::stop()
     if(_registry)
     {
         _registry->stop();
-        _registry = 0;
+        _registry = nullptr;
     }
 
     return true;
 }
 
-CommunicatorPtr
+shared_ptr<Communicator>
 NodeService::initializeCommunicator(int& argc, char* argv[],
                                     const InitializationData& initializationData,
                                     int version)
@@ -759,20 +746,20 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     vTypes.push_back("");
     vTypes.push_back("Admin");
 
-    for(vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
+    for(const auto& type : vTypes)
     {
-        string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
+        string verifier = "IceGrid.Registry." + type + "PermissionsVerifier";
 
         if(initData.properties->getProperty(verifier).empty())
         {
-            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + *p + "CryptPasswords");
+            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + type + "CryptPasswords");
 
             if(!cryptPasswords.empty())
             {
                 initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
                                                  "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
-                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p +
+                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + type +
                                                  "PermissionsVerifier", cryptPasswords);
             }
         }

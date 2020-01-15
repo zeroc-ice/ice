@@ -10,18 +10,14 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-QueryI::QueryI(const CommunicatorPtr& communicator, const DatabasePtr& database) :
+QueryI::QueryI(const shared_ptr<Communicator>& communicator, const shared_ptr<Database>& database) :
     _communicator(communicator),
     _database(database)
 {
 }
 
-QueryI::~QueryI()
-{
-}
-
-Ice::ObjectPrx
-QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
+shared_ptr<Ice::ObjectPrx>
+QueryI::findObjectById(Ice::Identity id, const Ice::Current&) const
 {
     try
     {
@@ -29,30 +25,30 @@ QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
     }
     catch(const ObjectNotRegisteredException&)
     {
-        return 0;
+        return nullptr;
     }
 }
 
-Ice::ObjectPrx
-QueryI::findObjectByType(const string& type, const Ice::Current& current) const
+shared_ptr<Ice::ObjectPrx>
+QueryI::findObjectByType(string type, const Ice::Current& current) const
 {
-    return _database->getObjectByType(type, current.con, current.ctx);
+    return _database->getObjectByType(move(type), current.con, current.ctx);
 }
 
-Ice::ObjectPrx
-QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current& current) const
+shared_ptr<Ice::ObjectPrx>
+QueryI::findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample, const Ice::Current& current) const
 {
-    return _database->getObjectByTypeOnLeastLoadedNode(type, sample, current.con, current.ctx);
-}
-
-Ice::ObjectProxySeq
-QueryI::findAllObjectsByType(const string& type, const Ice::Current& current) const
-{
-    return _database->getObjectsByType(type, current.con, current.ctx);
+    return _database->getObjectByTypeOnLeastLoadedNode(move(type), move(sample), current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq
-QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current& current) const
+QueryI::findAllObjectsByType(string type, const Ice::Current& current) const
+{
+    return _database->getObjectsByType(move(type), current.con, current.ctx);
+}
+
+Ice::ObjectProxySeq
+QueryI::findAllReplicas(shared_ptr<Ice::ObjectPrx> proxy, const Ice::Current& current) const
 {
     if(!proxy)
     {
@@ -64,13 +60,12 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current& current
     // well-known object. If it's a well-known object we use the
     // registered proxy instead.
     //
-    Ice::ObjectPrx prx = proxy;
-    if(prx->ice_getAdapterId().empty())
+    if(proxy->ice_getAdapterId().empty())
     {
         try
         {
-            ObjectInfo info = _database->getObjectInfo(prx->ice_getIdentity());
-            prx = info.proxy;
+            ObjectInfo info = _database->getObjectInfo(proxy->ice_getIdentity());
+            proxy = info.proxy;
         }
         catch(const ObjectNotRegisteredException&)
         {
@@ -80,18 +75,18 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current& current
 
     try
     {
-        AdapterInfoSeq infos = _database->getFilteredAdapterInfo(prx->ice_getAdapterId(), current.con, current.ctx);
-        if(infos.empty() || infos[0].replicaGroupId != prx->ice_getAdapterId())
+        AdapterInfoSeq infos = _database->getFilteredAdapterInfo(proxy->ice_getAdapterId(), current.con, current.ctx);
+        if(infos.empty() || infos[0].replicaGroupId != proxy->ice_getAdapterId())
         {
             // The adapter id doesn't refer to a replica group or the replica group is empty.
             return Ice::ObjectProxySeq();
         }
 
         Ice::ObjectProxySeq proxies;
-        for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+        for(const auto& info : infos)
         {
-            assert(!p->id.empty());
-            proxies.push_back(prx->ice_adapterId(p->id));
+            assert(!info.id.empty());
+            proxies.push_back(proxy->ice_adapterId(info.id));
         }
         return proxies;
     }

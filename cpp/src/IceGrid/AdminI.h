@@ -10,89 +10,83 @@
 namespace IceGrid
 {
 
-class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
-class RegistryI;
-typedef IceUtil::Handle<RegistryI> RegistryIPtr;
-
 class AdminSessionI;
-typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
+class Database;
+class RegistryI;
+class TraceLevels;
 
-class AdminI : public Admin, public IceUtil::Mutex
+class AdminI final : public Admin
 {
 public:
 
-    AdminI(const DatabasePtr&, const RegistryIPtr&, const AdminSessionIPtr&);
-    virtual ~AdminI();
+    AdminI(const std::shared_ptr<Database>&, const std::shared_ptr<RegistryI>&, const std::shared_ptr<AdminSessionI>&);
 
-    virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
-    virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
-    virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
-    virtual void syncApplicationWithoutRestart(const ApplicationDescriptor&, const Ice::Current&);
-    virtual void updateApplicationWithoutRestart(const ApplicationUpdateDescriptor&, const Ice::Current&);
-    virtual void removeApplication(const std::string&, const Ice::Current&);
-    virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&,
-                                   const Ice::Current&);
-    virtual ApplicationInfo getApplicationInfo(const ::std::string&, const Ice::Current&) const;
-    virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
-    virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
+    void addApplication(ApplicationDescriptor, const Ice::Current&) override;
+    void syncApplication(ApplicationDescriptor, const Ice::Current&) override;
+    void updateApplication(ApplicationUpdateDescriptor, const Ice::Current&) override;
+    void syncApplicationWithoutRestart(ApplicationDescriptor, const Ice::Current&) override;
+    void updateApplicationWithoutRestart(ApplicationUpdateDescriptor, const Ice::Current&) override;
+    void removeApplication(std::string, const Ice::Current&) override;
+    void instantiateServer(std::string, std::string, ServerInstanceDescriptor, const Ice::Current&) override;
+    ApplicationInfo getApplicationInfo(std::string, const Ice::Current&) const override;
+    ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const override;
+    Ice::StringSeq getAllApplicationNames(const Ice::Current&) const override;
 
-    virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
-    virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
-    virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
-    virtual std::string getServerAdminCategory(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerAdmin(const std::string&, const Ice::Current&) const;
-    virtual void startServer_async(const AMD_Admin_startServerPtr&, const ::std::string&, const Ice::Current&);
-    virtual void stopServer_async(const AMD_Admin_stopServerPtr&, const ::std::string&, const Ice::Current&);
-    virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
-    virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
-    virtual void enableServer(const ::std::string&, bool, const Ice::Current&);
-    virtual bool isServerEnabled(const ::std::string&, const Ice::Current&) const;
+    ServerInfo getServerInfo(std::string, const Ice::Current&) const override;
+    ServerState getServerState(std::string, const Ice::Current&) const override;
+    Ice::Int getServerPid(std::string, const Ice::Current&) const override;
+    std::string getServerAdminCategory(const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getServerAdmin(std::string, const Ice::Current&) const override;
+    void startServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,
+                          const Ice::Current&) override;
+    void stopServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,
+                         const Ice::Current&) override;
+    void sendSignal(std::string, std::string, const Ice::Current&) override;
+    Ice::StringSeq getAllServerIds(const Ice::Current&) const override;
+    void enableServer(std::string, bool, const Ice::Current&) override;
+    bool isServerEnabled(std::string, const Ice::Current&) const override;
 
-    virtual AdapterInfoSeq getAdapterInfo(const ::std::string&, const ::Ice::Current&) const;
-    virtual void removeAdapter(const std::string&, const Ice::Current&);
-    virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
+    AdapterInfoSeq getAdapterInfo(std::string, const ::Ice::Current&) const override;
+    void removeAdapter(std::string, const Ice::Current&) override;
+    Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const override;
 
-    virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
-    virtual void updateObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
-    virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&);
-    virtual void removeObject(const ::Ice::Identity&, const ::Ice::Current&);
-    virtual ObjectInfo getObjectInfo(const Ice::Identity&, const ::Ice::Current&) const;
-    virtual ObjectInfoSeq getObjectInfosByType(const std::string&, const ::Ice::Current&) const;
-    virtual ObjectInfoSeq getAllObjectInfos(const std::string&, const ::Ice::Current&) const;
+    void addObject(std::shared_ptr<Ice::ObjectPrx>, const ::Ice::Current&) override;
+    void updateObject(std::shared_ptr<Ice::ObjectPrx>, const ::Ice::Current&) override;
+    void addObjectWithType(std::shared_ptr<Ice::ObjectPrx>, std::string, const ::Ice::Current&) override;
+    void removeObject(Ice::Identity, const ::Ice::Current&) override;
+    ObjectInfo getObjectInfo(Ice::Identity, const ::Ice::Current&) const override;
+    ObjectInfoSeq getObjectInfosByType(std::string, const ::Ice::Current&) const override;
+    ObjectInfoSeq getAllObjectInfos(std::string, const ::Ice::Current&) const override;
 
-    virtual NodeInfo getNodeInfo(const std::string&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getNodeAdmin(const std::string&, const Ice::Current&) const;
-    virtual bool pingNode(const std::string&, const Ice::Current&) const;
-    virtual LoadInfo getNodeLoad(const std::string&, const Ice::Current&) const;
-    virtual int getNodeProcessorSocketCount(const std::string&, const Ice::Current&) const;
-    virtual void shutdownNode(const std::string&, const Ice::Current&);
-    virtual std::string getNodeHostname(const std::string&, const Ice::Current&) const;
-    virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
+    NodeInfo getNodeInfo(std::string, const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getNodeAdmin(std::string, const Ice::Current&) const override;
+    bool pingNode(std::string, const Ice::Current&) const override;
+    LoadInfo getNodeLoad(std::string, const Ice::Current&) const override;
+    int getNodeProcessorSocketCount(std::string, const Ice::Current&) const override;
+    void shutdownNode(std::string, const Ice::Current&) override;
+    std::string getNodeHostname(std::string, const Ice::Current&) const override;
+    Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const override;
 
-    virtual RegistryInfo getRegistryInfo(const std::string&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getRegistryAdmin(const std::string&, const Ice::Current&) const;
-    virtual bool pingRegistry(const std::string&, const Ice::Current&) const;
-    virtual void shutdownRegistry(const std::string&, const Ice::Current&);
-    virtual Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const;
+    RegistryInfo getRegistryInfo(std::string, const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getRegistryAdmin(std::string, const Ice::Current&) const override;
+    bool pingRegistry(std::string, const Ice::Current&) const override;
+    void shutdownRegistry(std::string, const Ice::Current&) override;
+    Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 
 private:
 
     void checkIsReadOnly() const;
 
-    const DatabasePtr _database;
-    const RegistryIPtr _registry;
-    const TraceLevelsPtr _traceLevels;
-    const AdminSessionIPtr _session;
+    const std::shared_ptr<Database> _database;
+    const std::shared_ptr<RegistryI> _registry;
+    const std::shared_ptr<TraceLevels> _traceLevels;
+    const std::shared_ptr<AdminSessionI> _session;
+
+    std::mutex _mutex;
 
 };
-typedef IceUtil::Handle<AdminI> AdminIPtr;
 
 }
 

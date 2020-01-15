@@ -6,7 +6,6 @@
 #define ICE_GRID_SESSIONSERVANTLOCATOR_H
 
 #include <IceGrid/AdminCallbackRouter.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ServantLocator.h>
 
 #include <Glacier2/Session.h>
@@ -16,77 +15,85 @@
 namespace IceGrid
 {
 
-class SessionServantManager : public Ice::ServantLocator, public IceUtil::Mutex
+class SessionServantManager final : public Ice::ServantLocator
 {
 public:
 
-    SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool,
-                          const std::string&, const Ice::ObjectPtr&,
-                          const std::string&, const Ice::ObjectPtr&,
-                          const std::string&, const Ice::ObjectPtr&,
-                          const AdminCallbackRouterPtr&);
+    SessionServantManager(const std::shared_ptr<Ice::ObjectAdapter>&, const std::string&, bool,
+                          const std::string&, const std::shared_ptr<Ice::Object>&,
+                          const std::string&, const std::shared_ptr<Ice::Object>&,
+                          const std::string&, const std::shared_ptr<Ice::Object>&,
+                          const std::shared_ptr<AdminCallbackRouter>&);
 
-    Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
-    void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+    std::shared_ptr<Ice::Object> locate(const Ice::Current&, std::shared_ptr<void>&);
+    void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const std::shared_ptr<void>&);
     void deactivate(const std::string&);
 
-    Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
-    void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
-    Glacier2::IdentitySetPrx getGlacier2IdentitySet(const Ice::ObjectPtr&);
-    Glacier2::StringSetPrx getGlacier2AdapterIdSet(const Ice::ObjectPtr&);
-    void removeSession(const Ice::ObjectPtr&);
+    std::shared_ptr<Ice::ObjectPrx> addSession(const std::shared_ptr<Ice::Object>&,
+                                               const std::shared_ptr<Ice::Connection>&,
+                                               const std::string&);
+    void setSessionControl(const std::shared_ptr<Ice::Object>&,
+                           const std::shared_ptr<Glacier2::SessionControlPrx>&, const Ice::IdentitySeq&);
+    std::shared_ptr<Glacier2::IdentitySetPrx> getGlacier2IdentitySet(const std::shared_ptr<Ice::Object>&);
+    std::shared_ptr<Glacier2::StringSetPrx> getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
+    void removeSession(const std::shared_ptr<Ice::Object>&);
 
-    Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
+    std::shared_ptr<Ice::ObjectPrx> add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
     void remove(const Ice::Identity&);
 
-    void connectionHeartbeat(const Ice::ConnectionPtr&);
-    void connectionClosed(const Ice::ConnectionPtr&);
+    void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
+    void connectionClosed(const std::shared_ptr<Ice::Connection>&);
 
 private:
 
-    Ice::ObjectPrx addImpl(const Ice::ObjectPtr&, const Ice::ObjectPtr&);
+    std::shared_ptr<Ice::ObjectPrx> addImpl(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
 
     struct ServantInfo
     {
-        ServantInfo(const Ice::ObjectPtr& s, const Ice::ConnectionPtr& con, const Ice::ObjectPtr& ss) :
+        ServantInfo(const std::shared_ptr<Ice::Object>& s,
+                    const std::shared_ptr<Ice::Connection>& con,
+                    const std::shared_ptr<Ice::Object>& ss) :
             servant(s), connection(con), session(ss)
         {
         }
 
-        const Ice::ObjectPtr servant;
-        const Ice::ConnectionPtr connection;
-        const Ice::ObjectPtr session;
+        const std::shared_ptr<Ice::Object> servant;
+        const std::shared_ptr<Ice::Connection> connection;
+        const std::shared_ptr<Ice::Object> session;
     };
 
     struct SessionInfo
     {
-        SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat) : connection(c), category(cat) { }
+        SessionInfo(const std::shared_ptr<Ice::Connection>& c, const std::string& cat) : connection(c), category(cat)
+        {
+        }
 
-        const Ice::ConnectionPtr connection;
+        const std::shared_ptr<Ice::Connection> connection;
         const std::string category;
-        Glacier2::SessionControlPrx sessionControl;
-        Glacier2::IdentitySetPrx identitySet;
-        Glacier2::StringSetPrx adapterIdSet;
+        std::shared_ptr<Glacier2::SessionControlPrx> sessionControl;
+        std::shared_ptr<Glacier2::IdentitySetPrx> identitySet;
+        std::shared_ptr<Glacier2::StringSetPrx> adapterIdSet;
         std::set<Ice::Identity> identities;
     };
 
-    const Ice::ObjectAdapterPtr _adapter;
+    const std::shared_ptr<Ice::ObjectAdapter> _adapter;
     const std::string _instanceName;
     const bool _checkConnection;
     const std::string _serverAdminCategory;
-    const Ice::ObjectPtr _serverAdminRouter;
+    const std::shared_ptr<Ice::Object> _serverAdminRouter;
     const std::string _nodeAdminCategory;
-    const Ice::ObjectPtr _nodeAdminRouter;
+    const std::shared_ptr<Ice::Object> _nodeAdminRouter;
     const std::string _replicaAdminCategory;
-    const Ice::ObjectPtr _replicaAdminRouter;
-    const AdminCallbackRouterPtr _adminCallbackRouter;
+    const std::shared_ptr<Ice::Object> _replicaAdminRouter;
+    const std::shared_ptr<AdminCallbackRouter> _adminCallbackRouter;
 
     std::map<Ice::Identity, ServantInfo> _servants;
-    std::map<Ice::ObjectPtr, SessionInfo> _sessions;
-    std::multiset<Ice::ConnectionPtr> _adminConnections;
+    std::map<std::shared_ptr<Ice::Object>, SessionInfo> _sessions;
+    std::multiset<std::shared_ptr<Ice::Connection>> _adminConnections;
+
+    std::mutex _mutex;
 
 };
-typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;
 
 };
 

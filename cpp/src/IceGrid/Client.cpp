@@ -4,12 +4,9 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/Thread.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/UUID.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
@@ -37,89 +34,45 @@ class Client;
 namespace
 {
 
-IceUtil::Mutex* _staticMutex = 0;
-Ice::CommunicatorPtr communicator;
-IceGrid::ParserPtr parser;
+mutex staticMutex;
+shared_ptr<Ice::Communicator> communicator;
+shared_ptr<IceGrid::Parser> parser;
 
-class Init
-{
-public:
-
-    Init()
-    {
-        _staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete _staticMutex;
-        _staticMutex = 0;
-    }
 };
 
-Init init;
-
-}
-
-class ReuseConnectionRouter : public Ice::Router
+class ReuseConnectionRouter final : public Ice::Router
 {
 public:
 
-    ReuseConnectionRouter(const Ice::ObjectPrx& proxy) : _clientProxy(proxy)
+    ReuseConnectionRouter(shared_ptr<Ice::ObjectPrx> proxy) : _clientProxy(move(proxy))
     {
     }
 
-    virtual Ice::ObjectPrx
-    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current&) const
+    shared_ptr<Ice::ObjectPrx>
+    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
     }
 
-    virtual Ice::ObjectPrx
-    getServerProxy(const Ice::Current&) const
+    shared_ptr<Ice::ObjectPrx>
+    getServerProxy(const Ice::Current&) const override
     {
         return 0;
     }
 
-    virtual void
-    addProxy(const Ice::ObjectPrx&, const Ice::Current&)
-    {
-    }
-
-    virtual Ice::ObjectProxySeq
-    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
+    Ice::ObjectProxySeq
+    addProxies(Ice::ObjectProxySeq, const Ice::Current&) override
     {
         return Ice::ObjectProxySeq();
     }
 
 private:
 
-    const Ice::ObjectPrx _clientProxy;
+    const shared_ptr<Ice::ObjectPrx> _clientProxy;
 };
 
 int run(const Ice::StringSeq&);
-
-//
-// Callback for CtrlCHandler
-//
-static void
-interruptCallback(int /*signal*/)
-{
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-    if(parser) // If there's an interactive parser, notify the parser.
-    {
-        parser->interrupt();
-    }
-    else
-    {
-        //
-        // Otherwise, destroy the communicator.
-        //
-        assert(communicator);
-        communicator->destroy();
-    }
-}
 
 int
 #ifdef _WIN32
@@ -139,7 +92,7 @@ main(int argc, char* argv[])
     try
     {
         IceUtil::CtrlCHandler ctrlCHandler;
-        Ice::PropertiesPtr defaultProps = Ice::createProperties();
+        auto defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;
         id.properties = createProperties(args, defaultProps);
@@ -147,7 +100,21 @@ main(int argc, char* argv[])
         Ice::CommunicatorHolder ich(id);
         communicator = ich.communicator();
 
-        ctrlCHandler.setCallback(interruptCallback);
+        ctrlCHandler.setCallback([](int) {
+            lock_guard lg(staticMutex);
+            if(parser) // If there's an interactive parser, notify the parser.
+            {
+                parser->interrupt();
+            }
+            else
+            {
+                //
+                // Otherwise, destroy the communicator.
+                //
+                assert(communicator);
+                communicator->destroy();
+            }
+        });
 
         try
         {
@@ -224,7 +191,7 @@ getPassword(const string& prompt)
 }
 
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
+createIceLocatorDiscovery(const shared_ptr<Ice::Communicator>&, const string&, const Ice::StringSeq&);
 
 int
 run(const Ice::StringSeq& args)
@@ -275,9 +242,9 @@ run(const Ice::StringSeq& args)
 
     if(opts.isSet("server"))
     {
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("IceGridAdmin.Server");
+        auto adapter = communicator->createObjectAdapter("IceGridAdmin.Server");
         adapter->activate();
-        Ice::ObjectPrx proxy = adapter->add(new FileParserI, Ice::stringToIdentity("FileParser"));
+        auto proxy = adapter->add(make_shared<IceGrid::FileParserI>(), Ice::stringToIdentity("FileParser"));
         consoleOut << proxy << endl;
 
         communicator->waitForShutdown();
@@ -286,10 +253,9 @@ run(const Ice::StringSeq& args)
 
     if(opts.isSet("e"))
     {
-        vector<string> optargs = opts.argVec("e");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        for(const auto& arg : opts.argVec("e"))
         {
-            commands += *i + ";";
+            commands += arg + ";";
         }
     }
     debug = opts.isSet("debug");
@@ -334,15 +300,15 @@ run(const Ice::StringSeq& args)
         }
     }
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string replica = properties->getProperty("IceGridAdmin.Replica");
     if(!opts.optArg("replica").empty())
     {
         replica = opts.optArg("replica");
     }
 
-    Glacier2::RouterPrx router;
-    IceGrid::AdminSessionPrx session;
+    shared_ptr<Glacier2::RouterPrx> router;
+    shared_ptr<IceGrid::AdminSessionPrx> session;
     int status = 0;
     try
     {
@@ -356,7 +322,7 @@ run(const Ice::StringSeq& args)
                 os << "Ice/LocatorFinder" << (ssl ? " -s" : "");
                 os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port) << " -t " << timeout;
                 os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port) << " -t " << timeout;
-                Ice::LocatorFinderPrx finder = Ice::LocatorFinderPrx::uncheckedCast(communicator->stringToProxy(os.str()));
+                auto finder = Ice::uncheckedCast<Ice::LocatorFinderPrx>(communicator->stringToProxy(os.str()));
                 try
                 {
                     communicator->setDefaultLocator(finder->getLocator());
@@ -381,18 +347,19 @@ run(const Ice::StringSeq& args)
                 // to lookup for locator proxies. We destroy the plugin, once we have selected a
                 // locator.
                 //
-                Ice::PluginPtr pluginObj = createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery", Ice::StringSeq());
-                IceLocatorDiscovery::PluginPtr plugin = IceLocatorDiscovery::PluginPtr::dynamicCast(pluginObj);
+                shared_ptr<Ice::Plugin> pluginObj(createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery",
+                                                                            Ice::StringSeq()));
+                auto plugin = dynamic_pointer_cast<IceLocatorDiscovery::Plugin>(pluginObj);
                 plugin->initialize();
 
-                vector<Ice::LocatorPrx> locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
+                auto locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
                 if(locators.size() > 1)
                 {
                     consoleOut << "found " << locators.size() << " Ice locators:" << endl;
                     unsigned int num = 0;
-                    for(vector<Ice::LocatorPrx>::const_iterator p = locators.begin(); p != locators.end(); ++p)
+                    for(const auto& locator : locators)
                     {
-                        consoleOut << ++num << ": proxy = `" << *p << "'" << endl;
+                        consoleOut << ++num << ": proxy = `" << locator << "'" << endl;
                     }
 
                     num = 0;
@@ -440,7 +407,7 @@ run(const Ice::StringSeq& args)
             try
             {
                 // Use SSL if available.
-                router = Glacier2::RouterPrx::checkedCast(communicator->getDefaultRouter()->ice_preferSecure(true));
+                router = Ice::checkedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter()->ice_preferSecure(true));
                 if(!router)
                 {
                     consoleErr << args[0] << ": configured router is not a Glacier2 router" << endl;
@@ -455,7 +422,7 @@ run(const Ice::StringSeq& args)
 
             if(ssl)
             {
-                session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
+                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
                 if(!session)
                 {
                     consoleErr << args[0]
@@ -488,7 +455,7 @@ run(const Ice::StringSeq& args)
 #endif
                 }
 
-                session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSession(id, password));
+                session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSession(id, password));
                 fill(password.begin(), password.end(), '\0'); // Zero the password string.
 
                 if(!session)
@@ -528,11 +495,11 @@ run(const Ice::StringSeq& args)
             // no need to go further. Otherwise, we get the proxy of local registry
             // proxy.
             //
-            IceGrid::LocatorPrx locator;
-            IceGrid::RegistryPrx localRegistry;
+            shared_ptr<IceGrid::LocatorPrx> locator;
+            shared_ptr<IceGrid::RegistryPrx> localRegistry;
             try
             {
-                locator = IceGrid::LocatorPrx::checkedCast(communicator->getDefaultLocator());
+                locator = Ice::checkedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator());
                 if(!locator)
                 {
                     consoleErr << args[0] << ": configured locator is not an IceGrid locator" << endl;
@@ -546,7 +513,7 @@ run(const Ice::StringSeq& args)
                 return 1;
             }
 
-            IceGrid::RegistryPrx registry;
+            shared_ptr<IceGrid::RegistryPrx> registry;
             if(localRegistry->ice_getIdentity() == registryId)
             {
                 registry = localRegistry;
@@ -559,7 +526,7 @@ run(const Ice::StringSeq& args)
 
                 try
                 {
-                    registry = IceGrid::RegistryPrx::checkedCast(locator->findObjectById(registryId));
+                    registry = Ice::checkedCast<IceGrid::RegistryPrx>(locator->findObjectById(registryId));
                     if(!registry)
                     {
                         consoleErr << args[0] << ": could not contact an IceGrid registry" << endl;
@@ -603,9 +570,9 @@ run(const Ice::StringSeq& args)
             //
             if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
-                Ice::ObjectAdapterPtr colloc = communicator->createObjectAdapter(""); // colloc-only adapter
-                communicator->setDefaultRouter(Ice::RouterPrx::uncheckedCast(
-                    colloc->addWithUUID(new ReuseConnectionRouter(locator))));
+                auto colloc = communicator->createObjectAdapter(""); // colloc-only adapter
+                communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(
+                    colloc->addWithUUID(make_shared<ReuseConnectionRouter>(locator))));
                 registry = registry->ice_router(communicator->getDefaultRouter());
             }
 
@@ -667,8 +634,8 @@ run(const Ice::StringSeq& args)
         }
 
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-            parser = IceGrid::Parser::createParser(communicator, session, session->getAdmin(), commands.empty());
+            lock_guard lock(staticMutex);
+            parser = make_shared<IceGrid::Parser>(communicator, session, session->getAdmin(), commands.empty());
         }
 
         if(!commands.empty()) // Commands were given

@@ -5,57 +5,53 @@
 #ifndef ICE_GRID_TRACE_LEVELS_H
 #define ICE_GRID_TRACE_LEVELS_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/LoggerF.h>
 
 namespace IceGrid
 {
 
-class TraceLevels : public ::IceUtil::Shared
+class TraceLevels
 {
 public:
 
-    TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
-    virtual ~TraceLevels();
+    TraceLevels(const std::shared_ptr<Ice::Communicator>&, const std::string&);
 
     const int admin;
-    const char* adminCat;
+    const std::string adminCat;
 
     const int application;
-    const char* applicationCat;
+    const std::string applicationCat;
 
     const int node;
-    const char* nodeCat;
+    const std::string nodeCat;
 
     const int replica;
-    const char* replicaCat;
+    const std::string replicaCat;
 
     const int server;
-    const char* serverCat;
+    const std::string serverCat;
 
     const int adapter;
-    const char* adapterCat;
+    const std::string adapterCat;
 
     const int object;
-    const char* objectCat;
+    const std::string objectCat;
 
     const int activator;
-    const char* activatorCat;
+    const std::string activatorCat;
 
     const int locator;
-    const char* locatorCat;
+    const std::string locatorCat;
 
     const int session;
-    const char* sessionCat;
+    const std::string sessionCat;
 
     const int discovery;
-    const char* discoveryCat;
+    const std::string discoveryCat;
 
-    const Ice::LoggerPtr logger;
+    const std::shared_ptr<Ice::Logger> logger;
 };
-
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 } // End namespace IceGrid
 

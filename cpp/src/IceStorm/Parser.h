@@ -5,7 +5,6 @@
 #ifndef ICE_STORM_PARSER_H
 #define ICE_STORM_PARSER_H
 
-#include <IceUtil/Handle.h>
 #include <IceStorm/IceStorm.h>
 #include <list>
 #include <stdio.h>

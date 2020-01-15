@@ -16,22 +16,22 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-namespace IceGrid
+namespace
 {
 
-class DescriptorHandler : public IceXML::Handler
+class DescriptorHandler final : public IceXML::Handler
 {
 public:
 
-    DescriptorHandler(const string&, const Ice::CommunicatorPtr&);
+    DescriptorHandler(const string&, const shared_ptr<Ice::Communicator>&);
 
-    void setAdmin(const IceGrid::AdminPrx&);
+    void setAdmin(const shared_ptr<IceGrid::AdminPrx>&);
     void setVariables(const map<string, string>&, const vector<string>&);
 
-    virtual void startElement(const string&, const IceXML::Attributes&, int, int);
-    virtual void endElement(const string&, int, int);
-    virtual void characters(const string&, int, int);
-    virtual void error(const string&, int, int);
+    void startElement(const string&, const IceXML::Attributes&, int, int) override;
+    void endElement(const string&, int, int) override;
+    void characters(const string&, int, int) override;
+    void error(const string&, int, int) override;
 
     const ApplicationDescriptor& getApplicationDescriptor() const;
 
@@ -43,8 +43,8 @@ private:
     void error(const string&) const;
     bool isTargetDeployable(const string&) const;
 
-    const Ice::CommunicatorPtr _communicator;
-    IceGrid::AdminPrx _admin;
+    const shared_ptr<Ice::Communicator> _communicator;
+    shared_ptr<IceGrid::AdminPrx> _admin;
     string _filename;
     map<string, string> _overrides;
     vector<string> _targets;
@@ -55,28 +55,26 @@ private:
     int _line;
     int _column;
 
-    IceInternal::UniquePtr<ApplicationDescriptorBuilder> _currentApplication;
-    IceInternal::UniquePtr<NodeDescriptorBuilder> _currentNode;
-    IceInternal::UniquePtr<TemplateDescriptorBuilder> _currentTemplate;
-    IceInternal::UniquePtr<ServerInstanceDescriptorBuilder> _currentServerInstance;
-    IceInternal::UniquePtr<ServiceInstanceDescriptorBuilder> _currentServiceInstance;
-    IceInternal::UniquePtr<ServerDescriptorBuilder> _currentServer;
-    IceInternal::UniquePtr<ServiceDescriptorBuilder> _currentService;
+    unique_ptr<ApplicationDescriptorBuilder> _currentApplication;
+    unique_ptr<NodeDescriptorBuilder> _currentNode;
+    unique_ptr<TemplateDescriptorBuilder> _currentTemplate;
+    unique_ptr<ServerInstanceDescriptorBuilder> _currentServerInstance;
+    unique_ptr<ServiceInstanceDescriptorBuilder> _currentServiceInstance;
+    unique_ptr<ServerDescriptorBuilder> _currentServer;
+    unique_ptr<ServiceDescriptorBuilder> _currentService;
     CommunicatorDescriptorBuilder* _currentCommunicator;
-    IceInternal::UniquePtr<PropertySetDescriptorBuilder> _currentPropertySet;
+    unique_ptr<PropertySetDescriptorBuilder> _currentPropertySet;
 
     bool _isTopLevel;
     bool _inAdapter;
     bool _inReplicaGroup;
 };
 
-}
-
-DescriptorHandler::DescriptorHandler(const string& filename, const Ice::CommunicatorPtr& communicator) :
+DescriptorHandler::DescriptorHandler(const string& filename, const shared_ptr<Ice::Communicator>& communicator) :
     _communicator(communicator),
     _filename(filename),
     _isCurrentTargetDeployable(true),
-    _currentCommunicator(0),
+    _currentCommunicator(nullptr),
     _isTopLevel(true),
     _inAdapter(false),
     _inReplicaGroup(false)
@@ -84,7 +82,7 @@ DescriptorHandler::DescriptorHandler(const string& filename, const Ice::Communic
 }
 
 void
-DescriptorHandler::setAdmin(const AdminPrx& admin)
+DescriptorHandler::setAdmin(const shared_ptr<AdminPrx>& admin)
 {
     _admin = admin;
 }
@@ -469,7 +467,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
         else if(name == "node")
         {
             _currentApplication->addNode(_currentNode->getName(), _currentNode->getDescriptor());
-            _currentNode.reset(0);
+            _currentNode.reset(nullptr);
         }
         else if(name == "server" || name == "icebox")
         {
@@ -484,14 +482,14 @@ DescriptorHandler::endElement(const string& name, int line, int column)
                 _currentNode->addServer(_currentServer->getDescriptor());
             }
             _currentServer->finish();
-            _currentServer.reset(0);
-            _currentCommunicator = 0;
+            _currentServer.reset(nullptr);
+            _currentCommunicator = nullptr;
         }
         else if(name == "server-template")
         {
             assert(_currentApplication.get());
             _currentApplication->addServerTemplate(_currentTemplate->getId(), _currentTemplate->getDescriptor());
-            _currentTemplate.reset(0);
+            _currentTemplate.reset(nullptr);
         }
         else if(name == "service")
         {
@@ -505,26 +503,26 @@ DescriptorHandler::endElement(const string& name, int line, int column)
                 _currentTemplate->setDescriptor(_currentService->getDescriptor());
             }
             _currentService->finish();
-            _currentService.reset(0);
+            _currentService.reset(nullptr);
             _currentCommunicator = _currentServer.get();
         }
         else if(name == "service-template")
         {
             assert(_currentTemplate.get());
             _currentApplication->addServiceTemplate(_currentTemplate->getId(), _currentTemplate->getDescriptor());
-            _currentTemplate.reset(0);
+            _currentTemplate.reset(nullptr);
         }
         else if(name == "server-instance")
         {
             assert(_currentNode.get() && _currentServerInstance.get());
             _currentNode->addServerInstance(_currentServerInstance->getDescriptor());
-            _currentServerInstance.reset(0);
+            _currentServerInstance.reset(nullptr);
         }
         else if(name == "service-instance")
         {
             assert(_currentServer.get() && _currentServiceInstance.get());
             _currentServer->addServiceInstance(_currentServiceInstance->getDescriptor());
-            _currentServiceInstance.reset(0);
+            _currentServiceInstance.reset(nullptr);
         }
         else if(name == "properties")
         {
@@ -558,7 +556,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
                 {
                     assert(false);
                 }
-                _currentPropertySet.reset(0);
+                _currentPropertySet.reset(nullptr);
             }
         }
         else if(name == "description")
@@ -783,12 +781,14 @@ DescriptorHandler::isTargetDeployable(const string& target) const
     return false;
 }
 
+}
+
 ApplicationDescriptor
 DescriptorParser::parseDescriptor(const string& descriptor,
                                   const Ice::StringSeq& targets,
                                   const map<string, string>& variables,
-                                  const Ice::CommunicatorPtr& communicator,
-                                  const IceGrid::AdminPrx& admin)
+                                  const shared_ptr<Ice::Communicator>& communicator,
+                                  const shared_ptr<IceGrid::AdminPrx>& admin)
 {
     string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
@@ -799,7 +799,7 @@ DescriptorParser::parseDescriptor(const string& descriptor,
 }
 
 ApplicationDescriptor
-DescriptorParser::parseDescriptor(const string& descriptor, const Ice::CommunicatorPtr& communicator)
+DescriptorParser::parseDescriptor(const string& descriptor, const shared_ptr<Ice::Communicator>& communicator)
 {
     string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);

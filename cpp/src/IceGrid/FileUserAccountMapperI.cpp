@@ -68,7 +68,7 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 }
 
 string
-FileUserAccountMapperI::getUserAccount(const string& user, const Ice::Current&)
+FileUserAccountMapperI::getUserAccount(string user, const Ice::Current&)
 {
     map<string, string>::const_iterator p = _accounts.find(user);
     if(p == _accounts.end())

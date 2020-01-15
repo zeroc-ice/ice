@@ -32,6 +32,35 @@ using namespace IceStormElection;
 namespace
 {
 
+class ServiceI final : public IceStormInternal::Service
+{
+public:
+
+    void start(const std::shared_ptr<Ice::Communicator>&,
+               const std::shared_ptr<Ice::ObjectAdapter>&,
+               const std::shared_ptr<Ice::ObjectAdapter>&,
+               const std::string&,
+               const Ice::Identity&,
+               const std::string&);
+
+    std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const override;
+
+    void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
+    void stop() override;
+
+private:
+
+    void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
+    void validateProperties(const std::string&,
+                            const std::shared_ptr<Ice::Properties>&,
+                            const std::shared_ptr<Ice::Logger>&);
+
+    std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
+    std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
+    std::shared_ptr<IceStorm::TopicManagerPrx> _managerProxy;
+    std::shared_ptr<IceStorm::Instance> _instance;
+};
+
 class FinderI final : public IceStorm::Finder
 {
 public:
@@ -59,18 +88,18 @@ extern "C"
 ICESTORM_SERVICE_API ::IceBox::Service*
 createIceStorm(const shared_ptr<Communicator>&)
 {
-    return new IceStormInternal::ServiceI;
+    return new ServiceI;
 }
 
 }
 
-shared_ptr<IceStormInternal::ServiceI>
-IceStormInternal::ServiceI::create(const shared_ptr<Communicator>& communicator,
-                                   const shared_ptr<ObjectAdapter>& topicAdapter,
-                                   const shared_ptr<ObjectAdapter>& publishAdapter,
-                                   const string& name,
-                                   const Ice::Identity& id,
-                                   const string& dbEnv)
+shared_ptr<IceStormInternal::Service>
+IceStormInternal::Service::create(const shared_ptr<Communicator>& communicator,
+                                  const shared_ptr<ObjectAdapter>& topicAdapter,
+                                  const shared_ptr<ObjectAdapter>& publishAdapter,
+                                  const string& name,
+                                  const Ice::Identity& id,
+                                  const string& dbEnv)
 {
     shared_ptr<ServiceI> service(new ServiceI);
     service->start(communicator, topicAdapter, publishAdapter, name, id, dbEnv);

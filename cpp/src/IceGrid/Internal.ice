@@ -454,7 +454,7 @@ interface NodeSession
 
     /**
      *
-     * Return the node session timeout.
+     * Return the node session timeout (in seconds).
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getTimeout();

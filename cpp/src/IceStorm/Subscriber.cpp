@@ -550,7 +550,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
     {
     case SubscriberStateOffline:
     {
-        if(chrono::system_clock::now() < _next)
+        if(chrono::steady_clock::now() < _next)
         {
             break;
         }
@@ -744,7 +744,7 @@ Subscriber::error(bool dec, exception_ptr e)
     // replies if we're retrying and its not yet time to process the
     // next request.
     //
-    auto now = std::chrono::system_clock::now();
+    auto now = std::chrono::steady_clock::now();
     if(!hardError && _state == SubscriberStateOffline && now < _next)
     {
         return;

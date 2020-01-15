@@ -12,8 +12,6 @@
 #include <IceStorm/Instrumentation.h>
 #include <IceStorm/Util.h>
 
-#include <IceUtil/RecMutex.h>
-
 namespace IceStorm
 {
 

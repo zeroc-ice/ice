@@ -42,7 +42,7 @@ public:
 
     std::shared_ptr<IceStorm::Instrumentation::TopicObserver>
     getTopicObserver(const std::string&, const std::string&,
-                     const IceStorm::Instrumentation::TopicObserverPtr&) override;
+                     const std::shared_ptr<IceStorm::Instrumentation::TopicObserver>&) override;
 
     std::shared_ptr<IceStorm::Instrumentation::SubscriberObserver>
     getSubscriberObserver(const std::string &,

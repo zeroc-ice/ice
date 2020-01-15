@@ -22,7 +22,7 @@ namespace
 {
 
 void
-logError(const Ice::CommunicatorPtr& com, const IceDB::LMDBException& ex)
+logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
 {
     Ice::Error error(com->getLogger());
     error << "LMDB error: " << ex;

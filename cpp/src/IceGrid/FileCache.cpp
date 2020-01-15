@@ -16,12 +16,12 @@
 using namespace std;
 using namespace IceGrid;
 
-FileCache::FileCache(const Ice::CommunicatorPtr& com) :
+FileCache::FileCache(const shared_ptr<Ice::Communicator>& com) :
     _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
 {
 }
 
-Ice::Long
+long long
 FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
     ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
@@ -108,7 +108,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 
     if(is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }
 
     if(lines.empty())
@@ -122,7 +122,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 }
 
 bool
-FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOffset, Ice::StringSeq& lines)
+FileCache::read(const string& file, long long offset, int size, long long& newOffset, Ice::StringSeq& lines)
 {
     assert(size > 0);
 
@@ -205,7 +205,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     if(is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }
 
     return is.eof();

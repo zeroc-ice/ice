@@ -5,8 +5,6 @@
 #ifndef ICE_GRID_NODECACHE_H
 #define ICE_GRID_NODECACHE_H
 
-#include <IceUtil/RecMutex.h>
-#include <IceUtil/Shared.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>
 
@@ -14,90 +12,89 @@ namespace IceGrid
 {
 
 class NodeCache;
-
-class SessionI;
-typedef IceUtil::Handle<SessionI> SessionIPtr;
-
 class NodeSessionI;
-typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
-
-class ServerEntry;
-typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
-typedef std::vector<ServerEntryPtr> ServerEntrySeq;
-
 class ReplicaCache;
+class ServerEntry;
+class SessionI;
 
-class NodeEntry : private IceUtil::Monitor<IceUtil::RecMutex>
+using ServerEntrySeq = std::vector<std::shared_ptr<ServerEntry>>;
+
+class NodeEntry final
 {
 public:
 
     NodeEntry(NodeCache&, const std::string&);
-    virtual ~NodeEntry();
 
     void addDescriptor(const std::string&, const NodeDescriptor&);
     void removeDescriptor(const std::string&);
 
-    void addServer(const ServerEntryPtr&);
-    void removeServer(const ServerEntryPtr&);
-    void setSession(const NodeSessionIPtr&);
+    void addServer(const std::shared_ptr<ServerEntry>&);
+    void removeServer(const std::shared_ptr<ServerEntry>&);
+    void setSession(const std::shared_ptr<NodeSessionI>&);
 
-    NodePrx getProxy() const;
-    InternalNodeInfoPtr getInfo() const;
+    std::shared_ptr<NodePrx> getProxy() const;
+    std::shared_ptr<InternalNodeInfo> getInfo() const;
     ServerEntrySeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
-    NodeSessionIPtr getSession() const;
+    std::shared_ptr<NodeSessionI> getSession() const;
 
-    Ice::ObjectPrx getAdminProxy() const;
+    std::shared_ptr<Ice::ObjectPrx> getAdminProxy() const;
 
     bool canRemove();
 
-    void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int, bool);
-    void destroyServer(const ServerEntryPtr&, const ServerInfo&, int, bool);
+    void loadServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, const std::shared_ptr<SessionI>&,
+                    std::chrono::seconds, bool);
+    void destroyServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, std::chrono::seconds, bool);
 
-    ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
-    InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&, const SessionIPtr&);
+    ServerInfo getServerInfo(const ServerInfo&, const std::shared_ptr<SessionI>&);
+    std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
-    void __incRef();
-    void __decRef();
-
-    void checkSession() const;
-    void setProxy(const NodePrx&);
+    void checkSession(std::unique_lock<std::mutex>&) const;
+    void setProxy(const std::shared_ptr<NodePrx>&);
     void finishedRegistration();
-    void finishedRegistration(const Ice::Exception&);
+    void finishedRegistration(std::exception_ptr);
 
 private:
 
-    ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
-    InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&) const;
+    std::shared_ptr<NodeEntry> selfRemovingPtr() const;
+
+    std::shared_ptr<ServerDescriptor> getServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
+    std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&) const;
 
     NodeCache& _cache;
-    IceUtil::Mutex _refMutex;
-    int _ref;
     const std::string _name;
-    NodeSessionIPtr _session;
-    std::map<std::string, ServerEntryPtr> _servers;
+    std::shared_ptr<NodeSessionI> _session;
+    std::map<std::string, std::shared_ptr<ServerEntry>> _servers;
     std::map<std::string, NodeDescriptor> _descriptors;
 
     mutable bool _registering;
-    mutable NodePrx _proxy;
+    mutable std::shared_ptr<NodePrx> _proxy;
+
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _condVar;
+
+    // "self removing" shared_ptr of 'this' which removes itself from the NodeCache upon destruction
+    mutable std::weak_ptr<NodeEntry> _selfRemovingPtr;
+    mutable std::mutex _selfRemovingMutex;
+
+    friend NodeCache;
 };
-typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 
 class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, const std::string&);
+    NodeCache(const std::shared_ptr<Ice::Communicator>&, ReplicaCache&, const std::string&);
 
-    NodeEntryPtr get(const std::string&, bool = false) const;
+    std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
 
-    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
     const std::string& getReplicaName() const { return _replicaName; }
     ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     const std::string _replicaName;
     ReplicaCache& _replicaCache;
 };

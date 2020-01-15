@@ -30,7 +30,7 @@ namespace IceStorm
 Parser* parser;
 
 #ifdef _WIN32
-Ice::StringConverterPtr windowsConsoleConverter = 0;
+shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
 #endif
 
 }

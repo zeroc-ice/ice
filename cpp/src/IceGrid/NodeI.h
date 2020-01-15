@@ -15,101 +15,83 @@
 namespace IceGrid
 {
 
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
 class Activator;
-typedef IceUtil::Handle<Activator> ActivatorPtr;
-
-class ServerI;
-typedef IceUtil::Handle<ServerI> ServerIPtr;
-
-class ServerCommand;
-typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
-
 class NodeSessionManager;
+class ServerCommand;
+class ServerI;
+class TraceLevels;
 
-class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;
-
-class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
+class NodeI : public Node, public std::enable_shared_from_this<NodeI>
 {
 public:
 
-    class Update : public virtual IceUtil::Shared
+    class Update final : public std::enable_shared_from_this<Update>
     {
     public:
 
-        Update(const NodeIPtr&, const NodeObserverPrx&);
-        virtual ~Update();
+        using UpdateFunction = std::function<void(std::function<void()>, std::function<void(std::exception_ptr)>)>;
 
-        virtual bool send() = 0;
+        Update(UpdateFunction, const std::shared_ptr<NodeI>&, const std::shared_ptr<NodeObserverPrx>&);
+        bool send();
 
-        void finished(bool);
+    private:
 
-        void completed(const Ice::AsyncResultPtr&);
-
-    protected:
-
-        const NodeIPtr _node;
-        const NodeObserverPrx _observer;
+        UpdateFunction _func;
+        std::shared_ptr<NodeI> _node;
+        std::shared_ptr<NodeObserverPrx> _observer;
     };
-    typedef IceUtil::Handle<Update> UpdatePtr;
 
-    NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&,
-          const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&, const std::string&);
-    virtual ~NodeI();
+    NodeI(const std::shared_ptr<Ice::ObjectAdapter>&, NodeSessionManager&, const std::shared_ptr<Activator>&,
+          const IceUtil::TimerPtr&, const std::shared_ptr<TraceLevels>&, const std::shared_ptr<NodePrx>&,
+          const std::string&, const std::shared_ptr<UserAccountMapperPrx>&, const std::string&);
 
-    virtual void loadServer_async(const AMD_Node_loadServerPtr&,
-                                  const InternalServerDescriptorPtr&,
-                                  const std::string&,
-                                  const Ice::Current&);
+    void loadServerAsync(std::shared_ptr<InternalServerDescriptor>, std::string,
+                         std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>,
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current &) override;
 
-    virtual void loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr&,
-                                                const InternalServerDescriptorPtr&,
-                                                const std::string&,
-                                                const Ice::Current&);
+    void loadServerWithoutRestartAsync(std::shared_ptr<InternalServerDescriptor>, std::string,
+                                       std::function<void(const std::shared_ptr<ServerPrx>&,
+                                                          const AdapterPrxDict&, int, int)>,
+                                       std::function<void(std::exception_ptr)>,
+                                       const Ice::Current &) override;
 
-    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&,
-                                     const std::string&,
-                                     const std::string&,
-                                     int,
-                                     const std::string&,
-                                     const Ice::Current&);
+    void destroyServerAsync(std::string, std::string, int, std::string,
+                            std::function<void()>,
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&) override;
 
-    virtual void destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr&,
-                                                   const std::string&,
-                                                   const std::string&,
-                                                   int,
-                                                   const std::string&,
-                                                   const Ice::Current&);
+    void destroyServerWithoutRestartAsync(std::string, std::string, int, std::string,
+                                          std::function<void()>,
+                                          std::function<void(std::exception_ptr)>,
+                                          const ::Ice::Current& current) override;
 
-    virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
+    void registerWithReplica(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
 
-    virtual void replicaInit(const InternalRegistryPrxSeq&, const Ice::Current&);
-    virtual void replicaAdded(const InternalRegistryPrx&, const Ice::Current&);
-    virtual void replicaRemoved(const InternalRegistryPrx&, const Ice::Current&);
+    void replicaInit(InternalRegistryPrxSeq, const Ice::Current&) override;
+    void replicaAdded(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
+    void replicaRemoved(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
 
-    virtual std::string getName(const Ice::Current&) const;
-    virtual std::string getHostname(const Ice::Current&) const;
-    virtual LoadInfo getLoad(const Ice::Current&) const;
-    virtual int getProcessorSocketCount(const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&) const;
+    std::string getName(const Ice::Current&) const override;
+    std::string getHostname(const Ice::Current&) const override;
+    LoadInfo getLoad(const Ice::Current&) const override;
+    int getProcessorSocketCount(const Ice::Current&) const override;
+    void shutdown(const Ice::Current&) const override;
 
-    virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
-    virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
+    long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, long long, int, long long&, Ice::StringSeq&, const Ice::Current&) const override;
 
     void shutdown();
 
     IceUtil::TimerPtr getTimer() const;
-    Ice::CommunicatorPtr getCommunicator() const;
-    Ice::ObjectAdapterPtr getAdapter() const;
-    ActivatorPtr getActivator() const;
-    TraceLevelsPtr getTraceLevels() const;
-    UserAccountMapperPrx getUserAccountMapper() const;
-    PlatformInfo& getPlatformInfo() const;
-    FileCachePtr getFileCache() const;
-    NodePrx getProxy() const;
+    std::shared_ptr<Ice::Communicator> getCommunicator() const;
+    std::shared_ptr<Ice::ObjectAdapter> getAdapter() const;
+    std::shared_ptr<Activator> getActivator() const;
+    std::shared_ptr<TraceLevels> getTraceLevels() const;
+    std::shared_ptr<UserAccountMapperPrx> getUserAccountMapper() const;
+    PlatformInfo& getPlatformInfo();
+    std::shared_ptr<FileCache> getFileCache() const;
+    std::shared_ptr<NodePrx> getProxy() const;
     const PropertyDescriptorSeq& getPropertiesOverride() const;
     const std::string& getInstanceName() const;
 
@@ -117,19 +99,20 @@ public:
     bool getRedirectErrToOut() const;
     bool allowEndpointsOverride() const;
 
-    NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
-    void checkConsistency(const NodeSessionPrx&);
-    NodeSessionPrx getMasterNodeSession() const;
+    std::shared_ptr<NodeSessionPrx> registerWithRegistry(const std::shared_ptr<InternalRegistryPrx>&);
+    void checkConsistency(const std::shared_ptr<NodeSessionPrx>&);
+    std::shared_ptr<NodeSessionPrx> getMasterNodeSession() const;
 
-    void addObserver(const NodeSessionPrx&, const NodeObserverPrx&);
-    void removeObserver(const NodeSessionPrx&);
+    void addObserver(const std::shared_ptr<NodeSessionPrx>&, const std::shared_ptr<NodeObserverPrx>&);
+    void removeObserver(const std::shared_ptr<NodeSessionPrx>&);
     void observerUpdateServer(const ServerDynamicInfo&);
     void observerUpdateAdapter(const AdapterDynamicInfo&);
-    void queueUpdate(const NodeObserverPrx&, const UpdatePtr&);
-    void dequeueUpdate(const NodeObserverPrx&, const UpdatePtr&, bool);
 
-    void addServer(const ServerIPtr&, const std::string&);
-    void removeServer(const ServerIPtr&, const std::string&);
+    void queueUpdate(const std::shared_ptr<NodeObserverPrx>&, Update::UpdateFunction);
+    void dequeueUpdate(const std::shared_ptr<NodeObserverPrx>&, const std::shared_ptr<Update>&, bool);
+
+    void addServer(const std::shared_ptr<ServerI>&, const std::string&);
+    void removeServer(const std::shared_ptr<ServerI>&, const std::string&);
 
     Ice::Identity createServerIdentity(const std::string&) const;
     std::string getServerAdminCategory() const;
@@ -138,52 +121,57 @@ public:
 
 private:
 
-    std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
+    std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
 
-    std::set<ServerIPtr> getApplicationServers(const std::string&) const;
+    std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;
 
-    void loadServer(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool,
+    void loadServer(std::shared_ptr<InternalServerDescriptor>, std::string, bool,
+                    std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>&&,
+                    std::function<void(std::exception_ptr)>&&,
                     const Ice::Current&);
 
-    void destroyServer(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&, int,
-                       const std::string&, bool, const Ice::Current&);
+    void destroyServer(std::string, std::string, int, std::string, bool,
+                       std::function<void()>,
+                       std::function<void(std::exception_ptr)>,
+                       const Ice::Current&);
 
-    const Ice::CommunicatorPtr _communicator;
-    const Ice::ObjectAdapterPtr _adapter;
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    const std::shared_ptr<Ice::ObjectAdapter> _adapter;
     NodeSessionManager& _sessions;
-    const ActivatorPtr _activator;
+    const std::shared_ptr<Activator> _activator;
     const IceUtil::TimerPtr _timer;
-    const TraceLevelsPtr _traceLevels;
+    const std::shared_ptr<TraceLevels> _traceLevels;
     const std::string _name;
-    const NodePrx _proxy;
+    const std::shared_ptr<NodePrx> _proxy;
     const std::string _outputDir;
     const bool _redirectErrToOut;
     const bool _allowEndpointsOverride;
-    const Ice::Int _waitTime;
+    const int _waitTime;
     const std::string _instanceName;
-    const UserAccountMapperPrx _userAccountMapper;
-    mutable PlatformInfo _platform;
+    const std::shared_ptr<UserAccountMapperPrx> _userAccountMapper;
+    PlatformInfo _platform;
     const std::string _dataDir;
     const std::string _serversDir;
     const std::string _tmpDir;
-    const FileCachePtr _fileCache;
+    const std::shared_ptr<FileCache> _fileCache;
     PropertyDescriptorSeq _propertiesOverride;
 
     unsigned long _serial;
     bool _consistencyCheckDone;
 
-    IceUtil::Mutex _observerMutex;
-    std::map<NodeSessionPrx, NodeObserverPrx> _observers;
+    std::mutex _observerMutex;
+    std::map<std::shared_ptr<NodeSessionPrx>, std::shared_ptr<NodeObserverPrx>> _observers;
     std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
     std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
 
-    std::map<NodeObserverPrx, std::deque<UpdatePtr> > _observerUpdates;
+    std::map<std::shared_ptr<NodeObserverPrx>, std::deque<std::shared_ptr<Update>>> _observerUpdates;
 
-    IceUtil::Mutex _serversLock;
-    std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
+    mutable std::mutex _serversMutex;
+    std::map<std::string, std::set<std::shared_ptr<ServerI>> > _serversByApplication;
+
+    std::mutex _mutex;
 };
-typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 }
 
