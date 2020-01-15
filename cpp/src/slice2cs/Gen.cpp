@@ -3084,7 +3084,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sb;
         for(const auto& p : outParams)
         {
-            _out << nl << "public " << p.typeStr << " " << paramName(p) << ";";
+            _out << nl << "public " << p.typeStr << " " << dataMemberName(p) << ";";
         }
 
         _out << sp;
@@ -3097,8 +3097,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sb;
         for(const auto& p : outParams)
         {
-            const string name = paramName(p);
-            _out << nl << "this." << name << " = " << name << ";";
+            _out << nl << "this." << dataMemberName(p) << " = " << paramName(p) << ";";
         }
         _out << eb;
 
@@ -3112,8 +3111,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sb;
         for(const auto& p : outParams)
         {
-            const string name = paramName(p);
-            _out << nl << name << " = this." << name << ";";
+            _out << nl << paramName(p) << " = this." << dataMemberName(p) << ";";
         }
         _out << eb;
 

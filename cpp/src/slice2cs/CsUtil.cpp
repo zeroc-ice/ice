@@ -41,7 +41,7 @@ Slice::operationName(const OperationPtr& op)
 std::string
 Slice::paramName(const ParamInfo& info)
 {
-    return normalizeCase(info.operation) ? pascalCase(info.name) : info.name;
+    return normalizeCase(info.operation) ? camelCase(info.name) : info.name;
 }
 
 std::string
@@ -56,6 +56,12 @@ Slice::interfaceName(const ProxyPtr& p)
 {
     string name = normalizeCase(p->_class()) ? pascalCase(p->_class()->name()) : p->_class()->name();
     return name.find("II") == 0 ? name : "I" + name;
+}
+
+std::string
+Slice::dataMemberName(const ParamInfo& info)
+{
+    return normalizeCase(info.operation) ? pascalCase(info.name) : info.name;
 }
 
 std::string
