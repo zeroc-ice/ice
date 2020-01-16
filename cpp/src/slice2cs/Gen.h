@@ -10,6 +10,14 @@
 namespace Slice
 {
 
+struct CommentInfo
+{
+    std::vector<std::string> summaryLines;
+    std::map<std::string, std::vector<std::string>> params;
+    std::map<std::string, std::vector<std::string>> exceptions;
+    std::vector<std::string> returnLines;
+};
+
 class CsVisitor : public CsGenerator, public ParserVisitor
 {
 public:
@@ -45,19 +53,11 @@ protected:
     bool requiresDataMemberInitializers(const DataMemberList&);
     void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0);
 
-    std::string toCsIdent(const std::string&);
-    std::string editMarkup(const std::string&);
-    StringList splitIntoLines(const std::string&);
-    void splitComment(const ContainedPtr&, StringList&, StringList&);
-    StringList getSummary(const ContainedPtr&);
-    void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");
-    void writeDocCommentOp(const OperationPtr&);
+    void writeTypeDocComment(const ContainedPtr&, const std::string&);
+    void writeOperationDocComment(const OperationPtr&, const std::string&, bool, bool);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAMI(const OperationPtr&, const std::string&, const std::string& = "", const std::string& = "",
-                            const std::string& = "");
-    void writeDocCommentAMD(const OperationPtr&, const std::string&);
-    void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
+    void writeParamDocComment(const OperationPtr&, const CommentInfo&, ParamDir);
 
     void moduleStart(const ModulePtr&);
     void moduleEnd(const ModulePtr&);
