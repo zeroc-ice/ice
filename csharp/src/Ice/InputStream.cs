@@ -271,6 +271,10 @@ namespace Ice
             ResetEncapsulation();
             other.ResetEncapsulation();
 
+            int tmpMinTotalSeqSize = other._minTotalSeqSize;
+            other._minTotalSeqSize = _minTotalSeqSize;
+            _minTotalSeqSize = tmpMinTotalSeqSize;
+
             ILogger tmpLogger = other._logger;
             other._logger = _logger;
             _logger = tmpLogger;
@@ -617,12 +621,12 @@ namespace Ice
         }
 
         /// <summary>
-        /// Reads a sequence size and make sure there are least size * minElementSize bytes left in the underlying
-        /// buffer. This validation is performed in part to make sure we do not allocate a large container based on an
-        /// invalid encoded size.
+        /// Reads a sequence size and make sure there is enough space in the underlying buffer to read the sequence.
+        /// This validation is performed to make sure we do not allocate a large container based on an invalid encoded
+        /// size.
         /// </summary>
         /// <param name="minElementSize">The minimum encoded size of an element of the sequence, in bytes.</param>
-        /// <returns>The extracted size.</returns>
+        /// <returns>The number of elements in the sequence.</returns>
         public int ReadAndCheckSeqSize(int minElementSize)
         {
             int sz = ReadSize();
@@ -632,11 +636,16 @@ namespace Ice
                 return 0;
             }
 
-            if (_buf.b.position() + sz * minElementSize > _buf.size())
+            int minSize = sz * minElementSize;
+
+            // With _minTotalSeqSize, we make sure that multiple sequences within an InpuStream can't trigger
+            // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
+            _minTotalSeqSize += minSize;
+
+            if (_buf.b.position() + minSize > _buf.size() || _minTotalSeqSize > _buf.size())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-
             return sz;
         }
 
@@ -2714,7 +2723,11 @@ namespace Ice
             {
                 // we should never skip an exception's indirection table
                 Debug.Assert(_current.sliceType == SliceType.ValueSlice);
-                var tableSize = _stream.ReadAndCheckSeqSize(1);
+
+                // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
+                // sequence, and since we are skipping this sequence to read it later, we don't want to double-count
+                // its contribution to _minTotalSeqSize.
+                var tableSize = _stream.ReadSize();
                 for (int i = 0; i < tableSize; ++i)
                 {
                     var index = _stream.ReadSize();
@@ -3166,6 +3179,10 @@ namespace Ice
         private bool _sliceValues;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
+
+        // The sum of all the mininum sizes (in bytes) of the sequences
+        // read in this buffer. Must not exceed the buffer size.
+        private int _minTotalSeqSize = 0;
 
         private ILogger _logger;
         private Func<int, string> _compactIdResolver;
