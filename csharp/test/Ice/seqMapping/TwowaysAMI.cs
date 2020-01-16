@@ -302,14 +302,14 @@ namespace Ice.seqMapping
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToArray();
+                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as AnyClass).ToArray();
                 var r = p.opAObjectSAsync(i).Result;
                 test(r.o.SequenceEqual(i, new CVComparer()));
                 test(r.returnValue.SequenceEqual(i, new CVComparer()));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToList();
+                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as AnyClass).ToList();
                 var r = p.opLObjectSAsync(i).Result;
                 test(r.o.SequenceEqual(i, new CVComparer()));
                 test(r.returnValue.SequenceEqual(i, new CVComparer()));
@@ -620,9 +620,9 @@ namespace Ice.seqMapping
         public int GetHashCode(T obj) => obj.GetHashCode();
     }
 
-    class CVComparer : IEqualityComparer<Value>
+    class CVComparer : IEqualityComparer<AnyClass>
     {
-        public bool Equals(Value x, Value y)
+        public bool Equals(AnyClass x, AnyClass y)
         {
             if (x == y)
             {
@@ -636,7 +636,7 @@ namespace Ice.seqMapping
             return (x as Test.CV).i == (y as Test.CV).i;
         }
 
-        public int GetHashCode(Value obj)
+        public int GetHashCode(AnyClass obj)
         {
             return obj.GetHashCode();
         }

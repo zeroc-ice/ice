@@ -11,17 +11,17 @@ namespace IceInternal
 {
     public class Ex
     {
-        public static void throwUOE(Type expectedType, Ice.Value v)
+        public static void throwUOE(Type expectedType, Ice.AnyClass v)
         {
             //
             // If the object is an unknown sliced object, we didn't find an
-            // value factory, in this case raise a NoValueFactoryException
+            // class factory, in this case raise a NoClassFactoryException
             // instead.
             //
-            if (v is Ice.UnknownSlicedValue)
+            if (v is Ice.UnknownSlicedClass)
             {
-                Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
-                throw new Ice.NoValueFactoryException("", usv.ice_id());
+                Ice.UnknownSlicedClass usv = (Ice.UnknownSlicedClass)v;
+                throw new Ice.NoClassFactoryException("", usv.ice_id());
             }
 
             string type = v.ice_id();

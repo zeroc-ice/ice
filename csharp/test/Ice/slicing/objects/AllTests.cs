@@ -48,7 +48,7 @@ public class AllTests : Test.AllTests
         output.Write("base as Object... ");
         output.Flush();
         {
-            Ice.Value o;
+            Ice.AnyClass o;
             SBase sb = null;
             try
             {
@@ -70,7 +70,7 @@ public class AllTests : Test.AllTests
         output.Write("base as Object (AMI)... ");
         output.Flush();
         {
-            Ice.Value o = testPrx.SBaseAsObjectAsync().Result;
+            Ice.AnyClass o = testPrx.SBaseAsObjectAsync().Result;
             test(o != null);
             test(o.ice_id().Equals("::Test::SBase"));
             SBase sb = (SBase)o;
@@ -186,7 +186,7 @@ public class AllTests : Test.AllTests
             testPrx.SBSUnknownDerivedAsSBaseCompact();
             test(false);
         }
-        catch (Ice.NoValueFactoryException)
+        catch (Ice.NoClassFactoryException)
         {
             // Expected.
         }
@@ -214,7 +214,7 @@ public class AllTests : Test.AllTests
         }
         catch (AggregateException ae)
         {
-            test(ae.InnerException is Ice.NoValueFactoryException);
+            test(ae.InnerException is Ice.NoClassFactoryException);
         }
         output.WriteLine("ok");
 
@@ -223,13 +223,13 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                Ice.Value o = testPrx.SUnknownAsObject();
-                test(o is Ice.UnknownSlicedValue);
-                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
-                test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
+                Ice.AnyClass o = testPrx.SUnknownAsObject();
+                test(o is Ice.UnknownSlicedClass);
+                test((o as Ice.UnknownSlicedClass).ice_id().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedClass).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
-            catch (Ice.NoValueFactoryException)
+            catch (Ice.NoClassFactoryException)
             {
                 test(false);
             }
@@ -249,8 +249,8 @@ public class AllTests : Test.AllTests
                 try
                 {
                     var o = testPrx.SUnknownAsObjectAsync().Result;
-                    test(o is Ice.UnknownSlicedValue);
-                    test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
+                    test(o is Ice.UnknownSlicedClass);
+                    test((o as Ice.UnknownSlicedClass).ice_id().Equals("::Test::SUnknown"));
                 }
                 catch (AggregateException ex)
                 {

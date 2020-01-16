@@ -131,10 +131,10 @@ namespace Ice.seqMapping
         opSStringS(Stack<string> i, Current current) => new Test.IMyClass.OpSStringSReturnValue(i, i);
 
         public Test.IMyClass.OpAObjectSReturnValue
-        opAObjectS(Value[] i, Current current) => new Test.IMyClass.OpAObjectSReturnValue(i, i);
+        opAObjectS(AnyClass[] i, Current current) => new Test.IMyClass.OpAObjectSReturnValue(i, i);
 
         public Test.IMyClass.OpLObjectSReturnValue
-        opLObjectS(List<Value> i, Current current) => new Test.IMyClass.OpLObjectSReturnValue(i, i);
+        opLObjectS(List<AnyClass> i, Current current) => new Test.IMyClass.OpLObjectSReturnValue(i, i);
 
         public Test.IMyClass.OpAObjectPrxSReturnValue
         opAObjectPrxS(IObjectPrx[] i, Current current) => new Test.IMyClass.OpAObjectPrxSReturnValue(i, i);

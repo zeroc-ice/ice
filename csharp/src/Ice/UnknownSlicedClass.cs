@@ -7,13 +7,13 @@ namespace Ice
     /// <summary>
     /// Unknown sliced value holds an instance of an unknown Slice class type.
     /// </summary>
-    public sealed class UnknownSlicedValue : Value
+    public sealed class UnknownSlicedClass : AnyClass
     {
         /// <summary>
         /// Represents an instance of a Slice class type having the given Slice type.
         /// </summary>
         /// <param name="unknownTypeId">The Slice type ID of the unknown object.</param>
-        public UnknownSlicedValue(string unknownTypeId)
+        public UnknownSlicedClass(string unknownTypeId)
         {
             _unknownTypeId = unknownTypeId;
         }
@@ -39,14 +39,14 @@ namespace Ice
 
         public override void iceWrite(OutputStream ostr)
         {
-            ostr.StartValue(_slicedData);
-            ostr.EndValue();
+            ostr.StartClass(_slicedData);
+            ostr.EndClass();
         }
 
         public override void iceRead(InputStream istr)
         {
-            istr.StartValue();
-            _slicedData = istr.EndValue(true);
+            istr.StartClass();
+            _slicedData = istr.EndClass(true);
         }
 
         private string _unknownTypeId;

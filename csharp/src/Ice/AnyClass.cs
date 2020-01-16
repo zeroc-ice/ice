@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Ice
 {
     [Serializable]
-    public abstract class Value : ICloneable
+    public abstract class AnyClass : ICloneable
     {
         private const string _id = "::Ice::Object";
 
@@ -34,17 +34,17 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
         {
-            ostr.StartValue(null);
+            ostr.StartClass(null);
             iceWriteImpl(ostr);
-            ostr.EndValue();
+            ostr.EndClass();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceRead(InputStream istr)
         {
-            istr.StartValue();
+            istr.StartClass();
             iceReadImpl(istr);
-            istr.EndValue(false);
+            istr.EndClass(false);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -68,9 +68,9 @@ namespace Ice
         }
     }
 
-    public class InterfaceByValue : Value
+    public class InterfaceByClass : AnyClass
     {
-        public InterfaceByValue(string id) => _id = id;
+        public InterfaceByClass(string id) => _id = id;
 
         public override string ice_id() => _id;
 

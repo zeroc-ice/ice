@@ -41,7 +41,7 @@ namespace Ice
     /// An attempt was made to find or deregister something that is not
     /// registered with the Ice run time or Ice locator.
     /// This exception is raised if an attempt is made to remove a servant,
-    /// servant locator, facet, value factory, plug-in, object adapter,
+    /// servant locator, facet, class factory, plug-in, object adapter,
     /// object, or user exception factory that is not currently registered.
     ///
     /// It's also raised if the Ice locator can't find an object or object
@@ -1311,36 +1311,36 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if no suitable value factory was found during
+    /// This exception is raised if no suitable class factory was found during
     /// unmarshaling of a Slice class instance.
     /// </summary>
-    public class NoValueFactoryException : MarshalException
+    public class NoClassFactoryException : MarshalException
     {
         public string type;
 
-        public NoValueFactoryException()
+        public NoClassFactoryException()
         {
             type = "";
         }
 
-        public NoValueFactoryException(System.Exception ex) : base(ex)
+        public NoClassFactoryException(System.Exception ex) : base(ex)
         {
             type = "";
         }
 
-        public NoValueFactoryException(string reason, string type) : base(reason)
+        public NoClassFactoryException(string reason, string type) : base(reason)
         {
             this.type = type;
         }
 
-        public NoValueFactoryException(string reason, string type, System.Exception ex) : base(reason, ex)
+        public NoClassFactoryException(string reason, string type, System.Exception ex) : base(reason, ex)
         {
             this.type = type;
         }
 
         public override string ice_id()
         {
-            return "::Ice::NoValueFactoryException";
+            return "::Ice::NoClassFactoryException";
         }
     }
 

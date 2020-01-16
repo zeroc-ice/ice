@@ -10,12 +10,12 @@ namespace IceInternal
 {
     public sealed class Patcher
     {
-        public static System.Action<T> arrayReadValue<T>(T[] arr, int index) where T : Ice.Value
+        public static System.Action<T> arrayReadClass<T>(T[] arr, int index) where T : Ice.AnyClass
         {
             return (T v) => { arr[index] = v; };
         }
 
-        public static System.Action<T> listReadValue<T>(List<T> seq, int index) where T : Ice.Value
+        public static System.Action<T> listReadClass<T>(List<T> seq, int index) where T : Ice.AnyClass
         {
             return (T v) =>
             {
@@ -35,7 +35,7 @@ namespace IceInternal
             };
         }
 
-        public static System.Action<T> customSeqReadValue<T>(IEnumerable<T> seq, int index) where T : Ice.Value
+        public static System.Action<T> customSeqReadClass<T>(IEnumerable<T> seq, int index) where T : Ice.AnyClass
         {
             return (T v) =>
             {

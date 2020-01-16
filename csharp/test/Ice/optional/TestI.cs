@@ -10,7 +10,7 @@ namespace Ice.optional
     {
         public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
 
-        public Value pingPong(Value obj, Current current) => obj;
+        public AnyClass pingPong(AnyClass obj, Current current) => obj;
 
         public void opOptionalException(int? a, string? b, Test.OneOptional? o, Current current) =>
             throw new Test.OptionalException(false, a, b, o);

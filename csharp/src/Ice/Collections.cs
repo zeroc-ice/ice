@@ -9,7 +9,7 @@ namespace Ice
 {
     public static class Collections
     {
-        public static bool Equals<Key, Value>(Dictionary<Key, Value>? lhs, Dictionary<Key, Value>? rhs)
+        public static bool Equals<Key, AnyClass>(Dictionary<Key, AnyClass>? lhs, Dictionary<Key, AnyClass>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -21,10 +21,10 @@ namespace Ice
                 return false;
             }
 
-            var comparer = EqualityComparer<Value>.Default;
+            var comparer = EqualityComparer<AnyClass>.Default;
             foreach (var entry in lhs)
             {
-                if (!rhs.TryGetValue(entry.Key, out Value value) || !comparer.Equals(entry.Value, value))
+                if (!rhs.TryGetValue(entry.Key, out AnyClass value) || !comparer.Equals(entry.Value, value))
                 {
                     return false;
                 }
@@ -105,7 +105,7 @@ namespace Ice
             return !j.MoveNext();
         }
 
-        public static int GetHashCode<Key, Value>(Dictionary<Key, Value> d)
+        public static int GetHashCode<Key, AnyClass>(Dictionary<Key, AnyClass> d)
         {
             int h = 5381;
             foreach (var e in d)

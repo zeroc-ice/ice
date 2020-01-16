@@ -147,25 +147,25 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
-                    output.Write("testing Value as parameter... ");
+                    output.Write("testing AnyClass as parameter... ");
                     output.Flush();
                     {
-                        Value v1 = new L("l");
-                        var (v3, v2) = initial.opValue(v1);
+                        AnyClass v1 = new L("l");
+                        var (v3, v2) = initial.opClass(v1);
                         test(((L)v2).data.Equals("l"));
                         test(((L)v3).data.Equals("l"));
                     }
                     {
                         L l = new L("l");
-                        Value[] v1 = new Value[] { l };
-                        var (v3, v2) = initial.opValueSeq(v1);
+                        AnyClass[] v1 = new AnyClass[] { l };
+                        var (v3, v2) = initial.opClassSeq(v1);
                         test(((L)v2[0]).data.Equals("l"));
                         test(((L)v3[0]).data.Equals("l"));
                     }
                     {
                         L l = new L("l");
-                        Dictionary<string, Value> v1 = new Dictionary<string, Value> { { "l", l } };
-                        var (v3, v2) = initial.opValueMap(v1);
+                        Dictionary<string, AnyClass> v1 = new Dictionary<string, AnyClass> { { "l", l } };
+                        var (v3, v2) = initial.opClassMap(v1);
                         test(((L)v2["l"]).data.Equals("l"));
                         test(((L)v3["l"]).data.Equals("l"));
                     }

@@ -56,9 +56,9 @@ namespace Ice.stream
             return true;
         }
 
-        private class TestValueWriter : ValueWriter
+        private class TestClassWriter : ClassWriter
         {
-            public TestValueWriter(Test.MyClass obj)
+            public TestClassWriter(Test.MyClass obj)
             {
                 this.obj = obj;
             }
@@ -73,14 +73,14 @@ namespace Ice.stream
             internal bool called = false;
         }
 
-        private class TestReadValueCallback
+        private class TestReadClassCallback
         {
-            public void invoke(Value obj)
+            public void invoke(AnyClass obj)
             {
                 this.obj = obj;
             }
 
-            internal Value obj;
+            internal AnyClass obj;
         }
 
         static public int allTests(global::Test.TestHelper helper)
@@ -233,13 +233,13 @@ namespace Ice.stream
                 o.by = 5;
                 o.sh = 4;
                 o.i = 3;
-                outS.WriteValue(o);
-                outS.WritePendingValues();
+                outS.WriteClass(o);
+                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                TestReadValueCallback cb = new TestReadValueCallback();
-                inS.ReadValue(cb.invoke);
-                inS.ReadPendingValues();
+                TestReadClassCallback cb = new TestReadClassCallback();
+                inS.ReadClass(cb.invoke);
+                inS.ReadPendingClasses();
                 var o2 = (Test.OptionalClass)cb.obj;
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
@@ -480,11 +480,11 @@ namespace Ice.stream
             {
                 outS = new OutputStream(communicator);
                 Test.MyClassSHelper.Write(outS, myClassArray);
-                outS.WritePendingValues();
+                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var arr2 = Test.MyClassSHelper.Read(inS);
-                inS.ReadPendingValues();
+                inS.ReadPendingClasses();
                 test(arr2.Length == myClassArray.Length);
                 for (int i = 0; i < arr2.Length; ++i)
                 {
@@ -507,11 +507,11 @@ namespace Ice.stream
                 Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
                 outS = new OutputStream(communicator);
                 Test.MyClassSSHelper.Write(outS, arrS);
-                outS.WritePendingValues();
+                outS.WritePendingClasses();
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var arr2S = Test.MyClassSSHelper.Read(inS);
-                inS.ReadPendingValues();
+                inS.ReadPendingClasses();
                 test(arr2S.Length == arrS.Length);
                 test(arr2S[0].Length == arrS[0].Length);
                 test(arr2S[1].Length == arrS[1].Length);
@@ -543,15 +543,15 @@ namespace Ice.stream
                 var obj = new Test.MyClass();
                 obj.s = new Test.SmallStruct();
                 obj.s.e = Test.MyEnum.enum2;
-                var writer = new TestValueWriter(obj);
-                outS.WriteValue(writer);
-                outS.WritePendingValues();
+                var writer = new TestClassWriter(obj);
+                outS.WriteClass(writer);
+                outS.WritePendingClasses();
                 var data = outS.Finished();
                 test(writer.called);
                 inS = new InputStream(communicator, data);
-                var cb = new TestReadValueCallback();
-                inS.ReadValue(cb.invoke);
-                inS.ReadPendingValues();
+                var cb = new TestReadClassCallback();
+                inS.ReadClass(cb.invoke);
+                inS.ReadPendingClasses();
                 test(cb.obj != null);
                 test(cb.obj is Test.MyClass);
                 var robj = (Test.MyClass)cb.obj;
@@ -671,11 +671,11 @@ namespace Ice.stream
                 dict.Add("key2", c);
                 outS = new OutputStream(communicator);
                 Test.StringMyClassDHelper.Write(outS, dict);
-                outS.WritePendingValues();
+                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var dict2 = Test.StringMyClassDHelper.Read(inS);
-                inS.ReadPendingValues();
+                inS.ReadPendingClasses();
                 test(dict2.Count == dict.Count);
                 test(dict2["key1"].s.e == Test.MyEnum.enum2);
                 test(dict2["key2"].s.e == Test.MyEnum.enum3);
@@ -732,11 +732,11 @@ namespace Ice.stream
                 outS = new OutputStream(communicator);
                 var l = new List<Test.MyClass>(myClassArray);
                 Test.MyClassListHelper.Write(outS, l);
-                outS.WritePendingValues();
+                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var l2 = Test.MyClassListHelper.Read(inS);
-                inS.ReadPendingValues();
+                inS.ReadPendingClasses();
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
                 {

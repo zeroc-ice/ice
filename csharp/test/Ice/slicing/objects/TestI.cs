@@ -22,7 +22,7 @@ public sealed class TestIntf : ITestIntf
         current.Adapter.Communicator.shutdown();
     }
 
-    public Ice.Value SBaseAsObject(Ice.Current current)
+    public Ice.AnyClass SBaseAsObject(Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
@@ -68,7 +68,7 @@ public sealed class TestIntf : ITestIntf
         return sbsud;
     }
 
-    public Ice.Value SUnknownAsObject(Ice.Current current)
+    public Ice.AnyClass SUnknownAsObject(Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
@@ -76,7 +76,7 @@ public sealed class TestIntf : ITestIntf
         return su;
     }
 
-    public void checkSUnknown(Ice.Value obj, Ice.Current current)
+    public void checkSUnknown(Ice.AnyClass obj, Ice.Current current)
     {
         test(obj is SUnknown);
         SUnknown su = (SUnknown)obj;

@@ -148,10 +148,10 @@ namespace Ice.seqMapping.AMD
             Task.FromResult(new Test.IMyClass.OpSStringSReturnValue(i, i));
 
         public Task<Test.IMyClass.OpAObjectSReturnValue>
-        opAObjectSAsync(Value[] i, Current current) => Task.FromResult(new Test.IMyClass.OpAObjectSReturnValue(i, i));
+        opAObjectSAsync(AnyClass[] i, Current current) => Task.FromResult(new Test.IMyClass.OpAObjectSReturnValue(i, i));
 
         public Task<Test.IMyClass.OpLObjectSReturnValue>
-        opLObjectSAsync(List<Value> i, Current current) =>
+        opLObjectSAsync(List<AnyClass> i, Current current) =>
             Task.FromResult(new Test.IMyClass.OpLObjectSReturnValue(i, i));
 
         public Task<Test.IMyClass.OpAObjectPrxSReturnValue>

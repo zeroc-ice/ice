@@ -183,9 +183,9 @@ interface Initial
 
     K getK();
 
-    Value opValue(Value v1, out Value v2);
-    ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
-    ValueMap opValueMap(ValueMap v1, out ValueMap v2);
+    Value opClass(Value v1, out Value v2);
+    ValueSeq opClassSeq(ValueSeq v1, out ValueSeq v2);
+    ValueMap opClassMap(ValueMap v1, out ValueMap v2);
 
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;

@@ -124,7 +124,7 @@ namespace Ice
             _encapsStack = null;
             _encapsCache = null;
             _closure = null;
-            _sliceValues = true;
+            _sliceClasses = true;
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Ice
                 _encapsCache.reset();
             }
 
-            _sliceValues = true;
+            _sliceClasses = true;
         }
 
         /// <summary>
@@ -194,11 +194,11 @@ namespace Ice
         /// </summary>
         /// <param name="b">If true (the default), slicing is enabled; if false,
         /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-        /// during decoding for which no value factory is installed, it raises NoValueFactoryException.
+        /// during decoding for which no class factory is installed, it raises NoClassFactoryException.
         /// </param>
-        public void SetSliceValues(bool b)
+        public void SetSliceClasses(bool b)
         {
-            _sliceValues = b;
+            _sliceClasses = b;
         }
 
         /// <summary>
@@ -255,9 +255,9 @@ namespace Ice
             other._closure = _closure;
             _closure = tmpClosure;
 
-            bool tmpSliceValues = other._sliceValues;
-            other._sliceValues = _sliceValues;
-            _sliceValues = tmpSliceValues;
+            bool tmpSliceClasses = other._sliceClasses;
+            other._sliceClasses = _sliceClasses;
+            _sliceClasses = tmpSliceClasses;
 
             int tmpClassGraphDepthMax = other._classGraphDepthMax;
             other._classGraphDepthMax = _classGraphDepthMax;
@@ -311,10 +311,10 @@ namespace Ice
         /// <summary>
         /// Marks the start of a class instance.
         /// </summary>
-        public void StartValue()
+        public void StartClass()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.startInstance(SliceType.ValueSlice);
+            _encapsStack.decoder.startInstance(SliceType.ClassSlice);
         }
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace Ice
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData EndValue(bool preserve)
+        public SlicedData EndClass(bool preserve)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             return _encapsStack.decoder.endInstance(preserve);
@@ -586,7 +586,7 @@ namespace Ice
         /// <summary>
         /// No-op, to be removed
         /// </summary>
-        public void ReadPendingValues()
+        public void ReadPendingClasses()
         {
             // TODO: remove this method
         }
@@ -1935,9 +1935,9 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue<T>(Action<T?> cb) where T : Value
+        public void ReadClass<T>(Action<T?> cb) where T : AnyClass
         {
-            ReadValue(v =>
+            ReadClass(v =>
             {
                 if (v == null || v is T)
                 {
@@ -1956,10 +1956,10 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue(Action<Value?>? cb)
+        public void ReadClass(Action<AnyClass?>? cb)
         {
             initEncaps();
-            var obj = _encapsStack.decoder.readValue();
+            var obj = _encapsStack.decoder.readClass();
             cb?.Invoke(obj);
         }
 
@@ -1970,9 +1970,9 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue<T>(int tag, Action<T?> cb) where T : Value
+        public void ReadClass<T>(int tag, Action<T?> cb) where T : AnyClass
         {
-            ReadValue(tag, v =>
+            ReadClass(tag, v =>
             {
                 if (v == null || v is T)
                 {
@@ -1992,11 +1992,11 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadValue(int tag, System.Action<Value?>? cb)
+        public void ReadClass(int tag, System.Action<AnyClass?>? cb)
         {
             if (ReadOptional(tag, OptionalFormat.Class))
             {
-                ReadValue(cb);
+                ReadClass(cb);
             }
         }
 
@@ -2169,7 +2169,7 @@ namespace Ice
                     }
                 case OptionalFormat.Class:
                     {
-                        ReadValue(null);
+                        ReadClass(null);
                         break;
                     }
             }
@@ -2231,24 +2231,24 @@ namespace Ice
         private object? _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
-        private enum SliceType { ValueSlice, ExceptionSlice }
+        private enum SliceType { ClassSlice, ExceptionSlice }
 
         private abstract class EncapsDecoder
         {
-            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
+            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceClasses,
                                    int classGraphDepthMax, System.Func<string, Type> cr)
             {
                 _stream = stream;
                 _encaps = encaps;
-                _sliceValues = sliceValues;
+                _sliceClasses = sliceClasses;
                 _classGraphDepthMax = classGraphDepthMax;
                 _classGraphDepth = 0;
                 _classResolver = cr;
                 _typeIdIndex = 0;
-                _unmarshaledMap = new Dictionary<int, Value>();
+                _unmarshaledMap = new Dictionary<int, AnyClass>();
             }
 
-            internal abstract Value? readValue();
+            internal abstract AnyClass? readClass();
             internal abstract void throwException(UserExceptionFactory? factory);
 
             internal abstract void startInstance(SliceType type);
@@ -2321,16 +2321,16 @@ namespace Ice
                     }
                     catch (Exception ex)
                     {
-                        throw new NoValueFactoryException("no value factory", typeId, ex);
+                        throw new NoClassFactoryException("no class factory", typeId, ex);
                     }
                 }
 
                 return cls;
             }
 
-            protected Value? newInstance(string typeId)
+            protected AnyClass? newInstance(string typeId)
             {
-                Value? v = null;
+                AnyClass? v = null;
 
                 Type cls = resolveClass(typeId);
 
@@ -2339,11 +2339,11 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (Value?)IceInternal.AssemblyUtil.createInstance(cls);
+                        v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
                     }
                     catch (Exception ex)
                     {
-                        throw new NoValueFactoryException("no value factory", typeId, ex);
+                        throw new NoClassFactoryException("no class factory", typeId, ex);
                     }
                 }
 
@@ -2352,7 +2352,7 @@ namespace Ice
 
             protected readonly InputStream _stream;
             protected readonly Encaps _encaps;
-            protected readonly bool _sliceValues;
+            protected readonly bool _sliceClasses;
             protected readonly int _classGraphDepthMax;
             protected int _classGraphDepth;
             protected System.Func<string, Type> _classResolver;
@@ -2360,7 +2360,7 @@ namespace Ice
             //
             // Encapsulation attributes for object unmarshaling.
             //
-            protected Dictionary<int, Value> _unmarshaledMap;
+            protected Dictionary<int, AnyClass> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
             private int _posAfterLatestInsertedTypeId = 0;
@@ -2369,16 +2369,16 @@ namespace Ice
 
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
-            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
+            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceClasses, int classGraphDepthMax,
                                      System.Func<string, Type> cr, System.Func<int, string> r)
-                : base(stream, encaps, sliceValues, classGraphDepthMax, cr)
+                : base(stream, encaps, sliceClasses, classGraphDepthMax, cr)
             {
                 _compactIdResolver = r;
                 _current = null;
                 _valueIdIndex = 1;
             }
 
-            internal override Value? readValue()
+            internal override AnyClass? readClass()
             {
                 int index = _stream.ReadSize();
                 if (index < 0)
@@ -2523,7 +2523,7 @@ namespace Ice
                     // string or as an index, for exceptions it's always encoded as a
                     // string.
                     //
-                    if (_current.sliceType == SliceType.ValueSlice)
+                    if (_current.sliceType == SliceType.ClassSlice)
                     {
                         //
                         // Must be checked first!
@@ -2636,9 +2636,9 @@ namespace Ice
                 }
                 else
                 {
-                    if (_current.sliceType == SliceType.ValueSlice)
+                    if (_current.sliceType == SliceType.ClassSlice)
                     {
-                        throw new NoValueFactoryException("no value factory found and compact format prevents " +
+                        throw new NoClassFactoryException("no class factory found and compact format prevents " +
                                                           "slicing (the sender should use the sliced format " +
                                                           "instead)", _current.typeId);
                     }
@@ -2679,13 +2679,13 @@ namespace Ice
                 b.position(end);
 
                 _current.slices ??= new List<SliceInfo>();
-                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<Value>(), hasOptionalMembers,
+                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<AnyClass>(), hasOptionalMembers,
                                          isLastSlice);
                 _current.slices.Add(info);
 
                 // The deferred indirection table is only used by classes. For exceptions, the indirection table is
                 // unmarshaled immediately.
-                if (_current.sliceType == SliceType.ValueSlice)
+                if (_current.sliceType == SliceType.ClassSlice)
                 {
                     _current.DeferredIndirectionTableList ??= new List<int>();
                     if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -2700,7 +2700,7 @@ namespace Ice
                 }
                 else
                 {
-                    _current.IndirectionTableList ??= new List<Value[]?>();
+                    _current.IndirectionTableList ??= new List<AnyClass[]?>();
                     if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                     {
                         Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
@@ -2722,7 +2722,7 @@ namespace Ice
             private void SkipIndirectionTable()
             {
                 // we should never skip an exception's indirection table
-                Debug.Assert(_current.sliceType == SliceType.ValueSlice);
+                Debug.Assert(_current.sliceType == SliceType.ClassSlice);
 
                 // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
                 // sequence, and since we are skipping this sequence to read it later, we don't want to double-count
@@ -2787,14 +2787,14 @@ namespace Ice
                 }
             }
 
-            private Value[] ReadIndirectionTable()
+            private AnyClass[] ReadIndirectionTable()
             {
                 var size = _stream.ReadAndCheckSeqSize(1);
                 if (size == 0)
                 {
                     throw new MarshalException("invalid empty indirection table");
                 }
-                var indirectionTable = new Value[size];
+                var indirectionTable = new AnyClass[size];
                 for (int i = 0; i < indirectionTable.Length; ++i)
                 {
                     indirectionTable[i] = readInstance(_stream.ReadSize());
@@ -2815,7 +2815,7 @@ namespace Ice
                 return false;
             }
 
-            private void Unmarshal(int index, Value v)
+            private void Unmarshal(int index, AnyClass v)
             {
                 //
                 // Add the instance to the map of unmarshaled instances, this must
@@ -2831,7 +2831,7 @@ namespace Ice
                     int savedPos = _stream.pos();
 
                     Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
-                    _current.IndirectionTableList ??= new List<Value[]?>(_current.DeferredIndirectionTableList.Count);
+                    _current.IndirectionTableList ??= new List<AnyClass[]?>(_current.DeferredIndirectionTableList.Count);
                     foreach (int pos in _current.DeferredIndirectionTableList)
                     {
                         if (pos > 0)
@@ -2854,7 +2854,7 @@ namespace Ice
                 v.iceRead(_stream);
             }
 
-            private Value readInstance(int index)
+            private AnyClass readInstance(int index)
             {
                 Debug.Assert(index > 0);
 
@@ -2867,7 +2867,7 @@ namespace Ice
                     throw new MarshalException($"could not find index {index} in unmarshaledMap");
                 }
 
-                push(SliceType.ValueSlice);
+                push(SliceType.ClassSlice);
 
                 //
                 // Get the instance ID before we start reading slices. If some
@@ -2881,7 +2881,7 @@ namespace Ice
                 //
                 startSlice(false);
                 string mostDerivedId = _current.typeId;
-                Value? v = null;
+                AnyClass? v = null;
                 while (true)
                 {
                     bool updateCache = false;
@@ -2909,12 +2909,12 @@ namespace Ice
                                 try
                                 {
                                     Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                    v = (Value?)IceInternal.AssemblyUtil.createInstance(cls);
+                                    v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
                                     updateCache = false;
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new NoValueFactoryException("no value factory", "compact ID " +
+                                    throw new NoClassFactoryException("no class factory", "compact ID " +
                                                                       _current.compactId, ex);
                                 }
                             }
@@ -2975,9 +2975,9 @@ namespace Ice
                     //
                     // If slicing is disabled, stop unmarshaling.
                     //
-                    if (!_sliceValues)
+                    if (!_sliceClasses)
                     {
-                        throw new NoValueFactoryException("no value factory found and slicing is disabled",
+                        throw new NoClassFactoryException("no class factory found and slicing is disabled",
                                                           _current.typeId);
                     }
 
@@ -2988,7 +2988,7 @@ namespace Ice
 
                     //
                     // If this is the last slice, keep the instance as an opaque
-                    // UnknownSlicedValue object.
+                    // UnknownSlicedClass object.
                     //
                     if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                     {
@@ -2997,10 +2997,10 @@ namespace Ice
                         // We pass the "::Ice::Object" ID to indicate that this is the
                         // last chance to preserve the instance.
                         //
-                        v = newInstance(Value.ice_staticId());
+                        v = newInstance(AnyClass.ice_staticId());
                         if (v == null)
                         {
-                            v = new UnknownSlicedValue(mostDerivedId);
+                            v = new UnknownSlicedClass(mostDerivedId);
                         }
 
                         break;
@@ -3080,7 +3080,7 @@ namespace Ice
                 internal SliceType sliceType;
                 internal bool skipFirstSlice;
                 internal List<SliceInfo> slices;     // Preserved slices.
-                internal List<Value[]?>? IndirectionTableList;
+                internal List<AnyClass[]?>? IndirectionTableList;
 
                 // Position of indirection tables that we skipped for now and that will
                 // unmarshal (into IndirectionTableList) once the instance is created
@@ -3093,7 +3093,7 @@ namespace Ice
                 internal int compactId;
 
                 // Indirection table of the current slice
-                internal Value[]? IndirectionTable;
+                internal AnyClass[]? IndirectionTable;
                 internal int? PosAfterIndirectionTable;
 
                 // Other instances
@@ -3170,13 +3170,13 @@ namespace Ice
                 }
                 else
                 {
-                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
+                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceClasses, _classGraphDepthMax,
                                                                _classResolver, _compactIdResolver);
                 }
             }
         }
 
-        private bool _sliceValues;
+        private bool _sliceClasses;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
 
@@ -3192,7 +3192,7 @@ namespace Ice
     /// <summary>
     /// Base class for extracting class instances from an input stream.
     /// </summary>
-    public abstract class ValueReader : Value
+    public abstract class ClassReader : AnyClass
     {
         /// <summary>
         /// Read the instance's data members.

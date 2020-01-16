@@ -15,8 +15,8 @@ namespace Ice.optional.AMD
             return null;
         }
 
-        public Task<Value>
-        pingPongAsync(Value obj, Current current) => Task.FromResult(obj);
+        public Task<AnyClass>
+        pingPongAsync(AnyClass obj, Current current) => Task.FromResult(obj);
 
         public Task
         opOptionalExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>

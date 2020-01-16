@@ -235,16 +235,16 @@ namespace Ice
         /// Marks the start of a class instance.
         /// </summary>
         /// <param name="data">Preserved slices for this instance, or null.</param>
-        public void StartValue(SlicedData? data)
+        public void StartClass(SlicedData? data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
-            _encapsStack.encoder.StartInstance(SliceType.ValueSlice, data);
+            _encapsStack.encoder.StartInstance(SliceType.ClassSlice, data);
         }
 
         /// <summary>
         /// Marks the end of a class instance.
         /// </summary>
-        public void EndValue()
+        public void EndClass()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.EndInstance();
@@ -398,13 +398,13 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
+        /// Writes the state of Slice classes whose index was previously written with writeClass() to the stream.
         /// </summary>
-        public void WritePendingValues()
+        public void WritePendingClasses()
         {
             if (_encapsStack != null && _encapsStack.encoder != null)
             {
-                _encapsStack.encoder.writePendingValues();
+                _encapsStack.encoder.writePendingClasses();
             }
             else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
             {
@@ -1674,12 +1674,12 @@ namespace Ice
         /// Writes a class instance to the stream.
         /// </summary>
         /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
-        /// written once writePendingValues() is called.</param>
-        public void WriteValue(Value? v)
+        /// written once writePendingClasses() is called.</param>
+        public void WriteClass(AnyClass? v)
         {
             initEncaps();
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
-            _encapsStack.encoder.WriteValue(v);
+            _encapsStack.encoder.WriteClass(v);
         }
 
         /// <summary>
@@ -1687,11 +1687,11 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The value to write.</param>
-        public void WriteValue(int tag, Value? v)
+        public void WriteClass(int tag, AnyClass? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.Class))
             {
-                WriteValue(v);
+                WriteClass(v);
             }
         }
 
@@ -1778,7 +1778,7 @@ namespace Ice
         private object? _closure;
         private FormatType _format;
 
-        private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
+        private enum SliceType { NoSlice, ClassSlice, ExceptionSlice }
 
         private abstract class EncapsEncoder
         {
@@ -1787,10 +1787,10 @@ namespace Ice
                 _stream = stream;
                 _encaps = encaps;
                 _typeIdIndex = 0;
-                _marshaledMap = new Dictionary<Value, int>();
+                _marshaledMap = new Dictionary<AnyClass, int>();
             }
 
-            internal abstract void WriteValue(Value? v);
+            internal abstract void WriteClass(AnyClass? v);
             internal abstract void WriteException(UserException v);
 
             internal abstract void StartInstance(SliceType type, SlicedData? data);
@@ -1803,7 +1803,7 @@ namespace Ice
                 return false;
             }
 
-            internal virtual void writePendingValues()
+            internal virtual void writePendingClasses()
             {
             }
 
@@ -1830,7 +1830,7 @@ namespace Ice
             protected readonly Encaps _encaps;
 
             // Encapsulation attributes for instance marshaling.
-            protected readonly Dictionary<Value, int> _marshaledMap;
+            protected readonly Dictionary<AnyClass, int> _marshaledMap;
 
             // Encapsulation attributes for instance marshaling.
             private Dictionary<string, int>? _typeIdMap;
@@ -1845,7 +1845,7 @@ namespace Ice
                 _valueIdIndex = 1;
             }
 
-            internal override void WriteValue(Value? v)
+            internal override void WriteClass(AnyClass? v)
             {
                 if (v == null)
                 {
@@ -1855,8 +1855,8 @@ namespace Ice
                 {
                     if (_current.indirectionTable == null)
                     {
-                        _current.indirectionTable = new List<Value>();
-                        _current.indirectionMap = new Dictionary<Value, int>();
+                        _current.indirectionTable = new List<AnyClass>();
+                        _current.indirectionMap = new Dictionary<AnyClass, int>();
                     }
 
                     Debug.Assert(_current.indirectionMap != null);
@@ -1941,7 +1941,7 @@ namespace Ice
                 // string or index. For exception slices, always encode the type
                 // ID a string.
                 //
-                if (_current.sliceType == SliceType.ValueSlice)
+                if (_current.sliceType == SliceType.ClassSlice)
                 {
                     //
                     // Encode the type ID (only in the first slice for the compact
@@ -2090,8 +2090,8 @@ namespace Ice
                     {
                         if (_current.indirectionTable == null)
                         {
-                            _current.indirectionTable = new List<Value>();
-                            _current.indirectionMap = new Dictionary<Value, int>();
+                            _current.indirectionTable = new List<AnyClass>();
+                            _current.indirectionMap = new Dictionary<AnyClass, int>();
                         }
                         foreach (var o in info.instances)
                         {
@@ -2103,7 +2103,7 @@ namespace Ice
                 }
             }
 
-            private void writeInstance(Value v)
+            private void writeInstance(AnyClass v)
             {
                 Debug.Assert(v != null);
 
@@ -2147,8 +2147,8 @@ namespace Ice
                 internal byte sliceFlags;
                 internal int writeSlice;    // Position of the slice data members
                 internal int sliceFlagsPos; // Position of the slice flags
-                internal List<Value>? indirectionTable;
-                internal Dictionary<Value, int>? indirectionMap;
+                internal List<AnyClass>? indirectionTable;
+                internal Dictionary<AnyClass, int>? indirectionMap;
 
                 internal InstanceData? previous;
                 internal InstanceData? next;
@@ -2237,7 +2237,7 @@ namespace Ice
     /// <summary>
     /// Base class for writing class instances to an output stream.
     /// </summary>
-    public abstract class ValueWriter : Value
+    public abstract class ClassWriter : AnyClass
     {
         /// <summary>
         /// Writes the state of this Slice class instance to an output stream.

@@ -25,7 +25,7 @@ namespace Ice
     /// </summary>
     public class SliceInfo
     {
-        public SliceInfo(string typeId, int compactId, byte[] bytes, Value[] instances, bool hasOptionalMembers, bool isLastSlice)
+        public SliceInfo(string typeId, int compactId, byte[] bytes, AnyClass[] instances, bool hasOptionalMembers, bool isLastSlice)
         {
             this.typeId = typeId;
             this.compactId = compactId;
@@ -53,7 +53,7 @@ namespace Ice
         /// <summary>
         /// The class instances referenced by this slice.
         /// </summary>
-        public Value[] instances;
+        public AnyClass[] instances;
 
         /// <summary>
         /// Whether or not the slice contains optional members.

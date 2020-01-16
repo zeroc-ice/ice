@@ -303,14 +303,14 @@ namespace Ice.seqMapping
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToArray();
+                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as AnyClass).ToArray();
                 var (r, o) = p.opAObjectS(i);
                 test(r.SequenceEqual(i, new CVComparer()));
                 test(o.SequenceEqual(i, new CVComparer()));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as Value).ToList();
+                var i = Enumerable.Range(0, Length).Select(x => new Test.CV(x) as AnyClass).ToList();
                 var (r, o) = p.opLObjectS(i);
                 test(r.SequenceEqual(i, new CVComparer()));
                 test(o.SequenceEqual(i, new CVComparer()));

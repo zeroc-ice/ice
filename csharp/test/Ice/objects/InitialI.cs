@@ -45,14 +45,14 @@ namespace Ice.objects
 
         public Test.K getK(Current current) => new Test.K(new Test.L("l"));
 
-        public Test.IInitial.OpValueReturnValue
-        opValue(Value v1, Current current) => new Test.IInitial.OpValueReturnValue(v1, v1);
+        public Test.IInitial.OpClassReturnValue
+        opClass(AnyClass v1, Current current) => new Test.IInitial.OpClassReturnValue(v1, v1);
 
-        public Test.IInitial.OpValueSeqReturnValue
-        opValueSeq(Value[] v1, Current current) => new Test.IInitial.OpValueSeqReturnValue(v1, v1);
+        public Test.IInitial.OpClassSeqReturnValue
+        opClassSeq(AnyClass[] v1, Current current) => new Test.IInitial.OpClassSeqReturnValue(v1, v1);
 
-        public Test.IInitial.OpValueMapReturnValue
-        opValueMap(Dictionary<string, Value> v1, Current current) => new Test.IInitial.OpValueMapReturnValue(v1, v1);
+        public Test.IInitial.OpClassMapReturnValue
+        opClassMap(Dictionary<string, AnyClass> v1, Current current) => new Test.IInitial.OpClassMapReturnValue(v1, v1);
 
         public void setRecursive(Test.Recursive r, Current current)
         {

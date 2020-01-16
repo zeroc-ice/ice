@@ -23,8 +23,8 @@ public sealed class TestIntf : ITestIntf
         return null;
     }
 
-    public Task<Ice.Value>
-    SBaseAsObjectAsync(Ice.Current current) => Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
+    public Task<Ice.AnyClass>
+    SBaseAsObjectAsync(Ice.Current current) => Task.FromResult<Ice.AnyClass>(new SBase("SBase.sb"));
 
     public Task<SBase> SBaseAsSBaseAsync(Ice.Current current) => Task.FromResult(new SBase("SBase.sb"));
 
@@ -44,14 +44,14 @@ public sealed class TestIntf : ITestIntf
     SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current) =>
         Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
-    public Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
+    public Task<Ice.AnyClass> SUnknownAsObjectAsync(Ice.Current current)
     {
         var su = new SUnknown("SUnknown.su", null);
         su.cycle = su;
-        return Task.FromResult<Ice.Value>(su);
+        return Task.FromResult<Ice.AnyClass>(su);
     }
 
-    public Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
+    public Task checkSUnknownAsync(Ice.AnyClass obj, Ice.Current current)
     {
         test(obj is SUnknown);
         SUnknown su = (SUnknown)obj;

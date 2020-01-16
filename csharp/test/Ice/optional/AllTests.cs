@@ -337,29 +337,29 @@ namespace Ice.optional
             factory.setEnabled(true);
             OutputStream os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteValue(oo1);
+            os.WriteClass(oo1);
             os.EndEncapsulation();
             byte[] inEncaps = os.Finished();
             byte[] outEncaps;
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
             InputStream @in = new InputStream(communicator, outEncaps);
             @in.StartEncapsulation();
-            ReadValueCallbackI cb = new ReadValueCallbackI();
-            @in.ReadValue(cb.invoke);
+            ReadClassCallbackI cb = new ReadClassCallbackI();
+            @in.ReadClass(cb.invoke);
             @in.EndEncapsulation();
-            test(cb.obj != null && cb.obj is TestValueReader);
+            test(cb.obj != null && cb.obj is TestClassReader);
 
             os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteValue(mo1);
+            os.WriteClass(mo1);
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
             @in = new InputStream(communicator, outEncaps);
             @in.StartEncapsulation();
-            @in.ReadValue(cb.invoke);
+            @in.ReadClass(cb.invoke);
             @in.EndEncapsulation();
-            test(cb.obj != null && cb.obj is TestValueReader);
+            test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
             */
 
@@ -438,15 +438,15 @@ namespace Ice.optional
             factory.setEnabled(true);
             os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteValue(mc);
+            os.WriteClass(mc);
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
             @in = new InputStream(communicator, outEncaps);
             @in.StartEncapsulation();
-            @in.ReadValue(cb.invoke);
+            @in.ReadClass(cb.invoke);
             @in.EndEncapsulation();
-            test(cb.obj != null && cb.obj is TestValueReader);
+            test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
             */
 
@@ -476,13 +476,13 @@ namespace Ice.optional
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
-                os.WriteValue(b);
+                os.WriteClass(b);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
-                @in.ReadValue(cb.invoke);
+                @in.ReadClass(cb.invoke);
                 @in.EndEncapsulation();
                 test(cb.obj != null);
                 factory.setEnabled(false);
@@ -506,16 +506,16 @@ namespace Ice.optional
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
-                os.WriteValue(f);
+                os.WriteClass(f);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 @in = new InputStream(communicator, inEncaps);
                 @in.StartEncapsulation();
-                ReadValueCallbackI rocb = new ReadValueCallbackI();
-                @in.ReadValue(rocb.invoke);
+                ReadClassCallbackI rocb = new ReadClassCallbackI();
+                @in.ReadClass(rocb.invoke);
                 @in.EndEncapsulation();
                 factory.setEnabled(false);
-                rf = ((FValueReader)rocb.obj).getF();
+                rf = ((FClassReader)rocb.obj).getF();
                 test(rf.ae != null && !rf.af.HasValue);
                 */
             }
@@ -545,7 +545,7 @@ namespace Ice.optional
                     c.ms = "testms";
                     os = new OutputStream(communicator);
                     os.StartEncapsulation();
-                    os.WriteValue(c);
+                    os.WriteClass(c);
                     os.EndEncapsulation();
                     inEncaps = os.Finished();
 
@@ -554,25 +554,25 @@ namespace Ice.optional
                     test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                     @in = new InputStream(communicator, outEncaps);
                     @in.StartEncapsulation();
-                    @in.ReadValue(cb.invoke);
+                    @in.ReadClass(cb.invoke);
                     @in.EndEncapsulation();
-                    test(cb.obj is CValueReader);
+                    test(cb.obj is CClassReader);
                     factory.setEnabled(false);
 
                     factory.setEnabled(true);
                     os = new OutputStream(communicator);
                     os.StartEncapsulation();
-                    Value d = new DValueWriter();
-                    os.WriteValue(d);
+                    AnyClass d = new DClassWriter();
+                    os.WriteClass(d);
                     os.EndEncapsulation();
                     inEncaps = os.Finished();
                     test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                     @in = new InputStream(communicator, outEncaps);
                     @in.StartEncapsulation();
-                    @in.ReadValue(cb.invoke);
+                    @in.ReadClass(cb.invoke);
                     @in.EndEncapsulation();
-                    test(cb.obj != null && cb.obj is DValueReader);
-                    ((DValueReader)cb.obj).check();
+                    test(cb.obj != null && cb.obj is DClassReader);
+                    ((DClassReader)cb.obj).check();
                     factory.setEnabled(false);
                     */
                 }
@@ -585,9 +585,9 @@ namespace Ice.optional
 
                     os = new OutputStream(communicator);
                     os.StartEncapsulation();
-                    os.WriteValue(a);
+                    os.WriteClass(a);
                     os.WriteOptional(1, OptionalFormat.Class);
-                    os.WriteValue(new DValueWriter());
+                    os.WriteClass(new DClassWriter());
                     os.EndEncapsulation();
                     inEncaps = os.Finished();
                     test(initial.Invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
@@ -1106,18 +1106,18 @@ namespace Ice.optional
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.Class);
-                os.WriteValue(p1);
+                os.WriteClass(p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.Class));
-                ReadValueCallbackI p2cb = new ReadValueCallbackI();
-                @in.ReadValue(p2cb.invoke);
+                ReadClassCallbackI p2cb = new ReadClassCallbackI();
+                @in.ReadClass(p2cb.invoke);
                 test(@in.ReadOptional(3, OptionalFormat.Class));
-                ReadValueCallbackI p3cb = new ReadValueCallbackI();
-                @in.ReadValue(p3cb.invoke);
+                ReadClassCallbackI p3cb = new ReadClassCallbackI();
+                @in.ReadClass(p3cb.invoke);
                 @in.EndEncapsulation();
                 test(((Test.OneOptional)p2cb.obj).a == 58 && ((Test.OneOptional)p3cb.obj).a == 58);
 
@@ -1884,17 +1884,17 @@ namespace Ice.optional
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
                 os.WriteOptional(1, OptionalFormat.Class);
-                os.WriteValue(f);
+                os.WriteClass(f);
                 os.WriteOptional(2, OptionalFormat.Class);
-                os.WriteValue(f.ae);
+                os.WriteClass(f.ae);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
 
                 @in = new InputStream(communicator, inEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(2, OptionalFormat.Class));
-                ReadValueCallbackI rocb = new ReadValueCallbackI();
-                @in.ReadValue(rocb.invoke);
+                ReadClassCallbackI rocb = new ReadClassCallbackI();
+                @in.ReadClass(rocb.invoke);
                 @in.EndEncapsulation();
                 Test.A a = (Test.A)rocb.obj;
                 test(a != null && a.requiredA == 56);
@@ -2099,11 +2099,11 @@ namespace Ice.optional
             return initial;
         }
 
-        private class DValueWriter : ValueWriter
+        private class DClassWriter : ClassWriter
         {
             public override void write(OutputStream @out)
             {
-                @out.StartValue(null);
+                @out.StartClass(null);
                 // ::Test::D
                 @out.StartSlice("::Test::D", -1, false);
                 string s = "test";
@@ -2116,7 +2116,7 @@ namespace Ice.optional
                 Test.A a = new Test.A();
                 a.mc = 18;
                 @out.WriteOptional(1000, OptionalFormat.Class);
-                @out.WriteValue(a);
+                @out.WriteClass(a);
                 @out.EndSlice();
                 // ::Test::B
                 @out.StartSlice(Test.B.ice_staticId(), -1, false);
@@ -2127,16 +2127,16 @@ namespace Ice.optional
                 @out.StartSlice(Test.A.ice_staticId(), -1, true);
                 @out.WriteInt(v);
                 @out.EndSlice();
-                @out.EndValue();
+                @out.EndClass();
             }
         }
 
         /*
-        private class DValueReader : ValueReader
+        private class DClassReader : ClassReader
         {
             public override void read(InputStream @in)
             {
-                @in.startValue();
+                @in.startClass();
                 // ::Test::D
                 @in.startSlice();
                 string s = @in.ReadString();
@@ -2147,7 +2147,7 @@ namespace Ice.optional
                 test(o.Length == 4 &&
                         o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
                 test(@in.ReadOptional(1000, OptionalFormat.Class));
-                @in.ReadValue(a.invoke);
+                @in.ReadClass(a.invoke);
                 @in.endSlice();
                 // ::Test::B
                 @in.startSlice();
@@ -2157,7 +2157,7 @@ namespace Ice.optional
                 @in.startSlice();
                 @in.ReadInt();
                 @in.endSlice();
-                @in.endValue(false);
+                @in.endClass(false);
             }
 
             internal void check()
@@ -2165,24 +2165,24 @@ namespace Ice.optional
                 test(((Test.A)a.obj).mc == 18);
             }
 
-            private ReadValueCallbackI a = new ReadValueCallbackI();
+            private ReadClassCallbackI a = new ReadClassCallbackI();
         }
 
-        private class FValueReader : ValueReader
+        private class FClassReader : ClassReader
         {
             public override void read(InputStream @in)
             {
                 _f = new Test.F();
-                @in.startValue();
+                @in.startClass();
                 @in.startSlice();
                 // Don't read af on purpose
                 //in.Read(1, _f.af);
                 @in.endSlice();
                 @in.startSlice();
-                ReadValueCallbackI rocb = new ReadValueCallbackI();
-                @in.ReadValue(rocb.invoke);
+                ReadClassCallbackI rocb = new ReadClassCallbackI();
+                @in.ReadClass(rocb.invoke);
                 @in.endSlice();
-                @in.endValue(false);
+                @in.endClass(false);
                 _f.ae = (Test.A)rocb.obj;
             }
 
@@ -2196,7 +2196,7 @@ namespace Ice.optional
 
         private class FactoryI
         {
-            public Value create(string typeId)
+            public AnyClass create(string typeId)
             {
                 if (!_enabled)
                 {
@@ -2205,27 +2205,27 @@ namespace Ice.optional
 
                 if (typeId.Equals(Test.OneOptional.ice_staticId()))
                 {
-                    return new TestValueReader();
+                    return new TestClassReader();
                 }
                 else if (typeId.Equals(Test.MultiOptional.ice_staticId()))
                 {
-                    return new TestValueReader();
+                    return new TestClassReader();
                 }
                 else if (typeId.Equals(Test.B.ice_staticId()))
                 {
-                    return new BValueReader();
+                    return new BClassReader();
                 }
                 else if (typeId.Equals(Test.C.ice_staticId()))
                 {
-                    return new CValueReader();
+                    return new CClassReader();
                 }
                 else if (typeId.Equals("::Test::D"))
                 {
-                    return new DValueReader();
+                    return new DClassReader();
                 }
                 else if (typeId.Equals("::Test::F"))
                 {
-                    return new FValueReader();
+                    return new FClassReader();
                 }
 
                 return null;
@@ -2240,14 +2240,14 @@ namespace Ice.optional
         }
         */
 
-        private class ReadValueCallbackI
+        private class ReadClassCallbackI
         {
-            public void invoke(Value obj)
+            public void invoke(AnyClass obj)
             {
                 this.obj = obj;
             }
 
-            internal Value obj;
+            internal AnyClass obj;
         }
     }
 }

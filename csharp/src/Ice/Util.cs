@@ -226,7 +226,7 @@ namespace IceInternal
             }
         }
 
-        public static void hashAdd<Key, Value>(ref int hashCode, Dictionary<Key, Value>? d)
+        public static void hashAdd<Key, AnyClass>(ref int hashCode, Dictionary<Key, AnyClass>? d)
         {
             if (d != null)
             {
