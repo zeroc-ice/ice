@@ -59,7 +59,7 @@ namespace IceMX
                             }
                             else if (obj is Ice.ConnectionInfo)
                             {
-                                obj = ((Ice.ConnectionInfo)obj).underlying;
+                                obj = ((Ice.ConnectionInfo)obj).Underlying;
                             }
                             else
                             {
@@ -259,7 +259,7 @@ namespace IceMX
         private AttributeResolver _attributes;
     }
 
-    public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
+    public class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
     {
         public delegate void MetricsUpdate(T m);
 
@@ -468,10 +468,7 @@ namespace IceMX
                 updater = _updater;
             }
 
-            if (updater != null)
-            {
-                updater();
-            }
+            updater?.Invoke();
         }
 
         public void setUpdater(Action updater)

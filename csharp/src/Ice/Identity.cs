@@ -115,14 +115,14 @@ namespace Ice
         /// <returns>The string representation of the object identity.</returns>
         public string ToString(ToStringMode mode)
         {
-            if (string.IsNullOrEmpty(category))
+            if (string.IsNullOrEmpty(Category))
             {
-                return IceUtilInternal.StringUtil.escapeString(name, "/", mode);
+                return IceUtilInternal.StringUtil.escapeString(Name, "/", mode);
             }
             else
             {
-                return IceUtilInternal.StringUtil.escapeString(category, "/", mode) + '/' +
-                       IceUtilInternal.StringUtil.escapeString(name, "/", mode);
+                return IceUtilInternal.StringUtil.escapeString(Category, "/", mode) + '/' +
+                       IceUtilInternal.StringUtil.escapeString(Name, "/", mode);
             }
         }
     }

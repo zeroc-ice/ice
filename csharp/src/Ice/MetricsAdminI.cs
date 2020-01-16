@@ -115,7 +115,7 @@ namespace IceInternal
             {
                 lock (_map)
                 {
-                    ++_object.failures;
+                    ++_object.Failures;
                     int count;
                     if (_failures == null)
                     {
@@ -159,8 +159,8 @@ namespace IceInternal
             {
                 lock (_map)
                 {
-                    _object.totalLifetime += lifetime;
-                    if (--_object.current == 0)
+                    _object.TotalLifetime += lifetime;
+                    if (--_object.Current == 0)
                     {
                         _map.detached(this);
                     }
@@ -187,21 +187,21 @@ namespace IceInternal
                     return null;
                 }
                 IceMX.MetricsFailures f = new IceMX.MetricsFailures();
-                f.id = _object.id;
-                f.failures = new Dictionary<string, int>(_failures);
+                f.Id = _object.Id;
+                f.Failures = new Dictionary<string, int>(_failures);
                 return f;
             }
 
             internal void attach(IceMX.MetricsHelper<T> helper)
             {
-                ++_object.total;
-                ++_object.current;
+                ++_object.Total;
+                ++_object.Current;
                 helper.initMetrics(_object);
             }
 
             internal bool isDetached()
             {
-                return _object.current == 0;
+                return _object.Current == 0;
             }
 
             internal IceMX.Metrics clone()
@@ -219,7 +219,7 @@ namespace IceInternal
 
             internal string getId()
             {
-                return _object.id;
+                return _object.Id;
             }
 
             private MetricsMap<T> _map;
@@ -453,7 +453,7 @@ namespace IceInternal
                     try
                     {
                         T t = new T();
-                        t.id = key;
+                        t.Id = key;
                         e = new Entry(this, t);
                         _objects.Add(key, e);
                     }
@@ -548,7 +548,7 @@ namespace IceInternal
         }
 
         internal bool addOrUpdateMap(Ice.Communicator communicator, string mapName, IMetricsMapFactory factory,
-                                   Ice.Logger logger)
+                                   Ice.ILogger logger)
         {
             //
             // Add maps to views configured with the given map.
@@ -657,7 +657,7 @@ namespace IceInternal
         private readonly Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
     }
 
-    public class MetricsAdminI : IceMX.MetricsAdmin
+    public class MetricsAdminI : IceMX.IMetricsAdmin
     {
         private static readonly string[] suffixes =
             {
@@ -733,7 +733,7 @@ namespace IceInternal
             private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
         }
 
-        public MetricsAdminI(Ice.Communicator communicator, Ice.Logger logger)
+        public MetricsAdminI(Ice.Communicator communicator, Ice.ILogger logger)
         {
             _logger = logger;
             _communicator = communicator;
@@ -818,12 +818,12 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsAdmin.GetMetricsViewNamesReturnValue
+        public IceMX.IMetricsAdmin.GetMetricsViewNamesReturnValue
         GetMetricsViewNames(Ice.Current current)
         {
             lock (this)
             {
-                return new IceMX.MetricsAdmin.GetMetricsViewNamesReturnValue(
+                return new IceMX.IMetricsAdmin.GetMetricsViewNamesReturnValue(
                     new List<string>(_views.Keys).ToArray(),
                     _disabledViews.ToArray());
             }
@@ -849,12 +849,12 @@ namespace IceInternal
             updateViews();
         }
 
-        public IceMX.MetricsAdmin.GetMetricsViewReturnValue GetMetricsView(string viewName, Ice.Current current)
+        public IceMX.IMetricsAdmin.GetMetricsViewReturnValue GetMetricsView(string viewName, Ice.Current current)
         {
             lock (this)
             {
                 MetricsViewI? view = getMetricsView(viewName);
-                return new IceMX.MetricsAdmin.GetMetricsViewReturnValue(
+                return new IceMX.IMetricsAdmin.GetMetricsViewReturnValue(
                     view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.getMetrics(),
                     Time.currentMonotonicTimeMillis());
             }
@@ -957,7 +957,7 @@ namespace IceInternal
             return maps;
         }
 
-        public Ice.Logger getLogger()
+        public Ice.ILogger getLogger()
         {
             return _logger;
         }
@@ -1018,7 +1018,7 @@ namespace IceInternal
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly Ice.Logger _logger;
+        private readonly Ice.ILogger _logger;
         private readonly Dictionary<string, IMetricsMapFactory> _factories =
             new Dictionary<string, IMetricsMapFactory>();
         private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();

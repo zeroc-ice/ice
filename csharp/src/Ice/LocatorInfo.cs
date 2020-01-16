@@ -12,18 +12,18 @@ namespace IceInternal
 {
     public sealed class LocatorInfo
     {
-        public interface GetEndpointsCallback
+        public interface IGetEndpointsCallback
         {
-            void setEndpoints(EndpointI[] endpoints, bool cached);
-            void setException(Ice.LocalException ex);
+            void setEndpoints(Endpoint[] endpoints, bool cached);
+            void setException(LocalException ex);
         }
 
         private class RequestCallback
         {
             public void
-            response(LocatorInfo locatorInfo, Ice.IObjectPrx proxy)
+            response(LocatorInfo locatorInfo, IObjectPrx proxy)
             {
-                EndpointI[] endpoints = null;
+                Endpoint[] endpoints = null;
                 if (proxy != null)
                 {
                     Reference r = proxy.IceReference;
@@ -62,18 +62,18 @@ namespace IceInternal
                 }
                 if (_callback != null)
                 {
-                    _callback.setEndpoints(endpoints == null ? System.Array.Empty<EndpointI>() : endpoints, false);
+                    _callback.setEndpoints(endpoints == null ? System.Array.Empty<Endpoint>() : endpoints, false);
                 }
             }
 
             public void
-            exception(LocatorInfo locatorInfo, Ice.Exception exc)
+            exception(LocatorInfo locatorInfo, Exception exc)
             {
                 try
                 {
                     locatorInfo.getEndpointsException(_ref, exc); // This throws.
                 }
-                catch (Ice.LocalException ex)
+                catch (LocalException ex)
                 {
                     if (_callback != null)
                     {
@@ -83,7 +83,7 @@ namespace IceInternal
             }
 
             public
-            RequestCallback(Reference reference, int ttl, GetEndpointsCallback cb)
+            RequestCallback(Reference reference, int ttl, IGetEndpointsCallback cb)
             {
                 _ref = reference;
                 _ttl = ttl;
@@ -92,13 +92,13 @@ namespace IceInternal
 
             private readonly Reference _ref;
             private readonly int _ttl;
-            private readonly GetEndpointsCallback _callback;
+            private readonly IGetEndpointsCallback _callback;
         }
 
         private abstract class Request
         {
             public void
-            addCallback(Reference reference, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
+            addCallback(Reference reference, Reference wellKnownRef, int ttl, IGetEndpointsCallback cb)
             {
                 RequestCallback callback = new RequestCallback(reference, ttl, cb);
                 lock (this)
@@ -140,7 +140,7 @@ namespace IceInternal
             }
 
             public void
-            response(Ice.IObjectPrx proxy)
+            response(IObjectPrx proxy)
             {
                 lock (this)
                 {
@@ -156,11 +156,11 @@ namespace IceInternal
             }
 
             public void
-            exception(Ice.Exception ex)
+            exception(Exception ex)
             {
                 lock (this)
                 {
-                    _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
+                    _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is UserException);
                     _exception = ex;
                     Monitor.PulseAll(this);
                 }
@@ -179,8 +179,8 @@ namespace IceInternal
             private List<Reference> _wellKnownRefs = new List<Reference>();
             private bool _sent;
             private bool _response;
-            private Ice.IObjectPrx _proxy;
-            private Ice.Exception _exception;
+            private IObjectPrx _proxy;
+            private Exception _exception;
         }
 
         private class ObjectRequest : Request
@@ -195,7 +195,7 @@ namespace IceInternal
                 try
                 {
                     _locatorInfo.getLocator().FindObjectByIdAsync(_ref.getIdentity()).ContinueWith(
-                        (Task<Ice.IObjectPrx> p) =>
+                        (Task<IObjectPrx> p) =>
                         {
                             try
                             {
@@ -203,11 +203,11 @@ namespace IceInternal
                             }
                             catch (System.AggregateException ex)
                             {
-                                exception(ex.InnerException as Ice.Exception);
+                                exception(ex.InnerException as Exception);
                             }
                         });
                 }
-                catch (Ice.Exception ex)
+                catch (Exception ex)
                 {
                     exception(ex);
                 }
@@ -226,7 +226,7 @@ namespace IceInternal
                 try
                 {
                     _locatorInfo.getLocator().FindAdapterByIdAsync(_ref.getAdapterId()).ContinueWith(
-                        (Task<Ice.IObjectPrx> p) =>
+                        (Task<IObjectPrx> p) =>
                         {
                             try
                             {
@@ -234,11 +234,11 @@ namespace IceInternal
                             }
                             catch (System.AggregateException ex)
                             {
-                                exception(ex.InnerException as Ice.Exception);
+                                exception(ex.InnerException as Exception);
                             }
                         });
                 }
-                catch (Ice.Exception ex)
+                catch (Exception ex)
                 {
                     exception(ex);
                 }
@@ -317,17 +317,17 @@ namespace IceInternal
         }
 
         public void
-        getEndpoints(Reference reference, int ttl, GetEndpointsCallback callback)
+        getEndpoints(Reference reference, int ttl, IGetEndpointsCallback callback)
         {
             getEndpoints(reference, null, ttl, callback);
         }
 
         public void
-        getEndpoints(Reference reference, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
+        getEndpoints(Reference reference, Reference wellKnownRef, int ttl, IGetEndpointsCallback callback)
         {
             Debug.Assert(reference.isIndirect());
-            EndpointI[] endpoints = null;
-            bool cached = false;
+            Endpoint[] endpoints = null;
+            bool cached;
             if (!reference.isWellKnown())
             {
                 endpoints = _table.getAdapterEndpoints(reference.getAdapterId(), ttl, out cached);
@@ -391,7 +391,7 @@ namespace IceInternal
             Debug.Assert(rf.isIndirect());
             if (!rf.isWellKnown())
             {
-                EndpointI[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
+                Endpoint[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
 
                 if (endpoints != null && rf.getCommunicator().traceLevels().location >= 2)
                 {
@@ -422,7 +422,7 @@ namespace IceInternal
             }
         }
 
-        private void trace(string msg, Reference r, EndpointI[] endpoints)
+        private void trace(string msg, Reference r, Endpoint[] endpoints)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
             s.Append(msg + "\n");
@@ -471,7 +471,7 @@ namespace IceInternal
             {
                 throw exc;
             }
-            catch (Ice.AdapterNotFoundException ex)
+            catch (AdapterNotFoundException ex)
             {
                 var communicator = reference.getCommunicator();
                 if (communicator.traceLevels().location >= 1)
@@ -482,12 +482,12 @@ namespace IceInternal
                     communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
                 }
 
-                Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
+                NotRegisteredException e = new NotRegisteredException(ex);
                 e.kindOfObject = "object adapter";
                 e.id = reference.getAdapterId();
                 throw e;
             }
-            catch (Ice.ObjectNotFoundException ex)
+            catch (ObjectNotFoundException ex)
             {
                 var communicator = reference.getCommunicator();
                 if (communicator.traceLevels().location >= 1)
@@ -498,16 +498,16 @@ namespace IceInternal
                     communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
                 }
 
-                Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
+                NotRegisteredException e = new NotRegisteredException(ex);
                 e.kindOfObject = "object";
                 e.id = reference.getIdentity().ToString(communicator.ToStringMode);
                 throw e;
             }
-            catch (Ice.NotRegisteredException)
+            catch (NotRegisteredException)
             {
                 throw;
             }
-            catch (Ice.LocalException ex)
+            catch (LocalException ex)
             {
                 var communicator = reference.getCommunicator();
                 if (communicator.traceLevels().location >= 1)
@@ -533,7 +533,7 @@ namespace IceInternal
             }
         }
 
-        private void getEndpointsTrace(Reference reference, EndpointI[]? endpoints, bool cached)
+        private void getEndpointsTrace(Reference reference, Endpoint[]? endpoints, bool cached)
         {
             if (endpoints != null && endpoints.Length > 0)
             {
@@ -634,7 +634,7 @@ namespace IceInternal
         }
 
         private void
-        finishRequest(Reference reference, List<Reference> wellKnownRefs, Ice.IObjectPrx proxy, bool notRegistered)
+        finishRequest(Reference reference, List<Reference> wellKnownRefs, IObjectPrx proxy, bool notRegistered)
         {
             if (proxy == null || proxy.IceReference.isIndirect())
             {
@@ -728,8 +728,8 @@ namespace IceInternal
                 return h;
             }
 
-            private Ice.Identity _id;
-            private Ice.EncodingVersion _encoding;
+            private Identity _id;
+            private EncodingVersion _encoding;
         }
 
         internal LocatorManager(Communicator communicator)
@@ -807,7 +807,7 @@ namespace IceInternal
         internal LocatorTable()
         {
             _adapterEndpointsTable = new Dictionary<string, EndpointTableEntry>();
-            _objectTable = new Dictionary<Ice.Identity, ReferenceTableEntry>();
+            _objectTable = new Dictionary<Identity, ReferenceTableEntry>();
         }
 
         internal void clear()
@@ -819,7 +819,7 @@ namespace IceInternal
             }
         }
 
-        internal EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
+        internal Endpoint[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
         {
             if (ttl == 0) // Locator cache disabled.
             {
@@ -841,7 +841,7 @@ namespace IceInternal
             }
         }
 
-        internal void addAdapterEndpoints(string adapter, EndpointI[] endpoints)
+        internal void addAdapterEndpoints(string adapter, Endpoint[] endpoints)
         {
             lock (this)
             {
@@ -850,7 +850,7 @@ namespace IceInternal
             }
         }
 
-        internal EndpointI[] removeAdapterEndpoints(string adapter)
+        internal Endpoint[] removeAdapterEndpoints(string adapter)
         {
             lock (this)
             {
@@ -864,7 +864,7 @@ namespace IceInternal
             }
         }
 
-        internal Reference getObjectReference(Ice.Identity id, int ttl, out bool cached)
+        internal Reference getObjectReference(Identity id, int ttl, out bool cached)
         {
             if (ttl == 0) // Locator cache disabled.
             {
@@ -885,7 +885,7 @@ namespace IceInternal
             }
         }
 
-        internal void addObjectReference(Ice.Identity id, Reference reference)
+        internal void addObjectReference(Identity id, Reference reference)
         {
             lock (this)
             {
@@ -893,7 +893,7 @@ namespace IceInternal
             }
         }
 
-        internal Reference removeObjectReference(Ice.Identity id)
+        internal Reference removeObjectReference(Identity id)
         {
             lock (this)
             {
@@ -922,14 +922,14 @@ namespace IceInternal
 
         private sealed class EndpointTableEntry
         {
-            public EndpointTableEntry(long time, EndpointI[] endpoints)
+            public EndpointTableEntry(long time, Endpoint[] endpoints)
             {
                 this.time = time;
                 this.endpoints = endpoints;
             }
 
             public long time;
-            public EndpointI[] endpoints;
+            public Endpoint[] endpoints;
         }
 
         private sealed class ReferenceTableEntry
@@ -945,7 +945,7 @@ namespace IceInternal
         }
 
         private Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
-        private Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
+        private Dictionary<Identity, ReferenceTableEntry> _objectTable;
     }
 
 }

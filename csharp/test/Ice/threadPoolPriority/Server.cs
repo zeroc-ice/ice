@@ -4,29 +4,23 @@
 
 using Ice.threadPoolPriority.Test;
 
-namespace Ice
+namespace Ice.threadPoolPriority
 {
-    namespace threadPoolPriority
+    public class Server : global::Test.TestHelper
     {
-        public class Server : global::Test.TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                var properties = createTestProperties(ref args);
-                properties["Ice.ThreadPool.Server.ThreadPriority"] = "AboveNormal";
-                using var communicator = initialize(properties);
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                var adapter = communicator.createObjectAdapter("TestAdapter");
-                adapter.Add(new PriorityI(), "test");
-                adapter.Activate();
-                serverReady();
-                communicator.waitForShutdown();
-            }
-
-            public static int Main(string[] args)
-            {
-                return global::Test.TestDriver.runTest<Server>(args);
-            }
+            var properties = createTestProperties(ref args);
+            properties["Ice.ThreadPool.Server.ThreadPriority"] = "AboveNormal";
+            using var communicator = initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            var adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new Priority(), "test");
+            adapter.Activate();
+            serverReady();
+            communicator.waitForShutdown();
         }
+
+        public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);
     }
 }

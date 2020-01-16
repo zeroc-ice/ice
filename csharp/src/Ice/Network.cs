@@ -1022,7 +1022,7 @@ namespace IceInternal
             return interfaces;
         }
 
-        public static string fdToString(Socket socket, NetworkProxy? proxy, EndPoint? target)
+        public static string fdToString(Socket socket, INetworkProxy? proxy, EndPoint? target)
         {
             try
             {

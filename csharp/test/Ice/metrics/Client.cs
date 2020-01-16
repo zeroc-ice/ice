@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Diagnostics;
 using System.Reflection;
 
 [assembly: AssemblyTitle("IceTest")]
@@ -14,7 +12,7 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        CommunicatorObserverI observer = new CommunicatorObserverI();
+        var observer = new CommunicatorObserver();
 
         var properties = createTestProperties(ref args);
         properties["Ice.Admin.Endpoints"] = "tcp";
@@ -28,8 +26,5 @@ public class Client : Test.TestHelper
         metrics.shutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

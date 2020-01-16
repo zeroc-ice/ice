@@ -10,19 +10,19 @@ namespace IceInternal
         //
         // Called to start a new asynchronous read or write operation.
         //
-        public abstract bool startAsync(int op, AsyncCallback cb, ref bool completedSynchronously);
+        public abstract bool StartAsync(int op, AsyncCallback cb, ref bool completedSynchronously);
 
-        public abstract bool finishAsync(int op);
+        public abstract bool FinishAsync(int op);
 
         //
         // Called when there's a message ready to be processed.
         //
-        public abstract void message(ref ThreadPoolCurrent op);
+        public abstract void Message(ref ThreadPoolCurrent op);
 
         //
         // Called when the event handler is unregistered.
         //
-        public abstract void finished(ref ThreadPoolCurrent op);
+        public abstract void Finished(ref ThreadPoolCurrent op);
 
         internal int _ready = 0;
         internal int _pending = 0;

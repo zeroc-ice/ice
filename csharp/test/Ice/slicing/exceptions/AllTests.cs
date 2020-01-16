@@ -3,13 +3,11 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Threading;
 using Test;
 using Ice;
 public class AllTests : Test.AllTests
 {
-    private class RelayI : Relay
+    private class Relay : IRelay
     {
         public void knownPreservedAsBase(Ice.Current current)
         {
@@ -54,7 +52,7 @@ public class AllTests : Test.AllTests
 
     public static ITestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
@@ -766,10 +764,10 @@ public class AllTests : Test.AllTests
                 test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
             }
 
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-            IRelayPrx relay = adapter.Add(new RelayI());
+            ObjectAdapter adapter = communicator.createObjectAdapter("");
+            IRelayPrx relay = adapter.Add(new Relay());
             adapter.Activate();
-            testPrx.GetConnection().setAdapter(adapter);
+            testPrx.GetConnection().SetAdapter(adapter);
 
             try
             {

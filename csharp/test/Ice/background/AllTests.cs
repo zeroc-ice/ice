@@ -298,7 +298,7 @@ public class AllTests
             configuration.buffered(true);
             backgroundController.buffered(true);
             background.opAsync();
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             background.opAsync();
 
             OpAMICallback cb = new OpAMICallback();
@@ -346,7 +346,7 @@ public class AllTests
             System.Console.Out.WriteLine(ex);
             test(false);
         }
-        background.GetConnection().close(ConnectionClose.GracefullyWithWait);
+        background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -432,7 +432,7 @@ public class AllTests
                 }
 
                 configuration.connectException(new SocketException());
-                background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+                background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 Thread.Sleep(10);
                 configuration.connectException(null);
                 try
@@ -470,7 +470,7 @@ public class AllTests
         {
             test(false);
         }
-        background.GetConnection().close(ConnectionClose.GracefullyWithWait);
+        background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -566,7 +566,7 @@ public class AllTests
             }
 
             configuration.initializeException(new SocketException());
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
             configuration.initializeException(null);
             try
@@ -585,11 +585,11 @@ public class AllTests
                 test(false);
             }
 
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             background.IcePing();
 
             ctl.initializeException(true);
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
             ctl.initializeException(false);
             try
@@ -610,7 +610,7 @@ public class AllTests
 
             try
             {
-                background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+                background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 background.op();
             }
             catch (LocalException)
@@ -641,8 +641,8 @@ public class AllTests
     private static void closeConnection(IObjectPrx prx)
     {
         CloseCallback cb = new CloseCallback();
-        prx.GetConnection().setCloseCallback(cb.closed);
-        prx.GetConnection().close(ConnectionClose.GracefullyWithWait);
+        prx.GetConnection().SetCloseCallback(cb.closed);
+        prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
         cb.check();
     }
 
@@ -1217,10 +1217,10 @@ public class AllTests
             Thread.Sleep(10);
 
             background.IcePing();
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
 
-            background.GetCachedConnection()!.close(ConnectionClose.Forcefully);
+            background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
         }
 
         thread1.destroy();

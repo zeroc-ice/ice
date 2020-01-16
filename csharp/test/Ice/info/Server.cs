@@ -5,30 +5,21 @@
 using Test;
 using Ice.info.Test;
 
-namespace Ice
+namespace Ice.info
 {
-    namespace info
+    public class Server : TestHelper
     {
-        public class Server : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
-            {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints",
-                        getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new TestI(), "test");
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            using var communicator = initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new TestIntf(), "test");
+            adapter.Activate();
+            serverReady();
+            communicator.waitForShutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
     }
 }

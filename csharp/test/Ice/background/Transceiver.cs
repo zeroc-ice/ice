@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 
-internal class Transceiver : IceInternal.Transceiver
+internal class Transceiver : IceInternal.ITransceiver
 {
     public Socket? fd()
     {
@@ -38,7 +38,7 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.close();
     }
 
-    public IceInternal.EndpointI bind()
+    public IceInternal.Endpoint bind()
     {
         return _transceiver.bind();
     }
@@ -230,7 +230,7 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.destroy();
     }
 
-    public IceInternal.Transceiver getDelegate()
+    public IceInternal.ITransceiver getDelegate()
     {
         return _transceiver;
     }
@@ -238,7 +238,7 @@ internal class Transceiver : IceInternal.Transceiver
     //
     // Only for use by Connector, Acceptor
     //
-    internal Transceiver(IceInternal.Transceiver transceiver)
+    internal Transceiver(IceInternal.ITransceiver transceiver)
     {
         _transceiver = transceiver;
         _configuration = Configuration.getInstance();
@@ -250,7 +250,7 @@ internal class Transceiver : IceInternal.Transceiver
         _buffered = _configuration.buffered();
     }
 
-    private IceInternal.Transceiver _transceiver;
+    private IceInternal.ITransceiver _transceiver;
     private Configuration _configuration;
     private bool _initialized;
     private IceInternal.Buffer _readBuffer;

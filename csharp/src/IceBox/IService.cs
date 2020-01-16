@@ -4,7 +4,7 @@
 
 namespace IceBox
 {
-    public partial interface Service
+    public partial interface IService
     {
         /// <summary>
         /// Start the service.
@@ -29,7 +29,7 @@ namespace IceBox
         ///
         /// </param>
         /// <exception name="FailureException">Raised if start failed.</exception>
-        void start(string name, global::Ice.Communicator communicator, string[] args);
+        void start(string name, Ice.Communicator communicator, string[] args);
 
         /// <summary>
         /// Stop the service.

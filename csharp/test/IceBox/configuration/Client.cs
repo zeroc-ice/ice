@@ -15,18 +15,13 @@ public class Client : Test.TestHelper
     {
         var properties = createTestProperties(ref args);
         properties["Ice.Default.Host"] = "127.0.0.1";
-        using (var communicator = initialize(properties))
-        {
-            AllTests.allTests(this);
-            //
-            // Shutdown the IceBox server.
-            //
-            Ice.IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
-        }
+        using var communicator = initialize(properties);
+        AllTests.allTests(this);
+        //
+        // Shutdown the IceBox server.
+        //
+        Ice.IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

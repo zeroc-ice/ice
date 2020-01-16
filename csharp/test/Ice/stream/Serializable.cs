@@ -4,19 +4,13 @@
 
 using System;
 
-namespace Ice
+namespace Ice.stream.Serialize
 {
-    namespace stream
+
+    [Serializable]
+    public class Small // Fewer than 254 bytes with a BinaryFormatter.
     {
-        namespace Serialize
-        {
-
-            [Serializable]
-            public class Small // Fewer than 254 bytes with a BinaryFormatter.
-            {
-                public int i;
-            }
-
-        }
+        public int i;
     }
+
 }

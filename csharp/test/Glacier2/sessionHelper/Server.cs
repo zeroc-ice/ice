@@ -20,15 +20,12 @@ public class Server : Test.TestHelper
 
             communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
-            var callbackI = new CallbackI();
+            var callbackI = new Callback();
             adapter.Add(callbackI, "callback");
             adapter.Activate();
             communicator.waitForShutdown();
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

@@ -160,7 +160,7 @@ namespace Ice
         /// be used by default.
         /// </summary>
         /// <param name="logger">The logger to use for logging trace messages.</param>
-        public void SetLogger(Logger logger)
+        public void SetLogger(ILogger logger)
         {
             _logger = logger;
         }
@@ -271,7 +271,7 @@ namespace Ice
             ResetEncapsulation();
             other.ResetEncapsulation();
 
-            Logger tmpLogger = other._logger;
+            ILogger tmpLogger = other._logger;
             other._logger = _logger;
             _logger = tmpLogger;
 
@@ -1863,7 +1863,7 @@ namespace Ice
         {
             Identity ident = new Identity();
             ident.ice_readMembers(this);
-            if (ident.name.Length == 0)
+            if (ident.Name.Length == 0)
             {
                 return null;
             }
@@ -2606,7 +2606,7 @@ namespace Ice
             {
                 if (_stream.Communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.Communicator().Logger;
+                    ILogger logger = _stream.Communicator().Logger;
                     string slicingCat = _stream.Communicator().traceLevels().slicingCat;
                     if (_current.sliceType == SliceType.ExceptionSlice)
                     {
@@ -3167,7 +3167,7 @@ namespace Ice
         private bool _traceSlicing;
         private int _classGraphDepthMax;
 
-        private Logger _logger;
+        private ILogger _logger;
         private Func<int, string> _compactIdResolver;
         private Func<string, Type?> _classResolver;
     }

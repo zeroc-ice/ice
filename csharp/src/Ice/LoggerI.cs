@@ -8,7 +8,7 @@ namespace Ice
     using System.Globalization;
     using System.IO;
 
-    public abstract class LoggerI : Logger
+    public abstract class LoggerI : ILogger
     {
         public LoggerI(string prefix)
         {
@@ -79,7 +79,7 @@ namespace Ice
             return s.ToString();
         }
 
-        public abstract Logger cloneWithPrefix(string prefix);
+        public abstract ILogger cloneWithPrefix(string prefix);
 
         protected abstract void write(string message);
 
@@ -100,7 +100,7 @@ namespace Ice
             _time = "HH:mm:ss:fff";
         }
 
-        public override Logger cloneWithPrefix(string prefix)
+        public override ILogger cloneWithPrefix(string prefix)
         {
             return new ConsoleLoggerI(prefix);
         }
@@ -120,7 +120,7 @@ namespace Ice
             _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
         }
 
-        public override Logger cloneWithPrefix(string prefix)
+        public override ILogger cloneWithPrefix(string prefix)
         {
             return new FileLoggerI(prefix, _file);
         }
@@ -222,7 +222,7 @@ namespace Ice
             }
         }
 
-        public override Logger cloneWithPrefix(string prefix)
+        public override ILogger cloneWithPrefix(string prefix)
         {
             return new TraceLoggerI(prefix, _console);
         }

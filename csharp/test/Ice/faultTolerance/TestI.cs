@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public sealed class TestI : TestIntf
+public sealed class TestIntf : ITestIntf
 {
-    public TestI()
+    public TestIntf()
     {
         lock (this)
         {
@@ -23,15 +23,9 @@ public sealed class TestI : TestIntf
         Thread.Sleep(5000); // Give other threads time to die.
     }
 
-    public void abort(Ice.Current current)
-    {
-        commitSuicide();
-    }
+    public void abort(Ice.Current current) => commitSuicide();
 
-    public void idempotentAbort(Ice.Current current)
-    {
-        commitSuicide();
-    }
+    public void idempotentAbort(Ice.Current current) => commitSuicide();
 
     public int pid(Ice.Current current)
     {
@@ -41,10 +35,7 @@ public sealed class TestI : TestIntf
         }
     }
 
-    public void shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    public void shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
 
     private Process _p;
     private int _pid;

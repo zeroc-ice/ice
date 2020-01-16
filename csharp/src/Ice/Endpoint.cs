@@ -1,207 +1,209 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-//
 
-namespace Ice
+using System;
+using System.Collections.Generic;
+
+namespace IceInternal
 {
-    public abstract class TCPEndpointType
+    public interface IEndpointConnectors
     {
-        public const short value = 1;
+        void connectors(List<IConnector> connectors);
+        void exception(Ice.LocalException ex);
     }
 
-    public abstract class SSLEndpointType
+    public abstract class Endpoint : Ice.IEndpoint, IComparable<Endpoint>, IEquatable<Endpoint>
     {
-        public const short value = 2;
-    }
+        public override string ToString()
+        {
+            //
+            // WARNING: Certain features, such as proxy validation in Glacier2,
+            // depend on the format of proxy strings. Changes to toString() and
+            // methods called to generate parts of the reference string could break
+            // these features. Please review for all features that depend on the
+            // format of proxyToString() before changing this and related code.
+            //
+            return protocol() + options();
+        }
 
-    public abstract class UDPEndpointType
-    {
-        public const short value = 3;
-    }
+        public abstract Ice.EndpointInfo getInfo();
 
-    public abstract class WSEndpointType
-    {
-        public const short value = 4;
-    }
+        public override bool Equals(object obj)
+        {
+            return obj != null && obj is Endpoint other && Equals(other);
+        }
 
-    public abstract class WSSEndpointType
-    {
-        public const short value = 5;
-    }
+        public bool Equals(Endpoint other)
+        {
+            return CompareTo(other) == 0;
+        }
 
-    public abstract class BTEndpointType
-    {
-        public const short value = 6;
-    }
+        public abstract override int GetHashCode(); // Avoids a compiler warning.
+        //
+        // Marshal the endpoint.
+        //
+        public virtual void streamWrite(Ice.OutputStream s)
+        {
+            s.StartEncapsulation();
+            streamWriteImpl(s);
+            s.EndEncapsulation();
+        }
+        public abstract void streamWriteImpl(Ice.OutputStream s);
 
-    public abstract class BTSEndpointType
-    {
-        public const short value = 7;
-    }
-
-    public abstract class iAPEndpointType
-    {
-        public const short value = 8;
-    }
-
-    public abstract class iAPSEndpointType
-    {
-        public const short value = 9;
-    }
-
-    [System.Serializable]
-    public abstract class EndpointInfo
-    {
-        public EndpointInfo? underlying;
-        public int timeout;
-        public bool compress;
-
-        /// <summary>
-        /// Returns the type of the endpoint.
-        /// </summary>
-        /// <returns>The endpoint type.</returns>
+        //
+        // Return the endpoint type.
+        //
         public abstract short type();
 
-        /// <summary>
-        /// Returns true if this endpoint is a datagram endpoint.
-        /// </summary>
-        /// <returns>True for a datagram endpoint.</returns>
+        //
+        // Return the protocol name.
+        //
+        public abstract string protocol();
+
+        //
+        // Return the timeout for the endpoint in milliseconds. 0 means
+        // non-blocking, -1 means no timeout.
+        //
+        public abstract int timeout();
+
+        //
+        // Return a new endpoint with a different timeout value, provided
+        // that timeouts are supported by the endpoint. Otherwise the same
+        // endpoint is returned.
+        //
+        public abstract Endpoint timeout(int t);
+
+        //
+        // Return the connection ID.
+        //
+        public abstract string connectionId();
+
+        //
+        // Return a new endpoint with a different connection id.
+        //
+        public abstract Endpoint connectionId(string connectionId);
+
+        //
+        // Return true if the endpoints support bzip2 compress, or false
+        // otherwise.
+        //
+        public abstract bool compress();
+
+        //
+        // Return a new endpoint with a different compression value,
+        // provided that compression is supported by the
+        // endpoint. Otherwise the same endpoint is returned.
+        //
+        public abstract Endpoint compress(bool co);
+
+        //
+        // Return true if the endpoint is datagram-based.
+        //
         public abstract bool datagram();
 
-        /// <summary>
-        /// Returns true if this endpoint is a secure endpoint.
-        /// </summary>
-        /// <returns>True for a secure endpoint.</returns>
+        //
+        // Return true if the endpoint is secure.
+        //
         public abstract bool secure();
 
-        protected EndpointInfo()
+        //
+        // Return a server side transceiver for this endpoint, or null if a
+        // transceiver can only be created by an acceptor.
+        //
+        public abstract ITransceiver? transceiver();
+
+        //
+        // Return a connector for this endpoint, or empty list if no connector
+        // is available.
+        //
+        public abstract void connectors_async(Ice.EndpointSelectionType selType, IEndpointConnectors callback);
+
+        //
+        // Return an acceptor for this endpoint, or null if no acceptors
+        // is available.
+        //
+        public abstract IAcceptor? acceptor(string adapterName);
+
+        //
+        // Expand endpoint out in to separate endpoints for each local
+        // host if listening on INADDR_ANY on server side or if no host
+        // was specified on client side.
+        //
+        public abstract List<Endpoint> expandIfWildcard();
+
+        //
+        // Expand endpoint out into separate endpoints for each IP
+        // address returned by the DNS resolver. Also returns the
+        // endpoint which can be used to connect to the returned
+        // endpoints or null if no specific endpoint can be used to
+        // connect to these endpoints (e.g.: with the IP endpoint,
+        // it returns this endpoint if it uses a fixed port, null
+        // otherwise).
+        //
+        public abstract List<Endpoint> expandHost(out Endpoint? publishedEndpoint);
+
+        //
+        // Check whether the endpoint is equivalent to another one.
+        //
+        public abstract bool equivalent(Endpoint endpoint);
+
+        public abstract int CompareTo(Endpoint obj);
+
+        public abstract string options();
+
+        public virtual void initWithOptions(List<string> args)
         {
+            List<string> unknown = new List<string>();
+
+            string str = "`" + protocol() + " ";
+            foreach (string p in args)
+            {
+                if (IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+                {
+                    str += " \"" + p + "\"";
+                }
+                else
+                {
+                    str += " " + p;
+                }
+            }
+            str += "'";
+
+            for (int n = 0; n < args.Count; ++n)
+            {
+                string option = args[n];
+                if (option.Length < 2 || option[0] != '-')
+                {
+                    unknown.Add(option);
+                    continue;
+                }
+
+                string? argument = null;
+                if (n + 1 < args.Count && args[n + 1][0] != '-')
+                {
+                    argument = args[++n];
+                }
+
+                if (!checkOption(option, argument, str))
+                {
+                    unknown.Add(option);
+                    if (argument != null)
+                    {
+                        unknown.Add(argument);
+                    }
+                }
+            }
+
+            args.Clear();
+            args.AddRange(unknown);
         }
 
-        protected EndpointInfo(EndpointInfo? underlying, int timeout, bool compress)
+        protected virtual bool checkOption(string option, string? argument, string endpoint)
         {
-            this.underlying = underlying;
-            this.timeout = timeout;
-            this.compress = compress;
-        }
-    }
-
-    public interface Endpoint
-    {
-        /// <summary>
-        /// Returns the endpoint information.
-        /// </summary>
-        /// <returns>The endpoint information class.</returns>
-        EndpointInfo getInfo();
-    }
-
-    [System.Serializable]
-    public abstract class IPEndpointInfo : EndpointInfo
-    {
-        public string host;
-        public int port;
-        public string sourceAddress;
-
-        protected IPEndpointInfo()
-        {
-            this.host = "";
-            this.sourceAddress = "";
-        }
-
-        protected IPEndpointInfo(EndpointInfo underlying,
-                                 int timeout,
-                                 bool compress,
-                                 string host,
-                                 int port,
-                                 string sourceAddress) : base(underlying, timeout, compress)
-        {
-            this.host = host;
-            this.port = port;
-            this.sourceAddress = sourceAddress;
-        }
-    }
-
-    [System.Serializable]
-    public abstract partial class TCPEndpointInfo : IPEndpointInfo
-    {
-        protected TCPEndpointInfo()
-        {
-        }
-
-        protected TCPEndpointInfo(EndpointInfo underlying,
-                                  int timeout,
-                                  bool compress,
-                                  string host,
-                                  int port,
-                                  string sourceAddress) : base(underlying, timeout, compress, host, port, sourceAddress)
-        {
-        }
-    }
-
-    [System.Serializable]
-    public abstract partial class UDPEndpointInfo : IPEndpointInfo
-    {
-        public string mcastInterface;
-        public int mcastTtl;
-
-        protected UDPEndpointInfo() : base()
-        {
-            mcastInterface = "";
-        }
-
-        protected UDPEndpointInfo(EndpointInfo underlying,
-                                  int timeout,
-                                  bool compress,
-                                  string host,
-                                  int port,
-                                  string sourceAddress,
-                                  string mcastInterface,
-                                  int mcastTtl) : base(underlying, timeout, compress, host, port, sourceAddress)
-        {
-            this.mcastInterface = mcastInterface;
-            this.mcastTtl = mcastTtl;
-        }
-    }
-
-    [System.Serializable]
-    public abstract partial class WSEndpointInfo : EndpointInfo
-    {
-        public string resource;
-
-        protected WSEndpointInfo()
-        {
-            this.resource = "";
-        }
-
-        protected WSEndpointInfo(EndpointInfo underlying,
-                                 int timeout,
-                                 bool compress,
-                                 string resource) : base(underlying, timeout, compress)
-        {
-            this.resource = resource;
+            // Must be overridden to check for options.
+            return false;
         }
     }
 
-    [System.Serializable]
-    public abstract partial class OpaqueEndpointInfo : EndpointInfo
-    {
-        public EncodingVersion rawEncoding;
-        public byte[] rawBytes;
-
-        protected OpaqueEndpointInfo()
-        {
-            this.rawEncoding = new EncodingVersion();
-        }
-
-        protected OpaqueEndpointInfo(EndpointInfo? underlying,
-                                     int timeout,
-                                     bool compress,
-                                     EncodingVersion rawEncoding,
-                                     byte[] rawBytes) : base(underlying, timeout, compress)
-        {
-            this.rawEncoding = rawEncoding;
-            this.rawBytes = rawBytes;
-        }
-    }
 }

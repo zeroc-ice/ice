@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    public sealed class SocketOperation
+    public static class SocketOperation
     {
         public const int None = 0;
         public const int Read = 1;

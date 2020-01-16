@@ -5,86 +5,73 @@
 using System.Collections;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
+    public class ServerLocatorRegistry : Test.ITestLocatorRegistry
     {
-        public class ServerLocatorRegistry : Test.TestLocatorRegistry
+        public ServerLocatorRegistry()
         {
-            public ServerLocatorRegistry()
-            {
-                _adapters = new Hashtable();
-                _objects = new Hashtable();
-            }
-
-            public Task
-            SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
-            {
-                if (obj != null)
-                {
-                    _adapters[adapter] = obj;
-                }
-                else
-                {
-                    _adapters.Remove(adapter);
-                }
-                return null;
-            }
-
-            public Task
-            SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.IObjectPrx obj,
-                Ice.Current current)
-            {
-                if (obj != null)
-                {
-                    _adapters[adapter] = obj;
-                    _adapters[replica] = obj;
-                }
-                else
-                {
-                    _adapters.Remove(adapter);
-                    _adapters.Remove(replica);
-                }
-                return null;
-            }
-
-            public Task
-            SetServerProcessProxyAsync(string id, Ice.IProcessPrx proxy, Ice.Current current)
-            {
-                return null;
-            }
-
-            public void addObject(Ice.IObjectPrx obj, Ice.Current current)
-            {
-                addObject(obj);
-            }
-            public void addObject(Ice.IObjectPrx obj)
-            {
-                _objects[obj.Identity] = obj;
-            }
-
-            public Ice.IObjectPrx getAdapter(string adapter)
-            {
-                object obj = _adapters[adapter];
-                if (obj == null)
-                {
-                    throw new Ice.AdapterNotFoundException();
-                }
-                return (Ice.ObjectPrx)obj;
-            }
-
-            public Ice.IObjectPrx getObject(Ice.Identity id)
-            {
-                object obj = _objects[id];
-                if (obj == null)
-                {
-                    throw new Ice.ObjectNotFoundException();
-                }
-                return (Ice.ObjectPrx)obj;
-            }
-
-            private Hashtable _adapters;
-            private Hashtable _objects;
+            _adapters = new Hashtable();
+            _objects = new Hashtable();
         }
+
+        public Task
+        SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
+        {
+            if (obj != null)
+            {
+                _adapters[adapter] = obj;
+            }
+            else
+            {
+                _adapters.Remove(adapter);
+            }
+            return null;
+        }
+
+        public Task
+        SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx obj, Current current)
+        {
+            if (obj != null)
+            {
+                _adapters[adapter] = obj;
+                _adapters[replica] = obj;
+            }
+            else
+            {
+                _adapters.Remove(adapter);
+                _adapters.Remove(replica);
+            }
+            return null;
+        }
+
+        public Task
+        SetServerProcessProxyAsync(string id, IProcessPrx proxy, Current current) => null;
+
+        public void addObject(IObjectPrx obj, Current current) => addObject(obj);
+        public void addObject(IObjectPrx obj) => _objects[obj.Identity] = obj;
+
+        public IObjectPrx getAdapter(string adapter)
+        {
+            object obj = _adapters[adapter];
+            if (obj == null)
+            {
+                throw new AdapterNotFoundException();
+            }
+            return (ObjectPrx)obj;
+        }
+
+        public IObjectPrx getObject(Ice.Identity id)
+        {
+            object obj = _objects[id];
+            if (obj == null)
+            {
+                throw new Ice.ObjectNotFoundException();
+            }
+            return (ObjectPrx)obj;
+        }
+
+        private Hashtable _adapters;
+        private Hashtable _objects;
     }
 }

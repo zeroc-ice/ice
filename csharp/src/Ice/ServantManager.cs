@@ -152,7 +152,7 @@ namespace IceInternal
                 Ice.Disp? obj = null;
                 if (m == null)
                 {
-                    _defaultServantMap.TryGetValue(ident.category, out obj);
+                    _defaultServantMap.TryGetValue(ident.Category, out obj);
                     if (obj == null)
                     {
                         _defaultServantMap.TryGetValue("", out obj);
@@ -215,7 +215,7 @@ namespace IceInternal
             }
         }
 
-        public void addServantLocator(Ice.ServantLocator locator, string category)
+        public void addServantLocator(Ice.IServantLocator locator, string category)
         {
             lock (this)
             {
@@ -230,13 +230,13 @@ namespace IceInternal
             }
         }
 
-        public Ice.ServantLocator removeServantLocator(string category)
+        public Ice.IServantLocator removeServantLocator(string category)
         {
             lock (this)
             {
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
 
-                Ice.ServantLocator l;
+                Ice.IServantLocator l;
                 _locatorMap.TryGetValue(category, out l);
                 if (l == null)
                 {
@@ -250,7 +250,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.ServantLocator findServantLocator(string category)
+        public Ice.IServantLocator findServantLocator(string category)
         {
             lock (this)
             {
@@ -263,7 +263,7 @@ namespace IceInternal
                 //
                 //Debug.Assert(_instance != null); // Must not be called after destruction.
 
-                Ice.ServantLocator result;
+                Ice.IServantLocator result;
                 _locatorMap.TryGetValue(category, out result);
                 return result;
             }
@@ -283,8 +283,8 @@ namespace IceInternal
         //
         public void destroy()
         {
-            Dictionary<string, Ice.ServantLocator> locatorMap = null;
-            Ice.Logger logger = null;
+            Dictionary<string, Ice.IServantLocator> locatorMap = null;
+            Ice.ILogger logger = null;
             lock (this)
             {
                 //
@@ -301,15 +301,15 @@ namespace IceInternal
 
                 _defaultServantMap.Clear();
 
-                locatorMap = new Dictionary<string, Ice.ServantLocator>(_locatorMap);
+                locatorMap = new Dictionary<string, Ice.IServantLocator>(_locatorMap);
                 _locatorMap.Clear();
 
                 _communicator = null;
             }
 
-            foreach (KeyValuePair<string, Ice.ServantLocator> p in locatorMap)
+            foreach (KeyValuePair<string, Ice.IServantLocator> p in locatorMap)
             {
-                Ice.ServantLocator locator = p.Value;
+                Ice.IServantLocator locator = p.Value;
                 try
                 {
                     locator.deactivate(p.Key);
@@ -328,7 +328,7 @@ namespace IceInternal
         private Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>> _servantMapMap
                 = new Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>>();
         private Dictionary<string, Ice.Disp> _defaultServantMap = new Dictionary<string, Ice.Disp>();
-        private Dictionary<string, Ice.ServantLocator> _locatorMap = new Dictionary<string, Ice.ServantLocator>();
+        private Dictionary<string, Ice.IServantLocator> _locatorMap = new Dictionary<string, Ice.IServantLocator>();
     }
 
 }

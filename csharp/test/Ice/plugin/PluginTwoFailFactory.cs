@@ -5,12 +5,10 @@
 using System;
 using System.Diagnostics;
 
-public class PluginTwoFailFactory : Ice.PluginFactory
+public class PluginTwoFailFactory : Ice.IPluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginTwoFail(communicator);
-    }
+    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) =>
+        new PluginTwoFail(communicator);
 
     internal class PluginTwoFail : BasePluginFail
     {

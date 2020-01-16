@@ -3,15 +3,11 @@
 //
 
 using System;
-using System.Collections.Generic;
 using Test;
 
-public sealed class ControllerI : Controller
+public sealed class Controller : IController
 {
-    public ControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    public Controller(Ice.ObjectAdapter adapter) => _adapter = adapter;
 
     public void hold(Ice.Current current)
     {
@@ -19,56 +15,32 @@ public sealed class ControllerI : Controller
         _adapter.WaitForHold();
     }
 
-    public void resume(Ice.Current current)
-    {
-        _adapter.Activate();
-    }
+    public void resume(Ice.Current current) => _adapter.Activate();
 
     readonly private Ice.ObjectAdapter _adapter;
 };
 
-public sealed class MetricsI : Metrics
+public sealed class Metrics : IMetrics
 {
     public void op(Ice.Current current)
     {
     }
 
-    public void fail(Ice.Current current)
-    {
-        current.Connection.close(Ice.ConnectionClose.Forcefully);
-    }
+    public void fail(Ice.Current current) => current.Connection.Close(Ice.ConnectionClose.Forcefully);
 
-    public void opWithUserException(Ice.Current current)
-    {
-        throw new UserEx();
-    }
+    public void opWithUserException(Ice.Current current) => throw new UserEx();
 
-    public void opWithRequestFailedException(Ice.Current current)
-    {
-        throw new Ice.ObjectNotExistException();
-    }
+    public void opWithRequestFailedException(Ice.Current current) => throw new Ice.ObjectNotExistException();
 
-    public void opWithLocalException(Ice.Current current)
-    {
-        throw new Ice.SyscallException();
-    }
+    public void opWithLocalException(Ice.Current current) => throw new Ice.SyscallException();
 
-    public void opWithUnknownException(Ice.Current current)
-    {
-        throw new ArgumentOutOfRangeException();
-    }
+    public void opWithUnknownException(Ice.Current current) => throw new ArgumentOutOfRangeException();
 
     public void opByteS(byte[] bs, Ice.Current current)
     {
     }
 
-    public Ice.IObjectPrx getAdmin(Ice.Current current)
-    {
-        return current.Adapter.Communicator.getAdmin();
-    }
+    public Ice.IObjectPrx getAdmin(Ice.Current current) => current.Adapter.Communicator.getAdmin();
 
-    public void shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    public void shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
 }

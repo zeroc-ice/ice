@@ -10,7 +10,7 @@ namespace IceInternal
 {
     public sealed class DefaultsAndOverrides
     {
-        internal DefaultsAndOverrides(Ice.Communicator communicator, Ice.Logger logger)
+        internal DefaultsAndOverrides(Ice.Communicator communicator, Ice.ILogger logger)
         {
             string? val;
 

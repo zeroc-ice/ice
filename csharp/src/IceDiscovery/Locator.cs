@@ -8,15 +8,12 @@ namespace IceDiscovery
     using System.Threading.Tasks;
     using Ice;
 
-    internal class LocatorRegistryI : Ice.LocatorRegistry
+    internal class LocatorRegistry : ILocatorRegistry
     {
         public
-        LocatorRegistryI(Communicator com)
-        {
-            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(clearLocator: true,
-                                                                  clearRouter: true,
-                                                                  collocationOptimized: true);
-        }
+        LocatorRegistry(Communicator com) =>
+            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
+                clearLocator: true, clearRouter: true, collocationOptimized: true);
 
         public Task
         SetAdapterDirectProxyAsync(string adapterId, IObjectPrx proxy, Current current)
@@ -70,16 +67,13 @@ namespace IceDiscovery
         }
 
         public Task
-        SetServerProcessProxyAsync(string id, IProcessPrx process, Current current)
-        {
-            return null;
-        }
+        SetServerProcessProxyAsync(string id, IProcessPrx process, Current current) => null;
 
         internal IObjectPrx FindObject(Identity id)
         {
             lock (this)
             {
-                if (id.name.Length == 0)
+                if (id.Name.Length == 0)
                 {
                     return null;
                 }
@@ -94,7 +88,7 @@ namespace IceDiscovery
                         prx.Clone(adapterId: entry.Key).IcePing();
                         adapterIds.Add(entry.Key);
                     }
-                    catch (Ice.Exception)
+                    catch (Exception)
                     {
                     }
                 }
@@ -122,11 +116,11 @@ namespace IceDiscovery
             }
         }
 
-        internal Ice.IObjectPrx FindAdapter(string adapterId, out bool isReplicaGroup)
+        internal IObjectPrx FindAdapter(string adapterId, out bool isReplicaGroup)
         {
             lock (this)
             {
-                Ice.IObjectPrx result = null;
+                IObjectPrx result = null;
                 if (_adapters.TryGetValue(adapterId, out result))
                 {
                     isReplicaGroup = false;
@@ -136,10 +130,10 @@ namespace IceDiscovery
                 HashSet<string> adapterIds;
                 if (_replicaGroups.TryGetValue(adapterId, out adapterIds))
                 {
-                    List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                    List<IEndpoint> endpoints = new List<IEndpoint>();
                     foreach (string a in adapterIds)
                     {
-                        Ice.IObjectPrx proxy;
+                        IObjectPrx proxy;
                         if (!_adapters.TryGetValue(a, out proxy))
                         {
                             continue; // TODO: Inconsistency
@@ -165,37 +159,28 @@ namespace IceDiscovery
             }
         }
 
-        private readonly Ice.IObjectPrx _wellKnownProxy;
-        private Dictionary<string, Ice.IObjectPrx> _adapters = new Dictionary<string, Ice.IObjectPrx>();
+        private readonly IObjectPrx _wellKnownProxy;
+        private Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
         private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     };
 
-    internal class LocatorI : Ice.Locator
+    internal class Locator : ILocator
     {
-        public LocatorI(LookupI lookup, Ice.ILocatorRegistryPrx registry)
+        public Locator(Lookup lookup, ILocatorRegistryPrx registry)
         {
             _lookup = lookup;
             _registry = registry;
         }
 
-        public Task<Ice.IObjectPrx>
-        FindObjectByIdAsync(Ice.Identity id, Ice.Current current)
-        {
-            return _lookup.findObject(id);
-        }
+        public Task<IObjectPrx>
+        FindObjectByIdAsync(Identity id, Current current) => _lookup.findObject(id);
 
-        public Task<Ice.IObjectPrx>
-        FindAdapterByIdAsync(string adapterId, Current current)
-        {
-            return _lookup.FindAdapter(adapterId);
-        }
+        public Task<IObjectPrx>
+        FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);
 
-        public Ice.ILocatorRegistryPrx GetRegistry(Current current)
-        {
-            return _registry;
-        }
+        public ILocatorRegistryPrx GetRegistry(Current current) => _registry;
 
-        private LookupI _lookup;
-        private Ice.ILocatorRegistryPrx _registry;
+        private Lookup _lookup;
+        private ILocatorRegistryPrx _registry;
     };
 }

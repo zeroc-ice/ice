@@ -4,9 +4,9 @@
 
 namespace IceSSL
 {
-    internal sealed class ConnectorI : IceInternal.Connector
+    internal sealed class ConnectorI : IceInternal.IConnector
     {
-        public IceInternal.Transceiver connect()
+        public IceInternal.ITransceiver connect()
         {
             //
             // The plug-in may not be fully initialized.
@@ -16,7 +16,7 @@ namespace IceSSL
                 throw new Ice.InitializationException("IceSSL: plug-in is not initialized");
             }
 
-            return new TransceiverI(_instance, _delegate.connect(), _host, false);
+            return new Transceiver(_instance, _delegate.connect(), _host, false);
         }
 
         public short type()
@@ -27,7 +27,7 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
+        internal ConnectorI(Instance instance, IceInternal.IConnector del, string host)
         {
             _instance = instance;
             _delegate = del;
@@ -61,7 +61,7 @@ namespace IceSSL
         }
 
         private Instance _instance;
-        private IceInternal.Connector _delegate;
+        private IceInternal.IConnector _delegate;
         private string _host;
     }
 }

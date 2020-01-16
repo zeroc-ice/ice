@@ -2,12 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
+    public sealed class Empty : Test.IEmpty
     {
-        public sealed class EmptyI : Test.Empty
-        {
-        }
     }
 }

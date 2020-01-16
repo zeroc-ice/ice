@@ -4,61 +4,393 @@
 
 namespace Ice
 {
-    public interface ImplicitContext
+    using System.Collections.Generic;
+    using System.Threading;
+
+    //
+    // The base class for all ImplicitContext implementations
+    //
+    public abstract class ImplicitContext : IImplicitContext
     {
-        /// <summary>
-        /// Get a copy of the underlying context.
-        /// </summary>
-        /// <returns>A copy of the underlying context.</returns>
-        global::System.Collections.Generic.Dictionary<string, string> getContext();
+        public static ImplicitContext? Create(string? kind)
+        {
+            if (string.IsNullOrEmpty(kind) || kind == "None")
+            {
+                return null;
+            }
+            else if (kind == "Shared")
+            {
+                return new SharedImplicitContext();
+            }
+            else if (kind == "PerThread")
+            {
+                return new PerThreadImplicitContext();
+            }
+            else
+            {
+                throw new InitializationException($"'{kind}' is not a valid value for Ice.ImplicitContext");
+            }
+        }
 
-        /// <summary>
-        /// Set the underlying context.
-        /// </summary>
-        /// <param name="newContext">The new context.</param>
-        void setContext(global::System.Collections.Generic.Dictionary<string, string> newContext);
+        public abstract Dictionary<string, string> getContext();
+        public abstract void setContext(Dictionary<string, string> newContext);
+        public abstract bool containsKey(string key);
+        public abstract string get(string key);
+        public abstract string put(string key, string value);
+        public abstract string remove(string key);
 
-        /// <summary>
-        /// Check if this key has an associated value in the underlying context.
-        /// </summary>
-        /// <param name="key">The key.
-        ///
-        /// </param>
-        /// <returns>True if the key has an associated value, False otherwise.</returns>
-        bool containsKey(string key);
+        public abstract void write(Dictionary<string, string> prxContext, OutputStream os);
+        internal abstract Dictionary<string, string> combine(Dictionary<string, string> prxContext);
+    }
 
-        /// <summary>
-        /// Get the value associated with the given key in the underlying context.
-        /// Returns an empty string if no value is associated with the key.
-        /// containsKey allows you to distinguish between an empty-string value and
-        /// no value at all.
-        ///
-        /// </summary>
-        /// <param name="key">The key.
-        ///
-        /// </param>
-        /// <returns>The value associated with the key.</returns>
-        string get(string key);
+    internal class SharedImplicitContext : ImplicitContext
+    {
+        public override Dictionary<string, string> getContext()
+        {
+            lock (this)
+            {
+                return new Dictionary<string, string>(_context);
+            }
+        }
 
-        /// <summary>
-        /// Create or update a key/value entry in the underlying context.
-        /// </summary>
-        /// <param name="key">The key.
-        ///
-        /// </param>
-        /// <param name="value">The value.
-        ///
-        /// </param>
-        /// <returns>The previous value associated with the key, if any.</returns>
-        string put(string key, string value);
+        public override void setContext(Dictionary<string, string> context)
+        {
+            lock (this)
+            {
+                if (context != null && context.Count != 0)
+                {
+                    _context = new Dictionary<string, string>(context);
+                }
+                else
+                {
+                    _context.Clear();
+                }
+            }
+        }
 
-        /// <summary>
-        /// Remove the entry for the given key in the underlying context.
-        /// </summary>
-        /// <param name="key">The key.
-        ///
-        /// </param>
-        /// <returns>The value associated with the key, if any.</returns>
-        string remove(string key);
+        public override bool containsKey(string key)
+        {
+            lock (this)
+            {
+                if (key == null)
+                {
+                    key = "";
+                }
+
+                return _context.ContainsKey(key);
+            }
+        }
+
+        public override string get(string key)
+        {
+            lock (this)
+            {
+                if (key == null)
+                {
+                    key = "";
+                }
+
+                string val = _context[key];
+                if (val == null)
+                {
+                    val = "";
+                }
+                return val;
+            }
+        }
+
+        public override string put(string key, string value)
+        {
+            lock (this)
+            {
+                if (key == null)
+                {
+                    key = "";
+                }
+                if (value == null)
+                {
+                    value = "";
+                }
+
+                string oldVal;
+                _context.TryGetValue(key, out oldVal);
+                if (oldVal == null)
+                {
+                    oldVal = "";
+                }
+                _context[key] = value;
+
+                return oldVal;
+            }
+        }
+
+        public override string remove(string key)
+        {
+            lock (this)
+            {
+                if (key == null)
+                {
+                    key = "";
+                }
+
+                string val = _context[key];
+
+                if (val == null)
+                {
+                    val = "";
+                }
+                else
+                {
+                    _context.Remove(key);
+                }
+
+                return val;
+            }
+        }
+
+        public override void write(Dictionary<string, string> prxContext, OutputStream os)
+        {
+            if (prxContext.Count == 0)
+            {
+                lock (this)
+                {
+                    ContextHelper.Write(os, _context);
+                }
+            }
+            else
+            {
+                Dictionary<string, string> ctx;
+                lock (this)
+                {
+                    ctx = _context.Count == 0 ? prxContext : combine(prxContext);
+                }
+                ContextHelper.Write(os, ctx);
+            }
+        }
+
+        internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
+        {
+            lock (this)
+            {
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach (KeyValuePair<string, string> e in _context)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
+                return combined;
+            }
+        }
+
+        private Dictionary<string, string> _context = new Dictionary<string, string>();
+    }
+
+    internal class PerThreadImplicitContext : ImplicitContext
+    {
+        public override Dictionary<string, string> getContext()
+        {
+            Dictionary<string, string> threadContext = null;
+            Thread currentThread = Thread.CurrentThread;
+            lock (this)
+            {
+                if (_map.ContainsKey(currentThread))
+                {
+                    threadContext = _map[currentThread];
+                }
+            }
+
+            if (threadContext == null)
+            {
+                threadContext = new Dictionary<string, string>();
+            }
+            return threadContext;
+        }
+
+        public override void setContext(Dictionary<string, string> context)
+        {
+            if (context == null || context.Count == 0)
+            {
+                lock (this)
+                {
+                    _map.Remove(Thread.CurrentThread);
+                }
+            }
+            else
+            {
+                Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
+
+                lock (this)
+                {
+                    _map.Add(Thread.CurrentThread, threadContext);
+                }
+            }
+        }
+
+        public override bool containsKey(string key)
+        {
+            if (key == null)
+            {
+                key = "";
+            }
+
+            Dictionary<string, string> threadContext = null;
+            lock (this)
+            {
+                if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
+                {
+                    return false;
+                }
+            }
+
+            return threadContext.ContainsKey(key);
+        }
+
+        public override string get(string key)
+        {
+            if (key == null)
+            {
+                key = "";
+            }
+
+            Dictionary<string, string> threadContext = null;
+            lock (this)
+            {
+                if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
+                {
+                    return "";
+                }
+            }
+
+            string val = threadContext[key];
+            if (val == null)
+            {
+                val = "";
+            }
+            return val;
+        }
+
+        public override string put(string key, string value)
+        {
+            if (key == null)
+            {
+                key = "";
+            }
+            if (value == null)
+            {
+                value = "";
+            }
+
+            Dictionary<string, string> threadContext = null;
+            lock (this)
+            {
+                if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
+                {
+                    threadContext = new Dictionary<string, string>();
+                    _map.Add(Thread.CurrentThread, threadContext);
+                }
+            }
+
+            string oldVal;
+            if (!threadContext.TryGetValue(key, out oldVal))
+            {
+                oldVal = "";
+            }
+
+            threadContext[key] = value;
+            return oldVal;
+        }
+
+        public override string remove(string key)
+        {
+            if (key == null)
+            {
+                key = "";
+            }
+
+            Dictionary<string, string> threadContext = null;
+            lock (this)
+            {
+                if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
+                {
+                    return "";
+                }
+            }
+
+            string val = null;
+            if (!threadContext.TryGetValue(key, out val))
+            {
+                val = "";
+            }
+            else
+            {
+                threadContext.Remove(key);
+            }
+            return val;
+        }
+
+        public override void write(Dictionary<string, string> prxContext, OutputStream os)
+        {
+            Dictionary<string, string> threadContext = null;
+            lock (this)
+            {
+                _map.TryGetValue(Thread.CurrentThread, out threadContext);
+            }
+
+            if (threadContext == null || threadContext.Count == 0)
+            {
+                ContextHelper.Write(os, prxContext);
+            }
+            else if (prxContext.Count == 0)
+            {
+                ContextHelper.Write(os, threadContext);
+            }
+            else
+            {
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach (KeyValuePair<string, string> e in threadContext)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
+                ContextHelper.Write(os, combined);
+            }
+        }
+
+        internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
+        {
+            Dictionary<string, string> threadContext;
+            lock (this)
+            {
+                if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
+                {
+                    return new Dictionary<string, string>(prxContext);
+                }
+            }
+
+            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            foreach (KeyValuePair<string, string> e in threadContext)
+            {
+                combined.Add(e.Key, e.Value);
+            }
+            return combined;
+        }
+
+        //
+        //  map Thread -> Context
+        //
+        private readonly Dictionary<Thread, Dictionary<string, string>> _map =
+            new Dictionary<Thread, Dictionary<string, string>>();
     }
 }

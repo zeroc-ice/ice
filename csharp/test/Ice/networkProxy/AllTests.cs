@@ -6,13 +6,13 @@ using Ice;
 
 public class AllTests : Test.AllTests
 {
-    private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
+    private static IPConnectionInfo getIPConnectionInfo(ConnectionInfo info)
     {
-        for (; info != null; info = info.underlying)
+        for (; info != null; info = info.Underlying)
         {
-            if (info is Ice.IPConnectionInfo)
+            if (info is IPConnectionInfo)
             {
-                return info as Ice.IPConnectionInfo;
+                return info as IPConnectionInfo;
             }
         }
         return null;
@@ -20,7 +20,7 @@ public class AllTests : Test.AllTests
 
     public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
         var obj = IObjectPrx.Parse(sref, communicator);
 
@@ -39,8 +39,8 @@ public class AllTests : Test.AllTests
         output.Write("testing connection information... ");
         output.Flush();
         {
-            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().getInfo());
-            test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
+            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().ConnectionInfo);
+            test(info.RemotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         output.WriteLine("ok");
 

@@ -58,15 +58,15 @@ namespace IceSSL
             {
                 reject.Add(_rejectAll);
             }
-            if (info.incoming)
+            if (info.Incoming)
             {
                 if (_rejectAllServer.Count != 0)
                 {
                     reject.Add(_rejectAllServer);
                 }
-                if (info.adapterName!.Length > 0)
+                if (info.AdapterName!.Length > 0)
                 {
-                    if (_rejectServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
+                    if (_rejectServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>> p))
                     {
                         reject.Add(p);
                     }
@@ -84,15 +84,15 @@ namespace IceSSL
             {
                 accept.Add(_acceptAll);
             }
-            if (info.incoming)
+            if (info.Incoming)
             {
                 if (_acceptAllServer.Count != 0)
                 {
                     accept.Add(_acceptAllServer);
                 }
-                if (info.adapterName!.Length > 0)
+                if (info.AdapterName!.Length > 0)
                 {
-                    if (_acceptServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
+                    if (_acceptServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>> p))
                     {
                         accept.Add(p);
                     }
@@ -117,9 +117,9 @@ namespace IceSSL
             //
             // If there is no certificate then we match false.
             //
-            if (info.certs != null && info.certs.Length > 0)
+            if (info.Certs != null && info.Certs.Length > 0)
             {
-                X500DistinguishedName subjectDN = info.certs[0].SubjectName;
+                X500DistinguishedName subjectDN = info.Certs[0].SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
                 try
@@ -129,10 +129,10 @@ namespace IceSSL
                     //
                     if (_traceLevel > 0)
                     {
-                        if (info.incoming)
+                        if (info.Incoming)
                         {
                             _communicator.Logger.trace("Security", "trust manager evaluating client:\n" +
-                                "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + desc);
+                                "subject = " + subjectName + "\n" + "adapter = " + info.AdapterName + "\n" + desc);
                         }
                         else
                         {

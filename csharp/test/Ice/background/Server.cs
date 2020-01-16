@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 public class Server : TestHelper
 {
-    internal class LocatorI : Locator
+    internal class Locator : ILocator
     {
         public Task<IObjectPrx>
         FindAdapterByIdAsync(string adapter, Current current)
@@ -29,25 +29,19 @@ public class Server : TestHelper
             return Task.FromResult(current.Adapter.CreateDirectProxy(id));
         }
 
-        public ILocatorRegistryPrx GetRegistry(Current current)
-        {
-            return null;
-        }
+        public ILocatorRegistryPrx GetRegistry(Current current) => null;
 
-        internal LocatorI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal Locator(BackgroundController controller) => _controller = controller;
 
-        private BackgroundControllerI _controller;
+        private BackgroundController _controller;
     }
 
-    internal class RouterI : Router
+    internal class RouterI : IRouter
     {
-        public Router.GetClientProxyReturnValue GetClientProxy(Current current)
+        public IRouter.GetClientProxyReturnValue GetClientProxy(Current current)
         {
             _controller.checkCallPause(current);
-            return new Router.GetClientProxyReturnValue(null, true);
+            return new IRouter.GetClientProxyReturnValue(null, true);
         }
 
         public IObjectPrx GetServerProxy(Current current)
@@ -56,17 +50,11 @@ public class Server : TestHelper
             return null;
         }
 
-        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
-        {
-            return new IObjectPrx[0];
-        }
+        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current) => new IObjectPrx[0];
 
-        internal RouterI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal RouterI(BackgroundController controller) => _controller = controller;
 
-        private BackgroundControllerI _controller;
+        private BackgroundController _controller;
     }
 
     public override void run(string[] args)
@@ -93,53 +81,48 @@ public class Server : TestHelper
         }
         properties["Ice.Default.Protocol"] = $"test-{protocol}";
 
-        using (var communicator = initialize(properties))
+        using var communicator = initialize(properties);
+        var plugin = new Plugin(communicator);
+        plugin.initialize();
+        communicator.AddPlugin("Test", plugin);
+
+        //
+        // When running as a MIDlet the properties for the server may be
+        // overridden by configuration. If it isn't then we assume
+        // defaults.
+        //
+        if (communicator.GetProperty("TestAdapter.Endpoints") == null)
         {
-            PluginI plugin = new PluginI(communicator);
-            plugin.initialize();
-            communicator.AddPlugin("Test", plugin);
-
-            //
-            // When running as a MIDlet the properties for the server may be
-            // overridden by configuration. If it isn't then we assume
-            // defaults.
-            //
-            if (communicator.GetProperty("TestAdapter.Endpoints") == null)
-            {
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            }
-
-            if (communicator.GetProperty("ControllerAdapter.Endpoints") == null)
-            {
-                communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
-                communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
-            }
-
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
-
-            BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
-
-            BackgroundI backgroundI = new BackgroundI(backgroundController);
-
-            adapter.Add(backgroundI, "background");
-
-            LocatorI locatorI = new LocatorI(backgroundController);
-            adapter.Add(locatorI, "locator");
-
-            RouterI routerI = new RouterI(backgroundController);
-            adapter.Add(routerI, "router");
-            adapter.Activate();
-
-            adapter2.Add(backgroundController, "backgroundController");
-            adapter2.Activate();
-
-            communicator.waitForShutdown();
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         }
+
+        if (communicator.GetProperty("ControllerAdapter.Endpoints") == null)
+        {
+            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
+        }
+
+        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+
+        var backgroundController = new BackgroundController(adapter);
+
+        var backgroundI = new Background(backgroundController);
+
+        adapter.Add(backgroundI, "background");
+
+        Locator locatorI = new Locator(backgroundController);
+        adapter.Add(locatorI, "locator");
+
+        RouterI routerI = new RouterI(backgroundController);
+        adapter.Add(routerI, "router");
+        adapter.Activate();
+
+        adapter2.Add(backgroundController, "backgroundController");
+        adapter2.Activate();
+
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

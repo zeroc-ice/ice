@@ -8,13 +8,13 @@ namespace IceSSL
 {
     public class ConnectionInfo : Ice.ConnectionInfo
     {
-        public string? cipher;
-        public X509Certificate2[]? certs;
-        public bool verified;
+        public string? Cipher;
+        public X509Certificate2[]? Certs;
+        public bool Verified;
 
-        public ConnectionInfo() : base()
+        public ConnectionInfo()
         {
-            cipher = "";
+            Cipher = "";
         }
 
         public ConnectionInfo(Ice.ConnectionInfo underlying,
@@ -25,9 +25,9 @@ namespace IceSSL
                               X509Certificate2[] certs,
                               bool verified) : base(underlying, incoming, adapterName, connectionId)
         {
-            this.cipher = cipher;
-            this.certs = certs;
-            this.verified = verified;
+            Cipher = cipher;
+            Certs = certs;
+            Verified = verified;
         }
     }
 }

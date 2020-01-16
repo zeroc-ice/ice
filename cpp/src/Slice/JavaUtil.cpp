@@ -986,7 +986,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 string
 Slice::JavaGenerator::getTagFormat(const TypePtr& type)
 {
-    const string prefix = "com.zeroc.Ice.OptionalFormat.";
+    const string prefix = "com.zeroc.Ice.TagFormat.";
 
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -1515,7 +1515,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(isTaggedParam)
                 {
                     out << nl;
-                    out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
+                    out << "if(" << param << " != null && " << stream << ".writeTag(" << tag << ", "
                         << getTagFormat(type) << "))";
                     out << sb;
                 }
@@ -1529,9 +1529,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 else
                 {
                     const size_t sz = keyType->minWireSize() + valueType->minWireSize();
-                    out << nl << "final int optSize = " << param << " == null ? 0 : " << param << ".size();";
+                    out << nl << "final int taggedSize = " << param << " == null ? 0 : " << param << ".size();";
                     out << nl << stream
-                        << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
+                        << ".writeSize(taggedSize > 254 ? taggedSize * " << sz << " + 5 : taggedSize * " << sz << " + 1);";
                     writeDictionaryMarshalUnmarshalCode(out, package, dict, param, marshal, iter, true, customStream, metaData);
                 }
 
@@ -1542,10 +1542,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                string d = isTaggedParam ? "optDict" : param;
+                string d = isTaggedParam ? "taggedDict" : param;
                 if(isTaggedParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readTag(" << tag << ", " << getTagFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << d << ';';
                 }
@@ -1640,7 +1640,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(isTaggedParam)
                 {
                     out << nl;
-                    out << "if(" << param << " != null && " << stream << ".writeOptional(" << tag << ", "
+                    out << "if(" << param << " != null && " << stream << ".writeTag(" << tag << ", "
                         << getTagFormat(type) << "))";
                     out << sb;
                 }
@@ -1657,7 +1657,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     if(sz > 1)
                     {
                         string ignored2;
-                        out << nl << "final int optSize = " << param << " == null ? 0 : ";
+                        out << nl << "final int taggedSize = " << param << " == null ? 0 : ";
                         if(findMetaData("java:buffer", seq->getMetaData(), ignored2) ||
                            findMetaData("java:buffer", metaData, ignored2))
                         {
@@ -1671,8 +1671,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         {
                             out << param << ".length;";
                         }
-                        out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz
-                            << " + 5 : optSize * " << sz << " + 1);";
+                        out << nl << stream << ".writeSize(taggedSize > 254 ? taggedSize * " << sz
+                            << " + 5 : taggedSize * " << sz << " + 1);";
                     }
                     writeSequenceMarshalUnmarshalCode(out, package, seq, param, true, iter, true, customStream, metaData);
                 }
@@ -1685,10 +1685,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             else
             {
                 const size_t sz = elemType->minWireSize();
-                string s = isTaggedParam ? "optSeq" : param;
+                string s = isTaggedParam ? "taggedSeq" : param;
                 if(isTaggedParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << "))";
+                    out << nl << "if(" << stream << ".readTag(" << tag << ", " << getTagFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << s << ';';
                 }

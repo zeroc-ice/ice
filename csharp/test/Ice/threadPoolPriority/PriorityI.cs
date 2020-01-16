@@ -4,22 +4,11 @@
 
 using System.Threading;
 
-namespace Ice
+namespace Ice.threadPoolPriority
 {
-    namespace threadPoolPriority
+    public class Priority : Test.IPriority
     {
-        public class PriorityI : Test.Priority
-        {
-
-            public void shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
-
-            public string getPriority(Ice.Current current)
-            {
-                return Thread.CurrentThread.Priority.ToString();
-            }
-        }
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public string getPriority(Current current) => Thread.CurrentThread.Priority.ToString();
     }
 }

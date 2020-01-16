@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-    public class CollocatedRequestHandler : RequestHandler, ResponseHandler
+    public class CollocatedRequestHandler : IRequestHandler, IResponseHandler
     {
         private void
         fillInValue(Ice.OutputStream os, int pos, int value)
@@ -29,7 +29,7 @@ namespace IceInternal
             _requestId = 0;
         }
 
-        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        public IRequestHandler update(IRequestHandler previousHandler, IRequestHandler newHandler)
         {
             return previousHandler == this ? newHandler : this;
         }
@@ -39,7 +39,7 @@ namespace IceInternal
             return outAsync.invokeCollocated(this);
         }
 
-        public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock (this)
             {
@@ -78,7 +78,7 @@ namespace IceInternal
             }
         }
 
-        public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
+        public void SendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
@@ -126,13 +126,13 @@ namespace IceInternal
         }
 
         public void
-        sendNoResponse()
+        SendNoResponse()
         {
             _adapter.decDirectCount();
         }
 
         public bool
-        systemException(int requestId, Ice.SystemException ex, bool amd)
+        SystemException(int requestId, Ice.SystemException ex, bool amd)
         {
             handleException(requestId, ex, amd);
             _adapter.decDirectCount();
@@ -140,7 +140,7 @@ namespace IceInternal
         }
 
         public void
-        invokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
+        InvokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
         {
             handleException(requestId, ex, amd);
             _adapter.decDirectCount();
@@ -152,7 +152,7 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI
+        public Ice.Connection
         getConnection()
         {
             return null;
@@ -286,7 +286,7 @@ namespace IceInternal
             }
             catch (Ice.LocalException ex)
             {
-                invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
+                InvokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
 
             _adapter.decDirectCount();
@@ -335,7 +335,7 @@ namespace IceInternal
         private readonly bool _dispatcher;
         private readonly bool _response;
         private readonly Ice.ObjectAdapter _adapter;
-        private readonly Ice.Logger _logger;
+        private readonly Ice.ILogger _logger;
         private readonly TraceLevels _traceLevels;
 
         private int _requestId;

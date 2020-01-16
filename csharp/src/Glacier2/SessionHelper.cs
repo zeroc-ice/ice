@@ -38,8 +38,8 @@ namespace Glacier2
             Dictionary<string, string> properties,
             Func<int, string>? compactIdResolver = null,
             Action<Action, Connection?>? dispatcher = null,
-            Logger? logger = null,
-            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            ILogger? logger = null,
+            Ice.Instrumentation.ICommunicatorObserver? observer = null,
             Action? threadStart = null,
             Action? threadStop = null,
             string[]? typeIdNamespaces = null)
@@ -309,8 +309,8 @@ namespace Glacier2
                 {
                     Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
-                    connection.setACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
-                    connection.setCloseCallback(_ => destroy());
+                    connection.SetACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
+                    connection.SetCloseCallback(_ => destroy());
                 }
             }
 
@@ -504,8 +504,8 @@ namespace Glacier2
         private Dictionary<string, string> _properties;
         private Func<int, string>? _compactIdResolver;
         private Action<Action, Ice.Connection?>? _dispatcher;
-        private Ice.Logger? _logger;
-        private Ice.Instrumentation.CommunicatorObserver? _observer;
+        private Ice.ILogger? _logger;
+        private Ice.Instrumentation.ICommunicatorObserver? _observer;
         private Action? _threadStart;
         private Action? _threadStop;
         private string[]? _typeIdNamespaces;

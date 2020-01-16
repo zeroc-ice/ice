@@ -4,21 +4,12 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.defaultValue
 {
-    namespace defaultValue
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
-        {
-            public override void run(string[] args)
-            {
-                AllTests.allTests(this);
-            }
+        public override void run(string[] args) => AllTests.allTests(this);
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
-        }
+        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
     }
 }

@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-internal class BackgroundControllerI : BackgroundController
+internal class BackgroundController : IBackgroundController
 {
     public void pauseCall(string opName, Ice.Current current)
     {
@@ -76,7 +76,7 @@ internal class BackgroundControllerI : BackgroundController
         _configuration.buffered(enable);
     }
 
-    internal BackgroundControllerI(Ice.ObjectAdapter adapter)
+    internal BackgroundController(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
         _configuration = Configuration.getInstance();

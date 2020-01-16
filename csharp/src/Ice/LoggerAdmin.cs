@@ -10,7 +10,7 @@ using Ice;
 
 namespace IceInternal
 {
-    internal sealed class LoggerAdminI : Ice.LoggerAdmin
+    internal sealed class LoggerAdmin : ILoggerAdmin
     {
         public void
         AttachRemoteLogger(IRemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
@@ -39,7 +39,7 @@ namespace IceInternal
                         createSendLogCommunicator(current.Adapter.Communicator, _logger.getLocalLogger());
                 }
 
-                Ice.Identity remoteLoggerId = remoteLogger.Identity;
+                Identity remoteLoggerId = remoteLogger.Identity;
 
                 if (_remoteLoggerMap.ContainsKey(remoteLoggerId))
                 {
@@ -49,7 +49,7 @@ namespace IceInternal
                                      "' with RemoteLoggerAlreadyAttachedException");
                     }
 
-                    throw new Ice.RemoteLoggerAlreadyAttachedException();
+                    throw new RemoteLoggerAlreadyAttachedException();
                 }
 
                 _remoteLoggerMap.Add(remoteLoggerId,
@@ -57,11 +57,11 @@ namespace IceInternal
 
                 if (messageMax != 0)
                 {
-                    initLogMessages = new LinkedList<Ice.LogMessage>(_queue); // copy
+                    initLogMessages = new LinkedList<LogMessage>(_queue); // copy
                 }
                 else
                 {
-                    initLogMessages = new LinkedList<Ice.LogMessage>();
+                    initLogMessages = new LinkedList<LogMessage>();
                 }
             }
 
@@ -89,15 +89,15 @@ namespace IceInternal
                                               + "' completed successfully");
                             }
                         }
-                        catch (System.AggregateException ae)
+                        catch (AggregateException ae)
                         {
-                            Debug.Assert(ae.InnerException is Ice.LocalException);
-                            deadRemoteLogger(remoteLogger, _logger, (Ice.LocalException)ae.InnerException, "init");
+                            Debug.Assert(ae.InnerException is LocalException);
+                            deadRemoteLogger(remoteLogger, _logger, (LocalException)ae.InnerException, "init");
                         }
                     },
                     System.Threading.Tasks.TaskScheduler.Current);
             }
-            catch (Ice.LocalException ex)
+            catch (LocalException ex)
             {
                 deadRemoteLogger(remoteLogger, _logger, ex, "init");
                 throw;
@@ -105,7 +105,7 @@ namespace IceInternal
         }
 
         public bool
-        DetachRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.Current current)
+        DetachRemoteLogger(IRemoteLoggerPrx remoteLogger, Current current)
         {
             if (remoteLogger == null)
             {
@@ -132,7 +132,7 @@ namespace IceInternal
             return found;
         }
 
-        public LoggerAdmin.GetLogReturnValue
+        public ILoggerAdmin.GetLogReturnValue
         GetLog(LogMessageType[] messageTypes, string[] categories, int messageMax, Current current)
         {
             LinkedList<Ice.LogMessage> logMessages;
@@ -140,11 +140,11 @@ namespace IceInternal
             {
                 if (messageMax != 0)
                 {
-                    logMessages = new LinkedList<Ice.LogMessage>(_queue);
+                    logMessages = new LinkedList<LogMessage>(_queue);
                 }
                 else
                 {
-                    logMessages = new LinkedList<Ice.LogMessage>();
+                    logMessages = new LinkedList<LogMessage>();
                 }
             }
 
@@ -155,10 +155,10 @@ namespace IceInternal
                 Filters filters = new Filters(messageTypes, categories);
                 filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
             }
-            return new LoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
+            return new ILoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
         }
 
-        internal LoggerAdminI(Ice.Communicator communicator, LoggerAdminLoggerI logger)
+        internal LoggerAdmin(Communicator communicator, LoggerAdminLogger logger)
         {
             _maxLogCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepLogs") ?? 100;
             _maxTraceCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepTraces") ?? 100;
@@ -168,7 +168,7 @@ namespace IceInternal
 
         internal void destroy()
         {
-            Ice.Communicator sendLogCommunicator = null;
+            Communicator sendLogCommunicator = null;
 
             lock (this)
             {
@@ -199,12 +199,12 @@ namespace IceInternal
                 //
                 // Put message in _queue
                 //
-                if ((logMessage.type != Ice.LogMessageType.TraceMessage && _maxLogCount > 0) ||
-                   (logMessage.type == Ice.LogMessageType.TraceMessage && _maxTraceCount > 0))
+                if ((logMessage.Type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
+                    (logMessage.Type == LogMessageType.TraceMessage && _maxTraceCount > 0))
                 {
                     _queue.AddLast(logMessage);
 
-                    if (logMessage.type != Ice.LogMessageType.TraceMessage)
+                    if (logMessage.Type != LogMessageType.TraceMessage)
                     {
                         Debug.Assert(_maxLogCount > 0);
                         if (_logCount == _maxLogCount)
@@ -217,7 +217,7 @@ namespace IceInternal
                             _queue.Remove(_oldestLog);
                             _oldestLog = next;
 
-                            while (_oldestLog != null && _oldestLog.Value.type == Ice.LogMessageType.TraceMessage)
+                            while (_oldestLog != null && _oldestLog.Value.Type == LogMessageType.TraceMessage)
                             {
                                 _oldestLog = _oldestLog.Next;
                             }
@@ -246,7 +246,7 @@ namespace IceInternal
                             _queue.Remove(_oldestTrace);
                             _oldestTrace = next;
 
-                            while (_oldestTrace != null && _oldestTrace.Value.type != Ice.LogMessageType.TraceMessage)
+                            while (_oldestTrace != null && _oldestTrace.Value.Type != LogMessageType.TraceMessage)
                             {
                                 _oldestTrace = _oldestTrace.Next;
                             }
@@ -271,10 +271,10 @@ namespace IceInternal
                 {
                     Filters filters = p.filters;
 
-                    if (filters.messageTypes.Count == 0 || filters.messageTypes.Contains(logMessage.type))
+                    if (filters.messageTypes.Count == 0 || filters.messageTypes.Contains(logMessage.Type))
                     {
-                        if (logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
-                           filters.traceCategories.Contains(logMessage.traceCategory))
+                        if (logMessage.Type != LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
+                           filters.traceCategories.Contains(logMessage.TraceCategory))
                         {
                             if (remoteLoggers == null)
                             {
@@ -289,7 +289,7 @@ namespace IceInternal
             }
         }
 
-        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex,
+        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, LocalException ex,
                                        string operation)
         {
             //
@@ -318,8 +318,8 @@ namespace IceInternal
             }
         }
 
-        private static void filterLogMessages(LinkedList<Ice.LogMessage> logMessages,
-                                              HashSet<Ice.LogMessageType> messageTypes,
+        private static void filterLogMessages(LinkedList<LogMessage> logMessages,
+                                              HashSet<LogMessageType> messageTypes,
                                               HashSet<string> traceCategories, int messageMax)
         {
             Debug.Assert(logMessages.Count > 0 && messageMax != 0);
@@ -335,11 +335,11 @@ namespace IceInternal
                 while (p != null)
                 {
                     bool keepIt = false;
-                    Ice.LogMessage msg = p.Value;
-                    if (messageTypes.Count == 0 || messageTypes.Contains(msg.type))
+                    LogMessage msg = p.Value;
+                    if (messageTypes.Count == 0 || messageTypes.Contains(msg.Type))
                     {
-                        if (msg.type != Ice.LogMessageType.TraceMessage || traceCategories.Count == 0 ||
-                           traceCategories.Contains(msg.traceCategory))
+                        if (msg.Type != LogMessageType.TraceMessage || traceCategories.Count == 0 ||
+                           traceCategories.Contains(msg.TraceCategory))
                         {
                             keepIt = true;
                         }
@@ -384,7 +384,7 @@ namespace IceInternal
             return IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
         }
 
-        private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger)
+        private static Communicator createSendLogCommunicator(Communicator communicator, ILogger logger)
         {
             Dictionary<string, string> properties = communicator.GetProperties().Where(
                 p => p.Key == "Ice.Default.Locator" || p.Key == "Ice.Plugin.IceSSL" || p.Key.StartsWith("IceSSL.")
@@ -395,7 +395,7 @@ namespace IceInternal
             return new Communicator(ref args, properties, logger: logger);
         }
 
-        private readonly LinkedList<Ice.LogMessage> _queue = new LinkedList<Ice.LogMessage>();
+        private readonly LinkedList<LogMessage> _queue = new LinkedList<LogMessage>();
         private int _logCount = 0; // non-trace messages
         private readonly int _maxLogCount;
         private int _traceCount = 0;
@@ -407,13 +407,13 @@ namespace IceInternal
 
         private class Filters
         {
-            internal Filters(Ice.LogMessageType[] m, string[] c)
+            internal Filters(LogMessageType[] m, string[] c)
             {
-                messageTypes = new HashSet<Ice.LogMessageType>(m);
+                messageTypes = new HashSet<LogMessageType>(m);
                 traceCategories = new HashSet<string>(c);
             }
 
-            internal readonly HashSet<Ice.LogMessageType> messageTypes;
+            internal readonly HashSet<LogMessageType> messageTypes;
             internal readonly HashSet<string> traceCategories;
         }
 
@@ -429,12 +429,12 @@ namespace IceInternal
             internal readonly Filters filters;
         }
 
-        private readonly Dictionary<Ice.Identity, RemoteLoggerData> _remoteLoggerMap
-            = new Dictionary<Ice.Identity, RemoteLoggerData>();
+        private readonly Dictionary<Identity, RemoteLoggerData> _remoteLoggerMap
+            = new Dictionary<Identity, RemoteLoggerData>();
 
-        private readonly LoggerAdminLoggerI _logger;
+        private readonly LoggerAdminLogger _logger;
 
-        private Ice.Communicator? _sendLogCommunicator = null;
+        private Communicator? _sendLogCommunicator = null;
         private bool _destroyed = false;
         private const string _traceCategory = "Admin.Logger";
     }

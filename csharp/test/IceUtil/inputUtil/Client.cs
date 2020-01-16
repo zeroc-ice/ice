@@ -152,8 +152,5 @@ public class Client : Test.TestHelper
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

@@ -4,12 +4,9 @@
 
 using System.Diagnostics;
 
-public class PluginThreeFactory : Ice.PluginFactory
+public class PluginThreeFactory : Ice.IPluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginThree(communicator);
-    }
+    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginThree(communicator);
 
     internal class PluginThree : BasePlugin
     {

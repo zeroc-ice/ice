@@ -2,16 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
+    public class Cookie
     {
-        public class Cookie
-        {
-            public string message()
-            {
-                return "blahblah";
-            }
-        }
+        public string message() => "blahblah";
     }
 }

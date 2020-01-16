@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-internal class Connector : IceInternal.Connector
+internal class Connector : IceInternal.IConnector
 {
-    public IceInternal.Transceiver connect()
+    public IceInternal.ITransceiver connect()
     {
         _configuration.checkConnectException();
         return new Transceiver(_connector.connect());
@@ -12,13 +12,13 @@ internal class Connector : IceInternal.Connector
 
     public short type()
     {
-        return (short)(EndpointI.TYPE_BASE + _connector.type());
+        return (short)(Endpoint.TYPE_BASE + _connector.type());
     }
 
     //
     // Only for use by Endpoint
     //
-    internal Connector(IceInternal.Connector connector)
+    internal Connector(IceInternal.IConnector connector)
     {
         _configuration = Configuration.getInstance();
         _connector = connector;
@@ -48,6 +48,6 @@ internal class Connector : IceInternal.Connector
         return _connector.GetHashCode();
     }
 
-    private IceInternal.Connector _connector;
+    private IceInternal.IConnector _connector;
     private Configuration _configuration;
 }

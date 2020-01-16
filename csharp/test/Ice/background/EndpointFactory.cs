@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-internal class EndpointFactory : IceInternal.EndpointFactory
+internal class EndpointFactory : IceInternal.IEndpointFactory
 {
-    internal EndpointFactory(IceInternal.EndpointFactory factory)
+    internal EndpointFactory(IceInternal.IEndpointFactory factory)
     {
         _factory = factory;
     }
@@ -18,7 +18,7 @@ internal class EndpointFactory : IceInternal.EndpointFactory
 
     public short type()
     {
-        return (short)(EndpointI.TYPE_BASE + _factory.type());
+        return (short)(Endpoint.TYPE_BASE + _factory.type());
     }
 
     public string protocol()
@@ -26,18 +26,18 @@ internal class EndpointFactory : IceInternal.EndpointFactory
         return "test-" + _factory.protocol();
     }
 
-    public IceInternal.EndpointI create(List<string> args, bool server)
+    public IceInternal.Endpoint create(List<string> args, bool server)
     {
-        return new EndpointI(_factory.create(args, server));
+        return new Endpoint(_factory.create(args, server));
     }
 
-    public IceInternal.EndpointI read(Ice.InputStream s)
+    public IceInternal.Endpoint read(Ice.InputStream s)
     {
         short type = s.ReadShort();
         Debug.Assert(type == _factory.type());
 
         s.StartEncapsulation();
-        IceInternal.EndpointI endpoint = new EndpointI(_factory.read(s));
+        IceInternal.Endpoint endpoint = new Endpoint(_factory.read(s));
         s.EndEncapsulation();
         return endpoint;
     }
@@ -46,10 +46,10 @@ internal class EndpointFactory : IceInternal.EndpointFactory
     {
     }
 
-    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
+    public IceInternal.IEndpointFactory clone(IceInternal.ProtocolInstance instance)
     {
         return this;
     }
 
-    private IceInternal.EndpointFactory _factory;
+    private IceInternal.IEndpointFactory _factory;
 }

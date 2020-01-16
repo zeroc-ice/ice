@@ -4,24 +4,15 @@
 
 using Test;
 
-public class TestI : TestIntf
+public class TestIntf : ITestIntf
 {
-    public TestI(string[] args)
-    {
-        _args = args;
-    }
+    public TestIntf(string[] args) => _args = args;
 
     public string
-    getProperty(string name, Ice.Current current)
-    {
-        return current.Adapter.Communicator.GetProperty(name) ?? "";
-    }
+    getProperty(string name, Ice.Current current) => current.Adapter.Communicator.GetProperty(name) ?? "";
 
     public string[]
-    getArgs(Ice.Current current)
-    {
-        return _args;
-    }
+    getArgs(Ice.Current current) => _args;
 
     private string[] _args;
 }

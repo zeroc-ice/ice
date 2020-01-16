@@ -14,7 +14,7 @@ namespace IceSSL
 {
     internal class SSLEngine
     {
-        internal SSLEngine(IceInternal.ProtocolPluginFacade facade)
+        internal SSLEngine(IceInternal.IProtocolPluginFacade facade)
         {
             _communicator = facade.getCommunicator();
             _logger = _communicator.Logger;
@@ -114,7 +114,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (CertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -149,7 +149,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (PasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -382,12 +382,12 @@ namespace IceSSL
             _certs = certs;
         }
 
-        internal void setCertificateVerifier(CertificateVerifier verifier)
+        internal void setCertificateVerifier(ICertificateVerifier verifier)
         {
             _verifier = verifier;
         }
 
-        internal CertificateVerifier? getCertificateVerifier()
+        internal ICertificateVerifier? getCertificateVerifier()
         {
             return _verifier;
         }
@@ -397,12 +397,12 @@ namespace IceSSL
             return _checkCertName;
         }
 
-        internal void setPasswordCallback(PasswordCallback callback)
+        internal void setPasswordCallback(IPasswordCallback callback)
         {
             _passwordCallback = callback;
         }
 
-        internal PasswordCallback? getPasswordCallback()
+        internal IPasswordCallback? getPasswordCallback()
         {
             return _passwordCallback;
         }
@@ -464,10 +464,10 @@ namespace IceSSL
 
         internal void verifyPeer(string? address, ConnectionInfo info, string desc)
         {
-            if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
+            if (_verifyDepthMax > 0 && info.Certs != null && info.Certs.Length > _verifyDepthMax)
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
+                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                    "length of peer's certificate chain (" + info.Certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {
@@ -480,7 +480,7 @@ namespace IceSSL
 
             if (!_trustManager.verify(info, desc))
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
                 if (_securityTraceLevel >= 1)
                 {
@@ -494,7 +494,7 @@ namespace IceSSL
 
             if (_verifier != null && !_verifier.verify(info))
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") +
+                string msg = (info.Incoming ? "incoming" : "outgoing") +
                     " connection rejected by certificate verifier\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {
@@ -899,8 +899,8 @@ namespace IceSSL
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly Ice.Logger _logger;
-        private readonly IceInternal.ProtocolPluginFacade _facade;
+        private readonly Ice.ILogger _logger;
+        private readonly IceInternal.IProtocolPluginFacade _facade;
         private readonly int _securityTraceLevel;
         private readonly string _securityTraceCategory;
         private bool _initialized;
@@ -912,8 +912,8 @@ namespace IceSSL
         private X509Certificate2Collection? _certs;
         private bool _useMachineContext;
         private X509Certificate2Collection? _caCerts;
-        private CertificateVerifier? _verifier;
-        private PasswordCallback? _passwordCallback;
+        private ICertificateVerifier? _verifier;
+        private IPasswordCallback? _passwordCallback;
         private readonly TrustManager _trustManager;
     }
 }

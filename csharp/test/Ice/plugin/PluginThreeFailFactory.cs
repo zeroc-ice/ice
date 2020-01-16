@@ -4,12 +4,9 @@
 
 using System;
 
-public class PluginThreeFailFactory : Ice.PluginFactory
+public class PluginThreeFailFactory : Ice.IPluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginThreeFail(communicator);
-    }
+    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
 
     internal class PluginThreeFail : BasePluginFail
     {
@@ -17,15 +14,9 @@ public class PluginThreeFailFactory : Ice.PluginFactory
         {
         }
 
-        public override void initialize()
-        {
-            throw new PluginInitializeFailException();
-        }
+        public override void initialize() => throw new PluginInitializeFailException();
 
-        public override void destroy()
-        {
-            test(false);
-        }
+        public override void destroy() => test(false);
 
         ~PluginThreeFail()
         {

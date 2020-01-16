@@ -52,7 +52,7 @@ namespace IceBox
                 }
             }
 
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, args);
+            ServiceManager serviceManagerImpl = new ServiceManager(communicator, args);
             return serviceManagerImpl.run();
         }
 

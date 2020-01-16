@@ -12,7 +12,7 @@ namespace Ice
     {
         namespace AMD
         {
-            public class ThrowerI : Test.Thrower
+            public class ThrowerI : Test.IThrower
             {
                 public ThrowerI()
                 {

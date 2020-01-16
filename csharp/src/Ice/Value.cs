@@ -16,29 +16,20 @@ namespace Ice
         /// Returns the Slice type ID of the interface supported by this object.
         /// </summary>
         /// <returns>The return value is always ::Ice::IObject.</returns>
-        public static string ice_staticId()
-        {
-            return _id;
-        }
+        public static string ice_staticId() => _id;
 
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
         /// <returns>The return value is always ::Ice::IObject.</returns>
-        public virtual string ice_id()
-        {
-            return _id;
-        }
+        public virtual string ice_id() => _id;
 
         /// <summary>
         /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>
         /// <returns>The sliced data or null.</returns>
-        public virtual SlicedData? ice_getSlicedData()
-        {
-            return null;
-        }
+        public virtual SlicedData? ice_getSlicedData() => null;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
@@ -79,15 +70,9 @@ namespace Ice
 
     public class InterfaceByValue : Value
     {
-        public InterfaceByValue(string id)
-        {
-            _id = id;
-        }
+        public InterfaceByValue(string id) => _id = id;
 
-        public override string ice_id()
-        {
-            return _id;
-        }
+        public override string ice_id() => _id;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void iceWriteImpl(OutputStream ostr)

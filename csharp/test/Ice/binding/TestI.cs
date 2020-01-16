@@ -2,16 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
+    public class TestIntf : Test.ITestIntf
     {
-        public class TestI : Test.TestIntf
-        {
-            public string getAdapterName(Ice.Current current)
-            {
-                return current.Adapter.GetName();
-            }
-        }
+        public string getAdapterName(Current current) => current.Adapter.GetName();
     }
 }

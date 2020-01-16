@@ -4,17 +4,11 @@
 
 namespace IceInternal
 {
-    public sealed class ProcessI : Ice.Process
+    public sealed class Process : Ice.IProcess
     {
-        public ProcessI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
+        public Process(Ice.Communicator communicator) => _communicator = communicator;
 
-        public void Shutdown(Ice.Current current)
-        {
-            _communicator.shutdown();
-        }
+        public void Shutdown(Ice.Current current) => _communicator.shutdown();
 
         public void WriteMessage(string message, int fd, Ice.Current current)
         {

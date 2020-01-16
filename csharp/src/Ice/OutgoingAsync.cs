@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IceInternal
 {
-    public interface OutgoingAsyncCompletionCallback
+    public interface IOutgoingAsyncCompletionCallback
     {
         void init(OutgoingAsyncBase og);
 
@@ -154,7 +154,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void cancelable(CancellationHandler handler)
+        public virtual void cancelable(ICancellationHandler handler)
         {
             lock (this)
             {
@@ -178,9 +178,9 @@ namespace IceInternal
             cancel(new Ice.InvocationCanceledException());
         }
 
-        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
+        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
         {
-            Ice.Instrumentation.InvocationObserver observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver observer = getObserver();
             if (observer != null)
             {
                 int size = os_.size() - Protocol.headerSize - 4;
@@ -194,7 +194,7 @@ namespace IceInternal
 
         public void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
         {
-            Ice.Instrumentation.InvocationObserver observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver observer = getObserver();
             if (observer != null)
             {
                 int size = os_.size() - Protocol.headerSize - 4;
@@ -229,7 +229,7 @@ namespace IceInternal
             return synchronous_;
         }
 
-        protected OutgoingAsyncBase(Ice.Communicator communicator, OutgoingAsyncCompletionCallback completionCallback,
+        protected OutgoingAsyncBase(Ice.Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
                                     Ice.OutputStream? os = null, Ice.InputStream? iss = null)
         {
             communicator_ = communicator;
@@ -340,7 +340,7 @@ namespace IceInternal
 
         protected void cancel(Ice.LocalException ex)
         {
-            CancellationHandler handler;
+            ICancellationHandler handler;
             {
                 lock (this)
                 {
@@ -352,7 +352,7 @@ namespace IceInternal
                     handler = _cancellationHandler;
                 }
             }
-            handler.asyncRequestCanceled(this, ex);
+            handler.AsyncRequestCanceled(this, ex);
         }
 
         protected void warning(System.Exception ex)
@@ -363,7 +363,7 @@ namespace IceInternal
             }
         }
 
-        protected Ice.Instrumentation.InvocationObserver getObserver()
+        protected Ice.Instrumentation.IInvocationObserver getObserver()
         {
             return observer_;
         }
@@ -379,8 +379,8 @@ namespace IceInternal
         protected bool synchronous_;
         protected int state_;
 
-        protected Ice.Instrumentation.InvocationObserver observer_;
-        protected Ice.Instrumentation.ChildInvocationObserver childObserver_;
+        protected Ice.Instrumentation.IInvocationObserver observer_;
+        protected Ice.Instrumentation.IChildInvocationObserver childObserver_;
 
         protected Ice.OutputStream os_;
         protected Ice.InputStream is_;
@@ -389,8 +389,8 @@ namespace IceInternal
         private bool _alreadySent;
         private Ice.Exception _ex;
         private Ice.LocalException _cancellationException;
-        private CancellationHandler _cancellationHandler;
-        private OutgoingAsyncCompletionCallback _completionCallback;
+        private ICancellationHandler _cancellationHandler;
+        private IOutgoingAsyncCompletionCallback _completionCallback;
 
         protected const int StateOK = 0x1;
         protected const int StateDone = 0x2;
@@ -409,9 +409,9 @@ namespace IceInternal
     // correct notified of failures and make sure the retry task is
     // correctly canceled when the invocation completes.
     //
-    public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
+    public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, ITimerTask
     {
-        public abstract int invokeRemote(Ice.ConnectionI connection, bool compress, bool response);
+        public abstract int invokeRemote(Ice.Connection connection, bool compress, bool response);
         public abstract int invokeCollocated(CollocatedRequestHandler handler);
 
         public override bool exception(Ice.Exception exc)
@@ -449,11 +449,11 @@ namespace IceInternal
             }
         }
 
-        public override void cancelable(CancellationHandler handler)
+        public override void cancelable(ICancellationHandler handler)
         {
             if (proxy_.IceReference.getInvocationTimeout() == -2 && cachedConnection_ != null)
             {
-                int timeout = cachedConnection_.timeout();
+                int timeout = cachedConnection_.Timeout;
                 if (timeout > 0)
                 {
                     communicator_.timer().schedule(this, timeout);
@@ -507,7 +507,7 @@ namespace IceInternal
         }
 
         protected ProxyOutgoingAsyncBase(Ice.IObjectPrx prx,
-                                         OutgoingAsyncCompletionCallback completionCallback,
+                                         IOutgoingAsyncCompletionCallback completionCallback,
                                          Ice.OutputStream? os = null,
                                          Ice.InputStream? iss = null) :
             base(prx.Communicator, completionCallback, os, iss)
@@ -633,7 +633,7 @@ namespace IceInternal
             return base.responseImpl(userThread, ok, invoke);
         }
 
-        public void runTimerTask()
+        public void RunTimerTask()
         {
             if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
@@ -646,7 +646,7 @@ namespace IceInternal
         }
 
         protected readonly Ice.IObjectPrx proxy_;
-        protected RequestHandler handler_;
+        protected IRequestHandler handler_;
         protected Ice.OperationMode mode_;
 
         private int _cnt;
@@ -658,7 +658,7 @@ namespace IceInternal
     //
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
-        public OutgoingAsync(Ice.IObjectPrx prx, OutgoingAsyncCompletionCallback completionCallback,
+        public OutgoingAsync(Ice.IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
                              Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
@@ -726,7 +726,7 @@ namespace IceInternal
                 //
                 // Implicit context
                 //
-                Ice.ImplicitContextI implicitContext = (Ice.ImplicitContextI)rf.getCommunicator().getImplicitContext();
+                Ice.ImplicitContext implicitContext = (Ice.ImplicitContext)rf.getCommunicator().getImplicitContext();
                 Dictionary<string, string> prxContext = rf.getContext();
 
                 if (implicitContext == null)
@@ -894,10 +894,10 @@ namespace IceInternal
             }
         }
 
-        public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
+        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
-            return connection.sendAsyncRequest(this, compress, response);
+            return connection.SendAsyncRequest(this, compress, response);
         }
 
         public override int invokeCollocated(CollocatedRequestHandler handler)
@@ -1017,7 +1017,7 @@ namespace IceInternal
     public class OutgoingAsyncT<T> : OutgoingAsync
     {
         public OutgoingAsyncT(Ice.IObjectPrx prx,
-                              OutgoingAsyncCompletionCallback completionCallback,
+                              IOutgoingAsyncCompletionCallback completionCallback,
                               Ice.OutputStream? os = null,
                               Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
@@ -1087,12 +1087,12 @@ namespace IceInternal
     //
     internal class ProxyGetConnection : ProxyOutgoingAsyncBase
     {
-        public ProxyGetConnection(Ice.IObjectPrx prx, OutgoingAsyncCompletionCallback completionCallback) :
+        public ProxyGetConnection(Ice.IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback) :
             base(prx, completionCallback)
         {
         }
 
-        public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
+        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
             if (responseImpl(false, true, true))
@@ -1124,7 +1124,7 @@ namespace IceInternal
         }
     }
 
-    public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
+    public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, IOutgoingAsyncCompletionCallback
     {
         public TaskCompletionCallback(System.IProgress<bool>? progress, CancellationToken cancellationToken)
         {

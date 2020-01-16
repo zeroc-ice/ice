@@ -13,21 +13,16 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new InitialI(), "initial");
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
+                using var communicator = initialize(ref args);
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                var adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.Add(new Initial(), "initial");
+                adapter.Activate();
+                serverReady();
+                communicator.waitForShutdown();
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            public static int Main(string[] args) => TestDriver.runTest<Server>(args);
         }
     }
 }

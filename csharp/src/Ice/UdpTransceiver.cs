@@ -11,7 +11,7 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Text;
 
-    internal sealed class UdpTransceiver : Transceiver
+    internal sealed class UdpTransceiver : ITransceiver
     {
         public Socket? fd()
         {
@@ -74,7 +74,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI bind()
+        public Endpoint bind()
         {
             Debug.Assert(_fd != null);
             if (Network.isMulticast((IPEndPoint)_addr))
@@ -561,14 +561,14 @@ namespace IceInternal
             if (_fd != null)
             {
                 EndPoint localEndpoint = Network.getLocalAddress(_fd);
-                info.localAddress = Network.endpointAddressToString(localEndpoint);
-                info.localPort = Network.endpointPort(localEndpoint);
+                info.LocalAddress = Network.endpointAddressToString(localEndpoint);
+                info.LocalPort = Network.endpointPort(localEndpoint);
                 if (_state == StateNotConnected)
                 {
                     if (_peerAddr != null)
                     {
-                        info.remoteAddress = Network.endpointAddressToString(_peerAddr);
-                        info.remotePort = Network.endpointPort(_peerAddr);
+                        info.RemoteAddress = Network.endpointAddressToString(_peerAddr);
+                        info.RemotePort = Network.endpointPort(_peerAddr);
                     }
                 }
                 else
@@ -576,18 +576,18 @@ namespace IceInternal
                     EndPoint? remoteEndpoint = Network.getRemoteAddress(_fd);
                     if (remoteEndpoint != null)
                     {
-                        info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                        info.remotePort = Network.endpointPort(remoteEndpoint);
+                        info.RemoteAddress = Network.endpointAddressToString(remoteEndpoint);
+                        info.RemotePort = Network.endpointPort(remoteEndpoint);
                     }
                 }
-                info.rcvSize = Network.getRecvBufferSize(_fd);
-                info.sndSize = Network.getSendBufferSize(_fd);
+                info.RcvSize = Network.getRecvBufferSize(_fd);
+                info.SndSize = Network.getSendBufferSize(_fd);
             }
 
             if (_mcastAddr != null)
             {
-                info.mcastAddress = Network.endpointAddressToString(_mcastAddr);
-                info.mcastPort = Network.endpointPort(_mcastAddr);
+                info.McastAddress = Network.endpointAddressToString(_mcastAddr);
+                info.McastPort = Network.endpointPort(_mcastAddr);
             }
             return info;
         }

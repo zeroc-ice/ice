@@ -5,37 +5,21 @@
 using Test;
 using System.Diagnostics;
 
-public sealed class CallbackI : Test.Callback
+public sealed class Callback : ICallback
 {
-    public CallbackI()
-    {
-    }
+    public void
+    initiateCallback(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callback(current.Context);
 
     public void
-    initiateCallback(ICallbackReceiverPrx proxy, Ice.Current current)
-    {
-        proxy.callback(current.Context);
-    }
+    initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callbackEx(current.Context);
 
     public void
-    initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current)
-    {
-        proxy.callbackEx(current.Context);
-    }
-
-    public void
-    shutdown(Ice.Current current)
-    {
-        current.Adapter.Communicator.shutdown();
-    }
+    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
 }
 
-public sealed class CallbackReceiverI : CallbackReceiver
+public sealed class CallbackReceiver : ICallbackReceiver
 {
-    public CallbackReceiverI()
-    {
-        _callback = false;
-    }
+    public CallbackReceiver() => _callback = false;
 
     public void
     callback(Ice.Current current)

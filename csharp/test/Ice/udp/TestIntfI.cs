@@ -4,63 +4,60 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.udp
 {
-    namespace udp
+    public sealed class TestIntf : Test.ITestIntf
     {
-        public sealed class TestIntfI : Test.TestIntf
+        public void ping(Test.IPingReplyPrx reply, Current current)
         {
-            public void ping(Test.IPingReplyPrx reply, Ice.Current current)
+            try
             {
-                try
-                {
-                    reply.reply();
-                }
-                catch (Ice.LocalException)
-                {
-                    Debug.Assert(false);
-                }
+                reply.reply();
             }
-
-            public void sendByteSeq(byte[] seq, Test.IPingReplyPrx reply, Ice.Current current)
+            catch (LocalException)
             {
-                try
-                {
-                    reply.reply();
-                }
-                catch (Ice.LocalException)
-                {
-                    Debug.Assert(false);
-                }
+                Debug.Assert(false);
             }
-
-            public void pingBiDir(Ice.Identity id, Ice.Current current)
-            {
-                try
-                {
-                    //
-                    // Ensure sending too much data doesn't cause the UDP connection
-                    // to be closed.
-                    //
-                    try
-                    {
-                        byte[] seq = new byte[32 * 1024];
-                        Test.ITestIntfPrx.UncheckedCast(current.Connection.createProxy(id)).sendByteSeq(seq, null);
-                    }
-                    catch (Ice.DatagramLimitException)
-                    {
-                        // Expected.
-                    }
-
-                    Test.IPingReplyPrx.UncheckedCast(current.Connection.createProxy(id)).reply();
-                }
-                catch (Ice.LocalException)
-                {
-                    Debug.Assert(false);
-                }
-            }
-
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
         }
+
+        public void sendByteSeq(byte[] seq, Test.IPingReplyPrx reply, Current current)
+        {
+            try
+            {
+                reply.reply();
+            }
+            catch (LocalException)
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        public void pingBiDir(Identity id, Current current)
+        {
+            try
+            {
+                //
+                // Ensure sending too much data doesn't cause the UDP connection
+                // to be closed.
+                //
+                try
+                {
+                    byte[] seq = new byte[32 * 1024];
+                    Test.ITestIntfPrx.UncheckedCast(current.Connection.CreateProxy(id)).sendByteSeq(seq, null);
+                }
+                catch (Ice.DatagramLimitException)
+                {
+                    // Expected.
+                }
+
+                Test.IPingReplyPrx.UncheckedCast(current.Connection.CreateProxy(id)).reply();
+            }
+            catch (LocalException)
+            {
+                Debug.Assert(false);
+            }
+        }
+
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
     }
 }

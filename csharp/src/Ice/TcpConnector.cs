@@ -6,9 +6,9 @@ namespace IceInternal
 {
     using System.Net;
 
-    internal sealed class TcpConnector : Connector
+    internal sealed class TcpConnector : IConnector
     {
-        public Transceiver connect()
+        public ITransceiver connect()
         {
             return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
         }
@@ -21,7 +21,7 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(ProtocolInstance instance, EndPoint addr, NetworkProxy proxy, EndPoint sourceAddr,
+        internal TcpConnector(ProtocolInstance instance, EndPoint addr, INetworkProxy proxy, EndPoint sourceAddr,
                               int timeout, string connectionId)
         {
             _instance = instance;
@@ -84,7 +84,7 @@ namespace IceInternal
 
         private ProtocolInstance _instance;
         private EndPoint _addr;
-        private NetworkProxy _proxy;
+        private INetworkProxy _proxy;
         private EndPoint _sourceAddr;
         private int _timeout;
         private string _connectionId;

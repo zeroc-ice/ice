@@ -2,66 +2,47 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+using System.Threading;
+
+namespace Ice.retry
 {
-    namespace retry
+    public sealed class Retry : Test.IRetry
     {
-        using System.Threading;
-
-        public sealed class RetryI : Test.Retry
+        public void op(bool kill, Current current)
         {
-            public RetryI()
+            if (kill)
             {
-            }
-
-            public void op(bool kill, Ice.Current current)
-            {
-                if (kill)
+                if (current.Connection != null)
                 {
-                    if (current.Connection != null)
-                    {
-                        current.Connection.close(Ice.ConnectionClose.Forcefully);
-                    }
-                    else
-                    {
-                        throw new Ice.ConnectionLostException();
-                    }
+                    current.Connection.Close(Ice.ConnectionClose.Forcefully);
+                }
+                else
+                {
+                    throw new ConnectionLostException();
                 }
             }
+        }
 
-            public int opIdempotent(int nRetry, Ice.Current current)
+        public int opIdempotent(int nRetry, Current current)
+        {
+            if (nRetry > _counter)
             {
-                if (nRetry > _counter)
-                {
-                    ++_counter;
-                    throw new Ice.ConnectionLostException();
-                }
-                int counter = _counter;
-                _counter = 0;
-                return counter;
-            }
-
-            public void opNotIdempotent(Ice.Current current)
-            {
+                ++_counter;
                 throw new Ice.ConnectionLostException();
             }
-
-            public void opSystemException(Ice.Current c)
-            {
-                throw new SystemFailure();
-            }
-
-            public void sleep(int delay, Ice.Current c)
-            {
-                Thread.Sleep(delay);
-            }
-
-            public void shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
-
-            private int _counter;
+            int counter = _counter;
+            _counter = 0;
+            return counter;
         }
+
+        public void opNotIdempotent(Current current) => throw new ConnectionLostException();
+
+        public void opSystemException(Current c) => throw new SystemFailure();
+
+        public void sleep(int delay, Current c) => Thread.Sleep(delay);
+
+        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+
+        private int _counter;
     }
 }

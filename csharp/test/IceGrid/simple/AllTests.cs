@@ -8,9 +8,9 @@ using Ice;
 
 public class AllTests : Test.AllTests
 {
-    public static void allTests(Test.TestHelper helper)
+    public static void allTests(TestHelper helper)
     {
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         string rf = "test @ TestAdapter";
@@ -33,10 +33,10 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing locator finder... ");
-        Ice.Identity finderId = new Ice.Identity();
-        finderId.category = "Ice";
-        finderId.name = "LocatorFinder";
-        Ice.ILocatorFinderPrx finder = Ice.ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
+        Identity finderId = new Identity();
+        finderId.Category = "Ice";
+        finderId.Name = "LocatorFinder";
+        ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
 
@@ -44,7 +44,7 @@ public class AllTests : Test.AllTests
         {
             // Add test well-known object
             IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-                communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
+                communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
 
             IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
             session.GetAdmin().AddObjectWithType(@base, "::Test");
@@ -253,9 +253,9 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-            communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
+            communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
         IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
-        session.GetConnection().setACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
+        session.GetConnection().SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.IAdminPrx admin = session.GetAdmin();
         admin.EnableServer("server", false);

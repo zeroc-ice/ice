@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    public interface NativePropertiesAdmin
+    public interface INativePropertiesAdmin
     {
         void addUpdateCallback(System.Action<Dictionary<string, string>> callback);
 
@@ -18,25 +18,19 @@ namespace Ice
 
 namespace IceInternal
 {
-    internal sealed class PropertiesAdminI : Ice.PropertiesAdmin, Ice.NativePropertiesAdmin
+    internal sealed class PropertiesAdmin : Ice.IPropertiesAdmin, Ice.INativePropertiesAdmin
     {
-        internal PropertiesAdminI(Ice.Communicator communicator)
+        internal PropertiesAdmin(Ice.Communicator communicator)
         {
             _communicator = communicator;
             _logger = communicator.Logger;
         }
 
         public string
-        GetProperty(string name, Ice.Current current)
-        {
-            return _communicator.GetProperty(name) ?? "";
-        }
+        GetProperty(string name, Ice.Current current) => _communicator.GetProperty(name) ?? "";
 
         public Dictionary<string, string>
-        GetPropertiesForPrefix(string name, Ice.Current current)
-        {
-            return _communicator.GetProperties(forPrefix: name);
-        }
+        GetPropertiesForPrefix(string name, Ice.Current current) => _communicator.GetProperties(forPrefix: name);
 
         public void
         SetProperties(Dictionary<string, string> props, Ice.Current current)
@@ -101,7 +95,7 @@ namespace IceInternal
             }
         }
 
-        public void addUpdateCallback(System.Action<Dictionary<string, string>> cb)
+        public void addUpdateCallback(Action<Dictionary<string, string>> cb)
         {
             lock (this)
             {
@@ -109,7 +103,7 @@ namespace IceInternal
             }
         }
 
-        public void removeUpdateCallback(System.Action<Dictionary<string, string>> cb)
+        public void removeUpdateCallback(Action<Dictionary<string, string>> cb)
         {
             lock (this)
             {
@@ -118,7 +112,7 @@ namespace IceInternal
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly Ice.Logger _logger;
+        private readonly Ice.ILogger _logger;
         private List<Action<Dictionary<string, string>>> _updateCallbacks =
             new List<Action<Dictionary<string, string>>>();
 

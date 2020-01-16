@@ -4,113 +4,104 @@
 
 using System.Text;
 
-namespace Ice
+namespace Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
+    public class Cookie
     {
-        public class Cookie
+        public string message() => "blahblah";
+    }
+
+    public class Router : IRouter
+    {
+        public IRouter.GetClientProxyReturnValue GetClientProxy(Current current) =>
+            new IRouter.GetClientProxyReturnValue(null, false);
+
+        public IObjectPrx GetServerProxy(Current current)
         {
-            public string message()
+            StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
+            s.Append(_nextPort++);
+            s.Append(" -t 30000");
+            return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
+        }
+
+        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
+        {
+            return null;
+        }
+
+        private int _nextPort = 23456;
+    }
+
+    public sealed class ServantLocator : IServantLocator
+    {
+        public ServantLocator() => _deactivated = false;
+
+        ~ServantLocator()
+        {
+            lock (this)
             {
-                return "blahblah";
+                test(_deactivated);
             }
         }
 
-        public class RouterI : Router
+        private static void test(bool b)
         {
-            public Router.GetClientProxyReturnValue GetClientProxy(Current current) =>
-                new Router.GetClientProxyReturnValue(null, false);
-
-            public IObjectPrx GetServerProxy(Current current)
+            if (!b)
             {
-                StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
-                s.Append(_nextPort++);
-                s.Append(" -t 30000");
-                return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
+                throw new System.Exception();
             }
-
-            public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
-            {
-                return null;
-            }
-
-            private int _nextPort = 23456;
         }
 
-        public sealed class ServantLocatorI : ServantLocator
+        public Disp locate(Current current, out object cookie)
         {
-            public ServantLocatorI()
+            lock (this)
             {
-                _deactivated = false;
+                test(!_deactivated);
             }
 
-            ~ServantLocatorI()
+            if (current.Id.Name.Equals("router"))
             {
-                lock (this)
-                {
-                    test(_deactivated);
-                }
+                cookie = null;
+                RouterTraits routerT = default;
+                return (incoming, current) => routerT.Dispatch(_router, incoming, current);
             }
 
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            test(current.Id.Category.Length == 0);
+            test(current.Id.Name.Equals("test"));
 
-            public Disp locate(Current current, out object cookie)
-            {
-                lock (this)
-                {
-                    test(!_deactivated);
-                }
+            cookie = new Cookie();
 
-                if (current.Id.name.Equals("router"))
-                {
-                    cookie = null;
-                    RouterTraits routerT = default;
-                    return (incoming, current) => routerT.Dispatch(_router, incoming, current);
-                }
-
-                test(current.Id.category.Length == 0);
-                test(current.Id.name.Equals("test"));
-
-                cookie = new Cookie();
-
-                var testT = default(Test.TestIntfTraits);
-                var testI = new TestI();
-                return (incoming, current) => testT.Dispatch(testI, incoming, current);
-            }
-
-            public void finished(Current current, Disp servant, object cookie)
-            {
-                lock (this)
-                {
-                    test(!_deactivated);
-                }
-
-                if (current.Id.name.Equals("router"))
-                {
-                    return;
-                }
-
-                var co = (Cookie)cookie;
-                test(co.message().Equals("blahblah"));
-            }
-
-            public void deactivate(string category)
-            {
-                lock (this)
-                {
-                    test(!_deactivated);
-                    _deactivated = true;
-                }
-            }
-
-            private bool _deactivated;
-            private RouterI _router = new RouterI();
+            var testT = default(Test.TestIntfTraits);
+            var testI = new TestIntf();
+            return (incoming, current) => testT.Dispatch(testI, incoming, current);
         }
+
+        public void finished(Current current, Disp servant, object cookie)
+        {
+            lock (this)
+            {
+                test(!_deactivated);
+            }
+
+            if (current.Id.Name.Equals("router"))
+            {
+                return;
+            }
+
+            var co = (Cookie)cookie;
+            test(co.message().Equals("blahblah"));
+        }
+
+        public void deactivate(string category)
+        {
+            lock (this)
+            {
+                test(!_deactivated);
+                _deactivated = true;
+            }
+        }
+
+        private bool _deactivated;
+        private Router _router = new Router();
     }
 }

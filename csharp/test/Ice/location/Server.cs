@@ -18,31 +18,26 @@ namespace Ice.location
             var properties = createTestProperties(ref args);
             properties["Ice.ThreadPool.Server.Size"] = "2";
 
-            using (var communicator = initialize(properties))
-            {
-                communicator.SetProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-                ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
-                //
-                // We also register a sample server locator which implements the
-                // locator interface, this locator is used by the clients and the
-                // 'servers' created with the server manager interface.
-                //
-                ServerLocatorRegistry registry = new ServerLocatorRegistry();
-                var obj = new ServerManagerI(registry, this);
-                adapter.Add(obj, "ServerManager");
-                registry.addObject(adapter.CreateProxy("ServerManager"));
-                ILocatorRegistryPrx registryPrx = adapter.Add(registry, "registry");
-                adapter.Add(new ServerLocator(registry, registryPrx), "locator");
+            using var communicator = initialize(properties);
+            communicator.SetProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+            var adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+            //
+            // We also register a sample server locator which implements the
+            // locator interface, this locator is used by the clients and the
+            // 'servers' created with the server manager interface.
+            //
+            var registry = new ServerLocatorRegistry();
+            var obj = new ServerManager(registry, this);
+            adapter.Add(obj, "ServerManager");
+            registry.addObject(adapter.CreateProxy("ServerManager"));
+            var registryPrx = adapter.Add(registry, "registry");
+            adapter.Add(new ServerLocator(registry, registryPrx), "locator");
 
-                adapter.Activate();
-                serverReady();
-                communicator.waitForShutdown();
-            }
+            adapter.Activate();
+            serverReady();
+            communicator.waitForShutdown();
         }
 
-        public static int Main(string[] args)
-        {
-            return TestDriver.runTest<Server>(args);
-        }
+        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
     }
 }

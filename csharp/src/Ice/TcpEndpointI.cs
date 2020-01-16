@@ -77,7 +77,7 @@ namespace IceInternal
             return _timeout;
         }
 
-        public override EndpointI timeout(int timeout)
+        public override Endpoint timeout(int timeout)
         {
             if (timeout == _timeout)
             {
@@ -94,7 +94,7 @@ namespace IceInternal
             return _compress;
         }
 
-        public override EndpointI compress(bool compress)
+        public override Endpoint compress(bool compress)
         {
             if (compress == _compress)
             {
@@ -111,12 +111,12 @@ namespace IceInternal
             return false;
         }
 
-        public override Transceiver transceiver()
+        public override ITransceiver transceiver()
         {
             return null;
         }
 
-        public override Acceptor acceptor(string adapterName)
+        public override IAcceptor acceptor(string adapterName)
         {
             return new TcpAcceptor(this, instance_, host_, port_);
         }
@@ -162,7 +162,7 @@ namespace IceInternal
             return s;
         }
 
-        public override int CompareTo(EndpointI obj)
+        public override int CompareTo(Endpoint obj)
         {
             if (!(obj is TcpEndpointI))
             {
@@ -269,7 +269,7 @@ namespace IceInternal
             }
         }
 
-        protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
+        protected override IConnector createConnector(EndPoint addr, INetworkProxy proxy)
         {
             return new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
         }
@@ -283,7 +283,7 @@ namespace IceInternal
         private bool _compress;
     }
 
-    internal sealed class TcpEndpointFactory : EndpointFactory
+    internal sealed class TcpEndpointFactory : IEndpointFactory
     {
         internal TcpEndpointFactory(ProtocolInstance instance)
         {
@@ -304,14 +304,14 @@ namespace IceInternal
             return _instance.protocol();
         }
 
-        public EndpointI create(List<string> args, bool oaEndpoint)
+        public Endpoint create(List<string> args, bool oaEndpoint)
         {
             IPEndpointI endpt = new TcpEndpointI(_instance);
             endpt.initWithOptions(args, oaEndpoint);
             return endpt;
         }
 
-        public EndpointI read(Ice.InputStream s)
+        public Endpoint read(Ice.InputStream s)
         {
             return new TcpEndpointI(_instance, s);
         }
@@ -321,7 +321,7 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance)
+        public IEndpointFactory clone(ProtocolInstance instance)
         {
             return new TcpEndpointFactory(instance);
         }

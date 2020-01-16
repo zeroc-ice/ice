@@ -238,7 +238,7 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(!((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).verified);
+                    test(!((IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo).Verified);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -262,7 +262,7 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(((IceSSL.ConnectionInfo)server.GetConnection().getInfo()).verified);
+                    test(((IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo).Verified);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -340,12 +340,12 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                    test(info.certs!.Length == 2);
-                    test(info.verified);
+                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                    test(info.Certs!.Length == 2);
+                    test(info.Verified);
 
-                    test(caCert.Equals(info.certs[1]));
-                    test(serverCert.Equals(info.certs[0]));
+                    test(caCert.Equals(info.Certs[1]));
+                    test(serverCert.Equals(info.Certs[0]));
                 }
                 catch (System.Exception ex)
                 {
@@ -750,8 +750,8 @@ public class AllTests
                         try
                         {
                             server.IcePing();
-                            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                            test(!info.verified);
+                            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                            test(!info.Verified);
                         }
                         catch (LocalException ex)
                         {
@@ -832,9 +832,9 @@ public class AllTests
                     Test.IServerPrx server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1);
-                        test(!info.verified);
+                        info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                        test(info.Certs!.Length == 1);
+                        test(!info.Verified);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -852,9 +852,9 @@ public class AllTests
                     server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1);
-                        test(!info.verified);
+                        info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                        test(info.Certs!.Length == 1);
+                        test(!info.Verified);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -873,8 +873,8 @@ public class AllTests
                     server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                        test(info.certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
+                        info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                        test(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -899,9 +899,9 @@ public class AllTests
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                            test(info.certs!.Length == 2);
-                            test(info.verified);
+                            info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                            test(info.Certs!.Length == 2);
+                            test(info.Verified);
                         }
                         catch (LocalException ex)
                         {
@@ -927,7 +927,7 @@ public class AllTests
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            server.GetConnection().getInfo();
+                            _ = server.GetConnection().ConnectionInfo;
                             test(false);
                         }
                         catch (Ice.SecurityException)
@@ -966,9 +966,9 @@ public class AllTests
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                                test(info.certs!.Length == 3);
-                                test(info.verified);
+                                info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                                test(info.Certs!.Length == 3);
+                                test(info.Verified);
                             }
                             catch (Ice.LocalException ex)
                             {
@@ -984,7 +984,7 @@ public class AllTests
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                server.GetConnection().getInfo();
+                                _ = server.GetConnection().ConnectionInfo;
                                 test(false);
                             }
                             catch (Ice.SecurityException)
@@ -1011,9 +1011,9 @@ public class AllTests
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                                test(info.certs!.Length == 4);
-                                test(info.verified);
+                                info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                                test(info.Certs!.Length == 4);
+                                test(info.Verified);
                             }
                             catch (Ice.LocalException ex)
                             {
@@ -1099,7 +1099,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                CertificateVerifierI verifier = new CertificateVerifierI();
+                var verifier = new CertificateVerifier();
                 plugin.setCertificateVerifier(verifier);
 
                 var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
@@ -1108,9 +1108,9 @@ public class AllTests
                 Test.IServerPrx server = fact.createServer(serverProperties);
                 try
                 {
-                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().getInfo();
-                    Debug.Assert(info.cipher != null);
-                    server.checkCipher(info.cipher);
+                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().ConnectionInfo;
+                    Debug.Assert(info.Cipher != null);
+                    server.checkCipher(info.Cipher);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -1126,7 +1126,7 @@ public class AllTests
                 //
                 verifier.reset();
                 verifier.returnValue(false);
-                server.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                server.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
                 try
                 {
                     server.IcePing();
@@ -1152,7 +1152,7 @@ public class AllTests
                 // Verify that verifier is installed via property.
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                clientProperties["IceSSL.CertVerifier"] = "CertificateVerifierI";
+                clientProperties["IceSSL.CertVerifier"] = "CertificateVerifier";
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
@@ -1414,7 +1414,7 @@ public class AllTests
                 using var comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI("bogus");
+                var cb = new PasswordCallback("bogus");
                 plugin.setPasswordCallback(cb);
                 try
                 {
@@ -1437,7 +1437,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                PasswordCallbackI cb = new PasswordCallbackI();
+                var cb = new PasswordCallback();
                 plugin.setPasswordCallback(cb);
                 test(plugin.getPasswordCallback() == cb);
                 try
@@ -1456,7 +1456,7 @@ public class AllTests
                 // Test password callback property.
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                clientProperties["IceSSL.PasswordCallback"] = "PasswordCallbackI";
+                clientProperties["IceSSL.PasswordCallback"] = "PasswordCallback";
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);
@@ -2368,9 +2368,9 @@ public class AllTests
                 {
                     try
                     {
-                        IceSSL.ConnectionInfo? info = (IceSSL.ConnectionInfo?)p.GetConnection().getInfo().underlying;
+                        IceSSL.ConnectionInfo? info = (IceSSL.ConnectionInfo?)p.GetConnection().ConnectionInfo.Underlying;
                         Debug.Assert(info != null);
-                        test(info.verified);
+                        test(info.Verified);
                         break;
                     }
                     catch (Ice.LocalException ex)

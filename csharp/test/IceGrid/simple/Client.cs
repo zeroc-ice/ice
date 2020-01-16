@@ -14,21 +14,16 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using var communicator = initialize(ref args);
+        if (args.Any(v => v.Equals("--with-deploy")))
         {
-            if (args.Any(v => v.Equals("--with-deploy")))
-            {
-                AllTests.allTestsWithDeploy(this);
-            }
-            else
-            {
-                AllTests.allTests(this);
-            }
+            AllTests.allTestsWithDeploy(this);
+        }
+        else
+        {
+            AllTests.allTests(this);
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

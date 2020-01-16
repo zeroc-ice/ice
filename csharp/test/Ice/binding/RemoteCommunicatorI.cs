@@ -4,54 +4,45 @@
 
 using Ice.binding.Test;
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
+    public class RemoteCommunicator : IRemoteCommunicator
     {
-        public class RemoteCommunicatorI : Test.RemoteCommunicator
+        public IRemoteObjectAdapterPrx
+        createObjectAdapter(string name, string endpts, Current current)
         {
-            public Test.IRemoteObjectAdapterPrx
-            createObjectAdapter(string name, string endpts, Current current)
+            int retry = 5;
+            while (true)
             {
-                int retry = 5;
-                while (true)
+                try
                 {
-                    try
+                    Communicator communicator = current.Adapter.Communicator;
+                    string endpoints = endpts;
+                    if (endpoints.IndexOf("-p") < 0)
                     {
-                        Communicator communicator = current.Adapter.Communicator;
-                        string endpoints = endpts;
-                        if (endpoints.IndexOf("-p") < 0)
-                        {
-                            endpoints = global::Test.TestHelper.getTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
-                        }
-
-                        communicator.SetProperty(name + ".ThreadPool.Size", "1");
-                        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
-                        return current.Adapter.Add(new RemoteObjectAdapterI(adapter));
+                        endpoints = global::Test.TestHelper.getTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
                     }
-                    catch (SocketException)
+
+                    communicator.SetProperty(name + ".ThreadPool.Size", "1");
+                    ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
+                    return current.Adapter.Add(new RemoteObjectAdapter(adapter));
+                }
+                catch (SocketException)
+                {
+                    if (--retry == 0)
                     {
-                        if (--retry == 0)
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                 }
             }
-
-            public void
-            deactivateObjectAdapter(Test.IRemoteObjectAdapterPrx adapter, Ice.Current current)
-            {
-                adapter.deactivate(); // Collocated call.
-            }
-
-            public void
-            shutdown(Ice.Current current)
-            {
-                current.Adapter.Communicator.shutdown();
-            }
-
-            private int _nextPort = 10;
         }
+
+        public void
+        deactivateObjectAdapter(IRemoteObjectAdapterPrx adapter, Current current) => adapter.deactivate(); // Collocated call.
+
+        public void
+        shutdown(Current current) => current.Adapter.Communicator.shutdown();
+
+        private int _nextPort = 10;
     }
 }

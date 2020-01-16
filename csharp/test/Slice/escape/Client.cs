@@ -10,44 +10,38 @@ using @abstract.System;
 
 public class Client : Test.TestHelper
 {
-    public sealed class caseI : @abstract.@case
+    public sealed class caseI : Icase
     {
         public Task<int>
         catchAsync(int @checked, Ice.Current current)
         {
-            return Task<int>.FromResult(0);
+            return Task.FromResult(0);
         }
     }
 
-    public sealed class decimalI : @abstract.@decimal
+    public sealed class decimalI : Idecimal
     {
         public void @default(Ice.Current current)
         {
         }
     }
 
-    public sealed class explicitI : @abstract.@explicit
+    public sealed class explicitI : Iexplicit
     {
         public Task<int>
-        catchAsync(int @checked, Ice.Current current)
-        {
-            return Task<int>.FromResult(0);
-        }
+        catchAsync(int @checked, Ice.Current current) => Task.FromResult(0);
 
-        public void @default(Ice.Current current)
-        {
-            test(current.Operation == "default");
-        }
+        public void @default(Ice.Current current) => test(current.Operation == "default");
     }
 
-    public sealed class Test1I : @abstract.System.Test
+    public sealed class Test1I : @abstract.System.ITest
     {
         public void op(Ice.Current c)
         {
         }
     }
 
-    public sealed class Test2I : System.Test
+    public sealed class Test2I : System.ITest
     {
         public void op(Ice.Current c)
         {
@@ -57,50 +51,50 @@ public class Client : Test.TestHelper
     static void
     testtypes()
     {
-        @abstract.@as a = @abstract.@as.@base;
-        test(a == @abstract.@as.@base);
-        @abstract.@break b = new @abstract.@break();
+        var a = @as.@base;
+        test(a == @as.@base);
+        var b = new @break();
         b.@readonly = 0;
         test(b.@readonly == 0);
-        @abstract.@case c = new caseI();
+        var c = new caseI();
         test(c != null);
-        @abstract.IcasePrx c1 = null;
+        IcasePrx c1 = null;
         test(c1 == null);
         int c2 = 0;
         if (c1 != null)
         {
             c2 = c1.@catch(0);
         }
-        @abstract.@decimal d = new decimalI();
+        var d = new decimalI();
         test(d != null);
-        @abstract.IdecimalPrx d1 = null;
+        IdecimalPrx d1 = null;
         if (d1 != null)
         {
             d1.@default();
         }
         test(d1 == null);
-        @abstract.@delegate e = new @abstract.@delegate();
+        var e = new @delegate();
         test(e != null);
-        @abstract.@delegate e1 = null;
+        @delegate e1 = null;
         test(e1 == null);
-        @abstract.IexplicitPrx f1 = null;
+        IexplicitPrx f1 = null;
         if (f1 != null)
         {
             c2 = f1.@catch(0);
             f1.@default();
         }
         test(f1 == null);
-        Dictionary<string, @abstract.@break> g2 = new Dictionary<string, @abstract.@break>();
+        var g2 = new Dictionary<string, @break>();
         test(g2 != null);
-        @abstract.@fixed h = new @abstract.@fixed();
+        var h = new @fixed();
         h.@for = 0;
         test(h != null);
-        @abstract.@foreach i = new @abstract.@foreach();
+        var i = new @foreach();
         i.@for = 0;
         i.@goto = 1;
         i.@if = 2;
         test(i != null);
-        int j = @abstract.@protected.value;
+        var j = @protected.value;
         test(j == 0);
     }
 
@@ -117,7 +111,7 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            @abstract.IdecimalPrx p = @abstract.IdecimalPrx.UncheckedCast(adapter.CreateProxy("test"));
+            var p = IdecimalPrx.UncheckedCast(adapter.CreateProxy("test"));
             p.@default();
             Console.Out.WriteLine("ok");
 
@@ -138,8 +132,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

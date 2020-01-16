@@ -2,29 +2,48 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
+using Ice;
+
 namespace IceSSL
 {
-    using System.Security;
-    using System.Security.Cryptography.X509Certificates;
+    /// <summary>
+    /// Plug-in factories must implement this interface.
+    /// </summary>
+    public sealed class PluginFactory : IPluginFactory
+    {
+        /// <summary>
+        /// Returns a new plug-in.
+        /// </summary>
+        /// <param name="communicator">The communicator for the plug-in.</param>
+        /// <param name="name">The name of the plug-in.</param>
+        /// <param name="args">The arguments that are specified in the plug-in's configuration.</param>
+        ///
+        /// <returns>The new plug-in. null can be returned to indicate
+        /// that a general error occurred. Alternatively, create can throw
+        /// PluginInitializationException to provide more detailed information.</returns>
+        public IPlugin create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+    }
 
     //
     // An application can customize the certificate verification process
     // by implementing the CertificateVerifier interface.
     //
-    public interface CertificateVerifier
+    public interface ICertificateVerifier
     {
         //
         // Return true to allow a connection using the provided certificate
         // information, or false to reject the connection.
         //
-        bool verify(IceSSL.ConnectionInfo info);
+        bool verify(ConnectionInfo info);
     }
 
     /// <summary>
     /// A password callback is an alternate way of supplying the plug-in with
     /// passwords; this avoids using plain text configuration properties.
     /// </summary>
-    public interface PasswordCallback
+    public interface IPasswordCallback
     {
         /// <summary>
         /// Obtain the password necessary to access the private key associated with
@@ -43,12 +62,29 @@ namespace IceSSL
         SecureString getImportPassword(string file);
     }
 
-    /// <summary>
-    /// Interface that allows applications to interact with the IceSSL plug-in.
-    /// </summary>
-    public abstract class Plugin : Ice.Plugin
+    public sealed class Plugin : IPlugin
     {
-        public abstract void initialize();
+        internal Plugin(Communicator communicator)
+        {
+            IceInternal.IProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
+
+            _engine = new SSLEngine(facade);
+
+            //
+            // SSL based on TCP
+            //
+            Instance instance = new Instance(_engine, SSLEndpointType.value, "ssl");
+            facade.addEndpointFactory(new EndpointFactoryI(instance, Ice.TCPEndpointType.value));
+        }
+
+        public void initialize()
+        {
+            _engine.initialize();
+        }
+
+        public void destroy()
+        {
+        }
 
         /// <summary>
         /// Specify the certificate authorities certificates to use
@@ -61,7 +97,10 @@ namespace IceSSL
         /// configuration.
         /// </summary>
         /// <param name="certs">The certificate authorities certificates to use.</param>
-        public abstract void setCACertificates(X509Certificate2Collection certs);
+        public void setCACertificates(X509Certificate2Collection certs)
+        {
+            _engine.setCACertificates(certs);
+        }
 
         /// <summary>
         /// Specify the certificates to use for SSL connections. This
@@ -73,37 +112,58 @@ namespace IceSSL
         /// plug-in skips its normal property-based configuration.
         /// </summary>
         /// <param name="certs">The certificates to use for SSL connections.</param>
-        public abstract void setCertificates(X509Certificate2Collection certs);
+        public void setCertificates(X509Certificate2Collection certs)
+        {
+            _engine.setCertificates(certs);
+        }
 
         /// <summary>
         /// Establish the certificate verifier object. This must be
         /// done before any connections are established.
         /// </summary>
         /// <param name="verifier">The certificate verifier.</param>
-        public abstract void setCertificateVerifier(CertificateVerifier verifier);
+        public void setCertificateVerifier(ICertificateVerifier verifier)
+        {
+            _engine.setCertificateVerifier(verifier);
+        }
 
         /// <summary>
         /// Obtain the certificate verifier object.
         /// </summary>
         /// <returns>The certificate verifier (null if not set).</returns>
-        public abstract CertificateVerifier getCertificateVerifier();
+        public ICertificateVerifier? getCertificateVerifier()
+        {
+            return _engine.getCertificateVerifier();
+        }
 
         /// <summary>
         /// Establish the password callback object. This must be
         /// done before the plug-in is initialized.
         /// </summary>
         /// <param name="callback">The password callback.</param>
-        public abstract void setPasswordCallback(PasswordCallback callback);
+        public void setPasswordCallback(IPasswordCallback callback)
+        {
+            _engine.setPasswordCallback(callback);
+        }
 
         /// <summary>
         /// Returns the password callback.
         /// </summary>
         /// <returns>The password callback (null if not set).</returns>
-        public abstract PasswordCallback getPasswordCallback();
+        public IPasswordCallback? getPasswordCallback()
+        {
+            return _engine.getPasswordCallback();
+        }
 
-        /// <summary>
-        /// This method is for internal use.
-        /// </summary>
-        public abstract void destroy();
+        private SSLEngine _engine;
+    }
+
+    public static class Util
+    {
+        public static void
+        registerIceSSL(bool loadOnInitialize)
+        {
+            Communicator.RegisterPluginFactory("IceSSL", new PluginFactory(), loadOnInitialize);
+        }
     }
 }

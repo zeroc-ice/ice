@@ -14,9 +14,9 @@ namespace IceInternal
     using System.Threading;
     using System.Collections.Generic;
 
-    public interface TimerTask
+    public interface ITimerTask
     {
-        void runTimerTask();
+        void RunTimerTask();
     }
 
     public sealed class Timer
@@ -40,7 +40,7 @@ namespace IceInternal
             _thread.Join();
         }
 
-        public void schedule(TimerTask task, long delay)
+        public void schedule(ITimerTask task, long delay)
         {
             lock (this)
             {
@@ -68,7 +68,7 @@ namespace IceInternal
             }
         }
 
-        public void scheduleRepeated(TimerTask task, long period)
+        public void scheduleRepeated(ITimerTask task, long period)
         {
             lock (this)
             {
@@ -96,7 +96,7 @@ namespace IceInternal
             }
         }
 
-        public bool cancel(TimerTask task)
+        public bool cancel(ITimerTask task)
         {
             lock (this)
             {
@@ -135,7 +135,7 @@ namespace IceInternal
             _thread.Start();
         }
 
-        internal void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
+        internal void updateObserver(Ice.Instrumentation.ICommunicatorObserver obsv)
         {
             lock (this)
             {
@@ -228,14 +228,14 @@ namespace IceInternal
                 {
                     try
                     {
-                        Ice.Instrumentation.ThreadObserver? threadObserver = _observer;
+                        Ice.Instrumentation.IThreadObserver? threadObserver = _observer;
                         if (threadObserver != null)
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                             try
                             {
-                                token.task.runTimerTask();
+                                token.task.RunTimerTask();
                             }
                             finally
                             {
@@ -245,7 +245,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            token.task.runTimerTask();
+                            token.task.RunTimerTask();
                         }
                     }
                     catch (System.Exception ex)
@@ -266,7 +266,7 @@ namespace IceInternal
         private class Token : System.IComparable
         {
             public
-            Token(long scheduledTime, int id, long delay, TimerTask task)
+            Token(long scheduledTime, int id, long delay, ITimerTask task)
             {
                 this.scheduledTime = scheduledTime;
                 this.id = id;
@@ -322,11 +322,11 @@ namespace IceInternal
             public long scheduledTime;
             public int id; // Since we can't compare references, we need to use another id.
             public long delay;
-            public TimerTask task;
+            public ITimerTask task;
         }
 
         private IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
-        private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
+        private IDictionary<ITimerTask, Token> _tasks = new Dictionary<ITimerTask, Token>();
         private Ice.Communicator? _communicator;
         private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
@@ -337,7 +337,7 @@ namespace IceInternal
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
         //
-        private volatile Ice.Instrumentation.ThreadObserver? _observer;
+        private volatile Ice.Instrumentation.IThreadObserver? _observer;
     }
 
 }

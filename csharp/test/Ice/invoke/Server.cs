@@ -5,91 +5,77 @@
 using System.Linq;
 using Test;
 
-namespace Ice
+namespace Ice.invoke
 {
-    namespace invoke
+    public class ServantLocator : IServantLocator
     {
-        public class ServantLocatorI : Ice.ServantLocator
+        public ServantLocator() => _blobject = new BlobjectI();
+
+        public Disp
+        locate(Current current, out object cookie)
         {
-            public ServantLocatorI()
-            {
-                _blobject = new BlobjectI();
-            }
-
-            public Ice.Disp
-            locate(Ice.Current current, out object cookie)
-            {
-                cookie = null;
-                return (current, incoming) => _blobject.Dispatch(current, incoming);
-            }
-
-            public void
-            finished(Current current, Disp servant, object cookie)
-            {
-            }
-
-            public void
-            deactivate(string category)
-            {
-            }
-
-            private Blobject _blobject;
+            cookie = null;
+            return (current, incoming) => _blobject.Dispatch(current, incoming);
         }
 
-        public class ServantLocatorAsyncI : Ice.ServantLocator
+        public void
+        finished(Current current, Disp servant, object cookie)
         {
-            public ServantLocatorAsyncI()
-            {
-                _blobject = new BlobjectAsyncI();
-            }
-
-            public Ice.Disp
-            locate(Ice.Current current, out object cookie)
-            {
-                cookie = null;
-                return (current, incoming) => _blobject.Dispatch(current, incoming);
-            }
-
-            public void
-            finished(Current current, Disp servant, object cookie)
-            {
-            }
-
-            public void
-            deactivate(string category)
-            {
-            }
-
-            private BlobjectAsyncI _blobject;
         }
 
-        public class Server : TestHelper
+        public void
+        deactivate(string category)
         {
-            public override void run(string[] args)
-            {
-                bool async = args.Any(v => v.Equals("--async"));
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    if (async)
-                    {
-                        adapter.AddServantLocator(new ServantLocatorAsyncI(), "");
-                    }
-                    else
-                    {
-                        adapter.AddServantLocator(new ServantLocatorI(), "");
-                    }
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
-            }
-
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
         }
+
+        private Blobject _blobject;
+    }
+
+    public class ServantLocatorAsync : IServantLocator
+    {
+        public ServantLocatorAsync() => _blobject = new BlobjectAsyncI();
+
+        public Disp
+        locate(Current current, out object cookie)
+        {
+            cookie = null;
+            return (current, incoming) => _blobject.Dispatch(current, incoming);
+        }
+
+        public void
+        finished(Current current, Disp servant, object cookie)
+        {
+        }
+
+        public void
+        deactivate(string category)
+        {
+        }
+
+        private BlobjectAsyncI _blobject;
+    }
+
+    public class Server : TestHelper
+    {
+        public override void run(string[] args)
+        {
+            bool async = args.Any(v => v.Equals("--async"));
+            using var communicator = initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            if (async)
+            {
+                adapter.AddServantLocator(new ServantLocatorAsync(), "");
+            }
+            else
+            {
+                adapter.AddServantLocator(new ServantLocator(), "");
+            }
+            adapter.Activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
+
+        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
     }
 }

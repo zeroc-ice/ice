@@ -5,14 +5,14 @@
 package com.zeroc.Ice;
 
 /**
- * The optional type.
+ * The tag type.
  *
- * An optional value is encoded with a specific optional format. This optional
- * format describes how the data is encoded and how it can be skipped by the
- * unmarshaling code if the optional is not known to the receiver.
+ * A tagged value is encoded with a specific tag format. This tag format
+ * describes how the data is encoded and how it can be skipped by the
+ * unmarshaling code if the value is not known to the receiver.
  *
  **/
-public enum OptionalFormat
+public enum TagFormat
 {
     F1(0),
     F2(1),
@@ -24,7 +24,7 @@ public enum OptionalFormat
     Class(7);
 
     private
-    OptionalFormat(int value)
+    TagFormat(int value)
     {
         _value = value;
     }
@@ -35,7 +35,7 @@ public enum OptionalFormat
         return _value;
     }
 
-    public static OptionalFormat
+    public static TagFormat
     valueOf(int v)
     {
         switch(v)

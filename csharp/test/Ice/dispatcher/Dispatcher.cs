@@ -85,10 +85,7 @@ public class Dispatcher
         _instance._thread.Join();
     }
 
-    static public bool isDispatcherThread()
-    {
-        return Thread.CurrentThread == _instance._thread;
-    }
+    static public bool isDispatcherThread() => Thread.CurrentThread == _instance._thread;
 
     static Dispatcher _instance;
 

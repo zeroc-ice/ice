@@ -13,15 +13,12 @@ using System.Collections.Generic;
 
 public class Client : Test.TestHelper
 {
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 
     public override void run(string[] args)
     {
         string pluginPath =
-            String.Format("msbuild/plugin/{0}/Plugin.dll",
+            string.Format("msbuild/plugin/{0}/Plugin.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
         {
             Console.Write("testing a simple plug-in... ");
@@ -49,7 +46,7 @@ public class Client : Test.TestHelper
                 });
                 test(false);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 // Expected
             }
@@ -121,27 +118,15 @@ public class Client : Test.TestHelper
         }
     }
 
-    internal class MyPlugin : Ice.Plugin
+    internal class MyPlugin : Ice.IPlugin
     {
-        public bool isInitialized()
-        {
-            return _initialized;
-        }
+        public bool isInitialized() => _initialized;
 
-        public bool isDestroyed()
-        {
-            return _destroyed;
-        }
+        public bool isDestroyed() => _destroyed;
 
-        public void initialize()
-        {
-            _initialized = true;
-        }
+        public void initialize() => _initialized = true;
 
-        public void destroy()
-        {
-            _destroyed = true;
-        }
+        public void destroy() => _destroyed = true;
 
         private bool _initialized = false;
         private bool _destroyed = false;

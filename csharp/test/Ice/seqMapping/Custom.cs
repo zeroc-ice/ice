@@ -5,99 +5,81 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Ice
+namespace Ice.seqMapping
 {
-    namespace seqMapping
+    public class Custom<T> : IEnumerable<T>
     {
-        public class Custom<T> : IEnumerable<T>
+        public Custom(List<T> list) => _list = list;
+
+        public Custom()
         {
-            public Custom(List<T> list)
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
+
+        public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+
+        public int Count
+        {
+            get
             {
-                _list = list;
+                return _list.Count;
+            }
+        }
+
+        public T this[int index]
+        {
+            get
+            {
+                return _list[index];
             }
 
-            public Custom()
+            set
             {
+                _list[index] = value;
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return _list.GetEnumerator();
-            }
+        }
 
-            public IEnumerator<T> GetEnumerator()
-            {
-                return _list.GetEnumerator();
-            }
+        public void Add(T elmt) => _list.Add(elmt);
 
-            public int Count
+        public override bool Equals(object o)
+        {
+            try
             {
-                get
+                Custom<T> tmp = (Custom<T>)o;
+                IEnumerator<T> e = tmp.GetEnumerator();
+                foreach (T elmt in _list)
                 {
-                    return _list.Count;
-                }
-            }
-
-            public T this[int index]
-            {
-                get
-                {
-                    return _list[index];
-                }
-
-                set
-                {
-                    _list[index] = value;
-                }
-
-            }
-
-            public void Add(T elmt)
-            {
-                _list.Add(elmt);
-            }
-
-            public override bool Equals(object o)
-            {
-                try
-                {
-                    Custom<T> tmp = (Custom<T>)o;
-                    IEnumerator<T> e = tmp.GetEnumerator();
-                    foreach (T elmt in _list)
+                    if (!e.MoveNext())
                     {
-                        if (!e.MoveNext())
+                        return false;
+                    }
+                    if (elmt == null)
+                    {
+                        if (e.Current != null)
                         {
                             return false;
                         }
-                        if (elmt == null)
+                    }
+                    else
+                    {
+                        if (!elmt.Equals(e.Current))
                         {
-                            if (e.Current != null)
-                            {
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            if (!elmt.Equals(e.Current))
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
-                    return true;
                 }
-                catch (Exception)
-                {
-                    return false;
-                }
+                return true;
             }
-
-            public override int GetHashCode()
+            catch (Exception)
             {
-                return base.GetHashCode();
+                return false;
             }
-
-            private List<T> _list = new List<T>();
         }
+
+        public override int GetHashCode() => base.GetHashCode();
+
+        private List<T> _list = new List<T>();
     }
 }

@@ -2,26 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Diagnostics;
 using System.Security;
 
-public class PasswordCallbackI : IceSSL.PasswordCallback
+public class PasswordCallback : IceSSL.IPasswordCallback
 {
-    public PasswordCallbackI()
-    {
-        _password = createSecureString("password");
-    }
+    public PasswordCallback() => _password = createSecureString("password");
 
-    public PasswordCallbackI(string password)
-    {
-        _password = createSecureString(password);
-    }
+    public PasswordCallback(string password) => _password = createSecureString(password);
 
-    public SecureString getPassword(string file)
-    {
-        return _password;
-    }
+    public SecureString getPassword(string file) => _password;
 
     public SecureString getImportPassword(string file)
     {

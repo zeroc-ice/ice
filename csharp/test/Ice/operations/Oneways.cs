@@ -2,50 +2,47 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.operations
 {
-    namespace operations
+    class Oneways
     {
-        class Oneways
+        private static void test(bool b)
         {
-            private static void test(bool b)
+            if (!b)
             {
-                if (!b)
-                {
-                    throw new System.SystemException();
-                }
+                throw new System.SystemException();
+            }
+        }
+
+        internal static void oneways(global::Test.TestHelper helper, Test.IMyClassPrx p)
+        {
+            Communicator communicator = helper.communicator();
+            p = p.Clone(oneway: true);
+
+            {
+                p.IcePing();
             }
 
-            internal static void oneways(global::Test.TestHelper helper, Test.IMyClassPrx p)
             {
-                Communicator communicator = helper.communicator();
-                p = p.Clone(oneway: true);
+                p.opVoid();
+            }
 
+            {
+                p.opIdempotent();
+            }
+
+            {
+                p.opNonmutating();
+            }
+
+            {
+                try
                 {
-                    p.IcePing();
+                    var (b1, b2) = p.opByte(0xff, 0x0f);
+                    test(false);
                 }
-
+                catch (TwowayOnlyException)
                 {
-                    p.opVoid();
-                }
-
-                {
-                    p.opIdempotent();
-                }
-
-                {
-                    p.opNonmutating();
-                }
-
-                {
-                    try
-                    {
-                        var (b1, b2) = p.opByte(0xff, 0x0f);
-                        test(false);
-                    }
-                    catch (TwowayOnlyException)
-                    {
-                    }
                 }
             }
         }

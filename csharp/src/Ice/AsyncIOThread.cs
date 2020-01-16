@@ -24,7 +24,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
+                Ice.Instrumentation.ICommunicatorObserver? obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -133,7 +133,7 @@ namespace IceInternal
         private readonly Ice.Communicator _communicator;
         private bool _destroyed;
         private LinkedList<ThreadPoolWorkItem> _queue = new LinkedList<ThreadPoolWorkItem>();
-        private Ice.Instrumentation.ThreadObserver? _observer;
+        private Ice.Instrumentation.IThreadObserver? _observer;
 
         private sealed class HelperThread
         {

@@ -12,22 +12,22 @@ namespace IceInternal
         internal EndpointFactoryManager(Ice.Communicator communicator)
         {
             _communicator = communicator;
-            _factories = new List<EndpointFactory>();
+            _factories = new List<IEndpointFactory>();
         }
 
         public void initialize()
         {
-            foreach (EndpointFactory f in _factories)
+            foreach (IEndpointFactory f in _factories)
             {
                 f.initialize();
             }
         }
 
-        public void add(EndpointFactory factory)
+        public void add(IEndpointFactory factory)
         {
             lock (this)
             {
-                foreach (EndpointFactory f in _factories)
+                foreach (IEndpointFactory f in _factories)
                 {
                     if (f.type() == factory.type())
                     {
@@ -38,11 +38,11 @@ namespace IceInternal
             }
         }
 
-        public EndpointFactory get(short type)
+        public IEndpointFactory get(short type)
         {
             lock (this)
             {
-                foreach (EndpointFactory f in _factories)
+                foreach (IEndpointFactory f in _factories)
                 {
                     if (f.type() == type)
                     {
@@ -53,7 +53,7 @@ namespace IceInternal
             }
         }
 
-        public EndpointI create(string str, bool oaEndpoint)
+        public Endpoint create(string str, bool oaEndpoint)
         {
             string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
             if (arr == null)
@@ -75,13 +75,13 @@ namespace IceInternal
                 protocol = _communicator.defaultsAndOverrides().defaultProtocol;
             }
 
-            EndpointFactory factory = null;
+            IEndpointFactory factory = null;
 
             lock (this)
             {
                 for (int i = 0; i < _factories.Count; i++)
                 {
-                    EndpointFactory f = _factories[i];
+                    IEndpointFactory f = _factories[i];
                     if (f.protocol().Equals(protocol))
                     {
                         factory = f;
@@ -91,7 +91,7 @@ namespace IceInternal
 
             if (factory != null)
             {
-                EndpointI e = factory.create(v, oaEndpoint);
+                Endpoint e = factory.create(v, oaEndpoint);
                 if (v.Count > 0)
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
@@ -120,7 +120,7 @@ namespace IceInternal
             //
             if (protocol.Equals("opaque"))
             {
-                EndpointI ue = new OpaqueEndpointI(v);
+                Endpoint ue = new OpaqueEndpointI(v);
                 if (v.Count > 0)
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
@@ -141,7 +141,7 @@ namespace IceInternal
                     iss.pos(0);
                     iss.ReadShort(); // type
                     iss.StartEncapsulation();
-                    EndpointI e = factory.read(iss);
+                    Endpoint e = factory.read(iss);
                     iss.EndEncapsulation();
                     return e;
                 }
@@ -151,14 +151,14 @@ namespace IceInternal
             return null;
         }
 
-        public EndpointI read(Ice.InputStream s)
+        public Endpoint read(Ice.InputStream s)
         {
             lock (this)
             {
                 short type = s.ReadShort();
 
-                EndpointFactory factory = get(type);
-                EndpointI e = null;
+                IEndpointFactory factory = get(type);
+                Endpoint e = null;
 
                 s.StartEncapsulation();
 
@@ -185,7 +185,7 @@ namespace IceInternal
 
         internal void destroy()
         {
-            foreach (EndpointFactory f in _factories)
+            foreach (IEndpointFactory f in _factories)
             {
                 f.destroy();
             }
@@ -193,7 +193,7 @@ namespace IceInternal
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly List<EndpointFactory> _factories;
+        private readonly List<IEndpointFactory> _factories;
     }
 
 }

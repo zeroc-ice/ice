@@ -2,19 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.servantLocator.AMD
 {
-    namespace servantLocator
+    public class Cookie
     {
-        namespace AMD
-        {
-            public class Cookie
-            {
-                public string message()
-                {
-                    return "blahblah";
-                }
-            }
-        }
+        public string message() => "blahblah";
     }
 }

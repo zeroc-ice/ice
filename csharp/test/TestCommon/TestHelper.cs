@@ -139,7 +139,7 @@ namespace Test
         public Communicator initialize(ref string[] args,
             Dictionary<string, string>? defaults = null,
             Action<Action, Connection?>? dispatcher = null,
-            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            Ice.Instrumentation.ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null)
         {
             return initialize(createTestProperties(ref args, defaults), dispatcher, observer, typeIdNamespaces);
@@ -148,7 +148,7 @@ namespace Test
         public Communicator initialize(
             Dictionary<string, string> properties,
             Action<Action, Connection?>? dispatcher = null,
-            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            Ice.Instrumentation.ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null)
         {
             var communicator = new Communicator(properties, dispatcher: dispatcher, observer: observer, typeIdNamespaces: typeIdNamespaces);

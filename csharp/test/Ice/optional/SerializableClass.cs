@@ -4,38 +4,19 @@
 
 using System;
 
-namespace Ice
+namespace Ice.optional.Test
 {
-    namespace optional
+    [Serializable]
+    public class SerializableClass
     {
-        namespace Test
-        {
-            [Serializable]
-            public class SerializableClass
-            {
-                public SerializableClass(int v)
-                {
-                    _v = v;
-                }
+        public SerializableClass(int v) => _v = v;
 
-                public override bool Equals(object obj)
-                {
-                    if (obj is SerializableClass)
-                    {
-                        return _v == (obj as SerializableClass)._v;
-                    }
+        public override bool Equals(object obj) =>
+            obj is SerializableClass && _v == (obj as SerializableClass)._v;
 
-                    return false;
-                }
+        public override int GetHashCode() => base.GetHashCode();
 
-                public override int GetHashCode()
-                {
-                    return base.GetHashCode();
-                }
-
-                private int _v;
-            }
-
-        }
+        private int _v;
     }
+
 }

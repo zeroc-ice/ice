@@ -21,29 +21,26 @@ public class Server : Test.TestHelper
             //
             // The test allows "c1" as category.
             //
-            adapter.Add(new CallbackI(), "c1/callback");
+            adapter.Add(new Callback(), "c1/callback");
 
             //
             // The test allows "c2" as category.
             //
-            adapter.Add(new CallbackI(), "c2/callback");
+            adapter.Add(new Callback(), "c2/callback");
 
             //
             // The test rejects "c3" as category.
             //
-            adapter.Add(new CallbackI(), "c3/callback");
+            adapter.Add(new Callback(), "c3/callback");
 
             //
             // The test allows the prefixed userid.
             //
-            adapter.Add(new CallbackI(), "_userid/callback");
+            adapter.Add(new Callback(), "_userid/callback");
             adapter.Activate();
             communicator.waitForShutdown();
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

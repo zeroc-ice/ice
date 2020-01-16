@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Reflection;
 using Test;
 
@@ -10,7 +9,7 @@ using Test;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void run(string[] args)
     {
@@ -25,22 +24,20 @@ public class Server : Test.TestHelper
         {
             var dispatcher = new Dispatcher();
 
-            using (var communicator = initialize(properties, dispatcher.dispatch))
-            {
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
+            using var communicator = initialize(properties, dispatcher.dispatch);
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                adapter.Add(new TestI(), "test");
-                adapter.Activate();
-                adapter2.Add(new TestControllerI(adapter), "testController");
-                adapter2.Activate();
+            adapter.Add(new TestIntf(), "test");
+            adapter.Activate();
+            adapter2.Add(new TestController(adapter), "testController");
+            adapter2.Activate();
 
-                communicator.waitForShutdown();
-            }
+            communicator.waitForShutdown();
         }
         finally
         {
@@ -48,8 +45,5 @@ public class Server : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

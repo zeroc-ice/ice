@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace facets
     {
-        public sealed class FI : Test.F
+        public sealed class F : Test.IF
         {
-            public FI()
+            public F()
             {
             }
 

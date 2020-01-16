@@ -23,10 +23,8 @@ public class Client : Test.TestHelper
             //
             properties["Ice.TCP.SndSize"] = "50000";
             var dispatcher = new Dispatcher();
-            using (var communicator = initialize(properties, dispatcher.dispatch))
-            {
-                AllTests.allTests(this);
-            }
+            using var communicator = initialize(properties, dispatcher.dispatch);
+            AllTests.allTests(this);
         }
         finally
         {
@@ -34,8 +32,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

@@ -5,16 +5,16 @@
 using IceBox;
 using Test;
 
-public class TestServiceI : Service
+public class TestService : IService
 {
-    public TestServiceI(Ice.Communicator serviceManagerCommunicator)
+    public TestService(Ice.Communicator serviceManagerCommunicator)
     {
-        TestFacetI facet = new TestFacetI();
+        var facet = new TestFacet();
 
         //
         // Install a custom admin facet.
         //
-        serviceManagerCommunicator.AddAdminFacet<TestFacet, TestFacetTraits>(facet, "TestFacet");
+        serviceManagerCommunicator.AddAdminFacet<ITestFacet, TestFacetTraits>(facet, "TestFacet");
 
         //
         // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
@@ -23,7 +23,7 @@ public class TestServiceI : Service
         object propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties").servant;
         if (propFacet != null)
         {
-            Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+            var admin = (Ice.INativePropertiesAdmin)propFacet;
             admin.addUpdateCallback(facet.updated);
         }
     }

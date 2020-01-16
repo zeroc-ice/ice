@@ -2,26 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
+    public sealed class TestActivation : Test.ITestActivation
     {
-        public sealed class TestActivationI : Test.TestActivation
+        public void activateServantLocator(bool activate, Current current)
         {
-            public void activateServantLocator(bool activate, Ice.Current current)
+            if (activate)
             {
-                if (activate)
-                {
-                    current.Adapter.AddServantLocator(new ServantLocatorI(""), "");
-                    current.Adapter.AddServantLocator(new ServantLocatorI("category"), "category");
-                }
-                else
-                {
-                    var locator = current.Adapter.RemoveServantLocator("");
-                    locator.deactivate("");
-                    locator = current.Adapter.RemoveServantLocator("category");
-                    locator.deactivate("category");
-                }
+                current.Adapter.AddServantLocator(new ServantLocator(""), "");
+                current.Adapter.AddServantLocator(new ServantLocator("category"), "category");
+            }
+            else
+            {
+                var locator = current.Adapter.RemoveServantLocator("");
+                locator.deactivate("");
+                locator = current.Adapter.RemoveServantLocator("category");
+                locator.deactivate("category");
             }
         }
     }

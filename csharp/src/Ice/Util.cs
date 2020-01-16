@@ -19,7 +19,7 @@ namespace Ice
         /// Returns the process-wide logger.
         /// </summary>
         /// <returns>The process-wide logger.</returns>
-        public static Logger getProcessLogger()
+        public static ILogger getProcessLogger()
         {
             lock (_processLoggerMutex)
             {
@@ -35,7 +35,7 @@ namespace Ice
         /// Changes the process-wide logger.
         /// </summary>
         /// <param name="logger">The new process-wide logger.</param>
-        public static void setProcessLogger(Logger logger)
+        public static void setProcessLogger(ILogger logger)
         {
             lock (_processLoggerMutex)
             {
@@ -159,7 +159,7 @@ namespace Ice
         public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
 
         private static readonly object _processLoggerMutex = new object();
-        private static Logger? _processLogger = null;
+        private static ILogger? _processLogger = null;
     }
 }
 
@@ -237,9 +237,9 @@ namespace IceInternal
 
     public sealed class Util
     {
-        public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
+        public static IProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
         {
-            return new ProtocolPluginFacadeI(communicator);
+            return new ProtocolPluginFacade(communicator);
         }
 
         public static ThreadPriority stringToThreadPriority(string? s)

@@ -9,31 +9,23 @@ using Test;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
-    class TestI : TestIntf
+    class TestIntf : ITestIntf
     {
-        public void shutdown(Ice.Current current)
-        {
-            current.Adapter.Communicator.shutdown();
-        }
+        public void shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
     }
 
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), "test");
-            adapter.Activate();
+        using var communicator = initialize(ref args);
+        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.Add(new TestIntf(), "test");
+        adapter.Activate();
 
-            communicator.waitForShutdown();
-        }
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

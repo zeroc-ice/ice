@@ -19,23 +19,18 @@ public class Server : TestHelper
         var properties = new Dictionary<string, string>();
         properties.ParseArgs(ref args, "TestAdapter");
 
-        using (var communicator = initialize(ref args, properties))
+        using var communicator = initialize(ref args, properties);
+        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.Add(new TestIntf(), communicator.GetProperty("Identity") ?? "test");
+        try
         {
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), communicator.GetProperty("Identity") ?? "test");
-            try
-            {
-                adapter.Activate();
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-            }
-            communicator.waitForShutdown();
+            adapter.Activate();
         }
+        catch (ObjectAdapterDeactivatedException)
+        {
+        }
+        communicator.waitForShutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
 }

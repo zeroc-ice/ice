@@ -13,21 +13,16 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using var communicator = initialize(ref args);
+        if (args.Length < 1)
         {
-            if (args.Length < 1)
-            {
-                throw new ArgumentException("Usage: client testdir");
-            }
-
-            Test.IServerFactoryPrx factory;
-            factory = AllTests.allTests(this, args[0]);
-            factory.shutdown();
+            throw new ArgumentException("Usage: client testdir");
         }
+
+        Test.IServerFactoryPrx factory;
+        factory = AllTests.allTests(this, args[0]);
+        factory.shutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
 }

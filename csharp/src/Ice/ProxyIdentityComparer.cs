@@ -59,12 +59,12 @@ namespace Ice
 
             Identity lhsIdentity = lhs.Identity;
             Identity rhsIdentity = rhs.Identity;
-            int n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
+            int n = string.CompareOrdinal(lhsIdentity.Name, rhsIdentity.Name);
             if (n != 0)
             {
                 return n;
             }
-            return string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
+            return string.CompareOrdinal(lhsIdentity.Category, rhsIdentity.Category);
         }
     }
 
@@ -122,12 +122,12 @@ namespace Ice
 
             Identity lhsIdentity = lhs.Identity;
             Identity rhsIdentity = rhs.Identity;
-            int n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
+            int n = string.CompareOrdinal(lhsIdentity.Name, rhsIdentity.Name);
             if (n != 0)
             {
                 return n;
             }
-            n = string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
+            n = string.CompareOrdinal(lhsIdentity.Category, rhsIdentity.Category);
             if (n != 0)
             {
                 return n;

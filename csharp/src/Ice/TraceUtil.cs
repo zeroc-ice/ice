@@ -10,7 +10,7 @@ namespace IceInternal
 
     internal sealed class TraceUtil
     {
-        internal static void traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void traceSend(Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
@@ -28,7 +28,7 @@ namespace IceInternal
             }
         }
 
-        internal static void traceRecv(Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void traceRecv(Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
@@ -45,7 +45,7 @@ namespace IceInternal
             }
         }
 
-        internal static void trace(string heading, Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void trace(string heading, Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
@@ -64,7 +64,7 @@ namespace IceInternal
             }
         }
 
-        internal static void trace(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void trace(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
@@ -84,7 +84,7 @@ namespace IceInternal
 
         private static HashSet<string> slicingIds = new HashSet<string>();
 
-        internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
+        internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.ILogger logger)
         {
             lock (mutex)
             {
@@ -493,7 +493,7 @@ namespace IceInternal
             return type;
         }
 
-        internal static void traceHeader(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void traceHeader(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
