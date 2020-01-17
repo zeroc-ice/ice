@@ -73,16 +73,6 @@ namespace Ice.stream
             internal bool called = false;
         }
 
-        private class TestReadClassCallback
-        {
-            public void invoke(AnyClass obj)
-            {
-                this.obj = obj;
-            }
-
-            internal AnyClass obj;
-        }
-
         static public int allTests(global::Test.TestHelper helper)
         {
             var communicator = helper.communicator();
@@ -237,10 +227,7 @@ namespace Ice.stream
                 outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                TestReadClassCallback cb = new TestReadClassCallback();
-                inS.ReadClass(cb.invoke);
-                inS.ReadPendingClasses();
-                var o2 = (Test.OptionalClass)cb.obj;
+                var o2 = inS.ReadClass<Test.OptionalClass>();
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
                 if (communicator.GetProperty("Ice.Default.EncodingVersion") == "1.0")
@@ -549,12 +536,7 @@ namespace Ice.stream
                 var data = outS.Finished();
                 test(writer.called);
                 inS = new InputStream(communicator, data);
-                var cb = new TestReadClassCallback();
-                inS.ReadClass(cb.invoke);
-                inS.ReadPendingClasses();
-                test(cb.obj != null);
-                test(cb.obj is Test.MyClass);
-                var robj = (Test.MyClass)cb.obj;
+                var robj = inS.ReadClass<Test.MyClass>();
                 test(robj != null);
                 test(robj.s.e == Test.MyEnum.enum2);
             }

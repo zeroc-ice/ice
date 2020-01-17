@@ -938,7 +938,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 
     if(isClassType(type))
     {
-        out << nl << stream << ".ReadClass(" << param << ");";
+        out << nl << param << " = " << stream << ".ReadClass<" << typeToString(type, ns) << ">();";
     }
     else if(isProxyType(type))
     {
@@ -1076,7 +1076,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
     if(isClassType(type))
     {
-        out << nl << stream << ".ReadClass(" << tag << ", " << param << ");";
+        out << nl << param << " = " << stream << ".ReadClass<" << typeToString(type, scope) << ">(" << tag << ");";
     }
     else if(isProxyType(type))
     {
@@ -1295,27 +1295,31 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     if((kind == Builtin::KindObject || kind == Builtin::KindValue))
                     {
-                        string patcherName;
                         if(isArray)
                         {
-                            patcherName = "global::IceInternal.Patcher.arrayReadClass";
                             out << getUnqualified("Ice.AnyClass", scope) << "[" << param << "_lenx];";
                         }
                         else if(isCustom)
                         {
-                            patcherName = "global::IceInternal.Patcher.customSeqReadClass";
-                            out << "global::" << genericType << "<" << getUnqualified("Ice.AnyClass", scope) << ">();";
+                            // TODO: consider requiring a capacity ctor for this Custom sequence
+                            out << "global::" << genericType << "<" << getUnqualified("Ice.AnyClass", scope)
+                                << ">();";
                         }
                         else
                         {
-                            patcherName = "global::IceInternal.Patcher.listReadClass";
                             out << "global::System.Collections.Generic." << genericType << "<"
                                 << getUnqualified("Ice.AnyClass", scope) << ">(" << param << "_lenx);";
                         }
                         out << nl << "for(int ix = 0; ix < " << param << "_lenx; ++ix)";
                         out << sb;
-                        out << nl << stream << ".ReadClass(" << patcherName << "<"
-                            << getUnqualified("Ice.AnyClass", scope) << ">(" << param << ", ix));";
+                        if(isArray)
+                        {
+                            out << nl << param << "[ix] = " << stream << ".ReadClass<Ice.AnyClass>();";
+                        }
+                        else
+                        {
+                            out << nl << param << ".Add(" << stream << ".ReadClass<Ice.AnyClass>());";
+                        }
                     }
                     else
                     {
@@ -1474,26 +1478,29 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "int szx = " << stream << ".ReadAndCheckSeqSize("
                 << static_cast<unsigned>(type->minWireSize()) << ");";
             out << nl << param << " = new ";
-            string patcherName;
             if(isArray)
             {
-                patcherName = "global::IceInternal.Patcher.arrayReadClass";
                 out << toArrayAlloc(typeS + "[]", "szx") << ";";
             }
             else if(isCustom)
             {
-                patcherName = "global::IceInternal.Patcher.customSeqReadClass";
                 out << "global::" << genericType << "<" << typeS << ">();";
             }
             else
             {
-                patcherName = "global::IceInternal.Patcher.listReadClass";
                 out << "global::System.Collections.Generic." << genericType << "<" << typeS << ">(szx);";
             }
             out << nl << "for(int ix = 0; ix < szx; ++ix)";
             out << sb;
-            string scoped = ContainedPtr::dynamicCast(type)->scoped();
-            out << nl << stream << ".ReadClass(" << patcherName << '<' << typeS << ">(" << param << ", ix));";
+            if(isArray)
+            {
+                out << nl << param << "[ix] = " << stream << ".ReadClass<" << typeS << ">();";
+            }
+            else
+            {
+                out << nl << param << ".Add(" << stream << ".ReadClass<" << typeS << ">());";
+            }
+
             out << eb;
             out << eb;
         }

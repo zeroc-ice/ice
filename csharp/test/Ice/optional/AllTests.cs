@@ -1113,13 +1113,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.Class));
-                ReadClassCallbackI p2cb = new ReadClassCallbackI();
-                @in.ReadClass(p2cb.invoke);
+                var p2c = @in.ReadClass<Test.OneOptional>();
                 test(@in.ReadOptional(3, OptionalFormat.Class));
-                ReadClassCallbackI p3cb = new ReadClassCallbackI();
-                @in.ReadClass(p3cb.invoke);
+                var p3c = @in.ReadClass<Test.OneOptional>();
                 @in.EndEncapsulation();
-                test(((Test.OneOptional)p2cb.obj).a == 58 && ((Test.OneOptional)p3cb.obj).a == 58);
+                test(p2c.a == 58 && p3c.a == 58);
 
                 @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
@@ -1893,10 +1891,8 @@ namespace Ice.optional
                 @in = new InputStream(communicator, inEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(2, OptionalFormat.Class));
-                ReadClassCallbackI rocb = new ReadClassCallbackI();
-                @in.ReadClass(rocb.invoke);
+                var a = @in.ReadClass<Test.A>();
                 @in.EndEncapsulation();
-                Test.A a = (Test.A)rocb.obj;
                 test(a != null && a.requiredA == 56);
             }
 
@@ -2239,15 +2235,5 @@ namespace Ice.optional
             private bool _enabled;
         }
         */
-
-        private class ReadClassCallbackI
-        {
-            public void invoke(AnyClass obj)
-            {
-                this.obj = obj;
-            }
-
-            internal AnyClass obj;
-        }
     }
 }

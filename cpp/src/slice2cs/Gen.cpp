@@ -170,24 +170,6 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
     }
 }
 
-namespace
-{
-
-string
-unmarshalParamArgument(const TypePtr& type, const string& param, const string& ns)
-{
-    if(isClassType(type))
-    {
-        return "(" + CsGenerator::typeToString(type, ns) + " value) => " + param + " = value";
-    }
-    else
-    {
-        return param;
-    }
-}
-
-}
-
 void
 Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
                                        const list<ParamInfo>& requiredParams,
@@ -204,13 +186,13 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
             _out << " = default";
         }
         _out << ";";
-        writeUnmarshalCode(_out, param.type, ns, unmarshalParamArgument(param.type, param.name, ns), stream);
+        writeUnmarshalCode(_out, param.type, ns, param.name, stream);
     }
 
     for(const auto& param : taggedParams)
     {
         _out << nl << param.typeStr << " " << param.name << " = null;";
-        writeTaggedUnmarshalCode(_out, param.type, ns, unmarshalParamArgument(param.type, param.name, ns), param.tag,
+        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag,
                                    stream);
     }
 }
@@ -245,12 +227,12 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->tagged())
     {
-        writeTaggedUnmarshalCode(_out, member->type(), ns, unmarshalParamArgument(member->type(), "this." + name, ns),
+        writeTaggedUnmarshalCode(_out, member->type(), ns, "this." + name,
                                  member->tag(), stream);
     }
     else
     {
-        writeUnmarshalCode(_out, member->type(), ns, unmarshalParamArgument(member->type(), "this." + name, ns),
+        writeUnmarshalCode(_out, member->type(), ns, "this." + name,
                            stream);
     }
 }
@@ -2937,23 +2919,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << ";";
     writeUnmarshalCode(_out, key, ns, "k");
 
-    if(isClassType(value))
+    _out << nl << valueS << " v";
+    if(StructPtr::dynamicCast(value))
     {
-        ostringstream os;
-        os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
-        writeUnmarshalCode(_out, value, ns, os.str());
+        _out << " = default";
     }
-    else
-    {
-        _out << nl << valueS << " v";
-        if(StructPtr::dynamicCast(value))
-        {
-            _out << " = default";
-        }
-        _out << ";";
-        writeUnmarshalCode(_out, value, ns, "v");
-        _out << nl << "r[k] = v;";
-    }
+    _out << ";";
+    writeUnmarshalCode(_out, value, ns, "v");
+    _out << nl << "r[k] = v;";
     _out << eb;
     _out << nl << "return r;";
     _out << eb;

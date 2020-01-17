@@ -1930,73 +1930,74 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts the index of a Slice value from the stream.
+        /// Read an instance of class T.
         /// </summary>
-        /// <param name="cb">The callback to notify the application when the extracted instance is available.
-        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-        /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadClass<T>(Action<T?> cb) where T : AnyClass
+        /// <returns>The class instance, or null.</returns>
+        public T? ReadClass<T>() where T : AnyClass
         {
-            ReadClass(v =>
+            var obj = ReadAnyClass();
+            if (obj == null)
             {
-                if (v == null || v is T)
-                {
-                    cb((T?)v);
-                }
-                else
-                {
-                    IceInternal.Ex.throwUOE(typeof(T), v);
-                }
-            });
+                return null;
+            }
+            else if (obj is T)
+            {
+                return (T)obj;
+            }
+            else
+            {
+                IceInternal.Ex.throwUOE(typeof(T), obj);
+                return null;
+            }
         }
 
         /// <summary>
-        /// Extracts the index of a Slice value from the stream.
+        /// Read an instance of a class.
         /// </summary>
-        /// <param name="cb">The callback to notify the application when the extracted instance is available.
-        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-        /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadClass(Action<AnyClass?>? cb)
+        /// <returns>The class instance, or null.</returns>
+        private AnyClass? ReadAnyClass()
         {
             initEncaps();
-            var obj = _encapsStack.decoder.readClass();
-            cb?.Invoke(obj);
+            return _encapsStack.decoder.readClass();
         }
 
         /// <summary>
-        /// Extracts the index of an optional Slice value from the stream.
+        /// Read a tagged parameter or data member of type class T.
         /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-        /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadClass<T>(int tag, Action<T?> cb) where T : AnyClass
+        /// <param name="tag">The numeric tag associated with the class parameter or data member.</param>
+        /// <returns>The class instance, or null.</returns>
+        public T? ReadClass<T>(int tag) where T : AnyClass
         {
-            ReadClass(tag, v =>
+            var obj = ReadAnyClass(tag);
+            if (obj == null)
             {
-                if (v == null || v is T)
-                {
-                    cb((T?)v);
-                }
-                else
-                {
-                    IceInternal.Ex.throwUOE(typeof(T), v);
-                }
-            });
+                return null;
+            }
+            else if (obj is T)
+            {
+                return (T)obj;
+            }
+            else
+            {
+                IceInternal.Ex.throwUOE(typeof(T), obj);
+                return null;
+            }
         }
 
         /// <summary>
-        /// Extracts the index of an optional Slice value from the stream.
+        /// Read a tagged parameter or data member of type class.
         /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-        /// corresponding instance has been fully unmarshaled.</param>
-        public void ReadClass(int tag, System.Action<AnyClass?>? cb)
+        /// <param name="tag">The numeric tag associated with the class parameter or data member.</param>
+        /// <returns>The class instance, or null.</returns>
+        private AnyClass? ReadAnyClass(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.Class))
             {
-                ReadClass(cb);
+                return ReadAnyClass();
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -2169,7 +2170,7 @@ namespace Ice
                     }
                 case OptionalFormat.Class:
                     {
-                        ReadClass(null);
+                        ReadAnyClass();
                         break;
                     }
             }
