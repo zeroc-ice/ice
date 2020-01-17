@@ -24,6 +24,30 @@ namespace Ice
     /// </summary>
     public class InputStream
     {
+        //
+        // The encoding version to use when there's no encapsulation to
+        // read from. This is for example used to read message headers.
+        //
+        private EncodingVersion _encoding;
+        private Encaps? _mainEncaps;
+        private Encaps? _nestedEncaps;
+        private bool _sliceClasses;
+        private bool _traceSlicing;
+        private int _classGraphDepthMax;
+
+        // The sum of all the mininum sizes (in bytes) of the sequences
+        // read in this buffer. Must not exceed the buffer size.
+        private int _minTotalSeqSize = 0;
+        private ILogger _logger;
+        private Func<int, string> _compactIdResolver;
+        private Func<string, Type?> _classResolver;
+
+        private Communicator _communicator;
+        private IceInternal.Buffer _buf;
+        private byte[] _stringBytes; // Reusable array for reading strings.
+
+        private EncapsDecoder11? _decoder;
+
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
         /// </summary>
@@ -143,6 +167,7 @@ namespace Ice
         {
             _mainEncaps = null;
             _nestedEncaps = null;
+            _decoder = null;
 
             _sliceClasses = true;
         }
@@ -303,8 +328,8 @@ namespace Ice
         /// </summary>
         public void StartClass()
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            CurrentEncaps.decoder.startInstance(SliceType.ClassSlice);
+            Debug.Assert(CurrentEncaps != null);
+            _decoder.startInstance(SliceType.ClassSlice);
         }
 
         /// <summary>
@@ -314,8 +339,8 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndClass(bool preserve)
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            return CurrentEncaps.decoder.endInstance(preserve);
+            Debug.Assert(CurrentEncaps != null);
+            return _decoder.endInstance(preserve);
         }
 
         /// <summary>
@@ -323,8 +348,8 @@ namespace Ice
         /// </summary>
         public void StartException()
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            CurrentEncaps.decoder.startInstance(SliceType.ExceptionSlice);
+            Debug.Assert(CurrentEncaps != null);
+            _decoder.startInstance(SliceType.ExceptionSlice);
         }
 
         /// <summary>
@@ -334,8 +359,8 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndException(bool preserve)
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            return CurrentEncaps.decoder.endInstance(preserve);
+            Debug.Assert(CurrentEncaps != null);
+            return _decoder.endInstance(preserve);
         }
 
         private Encaps? CurrentEncaps => _nestedEncaps ?? _mainEncaps;
@@ -351,6 +376,7 @@ namespace Ice
             if (_mainEncaps == null)
             {
                 _mainEncaps = new Encaps();
+                Debug.Assert(_decoder == null);
             }
             else
             {
@@ -412,6 +438,7 @@ namespace Ice
             else
             {
                 _mainEncaps = null;
+                _decoder = null;
             }
         }
 
@@ -537,8 +564,8 @@ namespace Ice
         /// <returns>The Slice type ID for this slice.</returns>
         public string StartSlice() // Returns type ID of next slice
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            return CurrentEncaps.decoder.startSlice(true);
+            Debug.Assert(CurrentEncaps != null);
+            return _decoder.startSlice(true);
         }
 
         /// <summary>
@@ -546,8 +573,8 @@ namespace Ice
         /// </summary>
         public void EndSlice()
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            CurrentEncaps.decoder.endSlice();
+            Debug.Assert(CurrentEncaps != null);
+            _decoder.endSlice();
         }
 
         /// <summary>
@@ -555,8 +582,8 @@ namespace Ice
         /// </summary>
         public void SkipSlice()
         {
-            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
-            CurrentEncaps.decoder.skipSlice();
+            Debug.Assert(CurrentEncaps != null);
+            _decoder.skipSlice();
         }
 
         /// <summary>
@@ -665,9 +692,9 @@ namespace Ice
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
             Debug.Assert(CurrentEncaps != null);
-            if (CurrentEncaps.decoder != null)
+            if (_decoder != null)
             {
-                return CurrentEncaps.decoder.readOptional(tag, expectedFormat);
+                return _decoder.readOptional(tag, expectedFormat);
             }
             else
             {
@@ -1926,7 +1953,7 @@ namespace Ice
         private AnyClass? ReadAnyClass()
         {
             initEncaps();
-            return CurrentEncaps.decoder.readClass();
+            return _decoder.readClass();
         }
 
         /// <summary>
@@ -1984,7 +2011,7 @@ namespace Ice
         public void ThrowException(UserExceptionFactory? factory)
         {
             initEncaps();
-            CurrentEncaps.decoder.throwException(factory);
+            _decoder.throwException(factory);
         }
 
         /// <summary>
@@ -2195,42 +2222,46 @@ namespace Ice
             return userEx;
         }
 
-        private Communicator _communicator;
-        private IceInternal.Buffer _buf;
-        private byte[] _stringBytes; // Reusable array for reading strings.
-
         private enum SliceType { ClassSlice, ExceptionSlice }
 
-        private abstract class EncapsDecoder
+        private sealed class EncapsDecoder11
         {
-            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceClasses,
-                                   int classGraphDepthMax, System.Func<string, Type> cr)
+            private readonly InputStream _stream;
+            private readonly bool _sliceClasses;
+            private readonly int _classGraphDepthMax;
+            private int _classGraphDepth;
+            private readonly System.Func<string, Type> _classResolver;
+            private readonly Func<int, string> _compactIdResolver;
+
+            //
+            // Encapsulation attributes for object unmarshaling.
+            //
+            private Dictionary<int, AnyClass> _unmarshaledMap;
+            private Dictionary<int, string> _typeIdMap;
+            private int _typeIdIndex;
+            private int _posAfterLatestInsertedTypeId = 0;
+            private Dictionary<string, Type> _typeIdCache;
+
+            private InstanceData _current;
+            private int _valueIdIndex; // The ID of the next instance to unmarshal.
+            private Dictionary<int, Type> _compactIdCache;
+
+            internal EncapsDecoder11(InputStream stream, bool sliceClasses, int classGraphDepthMax,
+                                     System.Func<string, Type> cr, System.Func<int, string> r)
             {
                 _stream = stream;
-                _encaps = encaps;
                 _sliceClasses = sliceClasses;
                 _classGraphDepthMax = classGraphDepthMax;
                 _classGraphDepth = 0;
                 _classResolver = cr;
                 _typeIdIndex = 0;
                 _unmarshaledMap = new Dictionary<int, AnyClass>();
+                _compactIdResolver = r;
+                _current = null;
+                _valueIdIndex = 1;
             }
 
-            internal abstract AnyClass? readClass();
-            internal abstract void throwException(UserExceptionFactory? factory);
-
-            internal abstract void startInstance(SliceType type);
-            internal abstract SlicedData endInstance(bool preserve);
-            internal abstract string startSlice(bool readIndirectionTable);
-            internal abstract void endSlice();
-            internal abstract void skipSlice();
-
-            internal virtual bool readOptional(int tag, OptionalFormat format)
-            {
-                return false;
-            }
-
-            protected string readTypeId(bool isIndex)
+            private string readTypeId(bool isIndex)
             {
                 _typeIdMap ??= new Dictionary<int, string>();
 
@@ -2261,7 +2292,7 @@ namespace Ice
                 }
             }
 
-            protected Type resolveClass(string typeId)
+            private Type resolveClass(string typeId)
             {
                 Type cls = null;
                 if (_typeIdCache == null)
@@ -2273,7 +2304,7 @@ namespace Ice
                     _typeIdCache.TryGetValue(typeId, out cls);
                 }
 
-                if (cls == typeof(EncapsDecoder)) // Marker for non-existent class.
+                if (cls == typeof(EncapsDecoder11)) // Marker for non-existent class.
                 {
                     cls = null;
                 }
@@ -2284,7 +2315,7 @@ namespace Ice
                         if (_classResolver != null)
                         {
                             cls = _classResolver(typeId);
-                            _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder));
+                            _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder11));
                         }
                     }
                     catch (Exception ex)
@@ -2318,35 +2349,7 @@ namespace Ice
                 return v;
             }
 
-            protected readonly InputStream _stream;
-            protected readonly Encaps _encaps;
-            protected readonly bool _sliceClasses;
-            protected readonly int _classGraphDepthMax;
-            protected int _classGraphDepth;
-            protected System.Func<string, Type> _classResolver;
-
-            //
-            // Encapsulation attributes for object unmarshaling.
-            //
-            protected Dictionary<int, AnyClass> _unmarshaledMap;
-            private Dictionary<int, string> _typeIdMap;
-            private int _typeIdIndex;
-            private int _posAfterLatestInsertedTypeId = 0;
-            private Dictionary<string, Type> _typeIdCache;
-        }
-
-        private sealed class EncapsDecoder11 : EncapsDecoder
-        {
-            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceClasses, int classGraphDepthMax,
-                                     System.Func<string, Type> cr, System.Func<int, string> r)
-                : base(stream, encaps, sliceClasses, classGraphDepthMax, cr)
-            {
-                _compactIdResolver = r;
-                _current = null;
-                _valueIdIndex = 1;
-            }
-
-            internal override AnyClass? readClass()
+            internal AnyClass? readClass()
             {
                 int index = _stream.ReadSize();
                 if (index < 0)
@@ -2381,7 +2384,7 @@ namespace Ice
                 }
             }
 
-            internal override void throwException(UserExceptionFactory factory)
+            internal void throwException(UserExceptionFactory factory)
             {
                 Debug.Assert(_current == null);
 
@@ -2449,13 +2452,13 @@ namespace Ice
                 }
             }
 
-            internal override void startInstance(SliceType sliceType)
+            internal void startInstance(SliceType sliceType)
             {
                 Debug.Assert(_current.sliceType == sliceType);
                 _current.skipFirstSlice = true;
             }
 
-            internal override SlicedData endInstance(bool preserve)
+            internal SlicedData endInstance(bool preserve)
             {
                 SlicedData slicedData = null;
                 if (preserve)
@@ -2472,7 +2475,7 @@ namespace Ice
                 return slicedData;
             }
 
-            internal override string startSlice(bool readIndirectionTable)
+            internal string startSlice(bool readIndirectionTable)
             {
                 //
                 // If first slice, don't read the header, it was already read in
@@ -2564,7 +2567,7 @@ namespace Ice
                 return _current.typeId;
             }
 
-            internal override void endSlice()
+            internal void endSlice()
             {
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
@@ -2579,7 +2582,7 @@ namespace Ice
                 }
             }
 
-            internal override void skipSlice()
+            internal void skipSlice()
             {
                 if (_stream.Communicator().traceLevels().slicing > 0)
                 {
@@ -2770,7 +2773,7 @@ namespace Ice
                 return indirectionTable;
             }
 
-            internal override bool readOptional(int readTag, OptionalFormat expectedFormat)
+            internal bool readOptional(int readTag, OptionalFormat expectedFormat)
             {
                 if (_current == null)
                 {
@@ -3032,56 +3035,47 @@ namespace Ice
                 _current.sliceType = sliceType;
                 _current.skipFirstSlice = false;
             }
-            private sealed class InstanceData
+        }
+
+        private sealed class InstanceData
+        {
+            internal InstanceData(InstanceData? previous)
             {
-                internal InstanceData(InstanceData? previous)
+                if (previous != null)
                 {
-                    if (previous != null)
-                    {
-                        previous.next = this;
-                    }
-                    this.previous = previous;
-                    this.next = null;
+                    previous.next = this;
                 }
-
-                // Instance attributes
-                internal SliceType sliceType;
-                internal bool skipFirstSlice;
-                internal List<SliceInfo> slices;     // Preserved slices.
-                internal List<AnyClass[]?>? IndirectionTableList;
-
-                // Position of indirection tables that we skipped for now and that will
-                // unmarshal (into IndirectionTableList) once the instance is created
-                internal List<int>? DeferredIndirectionTableList;
-
-                // Slice attributes
-                internal byte sliceFlags;
-                internal int sliceSize;
-                internal string typeId;
-                internal int compactId;
-
-                // Indirection table of the current slice
-                internal AnyClass[]? IndirectionTable;
-                internal int? PosAfterIndirectionTable;
-
-                // Other instances
-                internal InstanceData? previous;
-                internal InstanceData? next;
+                this.previous = previous;
+                this.next = null;
             }
 
-            private Func<int, string> _compactIdResolver;
-            private InstanceData _current;
-            private int _valueIdIndex; // The ID of the next instance to unmarshal.
-            private Dictionary<int, Type> _compactIdCache;
+            // Instance attributes
+            internal SliceType sliceType;
+            internal bool skipFirstSlice;
+            internal List<SliceInfo> slices;     // Preserved slices.
+            internal List<AnyClass[]?>? IndirectionTableList;
+
+            // Position of indirection tables that we skipped for now and that will
+            // unmarshal (into IndirectionTableList) once the instance is created
+            internal List<int>? DeferredIndirectionTableList;
+
+            // Slice attributes
+            internal byte sliceFlags;
+            internal int sliceSize;
+            internal string typeId;
+            internal int compactId;
+
+            // Indirection table of the current slice
+            internal AnyClass[]? IndirectionTable;
+            internal int? PosAfterIndirectionTable;
+
+            // Other instances
+            internal InstanceData? previous;
+            internal InstanceData? next;
         }
 
         private sealed class Encaps
         {
-            internal void reset()
-            {
-                decoder = null;
-            }
-
             internal void setEncoding(EncodingVersion encoding)
             {
                 this.encoding = encoding;
@@ -3092,39 +3086,16 @@ namespace Ice
             internal int start;
             internal int sz;
             internal EncodingVersion encoding;
-            internal EncapsDecoder decoder;
         }
-
-        //
-        // The encoding version to use when there's no encapsulation to
-        // read from. This is for example used to read message headers.
-        //
-        private EncodingVersion _encoding;
 
         private bool isEncoding_1_0()
         {
             return CurrentEncaps != null ? CurrentEncaps.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
         }
-
-        private Encaps? _mainEncaps;
-        private Encaps? _nestedEncaps;
-
         private void initEncaps()
         {
-            Debug.Assert(CurrentEncaps != null);
-            CurrentEncaps.decoder ??= new EncapsDecoder11(this, CurrentEncaps, _sliceClasses, _classGraphDepthMax,
-                                                               _classResolver, _compactIdResolver);
+            _decoder ??= new EncapsDecoder11(this, _sliceClasses, _classGraphDepthMax,
+                                                    _classResolver, _compactIdResolver);
         }
-        private bool _sliceClasses;
-        private bool _traceSlicing;
-        private int _classGraphDepthMax;
-
-        // The sum of all the mininum sizes (in bytes) of the sequences
-        // read in this buffer. Must not exceed the buffer size.
-        private int _minTotalSeqSize = 0;
-
-        private ILogger _logger;
-        private Func<int, string> _compactIdResolver;
-        private Func<string, Type?> _classResolver;
     }
 }
