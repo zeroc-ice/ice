@@ -121,9 +121,8 @@ namespace Ice
             _classGraphDepthMax = _communicator.classGraphDepthMax();
             _logger = _communicator.Logger;
             _classResolver = _communicator.resolveClass;
-            _encapsStack = null;
-            _encapsCache = null;
-            _closure = null;
+            _mainEncaps = null;
+            _nestedEncaps = null;
             _sliceClasses = true;
         }
 
@@ -138,18 +137,12 @@ namespace Ice
         }
 
         /// <summary>
-        /// Releases any data retained by encapsulations. Internally calls clear().
+        /// Releases any data retained by encapsulations.
         /// </summary>
         public void Clear()
         {
-            if (_encapsStack != null)
-            {
-                Debug.Assert(_encapsStack.next == null);
-                _encapsStack.next = _encapsCache;
-                _encapsCache = _encapsStack;
-                _encapsStack = null;
-                _encapsCache.reset();
-            }
+            _mainEncaps = null;
+            _nestedEncaps = null;
 
             _sliceClasses = true;
         }
@@ -251,10 +244,6 @@ namespace Ice
             other._traceSlicing = _traceSlicing;
             _traceSlicing = tmpTraceSlicing;
 
-            object? tmpClosure = other._closure;
-            other._closure = _closure;
-            _closure = tmpClosure;
-
             bool tmpSliceClasses = other._sliceClasses;
             other._sliceClasses = _sliceClasses;
             _sliceClasses = tmpSliceClasses;
@@ -290,7 +279,8 @@ namespace Ice
 
         private void ResetEncapsulation()
         {
-            _encapsStack = null;
+            _mainEncaps = null;
+            _nestedEncaps = null;
         }
 
         /// <summary>
@@ -313,8 +303,8 @@ namespace Ice
         /// </summary>
         public void StartClass()
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.startInstance(SliceType.ClassSlice);
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            CurrentEncaps.decoder.startInstance(SliceType.ClassSlice);
         }
 
         /// <summary>
@@ -324,8 +314,8 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndClass(bool preserve)
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            return CurrentEncaps.decoder.endInstance(preserve);
         }
 
         /// <summary>
@@ -333,8 +323,8 @@ namespace Ice
         /// </summary>
         public void StartException()
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            CurrentEncaps.decoder.startInstance(SliceType.ExceptionSlice);
         }
 
         /// <summary>
@@ -344,9 +334,11 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndException(bool preserve)
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            return CurrentEncaps.decoder.endInstance(preserve);
         }
+
+        private Encaps? CurrentEncaps => _nestedEncaps ?? _mainEncaps;
 
         /// <summary>
         /// Reads the start of an encapsulation.
@@ -354,20 +346,18 @@ namespace Ice
         /// <returns>The encapsulation encoding version.</returns>
         public EncodingVersion StartEncapsulation()
         {
-            Encaps curr = _encapsCache;
-            if (curr != null)
+            Debug.Assert(_nestedEncaps == null);
+
+            if (_mainEncaps == null)
             {
-                curr.reset();
-                _encapsCache = _encapsCache.next;
+                _mainEncaps = new Encaps();
             }
             else
             {
-                curr = new Encaps();
+                _nestedEncaps = new Encaps();
             }
-            curr.next = _encapsStack;
-            _encapsStack = curr;
 
-            _encapsStack.start = _buf.b.position();
+            CurrentEncaps.start = _buf.b.position();
 
             //
             // I don't use readSize() for encapsulations, because when creating an encapsulation,
@@ -383,13 +373,13 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            _encapsStack.sz = sz;
+            CurrentEncaps.sz = sz;
 
             byte major = ReadByte();
             byte minor = ReadByte();
             EncodingVersion encoding = new EncodingVersion(major, minor);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
-            _encapsStack.setEncoding(encoding);
+            CurrentEncaps.setEncoding(encoding);
 
             return encoding;
         }
@@ -399,44 +389,30 @@ namespace Ice
         /// </summary>
         public void EndEncapsulation()
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(CurrentEncaps != null);
 
-            if (!_encapsStack.encoding_1_0)
+            if (!CurrentEncaps.encoding_1_0)
             {
                 skipOptionals();
-                if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() != CurrentEncaps.start + CurrentEncaps.sz)
                 {
                     throw new EncapsulationException();
                 }
             }
-            else if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+            else
             {
-                if (_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
-                {
-                    throw new EncapsulationException();
-                }
-
-                //
-                // Ice version < 3.3 had a bug where user exceptions with
-                // class members could be encoded with a trailing byte
-                // when dispatched with AMD. So we tolerate an extra byte
-                // in the encapsulation.
-                //
-                try
-                {
-                    _buf.b.get();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    throw new UnmarshalOutOfBoundsException(ex);
-                }
+                // TODO: still using encoding 1.0 in some tests apparently
+                // Debug.Assert(false);
             }
 
-            Encaps curr = _encapsStack;
-            _encapsStack = curr.next;
-            curr.next = _encapsCache;
-            _encapsCache = curr;
-            _encapsCache.reset();
+            if (CurrentEncaps == _nestedEncaps)
+            {
+                _nestedEncaps = null;
+            }
+            else
+            {
+                _mainEncaps = null;
+            }
         }
 
         /// <summary>
@@ -517,7 +493,7 @@ namespace Ice
         /// <returns>The encoding version.</returns>
         public EncodingVersion GetEncoding()
         {
-            return _encapsStack != null ? _encapsStack.encoding : _encoding;
+            return CurrentEncaps != null ? CurrentEncaps.encoding : _encoding;
         }
 
         /// <summary>
@@ -526,8 +502,8 @@ namespace Ice
         /// <returns>The size of the encapsulated data.</returns>
         public int GetEncapsulationSize()
         {
-            Debug.Assert(_encapsStack != null);
-            return _encapsStack.sz - 6;
+            Debug.Assert(CurrentEncaps != null);
+            return CurrentEncaps.sz - 6;
         }
 
         /// <summary>
@@ -561,8 +537,8 @@ namespace Ice
         /// <returns>The Slice type ID for this slice.</returns>
         public string StartSlice() // Returns type ID of next slice
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.startSlice(true);
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            return CurrentEncaps.decoder.startSlice(true);
         }
 
         /// <summary>
@@ -570,8 +546,8 @@ namespace Ice
         /// </summary>
         public void EndSlice()
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.endSlice();
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            CurrentEncaps.decoder.endSlice();
         }
 
         /// <summary>
@@ -579,8 +555,8 @@ namespace Ice
         /// </summary>
         public void SkipSlice()
         {
-            Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.skipSlice();
+            Debug.Assert(CurrentEncaps != null && CurrentEncaps.decoder != null);
+            CurrentEncaps.decoder.skipSlice();
         }
 
         /// <summary>
@@ -688,10 +664,10 @@ namespace Ice
         /// <returns>True if the value is present, false otherwise.</returns>
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
-            Debug.Assert(_encapsStack != null);
-            if (_encapsStack.decoder != null)
+            Debug.Assert(CurrentEncaps != null);
+            if (CurrentEncaps.decoder != null)
             {
-                return _encapsStack.decoder.readOptional(tag, expectedFormat);
+                return CurrentEncaps.decoder.readOptional(tag, expectedFormat);
             }
             else
             {
@@ -1950,7 +1926,7 @@ namespace Ice
         private AnyClass? ReadAnyClass()
         {
             initEncaps();
-            return _encapsStack.decoder.readClass();
+            return CurrentEncaps.decoder.readClass();
         }
 
         /// <summary>
@@ -2008,7 +1984,7 @@ namespace Ice
         public void ThrowException(UserExceptionFactory? factory)
         {
             initEncaps();
-            _encapsStack.decoder.throwException(factory);
+            CurrentEncaps.decoder.throwException(factory);
         }
 
         /// <summary>
@@ -2081,7 +2057,7 @@ namespace Ice
 
             while (true)
             {
-                if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() >= CurrentEncaps.start + CurrentEncaps.sz)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -2175,7 +2151,7 @@ namespace Ice
             //
             while (true)
             {
-                if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() >= CurrentEncaps.start + CurrentEncaps.sz)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -2221,7 +2197,6 @@ namespace Ice
 
         private Communicator _communicator;
         private IceInternal.Buffer _buf;
-        private object? _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
         private enum SliceType { ClassSlice, ExceptionSlice }
@@ -3110,17 +3085,14 @@ namespace Ice
             internal void setEncoding(EncodingVersion encoding)
             {
                 this.encoding = encoding;
-                encoding_1_0 = encoding.Equals(Util.Encoding_1_0);
             }
+
+            internal bool encoding_1_0 => encoding.Equals(Util.Encoding_1_0);
 
             internal int start;
             internal int sz;
             internal EncodingVersion encoding;
-            internal bool encoding_1_0;
-
             internal EncapsDecoder decoder;
-
-            internal Encaps next;
         }
 
         //
@@ -3131,44 +3103,18 @@ namespace Ice
 
         private bool isEncoding_1_0()
         {
-            return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
+            return CurrentEncaps != null ? CurrentEncaps.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
         }
 
-        private Encaps? _encapsStack;
-        private Encaps _encapsCache;
+        private Encaps? _mainEncaps;
+        private Encaps? _nestedEncaps;
 
         private void initEncaps()
         {
-            if (_encapsStack == null) // Lazy initialization
-            {
-                _encapsStack = _encapsCache;
-                if (_encapsStack != null)
-                {
-                    _encapsCache = _encapsCache.next;
-                }
-                else
-                {
-                    _encapsStack = new Encaps();
-                }
-                _encapsStack.setEncoding(_encoding);
-                _encapsStack.sz = _buf.b.limit();
-            }
-
-            if (_encapsStack.decoder == null) // Lazy initialization.
-            {
-                if (_encapsStack.encoding_1_0)
-                {
-                    // TODO: temporary until larger refactoring
-                    Debug.Assert(false);
-                }
-                else
-                {
-                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceClasses, _classGraphDepthMax,
+            Debug.Assert(CurrentEncaps != null);
+            CurrentEncaps.decoder ??= new EncapsDecoder11(this, CurrentEncaps, _sliceClasses, _classGraphDepthMax,
                                                                _classResolver, _compactIdResolver);
-                }
-            }
         }
-
         private bool _sliceClasses;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
@@ -3180,27 +3126,5 @@ namespace Ice
         private ILogger _logger;
         private Func<int, string> _compactIdResolver;
         private Func<string, Type?> _classResolver;
-    }
-
-    /// <summary>
-    /// Base class for extracting class instances from an input stream.
-    /// </summary>
-    public abstract class ClassReader : AnyClass
-    {
-        /// <summary>
-        /// Read the instance's data members.
-        /// </summary>
-        /// <param name="inStream">The input stream to read from.</param>
-        public abstract void read(InputStream inStream);
-
-        public override void iceWrite(OutputStream os)
-        {
-            Debug.Assert(false);
-        }
-
-        public override void iceRead(InputStream istr)
-        {
-            read(istr);
-        }
     }
 }

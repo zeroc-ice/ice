@@ -223,22 +223,19 @@ namespace Ice.stream
                 o.by = 5;
                 o.sh = 4;
                 o.i = 3;
+                // Can only read/write classes within encaps
+                outS.StartEncapsulation();
                 outS.WriteClass(o);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var o2 = inS.ReadClass<Test.OptionalClass>();
+                inS.EndEncapsulation();
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
-                if (communicator.GetProperty("Ice.Default.EncodingVersion") == "1.0")
-                {
-                    test(!o2.sh.HasValue);
-                    test(!o2.i.HasValue);
-                }
-                else
-                {
-                    test(o2.sh == o.sh);
-                    test(o2.i == o.i);
-                }
+                test(o2.sh == o.sh);
+                test(o2.i == o.i);
             }
 
             {
@@ -465,10 +462,14 @@ namespace Ice.stream
 
             {
                 outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
                 Test.MyClassSHelper.Write(outS, myClassArray);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var arr2 = Test.MyClassSHelper.Read(inS);
+                inS.EndEncapsulation();
                 test(arr2.Length == myClassArray.Length);
                 for (int i = 0; i < arr2.Length; ++i)
                 {
@@ -490,10 +491,14 @@ namespace Ice.stream
 
                 Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
                 outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
                 Test.MyClassSSHelper.Write(outS, arrS);
+                outS.EndEncapsulation();
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var arr2S = Test.MyClassSSHelper.Read(inS);
+                inS.EndEncapsulation();
                 test(arr2S.Length == arrS.Length);
                 test(arr2S[0].Length == arrS[0].Length);
                 test(arr2S[1].Length == arrS[1].Length);
@@ -526,17 +531,22 @@ namespace Ice.stream
                 obj.s = new Test.SmallStruct();
                 obj.s.e = Test.MyEnum.enum2;
                 var writer = new TestClassWriter(obj);
+                outS.StartEncapsulation();
                 outS.WriteClass(writer);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 test(writer.called);
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var robj = inS.ReadClass<Test.MyClass>();
+                inS.EndEncapsulation();
                 test(robj != null);
                 test(robj.s.e == Test.MyEnum.enum2);
             }
 
             {
                 outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
                 var ex = new Test.MyException();
 
                 var c = new Test.MyClass();
@@ -560,9 +570,11 @@ namespace Ice.stream
                 ex.c = c;
 
                 outS.WriteException(ex);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
 
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 try
                 {
                     inS.ThrowException();
@@ -585,6 +597,7 @@ namespace Ice.stream
                 {
                     test(false);
                 }
+                inS.EndEncapsulation();
             }
 
             {
@@ -646,10 +659,14 @@ namespace Ice.stream
                 c.s.e = Test.MyEnum.enum3;
                 dict.Add("key2", c);
                 outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
                 Test.StringMyClassDHelper.Write(outS, dict);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var dict2 = Test.StringMyClassDHelper.Read(inS);
+                inS.EndEncapsulation();
                 test(dict2.Count == dict.Count);
                 test(dict2["key1"].s.e == Test.MyEnum.enum2);
                 test(dict2["key2"].s.e == Test.MyEnum.enum3);
@@ -659,10 +676,14 @@ namespace Ice.stream
                 bool[] arr = { true, false, true, false };
                 outS = new OutputStream(communicator);
                 var l = new List<bool>(arr);
+                outS.StartEncapsulation();
                 Test.BoolListHelper.Write(outS, l);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var l2 = Test.BoolListHelper.Read(inS);
+                inS.EndEncapsulation();
                 test(Compare(l, l2));
             }
 
@@ -704,11 +725,15 @@ namespace Ice.stream
 
             {
                 outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
                 var l = new List<Test.MyClass>(myClassArray);
                 Test.MyClassListHelper.Write(outS, l);
+                outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
+                inS.StartEncapsulation();
                 var l2 = Test.MyClassListHelper.Read(inS);
+                inS.EndEncapsulation();
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
                 {
