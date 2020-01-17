@@ -398,30 +398,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes the state of Slice classes whose index was previously written with writeClass() to the stream.
-        /// </summary>
-        public void WritePendingClasses()
-        {
-            if (_encapsStack != null && _encapsStack.encoder != null)
-            {
-                _encapsStack.encoder.writePendingClasses();
-            }
-            else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
-            {
-                //
-                // If using the 1.0 encoding and no instances were written, we
-                // still write an empty sequence for pending instances if
-                // requested (i.e.: if this is called).
-                //
-                // This is required by the 1.0 encoding, even if no instances
-                // are written we do marshal an empty sequence if marshaled
-                // data types use classes.
-                //
-                WriteSize(0);
-            }
-        }
-
-        /// <summary>
         /// Writes a size to the stream.
         /// </summary>
         /// <param name="v">The size to write.</param>
@@ -1673,8 +1649,7 @@ namespace Ice
         /// <summary>
         /// Writes a class instance to the stream.
         /// </summary>
-        /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
-        /// written once writePendingClasses() is called.</param>
+        /// <param name="v">The value to write.</param>
         public void WriteClass(AnyClass? v)
         {
             initEncaps();
@@ -1801,10 +1776,6 @@ namespace Ice
             internal virtual bool writeOptional(int tag, OptionalFormat format)
             {
                 return false;
-            }
-
-            internal virtual void writePendingClasses()
-            {
             }
 
             protected int registerTypeId(string typeId)

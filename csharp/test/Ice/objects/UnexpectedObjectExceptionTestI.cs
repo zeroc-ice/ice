@@ -13,7 +13,6 @@ namespace Ice.objects
             ostr.StartEncapsulation(current.Encoding, FormatType.DefaultFormat);
             var ae = new Test.AlsoEmpty();
             ostr.WriteClass(ae);
-            ostr.WritePendingClasses();
             ostr.EndEncapsulation();
             outParams = ostr.Finished();
             return true;

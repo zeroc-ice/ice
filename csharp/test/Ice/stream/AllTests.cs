@@ -224,7 +224,6 @@ namespace Ice.stream
                 o.sh = 4;
                 o.i = 3;
                 outS.WriteClass(o);
-                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var o2 = inS.ReadClass<Test.OptionalClass>();
@@ -467,11 +466,9 @@ namespace Ice.stream
             {
                 outS = new OutputStream(communicator);
                 Test.MyClassSHelper.Write(outS, myClassArray);
-                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var arr2 = Test.MyClassSHelper.Read(inS);
-                inS.ReadPendingClasses();
                 test(arr2.Length == myClassArray.Length);
                 for (int i = 0; i < arr2.Length; ++i)
                 {
@@ -494,11 +491,9 @@ namespace Ice.stream
                 Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
                 outS = new OutputStream(communicator);
                 Test.MyClassSSHelper.Write(outS, arrS);
-                outS.WritePendingClasses();
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var arr2S = Test.MyClassSSHelper.Read(inS);
-                inS.ReadPendingClasses();
                 test(arr2S.Length == arrS.Length);
                 test(arr2S[0].Length == arrS[0].Length);
                 test(arr2S[1].Length == arrS[1].Length);
@@ -532,7 +527,6 @@ namespace Ice.stream
                 obj.s.e = Test.MyEnum.enum2;
                 var writer = new TestClassWriter(obj);
                 outS.WriteClass(writer);
-                outS.WritePendingClasses();
                 var data = outS.Finished();
                 test(writer.called);
                 inS = new InputStream(communicator, data);
@@ -653,11 +647,9 @@ namespace Ice.stream
                 dict.Add("key2", c);
                 outS = new OutputStream(communicator);
                 Test.StringMyClassDHelper.Write(outS, dict);
-                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var dict2 = Test.StringMyClassDHelper.Read(inS);
-                inS.ReadPendingClasses();
                 test(dict2.Count == dict.Count);
                 test(dict2["key1"].s.e == Test.MyEnum.enum2);
                 test(dict2["key2"].s.e == Test.MyEnum.enum3);
@@ -714,11 +706,9 @@ namespace Ice.stream
                 outS = new OutputStream(communicator);
                 var l = new List<Test.MyClass>(myClassArray);
                 Test.MyClassListHelper.Write(outS, l);
-                outS.WritePendingClasses();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 var l2 = Test.MyClassListHelper.Read(inS);
-                inS.ReadPendingClasses();
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
                 {

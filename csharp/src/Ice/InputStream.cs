@@ -584,14 +584,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// No-op, to be removed
-        /// </summary>
-        public void ReadPendingClasses()
-        {
-            // TODO: remove this method
-        }
-
-        /// <summary>
         /// Extracts a size from the stream.
         /// </summary>
         /// <returns>The extracted size.</returns>

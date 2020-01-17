@@ -2709,10 +2709,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
             _out << sb;
             writeMarshalParams(operation, requiredInParams, taggedInParams);
-            if(operation->sendsClasses(false))
-            {
-                _out << nl << "ostr.WritePendingClasses();";
-            }
             _out << eb;
         }
 
@@ -2748,10 +2744,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << sb;
 
             writeUnmarshalParams(operation, requiredOutParams, taggedOutParams);
-            if(operation->returnsClasses(false))
-            {
-                _out << nl << "istr.ReadPendingClasses();";
-            }
 
             if(outParams.size() == 1)
             {
@@ -3024,10 +3016,6 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "_ostr = global::IceInternal.Incoming.createResponseOutputStream(current);";
         _out << nl << "_ostr.StartEncapsulation(current.Encoding, " << opFormatTypeToString(operation, ns) << ");";
         writeMarshalParams(operation, requiredOutParams, taggedOutParams, "_ostr");
-        if(operation->returnsClasses(false))
-        {
-            _out << nl << "_ostr.WritePendingClasses();";
-        }
         _out << nl << "_ostr.EndEncapsulation();";
         _out << eb;
 
@@ -3166,10 +3154,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << nl << "var istr = inS.startReadParams();";
         writeUnmarshalParams(operation, requiredInParams, taggedInParams);
-        if(operation->sendsClasses(false))
-        {
-            _out << nl << "istr.ReadPendingClasses();";
-        }
         _out << nl << "inS.endReadParams();";
     }
 
@@ -3197,10 +3181,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                 _out << nl << "(ostr, " << outParams.front().name << ") =>";
                 _out << sb;
                 writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-                if(operation->returnsClasses(false))
-                {
-                    _out << nl << "ostr.WritePendingClasses();";
-                }
                 _out << eb;
             }
             else
@@ -3209,10 +3189,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                 _out << sb;
                 getOutParams(operation, requiredOutParams, taggedOutParams);
                 writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "ret.");
-                if(operation->returnsClasses(false))
-                {
-                    _out << nl << "ostr.WritePendingClasses();";
-                }
                 _out << eb;
             }
             _out.dec();
@@ -3242,10 +3218,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "var ostr = inS.startWriteParams();";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-            if(operation->returnsClasses(false))
-            {
-                _out << nl << "ostr.WritePendingClasses();";
-            }
             _out << nl << "inS.endWriteParams(ostr);";
             _out << nl << "return inS.setResult(ostr);";
         }
