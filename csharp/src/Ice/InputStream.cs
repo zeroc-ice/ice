@@ -30,7 +30,11 @@ namespace Ice
         //
         private EncodingVersion _encoding;
         private Encaps? _mainEncaps;
-        private Encaps? _nestedEncaps;
+
+        // An endpoint encaps is a lightweight encaps that cannot contain classes, exceptions,
+        // tagged members/parameters, or another endpoint. It is often but not always nested inside a _mainEncaps.
+        //
+        private Encaps? _endpointEncaps;
         private bool _sliceClasses;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
@@ -46,7 +50,20 @@ namespace Ice
         private IceInternal.Buffer _buf;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
-        private EncapsDecoder11? _decoder;
+        private Dictionary<string, Type>? _typeIdCache;
+        private Dictionary<int, Type>? _compactIdCache;
+
+        //
+        // Fields for the main encaps:
+        //
+        private Dictionary<int, AnyClass>? _unmarshaledMap;
+        private int _classGraphDepth = 0;
+        private Dictionary<int, string>? _typeIdMap;
+        private int _typeIdIndex = 0;
+        private int _posAfterLatestInsertedTypeId = 0;
+
+        private InstanceData? _current;
+        private int _valueIdIndex = 1; // The ID of the next instance to unmarshal.
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -146,7 +163,7 @@ namespace Ice
             _logger = _communicator.Logger;
             _classResolver = _communicator.resolveClass;
             _mainEncaps = null;
-            _nestedEncaps = null;
+            _endpointEncaps = null;
             _sliceClasses = true;
         }
 
@@ -165,10 +182,7 @@ namespace Ice
         /// </summary>
         public void Clear()
         {
-            _mainEncaps = null;
-            _nestedEncaps = null;
-            _decoder = null;
-
+            ResetEncapsulation();
             _sliceClasses = true;
         }
 
@@ -305,7 +319,14 @@ namespace Ice
         private void ResetEncapsulation()
         {
             _mainEncaps = null;
-            _nestedEncaps = null;
+            _endpointEncaps = null;
+            _unmarshaledMap?.Clear();
+            _classGraphDepth = 0;
+            _typeIdMap?.Clear();
+            _typeIdIndex = 0;
+            _posAfterLatestInsertedTypeId = 0;
+            _current = null;
+            _valueIdIndex = 1;
         }
 
         /// <summary>
@@ -328,8 +349,8 @@ namespace Ice
         /// </summary>
         public void StartClass()
         {
-            Debug.Assert(CurrentEncaps != null);
-            _decoder.startInstance(SliceType.ClassSlice);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            startInstance(SliceType.ClassSlice);
         }
 
         /// <summary>
@@ -339,8 +360,8 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndClass(bool preserve)
         {
-            Debug.Assert(CurrentEncaps != null);
-            return _decoder.endInstance(preserve);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            return endInstance(preserve);
         }
 
         /// <summary>
@@ -348,8 +369,8 @@ namespace Ice
         /// </summary>
         public void StartException()
         {
-            Debug.Assert(CurrentEncaps != null);
-            _decoder.startInstance(SliceType.ExceptionSlice);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            startInstance(SliceType.ExceptionSlice);
         }
 
         /// <summary>
@@ -359,11 +380,11 @@ namespace Ice
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
         public SlicedData EndException(bool preserve)
         {
-            Debug.Assert(CurrentEncaps != null);
-            return _decoder.endInstance(preserve);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            return endInstance(preserve);
         }
 
-        private Encaps? CurrentEncaps => _nestedEncaps ?? _mainEncaps;
+        private Encaps? CurrentEncaps => _endpointEncaps ?? _mainEncaps;
 
         /// <summary>
         /// Reads the start of an encapsulation.
@@ -371,17 +392,40 @@ namespace Ice
         /// <returns>The encapsulation encoding version.</returns>
         public EncodingVersion StartEncapsulation()
         {
-            Debug.Assert(_nestedEncaps == null);
+            Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
+            _mainEncaps = new Encaps();
+            CurrentEncaps.start = _buf.b.position();
 
-            if (_mainEncaps == null)
+            //
+            // I don't use readSize() for encapsulations, because when creating an encapsulation,
+            // I must know in advance how many bytes the size information will require in the data
+            // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
+            //
+            int sz = ReadInt();
+            if (sz < 6)
             {
-                _mainEncaps = new Encaps();
-                Debug.Assert(_decoder == null);
+                throw new UnmarshalOutOfBoundsException();
             }
-            else
+            if (sz - 4 > _buf.b.remaining())
             {
-                _nestedEncaps = new Encaps();
+                throw new UnmarshalOutOfBoundsException();
             }
+            CurrentEncaps.sz = sz;
+
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            EncodingVersion encoding = new EncodingVersion(major, minor);
+            Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+            CurrentEncaps.setEncoding(encoding);
+
+            return encoding;
+        }
+
+        // for endpoints
+        internal EncodingVersion StartEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps == null);
+            _endpointEncaps = new Encaps();
 
             CurrentEncaps.start = _buf.b.position();
 
@@ -415,7 +459,7 @@ namespace Ice
         /// </summary>
         public void EndEncapsulation()
         {
-            Debug.Assert(CurrentEncaps != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             if (!CurrentEncaps.encoding_1_0)
             {
@@ -431,15 +475,27 @@ namespace Ice
                 // Debug.Assert(false);
             }
 
-            if (CurrentEncaps == _nestedEncaps)
+            ResetEncapsulation();
+        }
+
+        // for endpoints
+        internal void EndEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps != null);
+
+            if (!CurrentEncaps.encoding_1_0)
             {
-                _nestedEncaps = null;
+                if (_buf.b.position() != CurrentEncaps.start + CurrentEncaps.sz)
+                {
+                    throw new EncapsulationException();
+                }
             }
             else
             {
-                _mainEncaps = null;
-                _decoder = null;
+                // TODO: still using encoding 1.0 in some tests apparently
+                // Debug.Assert(false);
             }
+            _endpointEncaps = null;
         }
 
         /// <summary>
@@ -565,7 +621,7 @@ namespace Ice
         public string StartSlice() // Returns type ID of next slice
         {
             Debug.Assert(CurrentEncaps != null);
-            return _decoder.startSlice(true);
+            return startSlice(true);
         }
 
         /// <summary>
@@ -574,16 +630,7 @@ namespace Ice
         public void EndSlice()
         {
             Debug.Assert(CurrentEncaps != null);
-            _decoder.endSlice();
-        }
-
-        /// <summary>
-        /// Skips over a class instance or exception slice.
-        /// </summary>
-        public void SkipSlice()
-        {
-            Debug.Assert(CurrentEncaps != null);
-            _decoder.skipSlice();
+            endSlice();
         }
 
         /// <summary>
@@ -691,15 +738,9 @@ namespace Ice
         /// <returns>True if the value is present, false otherwise.</returns>
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
-            Debug.Assert(CurrentEncaps != null);
-            if (_decoder != null)
-            {
-                return _decoder.readOptional(tag, expectedFormat);
-            }
-            else
-            {
-                return readOptImpl(tag, expectedFormat);
-            }
+            // Tagged members/parameters can only be in the main encaps
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            return readOptional(tag, expectedFormat);
         }
 
         /// <summary>
@@ -1952,8 +1993,7 @@ namespace Ice
         /// <returns>The class instance, or null.</returns>
         private AnyClass? ReadAnyClass()
         {
-            initEncaps();
-            return _decoder.readClass();
+            return readClass();
         }
 
         /// <summary>
@@ -2010,8 +2050,7 @@ namespace Ice
         /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
         public void ThrowException(UserExceptionFactory? factory)
         {
-            initEncaps();
-            _decoder.throwException(factory);
+            throwException(factory);
         }
 
         /// <summary>
@@ -2224,817 +2263,780 @@ namespace Ice
 
         private enum SliceType { ClassSlice, ExceptionSlice }
 
-        private sealed class EncapsDecoder11
+        private string readTypeId(bool isIndex)
         {
-            private readonly InputStream _stream;
-            private readonly bool _sliceClasses;
-            private readonly int _classGraphDepthMax;
-            private int _classGraphDepth;
-            private readonly System.Func<string, Type> _classResolver;
-            private readonly Func<int, string> _compactIdResolver;
+            _typeIdMap ??= new Dictionary<int, string>();
 
-            //
-            // Encapsulation attributes for object unmarshaling.
-            //
-            private Dictionary<int, AnyClass> _unmarshaledMap;
-            private Dictionary<int, string> _typeIdMap;
-            private int _typeIdIndex;
-            private int _posAfterLatestInsertedTypeId = 0;
-            private Dictionary<string, Type> _typeIdCache;
-
-            private InstanceData _current;
-            private int _valueIdIndex; // The ID of the next instance to unmarshal.
-            private Dictionary<int, Type> _compactIdCache;
-
-            internal EncapsDecoder11(InputStream stream, bool sliceClasses, int classGraphDepthMax,
-                                     System.Func<string, Type> cr, System.Func<int, string> r)
+            if (isIndex)
             {
-                _stream = stream;
-                _sliceClasses = sliceClasses;
-                _classGraphDepthMax = classGraphDepthMax;
-                _classGraphDepth = 0;
-                _classResolver = cr;
-                _typeIdIndex = 0;
-                _unmarshaledMap = new Dictionary<int, AnyClass>();
-                _compactIdResolver = r;
-                _current = null;
-                _valueIdIndex = 1;
+                int index = ReadSize();
+                string typeId;
+                if (!_typeIdMap.TryGetValue(index, out typeId))
+                {
+                    throw new UnmarshalOutOfBoundsException();
+                }
+                return typeId;
+            }
+            else
+            {
+                string typeId = ReadString();
+
+                // We only want to insert this typeId in the map and increment the index
+                // when it's the first time we read it, so we save the largest pos we
+                // read to figure when to insert.
+                if (pos() > _posAfterLatestInsertedTypeId)
+                {
+                    _posAfterLatestInsertedTypeId = pos();
+                    _typeIdMap.Add(++_typeIdIndex, typeId);
+                }
+
+                return typeId;
+            }
+        }
+
+        private Type resolveClass(string typeId)
+        {
+            Type cls = null;
+            if (_typeIdCache == null)
+            {
+                _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
+            }
+            else
+            {
+                _typeIdCache.TryGetValue(typeId, out cls);
             }
 
-            private string readTypeId(bool isIndex)
+            if (cls == typeof(InputStream)) // Marker for non-existent class.
             {
-                _typeIdMap ??= new Dictionary<int, string>();
-
-                if (isIndex)
+                cls = null;
+            }
+            else if (cls == null)
+            {
+                try
                 {
-                    int index = _stream.ReadSize();
-                    string typeId;
-                    if (!_typeIdMap.TryGetValue(index, out typeId))
+                    if (_classResolver != null)
                     {
-                        throw new UnmarshalOutOfBoundsException();
+                        cls = _classResolver(typeId);
+                        _typeIdCache.Add(typeId, cls != null ? cls : typeof(InputStream));
                     }
-                    return typeId;
                 }
-                else
+                catch (Exception ex)
                 {
-                    string typeId = _stream.ReadString();
-
-                    // We only want to insert this typeId in the map and increment the index
-                    // when it's the first time we read it, so we save the largest pos we
-                    // read to figure when to insert.
-                    if (_stream.pos() > _posAfterLatestInsertedTypeId)
-                    {
-                        _posAfterLatestInsertedTypeId = _stream.pos();
-                        _typeIdMap.Add(++_typeIdIndex, typeId);
-                    }
-
-                    return typeId;
+                    throw new NoClassFactoryException("no class factory", typeId, ex);
                 }
             }
 
-            private Type resolveClass(string typeId)
+            return cls;
+        }
+
+        protected AnyClass? newInstance(string typeId)
+        {
+            AnyClass? v = null;
+
+            Type cls = resolveClass(typeId);
+
+            if (cls != null)
             {
-                Type cls = null;
-                if (_typeIdCache == null)
+                try
                 {
-                    _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
+                    Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                    v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                }
+                catch (Exception ex)
+                {
+                    throw new NoClassFactoryException("no class factory", typeId, ex);
+                }
+            }
+
+            return v;
+        }
+
+        internal AnyClass? readClass()
+        {
+            int index = ReadSize();
+            if (index < 0)
+            {
+                throw new MarshalException("invalid object id");
+            }
+            else if (index == 0)
+            {
+                return null;
+            }
+            else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                //
+                // When reading an instance within a slice and there is an
+                // indirection table, we have an index within this indirection table.
+                //
+                // We need to decrement index since position 0 in the indirection table
+                // corresponds to index 1.
+                index--;
+                if (index < _current.IndirectionTable?.Length)
+                {
+                    return _current.IndirectionTable[index];
                 }
                 else
                 {
-                    _typeIdCache.TryGetValue(typeId, out cls);
+                    throw new MarshalException("index too big for indirection table");
                 }
+            }
+            else
+            {
+                return readInstance(index);
+            }
+        }
 
-                if (cls == typeof(EncapsDecoder11)) // Marker for non-existent class.
-                {
-                    cls = null;
-                }
-                else if (cls == null)
+        internal void throwException(UserExceptionFactory factory)
+        {
+            Debug.Assert(_current == null);
+
+            push(SliceType.ExceptionSlice);
+
+            //
+            // Read the first slice header.
+            //
+            startSlice(true); // we read the indirection table immediately
+
+            string mostDerivedId = _current.typeId;
+            while (true)
+            {
+                UserException userEx = null;
+
+                //
+                // Use a factory if one was provided.
+                //
+                if (factory != null)
                 {
                     try
                     {
-                        if (_classResolver != null)
-                        {
-                            cls = _classResolver(typeId);
-                            _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder11));
-                        }
+                        factory(_current.typeId);
                     }
-                    catch (Exception ex)
+                    catch (UserException ex)
                     {
-                        throw new NoClassFactoryException("no class factory", typeId, ex);
+                        userEx = ex;
                     }
                 }
 
-                return cls;
-            }
-
-            protected AnyClass? newInstance(string typeId)
-            {
-                AnyClass? v = null;
-
-                Type cls = resolveClass(typeId);
-
-                if (cls != null)
+                if (userEx == null)
                 {
-                    try
-                    {
-                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new NoClassFactoryException("no class factory", typeId, ex);
-                    }
+                    userEx = createUserException(_current.typeId);
                 }
 
-                return v;
-            }
+                //
+                // We found the exception.
+                //
+                if (userEx != null)
+                {
+                    userEx.iceRead(this);
+                    throw userEx;
 
-            internal AnyClass? readClass()
-            {
-                int index = _stream.ReadSize();
-                if (index < 0)
-                {
-                    throw new MarshalException("invalid object id");
+                    // Never reached.
                 }
-                else if (index == 0)
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    return null;
-                }
-                else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-                {
-                    //
-                    // When reading an instance within a slice and there is an
-                    // indirection table, we have an index within this indirection table.
-                    //
-                    // We need to decrement index since position 0 in the indirection table
-                    // corresponds to index 1.
-                    index--;
-                    if (index < _current.IndirectionTable?.Length)
+                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
                     {
-                        return _current.IndirectionTable[index];
+                        throw new UnknownUserException(mostDerivedId.Substring(2));
                     }
                     else
                     {
-                        throw new MarshalException("index too big for indirection table");
+                        throw new UnknownUserException(mostDerivedId);
                     }
                 }
-                else
-                {
-                    return readInstance(index);
-                }
+
+                startSlice(true);
+            }
+        }
+
+        private void startInstance(SliceType sliceType)
+        {
+            Debug.Assert(_current.sliceType == sliceType);
+            _current.skipFirstSlice = true;
+        }
+
+        private SlicedData endInstance(bool preserve)
+        {
+            SlicedData slicedData = null;
+            if (preserve)
+            {
+                slicedData = readSlicedData();
             }
 
-            internal void throwException(UserExceptionFactory factory)
+            // We may reuse this instance data (current) so we need to clean it well (see push)
+            _current.slices?.Clear();
+            _current.IndirectionTableList?.Clear();
+            Debug.Assert(_current.DeferredIndirectionTableList == null ||
+                _current.DeferredIndirectionTableList.Count == 0);
+            _current = _current.previous;
+            return slicedData;
+        }
+
+        private string startSlice(bool readIndirectionTable)
+        {
+            //
+            // If first slice, don't read the header, it was already read in
+            // readInstance or throwException to find the factory.
+            //
+            if (_current.skipFirstSlice)
             {
-                Debug.Assert(_current == null);
-
-                push(SliceType.ExceptionSlice);
-
-                //
-                // Read the first slice header.
-                //
-                startSlice(true); // we read the indirection table immediately
-
-                string mostDerivedId = _current.typeId;
-                while (true)
-                {
-                    UserException userEx = null;
-
-                    //
-                    // Use a factory if one was provided.
-                    //
-                    if (factory != null)
-                    {
-                        try
-                        {
-                            factory(_current.typeId);
-                        }
-                        catch (UserException ex)
-                        {
-                            userEx = ex;
-                        }
-                    }
-
-                    if (userEx == null)
-                    {
-                        userEx = _stream.createUserException(_current.typeId);
-                    }
-
-                    //
-                    // We found the exception.
-                    //
-                    if (userEx != null)
-                    {
-                        userEx.iceRead(_stream);
-                        throw userEx;
-
-                        // Never reached.
-                    }
-
-                    //
-                    // Slice off what we don't understand.
-                    //
-                    skipSlice();
-
-                    if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
-                    {
-                        if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
-                        {
-                            throw new UnknownUserException(mostDerivedId.Substring(2));
-                        }
-                        else
-                        {
-                            throw new UnknownUserException(mostDerivedId);
-                        }
-                    }
-
-                    startSlice(true);
-                }
+                _current.skipFirstSlice = false;
             }
-
-            internal void startInstance(SliceType sliceType)
+            else
             {
-                Debug.Assert(_current.sliceType == sliceType);
-                _current.skipFirstSlice = true;
-            }
+                _current.sliceFlags = ReadByte();
 
-            internal SlicedData endInstance(bool preserve)
-            {
-                SlicedData slicedData = null;
-                if (preserve)
-                {
-                    slicedData = readSlicedData();
-                }
-
-                // We may reuse this instance data (current) so we need to clean it well (see push)
-                _current.slices?.Clear();
-                _current.IndirectionTableList?.Clear();
-                Debug.Assert(_current.DeferredIndirectionTableList == null ||
-                    _current.DeferredIndirectionTableList.Count == 0);
-                _current = _current.previous;
-                return slicedData;
-            }
-
-            internal string startSlice(bool readIndirectionTable)
-            {
                 //
-                // If first slice, don't read the header, it was already read in
-                // readInstance or throwException to find the factory.
+                // Read the type ID, for instance slices the type ID is encoded as a
+                // string or as an index, for exceptions it's always encoded as a
+                // string.
                 //
-                if (_current.skipFirstSlice)
+                if (_current.sliceType == SliceType.ClassSlice)
                 {
-                    _current.skipFirstSlice = false;
-                }
-                else
-                {
-                    _current.sliceFlags = _stream.ReadByte();
-
                     //
-                    // Read the type ID, for instance slices the type ID is encoded as a
-                    // string or as an index, for exceptions it's always encoded as a
-                    // string.
+                    // Must be checked first!
                     //
-                    if (_current.sliceType == SliceType.ClassSlice)
+                    if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
+                        Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     {
-                        //
-                        // Must be checked first!
-                        //
-                        if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
-                            Protocol.FLAG_HAS_TYPE_ID_COMPACT)
-                        {
-                            _current.typeId = "";
-                            _current.compactId = _stream.ReadSize();
-                        }
-                        else if ((_current.sliceFlags &
-                                (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
-                        {
-                            _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
-                            _current.compactId = -1;
-                        }
-                        else
-                        {
-                            // Only the most derived slice encodes the type ID for the compact format.
-                            _current.typeId = "";
-                            _current.compactId = -1;
-                        }
+                        _current.typeId = "";
+                        _current.compactId = ReadSize();
                     }
-                    else
+                    else if ((_current.sliceFlags &
+                            (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                     {
-                        _current.typeId = _stream.ReadString();
+                        _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                         _current.compactId = -1;
                     }
-
-                    //
-                    // Read the slice size if necessary.
-                    //
-                    if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
-                    {
-                        _current.sliceSize = _stream.ReadInt();
-                        if (_current.sliceSize < 4)
-                        {
-                            throw new MarshalException("invalid slice size");
-                        }
-                    }
                     else
                     {
-                        _current.sliceSize = 0;
+                        // Only the most derived slice encodes the type ID for the compact format.
+                        _current.typeId = "";
+                        _current.compactId = -1;
                     }
                 }
-
-                // Read the indirection table now
-                if (readIndirectionTable && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                else
                 {
-                    if (_current.IndirectionTable != null)
-                    {
-                        // We already read it (skipFirstSlice was true and it's an exception), so nothing to do
-                        // Note that for classes, we only read the indirection table for the first slice
-                        // when skipFirstSlice is true
-                    }
-                    else
-                    {
-                        int savedPos = _stream.pos();
-                        if (_current.sliceSize < 4)
-                        {
-                            throw new MarshalException("invalid slice size");
-                        }
-                        _stream.pos(savedPos + _current.sliceSize - 4);
-                        _current.IndirectionTable = ReadIndirectionTable();
-                        _current.PosAfterIndirectionTable = _stream.pos();
-                        _stream.pos(savedPos);
-                    }
+                    _current.typeId = ReadString();
+                    _current.compactId = -1;
                 }
 
-                return _current.typeId;
+                //
+                // Read the slice size if necessary.
+                //
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+                {
+                    _current.sliceSize = ReadInt();
+                    if (_current.sliceSize < 4)
+                    {
+                        throw new MarshalException("invalid slice size");
+                    }
+                }
+                else
+                {
+                    _current.sliceSize = 0;
+                }
             }
 
-            internal void endSlice()
+            // Read the indirection table now
+            if (readIndirectionTable && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+                if (_current.IndirectionTable != null)
                 {
-                    _stream.skipOptionals();
+                    // We already read it (skipFirstSlice was true and it's an exception), so nothing to do
+                    // Note that for classes, we only read the indirection table for the first slice
+                    // when skipFirstSlice is true
                 }
+                else
+                {
+                    int savedPos = pos();
+                    if (_current.sliceSize < 4)
+                    {
+                        throw new MarshalException("invalid slice size");
+                    }
+                    pos(savedPos + _current.sliceSize - 4);
+                    _current.IndirectionTable = ReadIndirectionTable();
+                    _current.PosAfterIndirectionTable = pos();
+                    pos(savedPos);
+                }
+            }
+
+            return _current.typeId;
+        }
+
+        private void endSlice()
+        {
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                skipOptionals();
+            }
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
+                pos(_current.PosAfterIndirectionTable.Value);
+                _current.PosAfterIndirectionTable = null;
+                _current.IndirectionTable = null;
+            }
+        }
+
+        private void skipSlice()
+        {
+            if (Communicator().traceLevels().slicing > 0)
+            {
+                ILogger logger = Communicator().Logger;
+                string slicingCat = Communicator().traceLevels().slicingCat;
+                if (_current.sliceType == SliceType.ExceptionSlice)
+                {
+                    IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
+                }
+                else
+                {
+                    IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
+                }
+            }
+
+            int start = pos();
+
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                Debug.Assert(_current.sliceSize >= 4);
+                skip(_current.sliceSize - 4);
+            }
+            else
+            {
+                if (_current.sliceType == SliceType.ClassSlice)
+                {
+                    throw new NoClassFactoryException("no class factory found and compact format prevents " +
+                                                      "slicing (the sender should use the sliced format " +
+                                                      "instead)", _current.typeId);
+                }
+                else
+                {
+                    if (_current.typeId.StartsWith("::", StringComparison.Ordinal))
+                    {
+                        throw new UnknownUserException(_current.typeId.Substring(2));
+                    }
+                    else
+                    {
+                        throw new UnknownUserException(_current.typeId);
+                    }
+                }
+            }
+
+            //
+            // Preserve this slice.
+            //
+            string typeId = _current.typeId;
+            int compactId = _current.compactId;
+            bool hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+            bool isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+            IceInternal.ByteBuffer b = GetBuffer().b;
+            int end = b.position();
+            int dataEnd = end;
+            if (hasOptionalMembers)
+            {
+                //
+                // Don't include the optional member end marker. It will be re-written by
+                // endSlice when the sliced data is re-written.
+                //
+                --dataEnd;
+            }
+            byte[] bytes = new byte[dataEnd - start];
+            b.position(start);
+            b.get(bytes);
+            b.position(end);
+
+            _current.slices ??= new List<SliceInfo>();
+            var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<AnyClass>(), hasOptionalMembers,
+                                     isLastSlice);
+            _current.slices.Add(info);
+
+            // The deferred indirection table is only used by classes. For exceptions, the indirection table is
+            // unmarshaled immediately.
+            if (_current.sliceType == SliceType.ClassSlice)
+            {
+                _current.DeferredIndirectionTableList ??= new List<int>();
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
-                    _stream.pos(_current.PosAfterIndirectionTable.Value);
+                    _current.DeferredIndirectionTableList.Add(pos());
+                    SkipIndirectionTable();
+                }
+                else
+                {
+                    _current.DeferredIndirectionTableList.Add(0);
+                }
+            }
+            else
+            {
+                _current.IndirectionTableList ??= new List<AnyClass[]?>();
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                {
+                    Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
+                    _current.IndirectionTableList.Add(_current.IndirectionTable);
+                    pos(_current.PosAfterIndirectionTable.Value);
                     _current.PosAfterIndirectionTable = null;
                     _current.IndirectionTable = null;
                 }
-            }
-
-            internal void skipSlice()
-            {
-                if (_stream.Communicator().traceLevels().slicing > 0)
-                {
-                    ILogger logger = _stream.Communicator().Logger;
-                    string slicingCat = _stream.Communicator().traceLevels().slicingCat;
-                    if (_current.sliceType == SliceType.ExceptionSlice)
-                    {
-                        IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
-                    }
-                    else
-                    {
-                        IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
-                    }
-                }
-
-                int start = _stream.pos();
-
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
-                {
-                    Debug.Assert(_current.sliceSize >= 4);
-                    _stream.skip(_current.sliceSize - 4);
-                }
                 else
                 {
-                    if (_current.sliceType == SliceType.ClassSlice)
+                    _current.IndirectionTableList.Add(null);
+                }
+            }
+        }
+
+        // Skip the indirection table. The caller must save the current stream position before calling
+        // SkipIndirectionTable (to read the indirection table at a later point) except when the caller
+        // is SkipIndirectionTable itself.
+        private void SkipIndirectionTable()
+        {
+            // we should never skip an exception's indirection table
+            Debug.Assert(_current.sliceType == SliceType.ClassSlice);
+
+            // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
+            // sequence, and since we are skipping this sequence to read it later, we don't want to double-count
+            // its contribution to _minTotalSeqSize.
+            var tableSize = ReadSize();
+            for (int i = 0; i < tableSize; ++i)
+            {
+                var index = ReadSize();
+                if (index <= 0)
+                {
+                    throw new MarshalException($"read invalid index {index} in indirection table");
+                }
+                if (index == 1)
+                {
+                    if (++_classGraphDepth > _classGraphDepthMax)
                     {
-                        throw new NoClassFactoryException("no class factory found and compact format prevents " +
-                                                          "slicing (the sender should use the sliced format " +
-                                                          "instead)", _current.typeId);
+                        throw new MarshalException("maximum class graph depth reached");
                     }
-                    else
+
+                    // Read/skip this instance
+                    byte sliceFlags = 0;
+                    do
                     {
-                        if (_current.typeId.StartsWith("::", StringComparison.Ordinal))
+                        sliceFlags = ReadByte();
+                        if ((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                         {
-                            throw new UnknownUserException(_current.typeId.Substring(2));
+                            ReadSize(); // compact type-id
+                        }
+                        else if ((sliceFlags &
+                            (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                        {
+                            // This can update the typeIdMap
+                            readTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                         }
                         else
                         {
-                            throw new UnknownUserException(_current.typeId);
+                            throw new MarshalException(
+                                "indirection table cannot hold an instance without a type-id");
                         }
-                    }
-                }
 
-                //
-                // Preserve this slice.
-                //
-                string typeId = _current.typeId;
-                int compactId = _current.compactId;
-                bool hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-                bool isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
-                IceInternal.ByteBuffer b = _stream.GetBuffer().b;
-                int end = b.position();
-                int dataEnd = end;
-                if (hasOptionalMembers)
-                {
-                    //
-                    // Don't include the optional member end marker. It will be re-written by
-                    // endSlice when the sliced data is re-written.
-                    //
-                    --dataEnd;
-                }
-                byte[] bytes = new byte[dataEnd - start];
-                b.position(start);
-                b.get(bytes);
-                b.position(end);
+                        // Read the slice size, then skip the slice
 
-                _current.slices ??= new List<SliceInfo>();
-                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<AnyClass>(), hasOptionalMembers,
-                                         isLastSlice);
-                _current.slices.Add(info);
+                        if ((sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) == 0)
+                        {
+                            throw new MarshalException("size of slice missing");
+                        }
+                        int sliceSize = ReadInt();
+                        if (sliceSize < 4)
+                        {
+                            throw new MarshalException("invalid slice size");
+                        }
+                        pos(pos() + sliceSize - 4);
 
-                // The deferred indirection table is only used by classes. For exceptions, the indirection table is
-                // unmarshaled immediately.
-                if (_current.sliceType == SliceType.ClassSlice)
-                {
-                    _current.DeferredIndirectionTableList ??= new List<int>();
-                    if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-                    {
-                        _current.DeferredIndirectionTableList.Add(_stream.pos());
-                        SkipIndirectionTable();
-                    }
-                    else
-                    {
-                        _current.DeferredIndirectionTableList.Add(0);
-                    }
+                        // If this slice has an indirection table, skip it too
+                        if ((sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                        {
+                            SkipIndirectionTable();
+                        }
+                    } while ((sliceFlags & Protocol.FLAG_IS_LAST_SLICE) == 0);
+                    _classGraphDepth--;
                 }
-                else
+            }
+        }
+
+        private AnyClass[] ReadIndirectionTable()
+        {
+            var size = ReadAndCheckSeqSize(1);
+            if (size == 0)
+            {
+                throw new MarshalException("invalid empty indirection table");
+            }
+            var indirectionTable = new AnyClass[size];
+            for (int i = 0; i < indirectionTable.Length; ++i)
+            {
+                indirectionTable[i] = readInstance(ReadSize());
+            }
+            return indirectionTable;
+        }
+
+        private bool readOptional(int readTag, OptionalFormat expectedFormat)
+        {
+            if (_current == null)
+            {
+                return readOptImpl(readTag, expectedFormat);
+            }
+            else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                return readOptImpl(readTag, expectedFormat);
+            }
+            return false;
+        }
+
+        private void Unmarshal(int index, AnyClass v)
+        {
+            //
+            // Add the instance to the map of unmarshaled instances, this must
+            // be done before reading the instances (for circular references).
+            //
+            _unmarshaledMap ??= new Dictionary<int, AnyClass?>();
+            _unmarshaledMap.Add(index, v);
+
+            //
+            // Read all the deferred indirection tables now that the instance is inserted in _unmarshaledMap.
+            //
+            if (_current.DeferredIndirectionTableList?.Count > 0)
+            {
+                int savedPos = pos();
+
+                Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
+                _current.IndirectionTableList ??= new List<AnyClass[]?>(_current.DeferredIndirectionTableList.Count);
+                foreach (int pos in _current.DeferredIndirectionTableList)
                 {
-                    _current.IndirectionTableList ??= new List<AnyClass[]?>();
-                    if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                    if (pos > 0)
                     {
-                        Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
-                        _current.IndirectionTableList.Add(_current.IndirectionTable);
-                        _stream.pos(_current.PosAfterIndirectionTable.Value);
-                        _current.PosAfterIndirectionTable = null;
-                        _current.IndirectionTable = null;
+                        this.pos(pos);
+                        _current.IndirectionTableList.Add(ReadIndirectionTable());
                     }
                     else
                     {
                         _current.IndirectionTableList.Add(null);
                     }
                 }
+                pos(savedPos);
+                _current.DeferredIndirectionTableList.Clear();
             }
 
-            // Skip the indirection table. The caller must save the current stream position before calling
-            // SkipIndirectionTable (to read the indirection table at a later point) except when the caller
-            // is SkipIndirectionTable itself.
-            private void SkipIndirectionTable()
+            //
+            // Read the instance.
+            //
+            v.iceRead(this);
+        }
+
+        private AnyClass readInstance(int index)
+        {
+            Debug.Assert(index > 0);
+
+            if (index > 1)
             {
-                // we should never skip an exception's indirection table
-                Debug.Assert(_current.sliceType == SliceType.ClassSlice);
-
-                // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
-                // sequence, and since we are skipping this sequence to read it later, we don't want to double-count
-                // its contribution to _minTotalSeqSize.
-                var tableSize = _stream.ReadSize();
-                for (int i = 0; i < tableSize; ++i)
+                if (_unmarshaledMap != null && _unmarshaledMap.TryGetValue(index, out var obj))
                 {
-                    var index = _stream.ReadSize();
-                    if (index <= 0)
-                    {
-                        throw new MarshalException($"read invalid index {index} in indirection table");
-                    }
-                    if (index == 1)
-                    {
-                        if (++_classGraphDepth > _classGraphDepthMax)
-                        {
-                            throw new MarshalException("maximum class graph depth reached");
-                        }
-
-                        // Read/skip this instance
-                        byte sliceFlags = 0;
-                        do
-                        {
-                            sliceFlags = _stream.ReadByte();
-                            if ((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
-                            {
-                                _stream.ReadSize(); // compact type-id
-                            }
-                            else if ((sliceFlags &
-                                (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
-                            {
-                                // This can update the typeIdMap
-                                readTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
-                            }
-                            else
-                            {
-                                throw new MarshalException(
-                                    "indirection table cannot hold an instance without a type-id");
-                            }
-
-                            // Read the slice size, then skip the slice
-
-                            if ((sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) == 0)
-                            {
-                                throw new MarshalException("size of slice missing");
-                            }
-                            int sliceSize = _stream.ReadInt();
-                            if (sliceSize < 4)
-                            {
-                                 throw new MarshalException("invalid slice size");
-                            }
-                            _stream.pos(_stream.pos() + sliceSize - 4);
-
-                            // If this slice has an indirection table, skip it too
-                            if ((sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-                            {
-                                SkipIndirectionTable();
-                            }
-                        } while ((sliceFlags & Protocol.FLAG_IS_LAST_SLICE) == 0);
-                        _classGraphDepth--;
-                    }
+                    return obj;
                 }
+                throw new MarshalException($"could not find index {index} in unmarshaledMap");
             }
 
-            private AnyClass[] ReadIndirectionTable()
+            push(SliceType.ClassSlice);
+
+            //
+            // Get the instance ID before we start reading slices. If some
+            // slices are skipped, the indirect instance table are still read and
+            // might read other instances.
+            //
+            index = ++_valueIdIndex;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice(false);
+            string mostDerivedId = _current.typeId;
+            AnyClass? v = null;
+            while (true)
             {
-                var size = _stream.ReadAndCheckSeqSize(1);
-                if (size == 0)
-                {
-                    throw new MarshalException("invalid empty indirection table");
-                }
-                var indirectionTable = new AnyClass[size];
-                for (int i = 0; i < indirectionTable.Length; ++i)
-                {
-                    indirectionTable[i] = readInstance(_stream.ReadSize());
-                }
-                return indirectionTable;
-            }
+                bool updateCache = false;
 
-            internal bool readOptional(int readTag, OptionalFormat expectedFormat)
-            {
-                if (_current == null)
+                if (_current.compactId >= 0)
                 {
-                    return _stream.readOptImpl(readTag, expectedFormat);
-                }
-                else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
-                {
-                    return _stream.readOptImpl(readTag, expectedFormat);
-                }
-                return false;
-            }
+                    updateCache = true;
 
-            private void Unmarshal(int index, AnyClass v)
-            {
-                //
-                // Add the instance to the map of unmarshaled instances, this must
-                // be done before reading the instances (for circular references).
-                //
-                _unmarshaledMap.Add(index, v);
-
-                //
-                // Read all the deferred indirection tables now that the instance is inserted in _unmarshaledMap.
-                //
-                if (_current.DeferredIndirectionTableList?.Count > 0)
-                {
-                    int savedPos = _stream.pos();
-
-                    Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
-                    _current.IndirectionTableList ??= new List<AnyClass[]?>(_current.DeferredIndirectionTableList.Count);
-                    foreach (int pos in _current.DeferredIndirectionTableList)
+                    //
+                    // Translate a compact (numeric) type ID into a class.
+                    //
+                    if (_compactIdCache == null)
                     {
-                        if (pos > 0)
-                        {
-                            _stream.pos(pos);
-                            _current.IndirectionTableList.Add(ReadIndirectionTable());
-                        }
-                        else
-                        {
-                            _current.IndirectionTableList.Add(null);
-                        }
+                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
                     }
-                    _stream.pos(savedPos);
-                    _current.DeferredIndirectionTableList.Clear();
-                }
-
-                //
-                // Read the instance.
-                //
-                v.iceRead(_stream);
-            }
-
-            private AnyClass readInstance(int index)
-            {
-                Debug.Assert(index > 0);
-
-                if (index > 1)
-                {
-                    if (_unmarshaledMap.TryGetValue(index, out var obj))
+                    else
                     {
-                        return obj;
-                    }
-                    throw new MarshalException($"could not find index {index} in unmarshaledMap");
-                }
-
-                push(SliceType.ClassSlice);
-
-                //
-                // Get the instance ID before we start reading slices. If some
-                // slices are skipped, the indirect instance table are still read and
-                // might read other instances.
-                //
-                index = ++_valueIdIndex;
-
-                //
-                // Read the first slice header.
-                //
-                startSlice(false);
-                string mostDerivedId = _current.typeId;
-                AnyClass? v = null;
-                while (true)
-                {
-                    bool updateCache = false;
-
-                    if (_current.compactId >= 0)
-                    {
-                        updateCache = true;
-
                         //
-                        // Translate a compact (numeric) type ID into a class.
+                        // Check the cache to see if we've already translated the compact type ID into a class.
                         //
-                        if (_compactIdCache == null)
+                        Type? cls = null;
+                        _compactIdCache.TryGetValue(_current.compactId, out cls);
+                        if (cls != null)
                         {
-                            _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
-                        }
-                        else
-                        {
-                            //
-                            // Check the cache to see if we've already translated the compact type ID into a class.
-                            //
-                            Type? cls = null;
-                            _compactIdCache.TryGetValue(_current.compactId, out cls);
-                            if (cls != null)
+                            try
                             {
-                                try
-                                {
-                                    Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                    v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                                    updateCache = false;
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new NoClassFactoryException("no class factory", "compact ID " +
-                                                                      _current.compactId, ex);
-                                }
+                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                                v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                                updateCache = false;
                             }
-                        }
-
-                        //
-                        // If we haven't already cached a class for the compact ID, then try to translate the
-                        // compact ID into a type ID.
-                        //
-                        if (v == null)
-                        {
-                            _current.typeId = "";
-                            if (_compactIdResolver != null)
+                            catch (Exception ex)
                             {
-                                try
-                                {
-                                    _current.typeId = _compactIdResolver(_current.compactId);
-                                }
-                                catch (LocalException)
-                                {
-                                    throw;
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    throw new MarshalException("exception in CompactIdResolver for ID " +
-                                                                   _current.compactId, ex);
-                                }
-                            }
-
-                            if (_current.typeId.Length == 0)
-                            {
-                                Communicator? communicator = _stream.Communicator();
-                                Debug.Assert(communicator != null);
-                                _current.typeId = communicator.resolveCompactId(_current.compactId);
+                                throw new NoClassFactoryException("no class factory", "compact ID " +
+                                                                  _current.compactId, ex);
                             }
                         }
                     }
 
-                    if (v == null && _current.typeId.Length > 0)
+                    //
+                    // If we haven't already cached a class for the compact ID, then try to translate the
+                    // compact ID into a type ID.
+                    //
+                    if (v == null)
                     {
-                        v = newInstance(_current.typeId);
-                    }
-
-                    if (v != null)
-                    {
-                        if (updateCache)
+                        _current.typeId = "";
+                        if (_compactIdResolver != null)
                         {
-                            Debug.Assert(_current.compactId >= 0);
-                            _compactIdCache.Add(_current.compactId, v.GetType());
+                            try
+                            {
+                                _current.typeId = _compactIdResolver(_current.compactId);
+                            }
+                            catch (LocalException)
+                            {
+                                throw;
+                            }
+                            catch (System.Exception ex)
+                            {
+                                throw new MarshalException("exception in CompactIdResolver for ID " +
+                                                               _current.compactId, ex);
+                            }
                         }
 
-                        //
-                        // We have an instance, get out of this loop.
-                        //
-                        break;
-                    }
-
-                    //
-                    // If slicing is disabled, stop unmarshaling.
-                    //
-                    if (!_sliceClasses)
-                    {
-                        throw new NoClassFactoryException("no class factory found and slicing is disabled",
-                                                          _current.typeId);
-                    }
-
-                    //
-                    // Slice off what we don't understand.
-                    //
-                    skipSlice();
-
-                    //
-                    // If this is the last slice, keep the instance as an opaque
-                    // UnknownSlicedClass object.
-                    //
-                    if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
-                    {
-                        //
-                        // Provide a factory with an opportunity to supply the instance.
-                        // We pass the "::Ice::Object" ID to indicate that this is the
-                        // last chance to preserve the instance.
-                        //
-                        v = newInstance(AnyClass.ice_staticId());
-                        if (v == null)
+                        if (_current.typeId.Length == 0)
                         {
-                            v = new UnknownSlicedClass(mostDerivedId);
+                            Communicator? communicator = Communicator();
+                            Debug.Assert(communicator != null);
+                            _current.typeId = communicator.resolveCompactId(_current.compactId);
                         }
+                    }
+                }
 
-                        break;
+                if (v == null && _current.typeId.Length > 0)
+                {
+                    v = newInstance(_current.typeId);
+                }
+
+                if (v != null)
+                {
+                    if (updateCache)
+                    {
+                        Debug.Assert(_current.compactId >= 0);
+                        _compactIdCache.Add(_current.compactId, v.GetType());
                     }
 
-                    startSlice(false); // Read next Slice header for next iteration.
+                    //
+                    // We have an instance, get out of this loop.
+                    //
+                    break;
                 }
 
-                if (++_classGraphDepth > _classGraphDepthMax)
+                //
+                // If slicing is disabled, stop unmarshaling.
+                //
+                if (!_sliceClasses)
                 {
-                    throw new MarshalException("maximum class graph depth reached");
+                    throw new NoClassFactoryException("no class factory found and slicing is disabled",
+                                                      _current.typeId);
                 }
 
                 //
-                // Unmarshal the instance.
+                // Slice off what we don't understand.
                 //
-                Unmarshal(index, v);
-
-                --_classGraphDepth;
-
-               return v;
-            }
-
-            private SlicedData? readSlicedData()
-            {
-                if (_current.slices == null) // No preserved slices.
-                {
-                    return null;
-                }
+                skipSlice();
 
                 //
-                // The IndirectionTableList member holds the indirection table for each slice
-                // in _slices.
+                // If this is the last slice, keep the instance as an opaque
+                // UnknownSlicedClass object.
                 //
-                Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
-                for (int n = 0; n < _current.slices.Count; ++n)
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
                     //
-                    // We use the "instances" list in SliceInfo to hold references
-                    // to the target instances. Note that the instances might not have
-                    // been read yet in the case of a circular reference to an
-                    // enclosing instance.
+                    // Provide a factory with an opportunity to supply the instance.
+                    // We pass the "::Ice::Object" ID to indicate that this is the
+                    // last chance to preserve the instance.
                     //
-                    SliceInfo info = _current.slices[n];
-                    info.instances = _current.IndirectionTableList[n];
+                    v = newInstance(AnyClass.ice_staticId());
+                    if (v == null)
+                    {
+                        v = new UnknownSlicedClass(mostDerivedId);
+                    }
+
+                    break;
                 }
 
-                return new SlicedData(_current.slices.ToArray());
+                startSlice(false); // Read next Slice header for next iteration.
             }
 
-            private void push(SliceType sliceType)
+            if (++_classGraphDepth > _classGraphDepthMax)
             {
-                if (_current == null)
-                {
-                    _current = new InstanceData(null);
-                }
-                else
-                {
-                    _current = _current.next == null ? new InstanceData(_current) : _current.next;
-                }
-                _current.sliceType = sliceType;
-                _current.skipFirstSlice = false;
+                throw new MarshalException("maximum class graph depth reached");
             }
+
+            //
+            // Unmarshal the instance.
+            //
+            Unmarshal(index, v);
+
+            --_classGraphDepth;
+
+            return v;
+        }
+
+        private SlicedData? readSlicedData()
+        {
+            if (_current.slices == null) // No preserved slices.
+            {
+                return null;
+            }
+
+            //
+            // The IndirectionTableList member holds the indirection table for each slice
+            // in _slices.
+            //
+            Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
+            for (int n = 0; n < _current.slices.Count; ++n)
+            {
+                //
+                // We use the "instances" list in SliceInfo to hold references
+                // to the target instances. Note that the instances might not have
+                // been read yet in the case of a circular reference to an
+                // enclosing instance.
+                //
+                SliceInfo info = _current.slices[n];
+                info.instances = _current.IndirectionTableList[n];
+            }
+
+            return new SlicedData(_current.slices.ToArray());
+        }
+
+        private void push(SliceType sliceType)
+        {
+            if (_current == null)
+            {
+                _current = new InstanceData(null);
+            }
+            else
+            {
+                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+            }
+            _current.sliceType = sliceType;
+            _current.skipFirstSlice = false;
         }
 
         private sealed class InstanceData
@@ -3091,11 +3093,6 @@ namespace Ice
         private bool isEncoding_1_0()
         {
             return CurrentEncaps != null ? CurrentEncaps.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
-        }
-        private void initEncaps()
-        {
-            _decoder ??= new EncapsDecoder11(this, _sliceClasses, _classGraphDepthMax,
-                                                    _classResolver, _compactIdResolver);
         }
     }
 }
