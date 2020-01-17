@@ -28,7 +28,7 @@ internal class Endpoint : IceInternal.Endpoint
     public override void streamWriteImpl(Ice.OutputStream s)
     {
         s.WriteShort(_endpoint.type());
-        _endpoint.streamWrite(s);
+        _endpoint.streamWriteImpl(s);
     }
 
     public override short type()

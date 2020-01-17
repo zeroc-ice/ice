@@ -35,10 +35,7 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
     {
         short type = s.ReadShort();
         Debug.Assert(type == _factory.type());
-
-        s.StartEncapsulation();
         IceInternal.Endpoint endpoint = new Endpoint(_factory.read(s));
-        s.EndEncapsulation();
         return endpoint;
     }
 
