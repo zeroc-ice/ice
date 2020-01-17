@@ -722,7 +722,7 @@ csharpIdentifier(ContainedPtr contained, const string& identifier)
 
         if(def && def->isInterface())
         {
-            os << getUnqualified(fixId(definition->scope()) + interfaceName(asInterface(definition)), ns) << "Prx";
+            os << getUnqualified(fixId(definition->scope()) + interfaceName(def), ns) << "Prx";
         }
         else
         {

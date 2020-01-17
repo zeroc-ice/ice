@@ -67,8 +67,6 @@ bool isValueType(const TypePtr&);
 bool isImmutableType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
 
-ClassDefPtr asInterface(const ContainedPtr&);
-
 std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");
 void getInParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
 
