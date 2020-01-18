@@ -48,8 +48,14 @@ namespace Ice
 
         private Communicator _communicator;
         private IceInternal.Buffer _buf;
+
+        // temporary upper limit set by an encapsulation. See Remaining below.
+        private int? _limit;
+
         private byte[] _stringBytes; // Reusable array for reading strings.
 
+        // TODO: should we cache those per InputStream?
+        //       should we clear the caches in ResetEncapsulation?
         private Dictionary<string, Type>? _typeIdCache;
         private Dictionary<int, Type>? _compactIdCache;
 
@@ -64,6 +70,8 @@ namespace Ice
 
         private InstanceData? _current;
         private int _valueIdIndex = 1; // The ID of the next instance to unmarshal.
+
+        private int Remaining => _limit - pos() ?? _buf.b.remaining();
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -174,6 +182,7 @@ namespace Ice
         public void Reset()
         {
             _buf.reset();
+            _minTotalSeqSize = 0;
             Clear();
         }
 
@@ -327,6 +336,7 @@ namespace Ice
             _posAfterLatestInsertedTypeId = 0;
             _current = null;
             _valueIdIndex = 1;
+            _limit = null;
         }
 
         /// <summary>
@@ -384,8 +394,6 @@ namespace Ice
             return endInstance(preserve);
         }
 
-        private Encaps? CurrentEncaps => _endpointEncaps ?? _mainEncaps;
-
         /// <summary>
         /// Reads the start of an encapsulation.
         /// </summary>
@@ -393,65 +401,51 @@ namespace Ice
         public EncodingVersion StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            _mainEncaps = new Encaps();
-            CurrentEncaps.start = _buf.b.position();
 
-            //
-            // I don't use readSize() for encapsulations, because when creating an encapsulation,
-            // I must know in advance how many bytes the size information will require in the data
-            // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
-            //
+            int start = _buf.b.position();
+            // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
+            // for ease of marshaling.
             int sz = ReadInt();
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            if (sz - 4 > _buf.b.remaining())
+            if (sz - 4 > Remaining)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            CurrentEncaps.sz = sz;
+
+            _mainEncaps = new Encaps(_limit, _encoding, sz);
+            _limit = pos() + sz - 4;
 
             byte major = ReadByte();
             byte minor = ReadByte();
-            EncodingVersion encoding = new EncodingVersion(major, minor);
-            Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
-            CurrentEncaps.setEncoding(encoding);
-
-            return encoding;
+            _encoding = new EncodingVersion(major, minor);
+            Protocol.checkSupportedEncoding(_encoding); // Make sure the encoding is supported.
+            return _encoding;
         }
 
         // for endpoints
         internal EncodingVersion StartEndpointEncapsulation()
         {
             Debug.Assert(_endpointEncaps == null);
-            _endpointEncaps = new Encaps();
-
-            CurrentEncaps.start = _buf.b.position();
-
-            //
-            // I don't use readSize() for encapsulations, because when creating an encapsulation,
-            // I must know in advance how many bytes the size information will require in the data
-            // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
-            //
             int sz = ReadInt();
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            if (sz - 4 > _buf.b.remaining())
+            if (sz - 4 > Remaining)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            CurrentEncaps.sz = sz;
+            _endpointEncaps = new Encaps(_limit, _encoding, sz);
+            _limit = pos() + sz - 4;
 
             byte major = ReadByte();
             byte minor = ReadByte();
-            EncodingVersion encoding = new EncodingVersion(major, minor);
-            Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
-            CurrentEncaps.setEncoding(encoding);
-
-            return encoding;
+            _encoding = new EncodingVersion(major, minor);
+            Protocol.checkSupportedEncoding(_encoding); // Make sure the encoding is supported.
+            return _encoding;
         }
 
         /// <summary>
@@ -461,19 +455,17 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
-            if (!CurrentEncaps.encoding_1_0)
+            if (!isEncoding_1_0())
             {
                 skipOptionals();
-                if (_buf.b.position() != CurrentEncaps.start + CurrentEncaps.sz)
-                {
-                    throw new EncapsulationException();
-                }
             }
-            else
+
+            if (Remaining != 0)
             {
-                // TODO: still using encoding 1.0 in some tests apparently
-                // Debug.Assert(false);
+                throw new EncapsulationException();
             }
+            _limit = _mainEncaps.Value.OldLimit;
+            _encoding = _mainEncaps.Value.OldEncoding;
 
             ResetEncapsulation();
         }
@@ -483,18 +475,13 @@ namespace Ice
         {
             Debug.Assert(_endpointEncaps != null);
 
-            if (!CurrentEncaps.encoding_1_0)
+            if (Remaining != 0)
             {
-                if (_buf.b.position() != CurrentEncaps.start + CurrentEncaps.sz)
-                {
-                    throw new EncapsulationException();
-                }
+                throw new EncapsulationException();
             }
-            else
-            {
-                // TODO: still using encoding 1.0 in some tests apparently
-                // Debug.Assert(false);
-            }
+
+            _limit = _endpointEncaps.Value.OldLimit;
+            _encoding = _endpointEncaps.Value.OldEncoding;
             _endpointEncaps = null;
         }
 
@@ -509,7 +496,7 @@ namespace Ice
             {
                 throw new EncapsulationException();
             }
-            if (sz - 4 > _buf.b.remaining())
+            if (sz - 4 > Remaining)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -548,7 +535,7 @@ namespace Ice
                 throw new UnmarshalOutOfBoundsException();
             }
 
-            if (sz - 4 > _buf.b.remaining())
+            if (sz - 4 > Remaining)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -576,7 +563,7 @@ namespace Ice
         /// <returns>The encoding version.</returns>
         public EncodingVersion GetEncoding()
         {
-            return CurrentEncaps != null ? CurrentEncaps.encoding : _encoding;
+            return _encoding;
         }
 
         /// <summary>
@@ -585,8 +572,9 @@ namespace Ice
         /// <returns>The size of the encapsulated data.</returns>
         public int GetEncapsulationSize()
         {
-            Debug.Assert(CurrentEncaps != null);
-            return CurrentEncaps.sz - 6;
+            Debug.Assert(_endpointEncaps != null || _mainEncaps != null);
+            int size = _endpointEncaps?.Size ?? _mainEncaps?.Size ?? 0;
+            return size - 6;
         }
 
         /// <summary>
@@ -620,7 +608,7 @@ namespace Ice
         /// <returns>The Slice type ID for this slice.</returns>
         public string StartSlice() // Returns type ID of next slice
         {
-            Debug.Assert(CurrentEncaps != null);
+            Debug.Assert(_mainEncaps != null);
             return startSlice(true);
         }
 
@@ -629,7 +617,7 @@ namespace Ice
         /// </summary>
         public void EndSlice()
         {
-            Debug.Assert(CurrentEncaps != null);
+            Debug.Assert(_mainEncaps != null);
             endSlice();
         }
 
@@ -714,7 +702,7 @@ namespace Ice
         /// <returns>The requested bytes as a byte array.</returns>
         public byte[] ReadBlob(int sz)
         {
-            if (_buf.b.remaining() < sz)
+            if (Remaining < sz)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -1750,7 +1738,7 @@ namespace Ice
             //
             // Check the buffer has enough bytes to read.
             //
-            if (_buf.b.remaining() < len)
+            if (Remaining < len)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -2059,7 +2047,7 @@ namespace Ice
         /// <param name="size">The number of bytes to skip</param>
         public void skip(int size)
         {
-            if (size < 0 || size > _buf.b.remaining())
+            if (size < 0 || size > Remaining)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -2123,7 +2111,7 @@ namespace Ice
 
             while (true)
             {
-                if (_buf.b.position() >= CurrentEncaps.start + CurrentEncaps.sz)
+                if (Remaining <= 0)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -2217,7 +2205,7 @@ namespace Ice
             //
             while (true)
             {
-                if (_buf.b.position() >= CurrentEncaps.start + CurrentEncaps.sz)
+                if (Remaining <= 0)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -3076,23 +3064,28 @@ namespace Ice
             internal InstanceData? next;
         }
 
-        private sealed class Encaps
-        {
-            internal void setEncoding(EncodingVersion encoding)
-            {
-                this.encoding = encoding;
-            }
-
-            internal bool encoding_1_0 => encoding.Equals(Util.Encoding_1_0);
-
-            internal int start;
-            internal int sz;
-            internal EncodingVersion encoding;
-        }
-
         private bool isEncoding_1_0()
         {
-            return CurrentEncaps != null ? CurrentEncaps.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
+            return _encoding.Equals(Util.Encoding_1_0);
+        }
+
+        private readonly struct Encaps
+        {
+            // Previous upper limit of the buffer, if set
+            internal readonly int? OldLimit;
+
+            // Old Encoding
+            internal readonly EncodingVersion OldEncoding;
+
+            // Size of the encaps, as read from the stream
+            internal readonly int Size;
+
+            internal Encaps(int? oldLimit, EncodingVersion oldEncoding, int size)
+            {
+                OldLimit = oldLimit;
+                OldEncoding = oldEncoding;
+                Size = size;
+            }
         }
     }
 }
