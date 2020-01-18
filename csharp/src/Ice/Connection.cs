@@ -389,7 +389,7 @@ namespace Ice
                     }
                 }
 
-                if (_readStream.size() > Protocol.headerSize || !_writeStream.isEmpty())
+                if (_readStream.Size > Protocol.headerSize || !_writeStream.isEmpty())
                 {
                     //
                     // If writing or reading, nothing to do, the connection
@@ -1181,7 +1181,7 @@ namespace Ice
                                 //
                                 _validated = true;
 
-                                int pos = _readStream.pos();
+                                int pos = _readStream.Pos;
                                 if (pos < Protocol.headerSize)
                                 {
                                     //
@@ -1190,7 +1190,7 @@ namespace Ice
                                     throw new IllegalMessageSizeException();
                                 }
 
-                                _readStream.pos(0);
+                                _readStream.Pos = 0;
                                 byte[] m = new byte[4];
                                 m[0] = _readStream.ReadByte();
                                 m[1] = _readStream.ReadByte();
@@ -1226,11 +1226,11 @@ namespace Ice
                                 {
                                     Ex.throwMemoryLimitException(size, _messageSizeMax);
                                 }
-                                if (size > _readStream.size())
+                                if (size > _readStream.Size)
                                 {
                                     _readStream.Resize(size);
                                 }
-                                _readStream.pos(pos);
+                                _readStream.Pos = pos;
                             }
 
                             if (buf.b.hasRemaining())
@@ -1335,10 +1335,10 @@ namespace Ice
                     {
                         if (_warnUdp)
                         {
-                            _logger.warning(string.Format("maximum datagram size of {0} exceeded", _readStream.pos()));
+                            _logger.warning(string.Format("maximum datagram size of {0} exceeded", _readStream.Pos));
                         }
                         _readStream.Resize(Protocol.headerSize);
-                        _readStream.pos(0);
+                        _readStream.Pos = 0;
                         _readHeader = true;
                         return;
                     }
@@ -1356,7 +1356,7 @@ namespace Ice
                                 _logger.warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
                             }
                             _readStream.Resize(Protocol.headerSize);
-                            _readStream.pos(0);
+                            _readStream.Pos = 0;
                             _readHeader = true;
                         }
                         else
@@ -2229,10 +2229,10 @@ namespace Ice
                 }
                 else // The client side has the passive role for connection validation.
                 {
-                    if (_readStream.size() == 0)
+                    if (_readStream.Size == 0)
                     {
                         _readStream.Resize(Protocol.headerSize);
-                        _readStream.pos(0);
+                        _readStream.Pos = 0;
                     }
 
                     if (_observer != null)
@@ -2240,7 +2240,7 @@ namespace Ice
                         ObserverStartRead(_readStream.GetBuffer());
                     }
 
-                    if (_readStream.pos() != _readStream.size())
+                    if (_readStream.Pos != _readStream.Size)
                     {
                         int op = Read(_readStream.GetBuffer());
                         if (op != 0)
@@ -2258,8 +2258,8 @@ namespace Ice
 
                     _validated = true;
 
-                    Debug.Assert(_readStream.pos() == Protocol.headerSize);
-                    _readStream.pos(0);
+                    Debug.Assert(_readStream.Pos == Protocol.headerSize);
+                    _readStream.Pos = 0;
                     byte[] m = _readStream.ReadBlob(4);
                     if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
                         m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
@@ -2298,7 +2298,7 @@ namespace Ice
             _writeStream.pos(0);
 
             _readStream.Resize(Protocol.headerSize);
-            _readStream.pos(0);
+            _readStream.Pos = 0;
             _readHeader = true;
 
             if (_communicator.traceLevels().network >= 1)
@@ -2577,17 +2577,17 @@ namespace Ice
             info.stream = new InputStream(_communicator, Util.currentProtocolEncoding);
             _readStream.Swap(info.stream);
             _readStream.Resize(Protocol.headerSize);
-            _readStream.pos(0);
+            _readStream.Pos = 0;
             _readHeader = true;
 
-            Debug.Assert(info.stream.pos() == info.stream.size());
+            Debug.Assert(info.stream.Pos == info.stream.Size);
 
             try
             {
                 //
                 // The magic and version fields have already been checked.
                 //
-                info.stream.pos(8);
+                info.stream.Pos = 8;
                 byte messageType = info.stream.ReadByte();
                 info.compress = info.stream.ReadByte();
                 if (info.compress == 2)
@@ -2604,7 +2604,7 @@ namespace Ice
                         throw new FeatureNotSupportedException($"Cannot uncompress compressed message: {lib} not found");
                     }
                 }
-                info.stream.pos(Protocol.headerSize);
+                info.stream.Pos = Protocol.headerSize;
 
                 switch (messageType)
                 {

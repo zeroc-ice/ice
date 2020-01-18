@@ -93,7 +93,7 @@ namespace IceInternal
                 // Adopt the OutputStream's buffer.
                 Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), true);
 
-                iss.pos(Protocol.replyHdr.Length + 4);
+                iss.Pos = Protocol.replyHdr.Length + 4;
 
                 if (_traceLevels.protocol >= 1)
                 {
@@ -254,7 +254,7 @@ namespace IceInternal
 
             Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), false);
 
-            iss.pos(Protocol.requestHdr.Length);
+            iss.Pos = Protocol.requestHdr.Length;
 
             int invokeNum = 1;
             ServantManager servantManager = _adapter.getServantManager();

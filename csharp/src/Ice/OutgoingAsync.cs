@@ -755,7 +755,7 @@ namespace IceInternal
 
             if (childObserver_ != null)
             {
-                childObserver_.reply(is_.size() - Protocol.headerSize - 4);
+                childObserver_.reply(is_.Size - Protocol.headerSize - 4);
                 childObserver_.detach();
                 childObserver_ = null;
             }
@@ -1046,7 +1046,7 @@ namespace IceInternal
                 {
                     if (read_ == null)
                     {
-                        if (is_ == null || is_.isEmpty())
+                        if (is_ == null || is_.IsEmpty)
                         {
                             //
                             // If there's no response (oneway), we just set the result

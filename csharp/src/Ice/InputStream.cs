@@ -24,23 +24,45 @@ namespace Ice
     /// </summary>
     public class InputStream
     {
-        //
-        // The encoding version to use when there's no encapsulation to
-        // read from. This is for example used to read message headers.
-        //
+        /// <summary>
+        /// Returns the current size of the stream.
+        /// </summary>
+        /// <value>The size of the stream.</value>
+        public int Size => _buf.size();
+
+        // The position (offset) in the underlying buffer.
+        internal int Pos
+        {
+            get => _buf.b.position();
+            set => _buf.b.position(value);
+        }
+
+        // True if the internal buffer has no data, false otherwise.
+        internal bool IsEmpty => _buf.empty();
+
+        // Number of bytes remaining in the underlying buffer.
+        private int Remaining => _limit - Pos ?? _buf.b.remaining();
+
+        // The current encoding used by the Read methods.
         private EncodingVersion _encoding;
+
+        // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
-        // An endpoint encaps is a lightweight encaps that cannot contain classes, exceptions,
-        // tagged members/parameters, or another endpoint. It is often but not always nested inside a _mainEncaps.
-        //
+        // When set, we are reading an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
+        // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
+        // when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
+
+        // Temporary upper limit set by an encapsulation. See Remaining.
+        private int? _limit;
+
         private bool _sliceClasses;
         private bool _traceSlicing;
         private int _classGraphDepthMax;
 
-        // The sum of all the mininum sizes (in bytes) of the sequences
-        // read in this buffer. Must not exceed the buffer size.
+        // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
+        // size.
         private int _minTotalSeqSize = 0;
         private ILogger _logger;
         private Func<int, string> _compactIdResolver;
@@ -49,9 +71,6 @@ namespace Ice
         private Communicator _communicator;
         private IceInternal.Buffer _buf;
 
-        // temporary upper limit set by an encapsulation. See Remaining below.
-        private int? _limit;
-
         private byte[] _stringBytes; // Reusable array for reading strings.
 
         // TODO: should we cache those per InputStream?
@@ -59,19 +78,25 @@ namespace Ice
         private Dictionary<string, Type>? _typeIdCache;
         private Dictionary<int, Type>? _compactIdCache;
 
-        //
-        // Fields for the main encaps:
-        //
-        private Dictionary<int, AnyClass>? _unmarshaledMap;
-        private int _classGraphDepth = 0;
-        private Dictionary<int, string>? _typeIdMap;
-        private int _typeIdIndex = 0;
+        // Map of type-id index to type-id string.
+        // When reading a top-level encapsulation, we assign a type-id index (starting with 1) to each type-id we
+        // read, in order. Since this map is a list, we lookup a previously assigned type-id string with
+        // _typeIdMap[index - 1].
+        private List<string>? _typeIdMap;
         private int _posAfterLatestInsertedTypeId = 0;
 
-        private InstanceData? _current;
-        private int _valueIdIndex = 1; // The ID of the next instance to unmarshal.
+        // The remaining fields are used for class/exception unmarshaling.
+        // Class/exception unmarshaling is allowed only when _mainEncaps != null and _endpointEncaps == null.
 
-        private int Remaining => _limit - pos() ?? _buf.b.remaining();
+        // Map of class instance ID to class instance.
+        // When reading a top-level encapsulation:
+        //  - Instance ID = 0 means null
+        //  - Instance ID = 1 means the instance is encoded inline afterwards
+        //  - Instance ID > 1 means a reference to a previously read instance, found in this map.
+        // Since the map is actually a list, we use instance ID - 2 to lookup an instance.
+        private List<AnyClass>? _unmarshaledMap;
+        private int _classGraphDepth = 0;
+        private InstanceData? _current;
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -332,10 +357,8 @@ namespace Ice
             _unmarshaledMap?.Clear();
             _classGraphDepth = 0;
             _typeIdMap?.Clear();
-            _typeIdIndex = 0;
             _posAfterLatestInsertedTypeId = 0;
             _current = null;
-            _valueIdIndex = 1;
             _limit = null;
         }
 
@@ -343,13 +366,13 @@ namespace Ice
         /// Resizes the stream to a new size.
         /// </summary>
         /// <param name="sz">The new size.</param>
-        public void Resize(int sz)
+        internal void Resize(int sz)
         {
             _buf.resize(sz, true);
             _buf.b.position(sz);
         }
 
-        public IceInternal.Buffer GetBuffer()
+        internal IceInternal.Buffer GetBuffer()
         {
             return _buf;
         }
@@ -401,8 +424,31 @@ namespace Ice
         public EncodingVersion StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
+            var encapsHeader = ReadEncapsulationHeader();
+            _mainEncaps = new Encaps(_limit, _encoding, encapsHeader.Size);
+            // TODO: is this check necessary / correct?
+            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
+            Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
+            _encoding = encapsHeader.Encoding;
+            _limit = Pos + encapsHeader.Size - 6;
+            return encapsHeader.Encoding;
+        }
 
-            int start = _buf.b.position();
+        // for endpoints
+        internal EncodingVersion StartEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps == null);
+            var encapsHeader = ReadEncapsulationHeader();
+            _endpointEncaps = new Encaps(_limit, _encoding, encapsHeader.Size);
+            // TODO: is this check necessary / correct?
+            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
+            _encoding = encapsHeader.Encoding;
+            _limit = Pos + encapsHeader.Size - 6;
+            return encapsHeader.Encoding;
+        }
+
+        private (EncodingVersion Encoding, int Size) ReadEncapsulationHeader()
+        {
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
             int sz = ReadInt();
@@ -414,38 +460,10 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-
-            _mainEncaps = new Encaps(_limit, _encoding, sz);
-            _limit = pos() + sz - 4;
-
             byte major = ReadByte();
             byte minor = ReadByte();
-            _encoding = new EncodingVersion(major, minor);
-            Protocol.checkSupportedEncoding(_encoding); // Make sure the encoding is supported.
-            return _encoding;
-        }
-
-        // for endpoints
-        internal EncodingVersion StartEndpointEncapsulation()
-        {
-            Debug.Assert(_endpointEncaps == null);
-            int sz = ReadInt();
-            if (sz < 6)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            if (sz - 4 > Remaining)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            _endpointEncaps = new Encaps(_limit, _encoding, sz);
-            _limit = pos() + sz - 4;
-
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            _encoding = new EncodingVersion(major, minor);
-            Protocol.checkSupportedEncoding(_encoding); // Make sure the encoding is supported.
-            return _encoding;
+            var encoding = new EncodingVersion(major, minor);
+            return (encoding, sz);
         }
 
         /// <summary>
@@ -454,11 +472,7 @@ namespace Ice
         public void EndEncapsulation()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-
-            if (!isEncoding_1_0())
-            {
-                skipOptionals();
-            }
+            SkipTaggedMembers();
 
             if (Remaining != 0)
             {
@@ -466,7 +480,6 @@ namespace Ice
             }
             _limit = _mainEncaps.Value.OldLimit;
             _encoding = _mainEncaps.Value.OldEncoding;
-
             ResetEncapsulation();
         }
 
@@ -491,23 +504,10 @@ namespace Ice
         /// <returns>The encapsulation's encoding version.</returns>
         public EncodingVersion SkipEmptyEncapsulation()
         {
-            int sz = ReadInt();
-            if (sz < 6)
+            var encapsHeader = ReadEncapsulationHeader();
+            if (encapsHeader.Encoding.Equals(Util.Encoding_1_0))
             {
-                throw new EncapsulationException();
-            }
-            if (sz - 4 > Remaining)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            var encoding = new EncodingVersion(major, minor);
-            Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
-
-            if (encoding.Equals(Util.Encoding_1_0))
-            {
-                if (sz != 6)
+                if (encapsHeader.Size != 6)
                 {
                     throw new EncapsulationException();
                 }
@@ -516,9 +516,9 @@ namespace Ice
             {
                 // Skip the optional content of the encapsulation if we are expecting an
                 // empty encapsulation.
-                _buf.b.position(_buf.b.position() + sz - 6);
+                _buf.b.position(_buf.b.position() + encapsHeader.Size - 6);
             }
-            return encoding;
+            return encapsHeader.Encoding;
         }
 
         /// <summary>
@@ -529,23 +529,11 @@ namespace Ice
         /// <returns>The encoded encapsulation.</returns>
         public byte[] ReadEncapsulation(out EncodingVersion encoding)
         {
-            int sz = ReadInt();
-            if (sz < 6)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-
-            if (sz - 4 > Remaining)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            encoding = new EncodingVersion(major, minor);
+            var encapsHeader = ReadEncapsulationHeader();
             _buf.b.position(_buf.b.position() - 6);
+            encoding = encapsHeader.Encoding;
 
-            byte[] v = new byte[sz];
+            byte[] v = new byte[encapsHeader.Size];
             try
             {
                 _buf.b.get(v);
@@ -583,23 +571,16 @@ namespace Ice
         /// <returns>The encoding version of the skipped encapsulation.</returns>
         public EncodingVersion SkipEncapsulation()
         {
-            int sz = ReadInt();
-            if (sz < 6)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            EncodingVersion encoding = new EncodingVersion(major, minor);
+            var encapsHeader = ReadEncapsulationHeader();
             try
             {
-                _buf.b.position(_buf.b.position() + sz - 6);
+                _buf.b.position(_buf.b.position() + encapsHeader.Size - 6);
             }
             catch (ArgumentOutOfRangeException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
-            return encoding;
+            return encapsHeader.Encoding;
         }
 
         /// <summary>
@@ -728,7 +709,7 @@ namespace Ice
         {
             // Tagged members/parameters can only be in the main encaps
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return readOptional(tag, expectedFormat);
+            return ReadTagged(tag, expectedFormat);
         }
 
         /// <summary>
@@ -1932,7 +1913,7 @@ namespace Ice
         /// <returns>The enumerator.</returns>
         public int ReadEnum(int maxValue)
         {
-            if (GetEncoding().Equals(Util.Encoding_1_0))
+            if (_encoding.Equals(Util.Encoding_1_0))
             {
                 if (maxValue < 127)
                 {
@@ -1973,15 +1954,6 @@ namespace Ice
                 IceInternal.Ex.throwUOE(typeof(T), obj);
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Read an instance of a class.
-        /// </summary>
-        /// <returns>The class instance, or null.</returns>
-        private AnyClass? ReadAnyClass()
-        {
-            return readClass();
         }
 
         /// <summary>
@@ -2066,49 +2038,8 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Determines the current position in the stream.
-        /// </summary>
-        /// <returns>The current position.</returns>
-        public int pos()
+        private bool ReadTaggedImpl(int readTag, OptionalFormat expectedFormat)
         {
-            return _buf.b.position();
-        }
-
-        /// <summary>
-        /// Sets the current position in the stream.
-        /// </summary>
-        /// <param name="n">The new position.</param>
-        public void pos(int n)
-        {
-            _buf.b.position(n);
-        }
-
-        /// <summary>
-        /// Determines the current size of the stream.
-        /// </summary>
-        /// <returns>The current size.</returns>
-        public int size()
-        {
-            return _buf.size();
-        }
-
-        /// <summary>
-        /// Determines whether the stream is empty.
-        /// </summary>
-        /// <returns>True if the internal buffer has no data, false otherwise.</returns>
-        public bool isEmpty()
-        {
-            return _buf.empty();
-        }
-
-        private bool readOptImpl(int readTag, OptionalFormat expectedFormat)
-        {
-            if (isEncoding_1_0())
-            {
-                return false; // Optional members aren't supported with the 1.0 encoding.
-            }
-
             while (true)
             {
                 if (Remaining <= 0)
@@ -2138,7 +2069,7 @@ namespace Ice
                 }
                 else if (tag < readTag)
                 {
-                    skipOptional(format); // Skip optional data members
+                    SkipTagged(format); // Skip optional data members
                 }
                 else
                 {
@@ -2151,7 +2082,7 @@ namespace Ice
             }
         }
 
-        private void skipOptional(OptionalFormat format)
+        private void SkipTagged(OptionalFormat format)
         {
             switch (format)
             {
@@ -2198,7 +2129,7 @@ namespace Ice
             }
         }
 
-        private bool skipOptionals()
+        private bool SkipTaggedMembers()
         {
             //
             // Skip remaining un-read optional members.
@@ -2221,11 +2152,11 @@ namespace Ice
                 {
                     skipSize();
                 }
-                skipOptional(format);
+                SkipTagged(format);
             }
         }
 
-        private UserException? createUserException(string id)
+        private UserException? CreateUserException(string id)
         {
             UserException? userEx = null;
 
@@ -2251,19 +2182,19 @@ namespace Ice
 
         private enum SliceType { ClassSlice, ExceptionSlice }
 
-        private string readTypeId(bool isIndex)
+        private string ReadTypeId(bool isIndex)
         {
-            _typeIdMap ??= new Dictionary<int, string>();
+            _typeIdMap ??= new List<string>();
 
             if (isIndex)
             {
                 int index = ReadSize();
-                string typeId;
-                if (!_typeIdMap.TryGetValue(index, out typeId))
+                if (index > 0 && index - 1 < _typeIdMap.Count)
                 {
-                    throw new UnmarshalOutOfBoundsException();
+                    // The encoded type-id indices start at 1, not 0.
+                    return _typeIdMap[index - 1];
                 }
-                return typeId;
+                throw new MarshalException($"read invalid typeId index {index}");
             }
             else
             {
@@ -2272,17 +2203,17 @@ namespace Ice
                 // We only want to insert this typeId in the map and increment the index
                 // when it's the first time we read it, so we save the largest pos we
                 // read to figure when to insert.
-                if (pos() > _posAfterLatestInsertedTypeId)
+                if (Pos > _posAfterLatestInsertedTypeId)
                 {
-                    _posAfterLatestInsertedTypeId = pos();
-                    _typeIdMap.Add(++_typeIdIndex, typeId);
+                    _posAfterLatestInsertedTypeId = Pos;
+                    _typeIdMap.Add(typeId);
                 }
 
                 return typeId;
             }
         }
 
-        private Type resolveClass(string typeId)
+        private Type ResolveClass(string typeId)
         {
             Type cls = null;
             if (_typeIdCache == null)
@@ -2317,11 +2248,11 @@ namespace Ice
             return cls;
         }
 
-        protected AnyClass? newInstance(string typeId)
+        protected AnyClass? NewInstance(string typeId)
         {
             AnyClass? v = null;
 
-            Type cls = resolveClass(typeId);
+            Type cls = ResolveClass(typeId);
 
             if (cls != null)
             {
@@ -2339,7 +2270,7 @@ namespace Ice
             return v;
         }
 
-        internal AnyClass? readClass()
+        private AnyClass? ReadAnyClass()
         {
             int index = ReadSize();
             if (index < 0)
@@ -2370,11 +2301,11 @@ namespace Ice
             }
             else
             {
-                return readInstance(index);
+                return ReadInstance(index);
             }
         }
 
-        internal void throwException(UserExceptionFactory factory)
+        private void throwException(UserExceptionFactory factory)
         {
             Debug.Assert(_current == null);
 
@@ -2407,7 +2338,7 @@ namespace Ice
 
                 if (userEx == null)
                 {
-                    userEx = createUserException(_current.typeId);
+                    userEx = CreateUserException(_current.typeId);
                 }
 
                 //
@@ -2498,7 +2429,7 @@ namespace Ice
                     else if ((_current.sliceFlags &
                             (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                     {
-                        _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                        _current.typeId = ReadTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                         _current.compactId = -1;
                     }
                     else
@@ -2542,15 +2473,15 @@ namespace Ice
                 }
                 else
                 {
-                    int savedPos = pos();
+                    int savedPos = Pos;
                     if (_current.sliceSize < 4)
                     {
                         throw new MarshalException("invalid slice size");
                     }
-                    pos(savedPos + _current.sliceSize - 4);
+                    Pos = savedPos + _current.sliceSize - 4;
                     _current.IndirectionTable = ReadIndirectionTable();
-                    _current.PosAfterIndirectionTable = pos();
-                    pos(savedPos);
+                    _current.PosAfterIndirectionTable = Pos;
+                    Pos = savedPos;
                 }
             }
 
@@ -2561,12 +2492,12 @@ namespace Ice
         {
             if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                skipOptionals();
+                SkipTaggedMembers();
             }
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
-                pos(_current.PosAfterIndirectionTable.Value);
+                Pos = _current.PosAfterIndirectionTable.Value;
                 _current.PosAfterIndirectionTable = null;
                 _current.IndirectionTable = null;
             }
@@ -2588,7 +2519,7 @@ namespace Ice
                 }
             }
 
-            int start = pos();
+            int start = Pos;
 
             if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
@@ -2651,7 +2582,7 @@ namespace Ice
                 _current.DeferredIndirectionTableList ??= new List<int>();
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    _current.DeferredIndirectionTableList.Add(pos());
+                    _current.DeferredIndirectionTableList.Add(Pos);
                     SkipIndirectionTable();
                 }
                 else
@@ -2666,7 +2597,7 @@ namespace Ice
                 {
                     Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
                     _current.IndirectionTableList.Add(_current.IndirectionTable);
-                    pos(_current.PosAfterIndirectionTable.Value);
+                    Pos = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
                     _current.IndirectionTable = null;
                 }
@@ -2716,7 +2647,7 @@ namespace Ice
                             (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                         {
                             // This can update the typeIdMap
-                            readTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                            ReadTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                         }
                         else
                         {
@@ -2735,7 +2666,7 @@ namespace Ice
                         {
                             throw new MarshalException("invalid slice size");
                         }
-                        pos(pos() + sliceSize - 4);
+                        Pos = Pos + sliceSize - 4;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -2758,39 +2689,39 @@ namespace Ice
             var indirectionTable = new AnyClass[size];
             for (int i = 0; i < indirectionTable.Length; ++i)
             {
-                indirectionTable[i] = readInstance(ReadSize());
+                indirectionTable[i] = ReadInstance(ReadSize());
             }
             return indirectionTable;
         }
 
-        private bool readOptional(int readTag, OptionalFormat expectedFormat)
+        private bool ReadTagged(int readTag, OptionalFormat expectedFormat)
         {
             if (_current == null)
             {
-                return readOptImpl(readTag, expectedFormat);
+                return ReadTaggedImpl(readTag, expectedFormat);
             }
             else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                return readOptImpl(readTag, expectedFormat);
+                return ReadTaggedImpl(readTag, expectedFormat);
             }
             return false;
         }
 
-        private void Unmarshal(int index, AnyClass v)
+        private void Unmarshal(AnyClass v)
         {
             //
             // Add the instance to the map of unmarshaled instances, this must
             // be done before reading the instances (for circular references).
             //
-            _unmarshaledMap ??= new Dictionary<int, AnyClass?>();
-            _unmarshaledMap.Add(index, v);
+            _unmarshaledMap ??= new List<AnyClass>();
+            _unmarshaledMap.Add(v);
 
             //
             // Read all the deferred indirection tables now that the instance is inserted in _unmarshaledMap.
             //
             if (_current.DeferredIndirectionTableList?.Count > 0)
             {
-                int savedPos = pos();
+                int savedPos = Pos;
 
                 Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
                 _current.IndirectionTableList ??= new List<AnyClass[]?>(_current.DeferredIndirectionTableList.Count);
@@ -2798,7 +2729,7 @@ namespace Ice
                 {
                     if (pos > 0)
                     {
-                        this.pos(pos);
+                        Pos = pos;
                         _current.IndirectionTableList.Add(ReadIndirectionTable());
                     }
                     else
@@ -2806,7 +2737,7 @@ namespace Ice
                         _current.IndirectionTableList.Add(null);
                     }
                 }
-                pos(savedPos);
+                Pos = savedPos;
                 _current.DeferredIndirectionTableList.Clear();
             }
 
@@ -2816,27 +2747,20 @@ namespace Ice
             v.iceRead(this);
         }
 
-        private AnyClass readInstance(int index)
+        private AnyClass ReadInstance(int index)
         {
             Debug.Assert(index > 0);
 
             if (index > 1)
             {
-                if (_unmarshaledMap != null && _unmarshaledMap.TryGetValue(index, out var obj))
+                if (_unmarshaledMap != null && _unmarshaledMap.Count > index - 2)
                 {
-                    return obj;
+                    return _unmarshaledMap[index - 2];
                 }
                 throw new MarshalException($"could not find index {index} in unmarshaledMap");
             }
 
             push(SliceType.ClassSlice);
-
-            //
-            // Get the instance ID before we start reading slices. If some
-            // slices are skipped, the indirect instance table are still read and
-            // might read other instances.
-            //
-            index = ++_valueIdIndex;
 
             //
             // Read the first slice header.
@@ -2917,7 +2841,7 @@ namespace Ice
 
                 if (v == null && _current.typeId.Length > 0)
                 {
-                    v = newInstance(_current.typeId);
+                    v = NewInstance(_current.typeId);
                 }
 
                 if (v != null)
@@ -2954,12 +2878,10 @@ namespace Ice
                 //
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    //
                     // Provide a factory with an opportunity to supply the instance.
                     // We pass the "::Ice::Object" ID to indicate that this is the
                     // last chance to preserve the instance.
-                    //
-                    v = newInstance(AnyClass.ice_staticId());
+                    v = NewInstance(AnyClass.ice_staticId());
                     if (v == null)
                     {
                         v = new UnknownSlicedClass(mostDerivedId);
@@ -2976,10 +2898,8 @@ namespace Ice
                 throw new MarshalException("maximum class graph depth reached");
             }
 
-            //
-            // Unmarshal the instance.
-            //
-            Unmarshal(index, v);
+            // Unmarshal the instance and add it to _unmarshaledMap:
+            Unmarshal(v);
 
             --_classGraphDepth;
 
@@ -3062,11 +2982,6 @@ namespace Ice
             // Other instances
             internal InstanceData? previous;
             internal InstanceData? next;
-        }
-
-        private bool isEncoding_1_0()
-        {
-            return _encoding.Equals(Util.Encoding_1_0);
         }
 
         private readonly struct Encaps

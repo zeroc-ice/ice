@@ -100,7 +100,7 @@ namespace IceInternal
         {
             _is = stream;
 
-            int start = _is.pos();
+            int start = _is.Pos;
             //
             // Read the current.
             //
@@ -141,9 +141,9 @@ namespace IceInternal
             {
                 // Read the encapsulation size.
                 int size = _is.ReadInt();
-                _is.pos(_is.pos() - 4);
+                _is.Pos = _is.Pos - 4;
 
-                _observer = obsv.getDispatchObserver(_current, _is.pos() - start + size);
+                _observer = obsv.getDispatchObserver(_current, _is.Pos - start + size);
                 if (_observer != null)
                 {
                     _observer.attach();
@@ -407,14 +407,14 @@ namespace IceInternal
                 //
                 // That's the first startOver, so almost nothing to do
                 //
-                _inParamPos = _is.pos();
+                _inParamPos = _is.Pos;
             }
             else
             {
                 //
                 // Let's rewind _is, reset _os
                 //
-                _is.pos(_inParamPos);
+                _is.Pos = _inParamPos;
                 if (_response && _os != null)
                 {
                     _os.Reset();

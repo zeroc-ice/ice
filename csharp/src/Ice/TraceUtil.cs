@@ -16,7 +16,7 @@ namespace IceInternal
             {
                 int p = str.pos();
                 Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
-                iss.pos(0);
+                iss.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
@@ -32,8 +32,8 @@ namespace IceInternal
         {
             if (tl.protocol >= 1)
             {
-                int p = str.pos();
-                str.pos(0);
+                int p = str.Pos;
+                str.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
@@ -41,7 +41,7 @@ namespace IceInternal
 
                     logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.ToString());
                 }
-                str.pos(p);
+                str.Pos = p;
             }
         }
 
@@ -51,7 +51,7 @@ namespace IceInternal
             {
                 int p = str.pos();
                 Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
-                iss.pos(0);
+                iss.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
@@ -68,8 +68,8 @@ namespace IceInternal
         {
             if (tl.protocol >= 1)
             {
-                int p = str.pos();
-                str.pos(0);
+                int p = str.Pos;
+                str.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
@@ -78,7 +78,7 @@ namespace IceInternal
 
                     logger.trace(tl.protocolCat, s.ToString());
                 }
-                str.pos(p);
+                str.Pos = p;
             }
         }
 
@@ -101,14 +101,14 @@ namespace IceInternal
 
         public static void dumpStream(Ice.InputStream stream)
         {
-            int pos = stream.pos();
-            stream.pos(0);
+            int pos = stream.Pos;
+            stream.Pos = 0;
 
-            byte[] data = new byte[stream.size()];
+            byte[] data = new byte[stream.Size];
             stream.ReadBlob(data);
             dumpOctets(data);
 
-            stream.pos(pos);
+            stream.Pos = pos;
         }
 
         public static void dumpOctets(byte[] data)
@@ -497,8 +497,8 @@ namespace IceInternal
         {
             if (tl.protocol >= 1)
             {
-                int p = str.pos();
-                str.pos(0);
+                int p = str.Pos;
+                str.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
@@ -507,7 +507,7 @@ namespace IceInternal
 
                     logger.trace(tl.protocolCat, s.ToString());
                 }
-                str.pos(p);
+                str.Pos = p;
             }
         }
 

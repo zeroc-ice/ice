@@ -138,7 +138,7 @@ namespace IceInternal
                     ue.streamWrite(os);
                     Ice.InputStream iss =
                         new Ice.InputStream(_communicator, Ice.Util.currentProtocolEncoding, os.GetBuffer(), true);
-                    iss.pos(0);
+                    iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
                     Endpoint e = factory.read(iss);
