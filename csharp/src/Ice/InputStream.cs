@@ -22,13 +22,31 @@ namespace Ice
     /// <summary>
     /// Interface for input streams used to extract Slice types from a sequence of bytes.
     /// </summary>
-    public class InputStream
+    public sealed class InputStream
     {
         /// <summary>
         /// Returns the current size of the stream.
         /// </summary>
         /// <value>The size of the stream.</value>
         public int Size => _buf.size();
+
+        /// <summary>
+        /// The communicator associated with this stream.
+        /// </summary>
+        /// <value>The communicator.</value>
+        public Communicator Communicator
+        {
+            get; private set;
+        }
+
+        /// <summary>
+        /// The encoding used when reading from this stream.
+        /// </summary>
+        /// <value>The encoding.</value>
+        public EncodingVersion Encoding
+        {
+            get; private set;
+        }
 
         // The position (offset) in the underlying buffer.
         internal int Pos
@@ -43,9 +61,6 @@ namespace Ice
         // Number of bytes remaining in the underlying buffer.
         private int Remaining => _limit - Pos ?? _buf.b.remaining();
 
-        // The current encoding used by the Read methods.
-        private EncodingVersion _encoding;
-
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
@@ -57,21 +72,17 @@ namespace Ice
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
-        private bool _sliceClasses;
-        private bool _traceSlicing;
-        private int _classGraphDepthMax;
+        private readonly bool _traceSlicing;
+        private readonly int _classGraphDepthMax;
 
         // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
-        private ILogger _logger;
-        private Func<int, string> _compactIdResolver;
-        private Func<string, Type?> _classResolver;
-
-        private Communicator _communicator;
+        private readonly ILogger _logger;
+        private readonly Func<string, Type?> _classResolver;
         private IceInternal.Buffer _buf;
 
-        private byte[] _stringBytes; // Reusable array for reading strings.
+        private byte[]? _stringBytes; // Reusable array for reading strings.
 
         // TODO: should we cache those per InputStream?
         //       should we clear the caches in ResetEncapsulation?
@@ -94,7 +105,7 @@ namespace Ice
         //  - Instance ID = 1 means the instance is encoded inline afterwards
         //  - Instance ID > 1 means a reference to a previously read instance, found in this map.
         // Since the map is actually a list, we use instance ID - 2 to lookup an instance.
-        private List<AnyClass>? _unmarshaledMap;
+        private List<AnyClass>? _instanceMap;
         private int _classGraphDepth = 0;
         private InstanceData? _current;
 
@@ -102,38 +113,10 @@ namespace Ice
         /// This constructor uses the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public InputStream(Communicator communicator)
-        {
-            Initialize(communicator);
-            _buf = new IceInternal.Buffer();
-        }
-
-        /// <summary>
-        /// This constructor uses the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="data">The byte array containing encoded Slice types.</param>
         public InputStream(Communicator communicator, byte[] data)
+            : this(communicator, null, new IceInternal.Buffer(data))
         {
-            Initialize(communicator);
-            _buf = new IceInternal.Buffer(data);
-        }
-
-        public InputStream(Communicator communicator, IceInternal.ByteBuffer buf)
-        {
-            Initialize(communicator);
-            _buf = new IceInternal.Buffer(buf);
-        }
-
-        public InputStream(Communicator communicator, IceInternal.Buffer buf) :
-            this(communicator, buf, false)
-        {
-        }
-
-        public InputStream(Communicator communicator, IceInternal.Buffer buf, bool adopt)
-        {
-            Initialize(communicator);
-            _buf = new IceInternal.Buffer(buf, adopt);
         }
 
         /// <summary>
@@ -142,62 +125,25 @@ namespace Ice
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
         public InputStream(Communicator communicator, EncodingVersion encoding)
-        {
-            Initialize(communicator, encoding);
-            _buf = new IceInternal.Buffer();
-        }
-
-        /// <summary>
-        /// This constructor uses the given encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="data">The byte array containing encoded Slice types.</param>
-        public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
-        {
-            Initialize(communicator, encoding);
-            _buf = new IceInternal.Buffer(data);
-        }
-
-        public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.ByteBuffer buf)
-        {
-            Initialize(communicator, encoding);
-            _buf = new IceInternal.Buffer(buf);
-        }
-
-        public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf) :
-            this(communicator, encoding, buf, false)
+            : this(communicator, encoding, new IceInternal.Buffer())
         {
         }
 
-        public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+        internal InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
         {
-            Initialize(communicator, encoding);
-            _buf = new IceInternal.Buffer(buf, adopt);
         }
 
-        /// <summary>
-        /// Initializes the stream to use the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public void Initialize(Communicator communicator)
+        // Helper constructor used by the constructors above.
+        private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
         {
-            Debug.Assert(communicator != null);
-            Initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
-        }
-
-        private void Initialize(Ice.Communicator communicator, EncodingVersion encoding)
-        {
-            _encoding = encoding;
-
-            _communicator = communicator;
-            _traceSlicing = _communicator.traceLevels().slicing > 0;
-            _classGraphDepthMax = _communicator.classGraphDepthMax();
-            _logger = _communicator.Logger;
-            _classResolver = _communicator.resolveClass;
-            _mainEncaps = null;
-            _endpointEncaps = null;
-            _sliceClasses = true;
+            Encoding = encoding ?? communicator.defaultsAndOverrides().defaultEncoding;
+            Communicator = communicator;
+            _traceSlicing = communicator.traceLevels().slicing > 0;
+            _classGraphDepthMax = communicator.classGraphDepthMax();
+            _logger = communicator.Logger;
+            _classResolver = communicator.resolveClass;
+            _buf = buf;
         }
 
         /// <summary>
@@ -217,9 +163,9 @@ namespace Ice
         public void Clear()
         {
             ResetEncapsulation();
-            _sliceClasses = true;
         }
 
+        /*
         /// <summary>
         /// Sets the logger to use when logging trace messages. If the stream
         /// was initialized with a communicator, the communicator's logger will
@@ -291,11 +237,7 @@ namespace Ice
                 _classGraphDepthMax = classGraphDepthMax;
             }
         }
-
-        public Communicator? Communicator()
-        {
-            return _communicator;
-        }
+        */
 
         /// <summary>
         /// Swaps the contents of one stream with another.
@@ -303,58 +245,32 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         public void Swap(InputStream other)
         {
-            Debug.Assert(_communicator == other._communicator);
+            Debug.Assert(Communicator == other.Communicator);
 
             IceInternal.Buffer tmpBuf = other._buf;
             other._buf = _buf;
             _buf = tmpBuf;
 
-            EncodingVersion tmpEncoding = other._encoding;
-            other._encoding = _encoding;
-            _encoding = tmpEncoding;
+            EncodingVersion tmpEncoding = other.Encoding;
+            other.Encoding = Encoding;
+            Encoding = tmpEncoding;
 
-            bool tmpTraceSlicing = other._traceSlicing;
-            other._traceSlicing = _traceSlicing;
-            _traceSlicing = tmpTraceSlicing;
-
-            bool tmpSliceClasses = other._sliceClasses;
-            other._sliceClasses = _sliceClasses;
-            _sliceClasses = tmpSliceClasses;
-
-            int tmpClassGraphDepthMax = other._classGraphDepthMax;
-            other._classGraphDepthMax = _classGraphDepthMax;
-            _classGraphDepthMax = tmpClassGraphDepthMax;
-
-            //
             // Swap is never called for InputStreams that have encapsulations being read. However,
             // encapsulations might still be set in case un-marshalling failed. We just
             // reset the encapsulations if there are still some set.
-            //
             ResetEncapsulation();
             other.ResetEncapsulation();
 
             int tmpMinTotalSeqSize = other._minTotalSeqSize;
             other._minTotalSeqSize = _minTotalSeqSize;
             _minTotalSeqSize = tmpMinTotalSeqSize;
-
-            ILogger tmpLogger = other._logger;
-            other._logger = _logger;
-            _logger = tmpLogger;
-
-            Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
-            other._compactIdResolver = _compactIdResolver;
-            _compactIdResolver = tmpCompactIdResolver;
-
-            Func<string, Type?> tmpClassResolver = other._classResolver;
-            other._classResolver = _classResolver;
-            _classResolver = tmpClassResolver;
         }
 
         private void ResetEncapsulation()
         {
             _mainEncaps = null;
             _endpointEncaps = null;
-            _unmarshaledMap?.Clear();
+            _instanceMap?.Clear();
             _classGraphDepth = 0;
             _typeIdMap?.Clear();
             _posAfterLatestInsertedTypeId = 0;
@@ -383,7 +299,7 @@ namespace Ice
         public void StartClass()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            startInstance(SliceType.ClassSlice);
+            StartInstance(SliceType.ClassSlice);
         }
 
         /// <summary>
@@ -394,7 +310,7 @@ namespace Ice
         public SlicedData EndClass(bool preserve)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return endInstance(preserve);
+            return EndInstance(preserve);
         }
 
         /// <summary>
@@ -403,7 +319,7 @@ namespace Ice
         public void StartException()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            startInstance(SliceType.ExceptionSlice);
+            StartInstance(SliceType.ExceptionSlice);
         }
 
         /// <summary>
@@ -414,7 +330,7 @@ namespace Ice
         public SlicedData EndException(bool preserve)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return endInstance(preserve);
+            return EndInstance(preserve);
         }
 
         /// <summary>
@@ -425,11 +341,11 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             var encapsHeader = ReadEncapsulationHeader();
-            _mainEncaps = new Encaps(_limit, _encoding, encapsHeader.Size);
+            _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             // TODO: is this check necessary / correct?
             Protocol.checkSupportedEncoding(encapsHeader.Encoding);
             Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
-            _encoding = encapsHeader.Encoding;
+            Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
@@ -439,10 +355,10 @@ namespace Ice
         {
             Debug.Assert(_endpointEncaps == null);
             var encapsHeader = ReadEncapsulationHeader();
-            _endpointEncaps = new Encaps(_limit, _encoding, encapsHeader.Size);
+            _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             // TODO: is this check necessary / correct?
             Protocol.checkSupportedEncoding(encapsHeader.Encoding);
-            _encoding = encapsHeader.Encoding;
+            Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
@@ -479,7 +395,7 @@ namespace Ice
                 throw new EncapsulationException();
             }
             _limit = _mainEncaps.Value.OldLimit;
-            _encoding = _mainEncaps.Value.OldEncoding;
+            Encoding = _mainEncaps.Value.OldEncoding;
             ResetEncapsulation();
         }
 
@@ -494,7 +410,7 @@ namespace Ice
             }
 
             _limit = _endpointEncaps.Value.OldLimit;
-            _encoding = _endpointEncaps.Value.OldEncoding;
+            Encoding = _endpointEncaps.Value.OldEncoding;
             _endpointEncaps = null;
         }
 
@@ -546,15 +462,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Determines the current encoding version.
-        /// </summary>
-        /// <returns>The encoding version.</returns>
-        public EncodingVersion GetEncoding()
-        {
-            return _encoding;
-        }
-
-        /// <summary>
         /// Determines the size of the current encapsulation, excluding the encapsulation header.
         /// </summary>
         /// <returns>The size of the encapsulated data.</returns>
@@ -589,8 +496,8 @@ namespace Ice
         /// <returns>The Slice type ID for this slice.</returns>
         public string StartSlice() // Returns type ID of next slice
         {
-            Debug.Assert(_mainEncaps != null);
-            return startSlice(true);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            return StartSlice(true);
         }
 
         /// <summary>
@@ -598,8 +505,18 @@ namespace Ice
         /// </summary>
         public void EndSlice()
         {
-            Debug.Assert(_mainEncaps != null);
-            endSlice();
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                SkipTaggedMembers();
+            }
+            if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
+                Pos = _current.PosAfterIndirectionTable.Value;
+                _current.PosAfterIndirectionTable = null;
+                _current.IndirectionTable = null;
+            }
         }
 
         /// <summary>
@@ -709,7 +626,55 @@ namespace Ice
         {
             // Tagged members/parameters can only be in the main encaps
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return ReadTagged(tag, expectedFormat);
+
+            // The current slice has no tagged member
+            if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+            {
+                return false;
+            }
+
+            int requestedTag = tag;
+
+            while (true)
+            {
+                if (Remaining <= 0)
+                {
+                    return false; // End of encapsulation also indicates end of optionals.
+                }
+
+                int v = ReadByte();
+                if (v == Protocol.OPTIONAL_END_MARKER)
+                {
+                    _buf.b.position(_buf.b.position() - 1); // Rewind.
+                    return false;
+                }
+
+                OptionalFormat format = (OptionalFormat)(v & 0x07); // First 3 bits.
+                tag = v >> 3;
+                if (tag == 30)
+                {
+                    tag = ReadSize();
+                }
+
+                if (tag > requestedTag)
+                {
+                    int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
+                    _buf.b.position(_buf.b.position() - offset);
+                    return false; // No tagged member with the requested tag.
+                }
+                else if (tag < requestedTag)
+                {
+                    SkipTagged(format);
+                }
+                else
+                {
+                    if (format != expectedFormat)
+                    {
+                        throw new MarshalException("invalid tagged data member `" + tag + "': unexpected format");
+                    }
+                    return true;
+                }
+            }
         }
 
         /// <summary>
@@ -851,7 +816,7 @@ namespace Ice
             }
             try
             {
-                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
+                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
                 return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
             }
             catch (System.Exception ex)
@@ -1883,7 +1848,7 @@ namespace Ice
             }
             else
             {
-                return factory(_communicator.CreateReference(ident, this));
+                return factory(Communicator.CreateReference(ident, this));
             }
         }
 
@@ -1913,7 +1878,7 @@ namespace Ice
         /// <returns>The enumerator.</returns>
         public int ReadEnum(int maxValue)
         {
-            if (_encoding.Equals(Util.Encoding_1_0))
+            if (Encoding.Equals(Util.Encoding_1_0))
             {
                 if (maxValue < 127)
                 {
@@ -1999,18 +1964,70 @@ namespace Ice
         /// <summary>
         /// Extracts a user exception from the stream and throws it.
         /// </summary>
-        public void ThrowException()
-        {
-            ThrowException(null);
-        }
-
-        /// <summary>
-        /// Extracts a user exception from the stream and throws it.
-        /// </summary>
         /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
-        public void ThrowException(UserExceptionFactory? factory)
+        public void ThrowException(UserExceptionFactory? factory = null)
         {
-            throwException(factory);
+            Debug.Assert(_current == null); // not currently reading a class
+            Push(SliceType.ExceptionSlice);
+
+            // Read the first slice header.
+            string sliceTypeId = StartSlice(true); // we read the indirection table immediately
+            var mostDerivedId = sliceTypeId;
+            while (true)
+            {
+                UserException? userEx = null;
+
+                // Use a factory if one was provided.
+                try
+                {
+                    factory?.Invoke(sliceTypeId);
+                }
+                catch (UserException ex)
+                {
+                    userEx = ex;
+                }
+
+                if (userEx == null)
+                {
+                    try
+                    {
+                        Type? type = _classResolver?.Invoke(sliceTypeId);
+                        if (type != null)
+                        {
+                            userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MarshalException(ex);
+                    }
+                }
+
+                // We found the exception.
+                if (userEx != null)
+                {
+                    userEx.iceRead(this);
+                    throw userEx;
+                    // Never reached.
+                }
+
+                // Slice off what we don't understand.
+                SkipSlice(sliceTypeId);
+
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                {
+                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
+                    {
+                        throw new UnknownUserException(mostDerivedId.Substring(2));
+                    }
+                    else
+                    {
+                        throw new UnknownUserException(mostDerivedId);
+                    }
+                }
+
+                sliceTypeId = StartSlice(true);
+            }
         }
 
         /// <summary>
@@ -2035,50 +2052,6 @@ namespace Ice
             if (b == 255)
             {
                 skip(4);
-            }
-        }
-
-        private bool ReadTaggedImpl(int readTag, OptionalFormat expectedFormat)
-        {
-            while (true)
-            {
-                if (Remaining <= 0)
-                {
-                    return false; // End of encapsulation also indicates end of optionals.
-                }
-
-                int v = ReadByte();
-                if (v == Protocol.OPTIONAL_END_MARKER)
-                {
-                    _buf.b.position(_buf.b.position() - 1); // Rewind.
-                    return false;
-                }
-
-                OptionalFormat format = (OptionalFormat)(v & 0x07); // First 3 bits.
-                int tag = v >> 3;
-                if (tag == 30)
-                {
-                    tag = ReadSize();
-                }
-
-                if (tag > readTag)
-                {
-                    int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
-                    _buf.b.position(_buf.b.position() - offset);
-                    return false; // No optional data members with the requested tag.
-                }
-                else if (tag < readTag)
-                {
-                    SkipTagged(format); // Skip optional data members
-                }
-                else
-                {
-                    if (format != expectedFormat)
-                    {
-                        throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
-                    }
-                    return true;
-                }
             }
         }
 
@@ -2131,14 +2104,12 @@ namespace Ice
 
         private bool SkipTaggedMembers()
         {
-            //
-            // Skip remaining un-read optional members.
-            //
+            // Skip remaining unread tagged members.
             while (true)
             {
                 if (Remaining <= 0)
                 {
-                    return false; // End of encapsulation also indicates end of optionals.
+                    return false; // End of encapsulation also indicates end of tagged members.
                 }
 
                 int v = ReadByte();
@@ -2155,32 +2126,6 @@ namespace Ice
                 SkipTagged(format);
             }
         }
-
-        private UserException? CreateUserException(string id)
-        {
-            UserException? userEx = null;
-
-            try
-            {
-                if (_classResolver != null)
-                {
-                    Type c = _classResolver(id);
-                    if (c != null)
-                    {
-                        Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                        userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(c);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new MarshalException(ex);
-            }
-
-            return userEx;
-        }
-
-        private enum SliceType { ClassSlice, ExceptionSlice }
 
         private string ReadTypeId(bool isIndex)
         {
@@ -2213,61 +2158,31 @@ namespace Ice
             }
         }
 
-        private Type ResolveClass(string typeId)
+        private Type? ResolveClass(string typeId)
         {
-            Type cls = null;
-            if (_typeIdCache == null)
+            Type? cls = null;
+            if (_typeIdCache?.TryGetValue(typeId, out cls) == true)
             {
-                _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
+                // UnknowSlicedClass is our marker for class previously not found.
+                if (cls == typeof(UnknownSlicedClass))
+                {
+                    cls = null;
+                }
             }
             else
             {
-                _typeIdCache.TryGetValue(typeId, out cls);
-            }
-
-            if (cls == typeof(InputStream)) // Marker for non-existent class.
-            {
-                cls = null;
-            }
-            else if (cls == null)
-            {
                 try
                 {
-                    if (_classResolver != null)
-                    {
-                        cls = _classResolver(typeId);
-                        _typeIdCache.Add(typeId, cls != null ? cls : typeof(InputStream));
-                    }
+                    cls = _classResolver?.Invoke(typeId);
+                    _typeIdCache ??= new Dictionary<string, Type>(); // Lazy initialization
+                    _typeIdCache.Add(typeId, cls ?? typeof(UnknownSlicedClass));
                 }
                 catch (Exception ex)
                 {
                     throw new NoClassFactoryException("no class factory", typeId, ex);
                 }
             }
-
             return cls;
-        }
-
-        protected AnyClass? NewInstance(string typeId)
-        {
-            AnyClass? v = null;
-
-            Type cls = ResolveClass(typeId);
-
-            if (cls != null)
-            {
-                try
-                {
-                    Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                    v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                }
-                catch (Exception ex)
-                {
-                    throw new NoClassFactoryException("no class factory", typeId, ex);
-                }
-            }
-
-            return v;
         }
 
         private AnyClass? ReadAnyClass()
@@ -2283,7 +2198,6 @@ namespace Ice
             }
             else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
-                //
                 // When reading an instance within a slice and there is an
                 // indirection table, we have an index within this indirection table.
                 //
@@ -2305,90 +2219,34 @@ namespace Ice
             }
         }
 
-        private void throwException(UserExceptionFactory factory)
-        {
-            Debug.Assert(_current == null);
-
-            push(SliceType.ExceptionSlice);
-
-            //
-            // Read the first slice header.
-            //
-            startSlice(true); // we read the indirection table immediately
-
-            string mostDerivedId = _current.typeId;
-            while (true)
-            {
-                UserException userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null)
-                {
-                    try
-                    {
-                        factory(_current.typeId);
-                    }
-                    catch (UserException ex)
-                    {
-                        userEx = ex;
-                    }
-                }
-
-                if (userEx == null)
-                {
-                    userEx = CreateUserException(_current.typeId);
-                }
-
-                //
-                // We found the exception.
-                //
-                if (userEx != null)
-                {
-                    userEx.iceRead(this);
-                    throw userEx;
-
-                    // Never reached.
-                }
-
-                //
-                // Slice off what we don't understand.
-                //
-                skipSlice();
-
-                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
-                {
-                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
-                    {
-                        throw new UnknownUserException(mostDerivedId.Substring(2));
-                    }
-                    else
-                    {
-                        throw new UnknownUserException(mostDerivedId);
-                    }
-                }
-
-                startSlice(true);
-            }
-        }
-
-        private void startInstance(SliceType sliceType)
+        private void StartInstance(SliceType sliceType)
         {
             Debug.Assert(_current.sliceType == sliceType);
             _current.skipFirstSlice = true;
         }
 
-        private SlicedData endInstance(bool preserve)
+        private SlicedData? EndInstance(bool preserve)
         {
-            SlicedData slicedData = null;
-            if (preserve)
+            SlicedData? slicedData = null;
+            if (preserve && _current.slices?.Count > 0)
             {
-                slicedData = readSlicedData();
+                // The IndirectionTableList member holds the indirection table for each slice in _slices.
+                Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
+                for (int n = 0; n < _current.slices.Count; ++n)
+                {
+                    // We use the "instances" list in SliceInfo to hold references
+                    // to the target instances. Note that the instances might not have
+                    // been read yet in the case of a circular reference to an
+                    // enclosing instance.
+                    SliceInfo info = _current.slices[n];
+                    info.instances = _current.IndirectionTableList[n];
+                }
+
+                slicedData = new SlicedData(_current.slices.ToArray());
+                _current.slices.Clear();
             }
 
             // We may reuse this instance data (current) so we need to clean it well (see push)
-            _current.slices?.Clear();
             _current.IndirectionTableList?.Clear();
             Debug.Assert(_current.DeferredIndirectionTableList == null ||
                 _current.DeferredIndirectionTableList.Count == 0);
@@ -2396,12 +2254,10 @@ namespace Ice
             return slicedData;
         }
 
-        private string startSlice(bool readIndirectionTable)
+        private string StartSlice(bool readIndirectionTable)
         {
-            //
             // If first slice, don't read the header, it was already read in
-            // readInstance or throwException to find the factory.
-            //
+            // ReadInstance or ThrowException to find the factory.
             if (_current.skipFirstSlice)
             {
                 _current.skipFirstSlice = false;
@@ -2410,16 +2266,12 @@ namespace Ice
             {
                 _current.sliceFlags = ReadByte();
 
-                //
                 // Read the type ID, for instance slices the type ID is encoded as a
                 // string or as an index, for exceptions it's always encoded as a
                 // string.
-                //
                 if (_current.sliceType == SliceType.ClassSlice)
                 {
-                    //
-                    // Must be checked first!
-                    //
+                    // TYPE_ID_COMPACT must be checked first!
                     if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
                         Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     {
@@ -2445,9 +2297,7 @@ namespace Ice
                     _current.compactId = -1;
                 }
 
-                //
                 // Read the slice size if necessary.
-                //
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
                 {
                     _current.sliceSize = ReadInt();
@@ -2469,7 +2319,7 @@ namespace Ice
                 {
                     // We already read it (skipFirstSlice was true and it's an exception), so nothing to do
                     // Note that for classes, we only read the indirection table for the first slice
-                    // when skipFirstSlice is true
+                    // when skipFirstSlice is true.
                 }
                 else
                 {
@@ -2488,34 +2338,19 @@ namespace Ice
             return _current.typeId;
         }
 
-        private void endSlice()
+        private void SkipSlice(string sliceTypeId)
         {
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if (Communicator.traceLevels().slicing > 0)
             {
-                SkipTaggedMembers();
-            }
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-            {
-                Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
-                Pos = _current.PosAfterIndirectionTable.Value;
-                _current.PosAfterIndirectionTable = null;
-                _current.IndirectionTable = null;
-            }
-        }
-
-        private void skipSlice()
-        {
-            if (Communicator().traceLevels().slicing > 0)
-            {
-                ILogger logger = Communicator().Logger;
-                string slicingCat = Communicator().traceLevels().slicingCat;
+                ILogger logger = Communicator.Logger;
+                string slicingCat = Communicator.traceLevels().slicingCat;
                 if (_current.sliceType == SliceType.ExceptionSlice)
                 {
-                    IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
+                    IceInternal.TraceUtil.traceSlicing("exception", sliceTypeId, slicingCat, logger);
                 }
                 else
                 {
-                    IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
+                    IceInternal.TraceUtil.traceSlicing("object", sliceTypeId, slicingCat, logger);
                 }
             }
 
@@ -2532,25 +2367,22 @@ namespace Ice
                 {
                     throw new NoClassFactoryException("no class factory found and compact format prevents " +
                                                       "slicing (the sender should use the sliced format " +
-                                                      "instead)", _current.typeId);
+                                                      "instead)", sliceTypeId);
                 }
                 else
                 {
-                    if (_current.typeId.StartsWith("::", StringComparison.Ordinal))
+                    if (sliceTypeId.StartsWith("::", StringComparison.Ordinal))
                     {
-                        throw new UnknownUserException(_current.typeId.Substring(2));
+                        throw new UnknownUserException(sliceTypeId.Substring(2));
                     }
                     else
                     {
-                        throw new UnknownUserException(_current.typeId);
+                        throw new UnknownUserException(sliceTypeId);
                     }
                 }
             }
 
-            //
             // Preserve this slice.
-            //
-            string typeId = _current.typeId;
             int compactId = _current.compactId;
             bool hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
             bool isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
@@ -2559,10 +2391,8 @@ namespace Ice
             int dataEnd = end;
             if (hasOptionalMembers)
             {
-                //
-                // Don't include the optional member end marker. It will be re-written by
-                // endSlice when the sliced data is re-written.
-                //
+                // Don't include the tagged end marker. It will be re-written by EndSlice when the sliced data
+                // is re-written.
                 --dataEnd;
             }
             byte[] bytes = new byte[dataEnd - start];
@@ -2571,7 +2401,7 @@ namespace Ice
             b.position(end);
 
             _current.slices ??= new List<SliceInfo>();
-            var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<AnyClass>(), hasOptionalMembers,
+            var info = new SliceInfo(sliceTypeId, compactId, bytes, Array.Empty<AnyClass>(), hasOptionalMembers,
                                      isLastSlice);
             _current.slices.Add(info);
 
@@ -2595,7 +2425,7 @@ namespace Ice
                 _current.IndirectionTableList ??= new List<AnyClass[]?>();
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    Debug.Assert(_current.IndirectionTable != null); // previously read by startSlice
+                    Debug.Assert(_current.IndirectionTable != null); // previously read by StartSlice
                     _current.IndirectionTableList.Add(_current.IndirectionTable);
                     Pos = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
@@ -2613,7 +2443,7 @@ namespace Ice
         // is SkipIndirectionTable itself.
         private void SkipIndirectionTable()
         {
-            // we should never skip an exception's indirection table
+            // We should never skip an exception's indirection table
             Debug.Assert(_current.sliceType == SliceType.ClassSlice);
 
             // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
@@ -2656,7 +2486,6 @@ namespace Ice
                         }
 
                         // Read the slice size, then skip the slice
-
                         if ((sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) == 0)
                         {
                             throw new MarshalException("size of slice missing");
@@ -2689,36 +2518,134 @@ namespace Ice
             var indirectionTable = new AnyClass[size];
             for (int i = 0; i < indirectionTable.Length; ++i)
             {
-                indirectionTable[i] = ReadInstance(ReadSize());
+                int index = ReadSize();
+                if (index < 1)
+                {
+                    throw new MarshalException($"read invalid index {index} in indirection table");
+                }
+                indirectionTable[i] = ReadInstance(index);
             }
             return indirectionTable;
         }
 
-        private bool ReadTagged(int readTag, OptionalFormat expectedFormat)
+        private AnyClass ReadInstance(int index)
         {
-            if (_current == null)
-            {
-                return ReadTaggedImpl(readTag, expectedFormat);
-            }
-            else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
-            {
-                return ReadTaggedImpl(readTag, expectedFormat);
-            }
-            return false;
-        }
+            Debug.Assert(index > 0);
 
-        private void Unmarshal(AnyClass v)
-        {
-            //
-            // Add the instance to the map of unmarshaled instances, this must
-            // be done before reading the instances (for circular references).
-            //
-            _unmarshaledMap ??= new List<AnyClass>();
-            _unmarshaledMap.Add(v);
+            if (index > 1)
+            {
+                if (_instanceMap != null && _instanceMap.Count > index - 2)
+                {
+                    return _instanceMap[index - 2];
+                }
+                throw new MarshalException($"could not find index {index} in {nameof(_instanceMap)}");
+            }
 
-            //
-            // Read all the deferred indirection tables now that the instance is inserted in _unmarshaledMap.
-            //
+            Push(SliceType.ClassSlice);
+
+            // Read the first slice header.
+            string sliceTypeId = StartSlice(false);
+            var mostDerivedId = sliceTypeId;
+            AnyClass? v = null;
+            while (true)
+            {
+                bool updateCache = false;
+
+                if (_current.compactId >= 0)
+                {
+                    updateCache = true;
+
+                    // Translate a compact (numeric) type ID into a class.
+                    if (_compactIdCache == null)
+                    {
+                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
+                    }
+                    else
+                    {
+                        // Check the cache to see if we've already translated the compact type ID into a class.
+                        Type? cls = null;
+                        _compactIdCache.TryGetValue(_current.compactId, out cls);
+                        if (cls != null)
+                        {
+                            try
+                            {
+                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                                v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                                updateCache = false;
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new NoClassFactoryException("no class factory", "compact ID " +
+                                                                  _current.compactId, ex);
+                            }
+                        }
+                    }
+
+                    // If we haven't already cached a class for the compact ID, then try to translate the
+                    // compact ID into a type ID.
+                    if (v == null && sliceTypeId.Length == 0)
+                    {
+                        sliceTypeId = Communicator.resolveCompactId(_current.compactId);
+                    }
+                }
+
+                if (v == null && sliceTypeId.Length > 0)
+                {
+                    Type? cls = ResolveClass(sliceTypeId);
+
+                    if (cls != null)
+                    {
+                        try
+                        {
+                            Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                            v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new NoClassFactoryException("no class factory", sliceTypeId, ex);
+                        }
+                    }
+                }
+
+                if (v != null)
+                {
+                    if (updateCache)
+                    {
+                        Debug.Assert(_current.compactId >= 0);
+                        _compactIdCache.Add(_current.compactId, v.GetType());
+                    }
+
+                    // We have an instance, get out of this loop.
+                    break;
+                }
+
+                // Slice off what we don't understand.
+                // TODO: pass compactId for the case where sliceTypeId is empty
+                SkipSlice(sliceTypeId);
+
+                // If this is the last slice, keep the instance as an opaque
+                // UnknownSlicedClass object.
+                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                {
+                    // Note that mostDerivedId can be empty with an unresolved compactId.
+                    v = new UnknownSlicedClass(mostDerivedId);
+                    break;
+                }
+
+                sliceTypeId = StartSlice(false); // Read next Slice header for next iteration.
+            }
+
+            if (++_classGraphDepth > _classGraphDepthMax)
+            {
+                throw new MarshalException("maximum class graph depth reached");
+            }
+
+            // Add the instance to the map/list of instances. This must be done before reading the instances (for
+            // circular references).
+            _instanceMap ??= new List<AnyClass>();
+            _instanceMap.Add(v);
+
+            // Read all the deferred indirection tables now that the instance is inserted in _instanceMap.
             if (_current.DeferredIndirectionTableList?.Count > 0)
             {
                 int savedPos = Pos;
@@ -2741,199 +2668,14 @@ namespace Ice
                 _current.DeferredIndirectionTableList.Clear();
             }
 
-            //
             // Read the instance.
-            //
             v.iceRead(this);
-        }
-
-        private AnyClass ReadInstance(int index)
-        {
-            Debug.Assert(index > 0);
-
-            if (index > 1)
-            {
-                if (_unmarshaledMap != null && _unmarshaledMap.Count > index - 2)
-                {
-                    return _unmarshaledMap[index - 2];
-                }
-                throw new MarshalException($"could not find index {index} in unmarshaledMap");
-            }
-
-            push(SliceType.ClassSlice);
-
-            //
-            // Read the first slice header.
-            //
-            startSlice(false);
-            string mostDerivedId = _current.typeId;
-            AnyClass? v = null;
-            while (true)
-            {
-                bool updateCache = false;
-
-                if (_current.compactId >= 0)
-                {
-                    updateCache = true;
-
-                    //
-                    // Translate a compact (numeric) type ID into a class.
-                    //
-                    if (_compactIdCache == null)
-                    {
-                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
-                    }
-                    else
-                    {
-                        //
-                        // Check the cache to see if we've already translated the compact type ID into a class.
-                        //
-                        Type? cls = null;
-                        _compactIdCache.TryGetValue(_current.compactId, out cls);
-                        if (cls != null)
-                        {
-                            try
-                            {
-                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                                updateCache = false;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new NoClassFactoryException("no class factory", "compact ID " +
-                                                                  _current.compactId, ex);
-                            }
-                        }
-                    }
-
-                    //
-                    // If we haven't already cached a class for the compact ID, then try to translate the
-                    // compact ID into a type ID.
-                    //
-                    if (v == null)
-                    {
-                        _current.typeId = "";
-                        if (_compactIdResolver != null)
-                        {
-                            try
-                            {
-                                _current.typeId = _compactIdResolver(_current.compactId);
-                            }
-                            catch (LocalException)
-                            {
-                                throw;
-                            }
-                            catch (System.Exception ex)
-                            {
-                                throw new MarshalException("exception in CompactIdResolver for ID " +
-                                                               _current.compactId, ex);
-                            }
-                        }
-
-                        if (_current.typeId.Length == 0)
-                        {
-                            Communicator? communicator = Communicator();
-                            Debug.Assert(communicator != null);
-                            _current.typeId = communicator.resolveCompactId(_current.compactId);
-                        }
-                    }
-                }
-
-                if (v == null && _current.typeId.Length > 0)
-                {
-                    v = NewInstance(_current.typeId);
-                }
-
-                if (v != null)
-                {
-                    if (updateCache)
-                    {
-                        Debug.Assert(_current.compactId >= 0);
-                        _compactIdCache.Add(_current.compactId, v.GetType());
-                    }
-
-                    //
-                    // We have an instance, get out of this loop.
-                    //
-                    break;
-                }
-
-                //
-                // If slicing is disabled, stop unmarshaling.
-                //
-                if (!_sliceClasses)
-                {
-                    throw new NoClassFactoryException("no class factory found and slicing is disabled",
-                                                      _current.typeId);
-                }
-
-                //
-                // Slice off what we don't understand.
-                //
-                skipSlice();
-
-                //
-                // If this is the last slice, keep the instance as an opaque
-                // UnknownSlicedClass object.
-                //
-                if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
-                {
-                    // Provide a factory with an opportunity to supply the instance.
-                    // We pass the "::Ice::Object" ID to indicate that this is the
-                    // last chance to preserve the instance.
-                    v = NewInstance(AnyClass.ice_staticId());
-                    if (v == null)
-                    {
-                        v = new UnknownSlicedClass(mostDerivedId);
-                    }
-
-                    break;
-                }
-
-                startSlice(false); // Read next Slice header for next iteration.
-            }
-
-            if (++_classGraphDepth > _classGraphDepthMax)
-            {
-                throw new MarshalException("maximum class graph depth reached");
-            }
-
-            // Unmarshal the instance and add it to _unmarshaledMap:
-            Unmarshal(v);
 
             --_classGraphDepth;
-
             return v;
         }
 
-        private SlicedData? readSlicedData()
-        {
-            if (_current.slices == null) // No preserved slices.
-            {
-                return null;
-            }
-
-            //
-            // The IndirectionTableList member holds the indirection table for each slice
-            // in _slices.
-            //
-            Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
-            for (int n = 0; n < _current.slices.Count; ++n)
-            {
-                //
-                // We use the "instances" list in SliceInfo to hold references
-                // to the target instances. Note that the instances might not have
-                // been read yet in the case of a circular reference to an
-                // enclosing instance.
-                //
-                SliceInfo info = _current.slices[n];
-                info.instances = _current.IndirectionTableList[n];
-            }
-
-            return new SlicedData(_current.slices.ToArray());
-        }
-
-        private void push(SliceType sliceType)
+        private void Push(SliceType sliceType)
         {
             if (_current == null)
             {
@@ -2946,6 +2688,8 @@ namespace Ice
             _current.sliceType = sliceType;
             _current.skipFirstSlice = false;
         }
+
+        private enum SliceType { ClassSlice, ExceptionSlice }
 
         private sealed class InstanceData
         {

@@ -34,7 +34,7 @@ namespace IceInternal
         public OpaqueEndpointI(short type, Ice.InputStream s)
         {
             _type = type;
-            _rawEncoding = s.GetEncoding();
+            _rawEncoding = s.Encoding;
             int sz = s.GetEncapsulationSize();
             _rawBytes = new byte[sz];
             s.ReadBlob(_rawBytes);

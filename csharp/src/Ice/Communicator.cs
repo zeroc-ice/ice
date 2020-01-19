@@ -2506,7 +2506,7 @@ namespace Ice
 
             ProtocolVersion protocol;
             EncodingVersion encoding;
-            if (!s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (!s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 byte major = s.ReadByte();
                 byte minor = s.ReadByte();

@@ -31,7 +31,7 @@ namespace IceInternal
         public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if (s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 s.ReadByte();
                 s.ReadByte();

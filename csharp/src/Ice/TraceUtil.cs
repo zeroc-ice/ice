@@ -170,7 +170,7 @@ namespace IceInternal
         {
             try
             {
-                Ice.ToStringMode toStringMode = str.Communicator()?.ToStringMode ?? Ice.ToStringMode.Unicode;
+                Ice.ToStringMode toStringMode = str.Communicator.ToStringMode;
 
                 Ice.Identity identity = new Ice.Identity();
                 identity.ice_readMembers(str);

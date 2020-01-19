@@ -2596,7 +2596,7 @@ namespace Ice
                     {
                         IceInternal.Buffer ubuf = BZip2.uncompress(info.stream.GetBuffer(), Protocol.headerSize,
                                                                    _messageSizeMax);
-                        info.stream = new InputStream(info.stream.Communicator(), info.stream.GetEncoding(), ubuf, true);
+                        info.stream = new InputStream(info.stream.Communicator, info.stream.Encoding, ubuf, true);
                     }
                     else
                     {
