@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Protocol = IceInternal.Protocol;
+
 namespace Ice
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using Protocol = IceInternal.Protocol;
-
     /// <summary>
     /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
     /// If the implementation does not throw an exception, the Ice run time will fall back
@@ -164,80 +164,6 @@ namespace Ice
         {
             ResetEncapsulation();
         }
-
-        /*
-        /// <summary>
-        /// Sets the logger to use when logging trace messages. If the stream
-        /// was initialized with a communicator, the communicator's logger will
-        /// be used by default.
-        /// </summary>
-        /// <param name="logger">The logger to use for logging trace messages.</param>
-        public void SetLogger(ILogger logger)
-        {
-            _logger = logger;
-        }
-
-        /// <summary>
-        /// Sets the compact ID resolver to use when unmarshaling value and exception
-        /// instances. If the stream was initialized with a communicator, the communicator's
-        /// resolver will be used by default.
-        /// </summary>
-        /// <param name="r">The compact ID resolver.</param>
-        public void SetCompactIdResolver(Func<int, string> r)
-        {
-            _compactIdResolver = r;
-        }
-
-        /// <summary>
-        /// Sets the class resolver, which the stream will use when attempting to unmarshal
-        /// a value or exception. If the stream was initialized with a communicator, the communicator's
-        /// resolver will be used by default.
-        /// </summary>
-        /// <param name="r">The class resolver.</param>
-        public void SetClassResolver(Func<string, Type> r)
-        {
-            _classResolver = r;
-        }
-
-        /// <summary>
-        /// Determines the behavior of the stream when extracting instances of Slice classes.
-        /// An instance is "sliced" when a factory cannot be found for a Slice type ID.
-        /// The stream's default behavior is to slice instances.
-        /// </summary>
-        /// <param name="b">If true (the default), slicing is enabled; if false,
-        /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-        /// during decoding for which no class factory is installed, it raises NoClassFactoryException.
-        /// </param>
-        public void SetSliceClasses(bool b)
-        {
-            _sliceClasses = b;
-        }
-
-        /// <summary>
-        /// Determines whether the stream logs messages about slicing instances of Slice values.
-        /// </summary>
-        /// <param name="b">True to enable logging, false to disable logging.</param>
-        public void SetTraceSlicing(bool b)
-        {
-            _traceSlicing = b;
-        }
-
-        /// <summary>
-        /// Set the maximum depth allowed for graph of Slice class instances.
-        /// </summary>
-        /// <param name="classGraphDepthMax">The maximum depth.</param>
-        public void SetClassGraphDepthMax(int classGraphDepthMax)
-        {
-            if (classGraphDepthMax < 1)
-            {
-                _classGraphDepthMax = 0x7fffffff;
-            }
-            else
-            {
-                _classGraphDepthMax = classGraphDepthMax;
-            }
-        }
-        */
 
         /// <summary>
         /// Swaps the contents of one stream with another.
