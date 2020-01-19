@@ -86,7 +86,7 @@ namespace Ice
 
         // TODO: should we cache those per InputStream?
         //       should we clear the caches in ResetEncapsulation?
-        private Dictionary<string, Type>? _typeIdCache;
+        private Dictionary<string, Type?>? _typeIdCache;
         private Dictionary<int, Type>? _compactIdCache;
 
         // Map of type-id index to type-id string.
@@ -233,7 +233,7 @@ namespace Ice
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData EndClass(bool preserve)
+        public SlicedData? EndClass(bool preserve)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             return EndInstance(preserve);
@@ -253,7 +253,7 @@ namespace Ice
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData EndException(bool preserve)
+        public SlicedData? EndException(bool preserve)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             return EndInstance(preserve);
@@ -419,7 +419,7 @@ namespace Ice
         /// <summary>
         /// Reads the start of a class instance or exception slice.
         /// </summary>
-        /// <returns>The Slice type ID for this slice.</returns>
+        /// <returns>The Slice type ID for this slice.</returns>x
         public string StartSlice() // Returns type ID of next slice
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -2071,9 +2071,9 @@ namespace Ice
             {
                 string typeId = ReadString();
 
-                // We only want to insert this typeId in the map and increment the index
+                // We only want to add this typeId in the map list increment the Count
                 // when it's the first time we read it, so we save the largest pos we
-                // read to figure when to insert.
+                // read to figure when to add.
                 if (Pos > _posAfterLatestInsertedTypeId)
                 {
                     _posAfterLatestInsertedTypeId = Pos;
@@ -2087,21 +2087,14 @@ namespace Ice
         private Type? ResolveClass(string typeId)
         {
             Type? cls = null;
-            if (_typeIdCache?.TryGetValue(typeId, out cls) == true)
+            if (_typeIdCache?.TryGetValue(typeId, out cls) != true)
             {
-                // UnknowSlicedClass is our marker for class previously not found.
-                if (cls == typeof(UnknownSlicedClass))
-                {
-                    cls = null;
-                }
-            }
-            else
-            {
+                // Not found in typeIdCache
                 try
                 {
                     cls = _classResolver?.Invoke(typeId);
-                    _typeIdCache ??= new Dictionary<string, Type>(); // Lazy initialization
-                    _typeIdCache.Add(typeId, cls ?? typeof(UnknownSlicedClass));
+                    _typeIdCache ??= new Dictionary<string, Type?>(); // Lazy initialization
+                    _typeIdCache.Add(typeId, cls);
                 }
                 catch (Exception ex)
                 {
@@ -2632,7 +2625,7 @@ namespace Ice
             // Instance attributes
             internal SliceType sliceType;
             internal bool skipFirstSlice;
-            internal List<SliceInfo> slices;     // Preserved slices.
+            internal List<SliceInfo>? slices;     // Preserved slices.
             internal List<AnyClass[]?>? IndirectionTableList;
 
             // Position of indirection tables that we skipped for now and that will
@@ -2642,7 +2635,7 @@ namespace Ice
             // Slice attributes
             internal byte sliceFlags;
             internal int sliceSize;
-            internal string typeId;
+            internal string? typeId;
             internal int compactId;
 
             // Indirection table of the current slice
