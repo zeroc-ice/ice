@@ -2221,7 +2221,7 @@ namespace Ice
             write(os);
         }
 
-        public override void iceRead(InputStream istr, bool firstSlice)
+        protected internal override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(false);
         }

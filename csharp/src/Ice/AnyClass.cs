@@ -31,20 +31,10 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceRead(InputStream istr, bool firstSlice)
-        {
-            istr.StartClass();
-            iceReadImpl(istr, true);
-            istr.EndClass();
-        }
+        protected internal abstract void IceRead(InputStream istr, bool firstSlice);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void iceWriteImpl(OutputStream ostr)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void iceReadImpl(InputStream istr, bool firstSlice)
         {
         }
 

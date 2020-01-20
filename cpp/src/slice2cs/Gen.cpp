@@ -283,20 +283,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         _out << nl << "iceWriteImpl(ostr);";
         _out << nl << "ostr.EndClass();";
         _out << eb;
-
-        /*
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
-        _out << sb;
-        _out << nl << "istr.StartClass();";
-        _out << nl << "iceReadImpl(istr, firstSlice);";
-        _out << nl << "iceSlicedData_ = istr.EndClass(true);";
-        _out << eb;
-        */
     }
 
     _out << sp;
@@ -304,6 +290,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
+
     _out << nl << "protected override void iceWriteImpl(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
     _out << sb;
     _out << nl << "ostr.StartSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
@@ -331,7 +318,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+
+    // TODO: find a correct way to detect if we are generating code for the Ice assembly
+    bool inIceAssembly = p->unit()->topLevelFile().find("/slice/Ice/") != string::npos;
+
+    _out << nl << (inIceAssembly ? "protected internal" : "protected");
+    _out << " override void IceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
     if (preserved || basePreserved)
     {
@@ -370,7 +362,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceReadImpl(istr, false);";
+        _out << nl << "base.IceRead(istr, false);";
     }
     _out << eb;
 
@@ -1997,18 +1989,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "iceWriteImpl(ostr);";
         _out << nl << "ostr.EndException();";
         _out << eb;
-
-/*
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override void iceRead("
-            << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
-        _out << sb;
-        _out << nl << "istr.StartException();";
-        _out << nl << "iceReadImpl(istr, firstSlice);";
-        _out << nl << "slicedData_ = istr.EndException(true);";
-        _out << eb;
-        */
     }
 
     _out << sp;
@@ -2029,7 +2009,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+
+    // TODO: find a correct way to detect if we are generating code for the Ice assembly.
+    bool inIceAssembly = p->unit()->topLevelFile().find("/slice/Ice/") != string::npos;
+
+    _out << nl << (inIceAssembly ? "protected internal" : "protected");
+    _out << " override void IceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
 
     if (preserved || basePreserved)
@@ -2061,7 +2046,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "istr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceReadImpl(istr, false);";
+        _out << nl << "base.IceRead(istr, false);";
     }
     _out << eb;
 

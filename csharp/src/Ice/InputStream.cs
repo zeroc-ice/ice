@@ -220,44 +220,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the start of a class instance.
-        /// </summary>
-        public void StartClass()
-        {
-            // TODO: useless now, remove from generated code
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            Debug.Assert(_current.sliceType == SliceType.ClassSlice);
-        }
-
-        /// <summary>
-        /// Marks the end of a class instance.
-        /// </summary>
-        public void EndClass()
-        {
-            // TODO: should be soon useless just like StartClass
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            EndInstance();
-        }
-
-        /// <summary>
-        /// Marks the start of a user exception.
-        /// </summary>
-        public void StartException()
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            Debug.Assert(_current.sliceType == SliceType.ExceptionSlice);
-        }
-
-        /// <summary>
-        /// Marks the end of a user exception.
-        /// </summary>
-        public void EndException()
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            EndInstance();
-        }
-
-        /// <summary>
         /// Reads the start of an encapsulation.
         /// </summary>
         /// <returns>The encapsulation encoding version.</returns>
@@ -1977,7 +1939,8 @@ namespace Ice
                 // We found the exception.
                 if (userEx != null)
                 {
-                    userEx.iceRead(this, true);
+                    userEx.IceRead(this, true);
+                    EndInstance();
                     throw userEx;
                     // Never reached.
                 }
@@ -2601,7 +2564,8 @@ namespace Ice
             }
 
             // Read the instance.
-            v.iceRead(this, true);
+            v.IceRead(this, true);
+            EndInstance();
 
             --_classGraphDepth;
             return v;

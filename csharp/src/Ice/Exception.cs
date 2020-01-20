@@ -177,20 +177,13 @@ namespace Ice
             ostr.EndException();
         }
 
-        public virtual void iceRead(InputStream istr, bool firstSlice)
-        {
-            istr.StartException();
-            iceReadImpl(istr, firstSlice);
-            istr.EndException();
-        }
-
         public virtual bool iceUsesClasses()
         {
             return false;
         }
 
         protected abstract void iceWriteImpl(OutputStream ostr);
-        protected abstract void iceReadImpl(InputStream istr, bool firstSlice);
+        protected internal abstract void IceRead(InputStream istr, bool firstSlice);
     }
 }
 
