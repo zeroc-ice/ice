@@ -177,10 +177,10 @@ namespace Ice
             ostr.EndException();
         }
 
-        public virtual void iceRead(InputStream istr)
+        public virtual void iceRead(InputStream istr, bool firstSlice)
         {
             istr.StartException();
-            iceReadImpl(istr);
+            iceReadImpl(istr, firstSlice);
             istr.EndException(false);
         }
 
@@ -190,7 +190,7 @@ namespace Ice
         }
 
         protected abstract void iceWriteImpl(OutputStream ostr);
-        protected abstract void iceReadImpl(InputStream istr);
+        protected abstract void iceReadImpl(InputStream istr, bool firstSlice);
     }
 }
 

@@ -430,11 +430,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 
     assert(isClassType(type));
 
-    if(b)
-    {
-        return "Ice.AnyClass.ice_staticId()";
-    }
-    else if(cl->isInterface())
+    if(cl->isInterface())
     {
         ContainedPtr cont = ContainedPtr::dynamicCast(cl->container());
         assert(cont);

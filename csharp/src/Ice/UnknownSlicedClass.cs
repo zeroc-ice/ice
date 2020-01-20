@@ -43,7 +43,7 @@ namespace Ice
             ostr.EndClass();
         }
 
-        public override void iceRead(InputStream istr)
+        public override void iceRead(InputStream istr, bool firstSlice)
         {
             istr.StartClass();
             _slicedData = istr.EndClass(true);

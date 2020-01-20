@@ -289,10 +289,10 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+        _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
         _out << sb;
         _out << nl << "istr.StartClass();";
-        _out << nl << "iceReadImpl(istr);";
+        _out << nl << "iceReadImpl(istr, firstSlice);";
         _out << nl << "iceSlicedData_ = istr.EndClass(true);";
         _out << eb;
     }
@@ -329,9 +329,13 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
-    _out << nl << "istr.StartSlice();";
+    _out << nl << "istr.StartSlice" << spar
+        << "ice_staticId()"
+        << "firstSlice"
+        << epar << ";";
+
     for(auto m : members)
     {
         if(!m->tagged())
@@ -347,7 +351,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceReadImpl(istr);";
+        _out << nl << "base.iceReadImpl(istr, false);";
     }
     _out << eb;
 
@@ -1662,7 +1666,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << p->scoped() << "\";";
 
     _out << sp;
-    _out << nl << "public static new string ice_staticId()";
+    _out << nl << "public static";
+    if (hasBaseClass)
+    {
+        _out << " new";
+    }
+    _out << " string ice_staticId()";
     _out << sb;
     _out << nl << "return _id;";
     _out << eb;
@@ -1972,10 +1981,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+        _out << nl << "public override void iceRead("
+            << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
         _out << sb;
         _out << nl << "istr.StartException();";
-        _out << nl << "iceReadImpl(istr);";
+        _out << nl << "iceReadImpl(istr, firstSlice);";
         _out << nl << "slicedData_ = istr.EndException(true);";
         _out << eb;
     }
@@ -1998,9 +2008,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+    _out << nl << "protected override void iceReadImpl(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
-    _out << nl << "istr.StartSlice();";
+    _out << nl << "istr.StartSlice" << spar
+        << '"' + scoped + '"'
+        << "firstSlice"
+        << epar << ";";
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -2009,7 +2022,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "istr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceReadImpl(istr);";
+        _out << nl << "base.iceReadImpl(istr, false);";
     }
     _out << eb;
 

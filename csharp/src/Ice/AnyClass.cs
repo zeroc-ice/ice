@@ -10,19 +10,10 @@ namespace Ice
     [Serializable]
     public abstract class AnyClass : ICloneable
     {
-        private const string _id = "::Ice::Object";
-
-        /// <summary>
-        /// Returns the Slice type ID of the interface supported by this object.
-        /// </summary>
-        /// <returns>The return value is always ::Ice::IObject.</returns>
-        public static string ice_staticId() => _id;
-
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <returns>The return value is always ::Ice::IObject.</returns>
-        public virtual string ice_id() => _id;
+        public abstract string ice_id();
 
         /// <summary>
         /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
@@ -40,10 +31,10 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceRead(InputStream istr)
+        public virtual void iceRead(InputStream istr, bool firstSlice)
         {
             istr.StartClass();
-            iceReadImpl(istr);
+            iceReadImpl(istr, true);
             istr.EndClass(false);
         }
 
@@ -53,7 +44,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void iceReadImpl(InputStream istr)
+        protected virtual void iceReadImpl(InputStream istr, bool firstSlice)
         {
         }
 
@@ -66,28 +57,5 @@ namespace Ice
         {
             return MemberwiseClone();
         }
-    }
-
-    public class InterfaceByClass : AnyClass
-    {
-        public InterfaceByClass(string id) => _id = id;
-
-        public override string ice_id() => _id;
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void iceWriteImpl(OutputStream ostr)
-        {
-            ostr.StartSlice(ice_id(), -1, true);
-            ostr.EndSlice();
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void iceReadImpl(InputStream istr)
-        {
-            istr.StartSlice();
-            istr.EndSlice();
-        }
-
-        private string _id;
     }
 }

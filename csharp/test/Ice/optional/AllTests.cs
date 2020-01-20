@@ -2097,6 +2097,11 @@ namespace Ice.optional
 
         private class DClassWriter : ClassWriter
         {
+            public override string ice_id()
+            {
+                return "";
+            }
+
             public override void write(OutputStream @out)
             {
                 @out.StartClass(null);

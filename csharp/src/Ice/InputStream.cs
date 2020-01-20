@@ -419,11 +419,47 @@ namespace Ice
         /// <summary>
         /// Reads the start of a class instance or exception slice.
         /// </summary>
-        /// <returns>The Slice type ID for this slice.</returns>x
-        public string StartSlice() // Returns type ID of next slice
+        /// <returns>The Slice type ID for this slice.</returns>
+        public void StartSlice(string typeId, bool firstSlice)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return StartSlice(true);
+            ReadSliceHeader(true, typeId, firstSlice);
+            if (firstSlice)
+            {
+                // We can discard all the unknown slices: the generated code calls SaveUnknownSlices to
+                // preserve them and it just called StartSlice instead.
+            }
+        }
+
+        public SlicedData? SaveUnknownSlices(string typeId)
+        {
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            ReadSliceHeader(true, typeId, true);
+
+            SlicedData? slicedData = null;
+            if (_current.slices?.Count > 0)
+            {
+                // The IndirectionTableList member holds the indirection table for each slice in _slices.
+                Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
+                for (int n = 0; n < _current.slices.Count; ++n)
+                {
+                    // We use the "instances" list in SliceInfo to hold references
+                    // to the target instances. Note that the instances might not have
+                    // been read yet in the case of a circular reference to an
+                    // enclosing instance.
+                    SliceInfo info = _current.slices[n];
+                    info.instances = _current.IndirectionTableList[n];
+                }
+
+                slicedData = new SlicedData(_current.slices.ToArray());
+                _current.slices.Clear();
+            }
+
+            // We may reuse this instance data (current) so we need to clean it well (see push)
+            _current.IndirectionTableList?.Clear();
+            Debug.Assert(_current.DeferredIndirectionTableList == null ||
+                _current.DeferredIndirectionTableList.Count == 0);
+            return slicedData;
         }
 
         /// <summary>
@@ -1897,7 +1933,7 @@ namespace Ice
             Push(SliceType.ExceptionSlice);
 
             // Read the first slice header.
-            string sliceTypeId = StartSlice(true); // we read the indirection table immediately
+            string sliceTypeId = ReadSliceHeader(true); // we read the indirection table immediately
             var mostDerivedId = sliceTypeId;
             while (true)
             {
@@ -1932,7 +1968,7 @@ namespace Ice
                 // We found the exception.
                 if (userEx != null)
                 {
-                    userEx.iceRead(this);
+                    userEx.iceRead(this, true);
                     throw userEx;
                     // Never reached.
                 }
@@ -1952,7 +1988,7 @@ namespace Ice
                     }
                 }
 
-                sliceTypeId = StartSlice(true);
+                sliceTypeId = ReadSliceHeader(true);
             }
         }
 
@@ -2141,7 +2177,6 @@ namespace Ice
         private void StartInstance(SliceType sliceType)
         {
             Debug.Assert(_current.sliceType == sliceType);
-            _current.skipFirstSlice = true;
         }
 
         private SlicedData? EndInstance(bool preserve)
@@ -2173,16 +2208,13 @@ namespace Ice
             return slicedData;
         }
 
-        private string StartSlice(bool readIndirectionTable)
+        private string ReadSliceHeader(bool plusIndirectionTable, string? typeId = null, bool firstSlice = false)
         {
             // If first slice, don't read the header, it was already read in
             // ReadInstance or ThrowException to find the factory.
-            if (_current.skipFirstSlice)
+            if (!firstSlice)
             {
-                _current.skipFirstSlice = false;
-            }
-            else
-            {
+                Debug.Assert(firstSlice == false);
                 _current.sliceFlags = ReadByte();
 
                 // Read the type ID, for instance slices the type ID is encoded as a
@@ -2231,14 +2263,21 @@ namespace Ice
                 }
             }
 
+            // Make sure the type ids match!
+            if (typeId != null && _current.typeId != "")
+            {
+                Debug.Assert(typeId == _current.typeId);
+            }
+
             // Read the indirection table now
-            if (readIndirectionTable && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if (plusIndirectionTable && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 if (_current.IndirectionTable != null)
                 {
-                    // We already read it (skipFirstSlice was true and it's an exception), so nothing to do
+                    Debug.Assert(firstSlice && _current.sliceType == SliceType.ExceptionSlice);
+                    // We already read it (firstSlice is true and it's an exception), so nothing to do
                     // Note that for classes, we only read the indirection table for the first slice
-                    // when skipFirstSlice is true.
+                    // when firtSlice is true.
                 }
                 else
                 {
@@ -2344,7 +2383,7 @@ namespace Ice
                 _current.IndirectionTableList ??= new List<AnyClass[]?>();
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    Debug.Assert(_current.IndirectionTable != null); // previously read by StartSlice
+                    Debug.Assert(_current.IndirectionTable != null); // previously read by ReadSliceHeader
                     _current.IndirectionTableList.Add(_current.IndirectionTable);
                     Pos = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
@@ -2463,7 +2502,7 @@ namespace Ice
             Push(SliceType.ClassSlice);
 
             // Read the first slice header.
-            string sliceTypeId = StartSlice(false);
+            string sliceTypeId = ReadSliceHeader(false);
             var mostDerivedId = sliceTypeId;
             AnyClass? v = null;
             while (true)
@@ -2551,7 +2590,7 @@ namespace Ice
                     break;
                 }
 
-                sliceTypeId = StartSlice(false); // Read next Slice header for next iteration.
+                sliceTypeId = ReadSliceHeader(false); // Read next Slice header for next iteration.
             }
 
             if (++_classGraphDepth > _classGraphDepthMax)
@@ -2588,7 +2627,7 @@ namespace Ice
             }
 
             // Read the instance.
-            v.iceRead(this);
+            v.iceRead(this, true);
 
             --_classGraphDepth;
             return v;
@@ -2605,7 +2644,6 @@ namespace Ice
                 _current = _current.next == null ? new InstanceData(_current) : _current.next;
             }
             _current.sliceType = sliceType;
-            _current.skipFirstSlice = false;
         }
 
         private enum SliceType { ClassSlice, ExceptionSlice }
@@ -2624,7 +2662,6 @@ namespace Ice
 
             // Instance attributes
             internal SliceType sliceType;
-            internal bool skipFirstSlice;
             internal List<SliceInfo>? slices;     // Preserved slices.
             internal List<AnyClass[]?>? IndirectionTableList;
 
