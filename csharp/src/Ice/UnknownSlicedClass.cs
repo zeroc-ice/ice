@@ -45,10 +45,10 @@ namespace Ice
             ostr.EndClass();
         }
 
-        protected internal override void IceRead(InputStream istr, bool firstSlice)
+        protected override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
-            _slicedData = istr.SaveUnknownSlices(null);
+            _slicedData = istr.IceSaveUnknownSlices(null);
         }
 
         private string _unknownTypeId;

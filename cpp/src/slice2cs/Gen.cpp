@@ -319,21 +319,18 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         emitGeneratedCodeAttribute();
     }
 
-    // TODO: find a correct way to detect if we are generating code for the Ice assembly
-    bool inIceAssembly = p->unit()->topLevelFile().find("/slice/Ice/") != string::npos;
-
-    _out << nl << (inIceAssembly ? "protected internal" : "protected");
-    _out << " override void IceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+    _out << nl << "protected override void IceRead("
+         << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
     if (preserved || basePreserved)
     {
         _out << nl << "if (firstSlice)";
         _out << sb;
-        _out << nl << "iceSlicedData_ = istr.SaveUnknownSlices(ice_staticId());";
+        _out << nl << "iceSlicedData_ = istr.IceSaveUnknownSlices(ice_staticId());";
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.StartSlice" << spar
+        _out << nl << "istr.IceStartSlice" << spar
          << "ice_staticId()"
          << "false"
          << epar << ";";
@@ -341,7 +338,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     }
     else
     {
-        _out << nl << "istr.StartSlice" << spar
+        _out << nl << "istr.IceStartSlice" << spar
          << "ice_staticId()"
          << "firstSlice"
          << epar << ";";
@@ -359,7 +356,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns);
     }
-    _out << nl << "istr.EndSlice();";
+    _out << nl << "istr.IceEndSlice();";
     if(base)
     {
         _out << nl << "base.IceRead(istr, false);";
@@ -2010,22 +2007,19 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
 
-    // TODO: find a correct way to detect if we are generating code for the Ice assembly.
-    bool inIceAssembly = p->unit()->topLevelFile().find("/slice/Ice/") != string::npos;
-
-    _out << nl << (inIceAssembly ? "protected internal" : "protected");
-    _out << " override void IceRead(" << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+    _out << nl << "protected override void IceRead("
+         << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
     _out << sb;
 
     if (preserved || basePreserved)
     {
         _out << nl << "if (firstSlice)";
         _out << sb;
-        _out << nl << "slicedData_ = istr.SaveUnknownSlices(\"" << scoped << "\");";
+        _out << nl << "slicedData_ = istr.IceSaveUnknownSlices(\"" << scoped << "\");";
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.StartSlice" << spar
+        _out << nl << "istr.IceStartSlice" << spar
          << '"' + scoped + '"'
          << "false"
          << epar << ";";
@@ -2033,7 +2027,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     else
     {
-        _out << nl << "istr.StartSlice" << spar
+        _out << nl << "istr.IceStartSlice" << spar
          << '"' + scoped + '"'
          << "firstSlice"
          << epar << ";";
@@ -2043,7 +2037,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         writeUnmarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns);
     }
-    _out << nl << "istr.EndSlice();";
+    _out << nl << "istr.IceEndSlice();";
     if(base)
     {
         _out << nl << "base.IceRead(istr, false);";

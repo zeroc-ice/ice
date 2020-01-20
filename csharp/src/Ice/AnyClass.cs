@@ -30,8 +30,10 @@ namespace Ice
             ostr.EndClass();
         }
 
+        // Read all the fields of this instance from the stream. See InputStream.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected internal abstract void IceRead(InputStream istr, bool firstSlice);
+        protected abstract void IceRead(InputStream istr, bool firstSlice);
+        internal void Read(InputStream istr) => IceRead(istr, true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void iceWriteImpl(OutputStream ostr)

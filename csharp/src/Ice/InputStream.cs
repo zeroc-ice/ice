@@ -72,13 +72,11 @@ namespace Ice
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
-        private readonly bool _traceSlicing;
         private readonly int _classGraphDepthMax;
 
         // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
-        private readonly ILogger _logger;
         private readonly Func<string, Type?> _classResolver;
         private IceInternal.Buffer _buf;
 
@@ -139,9 +137,7 @@ namespace Ice
         {
             Encoding = encoding ?? communicator.defaultsAndOverrides().defaultEncoding;
             Communicator = communicator;
-            _traceSlicing = communicator.traceLevels().slicing > 0;
             _classGraphDepthMax = communicator.classGraphDepthMax();
-            _logger = communicator.Logger;
             _classResolver = communicator.resolveClass;
             _buf = buf;
         }
@@ -377,17 +373,20 @@ namespace Ice
         }
 
         /// <summary>
-        /// Reads the start of a class instance or exception slice.
+        /// Start reading a slice of a class or exception instance.
+        /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
-        public void StartSlice(string typeId, bool firstSlice)
+        /// <param name="typeId">The expected typeId of this slice.</param>
+        /// <param name="firstSlice">True when reading the first (most derived) slice of an instance.</param>
+        public void IceStartSlice(string typeId, bool firstSlice)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             string headerTypeId = ReadSliceHeader(true, firstSlice);
             Debug.Assert(headerTypeId == "" || headerTypeId == typeId);
             if (firstSlice)
             {
-                // We can discard all the unknown slices: the generated code calls SaveUnknownSlices to
-                // preserve them and it just called StartSlice instead.
+                // We can discard all the unknown slices: the generated code calls IceSaveUnknownSlices to
+                // preserve them and it just called IceStartSlice instead.
                 _current.slices?.Clear();
                 _current.IndirectionTableList?.Clear();
                 Debug.Assert(_current.DeferredIndirectionTableList == null ||
@@ -395,7 +394,12 @@ namespace Ice
             }
         }
 
-        public SlicedData? SaveUnknownSlices(string? typeId)
+        /// <summary>
+        /// Save unknown slices of a class or exception instance.
+        /// This is an Ice-internal method marked public because it's called by the generated code.
+        /// </summary>
+        /// <param name="typeId">The expected typeId of this slice.</param>
+        public SlicedData? IceSaveUnknownSlices(string? typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             if (typeId != null)
@@ -418,6 +422,7 @@ namespace Ice
                     // to the target instances. Note that the instances might not have
                     // been read yet in the case of a circular reference to an
                     // enclosing instance.
+                    // TODO: use/fill SliceInfo directly in _current
                     SliceInfo info = _current.slices[n];
                     info.instances = _current.IndirectionTableList[n];
                 }
@@ -434,9 +439,10 @@ namespace Ice
         }
 
         /// <summary>
-        /// Indicates that the end of a class instance or exception slice has been reached.
+        /// Tells the InputStream the end of a class or exception slice was reached.
+        /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
-        public void EndSlice()
+        public void IceEndSlice()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
@@ -1939,7 +1945,7 @@ namespace Ice
                 // We found the exception.
                 if (userEx != null)
                 {
-                    userEx.IceRead(this, true);
+                    userEx.Read(this);
                     EndInstance();
                     throw userEx;
                     // Never reached.
@@ -2079,9 +2085,10 @@ namespace Ice
             {
                 string typeId = ReadString();
 
-                // We only want to add this typeId in the map list increment the Count
-                // when it's the first time we read it, so we save the largest pos we
-                // read to figure when to add.
+                // The typeIds of slices in indirection tables can be read several times: when we skip the
+                // indirection table and later on when we read it. We only want to add this typeId to the list
+                // and assign it an index when it's the first time we read it, so we save the largest pos we
+                // read to figure out when to add to the list.
                 if (Pos > _posAfterLatestInsertedTypeId)
                 {
                     _posAfterLatestInsertedTypeId = Pos;
@@ -2286,7 +2293,7 @@ namespace Ice
             int dataEnd = end;
             if (hasOptionalMembers)
             {
-                // Don't include the tagged end marker. It will be re-written by EndSlice when the sliced data
+                // Don't include the tagged end marker. It will be re-written by IceEndSlice when the sliced data
                 // is re-written.
                 --dataEnd;
             }
@@ -2564,7 +2571,7 @@ namespace Ice
             }
 
             // Read the instance.
-            v.IceRead(this, true);
+            v.Read(this);
             EndInstance();
 
             --_classGraphDepth;

@@ -183,7 +183,10 @@ namespace Ice
         }
 
         protected abstract void iceWriteImpl(OutputStream ostr);
-        protected internal abstract void IceRead(InputStream istr, bool firstSlice);
+
+        // Read all the fields of this exception from the stream.
+        protected abstract void IceRead(InputStream istr, bool firstSlice);
+        internal void Read(InputStream istr) => IceRead(istr, true);
     }
 }
 
