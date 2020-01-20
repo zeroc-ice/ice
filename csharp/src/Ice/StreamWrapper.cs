@@ -347,7 +347,7 @@ namespace IceInternal
                         break;
                     }
             }
-            _s.pos(_pos);
+            _s.Pos = _pos;
             return _pos;
         }
 

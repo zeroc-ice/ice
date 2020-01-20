@@ -138,11 +138,11 @@ namespace IceInternal
                     ue.streamWrite(os);
                     Ice.InputStream iss =
                         new Ice.InputStream(_communicator, Ice.Util.currentProtocolEncoding, os.GetBuffer(), true);
-                    iss.pos(0);
+                    iss.Pos = 0;
                     iss.ReadShort(); // type
-                    iss.StartEncapsulation();
+                    iss.StartEndpointEncapsulation();
                     Endpoint e = factory.read(iss);
-                    iss.EndEncapsulation();
+                    iss.EndEndpointEncapsulation();
                     return e;
                 }
                 return ue; // Endpoint is opaque, but we don't have a factory for its type.
@@ -160,7 +160,7 @@ namespace IceInternal
                 IEndpointFactory factory = get(type);
                 Endpoint e = null;
 
-                s.StartEncapsulation();
+                s.StartEndpointEncapsulation();
 
                 if (factory != null)
                 {
@@ -177,7 +177,7 @@ namespace IceInternal
                     e = new OpaqueEndpointI(type, s);
                 }
 
-                s.EndEncapsulation();
+                s.EndEndpointEncapsulation();
 
                 return e;
             }
