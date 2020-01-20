@@ -2,6 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Ice
 {
     public interface MarshaledReturnValue
@@ -12,14 +18,6 @@ namespace Ice
 
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     public class Incoming : Ice.IRequest
     {
         public Incoming(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection? connection,
@@ -91,10 +89,7 @@ namespace IceInternal
             return true;
         }
 
-        public Ice.Current? getCurrent()
-        {
-            return _current;
-        }
+        public Ice.Current? getCurrent() => _current;
 
         public void invoke(ServantManager servantManager, Ice.InputStream stream)
         {
@@ -207,7 +202,7 @@ namespace IceInternal
 
             try
             {
-                Task<Ice.OutputStream>? task = _servant(this, _current);
+                Task<Ice.OutputStream?>? task = _servant(this, _current);
                 if (task == null)
                 {
                     completed(null, false);
@@ -266,7 +261,7 @@ namespace IceInternal
                 // Write default constructed response if no task is provided
                 //
                 var os = startWriteParams();
-                write(os, default(R));
+                write(os, default);
                 endWriteParams(os);
                 return setResult(os);
             }
@@ -556,7 +551,7 @@ namespace IceInternal
             return writeEmptyParams(getAndClearCachedOutputStream());
         }
 
-        public Ice.OutputStream? writeParamEncaps(Ice.OutputStream os, byte[] v, bool ok)
+        public Ice.OutputStream? writeParamEncaps(Ice.OutputStream? os, byte[] v, bool ok)
         {
             if (!ok && _observer != null)
             {
@@ -605,7 +600,7 @@ namespace IceInternal
             {
                 try
                 {
-                    for (Ice.ConnectionInfo? p = _current.Connection.ConnectionInfo; p != null; p = p.Underlying)
+                    for (Ice.ConnectionInfo? p = _current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
                     {
                         if (p is Ice.IPConnectionInfo)
                         {

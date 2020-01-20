@@ -1,17 +1,16 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
 
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Net;
-
-    internal sealed class UdpEndpointI : IPEndpointI
+    internal sealed class UdpEndpointI : IPEndpoint
     {
-        public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, string mcastInterface,
+        public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint? sourceAddr, string mcastInterface,
                             int mttl, bool conn, string conId, bool co) :
             base(instance, ho, po, sourceAddr, conId)
         {
@@ -46,25 +45,13 @@ namespace IceInternal
 
         private sealed class InfoI : Ice.UDPEndpointInfo
         {
-            public InfoI(UdpEndpointI e)
-            {
-                _endpoint = e;
-            }
+            public InfoI(UdpEndpointI e) => _endpoint = e;
 
-            public override short type()
-            {
-                return _endpoint.type();
-            }
+            public override short type() => _endpoint.type();
 
-            public override bool datagram()
-            {
-                return _endpoint.datagram();
-            }
+            public override bool datagram() => _endpoint.datagram();
 
-            public override bool secure()
-            {
-                return _endpoint.secure();
-            }
+            public override bool secure() => _endpoint.secure();
 
             private UdpEndpointI _endpoint;
         }
@@ -83,29 +70,20 @@ namespace IceInternal
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
-        public override int timeout()
-        {
-            return -1;
-        }
+        public override int timeout() => -1;
 
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public override Endpoint timeout(int timeout)
-        {
-            return this;
-        }
+        public override Endpoint timeout(int timeout) => this;
 
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
         //
-        public override bool compress()
-        {
-            return _compress;
-        }
+        public override bool compress() => _compress;
 
         //
         // Return a new endpoint with a different compression value,
@@ -128,28 +106,20 @@ namespace IceInternal
         //
         // Return true if the endpoint is datagram-based.
         //
-        public override bool datagram()
-        {
-            return true;
-        }
+        public override bool datagram() => true;
 
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override ITransceiver transceiver()
-        {
-            return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface, _connect);
-        }
+        public override ITransceiver transceiver() =>
+            new UdpTransceiver(this, instance_, host_!, port_, _mcastInterface, _connect);
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override IAcceptor? acceptor(string adapterName)
-        {
-            return null;
-        }
+        public override IAcceptor? acceptor(string adapterName) => null;
 
         public override void initWithOptions(List<string> args, bool oaEndpoint)
         {
@@ -400,16 +370,12 @@ namespace IceInternal
             return true;
         }
 
-        protected override IConnector createConnector(EndPoint addr, INetworkProxy proxy)
-        {
-            return new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
-        }
+        protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
 
-        protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
-        {
-            return new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
-                                    connectionId, _compress);
-        }
+        protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
+            new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect, connectionId,
+                             _compress);
 
         private string _mcastInterface = "";
         private int _mcastTtl = -1;
@@ -419,46 +385,28 @@ namespace IceInternal
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        internal UdpEndpointFactory(ProtocolInstance instance)
-        {
-            _instance = instance;
-        }
+        internal UdpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
         public void initialize()
         {
         }
 
-        public short type()
-        {
-            return _instance.type();
-        }
+        public short type() => _instance!.type();
 
-        public string protocol()
-        {
-            return _instance.protocol();
-        }
+        public string protocol() => _instance!.protocol();
 
         public Endpoint create(List<string> args, bool oaEndpoint)
         {
-            IPEndpointI endpt = new UdpEndpointI(_instance);
+            IPEndpoint endpt = new UdpEndpointI(_instance!);
             endpt.initWithOptions(args, oaEndpoint);
             return endpt;
         }
 
-        public Endpoint read(Ice.InputStream s)
-        {
-            return new UdpEndpointI(_instance, s);
-        }
+        public Endpoint read(Ice.InputStream s) => new UdpEndpointI(_instance!, s);
 
-        public void destroy()
-        {
-            _instance = null;
-        }
+        public void destroy() => _instance = null;
 
-        public IEndpointFactory clone(ProtocolInstance instance)
-        {
-            return new UdpEndpointFactory(instance);
-        }
+        public IEndpointFactory clone(ProtocolInstance instance) => new UdpEndpointFactory(instance);
 
         private ProtocolInstance? _instance;
     }

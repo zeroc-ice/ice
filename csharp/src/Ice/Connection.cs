@@ -571,7 +571,7 @@ namespace Ice
 
             public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
-                SetResult(null);
+                SetResult(null!);
             }
         }
 
@@ -589,6 +589,7 @@ namespace Ice
             {
                 try
                 {
+                    Debug.Assert(os_ != null);
                     os_.WriteBlob(Protocol.magic);
                     os_.WriteByte(Util.currentProtocol.major);
                     os_.WriteByte(Util.currentProtocol.minor);
@@ -1610,7 +1611,7 @@ namespace Ice
 
                 foreach (OutgoingMessage o in _sendStreams)
                 {
-                    o.Completed(_exception);
+                    o.Completed(_exception!);
                     if (o.requestId > 0) // Make sure finished isn't called twice.
                     {
                         _asyncRequests.Remove(o.requestId);
@@ -1621,7 +1622,7 @@ namespace Ice
 
             foreach (OutgoingAsyncBase o in _asyncRequests.Values)
             {
-                if (o.exception(_exception))
+                if (o.exception(_exception!))
                 {
                     o.invokeException();
                 }
@@ -1725,18 +1726,15 @@ namespace Ice
         /// Returns the connection information.
         /// </summary>
         /// <returns>The connection information.</returns>
-        public ConnectionInfo ConnectionInfo
+        public ConnectionInfo GetConnectionInfo()
         {
-            get
+            lock (this)
             {
-                lock (this)
+                if (_state >= StateClosed)
                 {
-                    if (_state >= StateClosed)
-                    {
-                        throw _exception;
-                    }
-                    return InitConnectionInfo();
+                    throw _exception!;
                 }
+                return InitConnectionInfo();
             }
         }
 
@@ -1752,7 +1750,7 @@ namespace Ice
             {
                 if (_state >= StateClosed)
                 {
-                    throw _exception;
+                    throw _exception!;
                 }
                 _transceiver.setBufferSize(rcvSize, sndSize);
                 _info = null; // Invalidate the cached connection info
@@ -2327,7 +2325,7 @@ namespace Ice
             return true;
         }
 
-        private int SendNextMessage(out Queue<OutgoingMessage> callbacks)
+        private int SendNextMessage(out Queue<OutgoingMessage>? callbacks)
         {
             callbacks = null;
 
@@ -2563,9 +2561,9 @@ namespace Ice
             public int invokeNum;
             public int requestId;
             public byte compress;
-            public ServantManager servantManager;
-            public ObjectAdapter adapter;
-            public OutgoingAsyncBase outAsync;
+            public ServantManager? servantManager;
+            public ObjectAdapter? adapter;
+            public OutgoingAsyncBase? outAsync;
             public HeartbeatCallback heartbeatCallback;
             public int messageDispatchCount;
         }
@@ -2750,14 +2748,14 @@ namespace Ice
         }
 
         private void InvokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
-                               ServantManager servantManager, ObjectAdapter adapter)
+                               ServantManager? servantManager, ObjectAdapter? adapter)
         {
             //
             // Note: In contrast to other private or protected methods, this
             // operation must be called *without* the mutex locked.
             //
 
-            Incoming inc = null;
+            Incoming? inc = null;
             try
             {
                 while (invokeNum > 0)
@@ -2887,7 +2885,7 @@ namespace Ice
             {
                 _info = new ConnectionInfo();
             }
-            for (ConnectionInfo info = _info; info != null; info = info.Underlying)
+            for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
             {
                 info.ConnectionId = _endpoint.connectionId();
                 info.AdapterName = _adapter != null ? _adapter.GetName() : "";

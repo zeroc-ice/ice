@@ -587,22 +587,11 @@ namespace Ice
         /// <returns>The implicit context associated with this communicator;
         /// returns null when the property Ice.ImplicitContext is not set
         /// or is set to None.</returns>
-        public IImplicitContext getImplicitContext()
-        {
-            return _implicitContext;
-        }
+        public IImplicitContext? getImplicitContext() => _implicitContext;
 
-        internal int messageSizeMax()
-        {
-            // No mutex lock, immutable.
-            return _messageSizeMax;
-        }
+        internal int messageSizeMax() => _messageSizeMax; // No mutex lock, immutable.
 
-        internal int classGraphDepthMax()
-        {
-            // No mutex lock, immutable.
-            return _classGraphDepthMax;
-        }
+        internal int classGraphDepthMax() => _classGraphDepthMax; // No mutex lock, immutable.
 
         public ToStringMode ToStringMode
         {
@@ -2391,7 +2380,7 @@ namespace Ice
                     }
 
                     string es = s.Substring(beg, end - beg);
-                    Endpoint endp = endpointFactoryManager().create(es, false);
+                    Endpoint? endp = endpointFactoryManager().create(es, false);
                     if (endp != null)
                     {
                         endpoints.Add(endp);

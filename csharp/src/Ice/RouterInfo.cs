@@ -135,10 +135,10 @@ namespace IceInternal
                 }
             }
 
-            addAndEvictProxies(proxy, _router.AddProxies(new Ice.IObjectPrx[] { proxy }));
+            addAndEvictProxies(proxy, _router.AddProxies(new IObjectPrx[] { proxy }));
         }
 
-        public bool addProxy(Ice.IObjectPrx proxy, AddProxyCallback callback)
+        public bool addProxy(IObjectPrx proxy, AddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
             lock (this)
@@ -156,7 +156,7 @@ namespace IceInternal
                 }
             }
 
-            _router.AddProxiesAsync(new Ice.IObjectPrx[] { proxy }).ContinueWith(
+            _router.AddProxiesAsync(new IObjectPrx[] { proxy }).ContinueWith(
                 (t) =>
                 {
                     try
@@ -166,15 +166,15 @@ namespace IceInternal
                     }
                     catch (System.AggregateException ae)
                     {
-                        Debug.Assert(ae.InnerException is Ice.LocalException);
-                        callback.setException((Ice.LocalException)ae.InnerException);
+                        Debug.Assert(ae.InnerException is LocalException);
+                        callback.setException((LocalException)ae.InnerException);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
             return false;
         }
 
-        public void setAdapter(Ice.ObjectAdapter? adapter)
+        public void setAdapter(ObjectAdapter? adapter)
         {
             lock (this)
             {
@@ -182,7 +182,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectAdapter? getAdapter()
+        public ObjectAdapter? getAdapter()
         {
             lock (this)
             {

@@ -195,7 +195,7 @@ namespace Ice
     {
         public override Dictionary<string, string> getContext()
         {
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string>? threadContext = null;
             Thread currentThread = Thread.CurrentThread;
             lock (this)
             {
@@ -239,7 +239,7 @@ namespace Ice
                 key = "";
             }
 
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
@@ -258,7 +258,7 @@ namespace Ice
                 key = "";
             }
 
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
@@ -286,7 +286,7 @@ namespace Ice
                 value = "";
             }
 
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
@@ -313,7 +313,7 @@ namespace Ice
                 key = "";
             }
 
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
@@ -322,7 +322,7 @@ namespace Ice
                 }
             }
 
-            string val = null;
+            string val;
             if (!threadContext.TryGetValue(key, out val))
             {
                 val = "";
@@ -336,7 +336,7 @@ namespace Ice
 
         public override void write(Dictionary<string, string> prxContext, OutputStream os)
         {
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 _map.TryGetValue(Thread.CurrentThread, out threadContext);

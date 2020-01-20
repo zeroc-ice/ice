@@ -180,7 +180,12 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
     string ns = getNamespace(ClassDefPtr::dynamicCast(op->container()));
     for(const auto& param : requiredParams)
     {
-        _out << nl << param.typeStr << " " << param.name;
+        _out << nl << param.typeStr;
+        if(isNullable(param.type))
+        {
+            _out << "?";
+        }
+        _out << " " << param.name;
         if(isClassType(param.type) || StructPtr::dynamicCast(param.type))
         {
             _out << " = default";
@@ -385,7 +390,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
         }
         ostringstream param;
         param << getParamAttributes(p);
-        param << CsGenerator::typeToString(p->type(), ns, p->tagged())
+        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
               << " "
               << fixId(p->name());
         params.push_back(param.str());
@@ -408,7 +413,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
         ostringstream param;
         param << getParamAttributes(p)
-              << CsGenerator::typeToString(p->type(), ns, p->tagged())
+              << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
               << " "
               << fixId(prefix + p->name());
         params.push_back(param.str());
@@ -2438,7 +2443,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << resultType(operation, ns, false)  << " " << name << spar << getInvocationParams(operation, ns)
+        _out << nl << resultType(operation, ns, false)  << " " << name << spar
+             << getInvocationParams(operation, ns)
              << epar;
         _out << sb;
 
@@ -2499,12 +2505,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "iceCheckTwowayOnly(\"" << operation->name() << "\");";
         }
 
+        string resultT = resultType(operation, ns, false);
+
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
-             << (outParams.empty() ? "object" : resultType(operation, ns, false))
-             << ">(progress, cancel);";
-        _out << nl << "var outAsync = getOutgoingAsync<"
-             << (outParams.empty() ? "object" : resultType(operation, ns, false));
-        _out << ">(completed);";
+             << (outParams.empty() ? "object" : resultT) << ">(progress, cancel);";
+        _out << nl << "var outAsync = getOutgoingAsync<" << (outParams.empty() ? "object" : resultT) << ">(completed);";
 
         _out << nl << "outAsync.invoke(";
         _out.inc();
@@ -2937,7 +2942,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     _out << " " << name << spar;
     _out << getNames(inParams, [](const auto& param)
                                {
-                                   return param.typeStr + " " + param.name;
+                                   return param.typeStr + (!param.tagged && isNullable(param.type) ? "?" : "") + " " + param.name;
                                });
     _out << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(operation, "current"));
     _out << epar << ';';

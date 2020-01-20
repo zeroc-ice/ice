@@ -99,7 +99,7 @@ namespace IceInternal
             return communicator_.messageSizeMax();
         }
 
-        public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
+        public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback)
         {
             communicator_.endpointHostResolver().resolve(host, port, type, endpt, callback);

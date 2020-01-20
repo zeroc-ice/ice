@@ -24,7 +24,7 @@ namespace IceInternal
             var remoteLogger = prx.Clone(oneway: false);
 
             Filters filters = new Filters(messageTypes, categories);
-            LinkedList<LogMessage> initLogMessages = null;
+            LinkedList<LogMessage>? initLogMessages = null;
 
             lock (this)
             {
@@ -168,7 +168,7 @@ namespace IceInternal
 
         internal void destroy()
         {
-            Communicator sendLogCommunicator = null;
+            Communicator? sendLogCommunicator = null;
 
             lock (this)
             {
@@ -190,11 +190,11 @@ namespace IceInternal
             }
         }
 
-        internal List<IRemoteLoggerPrx> log(LogMessage logMessage)
+        internal List<IRemoteLoggerPrx>? log(LogMessage logMessage)
         {
             lock (this)
             {
-                List<IRemoteLoggerPrx> remoteLoggers = null;
+                List<IRemoteLoggerPrx>? remoteLoggers = null;
 
                 //
                 // Put message in _queue

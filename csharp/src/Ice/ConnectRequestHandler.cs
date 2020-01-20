@@ -22,10 +22,8 @@ namespace IceInternal
             }
         }
 
-        public IRequestHandler update(IRequestHandler previousHandler, IRequestHandler newHandler)
-        {
-            return previousHandler == this ? newHandler : this;
-        }
+        public IRequestHandler? update(IRequestHandler? previousHandler, IRequestHandler? newHandler) =>
+            previousHandler == this ? newHandler : this;
 
         public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
         {
@@ -42,6 +40,7 @@ namespace IceInternal
                     return OutgoingAsyncBase.AsyncStatusQueued;
                 }
             }
+            Debug.Assert(_connection != null);
             return outAsync.invokeRemote(_connection, _compress, _response);
         }
 
@@ -73,15 +72,13 @@ namespace IceInternal
                     Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
                 }
             }
+            Debug.Assert(_connection != null);
             _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
-        public Reference getReference()
-        {
-            return _reference;
-        }
+        public Reference getReference() => _reference;
 
-        public Ice.Connection getConnection()
+        public Ice.Connection? getConnection()
         {
             lock (this)
             {
@@ -119,7 +116,8 @@ namespace IceInternal
             // If this proxy is for a non-local object, and we are using a router, then
             // add this proxy to the router info object.
             //
-            RouterInfo ri = _reference.getRouterInfo();
+            Debug.Assert(_proxy != null);
+            RouterInfo? ri = _reference.getRouterInfo();
             if (ri != null && !ri.addProxy(_proxy, this))
             {
                 return; // The request handler will be initialized once addProxy returns.
@@ -175,14 +173,10 @@ namespace IceInternal
         //
         // Implementation of RouterInfo.AddProxyCallback
         //
-        public void addedProxy()
-        {
-            //
-            // The proxy was added to the router info, we're now ready to send the
-            // queued requests.
-            //
-            flushRequests();
-        }
+        // The proxy was added to the router info, we're now ready to send the
+        // queued requests.
+        //
+        public void addedProxy() => flushRequests();
 
         public ConnectRequestHandler(Reference @ref, Ice.IObjectPrx proxy)
         {
@@ -243,7 +237,7 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            Ice.LocalException exception = null;
+            Ice.LocalException? exception = null;
             foreach (ProxyOutgoingAsyncBase outAsync in _requests)
             {
                 try
@@ -260,7 +254,7 @@ namespace IceInternal
                     // Remove the request handler before retrying.
                     _reference.getCommunicator().requestHandlerFactory().removeRequestHandler(_reference, this);
 
-                    outAsync.retryException(ex.get());
+                    outAsync.RetryException();
                 }
                 catch (Ice.LocalException ex)
                 {

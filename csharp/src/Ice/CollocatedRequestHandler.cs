@@ -29,15 +29,10 @@ namespace IceInternal
             _requestId = 0;
         }
 
-        public IRequestHandler update(IRequestHandler previousHandler, IRequestHandler newHandler)
-        {
-            return previousHandler == this ? newHandler : this;
-        }
+        public IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler) =>
+            previousHandler == this ? newHandler : this;
 
-        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
-        {
-            return outAsync.invokeCollocated(this);
-        }
+        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.invokeCollocated(this);
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
@@ -125,11 +120,7 @@ namespace IceInternal
             _adapter.decDirectCount();
         }
 
-        public void
-        SendNoResponse()
-        {
-            _adapter.decDirectCount();
-        }
+        public void SendNoResponse() => _adapter.decDirectCount();
 
         public bool
         SystemException(int requestId, Ice.SystemException ex, bool amd)
@@ -146,17 +137,9 @@ namespace IceInternal
             _adapter.decDirectCount();
         }
 
-        public Reference
-        getReference()
-        {
-            return _reference;
-        }
+        public Reference getReference() => _reference;
 
-        public Ice.Connection
-        getConnection()
-        {
-            return null;
-        }
+        public Ice.Connection? getConnection() => null;
 
         public int invokeAsyncRequest(OutgoingAsyncBase outAsync, bool synchronous)
         {

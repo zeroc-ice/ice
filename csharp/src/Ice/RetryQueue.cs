@@ -89,10 +89,10 @@ namespace IceInternal
         {
             lock (this)
             {
-                Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
+                Dictionary<RetryTask, object?> keep = new Dictionary<RetryTask, object?>();
                 foreach (RetryTask task in _requests.Keys)
                 {
-                    if (_communicator.timer().cancel(task))
+                    if (_communicator!.timer().cancel(task))
                     {
                         task.destroy();
                     }
@@ -142,7 +142,7 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator _communicator;
-        private Dictionary<RetryTask, object> _requests = new Dictionary<RetryTask, object>();
+        private Ice.Communicator? _communicator;
+        private Dictionary<RetryTask, object?> _requests = new Dictionary<RetryTask, object?>();
     }
 }

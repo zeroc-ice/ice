@@ -15,7 +15,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.ConnectionInfo;
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.GetConnectionInfo();
             test(info.Certs == null);
         }
         catch (Ice.LocalException)
@@ -29,7 +29,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.ConnectionInfo;
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.GetConnectionInfo();
             test(info.Verified);
             test(info.Certs.Length == 2 &&
                  info.Certs[0].Subject.Equals(subjectDN) &&
@@ -46,7 +46,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.ConnectionInfo;
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.GetConnectionInfo();
             test(info.Cipher.Equals(cipher));
         }
         catch (Ice.LocalException)

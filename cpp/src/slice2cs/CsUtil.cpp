@@ -782,7 +782,8 @@ Slice::getAllInParams(const OperationPtr& op, const string& prefix)
     return inParams;
 }
 void
-Slice::getInParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams, const string&  prefix)
+Slice::getInParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams,
+                   const string&  prefix)
 {
     requiredParams.clear();
     taggedParams.clear();

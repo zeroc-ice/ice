@@ -181,7 +181,7 @@ namespace Ice.info
                 Connection connection = @base.GetConnection();
                 connection.SetBufferSize(1024, 2048);
 
-                ConnectionInfo info = connection.ConnectionInfo;
+                ConnectionInfo info = connection.GetConnectionInfo();
                 TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
                 test(!info.Incoming);
                 test(info.AdapterName.Length == 0);
@@ -221,7 +221,7 @@ namespace Ice.info
                 connection = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
                 connection.SetBufferSize(2048, 1024);
 
-                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.ConnectionInfo;
+                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.GetConnectionInfo();
                 test(!udpInfo.Incoming);
                 test(udpInfo.AdapterName.Length == 0);
                 test(udpInfo.LocalPort > 0);

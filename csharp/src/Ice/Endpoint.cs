@@ -34,10 +34,7 @@ namespace IceInternal
             return obj != null && obj is Endpoint other && Equals(other);
         }
 
-        public bool Equals(Endpoint other)
-        {
-            return CompareTo(other) == 0;
-        }
+        public bool Equals(Endpoint other) => CompareTo(other) == 0;
 
         public abstract override int GetHashCode(); // Avoids a compiler warning.
         //
@@ -117,7 +114,7 @@ namespace IceInternal
         // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public abstract void connectors_async(Ice.EndpointSelectionType selType, IEndpointConnectors callback);
+        public abstract void ConnectorsAsync(Ice.EndpointSelectionType selType, IEndpointConnectors callback);
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors

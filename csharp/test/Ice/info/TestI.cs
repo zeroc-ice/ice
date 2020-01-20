@@ -65,7 +65,7 @@ namespace Ice.info
         {
             Debug.Assert(current.Connection != null);
             Dictionary<string, string> ctx = new Dictionary<string, string>();
-            ConnectionInfo info = current.Connection.ConnectionInfo;
+            ConnectionInfo info = current.Connection.GetConnectionInfo();
             ctx["adapterName"] = info.AdapterName;
             ctx["incoming"] = info.Incoming ? "true" : "false";
 

@@ -220,7 +220,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The connection observer to instrument the connection.</returns>
-            IConnectionObserver? getConnectionObserver(ConnectionInfo c, IEndpoint e, ConnectionState s, IConnectionObserver o);
+            IConnectionObserver? getConnectionObserver(ConnectionInfo c, IEndpoint e, ConnectionState s, IConnectionObserver? o);
 
             /// <summary>
             /// This method should return a thread observer for the given
@@ -263,7 +263,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            IInvocationObserver getInvocationObserver(IObjectPrx prx, string operation, Dictionary<string, string> ctx);
+            IInvocationObserver getInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given

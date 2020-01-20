@@ -124,7 +124,7 @@ namespace IceInternal
             return _addr.Port;
         }
 
-        internal TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, string host, int port)
+        internal TcpAcceptor(TcpEndpoint endpoint, ProtocolInstance instance, string host, int port)
         {
             _endpoint = endpoint;
             _instance = instance;
@@ -145,7 +145,7 @@ namespace IceInternal
             }
         }
 
-        private TcpEndpointI _endpoint;
+        private TcpEndpoint _endpoint;
         private ProtocolInstance _instance;
         private Socket? _fd;
         private Socket? _acceptFd;

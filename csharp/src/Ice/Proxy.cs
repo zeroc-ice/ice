@@ -629,7 +629,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public int IceHandleException(Exception ex, IRequestHandler handler, OperationMode mode, bool sent,
+        public int IceHandleException(Exception ex, IRequestHandler? handler, OperationMode mode, bool sent,
                                       ref int cnt)
         {
             IceUpdateRequestHandler(handler, null); // Clear the request handler
@@ -708,7 +708,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceUpdateRequestHandler(IRequestHandler previous, IRequestHandler? handler)
+        public void IceUpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
         {
             if (IceReference.getCacheConnection() && previous != null)
             {
@@ -800,7 +800,7 @@ namespace Ice
         /// <param name="os"></param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void
-        CacheMessageBuffers(InputStream iss, OutputStream os)
+        CacheMessageBuffers(InputStream? iss, OutputStream os)
         {
             lock (this)
             {
@@ -817,7 +817,7 @@ namespace Ice
 
         public struct StreamCacheEntry
         {
-            public InputStream iss;
+            public InputStream? iss;
             public OutputStream os;
         }
     }
@@ -863,6 +863,7 @@ namespace Ice
         {
             try
             {
+                Debug.Assert(os_ != null);
                 prepare(operation, mode, context);
                 if (inParams == null || inParams.Length == 0)
                 {
@@ -886,9 +887,9 @@ namespace Ice
             try
             {
                 var ret = new Object_Ice_invokeResult();
-                if (proxy_.IceReference.getMode() == Ice.InvocationMode.Twoway)
+                if (proxy_.IceReference.getMode() == InvocationMode.Twoway)
                 {
-                    ret.outEncaps = is_.ReadEncapsulation(out EncodingVersion _);
+                    ret.outEncaps = is_!.ReadEncapsulation(out EncodingVersion _);
                 }
                 else
                 {
@@ -1170,10 +1171,8 @@ namespace Ice
             {
             }
 
-            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-            {
-                SetResult(((ProxyGetConnection)og).getConnection());
-            }
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+                SetResult(((ProxyGetConnection)og).getConnection()!);
         }
 
         /// <summary>
