@@ -181,7 +181,7 @@ namespace Ice
         {
             istr.StartException();
             iceReadImpl(istr, firstSlice);
-            istr.EndException(false);
+            istr.EndException();
         }
 
         public virtual bool iceUsesClasses()

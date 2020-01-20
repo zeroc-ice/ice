@@ -224,19 +224,19 @@ namespace Ice
         /// </summary>
         public void StartClass()
         {
+            // TODO: useless now, remove from generated code
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            StartInstance(SliceType.ClassSlice);
+            Debug.Assert(_current.sliceType == SliceType.ClassSlice);
         }
 
         /// <summary>
         /// Marks the end of a class instance.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
-        /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData? EndClass(bool preserve)
+        public void EndClass()
         {
+            // TODO: should be soon useless just like StartClass
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return EndInstance(preserve);
+            EndInstance();
         }
 
         /// <summary>
@@ -245,18 +245,16 @@ namespace Ice
         public void StartException()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            StartInstance(SliceType.ExceptionSlice);
+            Debug.Assert(_current.sliceType == SliceType.ExceptionSlice);
         }
 
         /// <summary>
         /// Marks the end of a user exception.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
-        /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData? EndException(bool preserve)
+        public void EndException()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return EndInstance(preserve);
+            EndInstance();
         }
 
         /// <summary>
@@ -419,22 +417,33 @@ namespace Ice
         /// <summary>
         /// Reads the start of a class instance or exception slice.
         /// </summary>
-        /// <returns>The Slice type ID for this slice.</returns>
         public void StartSlice(string typeId, bool firstSlice)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            ReadSliceHeader(true, typeId, firstSlice);
+            string headerTypeId = ReadSliceHeader(true, firstSlice);
+            Debug.Assert(headerTypeId == "" || headerTypeId == typeId);
             if (firstSlice)
             {
                 // We can discard all the unknown slices: the generated code calls SaveUnknownSlices to
                 // preserve them and it just called StartSlice instead.
+                _current.slices?.Clear();
+                _current.IndirectionTableList?.Clear();
+                Debug.Assert(_current.DeferredIndirectionTableList == null ||
+                    _current.DeferredIndirectionTableList.Count == 0);
             }
         }
 
-        public SlicedData? SaveUnknownSlices(string typeId)
+        public SlicedData? SaveUnknownSlices(string? typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            ReadSliceHeader(true, typeId, true);
+            if (typeId != null)
+            {
+                // Called by generated code, so we may need to read the indirection table.
+                string headerTypeId = ReadSliceHeader(true, true);
+                Debug.Assert(headerTypeId == "" || headerTypeId == typeId);
+            }
+            // Else we were called by UnknownSlicedClass, and we are already at the end of the instance since
+            // we sliced off everything.
 
             SlicedData? slicedData = null;
             if (_current.slices?.Count > 0)
@@ -2174,41 +2183,12 @@ namespace Ice
             }
         }
 
-        private void StartInstance(SliceType sliceType)
+        private void EndInstance()
         {
-            Debug.Assert(_current.sliceType == sliceType);
-        }
-
-        private SlicedData? EndInstance(bool preserve)
-        {
-            SlicedData? slicedData = null;
-            if (preserve && _current.slices?.Count > 0)
-            {
-                // The IndirectionTableList member holds the indirection table for each slice in _slices.
-                Debug.Assert(_current.slices.Count == _current.IndirectionTableList.Count);
-                for (int n = 0; n < _current.slices.Count; ++n)
-                {
-                    // We use the "instances" list in SliceInfo to hold references
-                    // to the target instances. Note that the instances might not have
-                    // been read yet in the case of a circular reference to an
-                    // enclosing instance.
-                    SliceInfo info = _current.slices[n];
-                    info.instances = _current.IndirectionTableList[n];
-                }
-
-                slicedData = new SlicedData(_current.slices.ToArray());
-                _current.slices.Clear();
-            }
-
-            // We may reuse this instance data (current) so we need to clean it well (see push)
-            _current.IndirectionTableList?.Clear();
-            Debug.Assert(_current.DeferredIndirectionTableList == null ||
-                _current.DeferredIndirectionTableList.Count == 0);
             _current = _current.previous;
-            return slicedData;
         }
 
-        private string ReadSliceHeader(bool plusIndirectionTable, string? typeId = null, bool firstSlice = false)
+        private string ReadSliceHeader(bool plusIndirectionTable, bool firstSlice = false)
         {
             // If first slice, don't read the header, it was already read in
             // ReadInstance or ThrowException to find the factory.
@@ -2261,12 +2241,6 @@ namespace Ice
                 {
                     _current.sliceSize = 0;
                 }
-            }
-
-            // Make sure the type ids match!
-            if (typeId != null && _current.typeId != "")
-            {
-                Debug.Assert(typeId == _current.typeId);
             }
 
             // Read the indirection table now

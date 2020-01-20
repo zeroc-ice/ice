@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+
 namespace Ice
 {
     /// <summary>
@@ -46,7 +48,9 @@ namespace Ice
         public override void iceRead(InputStream istr, bool firstSlice)
         {
             istr.StartClass();
-            _slicedData = istr.EndClass(true);
+            Debug.Assert(firstSlice);
+            _slicedData = istr.SaveUnknownSlices(null);
+            istr.EndClass();
         }
 
         private string _unknownTypeId;

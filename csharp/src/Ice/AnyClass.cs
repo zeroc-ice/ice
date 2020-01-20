@@ -35,7 +35,7 @@ namespace Ice
         {
             istr.StartClass();
             iceReadImpl(istr, true);
-            istr.EndClass(false);
+            istr.EndClass();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
