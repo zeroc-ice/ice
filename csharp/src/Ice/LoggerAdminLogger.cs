@@ -63,7 +63,7 @@ namespace IceInternal
 
         public void destroy()
         {
-            Thread thread = null;
+            Thread? thread = null;
             lock (this)
             {
                 if (_sendLogThread != null)
@@ -103,7 +103,7 @@ namespace IceInternal
 
         internal void log(Ice.LogMessage logMessage)
         {
-            List<Ice.IRemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
+            List<Ice.IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.log(logMessage);
 
             if (remoteLoggers != null)
             {
@@ -134,7 +134,7 @@ namespace IceInternal
 
             for (; ; )
             {
-                Job job = null;
+                Job job;
                 lock (this)
                 {
                     while (!_destroyed && _jobQueue.Count == 0)
@@ -223,7 +223,7 @@ namespace IceInternal
         private readonly Ice.ILogger _localLogger;
         private readonly LoggerAdmin _loggerAdmin;
         private bool _destroyed = false;
-        private Thread _sendLogThread;
+        private Thread? _sendLogThread;
         private readonly Queue<Job> _jobQueue = new Queue<Job>();
 
         private const string _traceCategory = "Admin.Logger";

@@ -43,7 +43,7 @@ namespace IceMX
                     }
                 }
 
-                protected object getField(System.Reflection.FieldInfo field, object obj)
+                protected object? getField(System.Reflection.FieldInfo field, object? obj)
                 {
                     while (obj != null)
                     {
@@ -81,10 +81,7 @@ namespace IceMX
                     _field = field;
                 }
 
-                protected override object resolve(object obj)
-                {
-                    return getField(_field, obj);
-                }
+                protected override object resolve(object obj) => getField(_field, obj);
 
                 private readonly System.Reflection.FieldInfo _field;
             }
@@ -97,10 +94,7 @@ namespace IceMX
                     _method = method;
                 }
 
-                protected override object resolve(object obj)
-                {
-                    return _method.Invoke(obj, null);
-                }
+                protected override object resolve(object obj) => _method.Invoke(obj, null);
 
                 private readonly System.Reflection.MethodInfo _method;
             }
@@ -193,7 +187,7 @@ namespace IceMX
                     {
                         return "";
                     }
-                    string v = helper.defaultResolve(attribute);
+                    string? v = helper.defaultResolve(attribute);
                     if (v != null)
                     {
                         return v;
@@ -204,57 +198,38 @@ namespace IceMX
             }
 
             public void
-            add(string name, System.Reflection.MethodInfo method)
-            {
+            add(string name, System.Reflection.MethodInfo method) =>
                 _attributes.Add(name, new MethodResolverI(name, method));
-            }
 
             public void
-            add(string name, System.Reflection.FieldInfo field)
-            {
+            add(string name, System.Reflection.FieldInfo field) =>
                 _attributes.Add(name, new FieldResolverI(name, field));
-            }
 
             public void
-            add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field)
-            {
+            add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field) =>
                 _attributes.Add(name, new MemberFieldResolverI(name, method, field));
-            }
 
             public void
-            add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod)
-            {
+            add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod) =>
                 _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
-            }
 
             public void
-            add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property)
-            {
+            add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property) =>
                 _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
-            }
 
             private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
         }
 
-        protected MetricsHelper(AttributeResolver attributes)
-        {
-            _attributes = attributes;
-        }
+        protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
 
-        public string resolve(string attribute)
-        {
-            return _attributes.resolve(this, attribute);
-        }
+        public string resolve(string attribute) => _attributes.resolve(this, attribute);
 
         public virtual void initMetrics(T metrics)
         {
             // Override in specialized helpers.
         }
 
-        protected virtual string defaultResolve(string attribute)
-        {
-            return null;
-        }
+        protected virtual string? defaultResolve(string attribute) => null;
 
         private AttributeResolver _attributes;
     }
@@ -263,10 +238,7 @@ namespace IceMX
     {
         public delegate void MetricsUpdate(T m);
 
-        public virtual void attach()
-        {
-            Start();
-        }
+        public virtual void attach() => Start();
 
         public virtual void detach()
         {
@@ -349,7 +321,7 @@ namespace IceMX
             }
         }
 
-        public MetricsMap<T>.Entry getEntry(MetricsMap<T> map)
+        public MetricsMap<T>.Entry? getEntry(MetricsMap<T> map)
         {
             foreach (MetricsMap<T>.Entry e in _objects)
             {
@@ -361,7 +333,7 @@ namespace IceMX
             return null;
         }
 
-        private List<MetricsMap<T>.Entry> _objects;
+        private List<MetricsMap<T>.Entry>? _objects;
         private long _previousDelay = 0;
     }
 
@@ -449,14 +421,11 @@ namespace IceMX
             _metrics.registerSubMap<S>(_name, subMap, field);
         }
 
-        public bool isEnabled()
-        {
-            return _enabled;
-        }
+        public bool isEnabled() => _enabled;
 
         public void update()
         {
-            Action updater;
+            Action? updater;
             lock (this)
             {
                 _maps.Clear();
@@ -471,7 +440,7 @@ namespace IceMX
             updater?.Invoke();
         }
 
-        public void setUpdater(Action updater)
+        public void setUpdater(Action? updater)
         {
             lock (this)
             {
@@ -483,6 +452,6 @@ namespace IceMX
         private readonly string _name;
         private List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
         private volatile bool _enabled;
-        private Action _updater;
+        private Action? _updater;
     }
 }

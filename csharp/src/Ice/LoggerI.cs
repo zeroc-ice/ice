@@ -18,9 +18,10 @@ namespace Ice
             {
                 _formattedPrefix = prefix + ": ";
             }
-
-            _date = "d";
-            _time = "HH:mm:ss:fff";
+            else
+            {
+                _formattedPrefix = "";
+            }
         }
 
         public void print(string message)
@@ -58,10 +59,7 @@ namespace Ice
             }
         }
 
-        public string getPrefix()
-        {
-            return _prefix;
-        }
+        public string getPrefix() => _prefix;
 
         private string format(string prefix, string category, string message)
         {
@@ -83,32 +81,23 @@ namespace Ice
 
         protected abstract void write(string message);
 
-        internal readonly string _prefix;
-        internal readonly string _formattedPrefix;
-        internal string _date = null;
-        internal string _time = null;
+        protected readonly string _prefix;
+        protected readonly string _formattedPrefix;
+        protected const string _date = "d";
+        protected const string _time = "HH:mm:ss:fff";
 
         internal static object _globalMutex = new object();
     }
 
     public sealed class ConsoleLoggerI : LoggerI
     {
-        public ConsoleLoggerI(string prefix)
-            : base(prefix)
+        public ConsoleLoggerI(string prefix) : base(prefix)
         {
-            _date = "d";
-            _time = "HH:mm:ss:fff";
         }
 
-        public override ILogger cloneWithPrefix(string prefix)
-        {
-            return new ConsoleLoggerI(prefix);
-        }
+        public override ILogger cloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
 
-        protected override void write(string message)
-        {
-            System.Console.Error.WriteLine(message);
-        }
+        protected override void write(string message) => System.Console.Error.WriteLine(message);
     }
 
     public sealed class FileLoggerI : LoggerI
@@ -120,10 +109,7 @@ namespace Ice
             _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
         }
 
-        public override ILogger cloneWithPrefix(string prefix)
-        {
-            return new FileLoggerI(prefix, _file);
-        }
+        public override ILogger cloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
 
         protected override void write(string message)
         {
@@ -131,10 +117,7 @@ namespace Ice
             _writer.Flush();
         }
 
-        public void destroy()
-        {
-            _writer.Close();
-        }
+        public void destroy() => _writer.Close();
 
         private string _file;
         private TextWriter _writer;
@@ -175,24 +158,17 @@ namespace Ice
             WriteLine(s.ToString());
         }
 
-        public override void Write(string message)
-        {
-            System.Console.Error.Write(message);
-        }
+        public override void Write(string message) => System.Console.Error.Write(message);
 
-        public override void WriteLine(string message)
-        {
-            System.Console.Error.WriteLine(message);
-        }
+        public override void WriteLine(string message) => System.Console.Error.WriteLine(message);
 
-        internal const string _date = "d";
-        internal const string _time = "HH:mm:ss:fff";
+        private const string _date = "d";
+        private const string _time = "HH:mm:ss:fff";
     }
 
     public sealed class TraceLoggerI : LoggerI
     {
-        public TraceLoggerI(string prefix, bool console)
-            : base(prefix)
+        public TraceLoggerI(string prefix, bool console) : base(prefix)
         {
             _console = console;
             if (console && !Trace.Listeners.Contains(_consoleListener))
@@ -222,10 +198,7 @@ namespace Ice
             }
         }
 
-        public override ILogger cloneWithPrefix(string prefix)
-        {
-            return new TraceLoggerI(prefix, _console);
-        }
+        public override ILogger cloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
 
         protected override void write(string message)
         {
@@ -244,6 +217,6 @@ namespace Ice
         }
 
         private bool _console;
-        internal static ConsoleListener _consoleListener = new ConsoleListener();
+        private static ConsoleListener _consoleListener = new ConsoleListener();
     }
 }

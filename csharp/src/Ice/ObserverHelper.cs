@@ -14,7 +14,7 @@ namespace IceInternal
             ICommunicatorObserver? obsv = communicator.Observer;
             if (obsv != null)
             {
-                IInvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
+                IInvocationObserver? observer = obsv.getInvocationObserver(null, op, _emptyContext);
                 if (observer != null)
                 {
                     observer.attach();
@@ -24,12 +24,12 @@ namespace IceInternal
             return null;
         }
 
-        public static IInvocationObserver get(Ice.IObjectPrx proxy, string op)
+        public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op)
         {
             return get(proxy, op, null);
         }
 
-        public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op, Dictionary<string, string> context)
+        public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op, Dictionary<string, string>? context)
         {
             ICommunicatorObserver? obsv = proxy.Communicator.Observer;
             if (obsv != null)

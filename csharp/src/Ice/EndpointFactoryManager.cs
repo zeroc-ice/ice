@@ -38,7 +38,7 @@ namespace IceInternal
             }
         }
 
-        public IEndpointFactory get(short type)
+        public IEndpointFactory? get(short type)
         {
             lock (this)
             {
@@ -53,7 +53,7 @@ namespace IceInternal
             }
         }
 
-        public Endpoint create(string str, bool oaEndpoint)
+        public Endpoint? create(string str, bool oaEndpoint)
         {
             string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
             if (arr == null)
@@ -75,7 +75,7 @@ namespace IceInternal
                 protocol = _communicator.defaultsAndOverrides().defaultProtocol;
             }
 
-            IEndpointFactory factory = null;
+            IEndpointFactory? factory = null;
 
             lock (this)
             {
@@ -141,7 +141,7 @@ namespace IceInternal
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
-                    Endpoint e = factory.read(iss);
+                    Endpoint? e = factory.read(iss);
                     iss.EndEndpointEncapsulation();
                     return e;
                 }
@@ -157,8 +157,8 @@ namespace IceInternal
             {
                 short type = s.ReadShort();
 
-                IEndpointFactory factory = get(type);
-                Endpoint e = null;
+                IEndpointFactory? factory = get(type);
+                Endpoint? e = null;
 
                 s.StartEndpointEncapsulation();
 

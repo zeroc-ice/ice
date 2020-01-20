@@ -21,7 +21,7 @@ namespace IceInternal
             _thread.Start(Util.stringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
         }
 
-        public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
+        public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpoint endpoint,
                             IEndpointConnectors callback)
         {
             //
@@ -206,7 +206,7 @@ namespace IceInternal
             internal string host;
             internal int port;
             internal Ice.EndpointSelectionType selType;
-            internal IPEndpointI endpoint;
+            internal IPEndpoint endpoint;
             internal IEndpointConnectors callback;
             internal Ice.Instrumentation.IObserver observer;
         }

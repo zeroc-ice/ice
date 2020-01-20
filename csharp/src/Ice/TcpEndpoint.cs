@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Net;
-    using System;
-
-    internal sealed class TcpEndpointI : IPEndpointI
+    internal sealed class TcpEndpoint : IPEndpoint
     {
-        public TcpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId,
+        public TcpEndpoint(ProtocolInstance instance, string ho, int po, EndPoint? sourceAddr, int ti, string conId,
                             bool co) :
             base(instance, ho, po, sourceAddr, conId)
         {
@@ -19,43 +19,31 @@ namespace IceInternal
             _compress = co;
         }
 
-        public TcpEndpointI(ProtocolInstance instance) :
+        public TcpEndpoint(ProtocolInstance instance) :
             base(instance)
         {
             _timeout = instance.defaultTimeout();
             _compress = false;
         }
 
-        public TcpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
+        public TcpEndpoint(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
             _timeout = s.ReadInt();
             _compress = s.ReadBool();
         }
 
-        private sealed class InfoI : Ice.TCPEndpointInfo
+        private sealed class Info : Ice.TCPEndpointInfo
         {
-            public InfoI(IPEndpointI e)
-            {
-                _endpoint = e;
-            }
+            public Info(IPEndpoint e) => _endpoint = e;
 
-            public override short type()
-            {
-                return _endpoint.type();
-            }
+            public override short type() => _endpoint.type();
 
-            public override bool datagram()
-            {
-                return _endpoint.datagram();
-            }
+            public override bool datagram() => _endpoint.datagram();
 
-            public override bool secure()
-            {
-                return _endpoint.secure();
-            }
+            public override bool secure() => _endpoint.secure();
 
-            private IPEndpointI _endpoint;
+            private IPEndpoint _endpoint;
         }
 
         public override void streamWriteImpl(Ice.OutputStream s)
@@ -67,15 +55,12 @@ namespace IceInternal
 
         public override Ice.EndpointInfo getInfo()
         {
-            InfoI info = new InfoI(this);
+            Info info = new Info(this);
             fillEndpointInfo(info);
             return info;
         }
 
-        public override int timeout()
-        {
-            return _timeout;
-        }
+        public override int timeout() => _timeout;
 
         public override Endpoint timeout(int timeout)
         {
@@ -85,14 +70,11 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, host_, port_, sourceAddr_, timeout, connectionId_, _compress);
+                return new TcpEndpoint(instance_, host_!, port_, sourceAddr_, timeout, connectionId_, _compress);
             }
         }
 
-        public override bool compress()
-        {
-            return _compress;
-        }
+        public override bool compress() => _compress;
 
         public override Endpoint compress(bool compress)
         {
@@ -102,26 +84,17 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, host_, port_, sourceAddr_, _timeout, connectionId_, compress);
+                return new TcpEndpoint(instance_, host_!, port_, sourceAddr_, _timeout, connectionId_, compress);
             }
         }
 
-        public override bool datagram()
-        {
-            return false;
-        }
+        public override bool datagram() => false;
 
-        public override ITransceiver transceiver()
-        {
-            return null;
-        }
+        public override ITransceiver? transceiver() => null;
 
-        public override IAcceptor acceptor(string adapterName)
-        {
-            return new TcpAcceptor(this, instance_, host_, port_);
-        }
+        public override IAcceptor acceptor(string adapterName) => new TcpAcceptor(this, instance_, host_!, port_);
 
-        public TcpEndpointI endpoint(TcpAcceptor acceptor)
+        public TcpEndpoint endpoint(TcpAcceptor acceptor)
         {
             int port = acceptor.effectivePort();
             if (port == port_)
@@ -130,7 +103,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, host_, port, sourceAddr_, _timeout, connectionId_, _compress);
+                return new TcpEndpoint(instance_, host_!, port, sourceAddr_, _timeout, connectionId_, _compress);
             }
         }
 
@@ -164,12 +137,12 @@ namespace IceInternal
 
         public override int CompareTo(Endpoint obj)
         {
-            if (!(obj is TcpEndpointI))
+            if (!(obj is TcpEndpoint))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
-            TcpEndpointI p = (TcpEndpointI)obj;
+            TcpEndpoint p = (TcpEndpoint)obj;
             if (this == p)
             {
                 return 0;
@@ -269,15 +242,11 @@ namespace IceInternal
             }
         }
 
-        protected override IConnector createConnector(EndPoint addr, INetworkProxy proxy)
-        {
-            return new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
-        }
+        protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
 
-        protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
-        {
-            return new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
-        }
+        protected override IPEndpoint CreateEndpoint(string? host, int port, string connectionId) =>
+            new TcpEndpoint(instance_, host!, port, sourceAddr_, _timeout, connectionId, _compress);
 
         private int _timeout;
         private bool _compress;
@@ -285,48 +254,30 @@ namespace IceInternal
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        internal TcpEndpointFactory(ProtocolInstance instance)
-        {
-            _instance = instance;
-        }
+        internal TcpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
         public void initialize()
         {
         }
 
-        public short type()
-        {
-            return _instance.type();
-        }
+        public short type() => _instance!.type();
 
-        public string protocol()
-        {
-            return _instance.protocol();
-        }
+        public string protocol() => _instance!.protocol();
 
         public Endpoint create(List<string> args, bool oaEndpoint)
         {
-            IPEndpointI endpt = new TcpEndpointI(_instance);
+            IPEndpoint endpt = new TcpEndpoint(_instance!);
             endpt.initWithOptions(args, oaEndpoint);
             return endpt;
         }
 
-        public Endpoint read(Ice.InputStream s)
-        {
-            return new TcpEndpointI(_instance, s);
-        }
+        public Endpoint read(Ice.InputStream s) => new TcpEndpoint(_instance!, s);
 
-        public void destroy()
-        {
-            _instance = null;
-        }
+        public void destroy() => _instance = null;
 
-        public IEndpointFactory clone(ProtocolInstance instance)
-        {
-            return new TcpEndpointFactory(instance);
-        }
+        public IEndpointFactory clone(ProtocolInstance instance) => new TcpEndpointFactory(instance);
 
-        private ProtocolInstance _instance;
+        private ProtocolInstance? _instance;
     }
 
 }

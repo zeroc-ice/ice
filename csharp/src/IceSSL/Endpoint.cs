@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+
 namespace IceSSL
 {
-    using System.Collections.Generic;
-
     internal sealed class Endpoint : IceInternal.Endpoint
     {
         internal Endpoint(Instance instance, IceInternal.Endpoint del)
@@ -14,32 +14,14 @@ namespace IceSSL
             _delegate = del;
         }
 
-        public override void streamWriteImpl(Ice.OutputStream os)
-        {
-            _delegate.streamWriteImpl(os);
-        }
+        public override void streamWriteImpl(Ice.OutputStream os) => _delegate.streamWriteImpl(os);
 
         private sealed class InfoI : EndpointInfo
         {
-            public InfoI(Endpoint e)
-            {
-                _endpoint = e;
-            }
-
-            public override short type()
-            {
-                return _endpoint.type();
-            }
-
-            public override bool datagram()
-            {
-                return _endpoint.datagram();
-            }
-
-            public override bool secure()
-            {
-                return _endpoint.secure();
-            }
+            public InfoI(Endpoint e) => _endpoint = e;
+            public override short type() =>  _endpoint.type();
+            public override bool datagram() =>  _endpoint.datagram();
+            public override bool secure() =>   _endpoint.secure();
 
             private readonly Endpoint _endpoint;
         }
@@ -53,20 +35,11 @@ namespace IceSSL
             return info;
         }
 
-        public override short type()
-        {
-            return _delegate.type();
-        }
+        public override short type() =>  _delegate.type();
 
-        public override string protocol()
-        {
-            return _delegate.protocol();
-        }
+        public override string protocol() => _delegate.protocol();
 
-        public override int timeout()
-        {
-            return _delegate.timeout();
-        }
+        public override int timeout() => _delegate.timeout();
 
         public override IceInternal.Endpoint timeout(int timeout)
         {
@@ -80,10 +53,7 @@ namespace IceSSL
             }
         }
 
-        public override string connectionId()
-        {
-            return _delegate.connectionId();
-        }
+        public override string connectionId() => _delegate.connectionId();
 
         public override IceInternal.Endpoint connectionId(string connectionId)
         {
@@ -97,10 +67,7 @@ namespace IceSSL
             }
         }
 
-        public override bool compress()
-        {
-            return _delegate.compress();
-        }
+        public override bool compress() => _delegate.compress();
 
         public override IceInternal.Endpoint compress(bool compress)
         {
@@ -114,20 +81,9 @@ namespace IceSSL
             }
         }
 
-        public override bool datagram()
-        {
-            return _delegate.datagram();
-        }
-
-        public override bool secure()
-        {
-            return _delegate.secure();
-        }
-
-        public override IceInternal.ITransceiver? transceiver()
-        {
-            return null;
-        }
+        public override bool datagram() =>  _delegate.datagram();
+        public override bool secure() =>  _delegate.secure();
+        public override IceInternal.ITransceiver? transceiver() =>  null;
 
         private sealed class EndpointI_connectorsI : IceInternal.IEndpointConnectors
         {
@@ -148,18 +104,15 @@ namespace IceSSL
                 _callback.connectors(l);
             }
 
-            public void exception(Ice.LocalException ex)
-            {
-                _callback.exception(ex);
-            }
+            public void exception(Ice.LocalException ex) => _callback.exception(ex);
 
             private readonly Instance _instance;
             private readonly string _host;
             private readonly IceInternal.IEndpointConnectors _callback;
         }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType,
-                                              IceInternal.IEndpointConnectors callback)
+        public override void ConnectorsAsync(Ice.EndpointSelectionType selType,
+                                             IceInternal.IEndpointConnectors callback)
         {
             string host = "";
             for (Ice.EndpointInfo? p = _delegate.getInfo(); p != null; p = p.underlying)
@@ -170,13 +123,11 @@ namespace IceSSL
                     break;
                 }
             }
-            _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, callback));
+            _delegate.ConnectorsAsync(selType, new EndpointI_connectorsI(_instance, host, callback));
         }
 
-        public override IceInternal.IAcceptor acceptor(string adapterName)
-        {
-            return new Acceptor(this, _instance, _delegate.acceptor(adapterName), adapterName);
-        }
+        public override IceInternal.IAcceptor acceptor(string adapterName) =>
+            new Acceptor(this, _instance, _delegate.acceptor(adapterName), adapterName);
 
         public Endpoint endpoint(IceInternal.Endpoint del)
         {
@@ -224,10 +175,7 @@ namespace IceSSL
             return _delegate.equivalent(endpointI._delegate);
         }
 
-        public override string options()
-        {
-            return _delegate.options();
-        }
+        public override string options() =>  _delegate.options();
 
         //
         // Compare endpoints for sorting purposes
@@ -248,15 +196,9 @@ namespace IceSSL
             return _delegate.CompareTo(p._delegate);
         }
 
-        public override int GetHashCode()
-        {
-            return _delegate.GetHashCode();
-        }
+        public override int GetHashCode() =>  _delegate.GetHashCode();
 
-        protected override bool checkOption(string option, string? argument, string endpoint)
-        {
-            return false;
-        }
+        protected override bool checkOption(string option, string? argument, string endpoint) => false;
 
         private readonly Instance _instance;
         private readonly IceInternal.Endpoint _delegate;
@@ -264,28 +206,18 @@ namespace IceSSL
 
     internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
     {
-        public EndpointFactoryI(Instance instance, short type) : base(instance, type)
-        {
-            _instance = instance;
-        }
+        public EndpointFactoryI(Instance instance, short type) : base(instance, type) => _instance = instance;
 
         public override IceInternal.IEndpointFactory
-        cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying)
-        {
-            return new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
-        }
+        cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying) =>
+            new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
 
         protected override IceInternal.Endpoint
-        createWithUnderlying(IceInternal.Endpoint underlying, List<string> args, bool oaEndpoint)
-        {
-            return new Endpoint(_instance, underlying);
-        }
+        createWithUnderlying(IceInternal.Endpoint underlying, List<string> args, bool oaEndpoint) =>
+            new Endpoint(_instance, underlying);
 
         protected override IceInternal.Endpoint
-        readWithUnderlying(IceInternal.Endpoint underlying, Ice.InputStream s)
-        {
-            return new Endpoint(_instance, underlying);
-        }
+        readWithUnderlying(IceInternal.Endpoint underlying, Ice.InputStream s) =>  new Endpoint(_instance, underlying);
 
         private readonly Instance _instance;
     }

@@ -42,25 +42,13 @@ namespace IceInternal
 
         private sealed class InfoI : Ice.WSEndpointInfo
         {
-            public InfoI(Endpoint e)
-            {
-                _endpoint = e;
-            }
+            public InfoI(Endpoint e) => _endpoint = e;
 
-            public override short type()
-            {
-                return _endpoint.type();
-            }
+            public override short type() => _endpoint.type();
 
-            public override bool datagram()
-            {
-                return _endpoint.datagram();
-            }
+            public override bool datagram() => _endpoint.datagram();
 
-            public override bool secure()
-            {
-                return _endpoint.secure();
-            }
+            public override bool secure() => _endpoint.secure();
 
             private readonly Endpoint _endpoint;
         }
@@ -164,10 +152,10 @@ namespace IceInternal
             private readonly IEndpointConnectors _callback;
         }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType, IEndpointConnectors callback)
+        public override void ConnectorsAsync(Ice.EndpointSelectionType selType, IEndpointConnectors callback)
         {
             string host = "";
-            for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (Ice.EndpointInfo? p = _delegate.getInfo(); p != null; p = p.underlying)
             {
                 if (p is Ice.IPEndpointInfo ipInfo)
                 {
@@ -175,7 +163,7 @@ namespace IceInternal
                     break;
                 }
             }
-            _delegate.connectors_async(selType, new EndpointConnectors(_instance, host, _resource, callback));
+            _delegate.ConnectorsAsync(selType, new EndpointConnectors(_instance, host, _resource, callback));
         }
 
         public override IAcceptor acceptor(string adapterName)
@@ -322,14 +310,10 @@ namespace IceInternal
             return new WSEndpointFactory(instance, underlying);
         }
 
-        protected override Endpoint createWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint)
-        {
-            return new WSEndpoint(instance_, underlying, args);
-        }
+        protected override Endpoint createWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint) =>
+            new WSEndpoint(instance_!, underlying, args);
 
-        protected override Endpoint readWithUnderlying(Endpoint underlying, Ice.InputStream s)
-        {
-            return new WSEndpoint(instance_, underlying, s);
-        }
+        protected override Endpoint readWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
+            new WSEndpoint(instance_!, underlying, s);
     }
 }

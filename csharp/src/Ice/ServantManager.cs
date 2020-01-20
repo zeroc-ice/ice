@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System;
+
 namespace IceInternal
 {
-
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System;
-
     public sealed class ServantManager
     {
         public void addServant(Ice.Disp servant, Ice.Identity ident, string facet)
@@ -173,8 +172,7 @@ namespace IceInternal
             {
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
 
-                Ice.Disp? obj = null;
-                _defaultServantMap.TryGetValue(category, out obj);
+                _defaultServantMap.TryGetValue(category, out Ice.Disp obj);
                 return obj;
             }
         }
@@ -223,7 +221,7 @@ namespace IceInternal
 
                 if (_locatorMap.ContainsKey(category))
                 {
-                    throw new System.ArgumentException($"A servant locator for category {category} is already registered", nameof(category));
+                    throw new ArgumentException($"A servant locator for category {category} is already registered", nameof(category));
                 }
 
                 _locatorMap[category] = locator;
@@ -283,8 +281,8 @@ namespace IceInternal
         //
         public void destroy()
         {
-            Dictionary<string, Ice.IServantLocator> locatorMap = null;
-            Ice.ILogger logger = null;
+            Dictionary<string, Ice.IServantLocator> locatorMap;
+            Ice.ILogger logger;
             lock (this)
             {
                 //
@@ -323,7 +321,7 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator _communicator;
+        private Ice.Communicator? _communicator;
         private readonly string _adapterName;
         private Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>> _servantMapMap
                 = new Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>>();

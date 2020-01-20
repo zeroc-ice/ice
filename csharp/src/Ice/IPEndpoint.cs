@@ -10,9 +10,9 @@ namespace IceInternal
     using System.Globalization;
     using System.Net;
 
-    public abstract class IPEndpointI : Endpoint
+    public abstract class IPEndpoint : Endpoint
     {
-        public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
+        public IPEndpoint(ProtocolInstance instance, string host, int port, EndPoint? sourceAddr, string connectionId)
         {
             instance_ = instance;
             host_ = host;
@@ -22,7 +22,7 @@ namespace IceInternal
             _hashInitialized = false;
         }
 
-        public IPEndpointI(ProtocolInstance instance)
+        public IPEndpoint(ProtocolInstance instance)
         {
             instance_ = instance;
             host_ = null;
@@ -32,7 +32,7 @@ namespace IceInternal
             _hashInitialized = false;
         }
 
-        public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
+        public IPEndpoint(ProtocolInstance instance, Ice.InputStream s)
         {
             instance_ = instance;
             host_ = s.ReadString();
@@ -42,57 +42,33 @@ namespace IceInternal
             _hashInitialized = false;
         }
 
-        private sealed class InfoI : Ice.IPEndpointInfo
+        private sealed class Info : Ice.IPEndpointInfo
         {
-            public InfoI(IPEndpointI e)
-            {
-                _endpoint = e;
-            }
+            public Info(IPEndpoint e) => _endpoint = e;
 
-            public override short type()
-            {
-                return _endpoint.type();
-            }
+            public override short type() => _endpoint.type();
 
-            public override bool datagram()
-            {
-                return _endpoint.datagram();
-            }
+            public override bool datagram() => _endpoint.datagram();
 
-            public override bool secure()
-            {
-                return _endpoint.secure();
-            }
+            public override bool secure() => _endpoint.secure();
 
-            private IPEndpointI _endpoint;
+            private IPEndpoint _endpoint;
         }
 
         public override Ice.EndpointInfo getInfo()
         {
-            InfoI info = new InfoI(this);
+            Info info = new Info(this);
             fillEndpointInfo(info);
             return info;
         }
 
-        public override short type()
-        {
-            return instance_.type();
-        }
+        public override short type() => instance_.type();
 
-        public override string protocol()
-        {
-            return instance_.protocol();
-        }
+        public override string protocol() => instance_.protocol();
 
-        public override bool secure()
-        {
-            return instance_.secure();
-        }
+        public override bool secure() => instance_.secure();
 
-        public override string connectionId()
-        {
-            return connectionId_;
-        }
+        public override string connectionId() => connectionId_;
 
         public override Endpoint connectionId(string connectionId)
         {
@@ -102,19 +78,17 @@ namespace IceInternal
             }
             else
             {
-                return createEndpoint(host_, port_, connectionId);
+                return CreateEndpoint(host_, port_, connectionId);
             }
         }
 
-        public override void connectors_async(Ice.EndpointSelectionType selType, IEndpointConnectors callback)
-        {
-            instance_.resolve(host_, port_, selType, this, callback);
-        }
+        public override void ConnectorsAsync(Ice.EndpointSelectionType selType, IEndpointConnectors callback) =>
+            instance_.resolve(host_!, port_, selType, this, callback);
 
         public override List<Endpoint> expandIfWildcard()
         {
             List<Endpoint> endps = new List<Endpoint>();
-            List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
+            List<string> hosts = Network.getHostsForEndpointExpand(host_!, instance_.protocolSupport(), false);
             if (hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);
@@ -123,7 +97,7 @@ namespace IceInternal
             {
                 foreach (string h in hosts)
                 {
-                    endps.Add(createEndpoint(h, port_, connectionId_));
+                    endps.Add(CreateEndpoint(h, port_, connectionId_));
                 }
             }
             return endps;
@@ -165,7 +139,7 @@ namespace IceInternal
             {
                 foreach (EndPoint addr in addresses)
                 {
-                    endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
+                    endpoints.Add(CreateEndpoint(Network.endpointAddressToString(addr),
                                                  Network.endpointPort(addr),
                                                  connectionId_));
                 }
@@ -175,13 +149,15 @@ namespace IceInternal
 
         public override bool equivalent(Endpoint endpoint)
         {
-            if (!(endpoint is IPEndpointI))
+            if (!(endpoint is IPEndpoint))
             {
                 return false;
             }
-            IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
-            return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_ &&
-                Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
+            IPEndpoint ipEndpointI = (IPEndpoint)endpoint;
+            return ipEndpointI.type() == type() &&
+                Equals(ipEndpointI.host_, host_) &&
+                ipEndpointI.port_ == port_ &&
+                Equals(ipEndpointI.sourceAddr_, sourceAddr_);
         }
 
         public virtual List<IConnector> connectors(List<EndPoint> addresses, INetworkProxy? proxy)
@@ -189,7 +165,7 @@ namespace IceInternal
             List<IConnector> connectors = new List<IConnector>();
             foreach (EndPoint p in addresses)
             {
-                connectors.Add(createConnector(p, proxy));
+                connectors.Add(CreateConnector(p, proxy));
             }
             return connectors;
         }
@@ -255,12 +231,12 @@ namespace IceInternal
 
         public override int CompareTo(Endpoint obj)
         {
-            if (!(obj is IPEndpointI))
+            if (!(obj is IPEndpoint))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
-            IPEndpointI p = (IPEndpointI)obj;
+            IPEndpoint p = (IPEndpoint)obj;
             if (this == p)
             {
                 return 0;
@@ -404,8 +380,8 @@ namespace IceInternal
             return true;
         }
 
-        protected abstract IConnector createConnector(EndPoint addr, INetworkProxy? proxy);
-        protected abstract IPEndpointI createEndpoint(string? host, int port, string connectionId);
+        protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
+        protected abstract IPEndpoint CreateEndpoint(string? host, int port, string connectionId);
 
         protected ProtocolInstance instance_;
         protected string? host_;

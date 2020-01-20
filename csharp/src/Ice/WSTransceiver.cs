@@ -12,10 +12,7 @@ namespace IceInternal
 
     internal sealed class WSTransceiver : ITransceiver
     {
-        public Socket fd()
-        {
-            return _delegate.fd();
-        }
+        public Socket? fd() => _delegate.fd();
 
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
@@ -746,7 +743,7 @@ namespace IceInternal
             // "An |Upgrade| header field containing the value 'websocket',
             //  treated as an ASCII case-insensitive value."
             //
-            string val = _parser.getHeader("Upgrade", true);
+            string? val = _parser.getHeader("Upgrade", true);
             if (val == null)
             {
                 throw new WebSocketException("missing value for Upgrade field");
@@ -812,7 +809,7 @@ namespace IceInternal
             // "A |Sec-WebSocket-Key| header field with a base64-encoded
             //  value that, when decoded, is 16 bytes in length."
             //
-            string key = _parser.getHeader("Sec-WebSocket-Key", false);
+            string? key = _parser.getHeader("Sec-WebSocket-Key", false);
             if (key == null)
             {
                 throw new WebSocketException("missing value for WebSocket key");
@@ -868,8 +865,6 @@ namespace IceInternal
 
         private void handleResponse()
         {
-            string val;
-
             //
             // HTTP/1.1
             //
@@ -902,7 +897,7 @@ namespace IceInternal
             //  insensitive match for the value "websocket", the client MUST
             //  _Fail the WebSocket Connection_."
             //
-            val = _parser.getHeader("Upgrade", true);
+            string? val = _parser.getHeader("Upgrade", true);
             if (val == null)
             {
                 throw new WebSocketException("missing value for Upgrade field");

@@ -21,7 +21,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
+        internal UdpConnector(ProtocolInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
                               int mcastTtl, string connectionId)
         {
             _instance = instance;
@@ -70,7 +70,7 @@ namespace IceInternal
                 return false;
             }
 
-            if (!Network.addressEquals(_sourceAddr, p._sourceAddr))
+            if (!Equals(_sourceAddr, p._sourceAddr))
             {
                 return false;
             }
@@ -78,15 +78,9 @@ namespace IceInternal
             return _addr.Equals(p._addr);
         }
 
-        public override string ToString()
-        {
-            return Network.addrToString(_addr);
-        }
+        public override string ToString() => Network.addrToString(_addr);
 
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
+        public override int GetHashCode() => _hashCode;
 
         private ProtocolInstance _instance;
         private EndPoint _addr;

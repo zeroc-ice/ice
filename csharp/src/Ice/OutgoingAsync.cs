@@ -93,16 +93,10 @@ namespace IceInternal
         }
         public void invokeException()
         {
+            Debug.Assert(_ex != null);
             try
             {
-                try
-                {
-                    throw _ex;
-                }
-                catch (Ice.Exception ex)
-                {
-                    _completionCallback.handleInvokeException(ex, this);
-                }
+                _completionCallback.handleInvokeException(_ex, this);
             }
             catch (System.Exception ex)
             {
@@ -180,10 +174,10 @@ namespace IceInternal
 
         public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
         {
-            Ice.Instrumentation.IInvocationObserver observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver? observer = getObserver();
             if (observer != null)
             {
-                int size = os_.size() - Protocol.headerSize - 4;
+                int size = os_!.size() - Protocol.headerSize - 4;
                 childObserver_ = observer.getRemoteObserver(info, endpt, requestId, size);
                 if (childObserver_ != null)
                 {
@@ -194,10 +188,10 @@ namespace IceInternal
 
         public void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
         {
-            Ice.Instrumentation.IInvocationObserver observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver? observer = getObserver();
             if (observer != null)
             {
-                int size = os_.size() - Protocol.headerSize - 4;
+                int size = os_!.size() - Protocol.headerSize - 4;
                 childObserver_ = observer.getCollocatedObserver(adapter, requestId, size);
                 if (childObserver_ != null)
                 {
@@ -206,15 +200,9 @@ namespace IceInternal
             }
         }
 
-        public Ice.OutputStream getOs()
-        {
-            return os_;
-        }
+        public Ice.OutputStream getOs() => os_!;
 
-        public Ice.InputStream getIs()
-        {
-            return is_;
-        }
+        public Ice.InputStream getIs() => is_!;
 
         public virtual void throwUserException()
         {
@@ -224,10 +212,7 @@ namespace IceInternal
         {
         }
 
-        public bool isSynchronous()
-        {
-            return synchronous_;
-        }
+        public bool isSynchronous() => synchronous_;
 
         protected OutgoingAsyncBase(Ice.Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
                                     Ice.OutputStream? os = null, Ice.InputStream? iss = null)
@@ -363,10 +348,7 @@ namespace IceInternal
             }
         }
 
-        protected Ice.Instrumentation.IInvocationObserver getObserver()
-        {
-            return observer_;
-        }
+        protected Ice.Instrumentation.IInvocationObserver? getObserver() => observer_;
 
         public bool sentSynchronously()
         {
@@ -374,23 +356,23 @@ namespace IceInternal
         }
 
         protected Ice.Communicator communicator_;
-        protected Ice.Connection cachedConnection_;
+        protected Ice.Connection? cachedConnection_;
         protected bool sentSynchronously_;
         protected bool synchronous_;
         protected int state_;
 
-        protected Ice.Instrumentation.IInvocationObserver observer_;
-        protected Ice.Instrumentation.IChildInvocationObserver childObserver_;
+        protected Ice.Instrumentation.IInvocationObserver? observer_;
+        protected Ice.Instrumentation.IChildInvocationObserver? childObserver_;
 
-        protected Ice.OutputStream os_;
-        protected Ice.InputStream is_;
+        protected Ice.OutputStream? os_;
+        protected Ice.InputStream? is_;
 
         private bool _doneInSent;
         private bool _alreadySent;
-        private Ice.Exception _ex;
-        private Ice.LocalException _cancellationException;
-        private ICancellationHandler _cancellationHandler;
-        private IOutgoingAsyncCompletionCallback _completionCallback;
+        private Ice.Exception? _ex;
+        private Ice.LocalException? _cancellationException;
+        private ICancellationHandler? _cancellationHandler;
+        private readonly IOutgoingAsyncCompletionCallback _completionCallback;
 
         protected const int StateOK = 0x1;
         protected const int StateDone = 0x2;
@@ -462,7 +444,7 @@ namespace IceInternal
             base.cancelable(handler);
         }
 
-        public void retryException(Ice.Exception ex)
+        public void RetryException()
         {
             try
             {
@@ -475,9 +457,9 @@ namespace IceInternal
                 proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
                 communicator_.retryQueue().add(this, 0);
             }
-            catch (Ice.Exception exc)
+            catch (Ice.Exception ex)
             {
-                if (exception(exc))
+                if (exception(ex))
                 {
                     invokeExceptionAsync();
                 }
@@ -646,7 +628,7 @@ namespace IceInternal
         }
 
         protected readonly Ice.IObjectPrx proxy_;
-        protected IRequestHandler handler_;
+        protected IRequestHandler? handler_;
         protected Ice.OperationMode mode_;
 
         private int _cnt;
@@ -668,6 +650,7 @@ namespace IceInternal
 
         public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string>? context)
         {
+            Debug.Assert(os_ != null);
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.IceReference.getProtocol()));
 
             mode_ = mode;
@@ -726,7 +709,7 @@ namespace IceInternal
                 //
                 // Implicit context
                 //
-                Ice.ImplicitContext implicitContext = (Ice.ImplicitContext)rf.getCommunicator().getImplicitContext();
+                Ice.ImplicitContext? implicitContext = (Ice.ImplicitContext?)rf.getCommunicator().getImplicitContext();
                 Dictionary<string, string> prxContext = rf.getContext();
 
                 if (implicitContext == null)
@@ -746,6 +729,7 @@ namespace IceInternal
 
         public override bool response()
         {
+            Debug.Assert(is_ != null);
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke
@@ -808,7 +792,7 @@ namespace IceInternal
 
                             string operation = is_.ReadString();
 
-                            Ice.RequestFailedException ex = null;
+                            Ice.RequestFailedException ex;
                             switch (replyStatus)
                             {
                                 case ReplyStatus.replyObjectNotExist:
@@ -832,7 +816,7 @@ namespace IceInternal
                                 default:
                                     {
                                         Debug.Assert(false);
-                                        break;
+                                        throw new System.InvalidOperationException();
                                     }
                             }
 
@@ -848,7 +832,7 @@ namespace IceInternal
                         {
                             string unknown = is_.ReadString();
 
-                            Ice.UnknownException ex = null;
+                            Ice.UnknownException ex;
                             switch (replyStatus)
                             {
                                 case ReplyStatus.replyUnknownException:
@@ -872,7 +856,7 @@ namespace IceInternal
                                 default:
                                     {
                                         Debug.Assert(false);
-                                        break;
+                                        throw new System.InvalidOperationException();
                                     }
                             }
 
@@ -943,8 +927,9 @@ namespace IceInternal
                            Ice.FormatType format,
                            Dictionary<string, string>? context,
                            bool synchronous,
-                           System.Action<Ice.OutputStream> write)
+                           System.Action<Ice.OutputStream>? write)
         {
+            Debug.Assert(os_ != null);
             try
             {
                 prepare(operation, mode, context);
@@ -968,6 +953,7 @@ namespace IceInternal
 
         public override void throwUserException()
         {
+            Debug.Assert(is_ != null);
             try
             {
                 is_.StartEncapsulation();
@@ -1001,7 +987,7 @@ namespace IceInternal
                 {
                     is_.Reset();
                 }
-                os_.Reset();
+                os_!.Reset();
 
                 proxy_.CacheMessageBuffers(is_, os_);
 
@@ -1011,7 +997,7 @@ namespace IceInternal
         }
 
         protected readonly Ice.EncodingVersion encoding_;
-        protected System.Action<Ice.UserException> userException_;
+        protected System.Action<Ice.UserException>? userException_;
     }
 
     public class OutgoingAsyncT<T> : OutgoingAsync
@@ -1057,10 +1043,11 @@ namespace IceInternal
                         {
                             is_.SkipEmptyEncapsulation();
                         }
-                        return default(T);
+                        return default;
                     }
                     else
                     {
+                        Debug.Assert(is_ != null);
                         is_.StartEncapsulation();
                         T r = read_(is_);
                         is_.EndEncapsulation();
@@ -1070,7 +1057,7 @@ namespace IceInternal
                 else
                 {
                     throwUserException();
-                    return default(T); // make compiler happy
+                    return default; // make compiler happy
                 }
             }
             finally
@@ -1111,10 +1098,7 @@ namespace IceInternal
             return AsyncStatusSent;
         }
 
-        public Ice.Connection getConnection()
-        {
-            return cachedConnection_;
-        }
+        public Ice.Connection? getConnection() => cachedConnection_;
 
         public void invoke(string operation, bool synchronous)
         {
@@ -1195,14 +1179,11 @@ namespace IceInternal
             }
             if (done)
             {
-                SetResult(default(T));
+                SetResult(default!);
             }
         }
 
-        public void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og)
-        {
-            SetException(ex);
-        }
+        public void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
         public abstract void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
 

@@ -17,6 +17,6 @@ namespace IceInternal
 
         Reference getReference();
 
-        Ice.Connection getConnection();
+        Ice.Connection? getConnection();
     }
 }

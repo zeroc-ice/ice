@@ -768,10 +768,7 @@ namespace IceInternal
                 return connector.Equals(r.connector);
             }
 
-            public override int GetHashCode()
-            {
-                return connector.GetHashCode();
-            }
+            public override int GetHashCode() => connector.GetHashCode();
 
             public IConnector connector;
             public Endpoint endpoint;
@@ -817,6 +814,7 @@ namespace IceInternal
             //
             public void connectors(List<IConnector> cons)
             {
+                Debug.Assert(_currentEndpoint != null);
                 foreach (IConnector connector in cons)
                 {
                     _connectors.Add(new ConnectorInfo(connector, _currentEndpoint));
@@ -926,7 +924,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_endpointsIter < _endpoints.Count);
                     _currentEndpoint = _endpoints[_endpointsIter++];
-                    _currentEndpoint.connectors_async(_selType, this);
+                    _currentEndpoint.ConnectorsAsync(_selType, this);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -1002,6 +1000,7 @@ namespace IceInternal
                     {
                         if (_factory._communicator.traceLevels().network >= 2)
                         {
+                            Debug.Assert(_current != null);
                             StringBuilder s = new StringBuilder("failed to establish ");
                             s.Append(_current.endpoint.protocol());
                             s.Append(" connection to ");
@@ -1511,7 +1510,7 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Ice.Communicator communicator, Endpoint endpoint, Endpoint publish,
+        public IncomingConnectionFactory(Ice.Communicator communicator, Endpoint endpoint, Endpoint? publish,
                                          Ice.ObjectAdapter adapter)
         {
             _communicator = communicator;
@@ -1762,9 +1761,9 @@ namespace IceInternal
         private readonly FactoryACMMonitor _monitor;
 
         private IAcceptor? _acceptor;
-        private readonly ITransceiver _transceiver;
+        private readonly ITransceiver? _transceiver;
         private Endpoint _endpoint;
-        private readonly Endpoint _publishedEndpoint;
+        private readonly Endpoint? _publishedEndpoint;
 
         private Ice.ObjectAdapter? _adapter;
 

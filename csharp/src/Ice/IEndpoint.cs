@@ -105,8 +105,8 @@ namespace Ice
 
         protected IPEndpointInfo()
         {
-            this.host = "";
-            this.sourceAddress = "";
+            host = "";
+            sourceAddress = "";
         }
 
         protected IPEndpointInfo(EndpointInfo underlying,
@@ -145,10 +145,7 @@ namespace Ice
         public string mcastInterface;
         public int mcastTtl;
 
-        protected UDPEndpointInfo() : base()
-        {
-            mcastInterface = "";
-        }
+        protected UDPEndpointInfo() : base() => mcastInterface = "";
 
         protected UDPEndpointInfo(EndpointInfo underlying,
                                   int timeout,
@@ -169,30 +166,19 @@ namespace Ice
     {
         public string resource;
 
-        protected WSEndpointInfo()
-        {
-            this.resource = "";
-        }
+        protected WSEndpointInfo() => resource = "";
 
-        protected WSEndpointInfo(EndpointInfo underlying,
-                                 int timeout,
-                                 bool compress,
-                                 string resource) : base(underlying, timeout, compress)
-        {
-            this.resource = resource;
-        }
+        protected WSEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string resource) :
+            base(underlying, timeout, compress) => this.resource = resource;
     }
 
     [System.Serializable]
     public abstract partial class OpaqueEndpointInfo : EndpointInfo
     {
         public EncodingVersion rawEncoding;
-        public byte[] rawBytes;
+        public byte[]? rawBytes;
 
-        protected OpaqueEndpointInfo()
-        {
-            this.rawEncoding = new EncodingVersion();
-        }
+        protected OpaqueEndpointInfo() => rawEncoding = new EncodingVersion();
 
         protected OpaqueEndpointInfo(EndpointInfo? underlying,
                                      int timeout,

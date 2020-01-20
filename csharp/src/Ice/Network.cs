@@ -1359,30 +1359,8 @@ namespace IceInternal
             return addresses;
         }
 
-        public static bool
-        addressEquals(EndPoint addr1, EndPoint addr2)
-        {
-            if (addr1 == null)
-            {
-                if (addr2 == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else if (addr2 == null)
-            {
-                return false;
-            }
-
-            return addr1.Equals(addr2);
-        }
-
         public static string
-        endpointAddressToString(EndPoint endpoint)
+        endpointAddressToString(EndPoint? endpoint)
         {
             if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {
@@ -1392,7 +1370,7 @@ namespace IceInternal
         }
 
         public static int
-        endpointPort(EndPoint endpoint)
+        endpointPort(EndPoint? endpoint)
         {
             if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {

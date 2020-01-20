@@ -393,7 +393,7 @@ namespace IceInternal
                                 {
                                     str.Append((char)raw[i]);
                                 }
-                                string s = null;
+                                string s;
                                 if (!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
                                 {
                                     _headers[_headerName] = str.ToString();
@@ -653,10 +653,7 @@ namespace IceInternal
             return _state == State.Complete;
         }
 
-        internal Type type()
-        {
-            return _type;
-        }
+        internal Type type() => _type;
 
         internal string method()
         {
@@ -670,29 +667,21 @@ namespace IceInternal
             return _uri.ToString();
         }
 
-        internal int versionMajor()
-        {
-            return _versionMajor;
-        }
+        internal int versionMajor() => _versionMajor;
 
-        internal int versionMinor()
-        {
-            return _versionMinor;
-        }
+        internal int versionMinor() => _versionMinor;
 
-        internal int status()
-        {
-            return _status;
-        }
+        internal int status() => _status;
 
         internal string reason()
         {
+            Debug.Assert(_reason != null);
             return _reason;
         }
 
-        internal string getHeader(string name, bool toLower)
+        internal string? getHeader(string name, bool toLower)
         {
-            string s = null;
+            string s;
             if (_headers.TryGetValue(name.ToLower(), out s))
             {
                 return toLower ? s.Trim().ToLower() : s.Trim();
@@ -724,7 +713,7 @@ namespace IceInternal
         private int _versionMinor;
 
         private int _status;
-        private string _reason;
+        private string? _reason;
 
         private enum State
         {

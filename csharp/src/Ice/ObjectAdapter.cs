@@ -67,6 +67,7 @@ namespace Ice
                 //
                 if (_state != StateUninitialized)
                 {
+                    Debug.Assert(_incomingConnectionFactories != null);
                     foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
                     {
                         icf.activate();
@@ -86,7 +87,7 @@ namespace Ice
                 locatorInfo = _locatorInfo;
                 if (!_noConfig)
                 {
-                    printAdapterReady = _communicator.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
+                    printAdapterReady = _communicator!.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
 
@@ -118,7 +119,7 @@ namespace Ice
             lock (this)
             {
                 Debug.Assert(_state == StateActivating);
-
+                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.activate();
@@ -146,6 +147,7 @@ namespace Ice
             {
                 checkForDeactivation();
                 _state = StateHeld;
+                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     factory.hold();
@@ -378,6 +380,7 @@ namespace Ice
                 // We're done, now we can throw away all incoming connection
                 // factories.
                 //
+                Debug.Assert(_incomingConnectionFactories != null);
                 _incomingConnectionFactories.Clear();
 
                 //
@@ -968,6 +971,7 @@ namespace Ice
             lock (this)
             {
                 List<IEndpoint> endpoints = new List<IEndpoint>();
+                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.Add(factory.endpoint());
@@ -987,7 +991,7 @@ namespace Ice
         /// </summary>
         public void RefreshPublishedEndpoints()
         {
-            LocatorInfo locatorInfo = null;
+            LocatorInfo? locatorInfo = null;
             Endpoint[] oldPublishedEndpoints;
 
             lock (this)
@@ -1041,7 +1045,7 @@ namespace Ice
         /// </param>
         public void SetPublishedEndpoints(IEndpoint[] newEndpoints)
         {
-            LocatorInfo locatorInfo = null;
+            LocatorInfo? locatorInfo = null;
             Endpoint[] oldPublishedEndpoints;
 
             lock (this)
@@ -1121,6 +1125,8 @@ namespace Ice
                                 return true;
                             }
                         }
+
+                        Debug.Assert(_incomingConnectionFactories != null);
                         foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                         {
                             if (factory.isLocal(endpoints[i]))
@@ -1150,7 +1156,7 @@ namespace Ice
 
         public void updateThreadObservers()
         {
-            ThreadPool threadPool = null;
+            ThreadPool? threadPool = null;
             lock (this)
             {
                 threadPool = _threadPool;
@@ -1372,7 +1378,7 @@ namespace Ice
                     List<Endpoint> endpoints = ParseEndpoints(communicator.GetProperty($"{_name}.Endpoints") ?? "", true);
                     foreach (Endpoint endp in endpoints)
                     {
-                        Endpoint publishedEndpoint;
+                        Endpoint? publishedEndpoint;
                         foreach (Endpoint expanded in endp.expandHost(out publishedEndpoint))
                         {
                             IncomingConnectionFactory factory = new IncomingConnectionFactory(communicator,
@@ -1430,22 +1436,18 @@ namespace Ice
             }
         }
 
-        private IObjectPrx newDirectProxy(Identity ident, string facet)
-        {
-            //
-            // Create a reference and return a proxy for this reference.
-            //
-            return new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference, _publishedEndpoints));
-        }
+        //
+        // Create a reference and return a proxy for this reference.
+        //
+        private IObjectPrx newDirectProxy(Identity ident, string facet) =>
+            new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference!, _publishedEndpoints));
 
-        private IObjectPrx newIndirectProxy(Identity ident, string facet, string id)
-        {
-            //
-            // Create a reference with the adapter id and return a
-            // proxy for the reference.
-            //
-            return new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference, id));
-        }
+        //
+        // Create a reference with the adapter id and return a
+        // proxy for the reference.
+        //
+        private IObjectPrx newIndirectProxy(Identity ident, string facet, string id) =>
+            new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference!, id));
 
         private void checkForDeactivation()
         {
@@ -1535,7 +1537,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                Endpoint endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
+                Endpoint? endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
                 if (endp == null)
                 {
                     throw new FormatException($"invalid object adapter endpoint `{s}'");
@@ -1580,6 +1582,7 @@ namespace Ice
                     // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                     // to include actual addresses in the published endpoints.
                     //
+                    Debug.Assert(_incomingConnectionFactories != null);
                     foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                     {
                         foreach (Endpoint endpt in factory.endpoint().expandIfWildcard())
@@ -1824,15 +1827,15 @@ namespace Ice
         private const int StateDestroyed = 7;
 
         private int _state = StateUninitialized;
-        private Communicator _communicator;
-        private ObjectAdapterFactory _objectAdapterFactory;
+        private Communicator? _communicator;
+        private ObjectAdapterFactory? _objectAdapterFactory;
         private ThreadPool? _threadPool;
         private ACMConfig _acm;
         private ServantManager _servantManager;
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
-        private Reference _reference;
+        private Reference? _reference;
         private List<IncomingConnectionFactory>? _incomingConnectionFactories;
         private RouterInfo? _routerInfo;
         private Endpoint[] _publishedEndpoints;
