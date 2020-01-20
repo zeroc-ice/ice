@@ -794,7 +794,7 @@ processTag(const string& sourceTag, const string& s)
 }
 
 CommentInfo
-processComment(ContainedPtr contained, const string& deprecateReason)
+processComment(const ContainedPtr& contained, const string& deprecateReason)
 {
     //
     // Strip HTML markup and javadoc links that are not displayed by Visual Studio.
