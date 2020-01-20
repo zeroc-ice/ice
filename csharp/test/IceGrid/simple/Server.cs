@@ -20,7 +20,7 @@ public class Server : TestHelper
         properties.ParseArgs(ref args, "TestAdapter");
 
         using var communicator = initialize(ref args, properties);
-        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add(new TestIntf(), communicator.GetProperty("Identity") ?? "test");
         try
         {
@@ -29,7 +29,7 @@ public class Server : TestHelper
         catch (ObjectAdapterDeactivatedException)
         {
         }
-        communicator.waitForShutdown();
+        communicator.WaitForShutdown();
     }
 
     public static int Main(string[] args) => TestDriver.runTest<Server>(args);

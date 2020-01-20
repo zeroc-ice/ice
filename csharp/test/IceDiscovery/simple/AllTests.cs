@@ -209,7 +209,7 @@ public class AllTests : Test.AllTests
                 var properties = communicator.GetProperties();
                 properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                 Communicator comm = new Communicator(properties);
-                test(comm.getDefaultLocator() != null);
+                test(comm.GetDefaultLocator() != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
@@ -218,7 +218,7 @@ public class AllTests : Test.AllTests
                 catch (LocalException)
                 {
                 }
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 var properties = communicator.GetProperties();
@@ -231,9 +231,9 @@ public class AllTests : Test.AllTests
                 properties["IceDiscovery.Lookup"] =
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
                 Communicator comm = new Communicator(properties);
-                test(comm.getDefaultLocator() != null);
+                test(comm.GetDefaultLocator() != null);
                 IObjectPrx.Parse("controller0@control0", comm).IcePing();
-                comm.destroy();
+                comm.Destroy();
             }
         }
         output.WriteLine("ok");

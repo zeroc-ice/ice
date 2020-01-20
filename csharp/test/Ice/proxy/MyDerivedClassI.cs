@@ -12,7 +12,7 @@ namespace Ice.proxy
 
         public IObjectPrx echo(IObjectPrx obj, Current c) => obj;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public Dictionary<string, string> getContext(Current current) => _ctx;
 

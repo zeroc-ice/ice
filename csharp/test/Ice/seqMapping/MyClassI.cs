@@ -8,7 +8,7 @@ namespace Ice.seqMapping
 {
     public sealed class MyClass : Test.IMyClass
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public Test.IMyClass.OpAByteSReturnValue
         opAByteS(byte[] i, Current current) => new Test.IMyClass.OpAByteSReturnValue(i, i);

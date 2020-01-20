@@ -27,12 +27,12 @@ public class Collocated : TestHelper
         using (var communicator = initialize(properties, observer: observer))
         {
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Metrics(), "metrics");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add(new Controller(adapter), "controller");
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 

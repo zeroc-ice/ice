@@ -78,7 +78,7 @@ namespace Ice.operations.AMD
                 _opVoidThread = null;
             }
 
-            current.Adapter.Communicator.shutdown();
+            current.Adapter.Communicator.Shutdown();
             return Task.CompletedTask;
         }
 

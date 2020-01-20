@@ -41,7 +41,7 @@ namespace Ice.retry
 
         public void sleep(int delay, Current c) => Thread.Sleep(delay);
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private int _counter;
     }

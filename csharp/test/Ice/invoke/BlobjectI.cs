@@ -44,7 +44,7 @@ namespace Ice.invoke
             }
             else if (current.Operation.Equals("shutdown"))
             {
-                communicator.shutdown();
+                communicator.Shutdown();
                 outParams = null;
                 return true;
             }
@@ -105,7 +105,7 @@ namespace Ice.invoke
             }
             else if (current.Operation.Equals("shutdown"))
             {
-                communicator.shutdown();
+                communicator.Shutdown();
                 return Task.FromResult(new Object_Ice_invokeResult(true, null));
             }
             else if (current.Operation.Equals("ice_isA"))

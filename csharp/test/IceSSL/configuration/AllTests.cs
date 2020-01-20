@@ -135,7 +135,7 @@ public class AllTests
                 catch (System.Exception)
                 {
                 }
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -155,7 +155,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -186,7 +186,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
 
             {
@@ -217,7 +217,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -246,7 +246,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
@@ -270,7 +270,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
@@ -315,7 +315,7 @@ public class AllTests
                 }
                 fact.destroyServer(server);
 
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test IceSSL.VerifyPeer=1. Client has a certificate.
@@ -372,7 +372,7 @@ public class AllTests
                 }
                 fact.destroyServer(server);
 
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test IceSSL.VerifyPeer=1. This should fail because the
@@ -399,7 +399,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test IceSSL.VerifyPeer=1. This should fail because the
@@ -431,7 +431,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // This should succeed because the self signed certificate used by the server is
@@ -453,7 +453,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // This should l because the self signed certificate used by the server is not
@@ -480,7 +480,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Verify that IceSSL.CheckCertName has no effect in a server.
@@ -501,7 +501,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
@@ -543,7 +543,7 @@ public class AllTests
                             }
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     //
                     // Target host does not match the certificate DNS altName
@@ -567,7 +567,7 @@ public class AllTests
                             // Expected
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     //
                     // Target host matches the certificate Common Name and the certificate does not
@@ -592,7 +592,7 @@ public class AllTests
                             test(false);
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     //
                     // Target host does not match the certificate Common Name and the certificate does not
@@ -617,7 +617,7 @@ public class AllTests
                             // Expected
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     //
                     // Target host matches the certificate Common Name and the certificate has
@@ -642,7 +642,7 @@ public class AllTests
                             // Expected
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
 
                     //
@@ -675,7 +675,7 @@ public class AllTests
                             test(false);
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     //
                     // Target host does not match the certificate IP altName
@@ -700,7 +700,7 @@ public class AllTests
                             // Expected
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }*/
                     //
                     // Target host is an IP addres that matches the CN and the certificate doesn't
@@ -731,7 +731,7 @@ public class AllTests
                             }
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
 
                     //
@@ -759,7 +759,7 @@ public class AllTests
                             test(false);
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
 
                     //
@@ -785,7 +785,7 @@ public class AllTests
                             test(false);
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
                 }
             }
@@ -882,7 +882,7 @@ public class AllTests
                         test(false);
                     }
                     fact.destroyServer(server);
-                    comm.destroy();
+                    comm.Destroy();
 
                     //
                     // Now the client verifies the server certificate
@@ -941,7 +941,7 @@ public class AllTests
                         }
                         fact.destroyServer(server);
                     }
-                    comm.destroy();
+                    comm.Destroy();
 
                     if (IceInternal.AssemblyUtil.isWindows)
                     {
@@ -993,7 +993,7 @@ public class AllTests
                             }
                             fact.destroyServer(server);
                         }
-                        comm.destroy();
+                        comm.Destroy();
 
                         //
                         // Increase VerifyDepthMax to 4
@@ -1023,7 +1023,7 @@ public class AllTests
                             fact.destroyServer(server);
                         }
 
-                        comm.destroy();
+                        comm.Destroy();
 
                         //
                         // Increase VerifyDepthMax to 4
@@ -1076,7 +1076,7 @@ public class AllTests
                             fact.destroyServer(server);
                         }
 
-                        comm.destroy();
+                        comm.Destroy();
                     }
                 }
                 finally
@@ -1145,7 +1145,7 @@ public class AllTests
                 test(verifier.hadCert());
                 fact.destroyServer(server);
 
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -1157,7 +1157,7 @@ public class AllTests
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 test(plugin.getCertificateVerifier() != null);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1195,7 +1195,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // This should succeed.
@@ -1219,7 +1219,7 @@ public class AllTests
                     }
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 try
                 {
@@ -1234,7 +1234,7 @@ public class AllTests
                     server.IcePing();
 
                     fact.destroyServer(server);
-                    comm.destroy();
+                    comm.Destroy();
                 }
                 catch (LocalException ex)
                 {
@@ -1271,7 +1271,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
 
                 //
                 // This should fail because the client's certificate is expired.
@@ -1297,7 +1297,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1332,7 +1332,7 @@ public class AllTests
                     fact.destroyServer(server);
                     store.Remove(caCert1);
                     store.Remove(caCert2);
-                    comm.destroy();
+                    comm.Destroy();
                 }
                 Console.Out.WriteLine("ok");
             }
@@ -1356,7 +1356,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1449,7 +1449,7 @@ public class AllTests
                     Console.WriteLine(ex.ToString());
                     test(false);
                 }
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -1463,7 +1463,7 @@ public class AllTests
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 test(plugin.getPasswordCallback() != null);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1488,7 +1488,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1508,7 +1508,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1529,7 +1529,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1550,7 +1550,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1570,7 +1570,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1590,7 +1590,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1609,7 +1609,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1629,7 +1629,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1648,7 +1648,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1667,7 +1667,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1686,7 +1686,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1705,7 +1705,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1725,7 +1725,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1745,7 +1745,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1764,7 +1764,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1784,7 +1784,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1804,7 +1804,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -1826,7 +1826,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -1848,7 +1848,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1876,7 +1876,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1896,7 +1896,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1917,7 +1917,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1936,7 +1936,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1956,7 +1956,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1984,7 +1984,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2004,7 +2004,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2025,7 +2025,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2044,7 +2044,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2063,7 +2063,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -2089,7 +2089,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2109,7 +2109,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2128,7 +2128,7 @@ public class AllTests
                 {
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -2148,7 +2148,7 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -2239,7 +2239,7 @@ public class AllTests
                             test(false);
                         }
                         fact.destroyServer(server);
-                        comm.destroy();
+                        comm.Destroy();
                     }
 
                     //
@@ -2346,7 +2346,7 @@ public class AllTests
                         break;
                     }
                 }
-                comm.destroy();
+                comm.Destroy();
 
                 retryCount = 0;
                 clientProperties = CreateProperties(defaultProperties);
@@ -2393,7 +2393,7 @@ public class AllTests
                         break;
                     }
                 }
-                comm.destroy();
+                comm.Destroy();
             }
             Console.Out.WriteLine("ok");
         }

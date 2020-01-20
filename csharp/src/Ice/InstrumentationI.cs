@@ -1111,8 +1111,8 @@ namespace IceInternal
             }
             else
             {
-                _connections.setUpdater(updater.updateConnectionObservers);
-                _threads.setUpdater(updater.updateThreadObservers);
+                _connections.setUpdater(updater.UpdateConnectionObservers);
+                _threads.setUpdater(updater.UpdateThreadObservers);
             }
             if (_delegate != null)
             {

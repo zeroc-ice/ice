@@ -19,7 +19,7 @@ namespace Ice
         public
         LoggerPlugin(Communicator communicator, ILogger logger)
         {
-            communicator.setLogger(logger);
+            communicator.Logger = logger;
         }
 
         /// <summary>

@@ -73,7 +73,7 @@ namespace Ice.objects
 
         public Test.Compact getCompact(Current current) => new Test.CompactExt();
 
-        public void shutdown(Current current) => _adapter.Communicator.shutdown();
+        public void shutdown(Current current) => _adapter.Communicator.Shutdown();
 
         public Test.Inner.A
         getInnerA(Current current) => new Test.Inner.A(_b1);

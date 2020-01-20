@@ -150,7 +150,7 @@ namespace Ice
             /// is called. The implementation of getConnectionObserver has the
             /// possibility to return an updated observer if necessary.
             /// </summary>
-            void updateConnectionObservers();
+            void UpdateConnectionObservers();
 
             /// <summary>
             /// Update thread observers associated with each of the Ice thread
@@ -160,7 +160,7 @@ namespace Ice
             /// called. The implementation of getThreadObserver has the
             /// possibility to return an updated observer if necessary.
             /// </summary>
-            void updateThreadObservers();
+            void UpdateThreadObservers();
         }
 
         public partial interface ICommunicatorObserver

@@ -18,7 +18,7 @@ internal class Background : IBackground
 
     public void shutdown(Ice.Current current)
     {
-        current.Adapter.Communicator.shutdown();
+        current.Adapter.Communicator.Shutdown();
     }
 
     internal Background(BackgroundController controller)

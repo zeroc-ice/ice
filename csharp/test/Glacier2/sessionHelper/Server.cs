@@ -16,14 +16,14 @@ public class Server : Test.TestHelper
         using (var communicator = initialize(ref args))
         {
             communicator.SetProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
-            communicator.createObjectAdapter("DeactivatedAdapter");
+            communicator.CreateObjectAdapter("DeactivatedAdapter");
 
             communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
             var callbackI = new Callback();
             adapter.Add(callbackI, "callback");
             adapter.Activate();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
     }
 

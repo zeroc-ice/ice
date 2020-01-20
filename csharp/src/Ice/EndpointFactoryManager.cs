@@ -72,7 +72,7 @@ namespace IceInternal
 
             if (protocol.Equals("default"))
             {
-                protocol = _communicator.defaultsAndOverrides().defaultProtocol;
+                protocol = _communicator.DefaultsAndOverrides.defaultProtocol;
             }
 
             IEndpointFactory? factory = null;

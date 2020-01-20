@@ -39,7 +39,7 @@ namespace Ice.scope
 
             public C1 opC1(C1 c1, Current current) => c1;
 
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
         class I2 : Test.Inner.II
@@ -64,7 +64,7 @@ namespace Ice.scope
             opCMap(Dictionary<string, Test.Inner.Inner2.C> c1, Current current) =>
                 new Test.Inner.II.OpCMapReturnValue(c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
         class I3 : Test.Inner.Inner2.II
@@ -89,7 +89,7 @@ namespace Ice.scope
             opCMap(Dictionary<string, Test.Inner.Inner2.C> c1, Current current) =>
                 new Test.Inner.Inner2.II.OpCMapReturnValue(c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
         class I4 : Inner.Test.Inner2.II
@@ -114,7 +114,7 @@ namespace Ice.scope
             opCMap(Dictionary<string, Test.C> c1, Current current) =>
                 new Inner.Test.Inner2.II.OpCMapReturnValue(c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
         public override void run(string[] args)
@@ -122,14 +122,14 @@ namespace Ice.scope
             using var communicator = initialize(createTestProperties(ref args),
                 typeIdNamespaces: new string[] { "Ice.scope.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new I1(), "i1");
             adapter.Add(new I2(), "i2");
             adapter.Add(new I3(), "i3");
             adapter.Add(new I4(), "i4");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

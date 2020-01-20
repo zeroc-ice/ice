@@ -32,10 +32,10 @@ namespace Ice
                     output.Write("creating/destroying/recreating object adapter... ");
                     output.Flush();
                     ObjectAdapter adapter =
-                        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+                        communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                     try
                     {
-                        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+                        communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                         test(false);
                     }
                     catch (ArgumentException)
@@ -46,7 +46,7 @@ namespace Ice
                     //
                     // Use a different port than the first adapter to avoid an "address already in use" error.
                     //
-                    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+                    adapter = communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                     adapter.Destroy();
                     output.WriteLine("ok");
                 }
@@ -64,7 +64,7 @@ namespace Ice
                     {
                         var comm = new Communicator(communicator.GetProperties());
                         IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator).IcePingAsync();
-                        comm.destroy();
+                        comm.Destroy();
                     }
                     output.WriteLine("ok");
                 }
@@ -73,7 +73,7 @@ namespace Ice
                 output.Flush();
                 {
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
-                    var adapter = communicator.createObjectAdapter("PAdapter");
+                    var adapter = communicator.CreateObjectAdapter("PAdapter");
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
                     test(endpt.ToString().Equals("tcp -h localhost -p 12345 -t 30000"));
@@ -98,7 +98,7 @@ namespace Ice
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
-                    var adapter = communicator.createObjectAdapter("");
+                    var adapter = communicator.CreateObjectAdapter("");
                     obj.GetConnection().SetAdapter(adapter);
                     obj.GetConnection().SetAdapter(null);
                     adapter.Deactivate();
@@ -119,7 +119,7 @@ namespace Ice
                     var routerId = new Identity();
                     routerId.Name = "router";
                     var router = IRouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
-                    var adapter = communicator.createObjectAdapterWithRouter("", router);
+                    var adapter = communicator.CreateObjectAdapterWithRouter("", router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
@@ -140,7 +140,7 @@ namespace Ice
                     {
                         routerId.Name = "test";
                         router = IRouterPrx.UncheckedCast(@base.Clone(routerId));
-                        communicator.createObjectAdapterWithRouter("", router);
+                        communicator.CreateObjectAdapterWithRouter("", router);
                         test(false);
                     }
                     catch (OperationNotExistException)
@@ -151,7 +151,7 @@ namespace Ice
                     try
                     {
                         router = IRouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
-                        communicator.createObjectAdapterWithRouter("", router);
+                        communicator.CreateObjectAdapterWithRouter("", router);
                         test(false);
                     }
                     catch (ConnectFailedException)
@@ -163,10 +163,10 @@ namespace Ice
                 output.Write("testing object adapter creation with port in use... ");
                 output.Flush();
                 {
-                    var adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
+                    var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
                     try
                     {
-                        communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
+                        communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                         test(false);
                     }
                     catch (LocalException)

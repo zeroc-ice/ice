@@ -137,12 +137,12 @@ namespace Ice
         // Helper constructor used by the constructors above.
         private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
         {
-            Encoding = encoding ?? communicator.defaultsAndOverrides().defaultEncoding;
+            Encoding = encoding ?? communicator.DefaultsAndOverrides.defaultEncoding;
             Communicator = communicator;
-            _traceSlicing = communicator.traceLevels().slicing > 0;
-            _classGraphDepthMax = communicator.classGraphDepthMax();
+            _traceSlicing = communicator.TraceLevels.slicing > 0;
+            _classGraphDepthMax = communicator.ClassGraphDepthMax;
             _logger = communicator.Logger;
-            _classResolver = communicator.resolveClass;
+            _classResolver = communicator.ResolveClass;
             _buf = buf;
         }
 
@@ -2259,10 +2259,10 @@ namespace Ice
 
         private void SkipSlice(string sliceTypeId)
         {
-            if (Communicator.traceLevels().slicing > 0)
+            if (Communicator.TraceLevels.slicing > 0)
             {
                 ILogger logger = Communicator.Logger;
-                string slicingCat = Communicator.traceLevels().slicingCat;
+                string slicingCat = Communicator.TraceLevels.slicingCat;
                 if (_current.sliceType == SliceType.ExceptionSlice)
                 {
                     IceInternal.TraceUtil.traceSlicing("exception", sliceTypeId, slicingCat, logger);
@@ -2504,7 +2504,7 @@ namespace Ice
                     // compact ID into a type ID.
                     if (v == null && sliceTypeId.Length == 0)
                     {
-                        sliceTypeId = Communicator.resolveCompactId(_current.compactId);
+                        sliceTypeId = Communicator.ResolveCompactId(_current.compactId);
                     }
                 }
 

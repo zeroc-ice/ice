@@ -49,7 +49,7 @@ namespace IceInternal
             //
             try
             {
-                communicator_.clientThreadPool().dispatch(invokeSent, cachedConnection_);
+                communicator_.ClientThreadPool().dispatch(invokeSent, cachedConnection_);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -62,7 +62,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            communicator_.clientThreadPool().dispatch(invokeException, cachedConnection_);
+            communicator_.ClientThreadPool().dispatch(invokeException, cachedConnection_);
         }
 
         public void invokeResponseAsync()
@@ -71,7 +71,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            communicator_.clientThreadPool().dispatch(invokeResponse, cachedConnection_);
+            communicator_.ClientThreadPool().dispatch(invokeResponse, cachedConnection_);
         }
 
         public void invokeSent()
@@ -408,7 +408,7 @@ namespace IceInternal
             cachedConnection_ = null;
             if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
-                communicator_.timer().cancel(this);
+                communicator_.Timer().cancel(this);
             }
 
             //
@@ -422,7 +422,7 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                communicator_.retryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+                communicator_.RetryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
@@ -438,7 +438,7 @@ namespace IceInternal
                 int timeout = cachedConnection_.Timeout;
                 if (timeout > 0)
                 {
-                    communicator_.timer().schedule(this, timeout);
+                    communicator_.Timer().schedule(this, timeout);
                 }
             }
             base.cancelable(handler);
@@ -455,7 +455,7 @@ namespace IceInternal
                 // connection to be done.
                 //
                 proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
-                communicator_.retryQueue().add(this, 0);
+                communicator_.RetryQueue().add(this, 0);
             }
             catch (Ice.Exception ex)
             {
@@ -509,7 +509,7 @@ namespace IceInternal
                     int invocationTimeout = proxy_.IceReference.getInvocationTimeout();
                     if (invocationTimeout > 0)
                     {
-                        communicator_.timer().schedule(this, invocationTimeout);
+                        communicator_.Timer().schedule(this, invocationTimeout);
                     }
                 }
                 else if (observer_ != null)
@@ -559,7 +559,7 @@ namespace IceInternal
                         int interval = proxy_.IceHandleException(ex, handler_, mode_, _sent, ref _cnt);
                         if (interval > 0)
                         {
-                            communicator_.retryQueue().add(this, interval);
+                            communicator_.RetryQueue().add(this, interval);
                             return;
                         }
                         else if (observer_ != null)
@@ -592,7 +592,7 @@ namespace IceInternal
             {
                 if (proxy_.IceReference.getInvocationTimeout() != -1)
                 {
-                    communicator_.timer().cancel(this);
+                    communicator_.Timer().cancel(this);
                 }
             }
             return base.sentImpl(done);
@@ -601,7 +601,7 @@ namespace IceInternal
         {
             if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
-                communicator_.timer().cancel(this);
+                communicator_.Timer().cancel(this);
             }
             return base.exceptionImpl(ex);
         }
@@ -610,7 +610,7 @@ namespace IceInternal
         {
             if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
-                communicator_.timer().cancel(this);
+                communicator_.Timer().cancel(this);
             }
             return base.responseImpl(userThread, ok, invoke);
         }
@@ -709,7 +709,7 @@ namespace IceInternal
                 //
                 // Implicit context
                 //
-                Ice.ImplicitContext? implicitContext = (Ice.ImplicitContext?)rf.getCommunicator().getImplicitContext();
+                Ice.ImplicitContext? implicitContext = (Ice.ImplicitContext?)rf.getCommunicator().GetImplicitContext();
                 Dictionary<string, string> prxContext = rf.getContext();
 
                 if (implicitContext == null)

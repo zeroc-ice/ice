@@ -55,7 +55,7 @@ namespace Ice.timeout
 
         public void resumeAdapter(Current current) => _adapter.Activate();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private ObjectAdapter _adapter;
     }

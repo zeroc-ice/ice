@@ -220,7 +220,7 @@ namespace IceDiscovery
             _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
             _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
-            _timer = lookup.Communicator.timer();
+            _timer = lookup.Communicator.Timer();
 
             //
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast

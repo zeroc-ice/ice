@@ -15,7 +15,7 @@ namespace IceInternal
         {
             if (rf.getCollocationOptimized())
             {
-                Ice.ObjectAdapter adapter = _communicator.objectAdapterFactory().findObjectAdapter(proxy);
+                Ice.ObjectAdapter adapter = _communicator.ObjectAdapterFactory().findObjectAdapter(proxy);
                 if (adapter != null)
                 {
                     return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));

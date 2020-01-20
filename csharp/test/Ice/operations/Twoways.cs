@@ -38,10 +38,10 @@ namespace Ice.operations
 
             public void Run()
             {
-                Dictionary<string, string> ctx = _proxy.Communicator.getImplicitContext().getContext();
+                Dictionary<string, string> ctx = _proxy.Communicator.GetImplicitContext().getContext();
                 test(ctx.Count == 0);
                 ctx["one"] = "ONE";
-                _proxy.Communicator.getImplicitContext().setContext(ctx);
+                _proxy.Communicator.GetImplicitContext().setContext(ctx);
                 test(Ice.Collections.Equals(_proxy.opContext(), ctx));
             }
 
@@ -1421,16 +1421,16 @@ namespace Ice.operations
 
                     var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
-                    ic.getImplicitContext().setContext(ctx);
-                    test(Collections.Equals(ic.getImplicitContext().getContext(), ctx));
+                    ic.GetImplicitContext().setContext(ctx);
+                    test(Collections.Equals(ic.GetImplicitContext().getContext(), ctx));
                     test(Collections.Equals(p3.opContext(), ctx));
 
-                    test(ic.getImplicitContext().containsKey("zero") == false);
-                    string r = ic.getImplicitContext().put("zero", "ZERO");
+                    test(ic.GetImplicitContext().containsKey("zero") == false);
+                    string r = ic.GetImplicitContext().put("zero", "ZERO");
                     test(r.Equals(""));
-                    test(ic.getImplicitContext().get("zero").Equals("ZERO"));
+                    test(ic.GetImplicitContext().get("zero").Equals("ZERO"));
 
-                    ctx = ic.getImplicitContext().getContext();
+                    ctx = ic.GetImplicitContext().getContext();
                     test(Collections.Equals(p3.opContext(), ctx));
 
                     Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1453,13 +1453,13 @@ namespace Ice.operations
 
                     p3 = p3.Clone(context: prxContext);
 
-                    ic.getImplicitContext().setContext(null);
+                    ic.GetImplicitContext().setContext(null);
                     test(Collections.Equals(p3.opContext(), prxContext));
 
-                    ic.getImplicitContext().setContext(ctx);
+                    ic.GetImplicitContext().setContext(ctx);
                     test(Collections.Equals(p3.opContext(), combined));
 
-                    test(ic.getImplicitContext().remove("one").Equals("ONE"));
+                    test(ic.GetImplicitContext().remove("one").Equals("ONE"));
 
                     if (impls[i].Equals("PerThread"))
                     {
@@ -1467,7 +1467,7 @@ namespace Ice.operations
                         thread.Start();
                         thread.Join();
                     }
-                    ic.destroy();
+                    ic.Destroy();
                 }
             }
 

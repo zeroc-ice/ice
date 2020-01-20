@@ -15,11 +15,11 @@ namespace Ice
             {
                 using var communicator = initialize(ref args);
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                var adapter = communicator.createObjectAdapter("TestAdapter");
+                var adapter = communicator.CreateObjectAdapter("TestAdapter");
                 adapter.Add(new Initial(), "initial");
                 adapter.Activate();
                 serverReady();
-                communicator.waitForShutdown();
+                communicator.WaitForShutdown();
             }
 
             public static int Main(string[] args) => TestDriver.runTest<Server>(args);

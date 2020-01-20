@@ -123,7 +123,7 @@ namespace IceInternal
 
         public bool getCompressOverride(out bool compress)
         {
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             if (defaultsAndOverrides.overrideCompress)
             {
                 compress = defaultsAndOverrides.overrideCompressValue;
@@ -875,7 +875,7 @@ namespace IceInternal
             // check if the connection is secure.
             //
             bool secure;
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             if (defaultsAndOverrides.overrideSecure)
             {
                 secure = defaultsAndOverrides.overrideSecureValue;
@@ -1000,7 +1000,7 @@ namespace IceInternal
 
         public override ThreadPool getThreadPool()
         {
-            return _communicator.clientThreadPool();
+            return _communicator.ClientThreadPool();
         }
 
         public override Reference Clone(Identity? identity = null,
@@ -1153,7 +1153,7 @@ namespace IceInternal
                     {
                         reference = (RoutableReference)Clone();
                     }
-                    reference._locatorInfo = _communicator.locatorManager().get(
+                    reference._locatorInfo = _communicator.LocatorManager().get(
                         _locatorInfo.getLocator().Clone(encodingVersion: encodingVersionValue));
                 }
             }
@@ -1179,7 +1179,7 @@ namespace IceInternal
 
             if (locator != null)
             {
-                LocatorInfo locatorInfo = _communicator.locatorManager().get(locator);
+                LocatorInfo locatorInfo = _communicator.LocatorManager().get(locator);
                 if (!locatorInfo.Equals(_locatorInfo))
                 {
                     if (reference == this)
@@ -1223,7 +1223,7 @@ namespace IceInternal
 
             if (router != null)
             {
-                RouterInfo routerInfo = _communicator.routerManager().get(router);
+                RouterInfo routerInfo = _communicator.RouterManager().get(router);
                 if (!routerInfo.Equals(_routerInfo))
                 {
                     if (reference == this)
@@ -1484,7 +1484,7 @@ namespace IceInternal
 
         public override IRequestHandler getRequestHandler(IObjectPrx proxy)
         {
-            return _communicator.requestHandlerFactory().getRequestHandler(this, proxy);
+            return _communicator.RequestHandlerFactory().getRequestHandler(this, proxy);
         }
 
         public void getConnection(GetConnectionCallback callback)
@@ -1561,12 +1561,11 @@ namespace IceInternal
                     _ir._locatorInfo.clearCache(_ir);
                     if (_cached)
                     {
-                        TraceLevels traceLevels = _ir._communicator.traceLevels();
+                        TraceLevels traceLevels = _ir._communicator.TraceLevels;
                         if (traceLevels.retry >= 2)
                         {
-                            string s = "connection to cached endpoints failed\n" +
-                                       "removing endpoints from cache and trying again\n" + ex;
-                            _ir._communicator.Logger.trace(traceLevels.retryCat, s);
+                            _ir._communicator.Logger.trace(traceLevels.retryCat,
+                                $"connection to cached endpoints failed\nremoving endpoints from cache and trying again\n{ex}");
                         }
                         _ir.getConnectionNoRouterInfo(_cb); // Retry.
                         return;
@@ -1761,7 +1760,7 @@ namespace IceInternal
             // partitioning the endpoint vector, so that non-secure
             // endpoints come first.
             //
-            DefaultsAndOverrides overrides = _communicator.defaultsAndOverrides();
+            DefaultsAndOverrides overrides = _communicator.DefaultsAndOverrides;
             if (overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
             {
                 endpoints = endpoints.Where(endpoint => endpoint.secure()).ToList();
@@ -1816,7 +1815,7 @@ namespace IceInternal
 
                 bool more = _i != _endpoints.Length - 1;
                 Endpoint[] endpoint = new Endpoint[] { _endpoints[_i] };
-                _rr._communicator.outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
+                _rr._communicator.OutgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
             }
 
             private RoutableReference _rr;
@@ -1838,7 +1837,7 @@ namespace IceInternal
             //
             // Finally, create the connection.
             //
-            OutgoingConnectionFactory factory = _communicator.outgoingConnectionFactory();
+            OutgoingConnectionFactory factory = _communicator.OutgoingConnectionFactory();
             if (getCacheConnection() || endpoints.Length == 1)
             {
                 //

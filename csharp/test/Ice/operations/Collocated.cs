@@ -18,7 +18,7 @@ namespace Ice.operations
             using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
             communicator.SetProperty("TestAdapter.AdapterId", "test");
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var prx = adapter.Add(new MyDerivedClass(), "test");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 

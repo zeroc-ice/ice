@@ -18,11 +18,11 @@ namespace Ice.proxy.AMD
             properties["Ice.Warn.Dispatch"] = "0";
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new MyDerivedClass(), "test");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);

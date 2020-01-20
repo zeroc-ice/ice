@@ -66,9 +66,9 @@ namespace IceDiscovery
                 _communicator.SetProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast");
-            _replyAdapter = _communicator.createObjectAdapter("IceDiscovery.Reply");
-            _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator");
+            _multicastAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Multicast");
+            _replyAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Reply");
+            _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
             //
             // Setup locatory registry.
@@ -95,8 +95,8 @@ namespace IceDiscovery
             // Setup locator on the communicator.
             //
             _locator = _locatorAdapter.Add(new Locator(lookup, locatorRegistryPrx));
-            _defaultLocator = _communicator.getDefaultLocator();
-            _communicator.setDefaultLocator(_locator);
+            _defaultLocator = _communicator.GetDefaultLocator();
+            _communicator.SetDefaultLocator(_locator);
 
             _multicastAdapter.Activate();
             _replyAdapter.Activate();
@@ -118,11 +118,11 @@ namespace IceDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            ILocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            ILocatorPrx? defaultLocator = _communicator.GetDefaultLocator();
             if (defaultLocator != null && defaultLocator.Equals(_locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.setDefaultLocator(_defaultLocator);
+                _communicator.SetDefaultLocator(_defaultLocator);
             }
         }
 

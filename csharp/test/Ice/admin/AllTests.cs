@@ -150,7 +150,7 @@ namespace Ice.admin
                 properties["Ice.Admin.InstanceName"] = "Test";
                 var com = new Communicator(properties);
                 testFacets(com, true, false);
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -162,7 +162,7 @@ namespace Ice.admin
                 properties["Ice.Admin.Facets"] = "Properties";
                 Communicator com = new Communicator(properties);
                 testFacets(com, false, true);
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -170,7 +170,7 @@ namespace Ice.admin
                 //
                 var com = new Communicator();
                 testFacets(com, false, false);
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -180,7 +180,7 @@ namespace Ice.admin
                     { "Ice.Admin.Enabled", "1" }
                 };
                 Communicator com = new Communicator(properties);
-                test(com.getAdmin() == null);
+                test(com.GetAdmin() == null);
                 Identity id = Identity.Parse("test-admin");
                 try
                 {
@@ -191,12 +191,12 @@ namespace Ice.admin
                 {
                 }
 
-                ObjectAdapter adapter = com.createObjectAdapter("");
+                ObjectAdapter adapter = com.CreateObjectAdapter("");
                 test(com.CreateAdmin(adapter, id) != null);
-                test(com.getAdmin() != null);
+                test(com.GetAdmin() != null);
 
                 testFacets(com, true, false);
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -211,9 +211,9 @@ namespace Ice.admin
 
                 Communicator com = new Communicator(properties);
                 testFacets(com, true, false);
-                com.getAdmin();
+                com.GetAdmin();
                 testFacets(com, true, false);
-                com.destroy();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
@@ -386,7 +386,7 @@ namespace Ice.admin
                 // Now, test RemoteLogger
                 //
                 ObjectAdapter adapter =
-                    communicator.createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
+                    communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
                 var remoteLogger = new RemoteLogger();
 
@@ -414,10 +414,10 @@ namespace Ice.admin
 
                 remoteLogger.Wait(4);
 
-                remoteLogger.CheckNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
-                remoteLogger.CheckNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
-                remoteLogger.CheckNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
-                remoteLogger.CheckNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
+                remoteLogger.CheckNextLog(LogMessageType.TraceMessage, "rtrace", "testCat");
+                remoteLogger.CheckNextLog(LogMessageType.WarningMessage, "rwarning", "");
+                remoteLogger.CheckNextLog(LogMessageType.ErrorMessage, "rerror", "");
+                remoteLogger.CheckNextLog(LogMessageType.PrintMessage, "rprint", "");
 
                 test(logger.DetachRemoteLogger(myProxy));
                 test(!logger.DetachRemoteLogger(myProxy));

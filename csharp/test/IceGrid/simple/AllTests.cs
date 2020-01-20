@@ -36,7 +36,7 @@ public class AllTests : Test.AllTests
         Identity finderId = new Identity();
         finderId.Category = "Ice";
         finderId.Name = "LocatorFinder";
-        ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
+        ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.GetDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
 
@@ -44,7 +44,7 @@ public class AllTests : Test.AllTests
         {
             // Add test well-known object
             IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-                communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
+                communicator.GetDefaultLocator().Identity.Category + "/Registry", communicator);
 
             IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
             session.GetAdmin().AddObjectWithType(@base, "::Test");
@@ -62,18 +62,18 @@ public class AllTests : Test.AllTests
             properties["AdapterForDiscoveryTest.Endpoints"] = "default";
 
             Communicator com = new Communicator(properties);
-            test(com.getDefaultLocator() != null);
+            test(com.GetDefaultLocator() != null);
             IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
             IObjectPrx.Parse("test", com).IcePing();
 
-            test(com.getDefaultLocator().GetRegistry() != null);
-            test(IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry() != null);
-            test(IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalQuery() != null);
+            test(com.GetDefaultLocator().GetRegistry() != null);
+            test(IceGrid.ILocatorPrx.UncheckedCast(com.GetDefaultLocator()).GetLocalRegistry() != null);
+            test(IceGrid.ILocatorPrx.UncheckedCast(com.GetDefaultLocator()).GetLocalQuery() != null);
 
-            Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+            Ice.ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
             adapter.Deactivate();
-            com.destroy();
+            com.Destroy();
 
             //
             // Now, ensure that the IceGrid discovery locator correctly
@@ -83,36 +83,36 @@ public class AllTests : Test.AllTests
             properties["IceLocatorDiscovery.RetryCount"] = "1";
             properties["IceLocatorDiscovery.Timeout"] = "100";
             com = new Communicator(properties);
-            test(com.getDefaultLocator() != null);
+            test(com.GetDefaultLocator() != null);
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
             try
             {
                 IObjectPrx.Parse("test", com).IcePing();
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
-            test(com.getDefaultLocator().GetRegistry() == null);
-            test(IceGrid.ILocatorPrx.CheckedCast(com.getDefaultLocator()) == null);
+            test(com.GetDefaultLocator().GetRegistry() == null);
+            test(IceGrid.ILocatorPrx.CheckedCast(com.GetDefaultLocator()) == null);
             try
             {
-                IceGrid.ILocatorPrx.UncheckedCast(com.getDefaultLocator()).GetLocalRegistry();
+                IceGrid.ILocatorPrx.UncheckedCast(com.GetDefaultLocator()).GetLocalRegistry();
             }
             catch (Ice.OperationNotExistException)
             {
             }
 
-            adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+            adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
             adapter.Deactivate();
 
-            com.destroy();
+            com.Destroy();
 
             string multicast;
             if (communicator.GetProperty("Ice.IPv6") == "1")
@@ -132,7 +132,7 @@ public class AllTests : Test.AllTests
             properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
             properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
             com = new Communicator(properties);
-            test(com.getDefaultLocator() != null);
+            test(com.GetDefaultLocator() != null);
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
@@ -141,7 +141,7 @@ public class AllTests : Test.AllTests
             catch (NoEndpointException)
             {
             }
-            com.destroy();
+            com.Destroy();
 
             properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
@@ -149,7 +149,7 @@ public class AllTests : Test.AllTests
             properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
             properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
             com = new Communicator(properties);
-            test(com.getDefaultLocator() != null);
+            test(com.GetDefaultLocator() != null);
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
@@ -158,7 +158,7 @@ public class AllTests : Test.AllTests
             catch (NoEndpointException)
             {
             }
-            com.destroy();
+            com.Destroy();
 
             properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
@@ -175,7 +175,7 @@ public class AllTests : Test.AllTests
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
             }
             com = new Communicator(properties);
-            test(com.getDefaultLocator() != null);
+            test(com.GetDefaultLocator() != null);
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
@@ -184,7 +184,7 @@ public class AllTests : Test.AllTests
             {
                 test(false);
             }
-            com.destroy();
+            com.Destroy();
         }
         Console.Out.WriteLine("ok");
 
@@ -253,7 +253,7 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
-            communicator.getDefaultLocator().Identity.Category + "/Registry", communicator);
+            communicator.GetDefaultLocator().Identity.Category + "/Registry", communicator);
         IceGrid.IAdminSessionPrx session = registry.CreateAdminSession("foo", "bar");
         session.GetConnection().SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 

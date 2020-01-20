@@ -25,8 +25,8 @@ public class Collocated : Test.TestHelper
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
             adapter.Add(new TestIntf(), "test");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.

@@ -14,11 +14,11 @@ namespace Ice.threadPoolPriority
             properties["Ice.ThreadPool.Server.ThreadPriority"] = "AboveNormal";
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Priority(), "test");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);

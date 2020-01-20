@@ -18,11 +18,11 @@ namespace Ice.operations.AMD
             properties["Ice.Warn.Connections"] = "0";
             using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.AMD.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new MyDerivedClass(), "test");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

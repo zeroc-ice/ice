@@ -14,11 +14,11 @@ namespace Ice.dictMapping.AMD
             using (var communicator = initialize(ref args))
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
                 adapter.Add(new MyClass(), "test");
                 adapter.Activate();
                 serverReady();
-                communicator.waitForShutdown();
+                communicator.WaitForShutdown();
             }
         }
 

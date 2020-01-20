@@ -27,7 +27,7 @@ public class TestIntf : ITestIntf
     shutdown(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
-        current.Adapter.Communicator.shutdown();
+        current.Adapter.Communicator.Shutdown();
     }
 }
 

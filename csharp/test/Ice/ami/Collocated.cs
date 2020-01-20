@@ -32,8 +32,8 @@ namespace Ice.ami
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            var adapter = communicator.createObjectAdapter("TestAdapter");
-            var adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
+            var adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
             adapter.Add(new TestIntf(), "test");
             adapter.Add(new TestIntf2(), "test2");

@@ -33,7 +33,7 @@ namespace Ice.info
             return null;
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public Dictionary<string, string> getEndpointInfoAsContext(Current current)
         {

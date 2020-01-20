@@ -20,7 +20,7 @@ namespace Ice.location
 
             using var communicator = initialize(properties);
             communicator.SetProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+            var adapter = communicator.CreateObjectAdapter("ServerManagerAdapter");
             //
             // We also register a sample server locator which implements the
             // locator interface, this locator is used by the clients and the
@@ -35,7 +35,7 @@ namespace Ice.location
 
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

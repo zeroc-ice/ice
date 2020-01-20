@@ -151,11 +151,11 @@ namespace IceLocatorDiscovery
             {
                 _retryDelay = 0;
             }
-            _timer = lookup.Communicator.timer();
+            _timer = lookup.Communicator.Timer();
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _warned = false;
-            _locator = lookup.Communicator.getDefaultLocator();
+            _locator = lookup.Communicator.GetDefaultLocator();
             _voidLocator = voidLocator;
             _pending = false;
             _pendingRetryCount = 0;
@@ -693,8 +693,8 @@ namespace IceLocatorDiscovery
                 _communicator.SetProperty($"{_name}.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
-            _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
+            _replyAdapter = _communicator.CreateObjectAdapter(_name + ".Reply");
+            _locatorAdapter = _communicator.CreateObjectAdapter(_name + ".Locator");
 
             // We don't want those adapters to be registered with the locator so clear their locator.
             _replyAdapter.SetLocator(null);
@@ -709,11 +709,11 @@ namespace IceLocatorDiscovery
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
-            _defaultLocator = _communicator.getDefaultLocator();
+            _defaultLocator = _communicator.GetDefaultLocator();
             _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
             _locatorPrx = ILocatorPrx.UncheckedCast(
                 _locatorAdapter.Add((current, incoming) => _locator.Dispatch(current, incoming)));
-            _communicator.setDefaultLocator(_locatorPrx);
+            _communicator.SetDefaultLocator(_locatorPrx);
 
             ILookupReply lookupReplyI = new LookupReplyI(_locator);
             _locator.setLookupReply(_replyAdapter.Add(lookupReplyI).Clone(invocationMode: InvocationMode.Datagram));
@@ -734,11 +734,11 @@ namespace IceLocatorDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            ILocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            ILocatorPrx? defaultLocator = _communicator.GetDefaultLocator();
             if (defaultLocator != null && defaultLocator.Equals(_locatorPrx))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.setDefaultLocator(_defaultLocator);
+                _communicator.SetDefaultLocator(_defaultLocator);
             }
         }
 

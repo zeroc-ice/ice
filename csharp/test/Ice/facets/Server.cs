@@ -13,7 +13,7 @@ namespace Ice.facets
         {
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add(d, "d");
             adapter.Add(d, "d", "facetABCD");
@@ -23,7 +23,7 @@ namespace Ice.facets
             adapter.Add(h, "d", "facetGH");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

@@ -55,7 +55,7 @@ internal sealed class SSLServer : IServer
         }
     }
 
-    internal void destroy() => _communicator.destroy();
+    internal void destroy() => _communicator.Destroy();
 
     private static void test(bool b)
     {
@@ -84,7 +84,7 @@ internal sealed class ServerFactory : IServerFactory
     {
         props["IceSSL.DefaultDir"] = _defaultDir;
         Ice.Communicator communicator = new Ice.Communicator(props);
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         var server = new SSLServer(communicator);
         var prx = adapter.Add(server);
         _servers[prx.Identity] = server;
@@ -105,7 +105,7 @@ internal sealed class ServerFactory : IServerFactory
     public void shutdown(Ice.Current current)
     {
         test(_servers.Count == 0);
-        current.Adapter.Communicator.shutdown();
+        current.Adapter.Communicator.Shutdown();
     }
 
     private string _defaultDir;

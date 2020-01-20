@@ -25,7 +25,7 @@ namespace IceInternal
             _adapter = adapter;
 
             _logger = _reference.getCommunicator().Logger; // Cached for better performance.
-            _traceLevels = _reference.getCommunicator().traceLevels(); // Cached for better performance.
+            _traceLevels = _reference.getCommunicator().TraceLevels; // Cached for better performance.
             _requestId = 0;
         }
 

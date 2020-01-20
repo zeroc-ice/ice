@@ -186,7 +186,7 @@ namespace IceInternal
             //
             if (sendLogCommunicator != null)
             {
-                sendLogCommunicator.destroy();
+                sendLogCommunicator.Destroy();
             }
         }
 

@@ -40,7 +40,7 @@ public sealed class Metrics : IMetrics
     {
     }
 
-    public Ice.IObjectPrx getAdmin(Ice.Current current) => current.Adapter.Communicator.getAdmin();
+    public Ice.IObjectPrx getAdmin(Ice.Current current) => current.Adapter.Communicator.GetAdmin();
 
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }

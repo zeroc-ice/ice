@@ -38,14 +38,14 @@ namespace Ice.udp
             }
 
             communicator.SetProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
-            ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add(new TestIntf(), "control");
             adapter.Activate();
             serverReady();
             if (num == 0)
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
-                ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
+                ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
                 adapter2.Add(new TestIntf(), "test");
                 adapter2.Activate();
             }
@@ -73,11 +73,11 @@ namespace Ice.udp
             endpoint.Append(" -p ");
             endpoint.Append(getTestPort(properties, 10));
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
-            ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
+            ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add(new TestIntf(), "test");
             mcastAdapter.Activate();
 
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);

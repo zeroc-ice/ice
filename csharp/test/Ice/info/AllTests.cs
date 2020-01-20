@@ -90,7 +90,7 @@ namespace Ice.info
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                     "\" -t 15000:udp -h \"" + host + "\"");
                 System.Console.WriteLine(communicator.GetProperty("TestAdapter.Endpoints"));
-                adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 IEndpoint[] endpoints = adapter.GetEndpoints();
                 test(endpoints.Length == 2);
@@ -123,7 +123,7 @@ namespace Ice.info
                 int port = helper.getTestPort(1);
                 communicator.SetProperty("TestAdapter.Endpoints", $"default -h * -p {port}");
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
-                adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 endpoints = adapter.GetEndpoints();
                 test(endpoints.Length >= 1);
@@ -239,8 +239,8 @@ namespace Ice.info
 
             testIntf.shutdown();
 
-            communicator.shutdown();
-            communicator.waitForShutdown();
+            communicator.Shutdown();
+            communicator.WaitForShutdown();
         }
     }
 }

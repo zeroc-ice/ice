@@ -53,7 +53,7 @@ namespace Ice.ami
                     _pending.SetResult(null);
                     _pending = null;
                 }
-                current.Adapter.Communicator.shutdown();
+                current.Adapter.Communicator.Shutdown();
             }
         }
 
@@ -151,7 +151,7 @@ namespace Ice.ami
 
     public class TestControllerIntf : Test.ITestIntfController
     {
-        public void holdAdapter(Ice.Current current) => _adapter.Hold();
+        public void holdAdapter(Current current) => _adapter.Hold();
         public void resumeAdapter(Current current) => _adapter.Activate();
         public TestControllerIntf(ObjectAdapter adapter) => _adapter = adapter;
 

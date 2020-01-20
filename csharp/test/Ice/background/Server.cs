@@ -102,8 +102,8 @@ public class Server : TestHelper
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
         }
 
-        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ObjectAdapter adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
         var backgroundController = new BackgroundController(adapter);
 
@@ -121,7 +121,7 @@ public class Server : TestHelper
         adapter2.Add(backgroundController, "backgroundController");
         adapter2.Activate();
 
-        communicator.waitForShutdown();
+        communicator.WaitForShutdown();
     }
 
     public static int Main(string[] args) => TestDriver.runTest<Server>(args);

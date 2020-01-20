@@ -8,7 +8,7 @@ namespace Ice.threadPoolPriority
 {
     public class Priority : Test.IPriority
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         public string getPriority(Current current) => Thread.CurrentThread.Priority.ToString();
     }
 }

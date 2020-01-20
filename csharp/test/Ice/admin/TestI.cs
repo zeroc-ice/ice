@@ -19,7 +19,7 @@ namespace Ice.admin
     {
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx getAdmin(Current current) => _communicator.getAdmin();
+        public IObjectPrx getAdmin(Current current) => _communicator.GetAdmin();
 
         public Dictionary<string, string> getChanges(Ice.Current current)
         {
@@ -37,13 +37,13 @@ namespace Ice.admin
 
         public void error(string message, Current current) => _communicator.Logger.error(message);
 
-        public void shutdown(Current current) => _communicator.shutdown();
+        public void shutdown(Current current) => _communicator.Shutdown();
 
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
-        public void waitForShutdown(Current current) => _communicator.waitForShutdown();
+        public void waitForShutdown(Current current) => _communicator.WaitForShutdown();
 
-        public void destroy(Current current) => _communicator.destroy();
+        public void destroy(Current current) => _communicator.Destroy();
 
         public void updated(Dictionary<string, string> changes)
         {
@@ -105,7 +105,7 @@ namespace Ice.admin
             return current.Adapter.Add(servant);
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private class NullLogger : ILogger
         {

@@ -1043,7 +1043,7 @@ namespace Ice
                     IceInternal.Buffer buf = _writeStream.GetBuffer();
                     int start = buf.b.position();
                     _transceiver.finishWrite(buf);
-                    if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
+                    if (_communicator.TraceLevels.network >= 3 && buf.b.position() != start)
                     {
                         var s = new StringBuilder("sent ");
                         s.Append(buf.b.position() - start);
@@ -1056,7 +1056,7 @@ namespace Ice
                         s.Append(_endpoint.protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                        _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
                     }
 
                     if (_observer != null)
@@ -1069,7 +1069,7 @@ namespace Ice
                     IceInternal.Buffer buf = _readStream.GetBuffer();
                     int start = buf.b.position();
                     _transceiver.finishRead(buf);
-                    if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
+                    if (_communicator.TraceLevels.network >= 3 && buf.b.position() != start)
                     {
                         StringBuilder s = new StringBuilder("received ");
                         if (_endpoint.datagram())
@@ -1086,7 +1086,7 @@ namespace Ice
                         s.Append(_endpoint.protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                        _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
                     }
 
                     if (_observer != null && !_readHeader)
@@ -1529,7 +1529,7 @@ namespace Ice
         {
             if (!_initialized)
             {
-                if (_communicator.traceLevels().network >= 2)
+                if (_communicator.TraceLevels.network >= 2)
                 {
                     var s = new StringBuilder("failed to ");
                     s.Append(_connector != null ? "establish" : "accept");
@@ -1539,10 +1539,10 @@ namespace Ice
                     s.Append(ToString());
                     s.Append("\n");
                     s.Append(_exception);
-                    _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                    _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
                 }
             }
-            else if (_communicator.traceLevels().network >= 1)
+            else if (_communicator.TraceLevels.network >= 1)
             {
                 var s = new StringBuilder("closed ");
                 s.Append(_endpoint.protocol());
@@ -1562,7 +1562,7 @@ namespace Ice
                     s.Append(_exception);
                 }
 
-                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
             }
 
             if (_startCallback != null)
@@ -1790,8 +1790,8 @@ namespace Ice
             _adapter = adapter;
             _communicatorObserver = communicator.Observer;
             _logger = communicator.Logger; // Cached for better performance.
-            _traceLevels = communicator.traceLevels(); // Cached for better performance.
-            _timer = communicator.timer();
+            _traceLevels = communicator.TraceLevels; // Cached for better performance.
+            _timer = communicator.Timer();
             _writeTimeout = new TimeoutCallback(this);
             _writeTimeoutScheduled = false;
             _readTimeout = new TimeoutCallback(this);
@@ -1808,7 +1808,7 @@ namespace Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : communicator.messageSizeMax();
+            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : communicator.MessageSizeMax;
             _readStream = new InputStream(communicator, Util.currentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
@@ -1840,7 +1840,7 @@ namespace Ice
                 }
                 else
                 {
-                    _threadPool = communicator.clientThreadPool();
+                    _threadPool = communicator.ClientThreadPool();
                 }
                 _threadPool.initialize(this);
             }
@@ -2299,7 +2299,7 @@ namespace Ice
             _readStream.Pos = 0;
             _readHeader = true;
 
-            if (_communicator.traceLevels().network >= 1)
+            if (_communicator.TraceLevels.network >= 1)
             {
                 StringBuilder s = new StringBuilder();
                 if (_endpoint.datagram())
@@ -2319,7 +2319,7 @@ namespace Ice
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
-                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
             }
 
             return true;
@@ -2799,7 +2799,7 @@ namespace Ice
             int timeout;
             if (_state < StateActive)
             {
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
+                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
                 if (defaultsAndOverrides.overrideConnectTimeout)
                 {
                     timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -2819,7 +2819,7 @@ namespace Ice
             }
             else
             {
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
+                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
                 if (defaultsAndOverrides.overrideCloseTimeout)
                 {
                     timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
@@ -3005,7 +3005,7 @@ namespace Ice
         {
             int start = buf.b.position();
             int op = _transceiver.read(buf, ref _hasMoreData);
-            if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
+            if (_communicator.TraceLevels.network >= 3 && buf.b.position() != start)
             {
                 StringBuilder s = new StringBuilder("received ");
                 if (_endpoint.datagram())
@@ -3022,7 +3022,7 @@ namespace Ice
                 s.Append(_endpoint.protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
             }
             return op;
         }
@@ -3031,7 +3031,7 @@ namespace Ice
         {
             int start = buf.b.position();
             int op = _transceiver.write(buf);
-            if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
+            if (_communicator.TraceLevels.network >= 3 && buf.b.position() != start)
             {
                 StringBuilder s = new StringBuilder("sent ");
                 s.Append(buf.b.position() - start);
@@ -3044,7 +3044,7 @@ namespace Ice
                 s.Append(_endpoint.protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
             }
             return op;
         }

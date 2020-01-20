@@ -15,7 +15,7 @@ public sealed class Controller : IController
         communicator.SetProperty($"{name}.AdapterId", adapterId);
         communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
         communicator.SetProperty($"{name}.Endpoints", "default");
-        Ice.ObjectAdapter oa = communicator.createObjectAdapter(name);
+        Ice.ObjectAdapter oa = communicator.CreateObjectAdapter(name);
         _adapters[name] = oa;
         oa.Activate();
     }
@@ -42,7 +42,7 @@ public sealed class Controller : IController
     }
 
     public void
-    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 
     private Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
 }

@@ -67,7 +67,7 @@ namespace IceBox
                 Console.CancelKeyPress += (sender, eventArgs) =>
                 {
                     eventArgs.Cancel = true;
-                    communicator.shutdown();
+                    communicator.Shutdown();
                 };
 
                 return run(communicator, args);
