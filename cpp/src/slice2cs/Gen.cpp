@@ -36,17 +36,17 @@ sliceModeToIceMode(Operation::Mode opMode, string ns)
     {
         case Operation::Normal:
         {
-            mode = CsGenerator::getUnqualified("Ice.OperationMode.Normal", ns);
+            mode = getUnqualified("Ice.OperationMode.Normal", ns);
             break;
         }
         case Operation::Nonmutating:
         {
-            mode = CsGenerator::getUnqualified("Ice.OperationMode.Nonmutating", ns);
+            mode = getUnqualified("Ice.OperationMode.Nonmutating", ns);
             break;
         }
         case Operation::Idempotent:
         {
-            mode = CsGenerator::getUnqualified("Ice.OperationMode.Idempotent", ns);
+            mode = getUnqualified("Ice.OperationMode.Idempotent", ns);
             break;
         }
         default:
@@ -65,15 +65,15 @@ opFormatTypeToString(const OperationPtr& op, string ns)
     {
         case DefaultFormat:
         {
-            return CsGenerator::getUnqualified("Ice.FormatType.DefaultFormat", ns);
+            return getUnqualified("Ice.FormatType.DefaultFormat", ns);
         }
         case CompactFormat:
         {
-            return CsGenerator::getUnqualified("Ice.FormatType.CompactFormat", ns);
+            return getUnqualified("Ice.FormatType.CompactFormat", ns);
         }
         case SlicedFormat:
         {
-            return CsGenerator::getUnqualified("Ice.FormatType.SlicedFormat", ns);
+            return getUnqualified("Ice.FormatType.SlicedFormat", ns);
         }
         default:
         {
@@ -387,7 +387,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
         param << getParamAttributes(p);
         param << CsGenerator::typeToString(p->type(), ns, p->tagged())
               << " "
-              << CsGenerator::fixId(p->name());
+              << fixId(p->name());
         params.push_back(param.str());
     }
     params.push_back("global::System.Collections.Generic.Dictionary<string, string>? " +
@@ -410,7 +410,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
         param << getParamAttributes(p)
               << CsGenerator::typeToString(p->type(), ns, p->tagged())
               << " "
-              << CsGenerator::fixId(prefix + p->name());
+              << fixId(prefix + p->name());
         params.push_back(param.str());
     }
 
@@ -655,533 +655,346 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
     }
 }
 
-string
-Slice::CsVisitor::toCsIdent(const string& s)
+namespace
 {
-    string::size_type pos = s.find('#');
-    if(pos == string::npos)
-    {
-        return s;
-    }
 
-    string result = s;
+//
+// Convert the identifier part of a Java doc Link tag to a CSharp identiefier. If the identifier
+// is an interface the link should point to the corresponding generated proxy, we apply the
+// case conversions required to match the CSharp generatd code.
+//
+string
+csharpIdentifier(ContainedPtr contained, const string& identifier)
+{
+    string ns = getNamespace(contained);
+    string typeName;
+    string memberName;
+    string::size_type pos = identifier.find('#');
     if(pos == 0)
     {
-        return result.erase(0, 1);
+        memberName = identifier.substr(1);
+    }
+    else if(pos == string::npos)
+    {
+        typeName = identifier;
+    }
+    else
+    {
+        typeName = identifier.substr(0, pos);
+        memberName = identifier.substr(pos + 1);
     }
 
-    result[pos] = '.';
-    return result;
-}
-
-string
-Slice::CsVisitor::editMarkup(const string& s)
-{
-    //
-    // Strip HTML markup and javadoc links--VS doesn't display them.
-    //
-    string result = s;
-    string::size_type pos = 0;
-    do
+    // lookup the Slice definition for the identifier
+    ContainedPtr definition;
+    if(typeName.empty())
     {
-        pos = result.find('<', pos);
-        if(pos != string::npos)
+        definition = contained;
+    }
+    else
+    {
+        TypeList types = contained->unit()->lookupTypeNoBuiltin(typeName, false, true);
+        definition = types.empty() ? 0 : ContainedPtr::dynamicCast(types.front());
+    }
+
+    ostringstream os;
+    if(!definition || !normalizeCase(definition))
+    {
+        if(typeName == "::Ice::Object")
         {
-            string::size_type endpos = result.find('>', pos);
-            if(endpos == string::npos)
-            {
-                break;
-            }
-            result.erase(pos, endpos - pos + 1);
+            os << "Ice.IObjectPrx";
+        }
+        else
+        {
+            os << fixId(typeName);
         }
     }
-    while(pos != string::npos);
-
-    const string link = "{@link";
-    pos = 0;
-    do
+    else
     {
-        pos = result.find(link, pos);
-        if(pos != string::npos)
+        ClassDefPtr def = ClassDefPtr::dynamicCast(definition);
+        if(!def)
         {
-            result.erase(pos, link.size() + 1); // erase following white space too
-            string::size_type endpos = result.find('}', pos);
-            if(endpos != string::npos)
+            ClassDeclPtr decl = ClassDeclPtr::dynamicCast(definition);
+            if(decl)
             {
-                string ident = result.substr(pos, endpos - pos);
-                result.erase(pos, endpos - pos + 1);
-                result.insert(pos, toCsIdent(ident));
+                def = decl->definition();
             }
         }
-    }
-    while(pos != string::npos);
 
-    //
-    // Strip @see sections because VS does not display them.
-    //
-    static const string seeTag = "@see";
-    pos = 0;
-    do
-    {
-        //
-        // Look for the next @ and delete up to that, or
-        // to the end of the string, if not found.
-        //
-        pos = result.find(seeTag, pos);
-        if(pos != string::npos)
+        if(def && def->isInterface())
         {
-            string::size_type next = result.find('@', pos + seeTag.size());
-            if(next != string::npos)
+            os << getUnqualified(fixId(definition->scope()) + interfaceName(def), ns) << "Prx";
+        }
+        else
+        {
+            typeName = fixId(typeName);
+            pos = typeName.rfind(".");
+            if(pos == string::npos)
             {
-                result.erase(pos, next - pos);
+                os << pascalCase(fixId(typeName));
             }
             else
             {
-                result.erase(pos, string::npos);
+                os << typeName.substr(0, pos) << "." << pascalCase(typeName.substr(pos + 1));
             }
         }
-    } while(pos != string::npos);
-
-    //
-    // Replace @param, @return, and @throws with corresponding <param>, <returns>, and <exception> tags.
-    //
-    static const string paramTag = "@param";
-    pos = 0;
-    do
-    {
-        pos = result.find(paramTag, pos);
-        if(pos != string::npos)
-        {
-            result.erase(pos, paramTag.size() + 1);
-
-            string::size_type startIdent = result.find_first_not_of(" \t", pos);
-            if(startIdent != string::npos)
-            {
-                string::size_type endIdent = result.find_first_of(" \t", startIdent);
-                if(endIdent != string::npos)
-                {
-                    string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(endIdent + 1,
-                                                   endComment == string::npos ? endComment : endComment - endIdent - 1);
-                    result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
-                    string newComment = "<param name=\"" + ident + "\">" + comment + "</param>\n";
-                    result.insert(startIdent, newComment);
-                    pos = startIdent + newComment.size();
-                }
-            }
-            else
-            {
-               pos += paramTag.size();
-            }
-        }
-    } while(pos != string::npos);
-
-    static const string returnTag = "@return";
-    pos = result.find(returnTag);
-    if(pos != string::npos)
-    {
-        result.erase(pos, returnTag.size() + 1);
-        string::size_type endComment = result.find_first_of("@<", pos);
-        string comment = result.substr(pos, endComment == string::npos ? endComment : endComment - pos);
-        result.erase(pos, endComment == string::npos ? string::npos : endComment - pos);
-        string newComment = "<returns>" + comment + "</returns>\n";
-        result.insert(pos, newComment);
-        pos = pos + newComment.size();
     }
 
-    static const string throwsTag = "@throws";
-    pos = 0;
-    do
+    if(!memberName.empty())
     {
-        pos = result.find(throwsTag, pos);
-        if(pos != string::npos)
-        {
-            result.erase(pos, throwsTag.size() + 1);
-
-            string::size_type startIdent = result.find_first_not_of(" \t", pos);
-            if(startIdent != string::npos)
-            {
-                string::size_type endIdent = result.find_first_of(" \t", startIdent);
-                if(endIdent != string::npos)
-                {
-                    string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(endIdent + 1,
-                                                   endComment == string::npos ? endComment : endComment - endIdent - 1);
-                    result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
-                    string newComment = "<exception name=\"" + ident + "\">" + comment + "</exception>\n";
-                    result.insert(startIdent, newComment);
-                    pos = startIdent + newComment.size();
-                }
-            }
-            else
-            {
-               pos += throwsTag.size();
-            }
-        }
-    } while(pos != string::npos);
-
-    return result;
-}
-
-StringList
-Slice::CsVisitor::splitIntoLines(const string& comment)
-{
-    string s = editMarkup(comment);
-    StringList result;
-    string::size_type pos = 0;
-    string::size_type nextPos;
-    while((nextPos = s.find_first_of('\n', pos)) != string::npos)
-    {
-        result.push_back(string(s, pos, nextPos - pos));
-        pos = nextPos + 1;
+        os << "." << (definition && normalizeCase(definition) ? pascalCase(fixId(memberName)) : fixId(memberName));
     }
-    string lastLine = string(s, pos);
-    if(lastLine.find_first_not_of(" \t\n\r") != string::npos)
+    string result = os.str();
+    //
+    // strip global:: prefix if present, it is not supported in doc comment cref attributes
+    //
+    const string global = "global::";
+    if(result.find(global) == 0)
     {
-        result.push_back(lastLine);
+        result = result.substr(global.size());
     }
     return result;
 }
 
-void
-Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
+vector<string>
+splitLines(const string& s)
 {
-    string s = p->comment();
+    vector<string> lines;
+    istringstream is(s);
+    for(string line; getline(is, line, '\n');)
+    {
+        lines.push_back(trim(line));
+    }
+    return lines;
+}
+
+//
+// Transform a Java doc style tag to a C# doc style tag, returns a map idenxed by the C#
+// tag name atrribute and the value contains all the lines in the comment.
+//
+// @param foo is the Foo argument -> {"foo": ["foo is the Foo argument"]}
+//
+map<string, vector<string>>
+processTag(const string& sourceTag, const string& s)
+{
+    map<string, vector<string>> result;
+    for(string::size_type pos = s.find(sourceTag); pos != string::npos; pos = s.find(sourceTag, pos + 1))
+    {
+        string::size_type startIdent = s.find_first_not_of(" \t", pos + sourceTag.size());
+        string::size_type endIdent = s.find_first_of(" \t", startIdent);
+        string::size_type endComment = s.find_first_of("@", endIdent);
+        if(endIdent != string::npos)
+        {
+            string ident = s.substr(startIdent, endIdent - startIdent);
+            string comment = s.substr(endIdent + 1,
+                                      endComment == string::npos ? endComment : endComment - endIdent - 1);
+            result[ident] = splitLines(trim(comment));
+        }
+    }
+    return result;
+}
+
+CommentInfo
+processComment(const ContainedPtr& contained, const string& deprecateReason)
+{
+    //
+    // Strip HTML markup and javadoc links that are not displayed by Visual Studio.
+    //
+    string data = contained->comment();
+    for(string::size_type pos = data.find('<'); pos != string::npos; pos = data.find('<', pos))
+    {
+        string::size_type endpos = data.find('>', pos);
+        if(endpos == string::npos)
+        {
+            break;
+        }
+        data.erase(pos, endpos - pos + 1);
+    }
+
+    const string link = "{@link ";
+    for(string::size_type pos = data.find(link); pos != string::npos; pos = data.find(link, pos))
+    {
+        data.erase(pos, link.size());
+        string::size_type endpos = data.find('}', pos);
+        if(endpos != string::npos)
+        {
+            string ident = data.substr(pos, endpos - pos);
+            data.erase(pos, endpos - pos + 1);
+            data.insert(pos, csharpIdentifier(contained, ident));
+        }
+    }
+
+    const string see = "{@see ";
+    for(string::size_type pos = data.find(see); pos != string::npos; pos = data.find(see, pos))
+    {
+        string::size_type endpos = data.find('}', pos);
+        if(endpos != string::npos)
+        {
+            string ident = data.substr(pos + see.size(), endpos - pos - see.size());
+            data.erase(pos, endpos - pos + 1);
+            data.insert(pos, "<see cref=\"" + csharpIdentifier(contained, ident) + "\"/>");
+        }
+    }
+
+    CommentInfo comment;
 
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
     const string returnTag = "@return";
 
-    unsigned int i;
-
-    for(i = 0; i < s.size(); ++i)
+    string::size_type pos;
+    for(pos = data.find('@'); pos != string::npos; pos = data.find('@', pos + 1))
     {
-        if(s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
-        {
-            ++i;
-            break;
-        }
-        else if(s[i] == '@' && (s.substr(i, paramTag.size()) == paramTag ||
-                                s.substr(i, throwsTag.size()) == throwsTag ||
-                                s.substr(i, exceptionTag.size()) == exceptionTag ||
-                                s.substr(i, returnTag.size()) == returnTag))
+        if((data.substr(pos, paramTag.size()) == paramTag ||
+            data.substr(pos, throwsTag.size()) == throwsTag ||
+            data.substr(pos, exceptionTag.size()) == exceptionTag ||
+            data.substr(pos, returnTag.size()) == returnTag))
         {
             break;
         }
     }
 
-    summaryLines = splitIntoLines(trim(s.substr(0, i)));
-    if(!summaryLines.empty())
+    if(pos > 0)
     {
-        remarksLines = splitIntoLines(trim(s.substr(i)));
-    }
-}
-
-void
-Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecateReason, const string& extraParam)
-{
-    StringList summaryLines;
-    StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
-
-    if(summaryLines.empty())
-    {
+        ostringstream os;
+        os << trim(data.substr(0, pos));
         if(!deprecateReason.empty())
         {
-            _out << nl << "///";
-            _out << nl << "/// <summary>" << deprecateReason << "</summary>";
-            _out << nl << "///";
+            os << "<para>" << deprecateReason << "</para>";
         }
-        return;
+        comment.summaryLines = splitLines(os.str());
     }
 
-    _out << nl << "/// <summary>";
-
-    for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+    if(comment.summaryLines.empty() && !deprecateReason.empty())
     {
-        _out << nl << "///";
-        if(!(*i).empty())
-        {
-            _out << " " << *i;
-        }
+        comment.summaryLines.push_back(deprecateReason);
     }
 
-    //
-    // We generate everything into the summary tag (despite what the MSDN doc says) because
-    // Visual Studio only shows the <summary> text and omits the <remarks> text.
-    //
-    if(!deprecateReason.empty())
+    comment.params = processTag("@param", data);
+    comment.exceptions = processTag("@throws", data);
+
+    pos = data.find(returnTag);
+    if(pos != string::npos)
     {
-        _out << nl << "///";
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-        _out << nl << "///";
+        pos += returnTag.size();
+        string::size_type endComment = data.find("@", pos);
+        comment.returnLines = splitLines(
+            trim(data.substr(pos , endComment == string::npos ? endComment : endComment - pos)));
     }
 
-    bool summaryClosed = false;
-
-    if(!remarksLines.empty())
-    {
-        for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end(); ++i)
-        {
-            //
-            // The first param, returns, or exception tag ends the description.
-            //
-            static const string paramTag = "<param";
-            static const string returnsTag = "<returns";
-            static const string exceptionTag = "<exception";
-
-            if(!summaryClosed &&
-               (i->find(paramTag) != string::npos ||
-                i->find(returnsTag) != string::npos ||
-                i->find(exceptionTag) != string::npos))
-            {
-                _out << nl << "/// </summary>";
-                _out << nl << "/// " << *i;
-                summaryClosed = true;
-            }
-            else
-            {
-                _out << nl << "///";
-                if(!(*i).empty())
-                {
-                    _out << " " << *i;
-                }
-            }
-        }
-    }
-
-    if(!summaryClosed)
-    {
-        _out << nl << "/// </summary>";
-    }
-
-    if(!extraParam.empty())
-    {
-        _out << nl << "/// " << extraParam;
-    }
-
-    _out << sp;
+    return comment;
 }
 
-void
-Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p, const string& deprecateReason,
-                                     const string& extraParam1, const string& extraParam2,
-                                     const string& extraParam3)
+}
+
+void writeDocCommentLines(IceUtilInternal::Output& out,
+                          const vector<string>& lines,
+                          const string& tag,
+                          const string& name = "",
+                          const string& value = "")
 {
-    StringList summaryLines;
-    StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
-
-    if(summaryLines.empty() && deprecateReason.empty())
+    out << nl << "/// <" << tag;
+    if(!name.empty())
     {
-        return;
+        out << " " << name << "=\"" << value << "\"";
     }
+    out << ">";
 
-    //
-    // Output the leading comment block up until the first tag.
-    //
-    _out << nl << "/// <summary>";
-    for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+    for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
     {
-        _out << nl << "///";
-        if(!(*i).empty())
+        if(i == lines.begin())
         {
-            _out << " " << *i;
-        }
-    }
-
-    bool done = false;
-    for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
-    {
-        string::size_type pos = i->find('<');
-        done = true;
-        if(pos != string::npos)
-        {
-            if(pos != 0)
-            {
-                _out << nl << "/// " << i->substr(0, pos);
-            }
+            out << *i;
         }
         else
         {
-            _out << nl << "///";
-            if(!(*i).empty())
+            out << nl << "///";
+            if(!i->empty())
             {
-                _out << " " << *i;
+                out << " " << (*i);
             }
         }
     }
-    _out << nl << "/// </summary>";
 
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(p, InParam, false);
-
-    if(!extraParam1.empty())
-    {
-        _out << nl << "/// " << extraParam1;
-    }
-
-    if(!extraParam2.empty())
-    {
-        _out << nl << "/// " << extraParam2;
-    }
-
-    if(!extraParam3.empty())
-    {
-        _out << nl << "/// " << extraParam3;
-    }
-
-    _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-
-    if(!deprecateReason.empty())
-    {
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
-    }
+    out << "</" << tag << ">";
 }
 
 void
-Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraParam)
+writeSeeAlsoDocComment(IceUtilInternal::Output& out, const string& identifier)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
-    string deprecateReason = getDeprecateReason(p, contained, "operation");
+    out << nl << "/// <seealso cref=\"" << identifier << "\"/>";
+}
 
-    StringList summaryLines;
-    StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+void
+Slice::CsVisitor::writeTypeDocComment(const ContainedPtr& p,
+                                      const string& deprecateReason)
+{
+    CommentInfo comment = processComment(p, deprecateReason);
+    writeDocCommentLines(_out, comment.summaryLines, "summary");
+}
 
-    if(summaryLines.empty() && deprecateReason.empty())
+void
+Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& deprecateReason,
+                                           bool dispatch, bool async)
+{
+    CommentInfo comment = processComment(p, deprecateReason);
+    writeDocCommentLines(_out, comment.summaryLines, "summary");
+    writeParamDocComment(p, comment, InParam);
+
+    list<ParamInfo> outParams = getAllOutParams(p);
+
+    if(dispatch)
     {
-        return;
+        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "current")
+             << "\">The Current object for the dispatch.</param>";
     }
-
-    //
-    // Output the leading comment block up until the first tag.
-    //
-    _out << nl << "/// <summary>";
-    for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+    else
     {
-        _out << nl << "///";
-        if(!(*i).empty())
+        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "context")
+             << "\">Context map to send with the invocation.</param>";
+
+        if(async)
         {
-            _out << " " << *i;
+            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
+                 << "\">Sent progress provider.</param>";
+            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
+                 << "\">A cancellation token that receives the cancellation requests.</param>";
         }
     }
 
-    bool done = false;
-    for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
+    if(async)
     {
-        string::size_type pos = i->find('<');
-        done = true;
-        if(pos != string::npos)
-        {
-            if(pos != 0)
-            {
-                _out << nl << "/// " << i->substr(0, pos);
-            }
-        }
-        else
-        {
-            _out << nl << "///";
-            if(!(*i).empty())
-            {
-                _out << " " << *i;
-            }
-        }
+        _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
     }
-    _out << nl << "/// </summary>";
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(p, InParam, true);
-
-    if(!extraParam.empty())
+    else if(outParams.size() == 1)
     {
-        _out << nl << "/// " << extraParam;
+        writeDocCommentLines(_out, comment.returnLines, "returns");
+    }
+    else if(outParams.size() >= 1)
+    {
+        _out << nl << "/// <returns>The struct containing the results of the operation.</returns>";
     }
 
-    _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-
-    if(!deprecateReason.empty())
+    for(const auto& e : comment.exceptions)
     {
-        _out << nl << "/// <para>" << deprecateReason << "</para>";
+        writeDocCommentLines(_out, e.second, "exceptions", "cref", e.first);
     }
 }
 
 void
-Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool /*amd*/)
+Slice::CsVisitor::writeParamDocComment(const OperationPtr& p, const CommentInfo& comment, ParamDir paramType)
 {
     //
     // Collect the names of the in- or -out parameters to be documented.
     //
-    ParamDeclList tmp = p->parameters();
-    vector<string> params;
-    for(ParamDeclList::const_iterator q = tmp.begin(); q != tmp.end(); ++q)
+    for(const auto param : p->parameters())
     {
-        if((*q)->isOutParam() && paramType == OutParam)
+        if((param->isOutParam() && paramType == OutParam) || (!param->isOutParam() && paramType == InParam))
         {
-            params.push_back((*q)->name());
-        }
-        else if(!(*q)->isOutParam() && paramType == InParam)
-        {
-            params.push_back((*q)->name());
-        }
-    }
-
-    //
-    // Print the comments for all the parameters that appear in the parameter list.
-    //
-    StringList summaryLines;
-    StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
-
-    const string paramTag = "<param";
-    StringList::const_iterator i = remarksLines.begin();
-    while(i != remarksLines.end())
-    {
-        string line = *i++;
-        if(line.find(paramTag) != string::npos)
-        {
-            string::size_type paramNamePos = line.find('"', paramTag.length());
-            if(paramNamePos != string::npos)
+            auto i = comment.params.find(param->name());
+            if(i != comment.params.end())
             {
-                string::size_type paramNameEndPos = line.find('"', paramNamePos + 1);
-                string paramName = line.substr(paramNamePos + 1, paramNameEndPos - paramNamePos - 1);
-                if(std::find(params.begin(), params.end(), paramName) != params.end())
-                {
-                    _out << nl << "/// " << line;
-                    StringList::const_iterator j;
-                    if(i == remarksLines.end())
-                    {
-                        break;
-                    }
-                    j = i++;
-                    while(j != remarksLines.end())
-                    {
-                        string::size_type endpos = j->find("</param>");
-                        if(endpos == string::npos)
-                        {
-                            i = j;
-                            string s = *j++;
-                            _out << nl << "///";
-                            if(!s.empty())
-                            {
-                                _out << " " << s;
-                            }
-                        }
-                        else
-                        {
-                            _out << nl << "/// " << *j++;
-                            break;
-                        }
-                    }
-                }
+                writeDocCommentLines(_out, i->second, "param", "name", paramName(param));
             }
         }
     }
@@ -1542,8 +1355,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
 
     _out << sp;
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitAttributes(p);
-
     emitComVisibleAttribute();
     emitPartialTypeAttributes();
     _out << nl << "[global::System.Serializable]";
@@ -1685,7 +1498,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitDeprecate(p, 0, _out, "type");
     emitAttributes(p);
     emitComVisibleAttribute();
@@ -2038,8 +1851,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string ns = getNamespace(p);
     _out << sp;
 
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitDeprecate(p, 0, _out, "type");
-
     emitAttributes(p);
     emitPartialTypeAttributes();
     _out << nl << "[global::System.Serializable]";
@@ -2378,8 +2191,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     assert(cont);
 
     _out << sp;
-    emitDeprecate(p, cont, _out, "member");
 
+    writeTypeDocComment(p, getDeprecateReason(p, cont, "member"));
+    emitDeprecate(p, cont, _out, "member");
     emitAttributes(p);
     emitGeneratedCodeAttribute();
     _out << nl << "public" << " " << typeToString(p->type(), getNamespace(cont), p->tagged());
@@ -2445,7 +2259,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "interface"));
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << interfaceName(p) << "Prx : ";
 
@@ -2619,8 +2433,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         // Write the synchronous version of the operation.
         //
         _out << sp;
-        writeDocComment(operation, deprecateReason,
-            "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
+        writeOperationDocComment(operation, deprecateReason, false, false);
         if(!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
@@ -2656,10 +2469,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         // Write the async version of the operation (using Async Task API)
         //
         _out << sp;
-        writeDocCommentAMI(operation, deprecateReason,
-            "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-            "<param name=\"" + progress + "\">Sent progress provider.</param>",
-            "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>");
+        writeOperationDocComment(operation, deprecateReason, false, true);
         if(!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
@@ -2965,6 +2775,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "interface"));
+    writeSeeAlsoDocComment(_out, interfaceName(p) + "Prx");
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << fixId(name);
@@ -3040,11 +2852,30 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
 
     if(outParams.size() > 1)
     {
+        string deprecateReason = getDeprecateReason(operation, cl, "operation");
+        CommentInfo comment = processComment(operation, deprecateReason);
+
         _out << sp;
+        _out << nl << "///";
+        _out << nl << "/// This struct is used as the result of <see cref=\"" << interfaceName(cl) << "." << opName
+             << "\"/> operation.";
+        _out << nl << "///";
         _out << nl << "public struct " << opName << "ReturnValue";
         _out << sb;
         for(const auto& p : outParams)
         {
+            if(p.param == 0)
+            {
+                writeDocCommentLines(_out, comment.returnLines, "summary");
+            }
+            else
+            {
+                auto i = comment.params.find(p.name);
+                if(i != comment.params.end())
+                {
+                    writeDocCommentLines(_out, i->second, "summary");
+                }
+            }
             _out << nl << "public " << p.typeStr << " " << dataMemberName(p) << ";";
         }
 
@@ -3085,11 +2916,13 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
+    string deprecateReason = getDeprecateReason(operation, cl, "operation");
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
     list<ParamInfo> inParams = getAllInParams(operation);
 
     _out << sp;
+    writeOperationDocComment(operation, deprecateReason, true, amd);
     _out << nl << "public ";
 
     if(amd)

@@ -15,6 +15,22 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
+std::string fixId(const std::string&, unsigned int = 0);
+//
+// Returns the namespace of a Contained entity.
+//
+std::string getNamespace(const ContainedPtr&);
+//
+// Returns the namespace prefix of a Contained entity.
+//
+std::string getNamespacePrefix(const ContainedPtr&);
+
+std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
+std::string getUnqualified(const ContainedPtr&,
+                           const std::string& package = "",
+                           const std::string& prefix = "",
+                           const std::string& suffix = "");
+
 struct ParamInfo
 {
     std::string name;
@@ -88,25 +104,10 @@ public:
     //
     static void validateMetaData(const UnitPtr&);
 
-    //
-    // Returns the namespace of a Contained entity.
-    //
-    static std::string getNamespace(const ContainedPtr&);
-
-    static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
-    static std::string getUnqualified(const ContainedPtr&,
-                                      const std::string& package = "",
-                                      const std::string& prefix = "",
-                                      const std::string& suffix = "");
     static std::string typeToString(const TypePtr&, const std::string&, bool = false);
-    static std::string fixId(const std::string&, unsigned int = 0);
 
 protected:
 
-    //
-    // Returns the namespace prefix of a Contained entity.
-    //
-    static std::string getNamespacePrefix(const ContainedPtr&);
     static std::string getCustomTypeIdNamespace(const UnitPtr&);
 
     static std::string getTagFormat(const TypePtr&, const std::string&);

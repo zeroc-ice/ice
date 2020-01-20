@@ -173,7 +173,7 @@ lookupKwd(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
+Slice::getNamespacePrefix(const ContainedPtr& cont)
 {
     //
     // Traverse to the top-level module.
@@ -223,7 +223,7 @@ Slice::CsGenerator::getCustomTypeIdNamespace(const UnitPtr& ut)
 }
 
 string
-Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
+Slice::getNamespace(const ContainedPtr& cont)
 {
     string scope = fixId(cont->scope());
     if(scope.rfind(".") == scope.size() - 1)
@@ -247,7 +247,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 }
 
 string
-Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
+Slice::getUnqualified(const string& type, const string& scope, bool builtin)
 {
     if(type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size() + 1) == string::npos)
     {
@@ -264,8 +264,7 @@ Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool
 }
 
 string
-Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package, const string& prefix,
-                                   const string& suffix)
+Slice::getUnqualified(const ContainedPtr& p, const string& package, const string& prefix, const string& suffix)
 {
     string name = fixId(prefix + p->name() + suffix);
     string contPkg = getNamespace(p);
@@ -288,7 +287,7 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package,
 // if so, prefix it with ice_; otherwise, return the name unchanged.
 //
 string
-Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes)
+Slice::fixId(const string& name, unsigned int baseTypes)
 {
     if(name.empty())
     {
@@ -298,22 +297,21 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes)
     {
         return lookupKwd(name, baseTypes);
     }
-    auto ids = splitScopedName(name);
+    vector<string> ids = splitScopedName(name);
     transform(begin(ids), end(ids), begin(ids), [baseTypes](const std::string& i)
                                                 {
                                                     return lookupKwd(i, baseTypes);
                                                 });
-
-    stringstream result;
-    for(vector<string>::const_iterator j = ids.begin(); j != ids.end(); ++j)
+    ostringstream os;
+    for(vector<string>::const_iterator i = ids.begin(); i != ids.end();)
     {
-        if(j != ids.begin())
+        os << *i;
+        if(++i != ids.end())
         {
-            result << '.';
+            os << ".";
         }
-        result << *j;
     }
-    return result.str();
+    return os.str();
 }
 
 string
@@ -596,13 +594,13 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     }
     else if(dispatch && op->hasMarshaledResult())
     {
-        string name = CsGenerator::getNamespace(cls) + "." + interfaceName(cls);
-        return CsGenerator::getUnqualified(name, ns) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
+        string name = getNamespace(cls) + "." + interfaceName(cls);
+        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
     {
-        string name = CsGenerator::getNamespace(cls) + "." + interfaceName(cls);
-        return CsGenerator::getUnqualified(name, ns) + "." + pascalCase(op->name()) + "ReturnValue";
+        string name = getNamespace(cls) + "." + interfaceName(cls);
+        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "ReturnValue";
     }
     else
     {
@@ -752,7 +750,7 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
                             const string& pPrefix)
 {
     this->operation = pOperation;
-    this->name = CsGenerator::fixId(pPrefix + pName);
+    this->name = fixId(pPrefix + pName);
     this->type = pType;
     this->typeStr = CsGenerator::typeToString(pType, "", pTagged);
     this->nullable = isNullable(pType);
@@ -764,7 +762,7 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
 Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
 {
     this->operation = OperationPtr::dynamicCast(pParam->container());
-    this->name = CsGenerator::fixId(pPrefix + pParam->name());
+    this->name = fixId(pPrefix + pParam->name());
     this->type = pParam->type();
     this->typeStr = CsGenerator::typeToString(type, "", pParam->tagged());
     this->nullable = isNullable(type);
