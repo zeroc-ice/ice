@@ -434,6 +434,7 @@ namespace Ice
         /// </summary>
         public void IceEndSlice()
         {
+            // Note that IceEndSlice is not called when we call SkipSlice.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
@@ -2245,7 +2246,10 @@ namespace Ice
             }
         }
 
-        private void SkipSlice()
+        // Skip the body of the current slice and it indirection table (if any).
+        // When it's a class instance and there is an indirection table, it returns the starting position of that
+        // indirection table; otherwise, it return 0.
+        private int SkipSlice()
         {
             Debug.Assert(_current != null);
             if (Communicator.TraceLevels.slicing > 0)
@@ -2306,29 +2310,23 @@ namespace Ice
             b.get(bytes);
             b.position(end);
 
-            // The deferred indirection table is only used by classes. For exceptions, the indirection table is
-            // unmarshaled immediately.
-            if (_current.InstanceType == InstanceType.Class)
+            int startOfIndirectionTable = 0;
+
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
-                _current.DeferredIndirectionTableList ??= new List<int>();
-                if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                if (_current.InstanceType == InstanceType.Class)
                 {
-                    _current.DeferredIndirectionTableList.Add(Pos);
+                    startOfIndirectionTable = Pos;
                     SkipIndirectionTable();
                 }
                 else
                 {
-                    _current.DeferredIndirectionTableList.Add(0);
+                    Debug.Assert(_current.PosAfterIndirectionTable != null);
+                    // Move past indirection table
+                    Pos = _current.PosAfterIndirectionTable.Value;
+                    _current.PosAfterIndirectionTable = null;
                 }
             }
-            else if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
-            {
-                Debug.Assert(_current.PosAfterIndirectionTable != null);
-                // Move past indirection table
-                Pos = _current.PosAfterIndirectionTable.Value;
-                _current.PosAfterIndirectionTable = null;
-            }
-
             _current.Slices ??= new List<SliceInfo>();
             var info = new SliceInfo(_current.SliceTypeId,
                                      _current.SliceCompactId,
@@ -2341,6 +2339,7 @@ namespace Ice
             // An exception slice may have an indirection table (saved above). We don't need it anymore
             // since we're skipping this slice.
             _current.IndirectionTable = null;
+            return startOfIndirectionTable;
         }
 
         // Skip the indirection table. The caller must save the current stream position before calling
@@ -2413,6 +2412,7 @@ namespace Ice
                 }
             }
         }
+
         private AnyClass[] ReadIndirectionTable()
         {
             var size = ReadAndCheckSeqSize(1);
@@ -2456,6 +2456,8 @@ namespace Ice
             // created yet.
 
             AnyClass? v = null;
+            List<int>? deferredIndirectionTableList = null;
+
             while (true)
             {
                 Type? cls = null;
@@ -2489,8 +2491,9 @@ namespace Ice
                 }
 
                 // Slice off what we don't understand, and save the indirection table (if any) in
-                // DefererredIndirectionTableList.
-                SkipSlice();
+                // defererredIndirectionTableList.
+                deferredIndirectionTableList ??= new List<int>();
+                deferredIndirectionTableList.Add(SkipSlice());
 
                 // If this is the last slice, keep the instance as an opaque UnknownSlicedClass object.
                 if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
@@ -2514,14 +2517,14 @@ namespace Ice
             _instanceMap.Add(v);
 
             // Read all the deferred indirection tables now that the instance is inserted in _instanceMap.
-            if (_current.DeferredIndirectionTableList?.Count > 0)
+            if (deferredIndirectionTableList?.Count > 0)
             {
                 int savedPos = Pos;
 
-                Debug.Assert(_current.Slices.Count == _current.DeferredIndirectionTableList.Count);
-                for (int i = 0; i < _current.DeferredIndirectionTableList.Count; ++i)
+                Debug.Assert(_current.Slices.Count == deferredIndirectionTableList.Count);
+                for (int i = 0; i < deferredIndirectionTableList.Count; ++i)
                 {
-                    int pos = _current.DeferredIndirectionTableList[i];
+                    int pos = deferredIndirectionTableList[i];
                     if (pos > 0)
                     {
                         Pos = pos;
@@ -2530,7 +2533,6 @@ namespace Ice
                     // else remains empty
                 }
                 Pos = savedPos;
-                _current.DeferredIndirectionTableList.Clear();
             }
 
             // Read the instance.
@@ -2571,10 +2573,6 @@ namespace Ice
             // Instance attributes
             internal readonly InstanceType InstanceType;
             internal List<SliceInfo>? Slices; // Preserved slices.
-
-            // Position of indirection tables that we skipped for now and that will unmarshal once the instance is
-            // created. Used only when SliceType is ClassSlice.
-            internal List<int>? DeferredIndirectionTableList;
 
             // Slice attributes
             internal byte SliceFlags = 0;
