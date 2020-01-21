@@ -2125,7 +2125,7 @@ namespace Ice
             return null;
         }
 
-        internal string ResolveCompactId(int compactId)
+        internal string? ResolveCompactId(int compactId)
         {
             string[] defaultVal = { "IceCompactId" };
             var compactIdNamespaces = new List<string>(defaultVal);
@@ -2135,14 +2135,13 @@ namespace Ice
                 compactIdNamespaces.AddRange(_typeIdNamespaces);
             }
 
-            string result = "";
+            string? result = null;
 
             foreach (var ns in compactIdNamespaces)
             {
-                string className = ns + ".TypeId_" + compactId;
                 try
                 {
-                    Type? c = AssemblyUtil.findType(className);
+                    Type? c = AssemblyUtil.findType($"{ns}.TypeId_{compactId}");
                     if (c != null)
                     {
                         result = (string)c.GetField("typeId").GetValue(null);

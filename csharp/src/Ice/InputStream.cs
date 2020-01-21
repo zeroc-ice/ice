@@ -82,7 +82,7 @@ namespace Ice
 
         private byte[]? _stringBytes; // Reusable array for reading strings.
 
-        // TODO: should we cache those per InputStream?
+        // TODO: should we cache those per InputStream or per communicator?
         //       should we clear the caches in ResetEncapsulation?
         private Dictionary<string, Type?>? _typeIdCache;
         private Dictionary<int, Type>? _compactIdCache;
@@ -2118,6 +2118,26 @@ namespace Ice
             return cls;
         }
 
+        private Type? ResolveClass(int compactId)
+        {
+            Type? cls = null;
+            if (_compactIdCache?.TryGetValue(compactId, out cls) != true)
+            {
+                // Not found in compactIdCache
+                string? typeId = Communicator.ResolveCompactId(compactId);
+                if (typeId != null)
+                {
+                    cls = ResolveClass(typeId);
+                    if (cls != null)
+                    {
+                        _compactIdCache ??= new Dictionary<int, Type>();
+                        _compactIdCache.Add(compactId, cls);
+                    }
+                }
+            }
+            return cls;
+        }
+
         private AnyClass? ReadAnyClass()
         {
             int index = ReadSize();
@@ -2454,73 +2474,32 @@ namespace Ice
             AnyClass? v = null;
             while (true)
             {
-                bool updateCache = false;
-
-                if (_current.SliceCompactId.HasValue)
+                Type? cls = null;
+                if (typeId != null)
                 {
-                    updateCache = true;
-
-                    // Translate a compact (numeric) type ID into a class.
-                    if (_compactIdCache == null)
-                    {
-                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
-                    }
-                    else
-                    {
-                        // Check the cache to see if we've already translated the compact type ID into a class.
-                        Type? cls = null;
-                        _compactIdCache.TryGetValue(_current.SliceCompactId.Value, out cls);
-                        if (cls != null)
-                        {
-                            try
-                            {
-                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                                updateCache = false;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new NoClassFactoryException("no class factory", "compact ID " +
-                                                                  _current.SliceCompactId.Value, ex);
-                            }
-                        }
-                    }
-
-                    // If we haven't already cached a class for the compact ID, then try to translate the
-                    // compact ID into a type ID.
-                    if (v == null && typeId == null)
-                    {
-                        typeId = Communicator.ResolveCompactId(_current.SliceCompactId.Value);
-                    }
+                    Debug.Assert(_current.SliceCompactId == null);
+                    cls = ResolveClass(typeId);
+                }
+                else if (_current.SliceCompactId.HasValue)
+                {
+                    cls = ResolveClass(_current.SliceCompactId.Value);
                 }
 
-                // TODO: fix code so that typeId can be either null or non-empty.
-                if (v == null && typeId != null && typeId.Length > 0)
+                if (cls != null)
                 {
-                    Type? cls = ResolveClass(typeId);
-
-                    if (cls != null)
+                    try
                     {
-                        try
-                        {
-                            Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                            v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new NoClassFactoryException("no class factory", typeId, ex);
-                        }
+                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                        v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new NoClassFactoryException("no class factory", typeId, ex);
                     }
                 }
 
                 if (v != null)
                 {
-                    if (updateCache)
-                    {
-                        Debug.Assert(_current.SliceCompactId.HasValue);
-                        _compactIdCache!.Add(_current.SliceCompactId.Value, v.GetType());
-                    }
-
                     // We have an instance, get out of this loop.
                     break;
                 }
