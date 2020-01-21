@@ -386,9 +386,9 @@ namespace Ice
                     ReadIndirectionTableIntoCurrent();
                 }
 
-                // We can discard all the unknown slices: the generated code calls IceSaveUnknownSlices to
+                // We can discard all the unknown slices: the generated code calls IceStarSliceAndGetUnknownSlices to
                 // preserve them and it just called IceStartSlice instead.
-                _current.Slices?.Clear();
+                _current.Slices = null;
             }
             else
             {
@@ -399,31 +399,32 @@ namespace Ice
         }
 
         /// <summary>
-        /// Save unknown slices of a class or exception instance.
+        /// Start reading the first slice of an instance and adopt the unknown slices for this instances that were
+        /// previously saved (if any).
         /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
         /// <param name="typeId">The expected typeId of this slice.</param>
-        public SlicedData? IceSaveUnknownSlices(string? typeId)
+        public SlicedData? IceStarSliceAndGetUnknownSlices(string typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            if (typeId != null)
+            // Called by generated code for first slice instead of IceStartSlice
+            Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
+            if (_current.InstanceType == InstanceType.Class)
             {
-                // Called by generated code for first slice instead of IceStartSlice
-                Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
-                if (_current.InstanceType == InstanceType.Class)
-                {
                     // For exceptions, we read it for the first slice in ThrowException.
                     ReadIndirectionTableIntoCurrent();
-                }
             }
-            // Else we were called by UnknownSlicedClass, and we are already at the end of the instance since
-            // we sliced off everything.
+            return GetUnknownSlices();
+        }
 
+        internal SlicedData? GetUnknownSlices()
+        {
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
             SlicedData? slicedData = null;
             if (_current.Slices?.Count > 0)
             {
                 slicedData = new SlicedData(_current.Slices.ToArray());
-                _current.Slices.Clear();
+                _current.Slices = null;
             }
             return slicedData;
         }

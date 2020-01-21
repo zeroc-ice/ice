@@ -48,7 +48,7 @@ namespace Ice
         protected override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
-            _slicedData = istr.IceSaveUnknownSlices(null);
+            _slicedData = istr.GetUnknownSlices();
         }
 
         private string _unknownTypeId;

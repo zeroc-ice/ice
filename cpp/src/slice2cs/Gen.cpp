@@ -331,7 +331,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         _out << nl << "if (firstSlice)";
         _out << sb;
-        _out << nl << "iceSlicedData_ = istr.IceSaveUnknownSlices(ice_staticId());";
+        _out << nl << "iceSlicedData_ = istr.IceStarSliceAndGetUnknownSlices(ice_staticId());";
         _out << eb;
         _out << "else";
         _out << sb;
@@ -1827,7 +1827,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         _out << nl << "if (firstSlice)";
         _out << sb;
-        _out << nl << "slicedData_ = istr.IceSaveUnknownSlices(\"" << scoped << "\");";
+        _out << nl << "slicedData_ = istr.IceStarSliceAndGetUnknownSlices(\"" << scoped << "\");";
         _out << eb;
         _out << "else";
         _out << sb;
