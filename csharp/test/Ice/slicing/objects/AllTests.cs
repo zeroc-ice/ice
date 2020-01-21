@@ -1731,7 +1731,7 @@ public class AllTests : Test.AllTests
             testPrx.checkPBSUnknown(p);
             SlicedData slicedData = p.ice_getSlicedData();
             test(slicedData.slices.Length == 1);
-            test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
+            test(slicedData.slices[0].TypeId.Equals("::Test::PSUnknown"));
         }
         catch (OperationNotExistException)
         {

@@ -335,18 +335,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.IceStartSlice" << spar
-         << "ice_staticId()"
-         << "false"
-         << epar << ";";
-         _out << eb;
+        _out << nl << "istr.IceStartSlice" << spar << "ice_staticId()" << "false" << epar << ";";
+        _out << eb;
     }
     else
     {
-        _out << nl << "istr.IceStartSlice" << spar
-         << "ice_staticId()"
-         << "firstSlice"
-         << epar << ";";
+        _out << nl << "istr.IceStartSlice" << spar << "ice_staticId()" << "firstSlice" << epar << ";";
     }
 
     for(auto m : members)
@@ -1837,18 +1831,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.IceStartSlice" << spar
-         << '"' + scoped + '"'
-         << "false"
-         << epar << ";";
+        _out << nl << "istr.IceStartSlice" << spar << '"' + scoped + '"' << "false" << epar << ";";
          _out << eb;
     }
     else
     {
-        _out << nl << "istr.IceStartSlice" << spar
-         << '"' + scoped + '"'
-         << "firstSlice"
-         << epar << ";";
+        _out << nl << "istr.IceStartSlice" << spar << '"' + scoped + '"' << "firstSlice" << epar << ";";
     }
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)

@@ -23,46 +23,47 @@ namespace Ice
     /// <summary>
     /// SliceInfo encapsulates the details of a slice for an unknown class or exception type.
     /// </summary>
-    public class SliceInfo
+    public sealed class SliceInfo
     {
-        public SliceInfo(string typeId, int compactId, byte[] bytes, AnyClass[] instances, bool hasOptionalMembers, bool isLastSlice)
-        {
-            this.typeId = typeId;
-            this.compactId = compactId;
-            this.bytes = bytes;
-            this.instances = instances;
-            this.hasOptionalMembers = hasOptionalMembers;
-            this.isLastSlice = isLastSlice;
-        }
-
         /// <summary>
         /// The Slice type ID for this slice.
         /// </summary>
-        public string typeId;
+        public string? TypeId { get; }
 
         /// <summary>
         /// The Slice compact type ID for this slice.
         /// </summary>
-        public int compactId;
+        public int? CompactId { get; }
 
         /// <summary>
         /// The encoded bytes for this slice, including the leading size integer.
         /// </summary>
-        public byte[] bytes;
+        public byte[] Bytes { get; }
 
         /// <summary>
         /// The class instances referenced by this slice.
         /// </summary>
-        public AnyClass[] instances;
+        public AnyClass[] Instances { get; internal set; }
 
         /// <summary>
         /// Whether or not the slice contains optional members.
         /// </summary>
-        public bool hasOptionalMembers;
+        public bool HasOptionalMembers { get; }
 
         /// <summary>
         /// Whether or not this is the last slice.
         /// </summary>
-        public bool isLastSlice;
+        public bool IsLastSlice { get; }
+
+        public SliceInfo(string? typeId, int? compactId, byte[] bytes, AnyClass[] instances,
+                         bool hasOptionalMembers, bool isLastSlice)
+        {
+            TypeId = typeId;
+            CompactId = compactId;
+            Bytes = bytes;
+            Instances = instances;
+            HasOptionalMembers = hasOptionalMembers;
+            IsLastSlice = isLastSlice;
+        }
     }
 }

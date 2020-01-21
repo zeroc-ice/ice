@@ -421,26 +421,6 @@ Slice::CsGenerator::getTagFormat(const TypePtr& type, const string& scope)
 }
 
 string
-Slice::CsGenerator::getStaticId(const TypePtr& type)
-{
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-
-    assert(isClassType(type));
-
-    if(cl->isInterface())
-    {
-        ContainedPtr cont = ContainedPtr::dynamicCast(cl->container());
-        assert(cont);
-        return getUnqualified(cont) + "." + cl->name() + "Disp_.ice_staticId()";
-    }
-    else
-    {
-        return getUnqualified(cl) + ".ice_staticId()";
-    }
-}
-
-string
 Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional)
 {
     if(!type)

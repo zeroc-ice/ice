@@ -2042,14 +2042,14 @@ namespace Ice
 
                 foreach (var info in slicedData.slices)
                 {
-                    StartSlice(info.typeId, info.compactId, info.isLastSlice);
+                    StartSlice(info.TypeId ?? "", info.CompactId ?? -1, info.IsLastSlice);
 
                     //
                     // Write the bytes associated with this slice.
                     //
-                    _stream.WriteBlob(info.bytes);
+                    _stream.WriteBlob(info.Bytes);
 
-                    if (info.hasOptionalMembers)
+                    if (info.HasOptionalMembers)
                     {
                         _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                     }
@@ -2057,14 +2057,14 @@ namespace Ice
                     //
                     // Make sure to also re-write the instance indirection table.
                     //
-                    if (info.instances != null && info.instances.Length > 0)
+                    if (info.Instances != null && info.Instances.Length > 0)
                     {
                         if (_current.indirectionTable == null)
                         {
                             _current.indirectionTable = new List<AnyClass>();
                             _current.indirectionMap = new Dictionary<AnyClass, int>();
                         }
-                        foreach (var o in info.instances)
+                        foreach (var o in info.Instances)
                         {
                             _current.indirectionTable.Add(o);
                         }

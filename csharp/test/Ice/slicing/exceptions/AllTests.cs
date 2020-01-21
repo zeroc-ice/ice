@@ -745,8 +745,8 @@ public class AllTests : Test.AllTests
                 Ice.SlicedData slicedData = ex.ice_getSlicedData();
                 test(slicedData != null);
                 test(slicedData.slices.Length == 2);
-                test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                test(slicedData.slices[1].TypeId.Equals("::Test::SPreserved1"));
+                test(slicedData.slices[0].TypeId.Equals("::Test::SPreserved2"));
             }
 
             try
@@ -760,8 +760,8 @@ public class AllTests : Test.AllTests
                 Ice.SlicedData slicedData = ex.ice_getSlicedData();
                 test(slicedData != null);
                 test(slicedData.slices.Length == 2);
-                test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                test(slicedData.slices[1].TypeId.Equals("::Test::SPreserved1"));
+                test(slicedData.slices[0].TypeId.Equals("::Test::SPreserved2"));
             }
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("");

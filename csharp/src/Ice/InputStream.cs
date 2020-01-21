@@ -384,7 +384,6 @@ namespace Ice
                 // We can discard all the unknown slices: the generated code calls IceSaveUnknownSlices to
                 // preserve them and it just called IceStartSlice instead.
                 _current.Slices?.Clear();
-                _current.IndirectionTableList?.Clear();
                 Debug.Assert(_current.DeferredIndirectionTableList == null ||
                     _current.DeferredIndirectionTableList.Count == 0);
             }
@@ -410,25 +409,10 @@ namespace Ice
             SlicedData? slicedData = null;
             if (_current.Slices?.Count > 0)
             {
-                // The IndirectionTableList member holds the indirection table for each slice in _slices.
-                Debug.Assert(_current.Slices.Count == _current.IndirectionTableList.Count);
-                for (int n = 0; n < _current.Slices.Count; ++n)
-                {
-                    // We use the "instances" list in SliceInfo to hold references
-                    // to the target instances. Note that the instances might not have
-                    // been read yet in the case of a circular reference to an
-                    // enclosing instance.
-                    // TODO: use/fill SliceInfo directly in _current
-                    SliceInfo info = _current.Slices[n];
-                    info.instances = _current.IndirectionTableList[n];
-                }
-
                 slicedData = new SlicedData(_current.Slices.ToArray());
                 _current.Slices.Clear();
             }
 
-            // We may reuse this instance data (current) so we need to clean it well (see push)
-            _current.IndirectionTableList?.Clear();
             Debug.Assert(_current.DeferredIndirectionTableList == null ||
                 _current.DeferredIndirectionTableList.Count == 0);
             return slicedData;
@@ -1905,8 +1889,8 @@ namespace Ice
             Push(InstanceType.Exception);
             Debug.Assert(_current != null);
 
-            // Read the first slice header.
-            string? typeId = ReadSliceHeader(true); // we read the indirection table immediately
+            // Read the first slice header, and exception's type ID cannot be null.
+            string typeId = ReadSliceHeader(true)!; // we read the indirection table immediately
             var mostDerivedId = typeId;
             while (true)
             {
@@ -1915,7 +1899,7 @@ namespace Ice
                 // Use a factory if one was provided.
                 try
                 {
-                    factory?.Invoke(typeId ?? "");
+                    factory?.Invoke(typeId);
                 }
                 catch (UserException ex)
                 {
@@ -1926,7 +1910,7 @@ namespace Ice
                 {
                     try
                     {
-                        Type? type = Communicator.ResolveClass(typeId ?? "");
+                        Type? type = Communicator.ResolveClass(typeId);
                         if (type != null)
                         {
                             userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
@@ -1952,17 +1936,17 @@ namespace Ice
 
                 if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    if (mostDerivedId?.StartsWith("::", StringComparison.Ordinal) == true)
+                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal) == true)
                     {
                         throw new UnknownUserException(mostDerivedId.Substring(2));
                     }
                     else
                     {
-                        throw new UnknownUserException(mostDerivedId ?? "");
+                        throw new UnknownUserException(mostDerivedId);
                     }
                 }
 
-                typeId = ReadSliceHeader(true);
+                typeId = ReadSliceHeader(true)!;
             }
         }
 
@@ -2098,7 +2082,7 @@ namespace Ice
         private Type? ResolveClass(string typeId)
         {
             Type? cls = null;
-            if (_typeIdCache?.TryGetValue(typeId, out cls) != true)
+            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out cls))
             {
                 // Not found in typeIdCache
                 try
@@ -2118,7 +2102,7 @@ namespace Ice
         private Type? ResolveClass(int compactId)
         {
             Type? cls = null;
-            if (_compactIdCache?.TryGetValue(compactId, out cls) != true)
+            if (_compactIdCache == null || !_compactIdCache.TryGetValue(compactId, out cls))
             {
                 // Not found in compactIdCache
                 string? typeId = Communicator.ResolveCompactId(compactId);
@@ -2222,7 +2206,7 @@ namespace Ice
                 }
                 else
                 {
-                    _current.SliceSize = null;
+                    _current.SliceSize = 0;
                 }
             }
 
@@ -2239,11 +2223,11 @@ namespace Ice
                 else
                 {
                     int savedPos = Pos;
-                    if (_current.SliceSize!.Value < 4)
+                    if (_current.SliceSize < 4)
                     {
                         throw new MarshalException("invalid slice size");
                     }
-                    Pos = savedPos + _current.SliceSize.Value - 4;
+                    Pos = savedPos + _current.SliceSize - 4;
                     _current.IndirectionTable = ReadIndirectionTable();
                     _current.PosAfterIndirectionTable = Pos;
                     Pos = savedPos;
@@ -2274,8 +2258,8 @@ namespace Ice
 
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                Debug.Assert(_current.SliceSize!.Value >= 4);
-                skip(_current.SliceSize.Value - 4);
+                Debug.Assert(_current.SliceSize >= 4);
+                skip(_current.SliceSize - 4);
             }
             else
             {
@@ -2300,7 +2284,6 @@ namespace Ice
 
             // Preserve this slice.
             bool hasOptionalMembers = (_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-            bool isLastSlice = (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
             IceInternal.ByteBuffer b = GetBuffer().b;
             int end = b.position();
             int dataEnd = end;
@@ -2314,16 +2297,6 @@ namespace Ice
             b.position(start);
             b.get(bytes);
             b.position(end);
-
-            _current.Slices ??= new List<SliceInfo>();
-            // TODO: fix SliceInfo to use nullable types
-            var info = new SliceInfo(_current.SliceTypeId ?? "",
-                                     _current.SliceCompactId ?? -1,
-                                     bytes,
-                                     Array.Empty<AnyClass>(),
-                                     hasOptionalMembers,
-                                     isLastSlice);
-            _current.Slices.Add(info);
 
             // The deferred indirection table is only used by classes. For exceptions, the indirection table is
             // unmarshaled immediately.
@@ -2342,20 +2315,27 @@ namespace Ice
             }
             else
             {
-                _current.IndirectionTableList ??= new List<AnyClass[]?>();
                 if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    Debug.Assert(_current.IndirectionTable != null); // previously read by ReadSliceHeader
-                    _current.IndirectionTableList.Add(_current.IndirectionTable);
-                    Pos = _current.PosAfterIndirectionTable!.Value;
+                    Debug.Assert(_current.PosAfterIndirectionTable != null); // previously read by ReadSliceHeader
+                    // Move past indirection table
+                    Pos = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
-                    _current.IndirectionTable = null;
-                }
-                else
-                {
-                    _current.IndirectionTableList.Add(null);
                 }
             }
+
+            _current.Slices ??= new List<SliceInfo>();
+            var info = new SliceInfo(_current.SliceTypeId,
+                                     _current.SliceCompactId,
+                                     bytes,
+                                     _current.IndirectionTable ?? Array.Empty<AnyClass>(),
+                                     hasOptionalMembers,
+                                     (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
+            _current.Slices.Add(info);
+
+            // An exception slice may have an indirection table (saved above). We don't need it anymore
+            // since we're skipping this slice.
+            _current.IndirectionTable = null;
         }
 
         // Skip the indirection table. The caller must save the current stream position before calling
@@ -2530,19 +2510,16 @@ namespace Ice
             {
                 int savedPos = Pos;
 
-                Debug.Assert(_current.IndirectionTableList == null || _current.IndirectionTableList.Count == 0);
-                _current.IndirectionTableList ??= new List<AnyClass[]?>(_current.DeferredIndirectionTableList.Count);
-                foreach (int pos in _current.DeferredIndirectionTableList)
+                Debug.Assert(_current.Slices.Count == _current.DeferredIndirectionTableList.Count);
+                for (int i = 0; i < _current.DeferredIndirectionTableList.Count; ++i)
                 {
+                    int pos = _current.DeferredIndirectionTableList[i];
                     if (pos > 0)
                     {
                         Pos = pos;
-                        _current.IndirectionTableList.Add(ReadIndirectionTable());
+                        _current.Slices[i].Instances = ReadIndirectionTable();
                     }
-                    else
-                    {
-                        _current.IndirectionTableList.Add(null);
-                    }
+                    // else remains empty
                 }
                 Pos = savedPos;
                 _current.DeferredIndirectionTableList.Clear();
@@ -2586,16 +2563,14 @@ namespace Ice
             // Instance attributes
             internal readonly InstanceType InstanceType;
             internal List<SliceInfo>? Slices; // Preserved slices.
-            internal List<AnyClass[]?>? IndirectionTableList;
 
-            // Position of indirection tables that we skipped for now and that will
-            // unmarshal (into IndirectionTableList) once the instance is created.
-            // Used only when SliceType is ClassSlice.
+            // Position of indirection tables that we skipped for now and that will unmarshal once the instance is
+            // created. Used only when SliceType is ClassSlice.
             internal List<int>? DeferredIndirectionTableList;
 
             // Slice attributes
             internal byte SliceFlags = 0;
-            internal int? SliceSize;
+            internal int SliceSize = 0;
             internal string? SliceTypeId;
             internal int? SliceCompactId;
             // Indirection table of the current slice
