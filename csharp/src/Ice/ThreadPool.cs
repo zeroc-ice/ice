@@ -230,9 +230,9 @@ namespace IceInternal
             _priority = Util.stringToThreadPriority(_communicator.GetProperty($"{_prefix}.ThreadPriority") ??
                                                     _communicator.GetProperty("Ice.ThreadPriority"));
 
-            if (_communicator.traceLevels().threadPool >= 1)
+            if (_communicator.TraceLevels.threadPool >= 1)
             {
-                _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat,
+                _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
                     $"creating {_prefix}: Size = {_size}, SizeMax = {_sizeMax}, SizeWarn = {_sizeWarn}");
             }
 
@@ -418,10 +418,10 @@ namespace IceInternal
                    (_inUse + _workItems.Count) > _threads.Count &&
                    !_destroyed)
                 {
-                    if (_communicator.traceLevels().threadPool >= 1)
+                    if (_communicator.TraceLevels.threadPool >= 1)
                     {
-                        string s = "growing " + _prefix + ": Size = " + (_threads.Count + 1);
-                        _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat, s);
+                        _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
+                            $"growing {_prefix}: Size = {_threads.Count + 1}");
                     }
 
                     try
@@ -432,8 +432,7 @@ namespace IceInternal
                     }
                     catch (System.Exception ex)
                     {
-                        string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-                        _communicator.Logger.error(s);
+                        _communicator.Logger.error($"cannot create thread for `{_prefix}':\n{ex}");
                     }
                 }
             }
@@ -444,7 +443,7 @@ namespace IceInternal
             lock (this)
             {
                 Debug.Assert(!_destroyed);
-                _communicator.asyncIOThread().queue(workItem);
+                _communicator.AsyncIOThread().queue(workItem);
             }
         }
 
@@ -541,15 +540,14 @@ namespace IceInternal
                                     // by the .NET thread pool threads. Instead, we'll just spawn a
                                     // new thread when needed (i.e.: when a new work item is queued).
                                     //
-                                    if (_communicator.traceLevels().threadPool >= 1)
+                                    if (_communicator.TraceLevels.threadPool >= 1)
                                     {
-                                        string s = "shrinking " + _prefix + ": Size=" + (_threads.Count - 1);
-                                        _communicator.Logger.trace(
-                                            _communicator.traceLevels().threadPoolCat, s);
+                                        _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
+                                            $"shrinking {_prefix}: Size={_threads.Count - 1}");
                                     }
 
                                     _threads.Remove(thread);
-                                    _communicator.asyncIOThread().queue(() =>
+                                    _communicator.AsyncIOThread().queue(() =>
                                         {
                                             thread.join();
                                         });
@@ -567,7 +565,7 @@ namespace IceInternal
                                                {
                                                    try
                                                    {
-                                                       _communicator.objectAdapterFactory().shutdown();
+                                                       _communicator.ObjectAdapterFactory().shutdown();
                                                    }
                                                    catch (Ice.CommunicatorDestroyedException)
                                                    {

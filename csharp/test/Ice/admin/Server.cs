@@ -16,11 +16,11 @@ namespace Ice
                 using (var communicator = initialize(ref args))
                 {
                     communicator.SetProperty("TestAdapter.Endpoints", $"{getTestEndpoint(0)} -t 10000");
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
                     adapter.Add(new RemoteCommunicatorFactoryI(), "factory");
                     adapter.Activate();
                     serverReady();
-                    communicator.waitForShutdown();
+                    communicator.WaitForShutdown();
                 }
             }
 

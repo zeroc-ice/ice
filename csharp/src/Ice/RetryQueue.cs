@@ -34,10 +34,9 @@ namespace IceInternal
             Debug.Assert(_outAsync == outAsync);
             if (_retryQueue.cancel(this))
             {
-                if (_communicator.traceLevels().retry >= 1)
+                if (_communicator.TraceLevels.retry >= 1)
                 {
-                    _communicator.Logger.trace(_communicator.traceLevels().retryCat,
-                                                                string.Format("operation retry canceled\n{0}", ex));
+                    _communicator.Logger.trace(_communicator.TraceLevels.retryCat, $"operation retry canceled\n{ex}");
                 }
                 if (_outAsync.exception(ex))
                 {
@@ -80,7 +79,7 @@ namespace IceInternal
                 }
                 RetryTask task = new RetryTask(_communicator, this, outAsync);
                 outAsync.cancelable(task); // This will throw if the request is canceled.
-                _communicator.timer().schedule(task, interval);
+                _communicator.Timer().schedule(task, interval);
                 _requests.Add(task, null);
             }
         }
@@ -92,7 +91,7 @@ namespace IceInternal
                 Dictionary<RetryTask, object?> keep = new Dictionary<RetryTask, object?>();
                 foreach (RetryTask task in _requests.Keys)
                 {
-                    if (_communicator!.timer().cancel(task))
+                    if (_communicator!.Timer().cancel(task))
                     {
                         task.destroy();
                     }
@@ -136,7 +135,7 @@ namespace IceInternal
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _communicator.timer().cancel(task);
+                    return _communicator.Timer().cancel(task);
                 }
                 return false;
             }

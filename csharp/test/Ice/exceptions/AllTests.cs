@@ -18,7 +18,7 @@ namespace Ice.exceptions
                 ObjectAdapter first;
                 try
                 {
-                    first = communicator.createObjectAdapter("TestAdapter0");
+                    first = communicator.CreateObjectAdapter("TestAdapter0");
                 }
                 catch (InitializationException)
                 {
@@ -26,10 +26,10 @@ namespace Ice.exceptions
                 }
 
                 communicator.SetProperty("TestAdapter0.Endpoints", "tcp -h *");
-                first = communicator.createObjectAdapter("TestAdapter0");
+                first = communicator.CreateObjectAdapter("TestAdapter0");
                 try
                 {
-                    communicator.createObjectAdapter("TestAdapter0");
+                    communicator.CreateObjectAdapter("TestAdapter0");
                     test(false);
                 }
                 catch (ArgumentException)
@@ -40,7 +40,7 @@ namespace Ice.exceptions
                 try
                 {
                     ObjectAdapter second =
-                        communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                        communicator.CreateObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                     test(false);
 
                     //
@@ -59,7 +59,7 @@ namespace Ice.exceptions
             {
                 output.Write("testing servant registration exceptions... ");
                 communicator.SetProperty("TestAdapter1.Endpoints", "tcp -h *");
-                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
                 var obj = new Empty();
                 adapter.Add(obj, "x");
                 try
@@ -96,7 +96,7 @@ namespace Ice.exceptions
             {
                 output.Write("testing servant locator registration exceptions... ");
                 communicator.SetProperty("TestAdapter2.Endpoints", "tcp -h *");
-                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter2");
                 var loc = new ServantLocator();
                 adapter.AddServantLocator(loc, "x");
                 try

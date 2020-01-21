@@ -8,7 +8,7 @@ namespace Ice.exceptions
 {
     public sealed class Thrower : Test.IThrower
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public bool supportsUndeclaredExceptions(Current current) => true;
 

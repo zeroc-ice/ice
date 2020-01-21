@@ -14,11 +14,11 @@ namespace Ice.optional
             using var communicator = initialize(createTestProperties(ref args),
                 typeIdNamespaces: new string[] { "Ice.optional.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Initial(), "initial");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

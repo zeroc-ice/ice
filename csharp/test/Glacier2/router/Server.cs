@@ -16,7 +16,7 @@ public class Server : Test.TestHelper
         using (var communicator = initialize(ref args))
         {
             communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
 
             //
             // The test allows "c1" as category.
@@ -38,7 +38,7 @@ public class Server : Test.TestHelper
             //
             adapter.Add(new Callback(), "_userid/callback");
             adapter.Activate();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
     }
 

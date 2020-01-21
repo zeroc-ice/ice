@@ -200,7 +200,7 @@ namespace Ice.interceptor
             //
             communicator.SetProperty("MyOA.AdapterId", "myOA");
 
-            ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
+            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
 
             var interceptor = new Interceptor<IMyObject, MyObjectTraits>(new MyObject());
 

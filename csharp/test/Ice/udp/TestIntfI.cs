@@ -58,6 +58,6 @@ namespace Ice.udp
             }
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
     }
 }

@@ -14,7 +14,7 @@ public sealed class Callback : ICallback
     initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callbackEx(current.Context);
 
     public void
-    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }
 
 public sealed class CallbackReceiver : ICallbackReceiver

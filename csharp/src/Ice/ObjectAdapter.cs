@@ -230,7 +230,7 @@ namespace Ice
                     //
                     // Remove entry from the router manager.
                     //
-                    _communicator.routerManager().erase(_routerInfo.getRouter());
+                    _communicator.RouterManager().erase(_routerInfo.getRouter());
 
                     //
                     // Clear this object adapter with the router.
@@ -254,7 +254,7 @@ namespace Ice
                 factory.destroy();
             }
 
-            _communicator.outgoingConnectionFactory().removeAdapter(this);
+            _communicator.OutgoingConnectionFactory().removeAdapter(this);
 
             lock (this)
             {
@@ -926,7 +926,7 @@ namespace Ice
 
                 if (locator != null)
                 {
-                    _locatorInfo = _communicator!.locatorManager().get(locator);
+                    _locatorInfo = _communicator!.LocatorManager().get(locator);
                 }
                 else
                 {
@@ -1211,7 +1211,7 @@ namespace Ice
             }
             else
             {
-                return _communicator.serverThreadPool();
+                return _communicator.ServerThreadPool();
             }
 
         }
@@ -1318,7 +1318,7 @@ namespace Ice
 
             _acm = new ACMConfig(communicator, communicator.Logger, $"{_name}.ACM", _communicator.ServerACM);
             {
-                int defaultMessageSizeMax = communicator.messageSizeMax() / 1024;
+                int defaultMessageSizeMax = communicator.MessageSizeMax / 1024;
                 int num = communicator.GetPropertyAsInt($"{_name}.MessageSizeMax") ?? defaultMessageSizeMax;
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
@@ -1343,7 +1343,7 @@ namespace Ice
 
                 if (router != null)
                 {
-                    _routerInfo = _communicator.routerManager().get(router);
+                    _routerInfo = _communicator.RouterManager().get(router);
 
                     //
                     // Make sure this router is not already registered with another adapter.
@@ -1367,7 +1367,7 @@ namespace Ice
                     // router's client proxy to use this object adapter for
                     // callbacks.
                     //
-                    _communicator.outgoingConnectionFactory().setRouterInfo(_routerInfo);
+                    _communicator.OutgoingConnectionFactory().setRouterInfo(_routerInfo);
                 }
                 else
                 {
@@ -1390,7 +1390,7 @@ namespace Ice
                     }
                     if (endpoints.Count == 0)
                     {
-                        TraceLevels tl = _communicator.traceLevels();
+                        TraceLevels tl = _communicator.TraceLevels;
                         if (tl.network >= 2)
                         {
                             _communicator.Logger.trace(tl.networkCat, "created adapter `" + _name +
@@ -1410,7 +1410,7 @@ namespace Ice
                 }
                 else
                 {
-                    SetLocator(_communicator.getDefaultLocator());
+                    SetLocator(_communicator.GetDefaultLocator());
                 }
             }
             catch (LocalException)
@@ -1537,7 +1537,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                Endpoint? endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
+                Endpoint? endp = _communicator.EndpointFactoryManager().create(s, oaEndpoints);
                 if (endp == null)
                 {
                     throw new FormatException($"invalid object adapter endpoint `{s}'");
@@ -1601,7 +1601,7 @@ namespace Ice
                 }
             }
 
-            if (_communicator.traceLevels().network >= 1 && endpoints.Count > 0)
+            if (_communicator.TraceLevels.network >= 1 && endpoints.Count > 0)
             {
                 StringBuilder s = new StringBuilder("published endpoints for object adapter `");
                 s.Append(_name);
@@ -1616,7 +1616,7 @@ namespace Ice
                     s.Append(endpoint.ToString());
                     first = false;
                 }
-                _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _communicator.Logger.trace(_communicator.TraceLevels.networkCat, s.ToString());
             }
 
             return endpoints.ToArray();
@@ -1653,12 +1653,12 @@ namespace Ice
             }
             catch (AdapterNotFoundException)
             {
-                if (_communicator.traceLevels().location >= 1)
+                if (_communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter is not known to the locator registry");
-                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1668,12 +1668,12 @@ namespace Ice
             }
             catch (InvalidReplicaGroupIdException)
             {
-                if (_communicator.traceLevels().location >= 1)
+                if (_communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1683,12 +1683,12 @@ namespace Ice
             }
             catch (AdapterAlreadyActiveException)
             {
-                if (_communicator.traceLevels().location >= 1)
+                if (_communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter endpoints are already set");
-                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
@@ -1705,17 +1705,17 @@ namespace Ice
             }
             catch (LocalException e)
             {
-                if (_communicator.traceLevels().location >= 1)
+                if (_communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append(e.ToString());
-                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.TraceLevels.locationCat, s.ToString());
                 }
                 throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
             }
 
-            if (_communicator.traceLevels().location >= 1)
+            if (_communicator.TraceLevels.location >= 1)
             {
                 StringBuilder s = new StringBuilder();
                 s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
@@ -1732,7 +1732,7 @@ namespace Ice
                         }
                     }
                 }
-                _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                _communicator.Logger.trace(_communicator.TraceLevels.locationCat, s.ToString());
             }
         }
 

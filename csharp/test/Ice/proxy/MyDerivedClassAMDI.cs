@@ -13,7 +13,7 @@ namespace Ice.proxy.AMD
 
         public Task shutdownAsync(Current current)
         {
-            current.Adapter.Communicator.shutdown();
+            current.Adapter.Communicator.Shutdown();
             return null;
         }
 

@@ -856,12 +856,12 @@ namespace Ice.binding
                     ObjectAdapter oa;
                     try
                     {
-                        oa = serverCommunicator.createObjectAdapter("Adapter");
+                        oa = serverCommunicator.CreateObjectAdapter("Adapter");
                         oa.Activate();
                     }
                     catch (DNSException)
                     {
-                        serverCommunicator.destroy();
+                        serverCommunicator.Destroy();
                         continue; // IP version not supported.
                     }
                     catch (SocketException)
@@ -870,7 +870,7 @@ namespace Ice.binding
                         {
                             ipv6NotSupported = true;
                         }
-                        serverCommunicator.destroy();
+                        serverCommunicator.Destroy();
                         continue; // IP version not supported.
                     }
 
@@ -881,7 +881,7 @@ namespace Ice.binding
                     }
                     catch (LocalException)
                     {
-                        serverCommunicator.destroy();
+                        serverCommunicator.Destroy();
                         continue; // IP version not supported.
                     }
 
@@ -917,9 +917,9 @@ namespace Ice.binding
                                 (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
                                 (p == bothPreferIPv6 && q == ipv6));
                         }
-                        clientCommunicator.destroy();
+                        clientCommunicator.Destroy();
                     }
-                    serverCommunicator.destroy();
+                    serverCommunicator.Destroy();
                 }
 
                 output.WriteLine("ok");

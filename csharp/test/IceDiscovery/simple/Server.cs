@@ -28,11 +28,11 @@ public class Server : TestHelper
         communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
         communicator.SetProperty("ControlAdapter.ThreadPool.Size", "1");
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
+        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
         adapter.Add(new Controller(), $"controller{num}");
         adapter.Activate();
 
-        communicator.waitForShutdown();
+        communicator.WaitForShutdown();
     }
 
     public static int Main(string[] args) => TestDriver.runTest<Server>(args);

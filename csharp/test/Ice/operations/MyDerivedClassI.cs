@@ -45,7 +45,7 @@ namespace Ice.operations
             return myDerivedClassT.Id;
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public bool supportsCompress(Current current) => IceInternal.BZip2.supported();
 

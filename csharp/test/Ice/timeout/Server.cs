@@ -32,15 +32,15 @@ namespace Ice.timeout
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Timeout(), "timeout");
             adapter.Activate();
 
-            var controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            var controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add(new Controller(adapter), "controller");
             controllerAdapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);

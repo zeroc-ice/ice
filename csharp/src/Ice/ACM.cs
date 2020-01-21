@@ -124,8 +124,8 @@ namespace IceInternal
                     // Cancel the scheduled timer task and schedule it again now to clear the
                     // connection set from the timer thread.
                     //
-                    _communicator.timer().cancel(this);
-                    _communicator.timer().schedule(this, 0);
+                    _communicator.Timer().cancel(this);
+                    _communicator.Timer().schedule(this, 0);
                 }
 
                 _communicator = null;
@@ -154,7 +154,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_communicator != null);
                     _connections.Add(connection);
-                    _communicator.timer().scheduleRepeated(this, _config.timeout / 2);
+                    _communicator.Timer().scheduleRepeated(this, _config.timeout / 2);
                 }
                 else
                 {
@@ -202,7 +202,7 @@ namespace IceInternal
             {
                 config.heartbeat = h.Value;
             }
-            return new ConnectionACMMonitor(this, _communicator.timer(), config);
+            return new ConnectionACMMonitor(this, _communicator.Timer(), config);
         }
 
         public Ice.ACM getACM()
@@ -255,7 +255,7 @@ namespace IceInternal
 
                 if (_connections.Count == 0)
                 {
-                    _communicator.timer().cancel(this);
+                    _communicator.Timer().cancel(this);
                     return;
                 }
             }

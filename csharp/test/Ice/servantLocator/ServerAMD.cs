@@ -16,7 +16,7 @@ namespace Ice.servantLocator.AMD
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.SetProperty("Ice.Warn.Dispatch", "0");
 
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.AddServantLocator(new ServantLocator("category"), "category");
             adapter.AddServantLocator(new ServantLocator(""), "");
             adapter.Add(new TestIntf(), "asm");

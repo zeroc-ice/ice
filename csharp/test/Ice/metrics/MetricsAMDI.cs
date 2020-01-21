@@ -51,9 +51,9 @@ public sealed class Metrics : IMetrics
     getAdmin(Ice.Current current)
     {
         Debug.Assert(current != null);
-        return current.Adapter.Communicator.getAdmin();
+        return current.Adapter.Communicator.GetAdmin();
     }
 
     public void
-    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }

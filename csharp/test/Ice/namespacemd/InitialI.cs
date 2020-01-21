@@ -14,7 +14,7 @@ namespace Ice.namespacemd
 
         public WithNamespace.C2 getWithNamespaceC2AsC2(Current current) => new WithNamespace.C2();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public void throwNoNamespaceE2AsE1(Current current) => throw new NoNamespace.E2();
 

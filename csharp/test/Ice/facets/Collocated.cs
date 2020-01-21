@@ -13,7 +13,7 @@ namespace Ice.facets
         {
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add(d, "d");
             adapter.Add(d, "d", "facetABCD");

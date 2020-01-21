@@ -15,11 +15,11 @@ namespace Ice.binding
             properties["Ice.ServerIdleTime"] = "30";
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new RemoteCommunicator(), "communicator");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

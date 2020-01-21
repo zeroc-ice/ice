@@ -175,7 +175,7 @@ namespace Ice.acm
         public void destroy()
         {
             _adapter.deactivate();
-            _communicator.destroy();
+            _communicator.Destroy();
         }
 
         public void join()

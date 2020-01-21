@@ -46,7 +46,7 @@ namespace IceInternal
                         // by the locator is an indirect proxy. We now need to resolve the endpoints
                         // of this indirect proxy.
                         //
-                        if (_ref.getCommunicator().traceLevels().location >= 1)
+                        if (_ref.getCommunicator().TraceLevels.location >= 1)
                         {
                             locatorInfo.trace("retrieved adapter for well-known object from locator, " +
                                               "adding to locator cache", _ref, r);
@@ -56,7 +56,7 @@ namespace IceInternal
                     }
                 }
 
-                if (_ref.getCommunicator().traceLevels().location >= 1)
+                if (_ref.getCommunicator().TraceLevels.location >= 1)
                 {
                     locatorInfo.getEndpointsTrace(_ref, endpoints, false);
                 }
@@ -366,7 +366,7 @@ namespace IceInternal
                 }
                 else if (!r.isWellKnown())
                 {
-                    if (reference.getCommunicator().traceLevels().location >= 1)
+                    if (reference.getCommunicator().TraceLevels.location >= 1)
                     {
                         trace("found adapter for well-known object in locator cache", reference, r);
                     }
@@ -376,7 +376,7 @@ namespace IceInternal
             }
 
             Debug.Assert(endpoints != null);
-            if (reference.getCommunicator().traceLevels().location >= 1)
+            if (reference.getCommunicator().TraceLevels.location >= 1)
             {
                 getEndpointsTrace(reference, endpoints, true);
             }
@@ -393,7 +393,7 @@ namespace IceInternal
             {
                 Endpoint[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
 
-                if (endpoints != null && rf.getCommunicator().traceLevels().location >= 2)
+                if (endpoints != null && rf.getCommunicator().TraceLevels.location >= 2)
                 {
                     trace("removed endpoints for adapter from locator cache", rf, endpoints);
                 }
@@ -405,14 +405,14 @@ namespace IceInternal
                 {
                     if (!r.isIndirect())
                     {
-                        if (rf.getCommunicator().traceLevels().location >= 2)
+                        if (rf.getCommunicator().TraceLevels.location >= 2)
                         {
                             trace("removed endpoints for well-known object from locator cache", rf, r.getEndpoints());
                         }
                     }
                     else if (!r.isWellKnown())
                     {
-                        if (rf.getCommunicator().traceLevels().location >= 2)
+                        if (rf.getCommunicator().TraceLevels.location >= 2)
                         {
                             trace("removed adapter for well-known object from locator cache", rf, r);
                         }
@@ -446,7 +446,7 @@ namespace IceInternal
                 }
             }
 
-            r.getCommunicator().Logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
+            r.getCommunicator().Logger.trace(r.getCommunicator().TraceLevels.locationCat, s.ToString());
         }
 
         private void trace(string msg, Reference r, Reference resolved)
@@ -462,7 +462,7 @@ namespace IceInternal
             s.Append("adapter = ");
             s.Append(resolved.getAdapterId());
 
-            r.getCommunicator().Logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
+            r.getCommunicator().Logger.trace(r.getCommunicator().TraceLevels.locationCat, s.ToString());
         }
 
         private void getEndpointsException(Reference reference, System.Exception exc)
@@ -474,12 +474,12 @@ namespace IceInternal
             catch (AdapterNotFoundException ex)
             {
                 var communicator = reference.getCommunicator();
-                if (communicator.traceLevels().location >= 1)
+                if (communicator.TraceLevels.location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("adapter not found\n");
                     s.Append("adapter = " + reference.getAdapterId());
-                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException e = new NotRegisteredException(ex);
@@ -490,12 +490,12 @@ namespace IceInternal
             catch (ObjectNotFoundException ex)
             {
                 var communicator = reference.getCommunicator();
-                if (communicator.traceLevels().location >= 1)
+                if (communicator.TraceLevels.location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("object not found\n");
                     s.Append("object = " + reference.getIdentity().ToString(communicator.ToStringMode));
-                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException e = new NotRegisteredException(ex);
@@ -510,7 +510,7 @@ namespace IceInternal
             catch (LocalException ex)
             {
                 var communicator = reference.getCommunicator();
-                if (communicator.traceLevels().location >= 1)
+                if (communicator.TraceLevels.location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("couldn't contact the locator to retrieve endpoints\n");
@@ -523,7 +523,7 @@ namespace IceInternal
                         s.Append("well-known proxy = " + reference.ToString() + "\n");
                     }
                     s.Append("reason = " + ex);
-                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
                 }
                 throw;
             }
@@ -577,20 +577,20 @@ namespace IceInternal
                     s.Append("well-known object\n");
                     s.Append("well-known proxy = " + reference.ToString());
                 }
-                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
             }
         }
 
         private Request
         getAdapterRequest(Reference reference)
         {
-            if (reference.getCommunicator().traceLevels().location >= 1)
+            if (reference.getCommunicator().TraceLevels.location >= 1)
             {
                 var communicator = reference.getCommunicator();
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("searching for adapter by id\nadapter = ");
                 s.Append(reference.getAdapterId());
-                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
             }
 
             lock (this)
@@ -610,13 +610,13 @@ namespace IceInternal
         private Request
         getObjectRequest(Reference reference)
         {
-            if (reference.getCommunicator().traceLevels().location >= 1)
+            if (reference.getCommunicator().TraceLevels.location >= 1)
             {
                 var communicator = reference.getCommunicator();
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("searching for well-known object\nwell-known proxy = ");
                 s.Append(reference.ToString());
-                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
             }
 
             lock (this)

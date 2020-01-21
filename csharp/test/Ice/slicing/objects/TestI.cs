@@ -19,7 +19,7 @@ public sealed class TestIntf : ITestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.Adapter.Communicator.shutdown();
+        current.Adapter.Communicator.Shutdown();
     }
 
     public Ice.AnyClass SBaseAsObject(Ice.Current current)

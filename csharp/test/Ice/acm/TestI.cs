@@ -31,12 +31,12 @@ namespace Ice.acm
                 communicator.SetProperty($"{name}.ACM.Heartbeat", heartbeat.ToString());
             }
             communicator.SetProperty($"{name}.ThreadPool.Size", "2");
-            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, $"{protocol} -h \"{host}\"");
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{protocol} -h \"{host}\"");
             return current.Adapter.Add(new RemoteObjectAdapter(adapter));
         }
 
         public void
-        shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
     }
 

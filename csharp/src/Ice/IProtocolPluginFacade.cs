@@ -41,12 +41,12 @@ namespace IceInternal
         //
         // Register an EndpointFactory.
         //
-        public void addEndpointFactory(IEndpointFactory factory) => _communicator.endpointFactoryManager().add(factory);
+        public void addEndpointFactory(IEndpointFactory factory) => _communicator.EndpointFactoryManager().add(factory);
 
         //
         // Get an EndpointFactory.
         //
-        public IEndpointFactory getEndpointFactory(short type) => _communicator.endpointFactoryManager().get(type);
+        public IEndpointFactory getEndpointFactory(short type) => _communicator.EndpointFactoryManager().get(type);
 
         //
         // Obtain the type for a name.

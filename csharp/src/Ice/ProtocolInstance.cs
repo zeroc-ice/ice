@@ -11,8 +11,8 @@ namespace IceInternal
         public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
         {
             communicator_ = communicator;
-            traceLevel_ = communicator_.traceLevels().network;
-            traceCategory_ = communicator_.traceLevels().networkCat;
+            traceLevel_ = communicator_.TraceLevels.network;
+            traceCategory_ = communicator_.TraceLevels.networkCat;
             logger_ = communicator_.Logger;
             type_ = type;
             protocol_ = protocol;
@@ -34,10 +34,7 @@ namespace IceInternal
             return logger_;
         }
 
-        public IEndpointFactory getEndpointFactory(short type)
-        {
-            return communicator_.endpointFactoryManager().get(type);
-        }
+        public IEndpointFactory? getEndpointFactory(short type) => communicator_.EndpointFactoryManager().get(type);
 
         public string protocol()
         {
@@ -59,50 +56,26 @@ namespace IceInternal
             return communicator_;
         }
 
-        public bool preferIPv6()
-        {
-            return communicator_.PreferIPv6;
-        }
+        public bool preferIPv6() => communicator_.PreferIPv6;
 
-        public int protocolSupport()
-        {
-            return communicator_.ProtocolSupport;
-        }
+        public int protocolSupport() => communicator_.ProtocolSupport;
 
-        public string defaultHost()
-        {
-            return communicator_.defaultsAndOverrides().defaultHost ?? "";
-        }
+        public string defaultHost() => communicator_.DefaultsAndOverrides.defaultHost ?? "";
 
-        public EndPoint? defaultSourceAddress()
-        {
-            return communicator_.defaultsAndOverrides().defaultSourceAddress;
-        }
+        public EndPoint? defaultSourceAddress() => communicator_.DefaultsAndOverrides.defaultSourceAddress;
 
-        public Ice.EncodingVersion defaultEncoding()
-        {
-            return communicator_.defaultsAndOverrides().defaultEncoding;
-        }
+        public Ice.EncodingVersion defaultEncoding() => communicator_.DefaultsAndOverrides.defaultEncoding;
 
-        public int defaultTimeout()
-        {
-            return communicator_.defaultsAndOverrides().defaultTimeout;
-        }
+        public int defaultTimeout() => communicator_.DefaultsAndOverrides.defaultTimeout;
 
-        public INetworkProxy? networkProxy()
-        {
-            return communicator_.NetworkProxy;
-        }
+        public int messageSizeMax() => communicator_.MessageSizeMax;
 
-        public int messageSizeMax()
-        {
-            return communicator_.messageSizeMax();
-        }
+        public INetworkProxy? networkProxy() => communicator_.NetworkProxy;
 
         public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback)
         {
-            communicator_.endpointHostResolver().resolve(host, port, type, endpt, callback);
+            communicator_.EndpointHostResolver().resolve(host, port, type, endpt, callback);
         }
 
         internal Ice.BufSizeWarnInfo getBufSizeWarn(short type)

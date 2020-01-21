@@ -18,7 +18,7 @@ namespace Ice.exceptions
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max
             using var communicator = initialize(properties, typeIdNamespaces: typeIdNamespaces);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Thrower(), "thrower");
             AllTests.allTests(this);
         }

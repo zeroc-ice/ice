@@ -20,8 +20,8 @@ namespace Ice.location
         {
             foreach (Communicator c in _communicators)
             {
-                c.waitForShutdown();
-                c.destroy();
+                c.WaitForShutdown();
+                c.Destroy();
             }
             _communicators.Clear();
 
@@ -57,8 +57,8 @@ namespace Ice.location
                     serverCommunicator.SetProperty("TestAdapter2.Endpoints",
                                                                 _helper.getTestEndpoint(_nextPort++));
 
-                    adapter = serverCommunicator.createObjectAdapter("TestAdapter");
-                    adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
+                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
+                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
                     var locator = ILocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
                     adapter.SetLocator(locator);
@@ -98,10 +98,10 @@ namespace Ice.location
         {
             foreach (Communicator c in _communicators)
             {
-                c.destroy();
+                c.Destroy();
             }
             _communicators.Clear();
-            current.Adapter.Communicator.shutdown();
+            current.Adapter.Communicator.Shutdown();
         }
 
         private ServerLocatorRegistry _registry;

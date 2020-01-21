@@ -12,7 +12,7 @@ namespace Ice.defaultServant
         {
             var output = helper.getWriter();
             Communicator communicator = helper.communicator();
-            ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
+            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
             oa.Activate();
 
             var servantI = new MyObject();

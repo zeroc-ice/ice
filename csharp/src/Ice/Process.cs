@@ -8,7 +8,7 @@ namespace IceInternal
     {
         public Process(Ice.Communicator communicator) => _communicator = communicator;
 
-        public void Shutdown(Ice.Current current) => _communicator.shutdown();
+        public void Shutdown(Ice.Current current) => _communicator.Shutdown();
 
         public void WriteMessage(string message, int fd, Ice.Current current)
         {

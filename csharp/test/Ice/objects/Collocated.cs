@@ -15,7 +15,7 @@ namespace Ice.objects
             properties["Ice.Warn.Dispatch"] = "0";
             using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.objects.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new Initial(adapter), "initial");
             adapter.Add(new F2(), "F21");
             var uoet = new UnexpectedObjectExceptionTest();

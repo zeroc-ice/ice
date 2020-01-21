@@ -275,7 +275,7 @@ namespace Ice.proxy
             //
             try
             {
-                communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
+                communicator.CreateObjectAdapterWithEndpoints("BadAdapter", " : ");
                 test(false);
             }
             catch (FormatException)
@@ -284,7 +284,7 @@ namespace Ice.proxy
 
             try
             {
-                communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
+                communicator.CreateObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
                 test(false);
             }
             catch (FormatException)
@@ -293,7 +293,7 @@ namespace Ice.proxy
 
             try
             {
-                communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
+                communicator.CreateObjectAdapterWithEndpoints("BadAdapter", ":tcp");
                 test(false);
             }
             catch (FormatException)
@@ -1137,14 +1137,14 @@ namespace Ice.proxy
             output.Flush();
             {
                 Communicator com = new Communicator();
-                com.shutdown();
-                test(com.isShutdown());
-                com.waitForShutdown();
-                com.destroy();
-                com.shutdown();
-                test(com.isShutdown());
-                com.waitForShutdown();
-                com.destroy();
+                com.Shutdown();
+                test(com.IsShutdown());
+                com.WaitForShutdown();
+                com.Destroy();
+                com.Shutdown();
+                test(com.IsShutdown());
+                com.WaitForShutdown();
+                com.Destroy();
             }
             output.WriteLine("ok");
 

@@ -30,6 +30,6 @@ namespace Ice.enums
         public Test.ITestIntf.OpSimpleSeqReturnValue
         opSimpleSeq(Test.SimpleEnum[] s1, Current current) => new Test.ITestIntf.OpSimpleSeqReturnValue(s1, s1);
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
     }
 }

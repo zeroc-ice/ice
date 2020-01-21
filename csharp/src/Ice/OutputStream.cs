@@ -38,7 +38,7 @@ namespace Ice
         public OutputStream(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            Initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding, new IceInternal.Buffer());
+            Initialize(communicator, communicator.DefaultsAndOverrides.defaultEncoding, new IceInternal.Buffer());
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Ice
         public void Initialize(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            Initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
+            Initialize(communicator, communicator.DefaultsAndOverrides.defaultEncoding);
         }
 
         public void Initialize(Communicator communicator, EncodingVersion encoding)
@@ -90,7 +90,7 @@ namespace Ice
             _closure = null;
             _encoding = encoding;
 
-            _format = _communicator.defaultsAndOverrides().defaultFormat;
+            _format = _communicator.DefaultsAndOverrides.defaultFormat;
 
             _encapsStack = null;
             _encapsCache = null;
@@ -2187,7 +2187,7 @@ namespace Ice
 
             if (_encapsStack.format == FormatType.DefaultFormat)
             {
-                _encapsStack.format = _communicator.defaultsAndOverrides().defaultFormat;
+                _encapsStack.format = _communicator.DefaultsAndOverrides.defaultFormat;
             }
 
             if (_encapsStack.encoder == null) // Lazy initialization.

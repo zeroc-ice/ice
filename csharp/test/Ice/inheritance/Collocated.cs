@@ -13,7 +13,7 @@ namespace Ice.inheritance
         {
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("TestAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new InitialI(adapter), "initial");
             AllTests.allTests(this);
         }

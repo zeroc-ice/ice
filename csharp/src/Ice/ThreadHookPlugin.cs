@@ -21,7 +21,7 @@ namespace Ice
         public
         ThreadHookPlugin(Communicator communicator, System.Action threadStart, System.Action threadStop)
         {
-            communicator.setThreadHook(threadStart, threadStop);
+            communicator.SetThreadHook(threadStart, threadStop);
         }
 
         /// <summary>

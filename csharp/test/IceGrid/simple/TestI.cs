@@ -5,5 +5,5 @@
 public sealed class TestIntf : Test.ITestIntf
 {
     public void
-    shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }

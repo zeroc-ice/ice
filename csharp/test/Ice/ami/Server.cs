@@ -35,8 +35,8 @@ namespace Ice.ami
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            var adapter = communicator.createObjectAdapter("TestAdapter");
-            var adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            var adapter = communicator.CreateObjectAdapter("TestAdapter");
+            var adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
             adapter.Add(new TestIntf(), "test");
             adapter.Add(new TestIntf2(), "test2");
@@ -44,7 +44,7 @@ namespace Ice.ami
             adapter2.Add(new TestControllerIntf(adapter), "testController");
             adapter2.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

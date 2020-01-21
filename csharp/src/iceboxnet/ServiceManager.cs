@@ -186,7 +186,7 @@ namespace IceBox
             }
         }
 
-        public void Shutdown(Current current) => _communicator.shutdown();
+        public void Shutdown(Current current) => _communicator.Shutdown();
 
         public int run()
         {
@@ -200,7 +200,7 @@ namespace IceBox
                 ObjectAdapter? adapter = null;
                 if (_communicator.GetProperty("IceBox.ServiceManager.Endpoints") != null)
                 {
-                    adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
+                    adapter = _communicator.CreateObjectAdapter("IceBox.ServiceManager");
                     adapter.Add(this, new Identity("ServiceManager",
                         _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox"));
                 }
@@ -299,7 +299,7 @@ namespace IceBox
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
                 _communicator.AddAdminFacet<IServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
-                _communicator.getAdmin();
+                _communicator.GetAdmin();
                 if (adapter != null)
                 {
                     adapter.Activate();
@@ -322,7 +322,7 @@ namespace IceBox
                     Console.Out.WriteLine(bundleName + " ready");
                 }
 
-                _communicator.waitForShutdown();
+                _communicator.WaitForShutdown();
             }
             catch (CommunicatorDestroyedException)
             {
@@ -613,7 +613,7 @@ namespace IceBox
 
                     try
                     {
-                        _sharedCommunicator.destroy();
+                        _sharedCommunicator.Destroy();
                     }
                     catch (System.Exception ex)
                     {
@@ -776,8 +776,8 @@ namespace IceBox
             {
                 try
                 {
-                    communicator.shutdown();
-                    communicator.waitForShutdown();
+                    communicator.Shutdown();
+                    communicator.WaitForShutdown();
                 }
                 catch (CommunicatorDestroyedException)
                 {
@@ -792,7 +792,7 @@ namespace IceBox
                 }
 
                 removeAdminFacets("IceBox.Service." + service + ".");
-                communicator.destroy();
+                communicator.Destroy();
             }
         }
 

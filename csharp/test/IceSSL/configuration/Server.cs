@@ -21,11 +21,11 @@ public class Server : Test.TestHelper
         }
 
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add(new ServerFactory(args[0] + "/../certs"), "factory");
         adapter.Activate();
 
-        communicator.waitForShutdown();
+        communicator.WaitForShutdown();
     }
 
     public static int Main(string[] args) => TestDriver.runTest<Server>(args);

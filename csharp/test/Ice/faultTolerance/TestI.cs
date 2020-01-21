@@ -35,7 +35,7 @@ public sealed class TestIntf : ITestIntf
         }
     }
 
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.shutdown();
+    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 
     private Process _p;
     private int _pid;

@@ -13,7 +13,7 @@ namespace Ice.adapterDeactivation
             using (var communicator = initialize(ref args))
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                var adapter = communicator.createObjectAdapter("TestAdapter");
+                var adapter = communicator.CreateObjectAdapter("TestAdapter");
                 adapter.AddServantLocator(new ServantLocator(), "");
                 adapter.Activate();
                 serverReady();

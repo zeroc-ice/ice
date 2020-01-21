@@ -8,7 +8,7 @@ namespace Ice.dictMapping
 {
     public sealed class MyClass : Test.IMyClass
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public Test.IMyClass.OpNVReturnValue
         opNV(Dictionary<int, int> i, Current current) => new Test.IMyClass.OpNVReturnValue(i, i);

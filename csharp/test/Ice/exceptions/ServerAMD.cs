@@ -49,9 +49,9 @@ namespace Ice
                     communicator.SetProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
                     communicator.SetProperty("TestAdapter3.MessageSizeMax", "1");
 
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-                    ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+                    ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+                    ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
+                    ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
                     var obj = new ThrowerI();
                     adapter.Add(obj, "thrower");
                     adapter2.Add(obj, "thrower");
@@ -60,7 +60,7 @@ namespace Ice
                     adapter2.Activate();
                     adapter3.Activate();
                     serverReady();
-                    communicator.waitForShutdown();
+                    communicator.WaitForShutdown();
                 }
 
                 public static int Main(string[] args) => TestDriver.runTest<Server>(args);

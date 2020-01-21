@@ -25,7 +25,7 @@ namespace Ice.inheritance
 
         public IICPrx icop(Current current) => _ic;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private IIAPrx _ia;
         private IIB1Prx _ib1;

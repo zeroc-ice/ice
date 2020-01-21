@@ -19,7 +19,7 @@ public sealed class TestIntf : ITestIntf
 
     public Task shutdownAsync(Ice.Current current)
     {
-        current.Adapter.Communicator.shutdown();
+        current.Adapter.Communicator.Shutdown();
         return null;
     }
 

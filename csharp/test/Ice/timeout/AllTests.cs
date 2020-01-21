@@ -301,7 +301,7 @@ namespace Ice.timeout
                 }
                 controller.resumeAdapter();
                 timeout.op(); // Ensure adapter is active.
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -358,7 +358,7 @@ namespace Ice.timeout
                 }
                 controller.resumeAdapter();
                 timeout.op(); // Ensure adapter is active.
-                comm.destroy();
+                comm.Destroy();
             }
             {
                 //
@@ -370,7 +370,7 @@ namespace Ice.timeout
                 IObjectPrx.Parse(sref, comm).GetConnection();
                 controller.holdAdapter(-1);
                 long begin = System.DateTime.Now.Ticks;
-                comm.destroy();
+                comm.Destroy();
                 test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 1000);
                 controller.resumeAdapter();
             }
@@ -381,7 +381,7 @@ namespace Ice.timeout
             {
                 communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
-                var adapter = communicator.createObjectAdapter("TimeoutCollocated");
+                var adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
                 adapter.Activate();
 
                 var proxy = adapter.Add(new Timeout()).Clone(invocationTimeout: 100);

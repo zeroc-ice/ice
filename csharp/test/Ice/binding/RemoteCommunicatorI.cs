@@ -24,7 +24,7 @@ namespace Ice.binding
                     }
 
                     communicator.SetProperty(name + ".ThreadPool.Size", "1");
-                    ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
+                    ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.Add(new RemoteObjectAdapter(adapter));
                 }
                 catch (SocketException)
@@ -41,7 +41,7 @@ namespace Ice.binding
         deactivateObjectAdapter(IRemoteObjectAdapterPrx adapter, Current current) => adapter.deactivate(); // Collocated call.
 
         public void
-        shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private int _nextPort = 10;
     }

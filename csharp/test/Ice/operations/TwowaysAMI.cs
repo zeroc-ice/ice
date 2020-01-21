@@ -1679,15 +1679,15 @@ namespace Ice.operations
 
                     var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
-                    ic.getImplicitContext().setContext(ctx);
-                    test(Collections.Equals(ic.getImplicitContext().getContext(), ctx));
+                    ic.GetImplicitContext().setContext(ctx);
+                    test(Collections.Equals(ic.GetImplicitContext().getContext(), ctx));
                     {
                         test(Collections.Equals(p3.opContextAsync().Result, ctx));
                     }
 
-                    ic.getImplicitContext().put("zero", "ZERO");
+                    ic.GetImplicitContext().put("zero", "ZERO");
 
-                    ctx = ic.getImplicitContext().getContext();
+                    ctx = ic.GetImplicitContext().getContext();
                     {
                         test(Collections.Equals(p3.opContextAsync().Result, ctx));
                     }
@@ -1712,18 +1712,18 @@ namespace Ice.operations
 
                     p3 = p.Clone(context: prxContext);
 
-                    ic.getImplicitContext().setContext(null);
+                    ic.GetImplicitContext().setContext(null);
                     {
                         test(Collections.Equals(p3.opContextAsync().Result, prxContext));
                     }
 
-                    ic.getImplicitContext().setContext(ctx);
+                    ic.GetImplicitContext().setContext(ctx);
                     {
                         test(Collections.Equals(p3.opContextAsync().Result, combined));
                     }
 
                     //ic.getImplicitContext().setContext(null);
-                    ic.destroy();
+                    ic.Destroy();
                 }
             }
 

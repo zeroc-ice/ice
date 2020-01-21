@@ -10,7 +10,7 @@ namespace Ice.facets
 
         public string callG(Current current) => "G";
 
-        public void shutdown(Current current) => _communicator.shutdown();
+        public void shutdown(Current current) => _communicator.Shutdown();
 
         private Communicator _communicator;
     }

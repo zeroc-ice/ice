@@ -8,7 +8,7 @@ namespace Ice.optional
 {
     public class Initial : Test.IInitial
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public AnyClass pingPong(AnyClass obj, Current current) => obj;
 

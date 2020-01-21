@@ -13,11 +13,11 @@ namespace Ice.info
         {
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new TestIntf(), "test");
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

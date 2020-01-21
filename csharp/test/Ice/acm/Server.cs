@@ -20,12 +20,12 @@ namespace Ice
                 {
                     communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     communicator.SetProperty("TestAdapter.ACM.Timeout", "0");
-                    var adapter = communicator.createObjectAdapter("TestAdapter");
+                    var adapter = communicator.CreateObjectAdapter("TestAdapter");
                     adapter.Add(new RemoteCommunicator(), "communicator");
                     adapter.Activate();
                     serverReady();
                     communicator.SetProperty("Ice.PrintAdapterReady", "0");
-                    communicator.waitForShutdown();
+                    communicator.WaitForShutdown();
                 }
             }
 

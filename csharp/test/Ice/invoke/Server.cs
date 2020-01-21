@@ -62,7 +62,7 @@ namespace Ice.invoke
             bool async = args.Any(v => v.Equals("--async"));
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             if (async)
             {
                 adapter.AddServantLocator(new ServantLocatorAsync(), "");
@@ -73,7 +73,7 @@ namespace Ice.invoke
             }
             adapter.Activate();
             serverReady();
-            communicator.waitForShutdown();
+            communicator.WaitForShutdown();
         }
 
         public static int Main(string[] args) => TestDriver.runTest<Server>(args);

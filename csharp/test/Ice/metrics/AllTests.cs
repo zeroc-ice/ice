@@ -403,7 +403,7 @@ public class AllTests : Test.AllTests
         var output = helper.getWriter();
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
-        IObjectPrx admin = communicator.getAdmin();
+        IObjectPrx admin = communicator.GetAdmin();
         IPropertiesAdminPrx clientProps = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
         IceMX.IMetricsAdminPrx clientMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
         test(clientProps != null && clientMetrics != null);

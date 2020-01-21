@@ -103,7 +103,7 @@ public class Client : Test.TestHelper
         using (var communicator = initialize(ref args))
         {
             communicator.SetProperty("TestAdapter.Endpoints", "default");
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(new decimalI(), "test");
             adapter.Add(new Test1I(), "test1");
             adapter.Add(new Test2I(), "test2");

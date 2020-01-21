@@ -57,7 +57,7 @@ namespace Ice.udp
         {
             Communicator communicator = helper.communicator();
             communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
-            ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             PingReplyI replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
             adapter.Activate();

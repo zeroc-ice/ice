@@ -95,7 +95,7 @@ namespace Ice.hold
         shutdown(Current current)
         {
             _adapter.Hold();
-            _adapter.Communicator.shutdown();
+            _adapter.Communicator.Shutdown();
         }
 
         private ObjectAdapter _adapter;

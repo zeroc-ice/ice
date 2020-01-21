@@ -54,7 +54,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("installing router with communicator... ");
                 Console.Out.Flush();
-                communicator.setDefaultRouter(router);
+                communicator.SetDefaultRouter(router);
                 Console.Out.WriteLine("ok");
             }
 
@@ -197,7 +197,7 @@ public class Client : Test.TestHelper
                 Console.Out.Write("creating and activating callback receiver adapter... ");
                 Console.Out.Flush();
                 communicator.SetProperty("Ice.PrintAdapterReady", "0");
-                adapter = communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+                adapter = communicator.CreateObjectAdapterWithRouter("CallbackReceiverAdapter", router);
                 adapter.Activate();
                 Console.Out.WriteLine("ok");
             }
@@ -392,7 +392,7 @@ public class Client : Test.TestHelper
                 {
                     Console.Out.Write("uninstalling router with communicator... ");
                     Console.Out.Flush();
-                    communicator.setDefaultRouter(null);
+                    communicator.SetDefaultRouter(null);
                     Console.Out.WriteLine("ok");
                 }
 

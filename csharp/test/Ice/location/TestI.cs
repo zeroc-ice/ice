@@ -17,7 +17,7 @@ namespace Ice.location
             _registry.addObject(_adapter1.Add(new Hello(), "hello"));
         }
 
-        public void shutdown(Current current) => _adapter1.Communicator.shutdown();
+        public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
 
         public IHelloPrx getHello(Current current) =>
             IHelloPrx.UncheckedCast(_adapter1.CreateIndirectProxy("hello"));

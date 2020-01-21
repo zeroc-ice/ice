@@ -399,7 +399,7 @@ namespace Ice.ami
                     Communicator ic = helper.initialize(communicator.GetProperties());
                     IObjectPrx o = IObjectPrx.Parse(p.ToString(), ic);
                     ITestIntfPrx p2 = ITestIntfPrx.CheckedCast(o);
-                    ic.destroy();
+                    ic.Destroy();
 
                     try
                     {
@@ -896,7 +896,7 @@ namespace Ice.ami
 
                 if (!collocated)
                 {
-                    ObjectAdapter adapter = communicator.createObjectAdapter("");
+                    ObjectAdapter adapter = communicator.CreateObjectAdapter("");
                     PingReplyI replyI = new PingReplyI();
                     var reply = adapter.Add(replyI);
                     adapter.Activate();
