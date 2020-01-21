@@ -13,10 +13,7 @@ namespace IceInternal
             return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
         }
 
-        public short type()
-        {
-            return _instance.type();
-        }
+        public short type() => _instance.Type;
 
         //
         // Only for use by UdpEndpointI

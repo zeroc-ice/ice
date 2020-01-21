@@ -10,96 +10,38 @@ namespace IceInternal
     {
         public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
         {
-            communicator_ = communicator;
-            traceLevel_ = communicator_.TraceLevels.network;
-            traceCategory_ = communicator_.TraceLevels.networkCat;
-            logger_ = communicator_.Logger;
-            type_ = type;
-            protocol_ = protocol;
-            secure_ = secure;
+            Communicator = communicator;
+            TraceLevel = Communicator.TraceLevels.network;
+            TraceCategory = Communicator.TraceLevels.networkCat;
+            Logger = Communicator.Logger;
+            Type = type;
+            Protocol = protocol;
+            Secure = secure;
         }
 
-        public int traceLevel()
-        {
-            return traceLevel_;
-        }
+        public int TraceLevel { get; protected set; }
+        public string TraceCategory { get; protected set; }
+        public Ice.ILogger Logger { get; protected set; }
+        public string Protocol { get; protected set; }
+        public short Type { get; protected set; }
+        public bool Secure { get; protected set; }
+        public Ice.Communicator Communicator { get; protected set; }
+        public bool PreferIPv6 => Communicator.PreferIPv6;
+        public int ProtocolSupport => Communicator.ProtocolSupport;
+        public string DefaultHost => Communicator.DefaultsAndOverrides.defaultHost ?? "";
+        public EndPoint? DefaultSourceAddress => Communicator.DefaultsAndOverrides.defaultSourceAddress;
+        public Ice.EncodingVersion DefaultEncoding => Communicator.DefaultsAndOverrides.defaultEncoding;
+        public int DefaultTimeout => Communicator.DefaultsAndOverrides.defaultTimeout;
+        public int MessageSizeMax => Communicator.MessageSizeMax;
+        public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
-        public string traceCategory()
-        {
-            return traceCategory_;
-        }
+        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.EndpointFactoryManager().get(type);
+        public void Resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
+                            IEndpointConnectors callback) =>
+            Communicator.EndpointHostResolver().resolve(host, port, type, endpt, callback);
+        public void setSndBufSizeWarn(short type, int size) => Communicator.SetSndBufSizeWarn(type, size);
+        public void setRcvBufSizeWarn(short type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
 
-        public Ice.ILogger logger()
-        {
-            return logger_;
-        }
-
-        public IEndpointFactory? getEndpointFactory(short type) => communicator_.EndpointFactoryManager().get(type);
-
-        public string protocol()
-        {
-            return protocol_;
-        }
-
-        public short type()
-        {
-            return type_;
-        }
-
-        public bool secure()
-        {
-            return secure_;
-        }
-
-        public Ice.Communicator communicator()
-        {
-            return communicator_;
-        }
-
-        public bool preferIPv6() => communicator_.PreferIPv6;
-
-        public int protocolSupport() => communicator_.ProtocolSupport;
-
-        public string defaultHost() => communicator_.DefaultsAndOverrides.defaultHost ?? "";
-
-        public EndPoint? defaultSourceAddress() => communicator_.DefaultsAndOverrides.defaultSourceAddress;
-
-        public Ice.EncodingVersion defaultEncoding() => communicator_.DefaultsAndOverrides.defaultEncoding;
-
-        public int defaultTimeout() => communicator_.DefaultsAndOverrides.defaultTimeout;
-
-        public int messageSizeMax() => communicator_.MessageSizeMax;
-
-        public INetworkProxy? networkProxy() => communicator_.NetworkProxy;
-
-        public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
-                            IEndpointConnectors callback)
-        {
-            communicator_.EndpointHostResolver().resolve(host, port, type, endpt, callback);
-        }
-
-        internal Ice.BufSizeWarnInfo getBufSizeWarn(short type)
-        {
-            return communicator_.GetBufSizeWarn(type);
-        }
-
-        public void setSndBufSizeWarn(short type, int size)
-        {
-            communicator_.SetSndBufSizeWarn(type, size);
-        }
-
-        public void setRcvBufSizeWarn(short type, int size)
-        {
-            communicator_.SetRcvBufSizeWarn(type, size);
-        }
-
-        protected Ice.Communicator communicator_;
-        protected int traceLevel_;
-        protected string traceCategory_;
-        protected Ice.ILogger logger_;
-        protected string protocol_;
-        protected short type_;
-        protected bool secure_;
+        internal Ice.BufSizeWarnInfo GetBufSizeWarn(short type) => Communicator.GetBufSizeWarn(type);
     }
-
 }

@@ -325,7 +325,7 @@ namespace IceInternal
                     Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
                     if (v.major != 1 || v.minor != 0)
                     {
-                        instance_.logger().warning("deprecated udp endpoint option: " + option);
+                        instance_.Logger.warning($"deprecated udp endpoint option: {option}");
                     }
                 }
                 catch (FormatException ex)
@@ -391,9 +391,9 @@ namespace IceInternal
         {
         }
 
-        public short type() => _instance!.type();
+        public short type() => _instance!.Type;
 
-        public string protocol() => _instance!.protocol();
+        public string protocol() => _instance!.Protocol;
 
         public Endpoint create(List<string> args, bool oaEndpoint)
         {

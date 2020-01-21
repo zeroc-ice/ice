@@ -289,10 +289,9 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if (_instance.traceLevel() >= 1)
+                if (_instance.TraceLevel >= 1)
                 {
-                    string s = "connected " + protocol() + " socket\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
+                    _instance.Logger.trace(_instance.TraceCategory, $"connected {protocol()} socket\n{this}");
                 }
             }
 
@@ -420,10 +419,9 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if (_instance.traceLevel() >= 1)
+                if (_instance.TraceLevel >= 1)
                 {
-                    string s = "connected " + protocol() + " socket\n" + ToString();
-                    _instance.logger().trace(_instance.traceCategory(), s);
+                    _instance.Logger.trace(_instance.TraceCategory, $"connected {protocol()} socket\n{this}");
                 }
             }
 
@@ -550,10 +548,7 @@ namespace IceInternal
             buf.b.position(buf.b.position() + ret);
         }
 
-        public string protocol()
-        {
-            return _instance.protocol();
-        }
+        public string protocol() => _instance.Protocol;
 
         public Ice.ConnectionInfo getInfo()
         {
@@ -649,7 +644,7 @@ namespace IceInternal
             if (_mcastAddr == null)
             {
                 intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
-                                                          _instance.protocolSupport(), true);
+                                                          _instance.ProtocolSupport, true);
             }
             else
             {
@@ -732,7 +727,7 @@ namespace IceInternal
 
             try
             {
-                _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
+                _addr = Network.getAddressForServer(host, port, instance.ProtocolSupport, instance.PreferIPv6);
 
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
@@ -742,7 +737,7 @@ namespace IceInternal
                 _writeEventArgs.RemoteEndPoint = _addr;
                 _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
-                _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
+                _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.ProtocolSupport);
                 setBufSize(-1, -1);
                 Network.setBlock(_fd, false);
             }
@@ -796,15 +791,14 @@ namespace IceInternal
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _instance.communicator().GetPropertyAsInt(prop) ?? dfltSize;
+                    sizeRequested = _instance.Communicator.GetPropertyAsInt(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.
                 //
                 if (sizeRequested < (_udpOverhead + Protocol.headerSize))
                 {
-                    _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
-                                               dfltSize);
+                    _instance.Logger.warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
                     sizeRequested = dfltSize;
                 }
 
@@ -835,12 +829,12 @@ namespace IceInternal
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        Ice.BufSizeWarnInfo winfo = _instance.getBufSizeWarn(Ice.UDPEndpointType.value);
+                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.UDPEndpointType.value);
                         if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                         {
-                            _instance.logger().warning("UDP " + direction + " buffer size: requested size of " +
-                                                       sizeRequested + " adjusted to " + sizeSet);
+                            _instance.Logger.warning(
+                                $"UDP {direction} buffer size: requested size of {sizeRequested} adjusted to {sizeSet}");
 
                             if (isSnd)
                             {

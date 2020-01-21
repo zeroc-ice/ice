@@ -94,15 +94,9 @@ namespace IceInternal
             return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
         }
 
-        public string protocol()
-        {
-            return _instance.protocol();
-        }
+        public string protocol() => _instance.Protocol;
 
-        public override string ToString()
-        {
-            return Network.addrToString(_addr);
-        }
+        public override string ToString() => Network.addrToString(_addr);
 
         public string toDetailedString()
         {
@@ -110,7 +104,7 @@ namespace IceInternal
             s.Append(ToString());
 
             List<string> intfs =
-                Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport(), true);
+                Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.ProtocolSupport, true);
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -128,12 +122,12 @@ namespace IceInternal
         {
             _endpoint = endpoint;
             _instance = instance;
-            _backlog = instance.communicator().GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
+            _backlog = instance.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
 
             try
             {
-                int protocol = _instance.protocolSupport();
-                _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, _instance.preferIPv6());
+                int protocol = _instance.ProtocolSupport;
+                _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, _instance.PreferIPv6);
                 _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 Network.setBlock(_fd, false);
                 Network.setTcpBufSize(_fd, _instance);

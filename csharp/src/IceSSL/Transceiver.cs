@@ -372,7 +372,7 @@ namespace IceSSL
 
             _sslStream = null;
 
-            _verifyPeer = _instance.communicator().GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
+            _verifyPeer = _instance.Communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
         private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)
@@ -590,8 +590,8 @@ namespace IceSSL
                         {
                             if (_instance.securityTraceLevel() >= 1)
                             {
-                                _instance.logger().trace(_instance.securityTraceCategory(),
-                                                         "SSL certificate validation failed - client certificate not provided");
+                                _instance.Logger.trace(_instance.securityTraceCategory(),
+                                    "SSL certificate validation failed - client certificate not provided");
                             }
                             return false;
                         }
@@ -612,7 +612,7 @@ namespace IceSSL
                             {
                                 msg += " (ignored)";
                             }
-                            _instance.logger().trace(_instance.securityTraceCategory(), msg);
+                            _instance.Logger.trace(_instance.securityTraceCategory(), msg);
                         }
 
                         if (_verifyPeer > 0)
@@ -720,21 +720,19 @@ namespace IceSSL
                     {
                         if (message.Length > 0)
                         {
-                            _instance.logger().trace(_instance.securityTraceCategory(),
-                                                     "SSL certificate validation failed:" + message);
+                            _instance.Logger.trace(_instance.securityTraceCategory(),
+                                $"SSL certificate validation failed:{message}");
                         }
                         else
                         {
-                            _instance.logger().trace(_instance.securityTraceCategory(),
-                                                     "SSL certificate validation failed");
+                            _instance.Logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed");
                         }
                     }
                     return false;
                 }
                 else if (message.Length > 0 && _instance.securityTraceLevel() >= 1)
                 {
-                    _instance.logger().trace(_instance.securityTraceCategory(),
-                                             "SSL certificate validation status:" + message);
+                    _instance.Logger.trace(_instance.securityTraceCategory(), $"SSL certificate validation status:{message}");
                 }
                 return true;
             }

@@ -926,8 +926,8 @@ namespace IceInternal
             {
                 dfltBufSize = 128 * 1024;
             }
-            int rcvSize = instance.communicator().GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = instance.communicator().GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
+            int rcvSize = instance.Communicator.GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
+            int sndSize = instance.Communicator.GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
             setTcpBufSize(socket, rcvSize, sndSize, instance);
         }
 
@@ -947,11 +947,11 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    Ice.BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    Ice.BufSizeWarnInfo winfo = instance.GetBufSizeWarn(Ice.TCPEndpointType.value);
                     if (!winfo.rcvWarn || rcvSize != winfo.rcvSize)
                     {
-                        instance.logger().warning("TCP receive buffer size: requested size of " + rcvSize +
-                                                  " adjusted to " + size);
+                        instance.Logger.warning(
+                            $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
                         instance.setRcvBufSizeWarn(Ice.TCPEndpointType.value, rcvSize);
                     }
                 }
@@ -970,11 +970,11 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    Ice.BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    Ice.BufSizeWarnInfo winfo = instance.GetBufSizeWarn(Ice.TCPEndpointType.value);
                     if (!winfo.sndWarn || sndSize != winfo.sndSize)
                     {
-                        instance.logger().warning("TCP send buffer size: requested size of " + sndSize +
-                                                  " adjusted to " + size);
+                        instance.Logger.warning(
+                            $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
                         instance.setSndBufSizeWarn(Ice.TCPEndpointType.value, sndSize);
                     }
                 }

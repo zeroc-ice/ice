@@ -62,11 +62,11 @@ namespace IceInternal
             return info;
         }
 
-        public override short type() => instance_.type();
+        public override short type() => instance_.Type;
 
-        public override string protocol() => instance_.protocol();
+        public override string protocol() => instance_.Protocol;
 
-        public override bool secure() => instance_.secure();
+        public override bool secure() => instance_.Secure;
 
         public override string connectionId() => connectionId_;
 
@@ -83,12 +83,12 @@ namespace IceInternal
         }
 
         public override void ConnectorsAsync(Ice.EndpointSelectionType selType, IEndpointConnectors callback) =>
-            instance_.resolve(host_!, port_, selType, this, callback);
+            instance_.Resolve(host_!, port_, selType, this, callback);
 
         public override List<Endpoint> expandIfWildcard()
         {
             List<Endpoint> endps = new List<Endpoint>();
-            List<string> hosts = Network.getHostsForEndpointExpand(host_!, instance_.protocolSupport(), false);
+            List<string> hosts = Network.getHostsForEndpointExpand(host_!, instance_.ProtocolSupport, false);
             if (hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);
@@ -126,9 +126,9 @@ namespace IceInternal
 
             List<EndPoint> addresses = Network.getAddresses(host_,
                                                             port_,
-                                                            instance_.protocolSupport(),
+                                                            instance_.ProtocolSupport,
                                                             Ice.EndpointSelectionType.Ordered,
-                                                            instance_.preferIPv6(),
+                                                            instance_.PreferIPv6,
                                                             true);
 
             if (addresses.Count == 1)
@@ -297,7 +297,7 @@ namespace IceInternal
 
             if (host_ == null || host_.Length == 0)
             {
-                host_ = instance_.defaultHost();
+                host_ = instance_.DefaultHost;
             }
             else if (host_.Equals("*"))
             {
@@ -325,7 +325,7 @@ namespace IceInternal
             }
             else if (!oaEndpoint)
             {
-                sourceAddr_ = instance_.defaultSourceAddress();
+                sourceAddr_ = instance_.DefaultSourceAddress;
             }
         }
 

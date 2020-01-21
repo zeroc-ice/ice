@@ -32,7 +32,7 @@ namespace IceInternal
             // Get the endpoint factory for the underlying type and clone it with
             // our protocol instance.
             //
-            IEndpointFactory? factory = instance_!.getEndpointFactory(_type);
+            IEndpointFactory? factory = instance_!.GetEndpointFactory(_type);
             if (factory != null)
             {
                 _underlying = factory.clone(instance_);
@@ -40,9 +40,9 @@ namespace IceInternal
             }
         }
 
-        public short type() => instance_!.type();
+        public short type() => instance_!.Type;
 
-        public string protocol() => instance_!.protocol();
+        public string protocol() => instance_!.Protocol;
 
         public Endpoint? create(List<string> args, bool oaEndpoint)
         {
