@@ -13,7 +13,7 @@ namespace IceInternal
             return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
         }
 
-        public short type() => _instance.type();
+        public short type() => _instance.Type;
 
         //
         // Only for use by TcpEndpoint

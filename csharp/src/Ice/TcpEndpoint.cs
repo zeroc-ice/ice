@@ -22,7 +22,7 @@ namespace IceInternal
         public TcpEndpoint(ProtocolInstance instance) :
             base(instance)
         {
-            _timeout = instance.defaultTimeout();
+            _timeout = instance.DefaultTimeout;
             _compress = false;
         }
 
@@ -260,9 +260,9 @@ namespace IceInternal
         {
         }
 
-        public short type() => _instance!.type();
+        public short type() => _instance!.Type;
 
-        public string protocol() => _instance!.protocol();
+        public string protocol() => _instance!.Protocol;
 
         public Endpoint create(List<string> args, bool oaEndpoint)
         {

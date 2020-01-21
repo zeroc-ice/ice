@@ -44,7 +44,7 @@ namespace IceInternal
 
         public void finishWrite(Buffer buf) => _stream.finishWrite(buf);
 
-        public string protocol() => _instance.protocol();
+        public string protocol() => _instance.Protocol;
 
         public Ice.ConnectionInfo getInfo()
         {

@@ -210,7 +210,7 @@ namespace IceSSL
 
         public override IceInternal.IEndpointFactory
         cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying) =>
-            new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
+            new EndpointFactoryI(new Instance(_instance.engine(), inst.Type, inst.Protocol), underlying);
 
         protected override IceInternal.Endpoint
         createWithUnderlying(IceInternal.Endpoint underlying, List<string> args, bool oaEndpoint) =>

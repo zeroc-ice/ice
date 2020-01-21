@@ -125,7 +125,7 @@ namespace IceInternal
                             // Enlarge the buffer and try to read more.
                             //
                             int oldSize = _readBuffer.b.position();
-                            if (oldSize + 1024 > _instance.messageSizeMax())
+                            if (oldSize + 1024 > _instance.MessageSizeMax)
                             {
                                 throw new Ice.MemoryLimitException();
                             }
@@ -205,25 +205,24 @@ namespace IceInternal
             }
             catch (Ice.LocalException ex)
             {
-                if (_instance.traceLevel() >= 2)
+                if (_instance.TraceLevel >= 2)
                 {
-                    _instance.logger().trace(_instance.traceCategory(),
-                        protocol() + " connection HTTP upgrade request failed\n" + ToString() + "\n" + ex);
+                    _instance.Logger.trace(_instance.TraceCategory,
+                        $"{protocol()} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
             }
 
-            if (_instance.traceLevel() >= 1)
+            if (_instance.TraceLevel >= 1)
             {
                 if (_incoming)
                 {
-                    _instance.logger().trace(_instance.traceCategory(),
-                        "accepted " + protocol() + " connection HTTP upgrade request\n" + ToString());
+                    _instance.Logger.trace(_instance.TraceCategory,
+                        $"accepted {protocol()} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _instance.logger().trace(_instance.traceCategory(),
-                        protocol() + " connection HTTP upgrade request accepted\n" + ToString());
+                    _instance.Logger.trace(_instance.TraceCategory, $"{protocol()} connection HTTP upgrade request accepted\n{this}");
                 }
             }
 
@@ -232,10 +231,9 @@ namespace IceInternal
 
         public int closing(bool initiator, Ice.LocalException? reason)
         {
-            if (_instance.traceLevel() >= 1)
+            if (_instance.TraceLevel >= 1)
             {
-                _instance.logger().trace(_instance.traceCategory(),
-                    "gracefully closing " + protocol() + " connection\n" + ToString());
+                _instance.Logger.trace(_instance.TraceCategory, $"gracefully closing {protocol()} connection\n{this}");
             }
 
             int s = _nextState == StateOpened ? _state : _nextState;
@@ -638,10 +636,7 @@ namespace IceInternal
             postWrite(buf, SocketOperation.None);
         }
 
-        public string protocol()
-        {
-            return _instance.protocol();
-        }
+        public string protocol() => _instance.Protocol;
 
         public Ice.ConnectionInfo getInfo()
         {
@@ -651,10 +646,7 @@ namespace IceInternal
             return info;
         }
 
-        public void checkSendSize(Buffer buf)
-        {
-            _delegate.checkSendSize(buf);
-        }
+        public void checkSendSize(Buffer buf) => _delegate.checkSendSize(buf);
 
         public void setBufferSize(int rcvSize, int sndSize)
         {
@@ -1099,9 +1091,9 @@ namespace IceInternal
                         case OP_DATA: // Data frame
                         case OP_CONT: // Continuation frame
                             {
-                                if (_instance.traceLevel() >= 2)
+                                if (_instance.TraceLevel >= 2)
                                 {
-                                    _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
+                                    _instance.Logger.trace(_instance.TraceCategory, "received " + protocol() +
                                                              (_readOpCode == OP_DATA ? " data" : " continuation") +
                                                              " frame with payload length of " + _readPayloadLength +
                                                              " bytes\n" + ToString());
@@ -1118,10 +1110,10 @@ namespace IceInternal
                             }
                         case OP_CLOSE: // Connection close
                             {
-                                if (_instance.traceLevel() >= 2)
+                                if (_instance.TraceLevel >= 2)
                                 {
-                                    _instance.logger().trace(_instance.traceCategory(),
-                                        "received " + protocol() + " connection close frame\n" + ToString());
+                                    _instance.Logger.trace(_instance.TraceCategory,
+                                        $"received {protocol()} connection close frame\n{this}");
                                 }
 
                                 _readState = ReadStateControlFrame;
@@ -1154,20 +1146,20 @@ namespace IceInternal
                             }
                         case OP_PING:
                             {
-                                if (_instance.traceLevel() >= 2)
+                                if (_instance.TraceLevel >= 2)
                                 {
-                                    _instance.logger().trace(_instance.traceCategory(),
-                                        "received " + protocol() + " connection ping frame\n" + ToString());
+                                    _instance.Logger.trace(_instance.TraceCategory,
+                                        $"received {protocol()} connection ping frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
                             }
                         case OP_PONG: // Pong
                             {
-                                if (_instance.traceLevel() >= 2)
+                                if (_instance.TraceLevel >= 2)
                                 {
-                                    _instance.logger().trace(_instance.traceCategory(),
-                                        "received " + protocol() + " connection pong frame\n" + ToString());
+                                    _instance.Logger.trace(_instance.TraceCategory,
+                                        $"received {protocol()} connection pong frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1424,27 +1416,27 @@ namespace IceInternal
                 {
                     if (_state == StatePingPending)
                     {
-                        if (_instance.traceLevel() >= 2)
+                        if (_instance.TraceLevel >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "sent " + protocol() + " connection ping frame\n" + ToString());
+                            _instance.Logger.trace(_instance.TraceCategory,
+                                $"sent {protocol()} connection ping frame\n{this}");
                         }
                     }
                     else if (_state == StatePongPending)
                     {
-                        if (_instance.traceLevel() >= 2)
+                        if (_instance.TraceLevel >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "sent " + protocol() + " connection pong frame\n" + ToString());
+                            _instance.Logger.trace(_instance.TraceCategory,
+                                $"sent {protocol()} connection pong frame\n{this}");
                         }
                     }
                     else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
                             (_state == StateClosingResponsePending && _closingInitiator))
                     {
-                        if (_instance.traceLevel() >= 2)
+                        if (_instance.TraceLevel >= 2)
                         {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "sent " + protocol() + " connection close frame\n" + ToString());
+                            _instance.Logger.trace(_instance.TraceCategory,
+                                $"sent {protocol()} connection close frame\n{this}");
                         }
 
                         if (_state == StateClosingRequestPending && !_closingInitiator)
