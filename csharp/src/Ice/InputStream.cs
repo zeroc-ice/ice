@@ -72,12 +72,10 @@ namespace Ice
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
-        private readonly int _classGraphDepthMax;
-
         // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
-        private readonly Func<string, Type?> _classResolver;
+
         private IceInternal.Buffer _buf;
 
         private byte[]? _stringBytes; // Reusable array for reading strings.
@@ -85,7 +83,7 @@ namespace Ice
         // TODO: should we cache those per InputStream or per communicator?
         //       should we clear the caches in ResetEncapsulation?
         private Dictionary<string, Type?>? _typeIdCache;
-        private Dictionary<int, Type>? _compactIdCache;
+        private Dictionary<int, Type?>? _compactIdCache;
 
         // Map of type-id index to type-id string.
         // When reading a top-level encapsulation, we assign a type-id index (starting with 1) to each type-id we
@@ -137,8 +135,6 @@ namespace Ice
         {
             Encoding = encoding ?? communicator.DefaultsAndOverrides.defaultEncoding;
             Communicator = communicator;
-            _classGraphDepthMax = communicator.ClassGraphDepthMax;
-            _classResolver = communicator.ResolveClass;
             _buf = buf;
         }
 
@@ -1907,6 +1903,7 @@ namespace Ice
         public void ThrowException(UserExceptionFactory? factory = null)
         {
             Push(InstanceType.Exception);
+            Debug.Assert(_current != null);
 
             // Read the first slice header.
             string? typeId = ReadSliceHeader(true); // we read the indirection table immediately
@@ -1929,7 +1926,7 @@ namespace Ice
                 {
                     try
                     {
-                        Type? type = _classResolver?.Invoke(typeId ?? "");
+                        Type? type = Communicator.ResolveClass(typeId ?? "");
                         if (type != null)
                         {
                             userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
@@ -2106,7 +2103,7 @@ namespace Ice
                 // Not found in typeIdCache
                 try
                 {
-                    cls = _classResolver?.Invoke(typeId);
+                    cls = Communicator.ResolveClass(typeId);
                     _typeIdCache ??= new Dictionary<string, Type?>(); // Lazy initialization
                     _typeIdCache.Add(typeId, cls);
                 }
@@ -2128,11 +2125,8 @@ namespace Ice
                 if (typeId != null)
                 {
                     cls = ResolveClass(typeId);
-                    if (cls != null)
-                    {
-                        _compactIdCache ??= new Dictionary<int, Type>();
-                        _compactIdCache.Add(compactId, cls);
-                    }
+                    _compactIdCache ??= new Dictionary<int, Type?>();
+                    _compactIdCache.Add(compactId, cls);
                 }
             }
             return cls;
@@ -2245,7 +2239,7 @@ namespace Ice
                 else
                 {
                     int savedPos = Pos;
-                    if (_current.SliceSize.Value < 4)
+                    if (_current.SliceSize!.Value < 4)
                     {
                         throw new MarshalException("invalid slice size");
                     }
@@ -2261,6 +2255,7 @@ namespace Ice
 
         private void SkipSlice()
         {
+            Debug.Assert(_current != null);
             if (Communicator.TraceLevels.slicing > 0)
             {
                 ILogger logger = Communicator.Logger;
@@ -2279,7 +2274,7 @@ namespace Ice
 
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                Debug.Assert(_current.SliceSize.Value >= 4);
+                Debug.Assert(_current.SliceSize!.Value >= 4);
                 skip(_current.SliceSize.Value - 4);
             }
             else
@@ -2352,7 +2347,7 @@ namespace Ice
                 {
                     Debug.Assert(_current.IndirectionTable != null); // previously read by ReadSliceHeader
                     _current.IndirectionTableList.Add(_current.IndirectionTable);
-                    Pos = _current.PosAfterIndirectionTable.Value;
+                    Pos = _current.PosAfterIndirectionTable!.Value;
                     _current.PosAfterIndirectionTable = null;
                     _current.IndirectionTable = null;
                 }
@@ -2368,6 +2363,7 @@ namespace Ice
         // is SkipIndirectionTable itself.
         private void SkipIndirectionTable()
         {
+            Debug.Assert(_current != null);
             // We should never skip an exception's indirection table
             Debug.Assert(_current.InstanceType == InstanceType.Class);
 
@@ -2384,7 +2380,7 @@ namespace Ice
                 }
                 if (index == 1)
                 {
-                    if (++_classGraphDepth > _classGraphDepthMax)
+                    if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
                     {
                         throw new MarshalException("maximum class graph depth reached");
                     }
@@ -2467,6 +2463,7 @@ namespace Ice
             }
 
             var previousCurrent = Push(InstanceType.Class);
+            Debug.Assert(_current != null);
 
             // Read the first slice header.
             string? mostDerivedId = ReadSliceHeader(false);
@@ -2494,7 +2491,7 @@ namespace Ice
                     }
                     catch (Exception ex)
                     {
-                        throw new NoClassFactoryException("no class factory", typeId, ex);
+                        throw new NoClassFactoryException("no class factory", typeId ?? "", ex);
                     }
                 }
 
@@ -2518,7 +2515,7 @@ namespace Ice
                 typeId = ReadSliceHeader(false); // Read next Slice header for next iteration.
             }
 
-            if (++_classGraphDepth > _classGraphDepthMax)
+            if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
             {
                 throw new MarshalException("maximum class graph depth reached");
             }
