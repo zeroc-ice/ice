@@ -427,30 +427,6 @@ Slice::CsGenerator::getTagFormat(const TypePtr& type, const string& scope)
 }
 
 string
-Slice::CsGenerator::getStaticId(const TypePtr& type)
-{
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-
-    assert(isClassType(type));
-
-    if(b)
-    {
-        return "Ice.AnyClass.ice_staticId()";
-    }
-    else if(cl->isInterface())
-    {
-        ContainedPtr cont = ContainedPtr::dynamicCast(cl->container());
-        assert(cont);
-        return getUnqualified(cont) + "." + cl->name() + "Disp_.ice_staticId()";
-    }
-    else
-    {
-        return getUnqualified(cl) + ".ice_staticId()";
-    }
-}
-
-string
 Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional)
 {
     if(!type)
@@ -1022,11 +998,11 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         out << sb;
         if(st->isVariableLength())
         {
-            out << nl << stream << ".skip(4);";
+            out << nl << stream << ".Skip(4);";
         }
         else
         {
-            out << nl << stream << ".skipSize();";
+            out << nl << stream << ".SkipSize();";
         }
 
         out << nl << typeToString(type, scope) << " tmpVal = default;";
@@ -1064,11 +1040,11 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
-            out << nl << stream << ".skip(4);";
+            out << nl << stream << ".Skip(4);";
         }
         else
         {
-            out << nl << stream << ".skipSize();";
+            out << nl << stream << ".SkipSize();";
         }
         string typeS = typeToString(type, scope);
         string tmp = "tmpVal";
@@ -1802,11 +1778,11 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 out << sb;
                 if(builtin->isVariableLength())
                 {
-                    out << nl << stream << ".skip(4);";
+                    out << nl << stream << ".Skip(4);";
                 }
                 else if(builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
                 {
-                    out << nl << stream << ".skipSize();";
+                    out << nl << stream << ".SkipSize();";
                 }
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
@@ -1846,7 +1822,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
                 out << sb;
-                out << nl << stream << ".skip(4);";
+                out << nl << stream << ".Skip(4);";
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
                 writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
@@ -1904,11 +1880,11 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             if(st->isVariableLength())
             {
-                out << nl << stream << ".skip(4);";
+                out << nl << stream << ".Skip(4);";
             }
             else if(st->minWireSize() > 1)
             {
-                out << nl << stream << ".skipSize();";
+                out << nl << stream << ".SkipSize();";
             }
             string tmp = "tmpVal";
             out << nl << seqS << ' ' << tmp << ';';
@@ -1947,7 +1923,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
     {
         out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
         out << sb;
-        out << nl << stream << ".skip(4);";
+        out << nl << stream << ".Skip(4);";
         string tmp = "tmpVal";
         out << nl << seqS << ' ' << tmp << ';';
         writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);

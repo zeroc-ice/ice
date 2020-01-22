@@ -3,33 +3,26 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Ice
 {
     [Serializable]
     public abstract class AnyClass : ICloneable
     {
-        private const string _id = "::Ice::Object";
-
-        /// <summary>
-        /// Returns the Slice type ID of the interface supported by this object.
-        /// </summary>
-        /// <returns>The return value is always ::Ice::IObject.</returns>
-        public static string ice_staticId() => _id;
-
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <returns>The return value is always ::Ice::IObject.</returns>
-        public virtual string ice_id() => _id;
+        public abstract string ice_id();
 
-        /// <summary>
-        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        /// un-marshaling of the value, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public virtual SlicedData? ice_getSlicedData() => null;
+        protected virtual SlicedData? IceSlicedData
+        {
+            get => null;
+            set => Debug.Assert(false);
+        }
+        internal SlicedData? SlicedData => IceSlicedData;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
@@ -39,21 +32,13 @@ namespace Ice
             ostr.EndClass();
         }
 
+        // Read all the fields of this instance from the stream. See InputStream.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceRead(InputStream istr)
-        {
-            istr.StartClass();
-            iceReadImpl(istr);
-            istr.EndClass(false);
-        }
+        protected abstract void IceRead(InputStream istr, bool firstSlice);
+        internal void Read(InputStream istr) => IceRead(istr, true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void iceWriteImpl(OutputStream ostr)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void iceReadImpl(InputStream istr)
         {
         }
 
@@ -68,26 +53,17 @@ namespace Ice
         }
     }
 
-    public class InterfaceByClass : AnyClass
+    public static class AnyClassExtensions
     {
-        public InterfaceByClass(string id) => _id = id;
-
-        public override string ice_id() => _id;
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void iceWriteImpl(OutputStream ostr)
+        /// <summary>
+        /// During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
+        /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive and the
+        /// class UnknownSlicedClass.
+        /// </summary>
+        /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
+        public static SlicedData? GetSlicedData(this AnyClass obj)
         {
-            ostr.StartSlice(ice_id(), -1, true);
-            ostr.EndSlice();
+            return obj.SlicedData;
         }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void iceReadImpl(InputStream istr)
-        {
-            istr.StartSlice();
-            istr.EndSlice();
-        }
-
-        private string _id;
     }
 }

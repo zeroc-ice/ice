@@ -2,6 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace Ice
 {
     /// <summary>
@@ -17,16 +20,7 @@ namespace Ice
         {
             _unknownTypeId = unknownTypeId;
         }
-
-        /// <summary>
-        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        /// un-marshaling of the value, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public override SlicedData? ice_getSlicedData()
-        {
-            return _slicedData;
-        }
+        protected override SlicedData? IceSlicedData => _slicedData;
 
         /// <summary>
         /// Returns the Slice type ID associated with this object.
@@ -43,10 +37,10 @@ namespace Ice
             ostr.EndClass();
         }
 
-        public override void iceRead(InputStream istr)
+        protected override void IceRead(InputStream istr, bool firstSlice)
         {
-            istr.StartClass();
-            _slicedData = istr.EndClass(true);
+            Debug.Assert(firstSlice);
+            _slicedData = istr.SlicedData;
         }
 
         private string _unknownTypeId;

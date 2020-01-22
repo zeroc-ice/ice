@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 
@@ -160,15 +161,13 @@ namespace Ice
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-        /// <summary>
-        /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
-        /// un-marshaling, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public virtual Ice.SlicedData? ice_getSlicedData()
+        protected virtual SlicedData? IceSlicedData
         {
-            return null;
+            get => null;
+            set => Debug.Assert(false);
         }
+
+        internal SlicedData? SlicedData => IceSlicedData;
 
         public virtual void iceWrite(OutputStream ostr)
         {
@@ -177,20 +176,29 @@ namespace Ice
             ostr.EndException();
         }
 
-        public virtual void iceRead(InputStream istr)
-        {
-            istr.StartException();
-            iceReadImpl(istr);
-            istr.EndException(false);
-        }
-
         public virtual bool iceUsesClasses()
         {
             return false;
         }
 
         protected abstract void iceWriteImpl(OutputStream ostr);
-        protected abstract void iceReadImpl(InputStream istr);
+
+        // Read all the fields of this exception from the stream.
+        protected abstract void IceRead(InputStream istr, bool firstSlice);
+        internal void Read(InputStream istr) => IceRead(istr, true);
+    }
+
+    public static class UserExceptionExtensions
+    {
+        /// <summary>
+        /// During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
+        /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive.
+        /// </summary>
+        /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
+        public static SlicedData? GetSlicedData(this UserException ex)
+        {
+            return ex.SlicedData;
+        }
     }
 }
 
