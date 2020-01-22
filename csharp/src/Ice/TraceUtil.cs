@@ -15,7 +15,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -50,7 +50,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))

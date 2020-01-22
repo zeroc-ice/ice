@@ -254,7 +254,7 @@ namespace IceInternal
         public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
-            if (s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 s.WriteByte(Ice.Util.Protocol_1_0.major);
                 s.WriteByte(Ice.Util.Protocol_1_0.minor);

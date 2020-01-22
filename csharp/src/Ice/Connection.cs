@@ -2516,7 +2516,7 @@ namespace Ice
                     if (cbuf != null)
                     {
                         OutputStream cstream =
-                            new OutputStream(uncompressed.communicator(), uncompressed.GetEncoding(), cbuf, true);
+                            new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf, true);
 
                         //
                         // Set compression status.
@@ -3076,7 +3076,7 @@ namespace Ice
             {
                 if (_adopt)
                 {
-                    var stream = new OutputStream(this.stream!.communicator(), Util.currentProtocolEncoding);
+                    var stream = new OutputStream(this.stream!.Communicator, Util.currentProtocolEncoding);
                     stream.Swap(this.stream);
                     this.stream = stream;
                     _adopt = false;

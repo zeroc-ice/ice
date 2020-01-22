@@ -86,7 +86,7 @@ namespace IceInternal
                 }
 
                 // Adopt the OutputStream's buffer.
-                Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), true);
+                Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
 
                 iss.Pos = Protocol.replyHdr.Length + 4;
 
@@ -235,7 +235,7 @@ namespace IceInternal
                 TraceUtil.traceSend(os, _logger, _traceLevels);
             }
 
-            Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), false);
+            Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
 
             iss.Pos = Protocol.requestHdr.Length;
 

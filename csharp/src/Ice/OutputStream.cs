@@ -16,30 +16,16 @@ namespace Ice
     /// </summary>
     public class OutputStream
     {
-        private EncodingVersion _encoding;
-
-        /// <summary>
-        /// Constructing an OutputStream without providing a communicator means the stream will
-        /// use the default encoding version and the default format for class encoding.
-        /// You can supply a communicator later by calling initialize().
-        /// </summary>
-        public OutputStream()
-        {
-            _buf = new IceInternal.Buffer();
-            _communicator = null;
-            _closure = null;
-            _encoding = Util.currentEncoding;
-            _format = FormatType.CompactFormat;
-        }
+        public Communicator Communicator { get; }
+        public EncodingVersion Encoding { get; private set; }
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         public OutputStream(Communicator communicator)
+            : this(communicator, communicator.DefaultsAndOverrides.defaultEncoding, new IceInternal.Buffer())
         {
-            Debug.Assert(communicator != null);
-            Initialize(communicator, communicator.DefaultsAndOverrides.defaultEncoding, new IceInternal.Buffer());
         }
 
         /// <summary>
@@ -48,48 +34,20 @@ namespace Ice
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
         public OutputStream(Communicator communicator, EncodingVersion encoding)
+            : this(communicator, encoding, new IceInternal.Buffer())
         {
-            Debug.Assert(communicator != null);
-            Initialize(communicator, encoding);
         }
 
         public OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
         {
-            Initialize(communicator, encoding, new IceInternal.Buffer(buf, adopt));
         }
 
-        /// <summary>
-        /// Initializes the stream to use the communicator's default encoding version and class
-        /// encoding format.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public void Initialize(Communicator communicator)
+        private OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
         {
-            Debug.Assert(communicator != null);
-            Initialize(communicator, communicator.DefaultsAndOverrides.defaultEncoding);
-        }
-
-        public void Initialize(Communicator communicator, EncodingVersion encoding)
-        {
-            Debug.Assert(communicator != null);
-            Initialize(communicator, encoding, new IceInternal.Buffer());
-        }
-
-        /// <summary>
-        /// Initializes the stream to use the given encoding version and the communicator's
-        /// default class encoding format.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="buf">The desired encoding version.</param>
-        private void Initialize(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
-        {
-            Debug.Assert(communicator != null);
-
-            _communicator = communicator;
+            Communicator = communicator;
+            Encoding = encoding;
             _buf = buf;
-            _closure = null;
-            _encoding = encoding;
         }
 
         /// <summary>
@@ -100,7 +58,7 @@ namespace Ice
         {
             _buf.reset();
             Clear();
-            _format = _communicator.DefaultsAndOverrides.defaultFormat;
+            _format = Communicator.DefaultsAndOverrides.defaultFormat;
         }
 
         /// <summary>
@@ -109,32 +67,6 @@ namespace Ice
         public void Clear()
         {
             ResetEncapsulation();
-        }
-
-        public Communicator communicator()
-        {
-            return _communicator;
-        }
-
-        /// <summary>
-        /// Retrieves the closure object associated with this stream.
-        /// </summary>
-        /// <returns>The closure object.</returns>
-        public object GetClosure()
-        {
-            return _closure;
-        }
-
-        /// <summary>
-        /// Associates a closure object with this stream.
-        /// </summary>
-        /// <param name="p">The new closure object.</param>
-        /// <returns>The previous closure object, or null.</returns>
-        public object SetClosure(object p)
-        {
-            object prev = _closure;
-            _closure = p;
-            return prev;
         }
 
         /// <summary>
@@ -155,19 +87,15 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         public void Swap(OutputStream other)
         {
-            Debug.Assert(_communicator == other._communicator);
+            Debug.Assert(Communicator == other.Communicator);
 
             IceInternal.Buffer tmpBuf = other._buf;
             other._buf = _buf;
             _buf = tmpBuf;
 
-            EncodingVersion tmpEncoding = other._encoding;
-            other._encoding = _encoding;
-            _encoding = tmpEncoding;
-
-            object tmpClosure = other._closure;
-            other._closure = _closure;
-            _closure = tmpClosure;
+            EncodingVersion tmpEncoding = other.Encoding;
+            other.Encoding = Encoding;
+            Encoding = tmpEncoding;
 
             //
             // Swap is never called for streams that have encapsulations being written. However,
@@ -261,12 +189,12 @@ namespace Ice
         /// </summary>
         public void StartEncapsulation()
         {
-            StartEncapsulation(_encoding, FormatType.DefaultFormat);
+            StartEncapsulation(Encoding, FormatType.DefaultFormat);
         }
 
         internal void StartEndpointEncapsulation()
         {
-            StartEndpointEncapsulation(_encoding);
+            StartEndpointEncapsulation(Encoding);
         }
 
         /// <summary>
@@ -279,14 +207,14 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _mainEncaps = new Encaps(_encoding, _format, _buf.b.position());
+            _mainEncaps = new Encaps(Encoding, _format, _buf.b.position());
 
-            _encoding = encoding;
+            Encoding = encoding;
             _format = format;
 
             WriteInt(0); // Placeholder for the encapsulation length.
-            WriteByte(_encoding.major);
-            WriteByte(_encoding.minor);
+            WriteByte(Encoding.major);
+            WriteByte(Encoding.minor);
         }
 
         internal void StartEndpointEncapsulation(EncodingVersion encoding)
@@ -294,13 +222,13 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _endpointEncaps = new Encaps(_encoding, _format, _buf.b.position());
-            _encoding = encoding;
+            _endpointEncaps = new Encaps(Encoding, _format, _buf.b.position());
+            Encoding = encoding;
             // we don't change format
 
             WriteInt(0); // Placeholder for the encapsulation length.
-            WriteByte(_encoding.major);
-            WriteByte(_encoding.minor);
+            WriteByte(Encoding.major);
+            WriteByte(Encoding.minor);
         }
 
         /// <summary>
@@ -315,7 +243,7 @@ namespace Ice
             int sz = _buf.size() - start;
             _buf.b.putInt(start, sz);
 
-            _encoding = _mainEncaps.Value.OldEncoding;
+            Encoding = _mainEncaps.Value.OldEncoding;
             _format = _mainEncaps.Value.OldFormat;
             _mainEncaps = null;
         }
@@ -329,7 +257,7 @@ namespace Ice
             int sz = _buf.size() - start;
             _buf.b.putInt(start, sz);
 
-            _encoding = _endpointEncaps.Value.OldEncoding;
+            Encoding = _endpointEncaps.Value.OldEncoding;
             // No need to restore format
             _endpointEncaps = null;
         }
@@ -358,15 +286,6 @@ namespace Ice
             }
             expand(v.Length);
             _buf.b.put(v);
-        }
-
-        /// <summary>
-        /// Determines the current encoding version.
-        /// </summary>
-        /// <returns>The encoding version.</returns>
-        public EncodingVersion GetEncoding()
-        {
-            return _encoding;
         }
 
         /// <summary>
@@ -446,22 +365,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes a blob of bytes to the stream.
-        /// </summary>
-        /// <param name="v">The byte array to be written. All of the bytes in the array are written.</param>
-        /// <param name="off">The offset into the byte array from which to copy.</param>
-        /// <param name="len">The number of bytes from the byte array to copy.</param>
-        public void WriteBlob(byte[] v, int off, int len)
-        {
-            if (v == null)
-            {
-                return;
-            }
-            expand(len);
-            _buf.b.put(v, off, len);
-        }
-
-        /// <summary>
         /// Write the header information for an optional value.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -500,7 +403,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The byte to write to the stream.</param>
         /// <param name="dest">The position at which to store the byte in the buffer.</param>
-        public void RewriteByte(byte v, int dest)
+        private void RewriteByte(byte v, int dest)
         {
             _buf.b.put(dest, v);
         }
@@ -659,16 +562,6 @@ namespace Ice
             {
                 WriteBool(value);
             }
-        }
-
-        /// <summary>
-        /// Writes a boolean to the stream at the given position. The current position of the stream is not modified.
-        /// </summary>
-        /// <param name="v">The boolean to write to the stream.</param>
-        /// <param name="dest">The position at which to store the boolean in the buffer.</param>
-        public void RewriteBool(bool v, int dest)
-        {
-            _buf.b.put(dest, v ? (byte)1 : (byte)0);
         }
 
         /// <summary>
@@ -942,7 +835,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The int to write to the stream.</param>
         /// <param name="dest">The position at which to store the int in the buffer.</param>
-        public void RewriteInt(int v, int dest)
+        internal void RewriteInt(int v, int dest)
         {
             _buf.b.putInt(dest, v);
         }
@@ -1598,7 +1491,7 @@ namespace Ice
         /// <param name="maxValue">The maximum enumerator value in the definition.</param>
         public void WriteEnum(int v, int maxValue)
         {
-            if (_encoding.Equals(Util.Encoding_1_0))
+            if (Encoding.Equals(Util.Encoding_1_0))
             {
                 if (maxValue < 127)
                 {
@@ -1668,7 +1561,7 @@ namespace Ice
 
         private bool writeOptionalImpl(int tag, OptionalFormat format)
         {
-            if (_encoding.Equals(Util.Encoding_1_0))
+            if (Encoding.Equals(Util.Encoding_1_0))
             {
                 return false; // Optional members aren't supported with the 1.0 encoding.
             }
@@ -1733,9 +1626,7 @@ namespace Ice
             _buf.expand(n);
         }
 
-        private Ice.Communicator _communicator;
         private IceInternal.Buffer _buf;
-        private object? _closure;
         private FormatType _format;
 
         internal enum SliceType { NoSlice, ClassSlice, ExceptionSlice }

@@ -170,7 +170,7 @@ namespace IceInternal
 
             s.WriteBool(secure_);
 
-            if (!s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (!s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 s.WriteByte(_protocol.major);
                 s.WriteByte(_protocol.minor);
