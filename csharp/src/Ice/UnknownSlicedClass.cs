@@ -20,7 +20,7 @@ namespace Ice
         {
             _unknownTypeId = unknownTypeId;
         }
-        protected override IReadOnlyList<SliceInfo>? IceSlicedData => _slicedData;
+        protected override SlicedData? IceSlicedData => _slicedData;
 
         /// <summary>
         /// Returns the Slice type ID associated with this object.
@@ -44,6 +44,6 @@ namespace Ice
         }
 
         private string _unknownTypeId;
-        private IReadOnlyList<SliceInfo>? _slicedData;
+        private SlicedData? _slicedData;
     }
 }

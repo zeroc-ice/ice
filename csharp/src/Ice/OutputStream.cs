@@ -235,7 +235,7 @@ namespace Ice
         /// Marks the start of a class instance.
         /// </summary>
         /// <param name="data">Preserved slices for this instance, or null.</param>
-        public void StartClass(IReadOnlyList<SliceInfo>? data)
+        public void StartClass(SlicedData? data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.StartInstance(SliceType.ClassSlice, data);
@@ -254,7 +254,7 @@ namespace Ice
         /// Marks the start of a user exception.
         /// </summary>
         /// <param name="data">Preserved slices for this exception, or null.</param>
-        public void StartException(IReadOnlyList<SliceInfo>? data)
+        public void StartException(SlicedData? data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.StartInstance(SliceType.ExceptionSlice, data);
@@ -1768,7 +1768,7 @@ namespace Ice
             internal abstract void WriteClass(AnyClass? v);
             internal abstract void WriteException(UserException v);
 
-            internal abstract void StartInstance(SliceType type, IReadOnlyList<SliceInfo>? data);
+            internal abstract void StartInstance(SliceType type, SlicedData? data);
             internal abstract void EndInstance();
             internal abstract void StartSlice(string typeId, int compactId, bool last);
             internal abstract void endSlice();
@@ -1859,7 +1859,7 @@ namespace Ice
                 v.iceWrite(_stream);
             }
 
-            internal override void StartInstance(SliceType sliceType, IReadOnlyList<SliceInfo>? data)
+            internal override void StartInstance(SliceType sliceType, SlicedData? data)
             {
                 if (_current == null)
                 {
@@ -2024,7 +2024,7 @@ namespace Ice
                 }
             }
 
-            private void writeSlicedData(IReadOnlyList<SliceInfo>? slicedData)
+            private void writeSlicedData(SlicedData? slicedData)
             {
                 Debug.Assert(slicedData != null);
                 Debug.Assert(_current != null);
@@ -2040,7 +2040,7 @@ namespace Ice
                     return;
                 }
 
-                foreach (var info in slicedData)
+                foreach (var info in slicedData.Value.Slices)
                 {
                     StartSlice(info.TypeId ?? "", info.CompactId ?? -1, info.IsLastSlice);
 

@@ -272,8 +272,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "protected override global::System.Collections.Generic.IReadOnlyList<"
-             << getUnqualified("Ice.SliceInfo", ns) << ">? IceSlicedData { get; set; }";
+        _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
 
         _out << sp;
         if(!p->isInterface())
@@ -1778,8 +1777,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "protected override global::System.Collections.Generic.IReadOnlyList<"
-             << getUnqualified("Ice.SliceInfo", ns) << ">? IceSlicedData { get; set; }";
+        _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
 
         _out << sp;
         emitGeneratedCodeAttribute();

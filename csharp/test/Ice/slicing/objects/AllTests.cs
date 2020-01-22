@@ -1729,9 +1729,9 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            IReadOnlyList<Ice.SliceInfo>? slicedData = p.GetSlicedData();
-            test(slicedData.Count == 1);
-            test(slicedData[0].TypeId.Equals("::Test::PSUnknown"));
+            IReadOnlyList<Ice.SliceInfo>? slices = p.GetSlicedData().Value.Slices;
+            test(slices.Count == 1);
+            test(slices[0].TypeId.Equals("::Test::PSUnknown"));
         }
         catch (OperationNotExistException)
         {

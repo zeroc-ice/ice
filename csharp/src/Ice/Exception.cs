@@ -161,12 +161,13 @@ namespace Ice
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-        protected virtual IReadOnlyList<SliceInfo>? IceSlicedData
+        protected virtual SlicedData? IceSlicedData
         {
             get => null;
             set => Debug.Assert(false);
         }
-        internal IReadOnlyList<SliceInfo>? SlicedData => IceSlicedData;
+
+        internal SlicedData? SlicedData => IceSlicedData;
 
         public virtual void iceWrite(OutputStream ostr)
         {
@@ -193,8 +194,8 @@ namespace Ice
         /// During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
         /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive.
         /// </summary>
-        /// <returns>The list of preserved sliced-off slices.</returns>
-        public static IReadOnlyList<SliceInfo>? GetSlicedData(this UserException ex)
+        /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
+        public static SlicedData? GetSlicedData(this UserException ex)
         {
             return ex.SlicedData;
         }

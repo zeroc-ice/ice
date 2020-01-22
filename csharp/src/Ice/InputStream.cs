@@ -53,7 +53,21 @@ namespace Ice
         internal bool IsEmpty => _buf.empty();
 
         // Returns the sliced data held by the current instance.
-        internal IReadOnlyList<SliceInfo>? SlicedData => _current!.Slices;
+        internal SlicedData? SlicedData
+        {
+            get
+            {
+                Debug.Assert(_current != null);
+                if (_current.Slices == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new SlicedData(Encoding, _current.Slices);
+                }
+            }
+        }
 
         // Number of bytes remaining in the underlying buffer.
         private int Remaining => _limit - Pos ?? _buf.b.remaining();
@@ -287,7 +301,7 @@ namespace Ice
         /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
         /// <param name="typeId">The expected typeId of this slice.</param>
-        public IReadOnlyList<SliceInfo>? IceStartSliceAndGetSlicedData(string typeId)
+        public SlicedData? IceStartSliceAndGetSlicedData(string typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             // Called by generated code for first slice instead of IceStartSlice
