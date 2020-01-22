@@ -1147,14 +1147,14 @@ namespace IceInternal
 
             if (encodingVersion is EncodingVersion encodingVersionValue)
             {
-                if (_locatorInfo != null && !_locatorInfo.getLocator().EncodingVersion.Equals(encodingVersionValue))
+                if (_locatorInfo != null && !_locatorInfo.Locator.EncodingVersion.Equals(encodingVersionValue))
                 {
                     if (reference == this)
                     {
                         reference = (RoutableReference)Clone();
                     }
-                    reference._locatorInfo = _communicator.LocatorManager().get(
-                        _locatorInfo.getLocator().Clone(encodingVersion: encodingVersionValue));
+                    reference._locatorInfo = _communicator.GetLocatorInfo(
+                        _locatorInfo.Locator.Clone(encodingVersion: encodingVersionValue));
                 }
             }
 
@@ -1179,7 +1179,7 @@ namespace IceInternal
 
             if (locator != null)
             {
-                LocatorInfo locatorInfo = _communicator.LocatorManager().get(locator);
+                LocatorInfo locatorInfo = _communicator.GetLocatorInfo(locator);
                 if (!locatorInfo.Equals(_locatorInfo))
                 {
                     if (reference == this)
@@ -1223,7 +1223,7 @@ namespace IceInternal
 
             if (router != null)
             {
-                RouterInfo routerInfo = _communicator.RouterManager().get(router);
+                RouterInfo routerInfo = _communicator.GetRouterInfo(router);
                 if (!routerInfo.Equals(_routerInfo))
                 {
                     if (reference == this)
@@ -1346,8 +1346,7 @@ namespace IceInternal
 
             if (_routerInfo != null)
             {
-                var h = _routerInfo.getRouter();
-                Dictionary<string, string> routerProperties = h.IceReference.ToProperty(prefix + ".Router");
+                Dictionary<string, string> routerProperties = _routerInfo.Router.IceReference.ToProperty(prefix + ".Router");
                 foreach (KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1356,8 +1355,7 @@ namespace IceInternal
 
             if (_locatorInfo != null)
             {
-                var h = _locatorInfo.getLocator();
-                Dictionary<string, string> locatorProperties = h.IceReference.ToProperty(prefix + ".Locator");
+                Dictionary<string, string> locatorProperties = _locatorInfo.Locator.IceReference.ToProperty(prefix + ".Locator");
                 foreach (KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1484,7 +1482,7 @@ namespace IceInternal
 
         public override IRequestHandler getRequestHandler(IObjectPrx proxy)
         {
-            return _communicator.RequestHandlerFactory().getRequestHandler(this, proxy);
+            return _communicator.GetRequestHandler(this, proxy);
         }
 
         public void getConnection(GetConnectionCallback callback)
@@ -1495,7 +1493,7 @@ namespace IceInternal
                 // If we route, we send everything to the router's client
                 // proxy endpoints.
                 //
-                _routerInfo.getClientEndpoints(new RouterEndpointsCallback(this, callback));
+                _routerInfo.GetClientEndpoints(new RouterEndpointsCallback(this, callback));
             }
             else
             {
@@ -1511,7 +1509,7 @@ namespace IceInternal
                 _cb = cb;
             }
 
-            public void setEndpoints(Endpoint[] endpoints, bool cached)
+            public void SetEndpoints(Endpoint[] endpoints, bool cached)
             {
                 if (endpoints.Length == 0)
                 {
@@ -1522,7 +1520,7 @@ namespace IceInternal
                 _ir.createConnection(_ir.applyOverrides(endpoints), new ConnectionCallback(_ir, _cb, cached));
             }
 
-            public void setException(LocalException ex)
+            public void SetException(LocalException ex)
             {
                 _cb.setException(ex);
             }
@@ -1558,7 +1556,7 @@ namespace IceInternal
                 catch (LocalException ex)
                 {
                     Debug.Assert(_ir._locatorInfo != null);
-                    _ir._locatorInfo.clearCache(_ir);
+                    _ir._locatorInfo.ClearCache(_ir);
                     if (_cached)
                     {
                         TraceLevels traceLevels = _ir._communicator.TraceLevels;
@@ -1589,7 +1587,7 @@ namespace IceInternal
 
             if (_locatorInfo != null)
             {
-                _locatorInfo.getEndpoints(this, _locatorCacheTimeout, new LocatorEndpointsCallback(this, callback));
+                _locatorInfo.GetEndpoints(this, _locatorCacheTimeout, new LocatorEndpointsCallback(this, callback));
             }
             else
             {
@@ -1793,9 +1791,9 @@ namespace IceInternal
                 // (if any) to the new connection, so that callbacks from the
                 // router can be received over this new connection.
                 //
-                if (_rr._routerInfo != null && _rr._routerInfo.getAdapter() != null)
+                if (_rr._routerInfo != null && _rr._routerInfo.Adapter != null)
                 {
-                    connection.SetAdapter(_rr._routerInfo.getAdapter());
+                    connection.SetAdapter(_rr._routerInfo.Adapter);
                 }
                 _callback.setConnection(connection, compress);
             }

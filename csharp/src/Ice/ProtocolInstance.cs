@@ -35,10 +35,10 @@ namespace IceInternal
         public int MessageSizeMax => Communicator.MessageSizeMax;
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
-        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.EndpointFactoryManager().get(type);
+        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.GetEndpointFactory(type);
         public void Resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback) =>
-            Communicator.EndpointHostResolver().resolve(host, port, type, endpt, callback);
+            Communicator.Resolve(host, port, type, endpt, callback);
         public void setSndBufSizeWarn(short type, int size) => Communicator.SetSndBufSizeWarn(type, size);
         public void setRcvBufSizeWarn(short type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
 
