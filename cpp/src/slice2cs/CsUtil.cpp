@@ -52,6 +52,12 @@ Slice::interfaceName(const ClassDefPtr& c)
 }
 
 std::string
+Slice::structName(const StructPtr& s)
+{
+    return normalizeCase(s) ? pascalCase(s->name()) : s->name();
+}
+
+std::string
 Slice::interfaceName(const ProxyPtr& p)
 {
     string name = normalizeCase(p->_class()) ? pascalCase(p->_class()->name()) : p->_class()->name();
@@ -657,59 +663,6 @@ Slice::isReferenceType(const TypePtr& type)
 }
 
 bool
-Slice::isImmutableType(const TypePtr& type)
-{
-    if(ProxyPtr::dynamicCast(type))
-    {
-        return true;
-    }
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                return false;
-                break;
-            }
-            default:
-            {
-                return true;
-                break;
-            }
-        }
-    }
-
-    if(EnumPtr::dynamicCast(type))
-    {
-        return true;
-    }
-
-    StructPtr s = StructPtr::dynamicCast(type);
-    if(s)
-    {
-        if(s->hasMetaData("cs:class"))
-        {
-            return false;
-        }
-
-        DataMemberList dm = s->dataMembers();
-        for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
-        {
-            if(!isImmutableType((*i)->type()) || (*i)->defaultValueType())
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
-bool
 Slice::isValueType(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -738,8 +691,7 @@ Slice::isValueType(const TypePtr& type)
         return true;
     }
 
-    StructPtr s = StructPtr::dynamicCast(type);
-    return s && isImmutableType(s);
+    return StructPtr::dynamicCast(type);
 }
 
 Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
@@ -905,14 +857,7 @@ Slice::CsGenerator::writeMarshalCode(Output &out,
     }
     else if(st)
     {
-        if(!isImmutableType(st))
-        {
-            out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
-        }
-        else
-        {
-            out << nl << param << ".ice_writeMembers(" << stream << ");";
-        }
+        out << nl << param << ".ice_writeMembers(" << stream << ");";
     }
     else
     {
@@ -950,14 +895,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if(st)
     {
-        if(!isImmutableType(st))
-        {
-            out << nl << param << " = " << typeToString(type, ns) << ".ice_read(" << stream << ");";
-        }
-        else
-        {
-            out << nl << param << ".ice_readMembers(" << stream << ");";
-        }
+        out << nl << param << ".ice_readMembers(" << stream << ");";
     }
     else if(seq)
     {
@@ -992,15 +930,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << "if(" << param;
-        if(isImmutableType(st))
-        {
-            out << " is " << typeToString(st, scope);
-        }
-        else
-        {
-            out << " != null";
-        }
+        out << nl << "if(" << param << " is " << typeToString(st, scope);
         out << " && " << stream << ".WriteOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
         if(st->isVariableLength())
@@ -1011,7 +941,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         {
             out << nl << stream << ".WriteSize(" << st->minWireSize() << ");";
         }
-        writeMarshalCode(out, type, scope, param + (isImmutableType(st) ? ".Value" : ""), stream);
+        writeMarshalCode(out, type, scope, param + ".Value", stream);
         if(st->isVariableLength())
         {
             out << nl << stream << ".EndSize(pos);";
@@ -1543,45 +1473,18 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string call;
             if(isGeneric && !isList && !isStack)
             {
-                if(isImmutableType(type))
-                {
-                    call = "e.Current";
-                }
-                else
-                {
-                    call = "(e.Current == null ? new ";
-                    call += typeS + "() : e.Current)";
-                }
+                call = "e.Current";
             }
             else
             {
-                if(isImmutableType(type))
+
+                call = param;
+                if(isStack)
                 {
-                    call = param;
-                    if(isStack)
-                    {
-                        call += "_tmp";
-                    }
+                    call += "_tmp";
                 }
-                else
-                {
-                    call = "(";
-                    call += param;
-                    if(isStack)
-                    {
-                        call += "_tmp";
-                    }
-                    call += "[ix] == null ? new " + typeS + "() : " + param;
-                    if(isStack)
-                    {
-                        call += "_tmp";
-                    }
-                }
+
                 call += "[ix]";
-                if(!isImmutableType(type))
-                {
-                    call += ")";
-                }
             }
             call += ".";
             call += "ice_writeMembers";
@@ -1621,10 +1524,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isArray || isStack)
             {
                 string v = isArray ? param : param + "_tmp";
-                if(!isImmutableType(st))
-                {
-                    out << nl << v << "[ix] = new " << typeS << "();";
-                }
                 out << nl << v << "[ix].ice_readMembers(" << stream << ");";
             }
             else

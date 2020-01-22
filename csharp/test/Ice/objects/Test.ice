@@ -246,12 +246,6 @@ struct S1
     int id;
 }
 
-["cs:class"]
-struct SC1
-{
-    string id;
-}
-
 //
 // Remaining definitions are here to ensure that the generated code compiles.
 //

@@ -1168,7 +1168,7 @@ public class AllTests : Test.AllTests
         output.Write("sequence slicing (AMI)... ");
         output.Flush();
         {
-            SS3 ss = null;
+            SS3 ss;
             {
                 B ss1b = new B();
                 ss1b.sb = "B.sb";

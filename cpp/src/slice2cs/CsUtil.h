@@ -54,6 +54,7 @@ std::string interfaceName(const ProxyPtr&);
 std::string interfaceName(const ClassDefPtr&);
 std::string dataMemberName(const ParamInfo&);
 std::string dataMemberName(const DataMemberPtr&);
+std::string structName(const StructPtr&);
 
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
@@ -64,7 +65,6 @@ bool isCollectionType(const TypePtr&);
 bool isProxyType(const TypePtr&);
 bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
-bool isImmutableType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
 
 std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");

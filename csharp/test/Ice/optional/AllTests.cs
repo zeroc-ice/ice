@@ -323,8 +323,7 @@ namespace Ice.optional
                 Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
                 test(owc2.l != null);
                 test(Collections.Equals(owc1.l, owc2.l));
-                test(owc2.s != null);
-                test(owc2.s.a == 5);
+                test(owc2.s != null && owc2.s.Value.a == 5);
             }
 
             /* TODO: rewrite test without factories
