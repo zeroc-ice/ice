@@ -54,7 +54,6 @@ std::string interfaceName(const ProxyPtr&);
 std::string interfaceName(const ClassDefPtr&);
 std::string dataMemberName(const ParamInfo&);
 std::string dataMemberName(const DataMemberPtr&);
-std::string structName(const StructPtr&);
 
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);

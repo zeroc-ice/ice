@@ -52,12 +52,6 @@ Slice::interfaceName(const ClassDefPtr& c)
 }
 
 std::string
-Slice::structName(const StructPtr& s)
-{
-    return normalizeCase(s) ? pascalCase(s->name()) : s->name();
-}
-
-std::string
 Slice::interfaceName(const ProxyPtr& p)
 {
     string name = normalizeCase(p->_class()) ? pascalCase(p->_class()->name()) : p->_class()->name();
@@ -871,8 +865,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << param << " = new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), ns)
-            << "(" << stream << ");";
+        out << nl << param << " = new " << getUnqualified(st, ns) << "(" << stream << ");";
     }
     else if(seq)
     {
@@ -1501,14 +1494,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isArray || isStack)
             {
                 string v = isArray ? param : param + "_tmp";
-                out << nl << v << "[ix] = new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), scope)
-                    << "(" << stream << ");";
+                out << nl << v << "[ix] = new " << getUnqualified(st, scope) << "(" << stream << ");";
             }
             else
             {
-                out << nl << param << "." << addMethod
-                    << "(new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), scope) << "(" << stream
-                    << "));";
+                out << nl << param << "." << addMethod << "(new " << getUnqualified(st, scope) << "(" << stream << "));";
             }
             out << eb;
             if(isStack)

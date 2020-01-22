@@ -224,11 +224,11 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->tagged())
     {
-        writeTaggedUnmarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
+        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), stream);
     }
     else
     {
-        writeUnmarshalCode(_out, member->type(), ns, "this." + name, stream);
+        writeUnmarshalCode(_out, member->type(), ns, name, stream);
     }
 }
 
@@ -312,40 +312,40 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     }
 
     _out << nl << "protected override void IceRead("
-         << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+         << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
     _out << sb;
     if (preserved || basePreserved)
     {
-        _out << nl << "if (firstSlice)";
+        _out << nl << "if (iceP_firstSlice)";
         _out << sb;
-        _out << nl << "IceSlicedData = istr.IceStartSliceAndGetSlicedData(ice_staticId());";
+        _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(ice_staticId());";
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.IceStartSlice" << spar << "ice_staticId()" << "false" << epar << ";";
+        _out << nl << "iceP_istr.IceStartSlice" << spar << "ice_staticId()" << "false" << epar << ";";
         _out << eb;
     }
     else
     {
-        _out << nl << "istr.IceStartSlice" << spar << "ice_staticId()" << "firstSlice" << epar << ";";
+        _out << nl << "iceP_istr.IceStartSlice" << spar << "ice_staticId()" << "iceP_firstSlice" << epar << ";";
     }
 
     for(auto m : members)
     {
         if(!m->tagged())
         {
-            writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns);
+            writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
         }
     }
 
     for(auto m : taggedMembers)
     {
-        writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns);
+        writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
     }
-    _out << nl << "istr.IceEndSlice();";
+    _out << nl << "iceP_istr.IceEndSlice();";
     if(base)
     {
-        _out << nl << "base.IceRead(istr, false);";
+        _out << nl << "base.IceRead(iceP_istr, false);";
     }
     _out << eb;
 }
@@ -1750,33 +1750,33 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     emitGeneratedCodeAttribute();
 
     _out << nl << "protected override void IceRead("
-         << getUnqualified("Ice.InputStream", ns) << " istr, bool firstSlice)";
+         << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
     _out << sb;
 
     if (preserved || basePreserved)
     {
-        _out << nl << "if (firstSlice)";
+        _out << nl << "if (iceP_firstSlice)";
         _out << sb;
-        _out << nl << "IceSlicedData = istr.IceStartSliceAndGetSlicedData(\"" << scoped << "\");";
+        _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(\"" << scoped << "\");";
         _out << eb;
         _out << "else";
         _out << sb;
-        _out << nl << "istr.IceStartSlice" << spar << '"' + scoped + '"' << "false" << epar << ";";
+        _out << nl << "iceP_istr.IceStartSlice" << spar << '"' + scoped + '"' << "false" << epar << ";";
          _out << eb;
     }
     else
     {
-        _out << nl << "istr.IceStartSlice" << spar << '"' + scoped + '"' << "firstSlice" << epar << ";";
+        _out << nl << "iceP_istr.IceStartSlice" << spar << '"' + scoped + '"' << "iceP_firstSlice" << epar << ";";
     }
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeUnmarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns);
+        writeUnmarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns, "iceP_istr");
     }
-    _out << nl << "istr.IceEndSlice();";
+    _out << nl << "iceP_istr.IceEndSlice();";
     if(base)
     {
-        _out << nl << "base.IceRead(istr, false);";
+        _out << nl << "base.IceRead(iceP_istr, false);";
     }
     _out << eb;
 
@@ -1796,7 +1796,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    string name = fixId(structName(p));
+    string name = fixId(p->name());
     string ns = getNamespace(p);
     _out << sp;
 
@@ -1818,7 +1818,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
-    string name = fixId(structName(p));
+    string name = fixId(p->name());
     string scope = fixId(p->scope());
     string ns = getNamespace(p);
     DataMemberList dataMembers = p->dataMembers();
@@ -1838,18 +1838,20 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(const auto& i : dataMembers)
     {
-        _out << nl << "this." << fixId(dataMemberName(i), Slice::ObjectType) << " = " << fixId(i->name()) << ";";
+        string paramName = fixId(i->name());
+        string memberName = fixId(dataMemberName(i), Slice::ObjectType);
+        _out << nl << (paramName == memberName ? "this." : "") << memberName  << " = " << paramName  << ";";
     }
     _out << nl << "IceInitialize();";
     _out << eb;
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << "(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+    _out << nl << "public " << name << "(" << getUnqualified("Ice.InputStream", ns) << " iceP_istr)";
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns);
+        writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns, "iceP_istr");
     }
     _out << nl << "IceInitialize();";
     _out << eb;
