@@ -16,6 +16,8 @@ namespace Ice
     /// </summary>
     public class OutputStream
     {
+        private EncodingVersion _encoding;
+
         /// <summary>
         /// Constructing an OutputStream without providing a communicator means the stream will
         /// use the default encoding version and the default format for class encoding.
@@ -88,11 +90,6 @@ namespace Ice
             _buf = buf;
             _closure = null;
             _encoding = encoding;
-
-            _format = _communicator.DefaultsAndOverrides.defaultFormat;
-
-            _encapsStack = null;
-            _encapsCache = null;
         }
 
         /// <summary>
@@ -103,6 +100,7 @@ namespace Ice
         {
             _buf.reset();
             Clear();
+            _format = _communicator.DefaultsAndOverrides.defaultFormat;
         }
 
         /// <summary>
@@ -110,29 +108,12 @@ namespace Ice
         /// </summary>
         public void Clear()
         {
-            if (_encapsStack != null)
-            {
-                Debug.Assert(_encapsStack.next == null);
-                _encapsStack.next = _encapsCache;
-                _encapsCache = _encapsStack;
-                _encapsStack = null;
-                _encapsCache.reset();
-            }
             ResetEncapsulation();
         }
 
         public Communicator communicator()
         {
             return _communicator;
-        }
-
-        /// <summary>
-        /// Sets the encoding format for class and exception instances.
-        /// </summary>
-        /// <param name="fmt">The encoding format.</param>
-        public void SetFormat(FormatType fmt)
-        {
-            _format = fmt;
         }
 
         /// <summary>
@@ -199,7 +180,8 @@ namespace Ice
 
         private void ResetEncapsulation()
         {
-            _encapsStack = null;
+            _mainEncaps = null;
+            _endpointEncaps = null;
             _valueIdIndex = 1;
             _current = null;
             _marshaledMap.Clear();
@@ -242,7 +224,7 @@ namespace Ice
         /// <param name="data">Preserved slices for this instance, or null.</param>
         public void StartClass(SlicedData? data)
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             StartInstance(SliceType.ClassSlice, data);
         }
 
@@ -251,7 +233,7 @@ namespace Ice
         /// </summary>
         public void EndClass()
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             EndInstance();
         }
 
@@ -261,7 +243,7 @@ namespace Ice
         /// <param name="data">Preserved slices for this exception, or null.</param>
         public void StartException(SlicedData? data)
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             StartInstance(SliceType.ExceptionSlice, data);
         }
 
@@ -270,7 +252,7 @@ namespace Ice
         /// </summary>
         public void EndException()
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             EndInstance();
         }
 
@@ -279,20 +261,12 @@ namespace Ice
         /// </summary>
         public void StartEncapsulation()
         {
-            //
-            // If no encoding version is specified, use the current write
-            // encapsulation encoding version if there's a current write
-            // encapsulation, otherwise, use the stream encoding version.
-            //
+            StartEncapsulation(_encoding, FormatType.DefaultFormat);
+        }
 
-            if (_encapsStack != null)
-            {
-                StartEncapsulation(_encapsStack.encoding, _encapsStack.format);
-            }
-            else
-            {
-                StartEncapsulation(_encoding, FormatType.DefaultFormat);
-            }
+        internal void StartEndpointEncapsulation()
+        {
+            StartEndpointEncapsulation(_encoding);
         }
 
         /// <summary>
@@ -302,47 +276,62 @@ namespace Ice
         /// <param name="format">Specify the compact or sliced format.</param>
         public void StartEncapsulation(EncodingVersion encoding, FormatType format)
         {
+            Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            Encaps curr = _encapsCache;
-            if (curr != null)
-            {
-                curr.reset();
-                _encapsCache = _encapsCache.next;
-            }
-            else
-            {
-                curr = new Encaps();
-            }
-            curr.next = _encapsStack;
-            _encapsStack = curr;
+            _mainEncaps = new Encaps(_encoding, _format, _buf.b.position());
 
-            _encapsStack.format = format;
-            _encapsStack.setEncoding(encoding);
-            _encapsStack.start = _buf.b.position();
+            _encoding = encoding;
+            _format = format;
 
             WriteInt(0); // Placeholder for the encapsulation length.
-            WriteByte(_encapsStack.encoding.major);
-            WriteByte(_encapsStack.encoding.minor);
+            WriteByte(_encoding.major);
+            WriteByte(_encoding.minor);
+        }
+
+        internal void StartEndpointEncapsulation(EncodingVersion encoding)
+        {
+            Debug.Assert(_endpointEncaps == null);
+            Protocol.checkSupportedEncoding(encoding);
+
+            _endpointEncaps = new Encaps(_encoding, _format, _buf.b.position());
+            _encoding = encoding;
+            // we don't change format
+
+            WriteInt(0); // Placeholder for the encapsulation length.
+            WriteByte(_encoding.major);
+            WriteByte(_encoding.minor);
         }
 
         /// <summary>
-        /// Ends the previous encapsulation.
+        /// Ends the previous main encapsulation.
         /// </summary>
         public void EndEncapsulation()
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
 
             // Size includes size and version.
-            int start = _encapsStack.start;
+            int start = _mainEncaps.Value.Start;
             int sz = _buf.size() - start;
             _buf.b.putInt(start, sz);
 
-            Encaps curr = _encapsStack;
-            _encapsStack = curr.next;
-            curr.next = _encapsCache;
-            _encapsCache = curr;
-            _encapsCache.reset();
+            _encoding = _mainEncaps.Value.OldEncoding;
+            _format = _mainEncaps.Value.OldFormat;
+            _mainEncaps = null;
+        }
+
+        internal void EndEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps.HasValue);
+
+            // Size includes size and version.
+            int start = _endpointEncaps.Value.Start;
+            int sz = _buf.size() - start;
+            _buf.b.putInt(start, sz);
+
+            _encoding = _endpointEncaps.Value.OldEncoding;
+            // No need to restore format
+            _endpointEncaps = null;
         }
 
         /// <summary>
@@ -377,7 +366,7 @@ namespace Ice
         /// <returns>The encoding version.</returns>
         public EncodingVersion GetEncoding()
         {
-            return _encapsStack != null ? _encapsStack.encoding : _encoding;
+            return _encoding;
         }
 
         /// <summary>
@@ -389,7 +378,7 @@ namespace Ice
         /// <param name="last">True if this is the last slice, false otherwise.</param>
         public void StartSlice(string typeId, int compactId, bool last)
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null);
             StartSliceImpl(typeId, compactId, last);
         }
 
@@ -398,7 +387,7 @@ namespace Ice
         /// </summary>
         public void EndSlice()
         {
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null);
             endSlice();
         }
 
@@ -479,15 +468,8 @@ namespace Ice
         /// <param name="format">The optional format of the value.</param>
         public bool WriteOptional(int tag, OptionalFormat format)
         {
-            Debug.Assert(_encapsStack != null);
-            if (_encapsStack != null)
-            {
-                return writeOptional(tag, format);
-            }
-            else
-            {
-                return writeOptionalImpl(tag, format);
-            }
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            return writeOptional(tag, format);
         }
 
         /// <summary>
@@ -1616,7 +1598,7 @@ namespace Ice
         /// <param name="maxValue">The maximum enumerator value in the definition.</param>
         public void WriteEnum(int v, int maxValue)
         {
-            if (isEncoding_1_0())
+            if (_encoding.Equals(Util.Encoding_1_0))
             {
                 if (maxValue < 127)
                 {
@@ -1657,8 +1639,7 @@ namespace Ice
         /// <param name="v">The value to write.</param>
         public void WriteClass(AnyClass? v)
         {
-            initEncaps();
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             WriteClassImpl(v);
         }
 
@@ -1681,14 +1662,13 @@ namespace Ice
         /// <param name="v">The user exception to write.</param>
         public void WriteException(UserException v)
         {
-            initEncaps();
-            Debug.Assert(_encapsStack != null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             WriteExceptionImpl(v);
         }
 
         private bool writeOptionalImpl(int tag, OptionalFormat format)
         {
-            if (isEncoding_1_0())
+            if (_encoding.Equals(Util.Encoding_1_0))
             {
                 return false; // Optional members aren't supported with the 1.0 encoding.
             }
@@ -1791,7 +1771,7 @@ namespace Ice
             {
                 WriteSize(0);
             }
-            else if (_current != null && _encapsStack.format == FormatType.SlicedFormat)
+            else if (_current != null && _format == FormatType.SlicedFormat)
             {
                 if (_current.indirectionTable == null)
                 {
@@ -1862,7 +1842,7 @@ namespace Ice
             _current.sliceFlagsPos = pos();
 
             _current.sliceFlags = 0;
-            if (_encapsStack.format == FormatType.SlicedFormat)
+            if (_format == FormatType.SlicedFormat)
             {
                 //
                 // Encode the slice size if using the sliced format.
@@ -1887,7 +1867,7 @@ namespace Ice
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
                 //
-                if (_encapsStack.format == FormatType.SlicedFormat || _current.firstSlice)
+                if (_format == FormatType.SlicedFormat || _current.firstSlice)
                 {
                     if (compactId >= 0)
                     {
@@ -1951,7 +1931,7 @@ namespace Ice
             //
             if (_current.indirectionTable != null && _current.indirectionTable.Count > 0)
             {
-                Debug.Assert(_encapsStack.format == FormatType.SlicedFormat);
+                Debug.Assert(_format == FormatType.SlicedFormat);
                 _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                 //
@@ -2004,7 +1984,7 @@ namespace Ice
             // essentially "slices" the instance into the most-derived type
             // known by the sender.
             //
-            if (_encapsStack.format != FormatType.SlicedFormat)
+            if (_format != FormatType.SlicedFormat)
             {
                 return;
             }
@@ -2101,63 +2081,26 @@ namespace Ice
 
         private int _valueIdIndex = 1; // The ID of the next instance to marhsal
 
-        private sealed class Encaps
+        private readonly struct Encaps
         {
-            internal void reset()
+            // Old Encoding
+            internal readonly EncodingVersion OldEncoding;
+
+            // Previous format (compact or sliced).
+            internal readonly FormatType OldFormat;
+
+            internal readonly int Start;
+
+            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, int start)
             {
+                OldEncoding = oldEncoding;
+                OldFormat = oldFormat;
+                Start = start;
             }
-
-            internal void setEncoding(EncodingVersion encoding)
-            {
-                this.encoding = encoding;
-                encoding_1_0 = encoding.Equals(Util.Encoding_1_0);
-            }
-
-            internal int start;
-            internal EncodingVersion encoding;
-            internal bool encoding_1_0;
-            internal FormatType format = FormatType.DefaultFormat;
-
-            internal Encaps? next;
         }
 
-        //
-        // The encoding version to use when there's no encapsulation to
-        // read from or write to. This is for example used to read message
-        // headers or when the user is using the streaming API with no
-        // encapsulation.
-        //
-        private EncodingVersion _encoding;
-
-        private bool isEncoding_1_0()
-        {
-            return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
-        }
-
-        private Encaps? _encapsStack;
-        private Encaps? _encapsCache;
-
-        private void initEncaps()
-        {
-            if (_encapsStack == null) // Lazy initialization
-            {
-                _encapsStack = _encapsCache;
-                if (_encapsStack != null)
-                {
-                    _encapsCache = _encapsCache!.next;
-                }
-                else
-                {
-                    _encapsStack = new Encaps();
-                }
-                _encapsStack.setEncoding(_encoding);
-            }
-
-            if (_encapsStack.format == FormatType.DefaultFormat)
-            {
-                _encapsStack.format = _communicator.DefaultsAndOverrides.defaultFormat;
-            }
-        }
+        private Encaps? _mainEncaps;
+        private Encaps? _endpointEncaps;
     }
 
     /// <summary>
