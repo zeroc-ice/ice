@@ -871,7 +871,8 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << param << ".ice_readMembers(" << stream << ");";
+        out << nl << param << " = new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), ns)
+            << "(" << stream << ");";
     }
     else if(seq)
     {
@@ -1500,13 +1501,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isArray || isStack)
             {
                 string v = isArray ? param : param + "_tmp";
-                out << nl << v << "[ix].ice_readMembers(" << stream << ");";
+                out << nl << v << "[ix] = new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), scope)
+                    << "(" << stream << ");";
             }
             else
             {
-                out << nl << typeS << " val = new " << typeS << "();";
-                out << nl << "val.ice_readMembers(" << stream << ");";
-                out << nl << param << "." << addMethod << "(val);";
+                out << nl << param << "." << addMethod
+                    << "(new " << getUnqualified(getNamespace(st) + "." + fixId(structName(st)), scope) << "(" << stream
+                    << "));";
             }
             out << eb;
             if(isStack)
@@ -2194,8 +2196,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     newLocalMetaData.push_back(s);
                     continue;
                 }
-                static const string csImplementsPrefix = csPrefix + "implements:";
-                if(s.find(csImplementsPrefix) == 0)
+                if(s.substr(csPrefix.size()) == "readonly")
                 {
                     newLocalMetaData.push_back(s);
                     continue;
@@ -2204,12 +2205,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             else if(ClassDefPtr::dynamicCast(cont))
             {
                 if(s.substr(csPrefix.size()) == "property")
-                {
-                    newLocalMetaData.push_back(s);
-                    continue;
-                }
-                static const string csImplementsPrefix = csPrefix + "implements:";
-                if(s.find(csImplementsPrefix) == 0)
                 {
                     newLocalMetaData.push_back(s);
                     continue;

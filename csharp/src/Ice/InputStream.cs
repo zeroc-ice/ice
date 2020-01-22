@@ -1656,8 +1656,7 @@ namespace Ice
         /// <returns>The extracted proxy.</returns>
         public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            Identity ident = new Identity();
-            ident.ice_readMembers(this);
+            Identity ident = new Identity(this);
             if (ident.Name.Length == 0)
             {
                 return null;

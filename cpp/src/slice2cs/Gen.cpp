@@ -1805,7 +1805,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitAttributes(p);
     emitPartialTypeAttributes();
     _out << nl << "[global::System.Serializable]";
-    _out << nl << "public partial struct " << name <<  " : global::System.IEquatable<" << name << ">";
+    _out << nl << "public ";
+    if(p->hasMetaData("cs:readonly"))
+    {
+        _out << "readonly ";
+    }
+    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">";
     _out << sb;
     return true;
 }
@@ -1818,12 +1823,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     DataMemberList dataMembers = p->dataMembers();
 
-    const bool propertyMapping = p->hasMetaData("cs:property");
     _out << sp << nl << "partial void IceInitialize();";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public " << name
+    _out << nl << "public ";
+    _out << name
          << spar
          << mapfn<DataMemberPtr>(dataMembers, [&ns](const auto& i)
                                               {
@@ -1846,6 +1851,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns);
     }
+    _out << nl << "IceInitialize();";
     _out << eb;
 
     _out << sp;
@@ -2020,11 +2026,18 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     _out << sp;
 
+    bool readonly = StructPtr::dynamicCast(cont) && cont->hasMetaData("cs:readonly");
+
     writeTypeDocComment(p, getDeprecateReason(p, cont, "member"));
     emitDeprecate(p, cont, _out, "member");
     emitAttributes(p);
     emitGeneratedCodeAttribute();
-    _out << nl << "public" << " " << typeToString(p->type(), getNamespace(cont), p->tagged());
+    _out << nl << "public ";
+    if(readonly)
+    {
+        _out << "readonly ";
+    }
+    _out << typeToString(p->type(), getNamespace(cont), p->tagged());
     if(isNullable(p->type()) && !p->tagged())
     {
         _out << "?";

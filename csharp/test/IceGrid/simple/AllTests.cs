@@ -33,9 +33,7 @@ public class AllTests : Test.AllTests
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing locator finder... ");
-        Identity finderId = new Identity();
-        finderId.Category = "Ice";
-        finderId.Name = "LocatorFinder";
+        Identity finderId = new Identity("LocatorFinder", "Ice");
         ILocatorFinderPrx finder = ILocatorFinderPrx.CheckedCast(communicator.GetDefaultLocator().Clone(finderId));
         test(finder.GetLocator() != null);
         Console.Out.WriteLine("ok");
