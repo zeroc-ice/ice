@@ -226,7 +226,7 @@ public class AllTests : Test.AllTests
                 Ice.AnyClass o = testPrx.SUnknownAsObject();
                 test(o is Ice.UnknownSlicedClass);
                 test((o as Ice.UnknownSlicedClass).ice_id().Equals("::Test::SUnknown"));
-                test((o as Ice.UnknownSlicedClass).ice_getSlicedData() != null);
+                test((o as Ice.UnknownSlicedClass).GetSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
             catch (Ice.NoClassFactoryException)
@@ -1729,9 +1729,9 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            SlicedData slicedData = p.ice_getSlicedData();
-            test(slicedData.slices.Length == 1);
-            test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
+            IReadOnlyList<Ice.SliceInfo>? slices = p.GetSlicedData().Value.Slices;
+            test(slices.Count == 1);
+            test(slices[0].TypeId.Equals("::Test::PSUnknown"));
         }
         catch (OperationNotExistException)
         {

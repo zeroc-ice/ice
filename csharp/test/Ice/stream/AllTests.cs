@@ -68,6 +68,7 @@ namespace Ice.stream
                 obj.iceWrite(outS);
                 called = true;
             }
+            public override string ice_id() => obj.ice_id();
 
             internal Test.MyClass obj;
             internal bool called = false;

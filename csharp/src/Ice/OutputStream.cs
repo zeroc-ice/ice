@@ -2024,7 +2024,7 @@ namespace Ice
                 }
             }
 
-            private void writeSlicedData(SlicedData slicedData)
+            private void writeSlicedData(SlicedData? slicedData)
             {
                 Debug.Assert(slicedData != null);
                 Debug.Assert(_current != null);
@@ -2040,16 +2040,19 @@ namespace Ice
                     return;
                 }
 
-                foreach (var info in slicedData.slices)
+                foreach (var info in slicedData.Value.Slices)
                 {
-                    StartSlice(info.typeId, info.compactId, info.isLastSlice);
+                    StartSlice(info.TypeId ?? "", info.CompactId ?? -1, info.IsLastSlice);
 
                     //
                     // Write the bytes associated with this slice.
                     //
-                    _stream.WriteBlob(info.bytes);
+                    // Temporary:
+                    var sliceBytes = new byte[info.Bytes.Count];
+                    info.Bytes.CopyTo(sliceBytes, 0);
+                    _stream.WriteBlob(sliceBytes);
 
-                    if (info.hasOptionalMembers)
+                    if (info.HasOptionalMembers)
                     {
                         _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                     }
@@ -2057,14 +2060,14 @@ namespace Ice
                     //
                     // Make sure to also re-write the instance indirection table.
                     //
-                    if (info.instances != null && info.instances.Length > 0)
+                    if (info.Instances.Count > 0)
                     {
                         if (_current.indirectionTable == null)
                         {
                             _current.indirectionTable = new List<AnyClass>();
                             _current.indirectionMap = new Dictionary<AnyClass, int>();
                         }
-                        foreach (var o in info.instances)
+                        foreach (var o in info.Instances)
                         {
                             _current.indirectionTable.Add(o);
                         }
@@ -2221,10 +2224,9 @@ namespace Ice
             write(os);
         }
 
-        public override void iceRead(InputStream istr)
+        protected override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(false);
         }
     }
-
 }
