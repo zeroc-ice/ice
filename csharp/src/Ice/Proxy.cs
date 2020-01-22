@@ -437,7 +437,7 @@ namespace Ice
         {
             get
             {
-                return IceReference.getRouterInfo()?.getRouter();
+                return IceReference.getRouterInfo()?.Router;
             }
         }
 
@@ -449,7 +449,7 @@ namespace Ice
         {
             get
             {
-                return IceReference.getLocatorInfo()?.getLocator();
+                return IceReference.getLocatorInfo()?.Locator;
             }
         }
 

@@ -2,58 +2,32 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+using IceInternal;
+using System.Diagnostics;
+using System.Collections.Generic;
+
+namespace Ice
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
-    public sealed class EndpointFactoryManager
+    public sealed partial class Communicator
     {
-        internal EndpointFactoryManager(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-            _factories = new List<IEndpointFactory>();
-        }
+        private List<IEndpointFactory> _endpointFactories;
 
-        public void initialize()
-        {
-            foreach (IEndpointFactory f in _factories)
-            {
-                f.initialize();
-            }
-        }
-
-        public void add(IEndpointFactory factory)
+        public void AddEndpointFactory(IEndpointFactory factory)
         {
             lock (this)
             {
-                foreach (IEndpointFactory f in _factories)
+                foreach (IEndpointFactory f in _endpointFactories)
                 {
                     if (f.type() == factory.type())
                     {
                         Debug.Assert(false);
                     }
                 }
-                _factories.Add(factory);
+                _endpointFactories.Add(factory);
             }
         }
 
-        public IEndpointFactory? get(short type)
-        {
-            lock (this)
-            {
-                foreach (IEndpointFactory f in _factories)
-                {
-                    if (f.type() == type)
-                    {
-                        return f;
-                    }
-                }
-                return null;
-            }
-        }
-
-        public Endpoint? create(string str, bool oaEndpoint)
+        public Endpoint? CreateEndpoint(string str, bool oaEndpoint)
         {
             string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
             if (arr == null)
@@ -72,16 +46,16 @@ namespace IceInternal
 
             if (protocol.Equals("default"))
             {
-                protocol = _communicator.DefaultsAndOverrides.defaultProtocol;
+                protocol = DefaultsAndOverrides.defaultProtocol;
             }
 
             IEndpointFactory? factory = null;
 
             lock (this)
             {
-                for (int i = 0; i < _factories.Count; i++)
+                for (int i = 0; i < _endpointFactories.Count; i++)
                 {
-                    IEndpointFactory f = _factories[i];
+                    IEndpointFactory f = _endpointFactories[i];
                     if (f.protocol().Equals(protocol))
                     {
                         factory = f;
@@ -91,7 +65,7 @@ namespace IceInternal
 
             if (factory != null)
             {
-                Endpoint e = factory.create(v, oaEndpoint);
+                Endpoint? e = factory.create(v, oaEndpoint);
                 if (v.Count > 0)
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
@@ -125,7 +99,7 @@ namespace IceInternal
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
-                factory = get(ue.type());
+                factory = GetEndpointFactory(ue.type());
                 if (factory != null)
                 {
                     //
@@ -133,11 +107,10 @@ namespace IceInternal
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    Ice.OutputStream os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
+                    OutputStream os = new OutputStream(this, Util.currentProtocolEncoding);
                     os.WriteShort(ue.type());
                     ue.streamWrite(os);
-                    Ice.InputStream iss =
-                        new Ice.InputStream(_communicator, Ice.Util.currentProtocolEncoding, os.GetBuffer(), true);
+                    InputStream iss = new InputStream(this, Util.currentProtocolEncoding, os.GetBuffer(), true);
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
@@ -151,13 +124,28 @@ namespace IceInternal
             return null;
         }
 
-        public Endpoint read(Ice.InputStream s)
+        public IEndpointFactory? GetEndpointFactory(short type)
+        {
+            lock (this)
+            {
+                foreach (IEndpointFactory f in _endpointFactories)
+                {
+                    if (f.type() == type)
+                    {
+                        return f;
+                    }
+                }
+                return null;
+            }
+        }
+
+        public Endpoint ReadEndpoint(InputStream s)
         {
             lock (this)
             {
                 short type = s.ReadShort();
 
-                IEndpointFactory? factory = get(type);
+                IEndpointFactory? factory = GetEndpointFactory(type);
                 Endpoint? e = null;
 
                 s.StartEndpointEncapsulation();
@@ -182,18 +170,6 @@ namespace IceInternal
                 return e;
             }
         }
-
-        internal void destroy()
-        {
-            foreach (IEndpointFactory f in _factories)
-            {
-                f.destroy();
-            }
-            _factories.Clear();
-        }
-
-        private readonly Ice.Communicator _communicator;
-        private readonly List<IEndpointFactory> _factories;
     }
 
 }

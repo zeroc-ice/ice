@@ -3,19 +3,17 @@
 //
 
 using System.Collections.Generic;
+using IceInternal;
 
-namespace IceInternal
+namespace Ice
 {
-    public class RequestHandlerFactory
+    public sealed partial class Communicator
     {
-        internal RequestHandlerFactory(Ice.Communicator communicator) => _communicator = communicator;
-
-        internal IRequestHandler
-        getRequestHandler(RoutableReference rf, Ice.IObjectPrx proxy)
+        internal IRequestHandler GetRequestHandler(RoutableReference rf, IObjectPrx proxy)
         {
             if (rf.getCollocationOptimized())
             {
-                Ice.ObjectAdapter adapter = _communicator.ObjectAdapterFactory().findObjectAdapter(proxy);
+                ObjectAdapter? adapter = FindObjectAdapter(proxy);
                 if (adapter != null)
                 {
                     return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
@@ -26,7 +24,7 @@ namespace IceInternal
             ConnectRequestHandler handler;
             if (rf.getCacheConnection())
             {
-                lock (this)
+                lock (_handlers)
                 {
                     if (!_handlers.TryGetValue(rf, out handler))
                     {
@@ -49,12 +47,11 @@ namespace IceInternal
             return proxy.IceSetRequestHandler(handler.connect(proxy));
         }
 
-        internal void
-        removeRequestHandler(Reference rf, IRequestHandler handler)
+        internal void RemoveRequestHandler(Reference rf, IRequestHandler handler)
         {
             if (rf.getCacheConnection())
             {
-                lock (this)
+                lock (_handlers)
                 {
                     ConnectRequestHandler h;
                     if (_handlers.TryGetValue(rf, out h) && h == handler)
@@ -65,7 +62,6 @@ namespace IceInternal
             }
         }
 
-        private readonly Ice.Communicator _communicator;
         private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
             new Dictionary<Reference, ConnectRequestHandler>();
     }

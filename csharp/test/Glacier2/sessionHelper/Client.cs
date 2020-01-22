@@ -390,7 +390,7 @@ public class Client : Test.TestHelper
                 IObjectPrx.Parse("dummy", session.communicator());
                 test(false);
             }
-            catch (Ice.CommunicatorDestroyedException)
+            catch (CommunicatorDestroyedException)
             {
             }
             Console.Out.WriteLine("ok");

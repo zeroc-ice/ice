@@ -565,7 +565,7 @@ namespace IceInternal
                                                {
                                                    try
                                                    {
-                                                       _communicator.ObjectAdapterFactory().shutdown();
+                                                       _communicator.Shutdown();
                                                    }
                                                    catch (Ice.CommunicatorDestroyedException)
                                                    {

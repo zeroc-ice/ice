@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Ice;
 
 namespace IceInternal
 {
@@ -118,7 +119,7 @@ namespace IceInternal
             //
             Debug.Assert(_proxy != null);
             RouterInfo? ri = _reference.getRouterInfo();
-            if (ri != null && !ri.addProxy(_proxy, this))
+            if (ri != null && !ri.AddProxy(_proxy, this))
             {
                 return; // The request handler will be initialized once addProxy returns.
             }
@@ -145,7 +146,7 @@ namespace IceInternal
             //
             try
             {
-                _reference.getCommunicator().RequestHandlerFactory().removeRequestHandler(_reference, this);
+                _reference.getCommunicator().RemoveRequestHandler(_reference, this);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -252,7 +253,7 @@ namespace IceInternal
                     exception = ex.get();
 
                     // Remove the request handler before retrying.
-                    _reference.getCommunicator().RequestHandlerFactory().removeRequestHandler(_reference, this);
+                    _reference.getCommunicator().RemoveRequestHandler(_reference, this);
 
                     outAsync.RetryException();
                 }
@@ -293,7 +294,7 @@ namespace IceInternal
                 // Only remove once all the requests are flushed to
                 // guarantee serialization.
                 //
-                _reference.getCommunicator().RequestHandlerFactory().removeRequestHandler(_reference, this);
+                _reference.getCommunicator().RemoveRequestHandler(_reference, this);
 
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.

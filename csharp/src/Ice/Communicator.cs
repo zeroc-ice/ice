@@ -108,18 +108,11 @@ namespace Ice
         private readonly Func<int, string>? _compactIdResolver;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
-        private EndpointFactoryManager _endpointFactoryManager;
-        private EndpointHostResolver _endpointHostResolver;
         private readonly ImplicitContext? _implicitContext; // Immutable
-        private LocatorManager _locatorManager;
-        private ObjectAdapterFactory _objectAdapterFactory;
         private static bool _oneOffDone = false;
         private OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
-        private RequestHandlerFactory? _requestHandlerFactory;
         private readonly int[] _retryIntervals;
-        private RetryQueue _retryQueue;
-        private RouterManager _routerManager;
         private IceInternal.ThreadPool? _serverThreadPool;
         private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
         private int _state;
@@ -363,9 +356,8 @@ namespace Ice
                 CacheMessageBuffers = GetPropertyAsInt("Ice.CacheMessageBuffers") ?? 2;
 
                 _implicitContext = ImplicitContext.Create(GetProperty("Ice.ImplicitContext"));
-                _routerManager = new RouterManager();
 
-                _locatorManager = new LocatorManager(this);
+                _backgroundLocatorCacheUpdates = GetPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
 
                 string[]? arr = GetPropertyAsList("Ice.RetryIntervals");
 
@@ -392,8 +384,6 @@ namespace Ice
                     }
                 }
 
-                _requestHandlerFactory = new RequestHandlerFactory(this);
-
                 bool isIPv6Supported = Network.isIPv6Supported();
                 bool ipv4 = (GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
                 bool ipv6 = (GetPropertyAsInt("Ice.IPv6") ?? (isIPv6Supported ? 1 : 0)) > 0;
@@ -417,25 +407,13 @@ namespace Ice
 
                 NetworkProxy = CreateNetworkProxy(ProtocolSupport);
 
-                _endpointFactoryManager = new EndpointFactoryManager(this);
-
-                ProtocolInstance tcpInstance = new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
-                _endpointFactoryManager.add(new TcpEndpointFactory(tcpInstance));
-
-                ProtocolInstance udpInstance = new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
-                _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
-
-                ProtocolInstance wsInstance = new ProtocolInstance(this, WSEndpointType.value, "ws", false);
-                _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, TCPEndpointType.value));
-
-                ProtocolInstance wssInstance = new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
-                _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, SSLEndpointType.value));
+                _endpointFactories = new List<IEndpointFactory>();
+                AddEndpointFactory(new TcpEndpointFactory(new ProtocolInstance(this, TCPEndpointType.value, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(new ProtocolInstance(this, UDPEndpointType.value, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSEndpointType.value, "ws", false), TCPEndpointType.value));
+                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSSEndpointType.value, "wss", true), SSLEndpointType.value));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
-
-                _objectAdapterFactory = new ObjectAdapterFactory(this);
-
-                _retryQueue = new RetryQueue(this);
 
                 if (GetPropertyAsInt("Ice.PreloadAssemblies") > 0)
                 {
@@ -452,7 +430,10 @@ namespace Ice
                 // Initialize the endpoint factories once all the plugins are loaded. This gives
                 // the opportunity for the endpoint factories to find underyling factories.
                 //
-                _endpointFactoryManager.initialize();
+                foreach (IEndpointFactory f in _endpointFactories)
+                {
+                    f.initialize();
+                }
 
                 //
                 // Create Admin facets, if enabled.
@@ -564,7 +545,9 @@ namespace Ice
 
                 try
                 {
-                    _endpointHostResolver = new EndpointHostResolver(this);
+                    _endpointHostResolverThread = new HelperThread(this);
+                    UpdateEndpointHostResolverObserver();
+                    _endpointHostResolverThread.Start(IceInternal.Util.stringToThreadPriority(GetProperty("Ice.ThreadPriority")));
                 }
                 catch (System.Exception ex)
                 {
@@ -632,7 +615,7 @@ namespace Ice
                     GetAdmin();
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
                 Destroy();
                 throw;
@@ -724,7 +707,7 @@ namespace Ice
                 {
                     if (GetProperty("Ice.Admin.Endpoints") != null)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = CreateObjectAdapter("Ice.Admin", null);
                     }
                     else
                     {
@@ -784,10 +767,7 @@ namespace Ice
         /// <returns>The new object adapter.
         ///
         /// </returns>
-        public ObjectAdapter CreateObjectAdapter(string name)
-        {
-            return ObjectAdapterFactory().createObjectAdapter(name, null);
-        }
+        public ObjectAdapter CreateObjectAdapter(string name) => CreateObjectAdapter(name, null);
 
         /// <summary>
         /// Create a new object adapter with endpoints.
@@ -817,7 +797,7 @@ namespace Ice
             }
 
             SetProperty($"{name}.Endpoints", endpoints);
-            return ObjectAdapterFactory().createObjectAdapter(name, null);
+            return CreateObjectAdapter(name, null);
         }
 
         /// <summary>
@@ -854,7 +834,7 @@ namespace Ice
                 SetProperty(entry.Key, entry.Value);
             }
 
-            return ObjectAdapterFactory().createObjectAdapter(name, router);
+            return CreateObjectAdapter(name, router);
         }
 
         public Reference CreateReference(string s, string? propertyPrefix = null)
@@ -1152,7 +1132,7 @@ namespace Ice
                     }
 
                     string es = s.Substring(beg, end - beg);
-                    Endpoint? endp = EndpointFactoryManager().create(es, false);
+                    Endpoint? endp = CreateEndpoint(es, false);
                     if (endp != null)
                     {
                         endpoints.Add(endp);
@@ -1162,6 +1142,7 @@ namespace Ice
                         unknownEndpoints.Add(es);
                     }
                 }
+
                 if (endpoints.Count == 0)
                 {
                     Debug.Assert(unknownEndpoints.Count > 0);
@@ -1292,7 +1273,7 @@ namespace Ice
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = EndpointFactoryManager().read(s);
+                    endpoints[i] = ReadEndpoint(s);
                 }
             }
             else
@@ -1337,13 +1318,33 @@ namespace Ice
             // Shutdown and destroy all the incoming and outgoing Ice
             // connections and wait for the connections to be finished.
             //
-            _objectAdapterFactory.shutdown();
+            Shutdown();
             _outgoingConnectionFactory.destroy();
 
-            _objectAdapterFactory.destroy();
+            //
+            // First wait for shutdown to finish.
+            //
+            WaitForShutdown();
+
+            List<ObjectAdapter> adapters;
+            lock (this)
+            {
+                adapters = new List<ObjectAdapter>(_adapters);
+            }
+
+            foreach (ObjectAdapter adapter in adapters)
+            {
+                adapter.Destroy();
+            }
+
+            lock (this)
+            {
+                _adapters.Clear();
+            }
+
             _outgoingConnectionFactory.waitUntilFinished();
 
-            _retryQueue.destroy(); // Must be called before destroying thread pools.
+            DestroyRetryTask(); // Must be called before destroying thread pools.
 
             if (Observer != null)
             {
@@ -1370,7 +1371,13 @@ namespace Ice
             {
                 _asyncIOThread.destroy();
             }
-            _endpointHostResolver.destroy();
+
+            lock (_endpointHostResolverThread)
+            {
+                Debug.Assert(!_endpointHostResolverDestroyed);
+                _endpointHostResolverDestroyed = true;
+                Monitor.Pulse(_endpointHostResolverThread);
+            }
 
             //
             // Wait for all the threads to be finished.
@@ -1385,10 +1392,33 @@ namespace Ice
             {
                 _asyncIOThread.joinWithThread();
             }
-            _endpointHostResolver.joinWithThread();
-            _routerManager.destroy();
-            _locatorManager.destroy();
-            _endpointFactoryManager.destroy();
+
+            _endpointHostResolverThread.Join();
+
+            lock (_routerInfoTable)
+            {
+                foreach (RouterInfo i in _routerInfoTable.Values)
+                {
+                    i.Destroy();
+                }
+                _routerInfoTable.Clear();
+            }
+
+            lock (_locatorInfoMap)
+            {
+                foreach (LocatorInfo info in _locatorInfoMap.Values)
+                {
+                    info.Destroy();
+                }
+                _locatorInfoMap.Clear();
+                _locatorTableMap.Clear();
+            }
+
+            foreach (IEndpointFactory f in _endpointFactories)
+            {
+                f.destroy();
+            }
+            _endpointFactories.Clear();
 
             if (GetPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
             {
@@ -1431,8 +1461,6 @@ namespace Ice
             {
                 _serverThreadPool = null;
                 _asyncIOThread = null;
-
-                _requestHandlerFactory = null;
 
                 _adminAdapter = null;
                 _adminFacets.Clear();
@@ -1529,7 +1557,7 @@ namespace Ice
                 {
                     if (GetProperty("Ice.Admin.Endpoints") != null)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = CreateObjectAdapter("Ice.Admin", null);
                     }
                     else
                     {
@@ -1620,37 +1648,9 @@ namespace Ice
         /// <returns>True if the communicator has been shut down; false otherwise.</returns>
         public bool IsShutdown()
         {
-            try
-            {
-                return ObjectAdapterFactory().isShutdown();
-            }
-            catch (CommunicatorDestroyedException)
-            {
-                return true;
-            }
-        }
-
-        public LocatorManager LocatorManager()
-        {
             lock (this)
             {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _locatorManager;
-            }
-        }
-
-        public ObjectAdapterFactory ObjectAdapterFactory()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _objectAdapterFactory;
+                return _isShutdown;
             }
         }
 
@@ -1684,18 +1684,6 @@ namespace Ice
                     _adminAdapter.Remove(_adminIdentity.Value, facet);
                 }
                 return result;
-            }
-        }
-
-        public RouterManager RouterManager()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _routerManager;
             }
         }
 
@@ -1766,13 +1754,30 @@ namespace Ice
         /// </summary>
         public void Shutdown()
         {
-            try
+            List<ObjectAdapter> adapters;
+            lock (this)
             {
-                ObjectAdapterFactory().shutdown();
+                //
+                // Ignore shutdown requests if the object adapter factory has
+                // already been shut down.
+                //
+                if (_isShutdown)
+                {
+                    return;
+                }
+
+                adapters = new List<ObjectAdapter>(_adapters);
+                _isShutdown = true;
+                Monitor.PulseAll(this);
             }
-            catch (CommunicatorDestroyedException)
+
+            //
+            // Deactivate outside the thread synchronization, to avoid
+            // deadlocks.
+            //
+            foreach (ObjectAdapter adapter in adapters)
             {
-                // Ignore
+                adapter.Deactivate();
             }
         }
 
@@ -1804,13 +1809,26 @@ namespace Ice
         /// </summary>
         public void WaitForShutdown()
         {
-            try
+            List<ObjectAdapter> adapters;
+            lock (this)
             {
-                ObjectAdapterFactory().waitForShutdown();
+                //
+                // First we wait for the shutdown of the factory itself.
+                //
+                while (!_isShutdown)
+                {
+                    Monitor.Wait(this);
+                }
+
+                adapters = new List<ObjectAdapter>(_adapters);
             }
-            catch (CommunicatorDestroyedException)
+
+            //
+            // Now we wait for deactivation of each object adapter.
+            //
+            foreach (ObjectAdapter adapter in adapters)
             {
-                // Ignore
+                adapter.WaitForDeactivate();
             }
         }
 
@@ -1857,7 +1875,7 @@ namespace Ice
                     // to the router.
                     //
 
-                    ri.clearCache(@ref);
+                    ri.ClearCache(@ref);
 
                     if (TraceLevels.retry >= 1)
                     {
@@ -1875,7 +1893,7 @@ namespace Ice
 
                     if (@ref.isWellKnown())
                     {
-                        @ref.getLocatorInfo()?.clearCache(@ref);
+                        @ref.getLocatorInfo()?.ClearCache(@ref);
                     }
                 }
                 else
@@ -2008,30 +2026,6 @@ namespace Ice
                 null);
         }
 
-        internal EndpointFactoryManager EndpointFactoryManager()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _endpointFactoryManager;
-            }
-        }
-
-        internal EndpointHostResolver EndpointHostResolver()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _endpointHostResolver;
-            }
-        }
-
         internal BufSizeWarnInfo GetBufSizeWarn(short type)
         {
             lock (_setBufSizeWarn)
@@ -2063,20 +2057,6 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
                 return _outgoingConnectionFactory;
-            }
-        }
-
-        internal RequestHandlerFactory RequestHandlerFactory()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                Debug.Assert(_requestHandlerFactory != null);
-                return _requestHandlerFactory;
             }
         }
 
@@ -2153,18 +2133,6 @@ namespace Ice
                 }
             }
             return result;
-        }
-
-        internal RetryQueue RetryQueue()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _retryQueue;
-            }
         }
 
         internal IceInternal.ThreadPool ServerThreadPool()
@@ -2275,7 +2243,17 @@ namespace Ice
             try
             {
                 _outgoingConnectionFactory.updateConnectionObservers();
-                _objectAdapterFactory.updateConnectionObservers();
+
+                List<ObjectAdapter> adapters;
+                lock (this)
+                {
+                    adapters = new List<ObjectAdapter>(_adapters);
+                }
+
+                foreach (ObjectAdapter adapter in adapters)
+                {
+                    adapter.updateConnectionObservers();
+                }
             }
             catch (CommunicatorDestroyedException)
             {
@@ -2291,8 +2269,19 @@ namespace Ice
                 {
                     _serverThreadPool.updateObservers();
                 }
-                _objectAdapterFactory.updateThreadObservers();
-                _endpointHostResolver.updateObserver();
+
+                List<ObjectAdapter> adapters;
+                lock (this)
+                {
+                    adapters = new List<ObjectAdapter>(_adapters);
+                }
+
+                foreach (ObjectAdapter adapter in adapters)
+                {
+                    adapter.updateThreadObservers();
+                }
+
+                UpdateEndpointHostResolverObserver();
 
                 if (_asyncIOThread != null)
                 {
@@ -2410,6 +2399,14 @@ namespace Ice
             string? adapterId,
             string? propertyPrefix)
         {
+            lock (this)
+            {
+                if (_state == StateDestroyed)
+                {
+                    throw new CommunicatorDestroyedException();
+                }
+            }
+
             //
             // Default local proxy options.
             //
@@ -2418,17 +2415,17 @@ namespace Ice
             {
                 if (!_defaultLocator.IceReference.getEncoding().Equals(encoding))
                 {
-                    locatorInfo = LocatorManager().get(_defaultLocator.Clone(encodingVersion: encoding));
+                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encodingVersion: encoding));
                 }
                 else
                 {
-                    locatorInfo = LocatorManager().get(_defaultLocator);
+                    locatorInfo = GetLocatorInfo(_defaultLocator);
                 }
             }
             RouterInfo? routerInfo = null;
             if (_defaultRouter != null)
             {
-                routerInfo = RouterManager().get(_defaultRouter);
+                routerInfo = GetRouterInfo(_defaultRouter);
             }
             bool collocOptimized = DefaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
@@ -2457,11 +2454,11 @@ namespace Ice
                 {
                     if (!locator.IceReference.getEncoding().Equals(encoding))
                     {
-                        locatorInfo = LocatorManager().get(locator.Clone(encodingVersion: encoding));
+                        locatorInfo = GetLocatorInfo(locator.Clone(encodingVersion: encoding));
                     }
                     else
                     {
-                        locatorInfo = LocatorManager().get(locator);
+                        locatorInfo = GetLocatorInfo(locator);
                     }
                 }
 
@@ -2475,7 +2472,7 @@ namespace Ice
                     }
                     else
                     {
-                        routerInfo = RouterManager().get(router);
+                        routerInfo = GetRouterInfo(router);
                     }
                 }
 

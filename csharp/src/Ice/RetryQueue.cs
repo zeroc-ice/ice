@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
-{
-    using System.Collections.Generic;
-    using System.Diagnostics;
+using System.Collections.Generic;
+using System.Diagnostics;
+using IceInternal;
 
+namespace Ice
+{
     public class RetryTask : ITimerTask, ICancellationHandler
     {
-        public RetryTask(Ice.Communicator communicator, RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
+        public RetryTask(Communicator communicator, ProxyOutgoingAsyncBase outAsync)
         {
             _communicator = communicator;
-            _retryQueue = retryQueue;
             _outAsync = outAsync;
         }
 
@@ -26,13 +26,13 @@ namespace IceInternal
             // (we still need the client thread pool at this point to call
             // exception callbacks with CommunicatorDestroyedException).
             //
-            _retryQueue.remove(this);
+            _communicator.RemoveRetryTask(this);
         }
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             Debug.Assert(_outAsync == outAsync);
-            if (_retryQueue.cancel(this))
+            if (_communicator.CancelRetryTask(this))
             {
                 if (_communicator.TraceLevels.retry >= 1)
                 {
@@ -49,49 +49,43 @@ namespace IceInternal
         {
             try
             {
-                _outAsync.abort(new Ice.CommunicatorDestroyedException());
+                _outAsync.abort(new CommunicatorDestroyedException());
             }
-            catch (Ice.CommunicatorDestroyedException)
+            catch (CommunicatorDestroyedException)
             {
                 // Abort can throw if there's no callback, just ignore in this case
             }
         }
 
-        private Ice.Communicator _communicator;
-        private RetryQueue _retryQueue;
+        private Communicator _communicator;
         private ProxyOutgoingAsyncBase _outAsync;
     }
 
-    public class RetryQueue
+    public sealed partial class Communicator
     {
-        public RetryQueue(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        public void add(ProxyOutgoingAsyncBase outAsync, int interval)
+        internal void AddRetryTask(ProxyOutgoingAsyncBase outAsync, int interval)
         {
             lock (this)
             {
-                if (_communicator == null)
+                if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
-                RetryTask task = new RetryTask(_communicator, this, outAsync);
+                RetryTask task = new RetryTask(this, outAsync);
                 outAsync.cancelable(task); // This will throw if the request is canceled.
-                _communicator.Timer().schedule(task, interval);
+                _timer.schedule(task, interval);
                 _requests.Add(task, null);
             }
         }
 
-        public void destroy()
+        internal void DestroyRetryTask()
         {
             lock (this)
             {
                 Dictionary<RetryTask, object?> keep = new Dictionary<RetryTask, object?>();
                 foreach (RetryTask task in _requests.Keys)
                 {
-                    if (_communicator!.Timer().cancel(task))
+                    if (_timer.cancel(task))
                     {
                         task.destroy();
                     }
@@ -101,7 +95,6 @@ namespace IceInternal
                     }
                 }
                 _requests = keep;
-                _communicator = null;
                 while (_requests.Count > 0)
                 {
                     System.Threading.Monitor.Wait(this);
@@ -109,13 +102,13 @@ namespace IceInternal
             }
         }
 
-        public void remove(RetryTask task)
+        internal void RemoveRetryTask(RetryTask task)
         {
             lock (this)
             {
                 if (_requests.Remove(task))
                 {
-                    if (_communicator == null && _requests.Count == 0)
+                    if (_state == StateDestroyed && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
@@ -124,24 +117,23 @@ namespace IceInternal
             }
         }
 
-        public bool cancel(RetryTask task)
+        internal bool CancelRetryTask(RetryTask task)
         {
             lock (this)
             {
                 if (_requests.Remove(task))
                 {
-                    if (_communicator == null && _requests.Count == 0)
+                    if (_state == StateDestroyed && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _communicator.Timer().cancel(task);
+                    return _timer.cancel(task);
                 }
                 return false;
             }
         }
 
-        private Ice.Communicator? _communicator;
         private Dictionary<RetryTask, object?> _requests = new Dictionary<RetryTask, object?>();
     }
 }
