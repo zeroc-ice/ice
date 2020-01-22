@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
-{
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using Ice;
+using System.Collections.Generic;
+using System.Diagnostics;
+using IceInternal;
 
+namespace Ice
+{
     public sealed class RouterInfo
     {
         public interface GetClientEndpointsCallback
@@ -22,14 +22,9 @@ namespace IceInternal
             void setException(Ice.LocalException ex);
         }
 
-        internal RouterInfo(IRouterPrx router)
-        {
-            _router = router;
+        internal RouterInfo(IRouterPrx router) => Router = router;
 
-            Debug.Assert(_router != null);
-        }
-
-        public void destroy()
+        public void Destroy()
         {
             lock (this)
             {
@@ -47,23 +42,15 @@ namespace IceInternal
             }
 
             RouterInfo? rhs = obj as RouterInfo;
-            return rhs == null ? false : _router.Equals(rhs._router);
+            return rhs == null ? false : Router.Equals(rhs.Router);
         }
 
-        public override int GetHashCode()
-        {
-            return _router.GetHashCode();
-        }
+        public override int GetHashCode() => Router.GetHashCode();
 
-        public IRouterPrx getRouter()
-        {
-            //
-            // No mutex lock necessary, _router is immutable.
-            //
-            return _router;
-        }
+        // No mutex lock necessary, _router is immutable.
+        public IRouterPrx Router { get; }
 
-        public Endpoint[] getClientEndpoints()
+        public Endpoint[] GetClientEndpoints()
         {
             lock (this)
             {
@@ -73,11 +60,11 @@ namespace IceInternal
                 }
             }
 
-            var (proxy, hasRoutingTable) = _router.GetClientProxy();
-            return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+            var (proxy, hasRoutingTable) = Router.GetClientProxy();
+            return SetClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
-        public void getClientEndpoints(GetClientEndpointsCallback callback)
+        public void GetClientEndpoints(GetClientEndpointsCallback callback)
         {
             Endpoint[]? clientEndpoints = null;
             lock (this)
@@ -91,13 +78,13 @@ namespace IceInternal
                 return;
             }
 
-            _router.GetClientProxyAsync().ContinueWith(
+            Router.GetClientProxyAsync().ContinueWith(
                 (t) =>
                 {
                     try
                     {
                         var r = t.Result;
-                        callback.setEndpoints(setClientEndpoints(r.ReturnValue,
+                        callback.setEndpoints(SetClientEndpoints(r.ReturnValue,
                             r.HasRoutingTable.HasValue ? r.HasRoutingTable.Value : true));
                     }
                     catch (System.AggregateException ae)
@@ -109,19 +96,19 @@ namespace IceInternal
                 System.Threading.Tasks.TaskScheduler.Current);
         }
 
-        public Endpoint[] getServerEndpoints()
+        public Endpoint[] GetServerEndpoints()
         {
-            Ice.IObjectPrx serverProxy = _router.GetServerProxy();
+            IObjectPrx serverProxy = Router.GetServerProxy();
             if (serverProxy == null)
             {
-                throw new Ice.NoEndpointException();
+                throw new NoEndpointException();
             }
 
             serverProxy = serverProxy.Clone(clearRouter: true); // The server proxy cannot be routed.
             return serverProxy.IceReference.getEndpoints();
         }
 
-        public void addProxy(Ice.IObjectPrx proxy)
+        public void AddProxy(IObjectPrx proxy)
         {
             Debug.Assert(proxy != null);
             lock (this)
@@ -135,10 +122,10 @@ namespace IceInternal
                 }
             }
 
-            addAndEvictProxies(proxy, _router.AddProxies(new IObjectPrx[] { proxy }));
+            AddAndEvictProxies(proxy, Router.AddProxies(new IObjectPrx[] { proxy }));
         }
 
-        public bool addProxy(IObjectPrx proxy, AddProxyCallback callback)
+        public bool AddProxy(IObjectPrx proxy, AddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
             lock (this)
@@ -156,12 +143,12 @@ namespace IceInternal
                 }
             }
 
-            _router.AddProxiesAsync(new IObjectPrx[] { proxy }).ContinueWith(
+            Router.AddProxiesAsync(new IObjectPrx[] { proxy }).ContinueWith(
                 (t) =>
                 {
                     try
                     {
-                        addAndEvictProxies(proxy, t.Result);
+                        AddAndEvictProxies(proxy, t.Result);
                         callback.addedProxy();
                     }
                     catch (System.AggregateException ae)
@@ -174,31 +161,33 @@ namespace IceInternal
             return false;
         }
 
-        public void setAdapter(ObjectAdapter? adapter)
+        public ObjectAdapter? Adapter
         {
-            lock (this)
+            get
             {
-                _adapter = adapter;
+                lock (this)
+                {
+                    return _adapter;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    _adapter = value;
+                }
             }
         }
 
-        public ObjectAdapter? getAdapter()
+        public void ClearCache(Reference reference)
         {
             lock (this)
             {
-                return _adapter;
+                _identities.Remove(reference.getIdentity());
             }
         }
 
-        public void clearCache(Reference @ref)
-        {
-            lock (this)
-            {
-                _identities.Remove(@ref.getIdentity());
-            }
-        }
-
-        private Endpoint[] setClientEndpoints(Ice.IObjectPrx clientProxy, bool hasRoutingTable)
+        private Endpoint[] SetClientEndpoints(IObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock (this)
             {
@@ -210,7 +199,7 @@ namespace IceInternal
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = _router.IceReference.getEndpoints();
+                        _clientEndpoints = Router.IceReference.getEndpoints();
                     }
                     else
                     {
@@ -221,9 +210,9 @@ namespace IceInternal
                         // router, we must use the same timeout as the already
                         // existing connection.
                         //
-                        if (_router.GetConnection() != null)
+                        if (Router.GetConnection() != null)
                         {
-                            clientProxy = clientProxy.Clone(connectionTimeout: _router.GetConnection().Timeout);
+                            clientProxy = clientProxy.Clone(connectionTimeout: Router.GetConnection().Timeout);
                         }
 
                         _clientEndpoints = clientProxy.IceReference.getEndpoints();
@@ -233,7 +222,7 @@ namespace IceInternal
             }
         }
 
-        private void addAndEvictProxies(Ice.IObjectPrx proxy, Ice.IObjectPrx[] evictedProxies)
+        private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx[] evictedProxies)
         {
             lock (this)
             {
@@ -274,7 +263,6 @@ namespace IceInternal
             }
         }
 
-        private readonly IRouterPrx _router;
         private Endpoint[]? _clientEndpoints;
         private ObjectAdapter? _adapter;
         private HashSet<Identity> _identities = new HashSet<Identity>();
@@ -282,43 +270,24 @@ namespace IceInternal
         private bool _hasRoutingTable;
     }
 
-    public sealed class RouterManager
+    public sealed partial class Communicator
     {
-        internal RouterManager()
-        {
-            _table = new Dictionary<IRouterPrx, RouterInfo>();
-        }
-
-        internal void destroy()
-        {
-            lock (this)
-            {
-                foreach (RouterInfo i in _table.Values)
-                {
-                    i.destroy();
-                }
-                _table.Clear();
-            }
-        }
-
-        //
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
-        //
-        public RouterInfo get(IRouterPrx rtr)
+        public RouterInfo GetRouterInfo(IRouterPrx rtr)
         {
             //
             // The router cannot be routed.
             //
             IRouterPrx router = rtr.Clone(clearRouter: true);
 
-            lock (this)
+            lock (_routerInfoTable)
             {
                 RouterInfo info;
-                if (!_table.TryGetValue(router, out info))
+                if (!_routerInfoTable.TryGetValue(router, out info))
                 {
                     info = new RouterInfo(router);
-                    _table.Add(router, info);
+                    _routerInfoTable.Add(router, info);
                 }
                 return info;
             }
@@ -328,7 +297,7 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo? erase(IRouterPrx? rtr)
+        public RouterInfo? EraseRouterInfo(IRouterPrx? rtr)
         {
             RouterInfo? info = null;
             if (rtr != null)
@@ -338,18 +307,18 @@ namespace IceInternal
                 //
                 IRouterPrx router = rtr.Clone(clearRouter: true);
 
-                lock (this)
+                lock (_routerInfoTable)
                 {
-                    if (_table.TryGetValue(router, out info))
+                    if (_routerInfoTable.TryGetValue(router, out info))
                     {
-                        _table.Remove(router);
+                        _routerInfoTable.Remove(router);
                     }
                 }
             }
             return info;
         }
 
-        private Dictionary<IRouterPrx, RouterInfo> _table;
+        private Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
     }
 
 }

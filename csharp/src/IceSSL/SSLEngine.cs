@@ -16,7 +16,7 @@ namespace IceSSL
     {
         internal SSLEngine(IceInternal.IProtocolPluginFacade facade)
         {
-            _communicator = facade.getCommunicator();
+            _communicator = facade.Communicator;
             _logger = _communicator.Logger;
             _facade = facade;
             _securityTraceLevel = _communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
@@ -105,7 +105,7 @@ namespace IceSSL
                     throw new InvalidOperationException("IceSSL: certificate verifier already installed");
                 }
 
-                Type cls = _facade.findType(certVerifierClass);
+                Type? cls = _facade.FindType(certVerifierClass);
                 if (cls == null)
                 {
                     throw new InvalidOperationException(
@@ -140,7 +140,7 @@ namespace IceSSL
                     throw new InvalidOperationException("IceSSL: password callback already installed");
                 }
 
-                Type cls = _facade.findType(passwordCallbackClass);
+                Type? cls = _facade.FindType(passwordCallbackClass);
                 if (cls == null)
                 {
                     throw new InvalidOperationException(
@@ -409,7 +409,7 @@ namespace IceSSL
 
         internal Ice.Communicator communicator()
         {
-            return _facade.getCommunicator();
+            return _facade.Communicator;
         }
 
         internal int securityTraceLevel()

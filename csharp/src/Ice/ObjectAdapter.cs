@@ -230,12 +230,12 @@ namespace Ice
                     //
                     // Remove entry from the router manager.
                     //
-                    _communicator.RouterManager().erase(_routerInfo.getRouter());
+                    _communicator.EraseRouterInfo(_routerInfo.Router);
 
                     //
                     // Clear this object adapter with the router.
                     //
-                    _routerInfo.setAdapter(null);
+                    _routerInfo.Adapter = null;
                 }
 
                 UpdateLocatorRegistry(_locatorInfo, null);
@@ -369,9 +369,9 @@ namespace Ice
                 _threadPool.joinWithAllThreads();
             }
 
-            if (_objectAdapterFactory != null)
+            if (_communicator != null)
             {
-                _objectAdapterFactory.removeObjectAdapter(this);
+                _communicator.RemoveObjectAdapter(this);
             }
 
             lock (this)
@@ -392,7 +392,6 @@ namespace Ice
                 _publishedEndpoints = Array.Empty<Endpoint>();
                 _locatorInfo = null;
                 _reference = null;
-                _objectAdapterFactory = null;
 
                 _state = StateDestroyed;
                 System.Threading.Monitor.PulseAll(this);
@@ -926,7 +925,7 @@ namespace Ice
 
                 if (locator != null)
                 {
-                    _locatorInfo = _communicator!.LocatorManager().get(locator);
+                    _locatorInfo = _communicator!.GetLocatorInfo(locator);
                 }
                 else
                 {
@@ -955,7 +954,7 @@ namespace Ice
                 }
                 else
                 {
-                    return _locatorInfo.getLocator();
+                    return _locatorInfo.Locator;
                 }
             }
         }
@@ -1250,12 +1249,9 @@ namespace Ice
         //
         // Only for use by ObjectAdapterFactory
         //
-        internal ObjectAdapter(Communicator communicator,
-                               ObjectAdapterFactory objectAdapterFactory, string name,
-                               IRouterPrx? router, bool noConfig)
+        internal ObjectAdapter(Communicator communicator, string name, IRouterPrx? router, bool noConfig)
         {
             _communicator = communicator;
-            _objectAdapterFactory = objectAdapterFactory;
             _servantManager = new ServantManager(communicator, name);
             _name = name;
             _incomingConnectionFactories = new List<IncomingConnectionFactory>();
@@ -1343,12 +1339,12 @@ namespace Ice
 
                 if (router != null)
                 {
-                    _routerInfo = _communicator.RouterManager().get(router);
+                    _routerInfo = _communicator.GetRouterInfo(router);
 
                     //
                     // Make sure this router is not already registered with another adapter.
                     //
-                    if (_routerInfo.getAdapter() != null)
+                    if (_routerInfo.Adapter != null)
                     {
                         throw new ArgumentException(
                             $"Router `{router.Identity.ToString(_communicator.ToStringMode)}' already registered with an object adater",
@@ -1360,7 +1356,7 @@ namespace Ice
                     // new outgoing connections to the router's client proxy will
                     // use this object adapter for callbacks.
                     //
-                    _routerInfo.setAdapter(this);
+                    _routerInfo.Adapter = this;
 
                     //
                     // Also modify all existing outgoing connections to the
@@ -1537,7 +1533,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                Endpoint? endp = _communicator.EndpointFactoryManager().create(s, oaEndpoints);
+                Endpoint? endp = _communicator.CreateEndpoint(s, oaEndpoints);
                 if (endp == null)
                 {
                     throw new FormatException($"invalid object adapter endpoint `{s}'");
@@ -1560,7 +1556,7 @@ namespace Ice
                 // Get the router's server proxy endpoints and use them as the published endpoints.
                 //
                 endpoints = new List<Endpoint>();
-                foreach (Endpoint endpt in _routerInfo.getServerEndpoints())
+                foreach (Endpoint endpt in _routerInfo.GetServerEndpoints())
                 {
                     if (!endpoints.Contains(endpt))
                     {
@@ -1633,7 +1629,7 @@ namespace Ice
             // Call on the locator registry outside the synchronization to
             // blocking other threads that need to lock this OA.
             //
-            ILocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
+            ILocatorRegistryPrx locatorRegistry = locatorInfo.GetLocatorRegistry();
             if (locatorRegistry == null)
             {
                 return;
@@ -1828,7 +1824,6 @@ namespace Ice
 
         private int _state = StateUninitialized;
         private Communicator? _communicator;
-        private ObjectAdapterFactory? _objectAdapterFactory;
         private ThreadPool? _threadPool;
         private ACMConfig _acm;
         private ServantManager _servantManager;

@@ -10,49 +10,47 @@ namespace IceInternal
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        Ice.Communicator getCommunicator();
+        Ice.Communicator Communicator { get; }
 
         //
         // Register an EndpointFactory.
         //
-        void addEndpointFactory(IEndpointFactory factory);
+        void AddEndpointFactory(IEndpointFactory factory);
 
         //
         // Get an EndpointFactory.
         //
-        IEndpointFactory getEndpointFactory(short type);
+        IEndpointFactory? GetEndpointFactory(short type);
 
         //
         // Obtain the type for a name.
         //
-        System.Type? findType(string name);
+        System.Type? FindType(string name);
     }
 
     public sealed class ProtocolPluginFacade : IProtocolPluginFacade
     {
-        public ProtocolPluginFacade(Ice.Communicator communicator) => _communicator = communicator;
+        public ProtocolPluginFacade(Ice.Communicator communicator) => Communicator = communicator;
 
         //
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        public Ice.Communicator getCommunicator() => _communicator;
+        public Ice.Communicator Communicator { get; private set; }
 
         //
         // Register an EndpointFactory.
         //
-        public void addEndpointFactory(IEndpointFactory factory) => _communicator.EndpointFactoryManager().add(factory);
+        public void AddEndpointFactory(IEndpointFactory factory) => Communicator.AddEndpointFactory(factory);
 
         //
         // Get an EndpointFactory.
         //
-        public IEndpointFactory getEndpointFactory(short type) => _communicator.EndpointFactoryManager().get(type);
+        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.GetEndpointFactory(type);
 
         //
         // Obtain the type for a name.
         //
-        public System.Type? findType(string name) => AssemblyUtil.findType(name);
-
-        private Ice.Communicator _communicator;
+        public System.Type? FindType(string name) => AssemblyUtil.findType(name);
     }
 }

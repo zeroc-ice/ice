@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using Ice;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
-
     public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
     {
         public void
@@ -39,8 +39,8 @@ namespace IceInternal
     {
         public interface CreateConnectionCallback
         {
-            void setConnection(Ice.Connection connection, bool compress);
-            void setException(Ice.LocalException ex);
+            void setConnection(Connection connection, bool compress);
+            void setException(LocalException ex);
         }
 
         public void destroy()
@@ -177,8 +177,8 @@ namespace IceInternal
         public void setRouterInfo(RouterInfo routerInfo)
         {
             Debug.Assert(routerInfo != null);
-            Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-            Endpoint[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
+            Ice.ObjectAdapter? adapter = routerInfo.Adapter;
+            Endpoint[] endpoints = routerInfo.GetClientEndpoints(); // Must be called outside the synchronization
 
             lock (this)
             {
@@ -1099,7 +1099,7 @@ namespace IceInternal
                 {
                     createAcceptor();
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     Debug.Assert(_acceptor != null);
                     _communicator.Logger.error($"acceptor creation failed:\n{ex}\n{_acceptor}");
@@ -1558,7 +1558,7 @@ namespace IceInternal
                     createAcceptor();
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 //
                 // Clean up.
@@ -1569,7 +1569,7 @@ namespace IceInternal
                     {
                         _transceiver.close();
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         // Ignore
                     }
@@ -1714,7 +1714,7 @@ namespace IceInternal
 
                 _acceptorStarted = true;
             }
-            catch (SystemException)
+            catch (System.Exception)
             {
                 if (_acceptor != null)
                 {

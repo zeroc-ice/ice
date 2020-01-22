@@ -780,7 +780,7 @@ namespace IceInternal
                 {
                     IPAddress addr = IPAddress.Parse(host);
                     if ((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                     {
                         addresses.Add(new IPEndPoint(addr, port));
                         return addresses;
