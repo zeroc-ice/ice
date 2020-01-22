@@ -47,6 +47,9 @@
         <Compile Update="generated\RouterF.cs">
           <SliceCompileSource>..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
         </Compile>
+        <Compile Update="generated\.#Identity.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\.#Identity.ice</SliceCompileSource>
+        </Compile>
     </ItemGroup>
     <ItemGroup />
 </Project>

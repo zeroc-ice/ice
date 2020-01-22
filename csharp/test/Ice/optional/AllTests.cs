@@ -323,8 +323,7 @@ namespace Ice.optional
                 Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
                 test(owc2.l != null);
                 test(Collections.Equals(owc1.l, owc2.l));
-                test(owc2.s != null);
-                test(owc2.s.a == 5);
+                test(owc2.s != null && owc2.s.Value.a == 5);
             }
 
             /* TODO: rewrite test without factories
@@ -971,12 +970,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                Test.SmallStruct f = new Test.SmallStruct();
-                f.ice_readMembers(@in);
+                Test.SmallStruct f = new Test.SmallStruct(@in);
                 test(f.m == 56);
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                f.ice_readMembers(@in);
+                f = new Test.SmallStruct(@in);
                 test(f.m == 56);
                 @in.EndEncapsulation();
 
@@ -1017,12 +1015,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                Test.FixedStruct f = new Test.FixedStruct();
-                f.ice_readMembers(@in);
+                Test.FixedStruct f = new Test.FixedStruct(@in);
                 test(f.m == 56);
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                f.ice_readMembers(@in);
+                f = new Test.FixedStruct(@in);
                 test(f.m == 56);
                 @in.EndEncapsulation();
 
@@ -1069,12 +1066,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
                 @in.Skip(4);
-                Test.VarStruct v = new Test.VarStruct();
-                v.ice_readMembers(@in);
+                Test.VarStruct v = new Test.VarStruct(@in);
                 test(v.m.Equals("test"));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
                 @in.Skip(4);
-                v.ice_readMembers(@in);
+                v = new Test.VarStruct(@in);
                 test(v.m.Equals("test"));
                 @in.EndEncapsulation();
 

@@ -99,8 +99,7 @@ namespace IceInternal
             //
             // Read the current.
             //
-            var id = new Ice.Identity();
-            id.ice_readMembers(_is);
+            var id = new Ice.Identity(_is);
 
             //
             // For compatibility with the old FacetPath.

@@ -48,14 +48,6 @@ namespace Ice
                 }
             }
 
-            public partial class SC1
-            {
-                partial void IceInitialize()
-                {
-                    id = "My id";
-                }
-            }
-
             public class AllTests : global::Test.AllTests
             {
                 public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
@@ -316,8 +308,6 @@ namespace Ice
                     // The id should have the value set by ice_initialize and not 2
                     test(s1.id == 1);
 
-                    var sc1 = new SC1();
-                    test(sc1.id.Equals("My id"));
                     output.WriteLine("ok");
 
                     output.Write("testing class containing complex dictionary... ");
