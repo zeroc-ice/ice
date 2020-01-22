@@ -2,24 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 namespace Ice
 {
-    /// <summary>
-    /// SlicedData holds the slices of unknown class or exception types.
-    /// </summary>
-    public class SlicedData
-    {
-        public SlicedData(SliceInfo[] slices)
-        {
-            this.slices = slices;
-        }
-
-        /**
-         * The details of each slice, in order of most-derived to least-derived.
-         **/
-        public SliceInfo[] slices;
-    }
-
     /// <summary>
     /// SliceInfo encapsulates the details of a slice for an unknown class or exception type.
     /// </summary>
@@ -38,12 +25,13 @@ namespace Ice
         /// <summary>
         /// The encoded bytes for this slice, including the leading size integer.
         /// </summary>
-        public byte[] Bytes { get; }
+        // TODO: switch to IReadOnlyList once OutputStream supports it.
+        public ReadOnlyCollection<byte> Bytes { get; }
 
         /// <summary>
         /// The class instances referenced by this slice.
         /// </summary>
-        public AnyClass[] Instances { get; internal set; }
+        public IReadOnlyList<AnyClass> Instances { get; internal set; }
 
         /// <summary>
         /// Whether or not the slice contains optional members.
@@ -55,8 +43,8 @@ namespace Ice
         /// </summary>
         public bool IsLastSlice { get; }
 
-        public SliceInfo(string? typeId, int? compactId, byte[] bytes, AnyClass[] instances,
-                         bool hasOptionalMembers, bool isLastSlice)
+        public SliceInfo(string? typeId, int? compactId, ReadOnlyCollection<byte> bytes,
+                         IReadOnlyList<AnyClass> instances, bool hasOptionalMembers, bool isLastSlice)
         {
             TypeId = typeId;
             CompactId = compactId;

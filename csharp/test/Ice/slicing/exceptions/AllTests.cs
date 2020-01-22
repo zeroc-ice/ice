@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Test;
 using Ice;
 public class AllTests : Test.AllTests
@@ -742,11 +743,11 @@ public class AllTests : Test.AllTests
             }
             catch (Base ex)
             {
-                Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                IReadOnlyList<Ice.SliceInfo>? slicedData = ex.GetSlicedData();
                 test(slicedData != null);
-                test(slicedData.slices.Length == 2);
-                test(slicedData.slices[1].TypeId.Equals("::Test::SPreserved1"));
-                test(slicedData.slices[0].TypeId.Equals("::Test::SPreserved2"));
+                test(slicedData.Count == 2);
+                test(slicedData[1].TypeId.Equals("::Test::SPreserved1"));
+                test(slicedData[0].TypeId.Equals("::Test::SPreserved2"));
             }
 
             try
@@ -757,11 +758,11 @@ public class AllTests : Test.AllTests
             catch (KnownPreserved ex)
             {
                 test(ex.kp.Equals("preserved"));
-                Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                IReadOnlyList<Ice.SliceInfo>? slicedData = ex.GetSlicedData();
                 test(slicedData != null);
-                test(slicedData.slices.Length == 2);
-                test(slicedData.slices[1].TypeId.Equals("::Test::SPreserved1"));
-                test(slicedData.slices[0].TypeId.Equals("::Test::SPreserved2"));
+                test(slicedData.Count == 2);
+                test(slicedData[1].TypeId.Equals("::Test::SPreserved1"));
+                test(slicedData[0].TypeId.Equals("::Test::SPreserved2"));
             }
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("");

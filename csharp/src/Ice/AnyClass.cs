@@ -3,7 +3,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Ice
 {
@@ -15,12 +17,12 @@ namespace Ice
         /// </summary>
         public abstract string ice_id();
 
-        /// <summary>
-        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        /// un-marshaling of the value, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public virtual SlicedData? ice_getSlicedData() => null;
+        protected virtual IReadOnlyList<SliceInfo>? IceSlicedData
+        {
+            get => null;
+            set => Debug.Assert(false);
+        }
+        internal IReadOnlyList<SliceInfo>? SlicedData => IceSlicedData;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
@@ -48,6 +50,20 @@ namespace Ice
         public object Clone()
         {
             return MemberwiseClone();
+        }
+    }
+
+    public static class AnyClassExtensions
+    {
+        /// <summary>
+        /// During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
+        /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive and the
+        /// class UnknownSlicedClass.
+        /// </summary>
+        /// <returns>The list of preserved sliced-off slices.</returns>
+        public static IReadOnlyList<SliceInfo>? GetSlicedData(this AnyClass obj)
+        {
+            return obj.SlicedData;
         }
     }
 }

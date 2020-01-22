@@ -386,7 +386,7 @@ namespace Ice
                     ReadIndirectionTableIntoCurrent();
                 }
 
-                // We can discard all the unknown slices: the generated code calls IceStarSliceAndGetUnknownSlices to
+                // We can discard all the unknown slices: the generated code calls IceStartSliceAndGetSlicedData to
                 // preserve them and it just called IceStartSlice instead.
                 _current.Slices = null;
             }
@@ -399,12 +399,12 @@ namespace Ice
         }
 
         /// <summary>
-        /// Start reading the first slice of an instance and adopt the unknown slices for this instances that were
+        /// Start reading the first slice of an instance and get the unknown slices for this instances that were
         /// previously saved (if any).
         /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
         /// <param name="typeId">The expected typeId of this slice.</param>
-        public SlicedData? IceStarSliceAndGetUnknownSlices(string typeId)
+        public IReadOnlyList<SliceInfo>? IceStartSliceAndGetSlicedData(string typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             // Called by generated code for first slice instead of IceStartSlice
@@ -414,20 +414,10 @@ namespace Ice
                     // For exceptions, we read it for the first slice in ThrowException.
                     ReadIndirectionTableIntoCurrent();
             }
-            return GetUnknownSlices();
+            return SlicedData;
         }
 
-        internal SlicedData? GetUnknownSlices()
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
-            SlicedData? slicedData = null;
-            if (_current.Slices?.Count > 0)
-            {
-                slicedData = new SlicedData(_current.Slices.ToArray());
-                _current.Slices = null;
-            }
-            return slicedData;
-        }
+        internal IReadOnlyList<SliceInfo>? SlicedData => _current!.Slices;
 
         /// <summary>
         /// Tells the InputStream the end of a class or exception slice was reached.
@@ -2331,8 +2321,8 @@ namespace Ice
             _current.Slices ??= new List<SliceInfo>();
             var info = new SliceInfo(_current.SliceTypeId,
                                      _current.SliceCompactId,
-                                     bytes,
-                                     _current.IndirectionTable ?? Array.Empty<AnyClass>(),
+                                     Array.AsReadOnly(bytes),
+                                     Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
                                      hasOptionalMembers,
                                      (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
             _current.Slices.Add(info);
@@ -2529,7 +2519,7 @@ namespace Ice
                     if (pos > 0)
                     {
                         Pos = pos;
-                        _current.Slices[i].Instances = ReadIndirectionTable();
+                        _current.Slices[i].Instances = Array.AsReadOnly(ReadIndirectionTable());
                     }
                     // else remains empty
                 }
