@@ -8,12 +8,12 @@
 // scheduling and cancelling timers.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
 namespace IceInternal
 {
-    using System.Diagnostics;
-    using System.Threading;
-    using System.Collections.Generic;
-
     public interface ITimerTask
     {
         void RunTimerTask();

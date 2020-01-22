@@ -11,10 +11,10 @@ internal class Plugin : Ice.IPlugin
         IceInternal.IProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
         for (short s = 0; s < 100; ++s)
         {
-            IceInternal.IEndpointFactory factory = facade.getEndpointFactory(s);
+            IceInternal.IEndpointFactory? factory = facade.GetEndpointFactory(s);
             if (factory != null)
             {
-                facade.addEndpointFactory(new EndpointFactory(factory));
+                facade.AddEndpointFactory(new EndpointFactory(factory));
             }
         }
     }

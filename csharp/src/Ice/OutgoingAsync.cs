@@ -422,7 +422,7 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                communicator_.RetryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+                communicator_.AddRetryTask(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
@@ -455,7 +455,7 @@ namespace IceInternal
                 // connection to be done.
                 //
                 proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
-                communicator_.RetryQueue().add(this, 0);
+                communicator_.AddRetryTask(this, 0);
             }
             catch (Ice.Exception ex)
             {
@@ -559,7 +559,7 @@ namespace IceInternal
                         int interval = proxy_.IceHandleException(ex, handler_, mode_, _sent, ref _cnt);
                         if (interval > 0)
                         {
-                            communicator_.RetryQueue().add(this, interval);
+                            communicator_.AddRetryTask(this, interval);
                             return;
                         }
                         else if (observer_ != null)

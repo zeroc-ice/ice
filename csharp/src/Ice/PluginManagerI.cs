@@ -30,9 +30,9 @@ namespace Ice
     {
         public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
         {
-            if (!_factories.ContainsKey(name))
+            if (!_pluginFactories.ContainsKey(name))
             {
-                _factories[name] = factory;
+                _pluginFactories[name] = factory;
                 if (loadOnInit)
                 {
                     _loadOnInitialization.Add(name);
@@ -42,7 +42,7 @@ namespace Ice
 
         public void InitializePlugins()
         {
-            if (_initialized)
+            if (_pluginsInitialized)
             {
                 InitializationException ex = new InitializationException();
                 ex.reason = "plug-ins already initialized";
@@ -82,7 +82,7 @@ namespace Ice
                 throw;
             }
 
-            _initialized = true;
+            _pluginsInitialized = true;
         }
 
         public string[] GetPlugins()
@@ -321,7 +321,7 @@ namespace Ice
             // property value.
             //
             IPluginFactory? pluginFactory;
-            if (!_factories.TryGetValue(name, out pluginFactory))
+            if (!_pluginFactories.TryGetValue(name, out pluginFactory))
             {
                 //
                 // Extract the assembly name and the class name.
@@ -421,9 +421,9 @@ namespace Ice
         }
 
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
-        private bool _initialized;
+        private bool _pluginsInitialized;
 
-        private static Dictionary<string, IPluginFactory> _factories = new Dictionary<string, IPluginFactory>();
+        private static Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
         private static List<string> _loadOnInitialization = new List<string>();
     }
 }
