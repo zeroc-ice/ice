@@ -249,7 +249,7 @@ namespace Ice
             _background = background;
         }
 
-        public void Destroy()
+        internal void Destroy()
         {
             lock (this)
             {
@@ -271,9 +271,9 @@ namespace Ice
         public override int GetHashCode() => Locator.GetHashCode();
 
         // No synchronization necessary, _locator is immutable.
-        public ILocatorPrx Locator { get; set; }
+        internal ILocatorPrx Locator { get; }
 
-        public ILocatorRegistryPrx? GetLocatorRegistry()
+        internal ILocatorRegistryPrx? GetLocatorRegistry()
         {
             lock (this)
             {
@@ -304,10 +304,10 @@ namespace Ice
             }
         }
 
-        public void GetEndpoints(Reference reference, int ttl, IGetEndpointsCallback callback) =>
+        internal void GetEndpoints(Reference reference, int ttl, IGetEndpointsCallback callback) =>
             GetEndpoints(reference, null, ttl, callback);
 
-        public void
+        internal void
         GetEndpoints(Reference reference, Reference? wellKnownRef, int ttl, IGetEndpointsCallback? callback)
         {
             Debug.Assert(reference.isIndirect());
@@ -372,7 +372,7 @@ namespace Ice
             }
         }
 
-        public void ClearCache(Reference rf)
+        internal void ClearCache(Reference rf)
         {
             Debug.Assert(rf.isIndirect());
             if (!rf.isWellKnown())
@@ -468,11 +468,7 @@ namespace Ice
                     communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
                 }
 
-                throw new NotRegisteredException(ex)
-                {
-                    kindOfObject = "object adapter",
-                    id = reference.getAdapterId()
-                };
+                throw new NotRegisteredException("object adapter", reference.getAdapterId(), ex);
             }
             catch (ObjectNotFoundException ex)
             {
@@ -485,11 +481,8 @@ namespace Ice
                     communicator.Logger.trace(communicator.TraceLevels.locationCat, s.ToString());
                 }
 
-                throw new NotRegisteredException(ex)
-                {
-                    kindOfObject = "object",
-                    id = reference.getIdentity().ToString(communicator.ToStringMode)
-                };
+                throw new NotRegisteredException("object",
+                    reference.getIdentity().ToString(communicator.ToStringMode), ex);
             }
             catch (NotRegisteredException)
             {
