@@ -34,19 +34,13 @@ namespace Ice
         /// The communicator associated with this stream.
         /// </summary>
         /// <value>The communicator.</value>
-        public Communicator Communicator
-        {
-            get; private set;
-        }
+        public Communicator Communicator { get; }
 
         /// <summary>
         /// The encoding used when reading from this stream.
         /// </summary>
         /// <value>The encoding.</value>
-        public EncodingVersion Encoding
-        {
-            get; private set;
-        }
+        public EncodingVersion Encoding { get; private set; }
 
         // The position (offset) in the underlying buffer.
         internal int Pos
@@ -57,6 +51,9 @@ namespace Ice
 
         // True if the internal buffer has no data, false otherwise.
         internal bool IsEmpty => _buf.empty();
+
+        // Returns the sliced data held by the current instance.
+        internal IReadOnlyList<SliceInfo>? SlicedData => _current!.Slices;
 
         // Number of bytes remaining in the underlying buffer.
         private int Remaining => _limit - Pos ?? _buf.b.remaining();
@@ -125,19 +122,6 @@ namespace Ice
         {
         }
 
-        internal InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
-            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
-        {
-        }
-
-        // Helper constructor used by the constructors above.
-        private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
-        {
-            Encoding = encoding ?? communicator.DefaultsAndOverrides.defaultEncoding;
-            Communicator = communicator;
-            _buf = buf;
-        }
-
         /// <summary>
         /// Resets this stream. This method allows the stream to be reused, to avoid creating
         /// unnecessary garbage.
@@ -158,60 +142,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Swaps the contents of one stream with another.
-        /// </summary>
-        /// <param name="other">The other stream.</param>
-        public void Swap(InputStream other)
-        {
-            Debug.Assert(Communicator == other.Communicator);
-
-            IceInternal.Buffer tmpBuf = other._buf;
-            other._buf = _buf;
-            _buf = tmpBuf;
-
-            EncodingVersion tmpEncoding = other.Encoding;
-            other.Encoding = Encoding;
-            Encoding = tmpEncoding;
-
-            // Swap is never called for InputStreams that have encapsulations being read. However,
-            // encapsulations might still be set in case un-marshalling failed. We just
-            // reset the encapsulations if there are still some set.
-            ResetEncapsulation();
-            other.ResetEncapsulation();
-
-            int tmpMinTotalSeqSize = other._minTotalSeqSize;
-            other._minTotalSeqSize = _minTotalSeqSize;
-            _minTotalSeqSize = tmpMinTotalSeqSize;
-        }
-
-        private void ResetEncapsulation()
-        {
-            _mainEncaps = null;
-            _endpointEncaps = null;
-            _instanceMap?.Clear();
-            _classGraphDepth = 0;
-            _typeIdMap?.Clear();
-            _posAfterLatestInsertedTypeId = 0;
-            _current = null;
-            _limit = null;
-        }
-
-        /// <summary>
-        /// Resizes the stream to a new size.
-        /// </summary>
-        /// <param name="sz">The new size.</param>
-        internal void Resize(int sz)
-        {
-            _buf.resize(sz, true);
-            _buf.b.position(sz);
-        }
-
-        internal IceInternal.Buffer GetBuffer()
-        {
-            return _buf;
-        }
-
-        /// <summary>
         /// Reads the start of an encapsulation.
         /// </summary>
         /// <returns>The encapsulation encoding version.</returns>
@@ -226,38 +156,6 @@ namespace Ice
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
-        }
-
-        // for endpoints
-        internal EncodingVersion StartEndpointEncapsulation()
-        {
-            Debug.Assert(_endpointEncaps == null);
-            var encapsHeader = ReadEncapsulationHeader();
-            _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            // TODO: is this check necessary / correct?
-            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
-            Encoding = encapsHeader.Encoding;
-            _limit = Pos + encapsHeader.Size - 6;
-            return encapsHeader.Encoding;
-        }
-
-        private (EncodingVersion Encoding, int Size) ReadEncapsulationHeader()
-        {
-            // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
-            // for ease of marshaling.
-            int sz = ReadInt();
-            if (sz < 6)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            if (sz - 4 > Remaining)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            var encoding = new EncodingVersion(major, minor);
-            return (encoding, sz);
         }
 
         /// <summary>
@@ -275,21 +173,6 @@ namespace Ice
             _limit = _mainEncaps.Value.OldLimit;
             Encoding = _mainEncaps.Value.OldEncoding;
             ResetEncapsulation();
-        }
-
-        // for endpoints
-        internal void EndEndpointEncapsulation()
-        {
-            Debug.Assert(_endpointEncaps != null);
-
-            if (Remaining != 0)
-            {
-                throw new EncapsulationException();
-            }
-
-            _limit = _endpointEncaps.Value.OldLimit;
-            Encoding = _endpointEncaps.Value.OldEncoding;
-            _endpointEncaps = null;
         }
 
         /// <summary>
@@ -416,8 +299,6 @@ namespace Ice
             }
             return SlicedData;
         }
-
-        internal IReadOnlyList<SliceInfo>? SlicedData => _current!.Slices;
 
         /// <summary>
         /// Tells the InputStream the end of a class or exception slice was reached.
@@ -990,7 +871,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                skipSize();
+                SkipSize();
                 return ReadShortSeq();
             }
             else
@@ -1137,7 +1018,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                skipSize();
+                SkipSize();
                 return ReadIntSeq();
             }
             else
@@ -1284,7 +1165,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                skipSize();
+                SkipSize();
                 return ReadLongSeq();
             }
             else
@@ -1431,7 +1312,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                skipSize();
+                SkipSize();
                 return ReadFloatSeq();
             }
             else
@@ -1578,7 +1459,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                skipSize();
+                SkipSize();
                 return ReadDoubleSeq();
             }
             else
@@ -1746,7 +1627,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.FSize))
             {
-                skip(4);
+                Skip(4);
                 return ReadStringSeq();
             }
             else
@@ -1783,7 +1664,7 @@ namespace Ice
         {
             if (ReadOptional(tag, OptionalFormat.FSize))
             {
-                skip(4);
+                Skip(4);
                 return ReadProxy(factory);
             }
             else
@@ -1866,27 +1747,10 @@ namespace Ice
         }
 
         /// <summary>
-        /// Read a tagged parameter or data member of type class.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the class parameter or data member.</param>
-        /// <returns>The class instance, or null.</returns>
-        private AnyClass? ReadAnyClass(int tag)
-        {
-            if (ReadOptional(tag, OptionalFormat.Class))
-            {
-                return ReadAnyClass();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Extracts a user exception from the stream and throws it.
         /// </summary>
         /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
-        public void ThrowException(UserExceptionFactory? factory = null)
+        public void ThrowException()
         {
             Push(InstanceType.Exception);
             Debug.Assert(_current != null);
@@ -1900,30 +1764,17 @@ namespace Ice
             {
                 UserException? userEx = null;
 
-                // Use a factory if one was provided.
                 try
                 {
-                    factory?.Invoke(typeId);
-                }
-                catch (UserException ex)
-                {
-                    userEx = ex;
-                }
-
-                if (userEx == null)
-                {
-                    try
+                    Type? type = Communicator.ResolveClass(typeId);
+                    if (type != null)
                     {
-                        Type? type = Communicator.ResolveClass(typeId);
-                        if (type != null)
-                        {
-                            userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
-                        }
+                        userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
                     }
-                    catch (Exception ex)
-                    {
-                        throw new MarshalException(ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new MarshalException(ex);
                 }
 
                 // We found the exception.
@@ -1959,7 +1810,7 @@ namespace Ice
         /// Skip the given number of bytes.
         /// </summary>
         /// <param name="size">The number of bytes to skip</param>
-        public void skip(int size)
+        public void Skip(int size)
         {
             if (size < 0 || size > Remaining)
             {
@@ -1971,13 +1822,118 @@ namespace Ice
         /// <summary>
         /// Skip over a size value.
         /// </summary>
-        public void skipSize()
+        public void SkipSize()
         {
             byte b = ReadByte();
             if (b == 255)
             {
-                skip(4);
+                Skip(4);
             }
+        }
+        internal InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
+        {
+        }
+
+        internal EncodingVersion StartEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps == null);
+            var encapsHeader = ReadEncapsulationHeader();
+            _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
+            // TODO: is this check necessary / correct?
+            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
+            Encoding = encapsHeader.Encoding;
+            _limit = Pos + encapsHeader.Size - 6;
+            return encapsHeader.Encoding;
+        }
+
+        internal void EndEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps != null);
+
+            if (Remaining != 0)
+            {
+                throw new EncapsulationException();
+            }
+
+            _limit = _endpointEncaps.Value.OldLimit;
+            Encoding = _endpointEncaps.Value.OldEncoding;
+            _endpointEncaps = null;
+        }
+
+       // Swaps the contents of one stream with another.
+        internal void Swap(InputStream other)
+        {
+            Debug.Assert(Communicator == other.Communicator);
+
+            IceInternal.Buffer tmpBuf = other._buf;
+            other._buf = _buf;
+            _buf = tmpBuf;
+
+            EncodingVersion tmpEncoding = other.Encoding;
+            other.Encoding = Encoding;
+            Encoding = tmpEncoding;
+
+            // Swap is never called for InputStreams that have encapsulations being read. However,
+            // encapsulations might still be set in case un-marshalling failed. We just
+            // reset the encapsulations if there are still some set.
+            ResetEncapsulation();
+            other.ResetEncapsulation();
+
+            int tmpMinTotalSeqSize = other._minTotalSeqSize;
+            other._minTotalSeqSize = _minTotalSeqSize;
+            _minTotalSeqSize = tmpMinTotalSeqSize;
+        }
+
+        // Resizes the stream to a new size.
+        internal void Resize(int sz)
+        {
+            _buf.resize(sz, true);
+            _buf.b.position(sz);
+        }
+
+        internal IceInternal.Buffer GetBuffer()
+        {
+            return _buf;
+        }
+
+        // Helper constructor used by the other constructors.
+        private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
+        {
+            Encoding = encoding ?? communicator.DefaultsAndOverrides.defaultEncoding;
+            Communicator = communicator;
+            _buf = buf;
+        }
+
+        private void ResetEncapsulation()
+        {
+            _mainEncaps = null;
+            _endpointEncaps = null;
+            _instanceMap?.Clear();
+            _classGraphDepth = 0;
+            _typeIdMap?.Clear();
+            _posAfterLatestInsertedTypeId = 0;
+            _current = null;
+            _limit = null;
+        }
+
+        private (EncodingVersion Encoding, int Size) ReadEncapsulationHeader()
+        {
+            // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
+            // for ease of marshaling.
+            int sz = ReadInt();
+            if (sz < 6)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+            if (sz - 4 > Remaining)
+            {
+                throw new UnmarshalOutOfBoundsException();
+            }
+            byte major = ReadByte();
+            byte minor = ReadByte();
+            var encoding = new EncodingVersion(major, minor);
+            return (encoding, sz);
         }
 
         private void SkipTagged(OptionalFormat format)
@@ -1986,37 +1942,37 @@ namespace Ice
             {
                 case OptionalFormat.F1:
                     {
-                        skip(1);
+                        Skip(1);
                         break;
                     }
                 case OptionalFormat.F2:
                     {
-                        skip(2);
+                        Skip(2);
                         break;
                     }
                 case OptionalFormat.F4:
                     {
-                        skip(4);
+                        Skip(4);
                         break;
                     }
                 case OptionalFormat.F8:
                     {
-                        skip(8);
+                        Skip(8);
                         break;
                     }
                 case OptionalFormat.Size:
                     {
-                        skipSize();
+                        SkipSize();
                         break;
                     }
                 case OptionalFormat.VSize:
                     {
-                        skip(ReadSize());
+                        Skip(ReadSize());
                         break;
                     }
                 case OptionalFormat.FSize:
                     {
-                        skip(ReadInt());
+                        Skip(ReadInt());
                         break;
                     }
                 case OptionalFormat.Class:
@@ -2046,7 +2002,7 @@ namespace Ice
                 OptionalFormat format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
                 if ((v >> 3) == 30)
                 {
-                    skipSize();
+                    SkipSize();
                 }
                 SkipTagged(format);
             }
@@ -2152,6 +2108,19 @@ namespace Ice
             else
             {
                 return ReadInstance(index);
+            }
+        }
+
+        // Read a tagged parameter or data member of type class.
+        private AnyClass? ReadAnyClass(int tag)
+        {
+            if (ReadOptional(tag, OptionalFormat.Class))
+            {
+                return ReadAnyClass();
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -2262,7 +2231,7 @@ namespace Ice
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 Debug.Assert(_current.SliceSize >= 4);
-                skip(_current.SliceSize - 4);
+                Skip(_current.SliceSize - 4);
             }
             else
             {
@@ -2482,7 +2451,7 @@ namespace Ice
                 }
 
                 // Slice off what we don't understand, and save the indirection table (if any) in
-                // defererredIndirectionTableList.
+                // deferredIndirectionTableList.
                 deferredIndirectionTableList ??= new List<int>();
                 deferredIndirectionTableList.Add(SkipSlice());
 
@@ -2536,12 +2505,12 @@ namespace Ice
 
         // Create a new current instance of the specified slice type
         // and return the previous current instance, if any.
-        private InstanceData? Push(InstanceType sliceType)
+        private InstanceData? Push(InstanceType instanceType)
         {
             // Can't have a current instance already if we are reading an exception
-            Debug.Assert(sliceType == InstanceType.Class || _current == null);
+            Debug.Assert(instanceType == InstanceType.Class || _current == null);
             var oldInstance = _current;
-            _current = new InstanceData(sliceType);
+            _current = new InstanceData(instanceType);
             return oldInstance;
         }
 
@@ -2556,9 +2525,9 @@ namespace Ice
 
         private sealed class InstanceData
         {
-            internal InstanceData(InstanceType sliceType)
+            internal InstanceData(InstanceType instanceType)
             {
-                InstanceType = sliceType;
+                InstanceType = instanceType;
             }
 
             // Instance attributes

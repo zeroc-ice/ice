@@ -970,12 +970,12 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 Test.SmallStruct f = new Test.SmallStruct();
                 f.ice_readMembers(@in);
                 test(f.m == 56);
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 f.ice_readMembers(@in);
                 test(f.m == 56);
                 @in.EndEncapsulation();
@@ -1016,12 +1016,12 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 Test.FixedStruct f = new Test.FixedStruct();
                 f.ice_readMembers(@in);
                 test(f.m == 56);
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 f.ice_readMembers(@in);
                 test(f.m == 56);
                 @in.EndEncapsulation();
@@ -1068,12 +1068,12 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 Test.VarStruct v = new Test.VarStruct();
                 v.ice_readMembers(@in);
                 test(v.m.Equals("test"));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 v.ice_readMembers(@in);
                 test(v.m.Equals("test"));
                 @in.EndEncapsulation();
@@ -1275,10 +1275,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadShortSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadShortSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1318,10 +1318,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadIntSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadIntSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1361,10 +1361,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadLongSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadLongSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1404,10 +1404,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadFloatSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadFloatSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1447,10 +1447,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadDoubleSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 test(Collections.Equals(@in.ReadDoubleSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1491,10 +1491,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 test(Collections.Equals(@in.ReadStringSeq(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 test(Collections.Equals(@in.ReadStringSeq(), p1));
                 @in.EndEncapsulation();
 
@@ -1534,11 +1534,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 Test.SmallStruct[] arr = Test.SmallStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 arr = Test.SmallStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
@@ -1583,11 +1583,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 List<Test.SmallStruct> arr = Test.SmallStructListHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 arr = Test.SmallStructListHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
@@ -1628,11 +1628,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 Test.FixedStruct[] arr = Test.FixedStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 arr = Test.FixedStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
@@ -1677,11 +1677,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 arr = Test.FixedStructListHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
@@ -1723,11 +1723,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 Test.VarStruct[] arr = Test.VarStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 arr = Test.VarStructSeqHelper.Read(@in);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
@@ -1813,11 +1813,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 Dictionary<int, int> m = Test.IntIntDictHelper.Read(@in);
                 test(Collections.Equals(m, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.skipSize();
+                @in.SkipSize();
                 m = Test.IntIntDictHelper.Read(@in);
                 test(Collections.Equals(m, p1));
                 @in.EndEncapsulation();
@@ -1861,11 +1861,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 Dictionary<string, int> m = Test.StringIntDictHelper.Read(@in);
                 test(Collections.Equals(m, p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 m = Test.StringIntDictHelper.Read(@in);
                 test(Collections.Equals(m, p1));
                 @in.EndEncapsulation();
@@ -1930,11 +1930,11 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.Read(@in);
                 test(m[1].a == 58);
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.skip(4);
+                @in.Skip(4);
                 m = Test.IntOneOptionalDictHelper.Read(@in);
                 test(m[1].a == 58);
                 @in.EndEncapsulation();
