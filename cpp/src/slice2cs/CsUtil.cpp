@@ -990,19 +990,8 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     {
         out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
-        if(st->isVariableLength())
-        {
-            out << nl << stream << ".Skip(4);";
-        }
-        else
-        {
-            out << nl << stream << ".SkipSize();";
-        }
-
-        out << nl << typeToString(type, scope) << " tmpVal = default;";
-
-        writeUnmarshalCode(out, type, scope, "tmpVal", stream);
-        out << nl << param << " = tmpVal;";
+        out << nl << stream << (st->isVariableLength() ? ".Skip(4);" : ".SkipSize();");
+        out << nl << param << " = new " << typeToString(type, scope) << "(" << stream << ");";
         out << eb;
     }
     else if(en)
@@ -1010,13 +999,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
             << ".Size))";
         out << sb;
-        out << nl << typeToString(type, scope) << " tmpVal;";
-        writeUnmarshalCode(out, type, scope, "tmpVal", stream);
-        out << nl << param << " = tmpVal;";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << param << " = null;";
+        writeUnmarshalCode(out, type, scope, param, stream);
         out << eb;
     }
     else if(seq)
@@ -1040,15 +1023,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         {
             out << nl << stream << ".SkipSize();";
         }
-        string typeS = typeToString(type, scope);
-        string tmp = "tmpVal";
-        out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
-        writeUnmarshalCode(out, type, scope, tmp, stream);
-        out << nl << param << " = " << tmp << ";";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << param << " = null;";
+        writeUnmarshalCode(out, type, scope, param, stream);
         out << eb;
     }
 }
