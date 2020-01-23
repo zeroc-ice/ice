@@ -10,7 +10,7 @@ namespace Ice.objects
         {
             var communicator = current.Adapter.Communicator;
             var ostr = new OutputStream(communicator);
-            ostr.StartEncapsulation(current.Encoding, FormatType.DefaultFormat);
+            ostr.StartEncapsulation(current.Encoding);
             var ae = new Test.AlsoEmpty();
             ostr.WriteClass(ae);
             ostr.EndEncapsulation();

@@ -113,7 +113,7 @@ namespace Ice
             iceCheckAsyncTwowayOnly("ice_isA");
             getOutgoingAsync<bool>(completed).invoke("ice_isA",
                                                      OperationMode.Nonmutating,
-                                                     FormatType.DefaultFormat,
+                                                     null,
                                                      context,
                                                      synchronous,
                                                      (OutputStream os) => { os.WriteString(id); },
@@ -163,7 +163,7 @@ namespace Ice
         {
             getOutgoingAsync<object>(completed).invoke("ice_ping",
                                                        OperationMode.Nonmutating,
-                                                       FormatType.DefaultFormat,
+                                                       null,
                                                        context,
                                                        synchronous);
         }
@@ -217,7 +217,7 @@ namespace Ice
             iceCheckAsyncTwowayOnly("ice_ids");
             getOutgoingAsync<string[]>(completed).invoke("ice_ids",
                                                          OperationMode.Nonmutating,
-                                                         FormatType.DefaultFormat,
+                                                         null,
                                                          context,
                                                          synchronous,
                                                          read: (InputStream iss) => { return iss.ReadStringSeq(); });
@@ -268,7 +268,7 @@ namespace Ice
         {
             getOutgoingAsync<string>(completed).invoke("ice_id",
                                                        OperationMode.Nonmutating,
-                                                       FormatType.DefaultFormat,
+                                                       null,
                                                        context,
                                                        synchronous,
                                                        read: (InputStream iss) => { return iss.ReadString(); });

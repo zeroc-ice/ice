@@ -924,7 +924,7 @@ namespace IceInternal
 
         public void invoke(string operation,
                            Ice.OperationMode mode,
-                           Ice.FormatType format,
+                           Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
@@ -1012,7 +1012,7 @@ namespace IceInternal
 
         public void invoke(string operation,
                            Ice.OperationMode mode,
-                           Ice.FormatType format,
+                           Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,

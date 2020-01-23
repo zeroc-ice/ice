@@ -65,7 +65,7 @@ opFormatTypeToString(const OperationPtr& op, string ns)
     {
         case DefaultFormat:
         {
-            return getUnqualified("Ice.FormatType.DefaultFormat", ns);
+            return "null";
         }
         case CompactFormat:
         {

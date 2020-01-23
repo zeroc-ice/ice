@@ -929,7 +929,7 @@ namespace IceInternal
         private Ice.ObjectAdapter _adapter;
         private Ice.Connection? _connection;
         private int _requestId;
-        private Ice.FormatType _format = Ice.FormatType.DefaultFormat;
+        private Ice.FormatType? _format;
 
         private Ice.OutputStream? _os;
         private Ice.InputStream? _is;

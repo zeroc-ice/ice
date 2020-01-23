@@ -192,7 +192,7 @@ namespace Ice
         /// </summary>
         public void StartEncapsulation()
         {
-            StartEncapsulation(Encoding, FormatType.DefaultFormat);
+            StartEncapsulation(Encoding);
         }
 
         internal void StartEndpointEncapsulation()
@@ -204,8 +204,9 @@ namespace Ice
         /// Writes the start of an encapsulation to the stream.
         /// </summary>
         /// <param name="encoding">The encoding version of the encapsulation.</param>
-        /// <param name="format">Specify the compact or sliced format.</param>
-        public void StartEncapsulation(EncodingVersion encoding, FormatType format)
+        /// <param name="format">Specify the compact or sliced format; when null, uses the communicator's default
+        /// format.</param>
+        public void StartEncapsulation(EncodingVersion encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
@@ -213,7 +214,10 @@ namespace Ice
             _mainEncaps = new Encaps(Encoding, _format, _buf.b.position());
 
             Encoding = encoding;
-            _format = format;
+            if (format.HasValue)
+            {
+                _format = format.Value;
+            }
 
             WriteInt(0); // Placeholder for the encapsulation length.
             WriteByte(Encoding.major);
@@ -261,7 +265,7 @@ namespace Ice
             _buf.b.putInt(start, sz);
 
             Encoding = _endpointEncaps.Value.OldEncoding;
-            // No need to restore format
+            // No need to restore format since it didn't change.
             _endpointEncaps = null;
         }
 
@@ -1699,7 +1703,7 @@ namespace Ice
             _current.SliceFlags = 0;
 
             if (_format == FormatType.SlicedFormat)
-           {
+            {
                 //
                 // Encode the slice size if using the sliced format.
                 //
@@ -1715,10 +1719,10 @@ namespace Ice
             //
             if (_current.InstanceType == InstanceType.Class)
             {
-                //
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
-                //
+                // This  also shows that the firtSlice is currently useful/used only for class instances in
+                // compact format.
                 if (_format == FormatType.SlicedFormat || firstSlice)
                 {
                     if (compactId.HasValue)
