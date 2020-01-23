@@ -172,8 +172,7 @@ namespace IceInternal
             {
                 Ice.ToStringMode toStringMode = str.Communicator.ToStringMode;
 
-                Ice.Identity identity = new Ice.Identity();
-                identity.ice_readMembers(str);
+                Ice.Identity identity = new Ice.Identity(str);
                 s.Write("\nidentity = " + identity.ToString(toStringMode));
 
                 string[] facet = str.ReadStringSeq();

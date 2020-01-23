@@ -221,13 +221,9 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 callbackReceiverImpl = new CallbackReceiver();
                 callbackReceiver = callbackReceiverImpl;
-                Ice.Identity callbackReceiverIdent = new Ice.Identity();
-                callbackReceiverIdent.Name = "callbackReceiver";
-                callbackReceiverIdent.Category = category;
+                Identity callbackReceiverIdent = new Identity("callbackReceiver", category);
                 twowayR = adapter.Add(callbackReceiver, callbackReceiverIdent);
-                Ice.Identity fakeCallbackReceiverIdent = new Ice.Identity();
-                fakeCallbackReceiverIdent.Name = "callbackReceiver";
-                fakeCallbackReceiverIdent.Category = "dummy";
+                Identity fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
                 fakeTwowayR = adapter.Add(callbackReceiver, fakeCallbackReceiverIdent);
                 Console.Out.WriteLine("ok");
             }

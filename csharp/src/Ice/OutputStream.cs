@@ -1467,8 +1467,7 @@ namespace Ice
             }
             else
             {
-                Identity ident = new Identity();
-                ident.ice_writeMembers(this);
+                new Identity().IceWrite(this);
             }
         }
 

@@ -64,7 +64,6 @@ bool isCollectionType(const TypePtr&);
 bool isProxyType(const TypePtr&);
 bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
-bool isImmutableType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
 
 std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");

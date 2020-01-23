@@ -29,6 +29,7 @@ module Ice
  * @see ObjectAdapter#addServantLocator
  *
  **/
+["cs:readonly"]
 struct Identity
 {
     /**

@@ -6,7 +6,7 @@ using System;
 
 namespace Ice
 {
-    public partial struct Identity
+    public readonly partial struct Identity
     {
         public static Identity Parse(string s)
         {

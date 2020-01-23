@@ -348,8 +348,7 @@ namespace IceInternal
                 List<IceMX.MetricsFailures> failures = new List<IceMX.MetricsFailures>();
                 foreach (Entry e in _objects.Values)
                 {
-                    IceMX.MetricsFailures? f = e.getFailures();
-                    if (f != null)
+                    if (e.getFailures() is IceMX.MetricsFailures f)
                     {
                         failures.Add(f);
                     }
@@ -873,14 +872,14 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures? GetMetricsFailures(string viewName, string mapName, string id, Ice.Current c)
+        public IceMX.MetricsFailures GetMetricsFailures(string viewName, string mapName, string id, Ice.Current c)
         {
             lock (this)
             {
                 MetricsViewI? view = getMetricsView(viewName);
-                if (view != null)
+                if (view != null && view.getFailures(mapName, id) is IceMX.MetricsFailures f)
                 {
-                    return view.getFailures(mapName, id);
+                    return f;
                 }
                 return new IceMX.MetricsFailures();
             }

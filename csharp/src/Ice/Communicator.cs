@@ -1566,7 +1566,7 @@ namespace Ice
                     adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
                     if (adminIdentity.Category.Length == 0)
                     {
-                        adminIdentity.Category = Guid.NewGuid().ToString();
+                        adminIdentity = new Identity(adminIdentity.Name, Guid.NewGuid().ToString());
                     }
 
                     _adminIdentity = adminIdentity;
