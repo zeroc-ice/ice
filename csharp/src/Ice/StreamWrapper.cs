@@ -33,7 +33,7 @@ namespace IceInternal
         public OutputStreamWrapper(Ice.OutputStream s)
         {
             _s = s;
-            _spos = s.pos();
+            _spos = s.Pos;
             _bytes = new byte[254];
             _pos = 0;
             _length = 0;
@@ -75,7 +75,7 @@ namespace IceInternal
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.expand(_pos);
+                        _s.Expand(_pos);
                         _s.GetBuffer().b.put(_bytes, 0, _pos);
                     }
 
@@ -85,7 +85,7 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.expand(count);
+                _s.Expand(count);
                 _s.GetBuffer().b.put(array, offset, count);
                 _pos += count;
             }
@@ -117,7 +117,7 @@ namespace IceInternal
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.expand(_pos);
+                        _s.Expand(_pos);
                         _s.GetBuffer().b.put(_bytes, 0, _pos);
                     }
 
@@ -127,7 +127,7 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.expand(1);
+                _s.Expand(1);
                 _s.GetBuffer().b.put(value);
                 _pos += 1;
             }
@@ -168,17 +168,17 @@ namespace IceInternal
                 if (_bytes != null)
                 {
                     Debug.Assert(_pos <= _bytes.Length);
-                    _s.pos(_spos);
+                    _s.Pos = _spos;
                     _s.WriteSize(_pos);
-                    _s.expand(_pos);
+                    _s.Expand(_pos);
                     _s.GetBuffer().b.put(_bytes, 0, _pos);
                 }
                 else
                 {
-                    int currentPos = _s.pos();
-                    _s.pos(_spos);
+                    int currentPos = _s.Pos;
+                    _s.Pos = _spos;
                     _s.WriteSize(_pos); // Patch previously-written dummy value.
-                    _s.pos(currentPos);
+                    _s.Pos = currentPos;
                 }
             }
             catch (System.Exception ex)

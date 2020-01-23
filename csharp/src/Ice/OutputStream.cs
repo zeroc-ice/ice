@@ -11,20 +11,68 @@ using Protocol = IceInternal.Protocol;
 namespace Ice
 {
     /// <summary>
-    /// Interface for output streams used to write Slice types to a sequence
-    /// of bytes.
+    /// Interface for output streams used to write Slice types to a sequence of bytes.
     /// </summary>
     public class OutputStream
     {
+        /// <summary>
+        /// The communicator associated with this stream.
+        /// </summary>
+        /// <value>The communicator.</value>
         public Communicator Communicator { get; }
+
+        /// <summary>
+        /// The encoding used when writing from this stream.
+        /// </summary>
+        /// <value>The encoding.</value>
         public EncodingVersion Encoding { get; private set; }
-        private InstanceData? _current;
+
+        /// <summary>
+        /// Determines the current size of the stream.
+        /// </summary>
+        /// <value>The current size.</value>
+        internal int Size => _buf.size();
+
+        /// <summary>
+        /// Determines whether the stream is empty.
+        /// </summary>
+        /// <returns>True if no data has been written yet, false otherwise.</returns>
+        internal bool IsEmpty => _buf.empty();
+
+        // The position (offset) in the underlying buffer.
+        internal int Pos
+        {
+            get => _buf.b.position();
+            set => _buf.b.position(value);
+        }
+
+        // When set, we are writing to a top-level encapsulation.
         private Encaps? _mainEncaps;
+
+        // When set, we are writing an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
+        // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
+        // when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
 
-        // Encapsulation fields for class instance marshaling.
+        private IceInternal.Buffer _buf;
+
+        // The current class/exception format, can be either Compact or Sliced.
+        private FormatType _format;
+
+        // Map of class instance to instance ID, where the instance IDs start at 2.
+        // When writing a top-level encapsulation:
+        //  - Instance ID = 0 means null.
+        //  - Instance ID = 1 means the instance is encoded inline afterwards.
+        //  - Instance ID > 1 means a reference to a previously encoded instance, found in this map.
         private Dictionary<AnyClass, int>? _instanceMap;
+
+        // Map of type ID string to type ID index.
+        // When writing into a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
+        // write, in order.
         private Dictionary<string, int>? _typeIdMap;
+
+        // Data for the class or exception instance that is currently getting marshaled.
+        private InstanceData? _current;
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -50,32 +98,6 @@ namespace Ice
         {
         }
 
-        private OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
-        {
-            Communicator = communicator;
-            Encoding = encoding;
-            _buf = buf;
-        }
-
-        /// <summary>
-        /// Resets this output stream. This method allows the stream to be reused, to avoid creating
-        /// unnecessary garbage.
-        /// </summary>
-        public void Reset()
-        {
-            _buf.reset();
-            Clear();
-            _format = Communicator.DefaultsAndOverrides.defaultFormat;
-        }
-
-        /// <summary>
-        /// Releases any data retained by encapsulations. The reset() method internally calls clear().
-        /// </summary>
-        public void Clear()
-        {
-            ResetEncapsulation();
-        }
-
         /// <summary>
         /// Indicates that the marshaling of a request or reply is finished.
         /// </summary>
@@ -89,69 +111,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Swaps the contents of one stream with another.
-        /// </summary>
-        /// <param name="other">The other stream.</param>
-        public void Swap(OutputStream other)
-        {
-            Debug.Assert(Communicator == other.Communicator);
-
-            IceInternal.Buffer tmpBuf = other._buf;
-            other._buf = _buf;
-            _buf = tmpBuf;
-
-            EncodingVersion tmpEncoding = other.Encoding;
-            other.Encoding = Encoding;
-            Encoding = tmpEncoding;
-
-            //
-            // Swap is never called for streams that have encapsulations being written. However,
-            // encapsulations might still be set in case marshalling failed. We just
-            // reset the encapsulations if there are still some set.
-            //
-            ResetEncapsulation();
-            other.ResetEncapsulation();
-        }
-
-        private void ResetEncapsulation()
-        {
-            _mainEncaps = null;
-            _endpointEncaps = null;
-            _current = null;
-            _instanceMap?.Clear();
-            _typeIdMap?.Clear();
-        }
-
-        /// <summary>
-        /// Resizes the stream to a new size.
-        /// </summary>
-        /// <param name="sz">The new size.</param>
-        public void Resize(int sz)
-        {
-            _buf.resize(sz, false);
-            _buf.b.position(sz);
-        }
-
-        /// <summary>
-        /// Prepares the internal data buffer to be written to a socket.
-        /// </summary>
-        public IceInternal.Buffer PrepareWrite()
-        {
-            _buf.b.limit(_buf.size());
-            _buf.b.position(0);
-            return _buf;
-        }
-
-        /// <summary>
-        /// Retrieves the internal data buffer.
-        /// </summary>
-        /// <returns>The buffer.</returns>
-        public IceInternal.Buffer GetBuffer()
-        {
-            return _buf;
-        }
-
-        /// <summary>
         /// Writes the start of an encapsulation to the stream.
         /// </summary>
         public void StartEncapsulation()
@@ -159,17 +118,11 @@ namespace Ice
             StartEncapsulation(Encoding);
         }
 
-        internal void StartEndpointEncapsulation()
-        {
-            StartEndpointEncapsulation(Encoding);
-        }
-
         /// <summary>
         /// Writes the start of an encapsulation to the stream.
         /// </summary>
         /// <param name="encoding">The encoding version of the encapsulation.</param>
-        /// <param name="format">Specify the compact or sliced format; when null, uses the communicator's default
-        /// format.</param>
+        /// <param name="format">Specify the compact or sliced format; when null, keep the stream's format.</param>
         public void StartEncapsulation(EncodingVersion encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
@@ -183,23 +136,7 @@ namespace Ice
                 _format = format.Value;
             }
 
-            WriteInt(0); // Placeholder for the encapsulation length.
-            WriteByte(Encoding.major);
-            WriteByte(Encoding.minor);
-        }
-
-        internal void StartEndpointEncapsulation(EncodingVersion encoding)
-        {
-            Debug.Assert(_endpointEncaps == null);
-            Protocol.checkSupportedEncoding(encoding);
-
-            _endpointEncaps = new Encaps(Encoding, _format, _buf.b.position());
-            Encoding = encoding;
-            // we don't change format
-
-            WriteInt(0); // Placeholder for the encapsulation length.
-            WriteByte(Encoding.major);
-            WriteByte(Encoding.minor);
+            WriteEncapsulationHeader(0, Encoding);
         }
 
         /// <summary>
@@ -210,71 +147,135 @@ namespace Ice
             Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
 
             // Size includes size and version.
-            int start = _mainEncaps.Value.Start;
-            int sz = _buf.size() - start;
-            _buf.b.putInt(start, sz);
+            int startPos = _mainEncaps.Value.StartPos;
+            int sz = _buf.size() - startPos;
+            _buf.b.putInt(startPos, sz);
 
             Encoding = _mainEncaps.Value.OldEncoding;
             _format = _mainEncaps.Value.OldFormat;
             ResetEncapsulation();
         }
 
-        internal void EndEndpointEncapsulation()
-        {
-            Debug.Assert(_endpointEncaps.HasValue);
-
-            // Size includes size and version.
-            int start = _endpointEncaps.Value.Start;
-            int sz = _buf.size() - start;
-            _buf.b.putInt(start, sz);
-
-            Encoding = _endpointEncaps.Value.OldEncoding;
-            // No need to restore format since it didn't change.
-            _endpointEncaps = null;
-        }
-
         /// <summary>
-        /// Writes an empty encapsulation using the given encoding version.
+        /// Start writing a slice of a class or exception instance.
+        /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
-        /// <param name="encoding">The encoding version of the encapsulation.</param>
-        public void WriteEmptyEncapsulation(EncodingVersion encoding)
-        {
-            Protocol.checkSupportedEncoding(encoding);
-            WriteInt(6); // Size
-            WriteByte(encoding.major);
-            WriteByte(encoding.minor);
-        }
-
-        /// <summary>
-        /// Writes a pre-encoded encapsulation.
-        /// </summary>
-        /// <param name="v">The encapsulation data.</param>
-        public void WriteEncapsulation(byte[] v)
-        {
-            if (v.Length < 6)
-            {
-                throw new EncapsulationException();
-            }
-            expand(v.Length);
-            _buf.b.put(v);
-        }
-
-        /// <summary>
-        /// Marks the start of a new slice for a class instance or user exception.
-        /// </summary>
+        /// <param name="typeId">The type ID of this slice.</param>
+        /// <param name="firstSlice">True when writing the first (most derived) slice of an instance.</param>
+        /// <param name="slicedData">Preserved sliced-off slices, if any. Can only be provided when firstSlice is true.
+        /// </param>
+        /// <param name="compactId">The compact type ID of this slice, if specified."</param>
         public void IceStartSlice(string typeId, bool firstSlice, SlicedData? slicedData = null, int? compactId = null)
         {
-            Debug.Assert(_mainEncaps != null);
-            StartSliceImpl(typeId, firstSlice, slicedData, compactId);
+            Debug.Assert(_mainEncaps != null && _current != null);
+            if (slicedData.HasValue)
+            {
+                Debug.Assert(firstSlice);
+                if (WriteSlicedData(slicedData.Value))
+                {
+                    firstSlice = false;
+                } // else we didn't write anything and it's still the first slice
+            }
+
+            _current.SliceFlagsPos = Pos;
+            _current.SliceFlags = 0;
+
+            if (_format == FormatType.SlicedFormat)
+            {
+                // Encode the slice size if using the sliced format.
+                _current.SliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
+            }
+
+            WriteByte(0); // Placeholder for the slice flags
+
+            // For instance slices, encode the flag and the type ID either as a string or index. For exception slices,
+            // always encode the type ID a string.
+            if (_current.InstanceType == InstanceType.Class)
+            {
+                // Encode the type ID (only in the first slice for the compact
+                // encoding).
+                // This  also shows that the firtSlice is currently useful/used only for class instances in
+                // compact format.
+                if (_format == FormatType.SlicedFormat || firstSlice)
+                {
+                    if (compactId.HasValue)
+                    {
+                        _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
+                        WriteSize(compactId.Value);
+                    }
+                    else
+                    {
+                        int index = RegisterTypeId(typeId);
+                        if (index < 0)
+                        {
+                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING;
+                            WriteString(typeId);
+                        }
+                        else
+                        {
+                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX;
+                            WriteSize(index);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                WriteString(typeId);
+            }
+
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                WriteInt(0); // Placeholder for the slice length.
+            }
+
+            _current.SliceFirstMemberPos = Pos;
         }
 
         /// <summary>
         /// Marks the end of a slice for a class instance or user exception.
+        /// This is an Ice-internal method marked public because it's called by the generated code.
         /// </summary>
+        /// <param name="lastSlice">True when it's the last (least derived) slice of the instance.</param>
         public void IceEndSlice(bool lastSlice)
         {
-            Debug.Assert(_mainEncaps != null);
-            endSlice(lastSlice);
+            Debug.Assert(_mainEncaps != null && _current != null);
+
+            if (lastSlice)
+            {
+                _current.SliceFlags |= Protocol.FLAG_IS_LAST_SLICE;
+            }
+
+            // Write the tagged member end marker if some tagged members were encoded. Note that the optional members
+            // are encoded before the indirection table and are included in the slice size.
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                WriteByte(Protocol.OPTIONAL_END_MARKER);
+            }
+
+            // Write the slice size if necessary.
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                int sz = Pos - _current.SliceFirstMemberPos + 4;
+                RewriteInt(sz, _current.SliceFirstMemberPos - 4);
+            }
+
+            if (_current.IndirectionTable?.Count > 0)
+            {
+                Debug.Assert(_format == FormatType.SlicedFormat);
+                _current.SliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
+
+                WriteSize(_current.IndirectionTable.Count);
+                foreach (var v in _current.IndirectionTable)
+                {
+                    WriteInstance(v);
+                }
+                _current.IndirectionTable.Clear();
+                _current.IndirectionMap?.Clear();
+            }
+
+            // Update SliceFlags in case they were updated.
+            RewriteByte(_current.SliceFlags, _current.SliceFlagsPos);
         }
 
         /// <summary>
@@ -285,13 +286,13 @@ namespace Ice
         {
             if (v > 254)
             {
-                expand(5);
+                Expand(5);
                 _buf.b.put(255);
                 _buf.b.putInt(v);
             }
             else
             {
-                expand(1);
+                Expand(1);
                 _buf.b.put((byte)v);
             }
         }
@@ -327,7 +328,7 @@ namespace Ice
             {
                 return;
             }
-            expand(v.Length);
+            Expand(v.Length);
             _buf.b.put(v);
         }
 
@@ -339,7 +340,30 @@ namespace Ice
         public bool WriteOptional(int tag, OptionalFormat format)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            return writeOptional(tag, format);
+
+            if (Encoding.Equals(Util.Encoding_1_0))
+            {
+                // TODO: eliminate this block and return value
+                return false; // Tagged members aren't supported with the 1.0 encoding.
+            }
+
+            int v = (int)format;
+            if (tag < 30)
+            {
+                v |= tag << 3;
+                WriteByte((byte)v);
+            }
+            else
+            {
+                v |= 0x0F0; // tag = 30
+                WriteByte((byte)v);
+                WriteSize(tag);
+            }
+            if (_current != null)
+            {
+                _current.SliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+            }
+            return true;
         }
 
         /// <summary>
@@ -348,7 +372,7 @@ namespace Ice
         /// <param name="v">The byte to write to the stream.</param>
         public void WriteByte(byte v)
         {
-            expand(1);
+            Expand(1);
             _buf.b.put(v);
         }
 
@@ -389,7 +413,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length);
+                Expand(v.Length);
                 _buf.b.put(v);
             }
         }
@@ -421,7 +445,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count);
+                    Expand(count);
                     IEnumerator<byte> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -450,7 +474,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count);
+            Expand(count);
             foreach (byte b in v)
             {
                 _buf.b.put(b);
@@ -514,7 +538,7 @@ namespace Ice
         /// <param name="v">The boolean to write to the stream.</param>
         public void WriteBool(bool v)
         {
-            expand(1);
+            Expand(1);
             _buf.b.put(v ? (byte)1 : (byte)0);
         }
 
@@ -545,7 +569,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length);
+                Expand(v.Length);
                 _buf.b.putBoolSeq(v);
             }
         }
@@ -577,7 +601,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count);
+                    Expand(count);
                     IEnumerator<bool> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -606,7 +630,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count);
+            Expand(count);
             foreach (bool b in v)
             {
                 _buf.b.putBool(b);
@@ -646,7 +670,7 @@ namespace Ice
         /// <param name="v">The short to write to the stream.</param>
         public void WriteShort(short v)
         {
-            expand(2);
+            Expand(2);
             _buf.b.putShort(v);
         }
 
@@ -677,7 +701,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length * 2);
+                Expand(v.Length * 2);
                 _buf.b.putShortSeq(v);
             }
         }
@@ -709,7 +733,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count * 2);
+                    Expand(count * 2);
                     IEnumerator<short> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -738,7 +762,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count * 2);
+            Expand(count * 2);
             foreach (short s in v)
             {
                 _buf.b.putShort(s);
@@ -780,7 +804,7 @@ namespace Ice
         /// <param name="v">The int to write to the stream.</param>
         public void WriteInt(int v)
         {
-            expand(4);
+            Expand(4);
             _buf.b.putInt(v);
         }
 
@@ -821,7 +845,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length * 4);
+                Expand(v.Length * 4);
                 _buf.b.putIntSeq(v);
             }
         }
@@ -853,7 +877,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count * 4);
+                    Expand(count * 4);
                     IEnumerator<int> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -882,7 +906,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count * 4);
+            Expand(count * 4);
             foreach (int i in v)
             {
                 _buf.b.putInt(i);
@@ -924,7 +948,7 @@ namespace Ice
         /// <param name="v">The long to write to the stream.</param>
         public void WriteLong(long v)
         {
-            expand(8);
+            Expand(8);
             _buf.b.putLong(v);
         }
 
@@ -955,7 +979,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length * 8);
+                Expand(v.Length * 8);
                 _buf.b.putLongSeq(v);
             }
         }
@@ -987,7 +1011,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count * 8);
+                    Expand(count * 8);
                     IEnumerator<long> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -1016,7 +1040,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count * 8);
+            Expand(count * 8);
             foreach (long l in v)
             {
                 _buf.b.putLong(l);
@@ -1058,7 +1082,7 @@ namespace Ice
         /// <param name="v">The float to write to the stream.</param>
         public void WriteFloat(float v)
         {
-            expand(4);
+            Expand(4);
             _buf.b.putFloat(v);
         }
 
@@ -1089,7 +1113,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length * 4);
+                Expand(v.Length * 4);
                 _buf.b.putFloatSeq(v);
             }
         }
@@ -1121,7 +1145,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count * 4);
+                    Expand(count * 4);
                     IEnumerator<float> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -1150,7 +1174,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count * 4);
+            Expand(count * 4);
             foreach (float f in v)
             {
                 _buf.b.putFloat(f);
@@ -1192,7 +1216,7 @@ namespace Ice
         /// <param name="v">The double to write to the stream.</param>
         public void WriteDouble(double v)
         {
-            expand(8);
+            Expand(8);
             _buf.b.putDouble(v);
         }
 
@@ -1223,7 +1247,7 @@ namespace Ice
             else
             {
                 WriteSize(v.Length);
-                expand(v.Length * 8);
+                Expand(v.Length * 8);
                 _buf.b.putDoubleSeq(v);
             }
         }
@@ -1255,7 +1279,7 @@ namespace Ice
                 if (value != null)
                 {
                     WriteSize(count);
-                    expand(count * 8);
+                    Expand(count * 8);
                     IEnumerator<double> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
@@ -1284,7 +1308,7 @@ namespace Ice
             }
 
             WriteSize(count);
-            expand(count * 8);
+            Expand(count * 8);
             foreach (double d in v)
             {
                 _buf.b.putDouble(d);
@@ -1336,7 +1360,7 @@ namespace Ice
             }
             byte[] arr = utf8.GetBytes(v);
             WriteSize(arr.Length);
-            expand(arr.Length);
+            Expand(arr.Length);
             _buf.b.put(arr);
         }
 
@@ -1499,124 +1523,6 @@ namespace Ice
         public void WriteClass(AnyClass? v)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            WriteClassImpl(v);
-        }
-
-        /// <summary>
-        /// Writes an optional class instance to the stream.
-        /// </summary>
-        /// <param name="tag">The optional tag.</param>
-        /// <param name="v">The value to write.</param>
-        public void WriteClass(int tag, AnyClass? v)
-        {
-            if (v != null && WriteOptional(tag, OptionalFormat.Class))
-            {
-                WriteClass(v);
-            }
-        }
-
-        /// <summary>
-        /// Writes a user exception to the stream.
-        /// </summary>
-        /// <param name="v">The user exception to write.</param>
-        public void WriteException(UserException v)
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
-            Push(InstanceType.Exception);
-            v.Write(this);
-            Pop(null);
-        }
-
-        private bool writeOptionalImpl(int tag, OptionalFormat format)
-        {
-            if (Encoding.Equals(Util.Encoding_1_0))
-            {
-                return false; // Optional members aren't supported with the 1.0 encoding.
-            }
-
-            int v = (int)format;
-            if (tag < 30)
-            {
-                v |= tag << 3;
-                WriteByte((byte)v);
-            }
-            else
-            {
-                v |= 0x0F0; // tag = 30
-                WriteByte((byte)v);
-                WriteSize(tag);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Determines the current position in the stream.
-        /// </summary>
-        /// <returns>The current position.</returns>
-        public int pos()
-        {
-            return _buf.b.position();
-        }
-
-        /// <summary>
-        /// Sets the current position in the stream.
-        /// </summary>
-        /// <param name="n">The new position.</param>
-        public void pos(int n)
-        {
-            _buf.b.position(n);
-        }
-
-        /// <summary>
-        /// Determines the current size of the stream.
-        /// </summary>
-        /// <returns>The current size.</returns>
-        public int size()
-        {
-            return _buf.size();
-        }
-
-        /// <summary>
-        /// Determines whether the stream is empty.
-        /// </summary>
-        /// <returns>True if no data has been written yet, false otherwise.</returns>
-        public bool isEmpty()
-        {
-            return _buf.empty();
-        }
-
-        /// <summary>
-        /// Expand the stream to accept more data.
-        /// </summary>
-        /// <param name="n">The number of bytes to accommodate in the stream.</param>
-        public void expand(int n)
-        {
-            _buf.expand(n);
-        }
-
-        private IceInternal.Buffer _buf;
-        private FormatType _format;
-
-        private enum InstanceType { Class, Exception }
-
-        private int RegisterTypeId(string typeId)
-        {
-            _typeIdMap ??= new Dictionary<string, int>();
-
-            if (_typeIdMap.TryGetValue(typeId, out int index))
-            {
-                return index;
-            }
-            else
-            {
-                index = _typeIdMap.Count + 1;
-                _typeIdMap.Add(typeId, index);
-                return -1;
-            }
-        }
-
-        private void WriteClassImpl(AnyClass? v)
-        {
             if (v == null)
             {
                 WriteSize(0);
@@ -1647,146 +1553,174 @@ namespace Ice
             }
             else
             {
-                writeInstance(v); // Write the instance or a reference if already marshaled.
+                WriteInstance(v); // Write the instance or a reference if already marshaled.
             }
         }
 
-        private void StartSliceImpl(string typeId, bool firstSlice, SlicedData? slicedData, int? compactId)
+        /// <summary>
+        /// Writes an optional class instance to the stream.
+        /// </summary>
+        /// <param name="tag">The optional tag.</param>
+        /// <param name="v">The value to write.</param>
+        public void WriteClass(int tag, AnyClass? v)
         {
-            Debug.Assert(_current != null);
-            if (slicedData.HasValue)
+            if (v != null && WriteOptional(tag, OptionalFormat.Class))
             {
-                Debug.Assert(firstSlice);
-                if (WriteSlicedData(slicedData.Value))
-                {
-                    firstSlice = false;
-                } // else we didn't write anything and it's still the first slice
+                WriteClass(v);
             }
-
-            _current.SliceFlagsPos = pos();
-            _current.SliceFlags = 0;
-
-            if (_format == FormatType.SlicedFormat)
-            {
-                //
-                // Encode the slice size if using the sliced format.
-                //
-                _current.SliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
-            }
-
-            WriteByte(0); // Placeholder for the slice flags
-
-            //
-            // For instance slices, encode the flag and the type ID either as a
-            // string or index. For exception slices, always encode the type
-            // ID a string.
-            //
-            if (_current.InstanceType == InstanceType.Class)
-            {
-                // Encode the type ID (only in the first slice for the compact
-                // encoding).
-                // This  also shows that the firtSlice is currently useful/used only for class instances in
-                // compact format.
-                if (_format == FormatType.SlicedFormat || firstSlice)
-                {
-                    if (compactId.HasValue)
-                    {
-                        _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
-                        WriteSize(compactId.Value);
-                    }
-                    else
-                    {
-                        int index = RegisterTypeId(typeId);
-                        if (index < 0)
-                        {
-                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING;
-                            WriteString(typeId);
-                        }
-                        else
-                        {
-                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX;
-                            WriteSize(index);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                WriteString(typeId);
-            }
-
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
-            {
-                WriteInt(0); // Placeholder for the slice length.
-            }
-
-            _current.SliceFirstMemberPos = pos();
         }
 
-        private void endSlice(bool lastSlice)
+        /// <summary>
+        /// Writes a user exception to the stream.
+        /// </summary>
+        /// <param name="v">The user exception to write.</param>
+        public void WriteException(UserException v)
         {
-            Debug.Assert(_current != null);
-
-            if (lastSlice)
-            {
-                _current.SliceFlags |= Protocol.FLAG_IS_LAST_SLICE;
-            }
-
-            // Write the tagged member end marker if some tagged members were encoded. Note that the optional members
-            // are encoded before the indirection table and are included in the slice size.
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
-            {
-                WriteByte(Protocol.OPTIONAL_END_MARKER);
-            }
-
-            // Write the slice size if necessary.
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
-            {
-                int sz = pos() - _current.SliceFirstMemberPos + 4;
-                RewriteInt(sz, _current.SliceFirstMemberPos - 4);
-            }
-
-            if (_current.IndirectionTable?.Count > 0)
-            {
-                Debug.Assert(_format == FormatType.SlicedFormat);
-                _current.SliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
-
-                WriteSize(_current.IndirectionTable.Count);
-                foreach (var v in _current.IndirectionTable)
-                {
-                    writeInstance(v);
-                }
-                _current.IndirectionTable.Clear();
-                _current.IndirectionMap?.Clear();
-            }
-
-            // Update SliceFlags in case they were updated.
-            RewriteByte(_current.SliceFlags, _current.SliceFlagsPos);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
+            Push(InstanceType.Exception);
+            v.Write(this);
+            Pop(null);
         }
 
-        private bool writeOptional(int tag, OptionalFormat format)
+        /// <summary>
+        /// Expand the stream to accept more data.
+        /// </summary>
+        /// <param name="n">The number of bytes to accommodate in the stream.</param>
+        internal void Expand(int n)
         {
-            if (_current == null)
+            _buf.expand(n);
+        }
+
+        /// <summary>
+        /// Resets this output stream. This method allows the stream to be reused, to avoid creating
+        /// unnecessary garbage.
+        /// </summary>
+        internal void Reset()
+        {
+            _buf.reset();
+            Clear();
+            _format = Communicator.DefaultsAndOverrides.defaultFormat;
+        }
+
+        /// <summary>
+        /// Releases any data retained by encapsulations. The reset() method internally calls clear().
+        /// </summary>
+        internal void Clear()
+        {
+            ResetEncapsulation();
+        }
+
+        /// <summary>
+        /// Swaps the contents of one stream with another.
+        /// </summary>
+        /// <param name="other">The other stream.</param>
+        internal void Swap(OutputStream other)
+        {
+            Debug.Assert(Communicator == other.Communicator);
+
+            IceInternal.Buffer tmpBuf = other._buf;
+            other._buf = _buf;
+            _buf = tmpBuf;
+
+            EncodingVersion tmpEncoding = other.Encoding;
+            other.Encoding = Encoding;
+            Encoding = tmpEncoding;
+
+            // Swap is never called for streams that have encapsulations being written. However,
+            // encapsulations might still be set in case marshalling failed. We just
+            // reset the encapsulations if there are still some set.
+            ResetEncapsulation();
+            other.ResetEncapsulation();
+        }
+
+        /// <summary>
+        /// Resizes the stream to a new size.
+        /// </summary>
+        /// <param name="sz">The new size.</param>
+        internal void Resize(int sz)
+        {
+            _buf.resize(sz, false);
+            _buf.b.position(sz);
+        }
+
+        /// <summary>
+        /// Prepares the internal data buffer to be written to a socket.
+        /// </summary>
+        internal IceInternal.Buffer PrepareWrite()
+        {
+            _buf.b.limit(_buf.size());
+            _buf.b.position(0);
+            return _buf;
+        }
+
+        /// <summary>
+        /// Retrieves the internal data buffer.
+        /// </summary>
+        /// <returns>The buffer.</returns>
+        internal IceInternal.Buffer GetBuffer()
+        {
+            return _buf;
+        }
+
+        internal void StartEndpointEncapsulation()
+        {
+            StartEndpointEncapsulation(Encoding);
+        }
+
+        internal void StartEndpointEncapsulation(EncodingVersion encoding)
+        {
+            Debug.Assert(_endpointEncaps == null);
+            Protocol.checkSupportedEncoding(encoding);
+
+            _endpointEncaps = new Encaps(Encoding, _format, _buf.b.position());
+            Encoding = encoding;
+            // We didn't change _format, so no need to restore it.
+
+            WriteEncapsulationHeader(0, Encoding);
+        }
+
+        internal void EndEndpointEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps.HasValue);
+
+            // Size includes size and version.
+            int startPos = _endpointEncaps.Value.StartPos;
+            int sz = _buf.size() - startPos;
+            _buf.b.putInt(startPos, sz);
+
+            Encoding = _endpointEncaps.Value.OldEncoding;
+            // No need to restore format since it didn't change.
+            _endpointEncaps = null;
+        }
+
+        /// <summary>
+        /// Writes an empty encapsulation using the given encoding version.
+        /// </summary>
+        /// <param name="encoding">The encoding version of the encapsulation.</param>
+        internal void WriteEmptyEncapsulation(EncodingVersion encoding)
+        {
+            Protocol.checkSupportedEncoding(encoding);
+            WriteEncapsulationHeader(6, encoding);
+        }
+
+        /// <summary>
+        /// Writes a pre-encoded encapsulation.
+        /// </summary>
+        /// <param name="v">The encapsulation data.</param>
+        internal void WriteEncapsulation(byte[] v)
+        {
+            if (v.Length < 6)
             {
-                return writeOptionalImpl(tag, format);
+                throw new EncapsulationException();
             }
-            else
-            {
-                if (writeOptionalImpl(tag, format))
-                {
-                    _current.SliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            Expand(v.Length);
+            _buf.b.put(v);
         }
 
         // Returns true when something was written, and false otherwise
         internal bool WriteSlicedData(SlicedData slicedData)
         {
+            Debug.Assert(_current != null);
             // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
             // slices, which essentially "slices" the instance into the most-derived type known by the sender.
             if (_format != FormatType.SlicedFormat || Encoding != slicedData.Encoding)
@@ -1798,7 +1732,7 @@ namespace Ice
             bool firstSlice = true;
             foreach (var info in slicedData.Slices)
             {
-                StartSliceImpl(info.TypeId ?? "", firstSlice, null, info.CompactId);
+                IceStartSlice(info.TypeId ?? "", firstSlice, null, info.CompactId);
                 firstSlice = false;
 
                 // Write the bytes associated with this slice. TODO: need better write bytes API
@@ -1812,18 +1746,60 @@ namespace Ice
                 }
 
                 // Make sure to also re-write the instance indirection table.
-                // These instances will be marshaled (and assigned instance IDs) in endSlice.
+                // These instances will be marshaled (and assigned instance IDs) in IceEndSlice.
                 if (info.Instances.Count > 0)
                 {
                     _current.IndirectionTable ??= new List<AnyClass>();
+                    Debug.Assert(_current.IndirectionTable.Count == 0);
                     _current.IndirectionTable.AddRange(info.Instances);
                 }
-                endSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
+                IceEndSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
             }
             return firstSlice == false; // we wrote at least one slice
         }
 
-        private void writeInstance(AnyClass v)
+        // Helper constructor used by the other constructors.
+        private OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
+        {
+            Communicator = communicator;
+            Encoding = encoding;
+            _buf = buf;
+        }
+
+        private void WriteEncapsulationHeader(int size, EncodingVersion encoding)
+        {
+            WriteInt(size);
+            WriteByte(encoding.major);
+            WriteByte(encoding.minor);
+        }
+
+        private void ResetEncapsulation()
+        {
+            _mainEncaps = null;
+            _endpointEncaps = null;
+            _current = null;
+            _instanceMap?.Clear();
+            _typeIdMap?.Clear();
+        }
+
+        private int RegisterTypeId(string typeId)
+        {
+            _typeIdMap ??= new Dictionary<string, int>();
+
+            if (_typeIdMap.TryGetValue(typeId, out int index))
+            {
+                return index;
+            }
+            else
+            {
+                index = _typeIdMap.Count + 1;
+                _typeIdMap.Add(typeId, index);
+                return -1;
+            }
+        }
+
+        // Write this class instance inline if not previously marshaled, otherwise just write its instance ID.
+        private void WriteInstance(AnyClass v)
         {
             Debug.Assert(v != null);
 
@@ -1863,6 +1839,8 @@ namespace Ice
             _current = savedInstanceData;
         }
 
+        private enum InstanceType { Class, Exception }
+
         private sealed class InstanceData
         {
             internal readonly InstanceType InstanceType;
@@ -1888,16 +1866,16 @@ namespace Ice
             // Old Encoding
             internal readonly EncodingVersion OldEncoding;
 
-            // Previous format (compact or sliced).
+            // Previous format (Compact or Sliced).
             internal readonly FormatType OldFormat;
 
-            internal readonly int Start;
+            internal readonly int StartPos;
 
-            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, int start)
+            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, int startPos)
             {
                 OldEncoding = oldEncoding;
                 OldFormat = oldFormat;
-                Start = start;
+                StartPos = startPos;
             }
         }
     }

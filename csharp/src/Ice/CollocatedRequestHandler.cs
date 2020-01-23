@@ -82,7 +82,7 @@ namespace IceInternal
 
                 if (_traceLevels.protocol >= 1)
                 {
-                    fillInValue(os, 10, os.size());
+                    fillInValue(os, 10, os.Size);
                 }
 
                 // Adopt the OutputStream's buffer.
@@ -227,7 +227,7 @@ namespace IceInternal
         {
             if (_traceLevels.protocol >= 1)
             {
-                fillInValue(os, 10, os.size());
+                fillInValue(os, 10, os.Size);
                 if (requestId > 0)
                 {
                     fillInValue(os, Protocol.headerSize, requestId);

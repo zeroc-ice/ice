@@ -14,7 +14,7 @@ namespace IceInternal
         {
             if (tl.protocol >= 1)
             {
-                int p = str.pos();
+                int p = str.Pos;
                 Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
@@ -24,7 +24,7 @@ namespace IceInternal
 
                     logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.ToString());
                 }
-                str.pos(p);
+                str.Pos = p;
             }
         }
 
@@ -49,7 +49,7 @@ namespace IceInternal
         {
             if (tl.protocol >= 1)
             {
-                int p = str.pos();
+                int p = str.Pos;
                 Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
@@ -60,7 +60,7 @@ namespace IceInternal
 
                     logger.trace(tl.protocolCat, s.ToString());
                 }
-                str.pos(p);
+                str.Pos = p;
             }
         }
 
