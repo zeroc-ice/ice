@@ -552,7 +552,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream os)
         {
-            IceReference.getIdentity().ice_writeMembers(os);
+            IceReference.getIdentity().IceWrite(os);
             IceReference.streamWrite(os);
         }
 

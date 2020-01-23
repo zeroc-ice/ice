@@ -677,7 +677,7 @@ namespace IceInternal
 
             Reference rf = proxy_.IceReference;
 
-            rf.getIdentity().ice_writeMembers(os_);
+            rf.getIdentity().IceWrite(os_);
 
             //
             // For compatibility with the old FacetPath.

@@ -1936,20 +1936,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public void ice_writeMembers(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
+    _out << nl << "public void IceWrite(" << getUnqualified("Ice.OutputStream", ns) << " iceP_ostr)";
     _out << sb;
     for(auto m : dataMembers)
     {
-        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
+        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
     }
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static void ice_write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
-         << " v)";
-    _out << sb;
-    _out << nl << "v.ice_writeMembers(ostr);";
     _out << eb;
 
     _out << eb;

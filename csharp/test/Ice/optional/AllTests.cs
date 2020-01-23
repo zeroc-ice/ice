@@ -962,7 +962,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(1);
-                p1.Value.ice_writeMembers(os);
+                p1.Value.IceWrite(os);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1007,7 +1007,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(4);
-                p1.Value.ice_writeMembers(os);
+                p1.Value.IceWrite(os);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1057,7 +1057,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.FSize);
                 int pos = os.StartSize();
-                p1.Value.ice_writeMembers(os);
+                p1.Value.IceWrite(os);
                 os.EndSize(pos);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();

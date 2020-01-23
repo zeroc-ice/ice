@@ -827,7 +827,7 @@ Slice::CsGenerator::writeMarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << param << ".ice_writeMembers(" << stream << ");";
+        out << nl << param << ".IceWrite(" << stream << ");";
     }
     else
     {
@@ -1432,7 +1432,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 call += "[ix]";
             }
             call += ".";
-            call += "ice_writeMembers";
+            call += "IceWrite";
             call += "(" + stream + ");";
             out << nl << call;
             out << eb;

@@ -700,7 +700,7 @@ namespace IceInternal
                     {
                         Debug.Assert(false);
                     }
-                    ex.id.ice_writeMembers(_os);
+                    ex.id.IceWrite(_os);
 
                     //
                     // For compatibility with the old FacetPath.
