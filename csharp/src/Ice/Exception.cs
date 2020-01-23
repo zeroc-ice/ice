@@ -172,7 +172,7 @@ namespace Ice
         public virtual void iceWrite(OutputStream ostr)
         {
             ostr.StartException(null);
-            iceWriteImpl(ostr);
+            IceWrite(ostr, true); // first Slice
             ostr.EndException();
         }
 
@@ -181,7 +181,7 @@ namespace Ice
             return false;
         }
 
-        protected abstract void iceWriteImpl(OutputStream ostr);
+        protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
 
         // Read all the fields of this exception from the stream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);

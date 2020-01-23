@@ -2106,7 +2106,7 @@ namespace Ice.optional
             {
                 @out.StartClass(null);
                 // ::Test::D
-                @out.StartSlice("::Test::D", -1, false);
+                @out.StartSlice("::Test::D", true);
                 string s = "test";
                 @out.WriteString(s);
                 @out.WriteOptional(1, OptionalFormat.FSize);
@@ -2118,16 +2118,16 @@ namespace Ice.optional
                 a.mc = 18;
                 @out.WriteOptional(1000, OptionalFormat.Class);
                 @out.WriteClass(a);
-                @out.EndSlice();
+                @out.EndSlice(false);
                 // ::Test::B
-                @out.StartSlice(Test.B.ice_staticId(), -1, false);
+                @out.StartSlice(Test.B.ice_staticId(), false);
                 int v = 14;
                 @out.WriteInt(v);
-                @out.EndSlice();
+                @out.EndSlice(false);
                 // ::Test::A
-                @out.StartSlice(Test.A.ice_staticId(), -1, true);
+                @out.StartSlice(Test.A.ice_staticId(), false);
                 @out.WriteInt(v);
-                @out.EndSlice();
+                @out.EndSlice(true);
                 @out.EndClass();
             }
         }

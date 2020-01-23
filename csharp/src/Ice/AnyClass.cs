@@ -24,23 +24,21 @@ namespace Ice
         }
         internal SlicedData? SlicedData => IceSlicedData;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceWrite(OutputStream ostr)
-        {
-            ostr.StartClass(null);
-            iceWriteImpl(ostr);
-            ostr.EndClass();
-        }
-
         // Read all the fields of this instance from the stream. See InputStream.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void iceWriteImpl(OutputStream ostr)
+        public virtual void iceWrite(OutputStream ostr)
         {
+            ostr.StartClass(null);
+            IceWrite(ostr, true); // first slice
+            ostr.EndClass();
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
 
         /// <summary>
         /// Returns a copy of the object. The cloned object contains field-for-field copies

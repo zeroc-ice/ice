@@ -291,23 +291,19 @@ namespace Ice
         /// <summary>
         /// Marks the start of a new slice for a class instance or user exception.
         /// </summary>
-        /// <param name="typeId">The Slice type ID corresponding to this slice.</param>
-        /// <param name="compactId">The Slice compact type ID corresponding to this slice or -1 if no compact ID
-        /// is defined for the type ID.</param>
-        /// <param name="last">True if this is the last slice, false otherwise.</param>
-        public void StartSlice(string typeId, int compactId, bool last)
+        public void StartSlice(string typeId, bool firstSlice, int? compactId = null)
         {
             Debug.Assert(_mainEncaps != null);
-            StartSliceImpl(typeId, compactId, last);
+            StartSliceImpl(typeId, firstSlice, compactId);
         }
 
         /// <summary>
         /// Marks the end of a slice for a class instance or user exception.
         /// </summary>
-        public void EndSlice()
+        public void EndSlice(bool lastSlice)
         {
             Debug.Assert(_mainEncaps != null);
-            endSlice();
+            endSlice(lastSlice);
         }
 
         /// <summary>
@@ -1556,7 +1552,7 @@ namespace Ice
         public void WriteException(UserException v)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            WriteExceptionImpl(v);
+            v.iceWrite(this);
         }
 
         private bool writeOptionalImpl(int tag, OptionalFormat format)
@@ -1694,11 +1690,6 @@ namespace Ice
             }
         }
 
-        internal void WriteExceptionImpl(UserException v)
-        {
-            v.iceWrite(this);
-        }
-
         internal void StartInstance(SliceType sliceType, SlicedData? data)
         {
             if (_current == null)
@@ -1710,7 +1701,6 @@ namespace Ice
                 _current = _current.next == null ? new InstanceData(_current) : _current.next;
             }
             _current.sliceType = sliceType;
-            _current.firstSlice = true;
 
             if (data != null)
             {
@@ -1720,11 +1710,11 @@ namespace Ice
 
         internal void EndInstance()
         {
-            Debug.Assert(_current != null);
-            _current = _current.previous;
+            // Debug.Assert(_current != null);
+            // _current = _current.previous;
         }
 
-        internal void StartSliceImpl(string typeId, int compactId, bool last)
+        internal void StartSliceImpl(string typeId, bool firstSlice, int? compactId)
         {
             Debug.Assert(_current != null);
             Debug.Assert(_current.indirectionTable == null || _current.indirectionTable.Count == 0);
@@ -1740,10 +1730,6 @@ namespace Ice
                 //
                 _current.sliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
             }
-            if (last)
-            {
-                _current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE; // This is the last slice.
-            }
 
             WriteByte(0); // Placeholder for the slice flags
 
@@ -1758,12 +1744,12 @@ namespace Ice
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
                 //
-                if (_format == FormatType.SlicedFormat || _current.firstSlice)
+                if (_format == FormatType.SlicedFormat || firstSlice)
                 {
-                    if (compactId >= 0)
+                    if (compactId.HasValue)
                     {
                         _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
-                        WriteSize(compactId);
+                        WriteSize(compactId.Value);
                     }
                     else
                     {
@@ -1792,12 +1778,16 @@ namespace Ice
             }
 
             _current.writeSlice = pos();
-            _current.firstSlice = false;
         }
 
-        internal void endSlice()
+        internal void endSlice(bool lastSlice)
         {
             Debug.Assert(_current != null);
+
+            if (lastSlice)
+            {
+                _current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE; // This is the last slice.
+            }
             //
             // Write the optional member end marker if some optional members
             // were encoded. Note that the optional members are encoded before
@@ -1842,6 +1832,10 @@ namespace Ice
             // Finally, update the slice flags.
             //
             RewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
+            if (lastSlice)
+            {
+                _current = _current.previous;
+            }
         }
 
         internal bool writeOptional(int tag, OptionalFormat format)
@@ -1880,9 +1874,11 @@ namespace Ice
                 return;
             }
 
+            bool firstSlice = true;
             foreach (var info in slicedData.Value.Slices)
             {
-                StartSliceImpl(info.TypeId ?? "", info.CompactId ?? -1, info.IsLastSlice);
+                StartSliceImpl(info.TypeId ?? "", firstSlice, info.CompactId);
+                firstSlice = false;
 
                 //
                 // Write the bytes associated with this slice.
@@ -1913,7 +1909,7 @@ namespace Ice
                     }
                 }
 
-                endSlice();
+                endSlice(info.IsLastSlice); // TODO: check it's indeed the last slice?
             }
         }
 
@@ -2008,6 +2004,11 @@ namespace Ice
         public override void iceWrite(OutputStream os)
         {
             write(os);
+        }
+
+        protected override void IceWrite(OutputStream ostr, bool firstSlice)
+        {
+            // no op for now
         }
 
         protected override void IceRead(InputStream istr, bool firstSlice)

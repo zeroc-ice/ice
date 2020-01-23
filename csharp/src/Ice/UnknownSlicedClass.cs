@@ -37,6 +37,11 @@ namespace Ice
             ostr.EndClass();
         }
 
+        protected override void IceWrite(OutputStream ostr, bool firstSlice)
+        {
+            // no op for now
+        }
+
         protected override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
