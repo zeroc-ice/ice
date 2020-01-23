@@ -152,42 +152,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Marks the start of a class instance.
-        /// </summary>
-        /// <param name="data">Preserved slices for this instance, or null.</param>
-        public void StartClass(SlicedData? data)
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            StartInstance(data);
-        }
-
-        /// <summary>
-        /// Marks the end of a class instance.
-        /// </summary>
-        public void EndClass()
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-        }
-
-        /// <summary>
-        /// Marks the start of a user exception.
-        /// </summary>
-        /// <param name="data">Preserved slices for this exception, or null.</param>
-        public void StartException(SlicedData? data)
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            StartInstance(data);
-        }
-
-        /// <summary>
-        /// Marks the end of a user exception.
-        /// </summary>
-        public void EndException()
-        {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-        }
-
-        /// <summary>
         /// Writes the start of an encapsulation to the stream.
         /// </summary>
         public void StartEncapsulation()
@@ -298,16 +262,16 @@ namespace Ice
         /// <summary>
         /// Marks the start of a new slice for a class instance or user exception.
         /// </summary>
-        public void StartSlice(string typeId, bool firstSlice, int? compactId = null)
+        public void IceStartSlice(string typeId, bool firstSlice, SlicedData? slicedData = null, int? compactId = null)
         {
             Debug.Assert(_mainEncaps != null);
-            StartSliceImpl(typeId, firstSlice, compactId);
+            StartSliceImpl(typeId, firstSlice, slicedData, compactId);
         }
 
         /// <summary>
         /// Marks the end of a slice for a class instance or user exception.
         /// </summary>
-        public void EndSlice(bool lastSlice)
+        public void IceEndSlice(bool lastSlice)
         {
             Debug.Assert(_mainEncaps != null);
             endSlice(lastSlice);
@@ -1559,7 +1523,7 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
             Push(InstanceType.Exception);
-            v.iceWrite(this);
+            v.Write(this);
             Pop(null);
         }
 
@@ -1687,17 +1651,18 @@ namespace Ice
             }
         }
 
-        private void StartInstance(SlicedData? data)
-        {
-            if (data.HasValue)
-            {
-                WriteSlicedData(data.Value);
-            }
-        }
-
-        private void StartSliceImpl(string typeId, bool firstSlice, int? compactId)
+        private void StartSliceImpl(string typeId, bool firstSlice, SlicedData? slicedData, int? compactId)
         {
             Debug.Assert(_current != null);
+            if (slicedData.HasValue)
+            {
+                Debug.Assert(firstSlice);
+                if (WriteSlicedData(slicedData.Value))
+                {
+                    firstSlice = false;
+                } // else we didn't write anything and it's still the first slice
+            }
+
             _current.SliceFlagsPos = pos();
             _current.SliceFlags = 0;
 
@@ -1819,20 +1784,21 @@ namespace Ice
             }
         }
 
-        private void WriteSlicedData(SlicedData slicedData)
+        // Returns true when something was written, and false otherwise
+        internal bool WriteSlicedData(SlicedData slicedData)
         {
             // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
             // slices, which essentially "slices" the instance into the most-derived type known by the sender.
             if (_format != FormatType.SlicedFormat || Encoding != slicedData.Encoding)
             {
                 // TODO: if the encodings don't match, do we just drop these slices, or throw an exception?
-                return;
+                return false;
             }
 
             bool firstSlice = true;
             foreach (var info in slicedData.Slices)
             {
-                StartSliceImpl(info.TypeId ?? "", firstSlice, info.CompactId);
+                StartSliceImpl(info.TypeId ?? "", firstSlice, null, info.CompactId);
                 firstSlice = false;
 
                 // Write the bytes associated with this slice. TODO: need better write bytes API
@@ -1852,9 +1818,9 @@ namespace Ice
                     _current.IndirectionTable ??= new List<AnyClass>();
                     _current.IndirectionTable.AddRange(info.Instances);
                 }
-
                 endSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
             }
+            return firstSlice == false; // we wrote at least one slice
         }
 
         private void writeInstance(AnyClass v)
@@ -1880,7 +1846,7 @@ namespace Ice
                 WriteSize(1); // Class instance marker.
 
                 var savedInstanceData = Push(InstanceType.Class);
-                v.iceWrite(this);
+                v.Write(this);
                 Pop(savedInstanceData);
             }
         }
@@ -1916,6 +1882,7 @@ namespace Ice
 
             internal InstanceData(InstanceType instanceType) => InstanceType = instanceType;
         }
+
         private readonly struct Encaps
         {
             // Old Encoding
@@ -1932,34 +1899,6 @@ namespace Ice
                 OldFormat = oldFormat;
                 Start = start;
             }
-        }
-
-    }
-
-    /// <summary>
-    /// Base class for writing class instances to an output stream.
-    /// </summary>
-    public abstract class ClassWriter : AnyClass
-    {
-        /// <summary>
-        /// Writes the state of this Slice class instance to an output stream.
-        /// </summary>
-        /// <param name="outStream">The stream to write to.</param>
-        public abstract void write(OutputStream outStream);
-
-        public override void iceWrite(OutputStream os)
-        {
-            write(os);
-        }
-
-        protected override void IceWrite(OutputStream ostr, bool firstSlice)
-        {
-            // no op for now
-        }
-
-        protected override void IceRead(InputStream istr, bool firstSlice)
-        {
-            Debug.Assert(false);
         }
     }
 }

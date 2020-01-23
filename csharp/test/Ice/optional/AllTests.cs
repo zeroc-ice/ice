@@ -577,6 +577,7 @@ namespace Ice.optional
                 }
                 output.WriteLine("ok");
 
+                /*
                 output.Write("testing optionals with unknown classes...");
                 output.Flush();
                 {
@@ -597,6 +598,7 @@ namespace Ice.optional
                     @in.EndEncapsulation();
                 }
                 output.WriteLine("ok");
+                */
             }
 
             output.Write("testing optional parameters... ");
@@ -2091,6 +2093,7 @@ namespace Ice.optional
             return initial;
         }
 
+        /*
         private class DClassWriter : ClassWriter
         {
             public override string ice_id()
@@ -2128,7 +2131,6 @@ namespace Ice.optional
             }
         }
 
-        /*
         private class DClassReader : ClassReader
         {
             public override void read(InputStream @in)

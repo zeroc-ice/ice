@@ -31,15 +31,14 @@ namespace Ice
             return _unknownTypeId;
         }
 
-        public override void iceWrite(OutputStream ostr)
-        {
-            ostr.StartClass(_slicedData);
-            ostr.EndClass();
-        }
-
         protected override void IceWrite(OutputStream ostr, bool firstSlice)
         {
-            // no op for now
+            // TODO: how do we handle the marshaling of an UnknownSlicedClass into a compact-format encaps?
+            // how do we handle the marshaling of an UnknownSlicedClass with a null _slicedData?
+            Debug.Assert(firstSlice);
+            Debug.Assert(_slicedData.HasValue); // TODO, throw an exception instead?
+            bool written = ostr.WriteSlicedData(_slicedData.Value);
+            Debug.Assert(written); // TODO, throw an exception instead?
         }
 
         protected override void IceRead(InputStream istr, bool firstSlice)

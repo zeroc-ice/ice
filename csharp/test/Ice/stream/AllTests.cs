@@ -56,24 +56,6 @@ namespace Ice.stream
             return true;
         }
 
-        private class TestClassWriter : ClassWriter
-        {
-            public TestClassWriter(Test.MyClass obj)
-            {
-                this.obj = obj;
-            }
-
-            public override void write(OutputStream outS)
-            {
-                obj.iceWrite(outS);
-                called = true;
-            }
-            public override string ice_id() => obj.ice_id();
-
-            internal Test.MyClass obj;
-            internal bool called = false;
-        }
-
         static public int allTests(global::Test.TestHelper helper)
         {
             var communicator = helper.communicator();
@@ -531,12 +513,10 @@ namespace Ice.stream
                 var obj = new Test.MyClass();
                 obj.s = new Test.SmallStruct();
                 obj.s.e = Test.MyEnum.enum2;
-                var writer = new TestClassWriter(obj);
                 outS.StartEncapsulation();
-                outS.WriteClass(writer);
+                outS.WriteClass(obj);
                 outS.EndEncapsulation();
                 var data = outS.Finished();
-                test(writer.called);
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
                 var robj = inS.ReadClass<Test.MyClass>();

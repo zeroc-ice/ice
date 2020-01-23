@@ -30,15 +30,8 @@ namespace Ice
         internal void Read(InputStream istr) => IceRead(istr, true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceWrite(OutputStream ostr)
-        {
-            ostr.StartClass(null);
-            IceWrite(ostr, true); // first slice
-            ostr.EndClass();
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
+        internal void Write(OutputStream ostr) => IceWrite(ostr, true);
 
         /// <summary>
         /// Returns a copy of the object. The cloned object contains field-for-field copies
