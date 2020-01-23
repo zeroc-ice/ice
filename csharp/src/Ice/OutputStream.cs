@@ -18,6 +18,13 @@ namespace Ice
     {
         public Communicator Communicator { get; }
         public EncodingVersion Encoding { get; private set; }
+        private InstanceData? _current;
+        private Encaps? _mainEncaps;
+        private Encaps? _endpointEncaps;
+
+        // Encapsulation fields for class instance marshaling.
+        private Dictionary<AnyClass, int>? _instanceMap;
+        private Dictionary<string, int>? _typeIdMap;
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -110,11 +117,9 @@ namespace Ice
         {
             _mainEncaps = null;
             _endpointEncaps = null;
-            _valueIdIndex = 1;
             _current = null;
-            _marshaledMap.Clear();
+            _instanceMap?.Clear();
             _typeIdMap?.Clear();
-            _typeIdIndex = 0;
         }
 
         /// <summary>
@@ -162,7 +167,6 @@ namespace Ice
         public void EndClass()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            EndInstance();
         }
 
         /// <summary>
@@ -181,7 +185,6 @@ namespace Ice
         public void EndException()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-            EndInstance();
         }
 
         /// <summary>
@@ -245,7 +248,7 @@ namespace Ice
 
             Encoding = _mainEncaps.Value.OldEncoding;
             _format = _mainEncaps.Value.OldFormat;
-            _mainEncaps = null;
+            ResetEncapsulation();
         }
 
         internal void EndEndpointEncapsulation()
@@ -1627,34 +1630,25 @@ namespace Ice
         private IceInternal.Buffer _buf;
         private FormatType _format;
 
-        internal enum InstanceType { Class, Exception }
+        private enum InstanceType { Class, Exception }
 
-        internal int registerTypeId(string typeId)
+        private int RegisterTypeId(string typeId)
         {
-            if (_typeIdMap == null)
-            {
-                _typeIdMap = new Dictionary<string, int>();
-            }
+            _typeIdMap ??= new Dictionary<string, int>();
 
-            int p;
-            if (_typeIdMap.TryGetValue(typeId, out p))
+            if (_typeIdMap.TryGetValue(typeId, out int index))
             {
-                return p;
+                return index;
             }
             else
             {
-                _typeIdMap.Add(typeId, ++_typeIdIndex);
+                index = _typeIdMap.Count + 1;
+                _typeIdMap.Add(typeId, index);
                 return -1;
             }
         }
 
-        // Encapsulation attributes for instance marshaling.
-        internal readonly Dictionary<AnyClass, int> _marshaledMap = new Dictionary<AnyClass, int>();
-
-        // Encapsulation attributes for instance marshaling.
-        private Dictionary<string, int>? _typeIdMap;
-        private int _typeIdIndex = 0;
-        internal void WriteClassImpl(AnyClass? v)
+        private void WriteClassImpl(AnyClass? v)
         {
             if (v == null)
             {
@@ -1662,29 +1656,27 @@ namespace Ice
             }
             else if (_current != null && _format == FormatType.SlicedFormat)
             {
-                if (_current.indirectionTable == null)
-                {
-                    _current.indirectionTable = new List<AnyClass>();
-                    _current.indirectionMap = new Dictionary<AnyClass, int>();
-                }
+                _current.IndirectionTable ??= new List<AnyClass>();
+                _current.IndirectionMap ??= new Dictionary<AnyClass, int>();
 
-                Debug.Assert(_current.indirectionMap != null);
-                //
-                // If writing an instance within a slice and using the sliced
-                // format, write an index from the instance indirection table.
-                //
-                int index;
-                if (!_current.indirectionMap.TryGetValue(v, out index))
+                // If writing an instance within a slice and using the sliced format, write an index of that slice's
+                // indirection table.
+                int index = 0;
+                if (_current.IndirectionMap != null && _current.IndirectionMap.TryGetValue(v, out index))
                 {
-                    _current.indirectionTable.Add(v);
-                    int idx = _current.indirectionTable.Count; // Position + 1 (0 is reserved for nil)
-                    _current.indirectionMap.Add(v, idx);
-                    WriteSize(idx);
+                    // Found, index is position in indirection table + 1
+                    Debug.Assert(index > 0);
                 }
                 else
                 {
-                    WriteSize(index);
+                    _current.IndirectionTable ??= new List<AnyClass>();
+                    _current.IndirectionMap ??= new Dictionary<AnyClass, int>();
+
+                    _current.IndirectionTable.Add(v);
+                    index = _current.IndirectionTable.Count; // Position + 1 (0 is reserved for null)
+                    _current.IndirectionMap.Add(v, index);
                 }
+                WriteSize(index);
             }
             else
             {
@@ -1692,32 +1684,26 @@ namespace Ice
             }
         }
 
-        internal void StartInstance(SlicedData? data)
+        private void StartInstance(SlicedData? data)
         {
             if (data.HasValue)
             {
-                writeSlicedData(data.Value);
+                WriteSlicedData(data.Value);
             }
         }
 
-        internal void EndInstance()
-        {
-            // Debug.Assert(_current != null);
-            // _current = _current.previous;
-        }
-
-        internal void StartSliceImpl(string typeId, bool firstSlice, int? compactId)
+        private void StartSliceImpl(string typeId, bool firstSlice, int? compactId)
         {
             Debug.Assert(_current != null);
-            _current.sliceFlagsPos = pos();
-            _current.sliceFlags = 0;
+            _current.SliceFlagsPos = pos();
+            _current.SliceFlags = 0;
 
             if (_format == FormatType.SlicedFormat)
            {
                 //
                 // Encode the slice size if using the sliced format.
                 //
-                _current.sliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
+                _current.SliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
             }
 
             WriteByte(0); // Placeholder for the slice flags
@@ -1737,20 +1723,20 @@ namespace Ice
                 {
                     if (compactId.HasValue)
                     {
-                        _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
+                        _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                         WriteSize(compactId.Value);
                     }
                     else
                     {
-                        int index = registerTypeId(typeId);
+                        int index = RegisterTypeId(typeId);
                         if (index < 0)
                         {
-                            _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING;
+                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING;
                             WriteString(typeId);
                         }
                         else
                         {
-                            _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX;
+                            _current.SliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX;
                             WriteSize(index);
                         }
                     }
@@ -1761,64 +1747,56 @@ namespace Ice
                 WriteString(typeId);
             }
 
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 WriteInt(0); // Placeholder for the slice length.
             }
 
-            _current.writeSlice = pos();
+            _current.SliceFirstMemberPos = pos();
         }
 
-        internal void endSlice(bool lastSlice)
+        private void endSlice(bool lastSlice)
         {
             Debug.Assert(_current != null);
 
             if (lastSlice)
             {
-                _current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE;
+                _current.SliceFlags |= Protocol.FLAG_IS_LAST_SLICE;
             }
-            //
-            // Write the optional member end marker if some optional members
-            // were encoded. Note that the optional members are encoded before
-            // the indirection table and are included in the slice size.
-            //
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+
+            // Write the tagged member end marker if some tagged members were encoded. Note that the optional members
+            // are encoded before the indirection table and are included in the slice size.
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 WriteByte(Protocol.OPTIONAL_END_MARKER);
             }
 
-            //
-            // Write the slice length if necessary.
-            //
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            // Write the slice size if necessary.
+            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                int sz = pos() - _current.writeSlice + 4;
-                RewriteInt(sz, _current.writeSlice - 4);
+                int sz = pos() - _current.SliceFirstMemberPos + 4;
+                RewriteInt(sz, _current.SliceFirstMemberPos - 4);
             }
 
-            //
-            // Only write the indirection table if it contains entries.
-            //
-            if (_current.indirectionTable?.Count > 0)
+            if (_current.IndirectionTable?.Count > 0)
             {
                 Debug.Assert(_format == FormatType.SlicedFormat);
-                _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
-            }
-            RewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
+                _current.SliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
-            if (_current.indirectionTable?.Count > 0)
-            {
-                WriteSize(_current.indirectionTable.Count);
-                foreach (var v in _current.indirectionTable)
+                WriteSize(_current.IndirectionTable.Count);
+                foreach (var v in _current.IndirectionTable)
                 {
                     writeInstance(v);
                 }
-                _current.indirectionTable.Clear();
-                _current.indirectionMap?.Clear();
+                _current.IndirectionTable.Clear();
+                _current.IndirectionMap?.Clear();
             }
+
+            // Update SliceFlags in case they were updated.
+            RewriteByte(_current.SliceFlags, _current.SliceFlagsPos);
         }
 
-        internal bool writeOptional(int tag, OptionalFormat format)
+        private bool writeOptional(int tag, OptionalFormat format)
         {
             if (_current == null)
             {
@@ -1828,7 +1806,7 @@ namespace Ice
             {
                 if (writeOptionalImpl(tag, format))
                 {
-                    _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.SliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                     return true;
                 }
                 else
@@ -1838,16 +1816,13 @@ namespace Ice
             }
         }
 
-        private void writeSlicedData(SlicedData slicedData)
+        private void WriteSlicedData(SlicedData slicedData)
         {
-            //
-            // We only remarshal preserved slices if we are using the sliced
-            // format. Otherwise, we ignore the preserved slices, which
-            // essentially "slices" the instance into the most-derived type
-            // known by the sender.
-            //
-            if (_format != FormatType.SlicedFormat)
+            // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
+            // slices, which essentially "slices" the instance into the most-derived type known by the sender.
+            if (_format != FormatType.SlicedFormat || Encoding != slicedData.Encoding)
             {
+                // TODO: if the encodings don't match, do we just drop these slices, or throw an exception?
                 return;
             }
 
@@ -1857,36 +1832,25 @@ namespace Ice
                 StartSliceImpl(info.TypeId ?? "", firstSlice, info.CompactId);
                 firstSlice = false;
 
-                //
-                // Write the bytes associated with this slice.
-                //
-                // Temporary:
+                // Write the bytes associated with this slice. TODO: need better write bytes API
                 var sliceBytes = new byte[info.Bytes.Count];
                 info.Bytes.CopyTo(sliceBytes, 0);
                 WriteBlob(sliceBytes);
 
                 if (info.HasOptionalMembers)
                 {
-                    _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.SliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                 }
 
-                //
                 // Make sure to also re-write the instance indirection table.
-                //
+                // These instances will be marshaled (and assigned instance IDs) in endSlice.
                 if (info.Instances.Count > 0)
                 {
-                    if (_current.indirectionTable == null)
-                    {
-                        _current.indirectionTable = new List<AnyClass>();
-                        _current.indirectionMap = new Dictionary<AnyClass, int>(); // empty map
-                    }
-                    foreach (var o in info.Instances)
-                    {
-                        _current.indirectionTable.Add(o);
-                    }
+                    _current.IndirectionTable ??= new List<AnyClass>();
+                    _current.IndirectionTable.AddRange(info.Instances);
                 }
 
-                endSlice(info.IsLastSlice); // TODO: check it's indeed the last slice?
+                endSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
             }
         }
 
@@ -1894,27 +1858,28 @@ namespace Ice
         {
             Debug.Assert(v != null);
 
-            //
-            // If the instance was already marshaled, just write it's ID.
-            //
-            int p;
-            if (_marshaledMap.TryGetValue(v, out p))
+            // If the instance was already marshaled, just write its instance ID.
+            if (_instanceMap != null && _instanceMap.TryGetValue(v, out int instanceId))
             {
-                WriteSize(p);
+                WriteSize(instanceId);
                 return;
             }
+            else
+            {
+                _instanceMap ??= new Dictionary<AnyClass, int>();
 
-            //
-            // We haven't seen this instance previously, create a new ID,
-            // insert it into the marshaled map, and write the instance.
-            //
-            _marshaledMap.Add(v, ++_valueIdIndex);
+                // We haven't seen this instance previously, so we create a new instance ID and insert the instance
+                // and its ID in the marshaled map, before writing the instance inline.
+                // The instance IDs start at 2 (0 means null and 1 means the instance is written immediately after).
+                instanceId = _instanceMap.Count + 2;
+                _instanceMap.Add(v, instanceId);
 
-            WriteSize(1); // IObject instance marker.
+                WriteSize(1); // Class instance marker.
 
-            var savedInstanceData = Push(InstanceType.Class);
-            v.iceWrite(this);
-            Pop(savedInstanceData);
+                var savedInstanceData = Push(InstanceType.Class);
+                v.iceWrite(this);
+                Pop(savedInstanceData);
+            }
         }
 
         private InstanceData? Push(InstanceType instanceType)
@@ -1934,19 +1899,20 @@ namespace Ice
             internal readonly InstanceType InstanceType;
 
             // The following fields are used and reused for all the slices of a class or exception instance.
-            internal byte sliceFlags = 0;
-            internal int writeSlice = 0;    // Position of the slice data members
-            internal int sliceFlagsPos = 0; // Position of the slice flags
-            internal List<AnyClass>? indirectionTable;
-            internal Dictionary<AnyClass, int>? indirectionMap;
+            internal byte SliceFlags = 0;
+
+            // Position of the first data member in the slice, just after the optional slice size.
+            internal int SliceFirstMemberPos = 0;
+
+            // Position of the slice flags.
+            internal int SliceFlagsPos = 0;
+
+            // The indirection table and indirection map are only used for the sliced format.
+            internal List<AnyClass>? IndirectionTable;
+            internal Dictionary<AnyClass, int>? IndirectionMap;
 
             internal InstanceData(InstanceType instanceType) => InstanceType = instanceType;
         }
-
-        private InstanceData? _current;
-
-        private int _valueIdIndex = 1; // The ID of the next instance to marhsal
-
         private readonly struct Encaps
         {
             // Old Encoding
@@ -1965,8 +1931,6 @@ namespace Ice
             }
         }
 
-        private Encaps? _mainEncaps;
-        private Encaps? _endpointEncaps;
     }
 
     /// <summary>
