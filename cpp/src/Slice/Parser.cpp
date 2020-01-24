@@ -1019,7 +1019,8 @@ Slice::Contained::addMetaData(const string& s)
 FormatType
 Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 {
-    FormatType result = DefaultFormat;
+    FormatType result = DefaultFormat; // TODO: replace FormatType here by a std::optional<FormatType>
+                                       // and eliminate DefaultFormat (replaced by not-set).
 
     string tag;
     string prefix = "format:";

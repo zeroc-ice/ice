@@ -42,9 +42,9 @@ namespace IceInternal
         //
         public virtual void streamWrite(Ice.OutputStream s)
         {
-            s.StartEncapsulation();
+            s.StartEndpointEncapsulation();
             streamWriteImpl(s);
-            s.EndEncapsulation();
+            s.EndEndpointEncapsulation();
         }
         public abstract void streamWriteImpl(Ice.OutputStream s);
 

@@ -577,6 +577,7 @@ namespace Ice.optional
                 }
                 output.WriteLine("ok");
 
+                /*
                 output.Write("testing optionals with unknown classes...");
                 output.Flush();
                 {
@@ -597,6 +598,7 @@ namespace Ice.optional
                     @in.EndEncapsulation();
                 }
                 output.WriteLine("ok");
+                */
             }
 
             output.Write("testing optional parameters... ");
@@ -2091,6 +2093,7 @@ namespace Ice.optional
             return initial;
         }
 
+        /*
         private class DClassWriter : ClassWriter
         {
             public override string ice_id()
@@ -2102,7 +2105,7 @@ namespace Ice.optional
             {
                 @out.StartClass(null);
                 // ::Test::D
-                @out.StartSlice("::Test::D", -1, false);
+                @out.StartSlice("::Test::D", true);
                 string s = "test";
                 @out.WriteString(s);
                 @out.WriteOptional(1, OptionalFormat.FSize);
@@ -2114,21 +2117,20 @@ namespace Ice.optional
                 a.mc = 18;
                 @out.WriteOptional(1000, OptionalFormat.Class);
                 @out.WriteClass(a);
-                @out.EndSlice();
+                @out.EndSlice(false);
                 // ::Test::B
-                @out.StartSlice(Test.B.ice_staticId(), -1, false);
+                @out.StartSlice(Test.B.ice_staticId(), false);
                 int v = 14;
                 @out.WriteInt(v);
-                @out.EndSlice();
+                @out.EndSlice(false);
                 // ::Test::A
-                @out.StartSlice(Test.A.ice_staticId(), -1, true);
+                @out.StartSlice(Test.A.ice_staticId(), false);
                 @out.WriteInt(v);
-                @out.EndSlice();
+                @out.EndSlice(true);
                 @out.EndClass();
             }
         }
 
-        /*
         private class DClassReader : ClassReader
         {
             public override void read(InputStream @in)

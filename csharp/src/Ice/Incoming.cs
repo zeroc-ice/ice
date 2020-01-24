@@ -369,7 +369,7 @@ namespace IceInternal
                     Debug.Assert(_os != null, "null output stream");
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -502,7 +502,7 @@ namespace IceInternal
                 os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
             }
             Debug.Assert(_current != null);
-            Debug.Assert(os.pos() == 0);
+            Debug.Assert(os.Pos == 0);
             os.WriteBlob(Protocol.replyHdr);
             os.WriteInt(_current.RequestId);
             os.WriteByte(ReplyStatus.replyOK);
@@ -532,7 +532,7 @@ namespace IceInternal
                     os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                 }
                 Debug.Assert(_current != null);
-                Debug.Assert(os.pos() == 0);
+                Debug.Assert(os.Pos == 0);
                 os.WriteBlob(Protocol.replyHdr);
                 os.WriteInt(_current.RequestId);
                 os.WriteByte(ReplyStatus.replyOK);
@@ -564,7 +564,7 @@ namespace IceInternal
                     os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                 }
                 Debug.Assert(_current != null);
-                Debug.Assert(os.pos() == 0);
+                Debug.Assert(os.Pos == 0);
                 os.WriteBlob(Protocol.replyHdr);
                 os.WriteInt(_current.RequestId);
                 os.WriteByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
@@ -719,7 +719,7 @@ namespace IceInternal
 
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -749,7 +749,7 @@ namespace IceInternal
                     _os.WriteString(ex.unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -779,7 +779,7 @@ namespace IceInternal
                     _os.WriteString(ex.unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     Debug.Assert(_responseHandler != null && _current != null);
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
@@ -810,7 +810,7 @@ namespace IceInternal
                     _os.WriteString(ex.unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -837,7 +837,7 @@ namespace IceInternal
                     _os.EndEncapsulation();
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, false);
                 }
@@ -867,7 +867,7 @@ namespace IceInternal
                     _os.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -897,7 +897,7 @@ namespace IceInternal
                     _os.WriteString(ex.ToString());
                     if (_observer != null)
                     {
-                        _observer.reply(_os.size() - Protocol.headerSize - 4);
+                        _observer.reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -928,7 +928,7 @@ namespace IceInternal
         private Ice.ObjectAdapter _adapter;
         private Ice.Connection? _connection;
         private int _requestId;
-        private Ice.FormatType _format = Ice.FormatType.DefaultFormat;
+        private Ice.FormatType? _format;
 
         private Ice.OutputStream? _os;
         private Ice.InputStream? _is;

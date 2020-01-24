@@ -169,23 +169,18 @@ namespace Ice
 
         internal SlicedData? SlicedData => IceSlicedData;
 
-        public virtual void iceWrite(OutputStream ostr)
-        {
-            ostr.StartException(null);
-            iceWriteImpl(ostr);
-            ostr.EndException();
-        }
-
         public virtual bool iceUsesClasses()
         {
             return false;
         }
 
-        protected abstract void iceWriteImpl(OutputStream ostr);
-
-        // Read all the fields of this exception from the stream.
+        // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
+
+        // See OuputStream
+        protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
+        internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }
 
     public static class UserExceptionExtensions

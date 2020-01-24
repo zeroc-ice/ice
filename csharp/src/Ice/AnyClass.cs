@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Ice
@@ -24,23 +23,13 @@ namespace Ice
         }
         internal SlicedData? SlicedData => IceSlicedData;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void iceWrite(OutputStream ostr)
-        {
-            ostr.StartClass(null);
-            iceWriteImpl(ostr);
-            ostr.EndClass();
-        }
-
-        // Read all the fields of this instance from the stream. See InputStream.
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void iceWriteImpl(OutputStream ostr)
-        {
-        }
+        // See OutputStream.
+        protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
+        internal void Write(OutputStream ostr) => IceWrite(ostr, true);
 
         /// <summary>
         /// Returns a copy of the object. The cloned object contains field-for-field copies

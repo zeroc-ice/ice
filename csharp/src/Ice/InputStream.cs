@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -96,9 +97,9 @@ namespace Ice
         private Dictionary<string, Type?>? _typeIdCache;
         private Dictionary<int, Type?>? _compactIdCache;
 
-        // Map of type-id index to type-id string.
-        // When reading a top-level encapsulation, we assign a type-id index (starting with 1) to each type-id we
-        // read, in order. Since this map is a list, we lookup a previously assigned type-id string with
+        // Map of type ID index to type ID string.
+        // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
+        // read, in order. Since this map is a list, we lookup a previously assigned type ID string with
         // _typeIdMap[index - 1].
         private List<string>? _typeIdMap;
         private int _posAfterLatestInsertedTypeId = 0;
@@ -114,6 +115,8 @@ namespace Ice
         // Since the map is actually a list, we use instance ID - 2 to lookup an instance.
         private List<AnyClass>? _instanceMap;
         private int _classGraphDepth = 0;
+
+         // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData? _current;
 
         /// <summary>
@@ -265,12 +268,11 @@ namespace Ice
             return encapsHeader.Encoding;
         }
 
-        /// <summary>
-        /// Start reading a slice of a class or exception instance.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="typeId">The expected typeId of this slice.</param>
-        /// <param name="firstSlice">True when reading the first (most derived) slice of an instance.</param>
+        // Start reading a slice of a class or exception instance.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // typeId is the expected type ID of this slice.
+        // firstSlice is true when reading the first (most derived) slice of an instance.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartSlice(string typeId, bool firstSlice)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -295,12 +297,11 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Start reading the first slice of an instance and get the unknown slices for this instances that were
-        /// previously saved (if any).
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="typeId">The expected typeId of this slice.</param>
+        // Start reading the first slice of an instance and get the unknown slices for this instances that were
+        // previously saved (if any).
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // typeId is the expected typeId of this slice.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public SlicedData? IceStartSliceAndGetSlicedData(string typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -314,14 +315,13 @@ namespace Ice
             return SlicedData;
         }
 
-        /// <summary>
-        /// Tells the InputStream the end of a class or exception slice was reached.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
+        // Tells the InputStream the end of a class or exception slice was reached.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceEndSlice()
         {
             // Note that IceEndSlice is not called when we call SkipSlice.
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
             if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 SkipTaggedMembers();
@@ -1762,7 +1762,6 @@ namespace Ice
         /// <summary>
         /// Extracts a user exception from the stream and throws it.
         /// </summary>
-        /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
         public void ThrowException()
         {
             Push(InstanceType.Exception);
@@ -2471,8 +2470,7 @@ namespace Ice
                 // If this is the last slice, keep the instance as an opaque UnknownSlicedClass object.
                 if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    // Note that mostDerivedId can be null with an unresolved compactId.
-                    v = new UnknownSlicedClass(mostDerivedId ?? "");
+                    v = new UnknownSlicedClass();
                     break;
                 }
 
@@ -2494,7 +2492,7 @@ namespace Ice
             {
                 int savedPos = Pos;
 
-                Debug.Assert(_current.Slices.Count == deferredIndirectionTableList.Count);
+                Debug.Assert(_current.Slices?.Count == deferredIndirectionTableList.Count);
                 for (int i = 0; i < deferredIndirectionTableList.Count; ++i)
                 {
                     int pos = deferredIndirectionTableList[i];

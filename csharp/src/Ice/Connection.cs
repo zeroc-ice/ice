@@ -380,7 +380,7 @@ namespace Ice
                 // called every (timeout / 2) period.
                 //
                 if (acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-                   (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
+                   (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.IsEmpty &&
                     now >= (_acmLastActivity + acm.timeout / 4)))
                 {
                     if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
@@ -389,7 +389,7 @@ namespace Ice
                     }
                 }
 
-                if (_readStream.Size > Protocol.headerSize || !_writeStream.isEmpty())
+                if (_readStream.Size > Protocol.headerSize || !_writeStream.IsEmpty)
                 {
                     //
                     // If writing or reading, nothing to do, the connection
@@ -469,7 +469,7 @@ namespace Ice
                     //
                     // Fill in the request ID.
                     //
-                    os.pos(Protocol.headerSize);
+                    os.Pos = Protocol.headerSize;
                     os.WriteInt(requestId);
                 }
 
@@ -1574,7 +1574,7 @@ namespace Ice
 
             if (_sendStreams.Count > 0)
             {
-                if (!_writeStream.isEmpty())
+                if (!_writeStream.IsEmpty)
                 {
                     //
                     // Return the stream to the outgoing call. This is important for
@@ -2190,7 +2190,7 @@ namespace Ice
             {
                 if (_adapter != null) // The server side has the active role for connection validation.
                 {
-                    if (_writeStream.size() == 0)
+                    if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteBlob(Protocol.magic);
                         _writeStream.WriteByte(Util.currentProtocol.major);
@@ -2209,7 +2209,7 @@ namespace Ice
                         ObserverStartWrite(_writeStream.GetBuffer());
                     }
 
-                    if (_writeStream.pos() != _writeStream.size())
+                    if (_writeStream.Pos != _writeStream.Size)
                     {
                         int op = Write(_writeStream.GetBuffer());
                         if (op != 0)
@@ -2293,7 +2293,7 @@ namespace Ice
             }
 
             _writeStream.Resize(0);
-            _writeStream.pos(0);
+            _writeStream.Pos = 0;
 
             _readStream.Resize(Protocol.headerSize);
             _readStream.Pos = 0;
@@ -2333,7 +2333,7 @@ namespace Ice
             {
                 return SocketOperation.None;
             }
-            else if (_state == StateClosingPending && _writeStream.pos() == 0)
+            else if (_state == StateClosingPending && _writeStream.Pos == 0)
             {
                 // Message wasn't sent, empty the _writeStream, we're not going to send more data.
                 OutgoingMessage message = _sendStreams.First.Value;
@@ -2341,7 +2341,7 @@ namespace Ice
                 return SocketOperation.None;
             }
 
-            Debug.Assert(!_writeStream.isEmpty() && _writeStream.pos() == _writeStream.size());
+            Debug.Assert(!_writeStream.IsEmpty && _writeStream.Pos == _writeStream.Size);
             try
             {
                 while (true)
@@ -2403,7 +2403,7 @@ namespace Ice
                     {
                         ObserverStartWrite(_writeStream.GetBuffer());
                     }
-                    if (_writeStream.pos() != _writeStream.size())
+                    if (_writeStream.Pos != _writeStream.Size)
                     {
                         int op = Write(_writeStream.GetBuffer());
                         if (op != 0)
@@ -2506,7 +2506,7 @@ namespace Ice
         {
             if (_compressionSupported)
             {
-                if (compress && uncompressed.size() >= 100)
+                if (compress && uncompressed.Size >= 100)
                 {
                     //
                     // Do compression.
@@ -2516,41 +2516,41 @@ namespace Ice
                     if (cbuf != null)
                     {
                         OutputStream cstream =
-                            new OutputStream(uncompressed.communicator(), uncompressed.GetEncoding(), cbuf, true);
+                            new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf, true);
 
                         //
                         // Set compression status.
                         //
-                        cstream.pos(9);
+                        cstream.Pos = 9;
                         cstream.WriteByte(2);
 
                         //
                         // Write the size of the compressed stream into the header.
                         //
-                        cstream.pos(10);
-                        cstream.WriteInt(cstream.size());
+                        cstream.Pos = 10;
+                        cstream.WriteInt(cstream.Size);
 
                         //
                         // Write the compression status and size of the compressed stream into the header of the
                         // uncompressed stream -- we need this to trace requests correctly.
                         //
-                        uncompressed.pos(9);
+                        uncompressed.Pos = 9;
                         uncompressed.WriteByte(2);
-                        uncompressed.WriteInt(cstream.size());
+                        uncompressed.WriteInt(cstream.Size);
 
                         return cstream;
                     }
                 }
             }
 
-            uncompressed.pos(9);
+            uncompressed.Pos = 9;
             uncompressed.WriteByte((byte)((_compressionSupported && compress) ? 1 : 0));
 
             //
             // Not compressed, fill in the message size.
             //
-            uncompressed.pos(10);
-            uncompressed.WriteInt(uncompressed.size());
+            uncompressed.Pos = 10;
+            uncompressed.WriteInt(uncompressed.Size);
 
             return uncompressed;
         }
@@ -3076,7 +3076,7 @@ namespace Ice
             {
                 if (_adopt)
                 {
-                    var stream = new OutputStream(this.stream!.communicator(), Util.currentProtocolEncoding);
+                    var stream = new OutputStream(this.stream!.Communicator, Util.currentProtocolEncoding);
                     stream.Swap(this.stream);
                     this.stream = stream;
                     _adopt = false;

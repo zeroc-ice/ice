@@ -82,11 +82,11 @@ namespace IceInternal
 
                 if (_traceLevels.protocol >= 1)
                 {
-                    fillInValue(os, 10, os.size());
+                    fillInValue(os, 10, os.Size);
                 }
 
                 // Adopt the OutputStream's buffer.
-                Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), true);
+                Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
 
                 iss.Pos = Protocol.replyHdr.Length + 4;
 
@@ -227,7 +227,7 @@ namespace IceInternal
         {
             if (_traceLevels.protocol >= 1)
             {
-                fillInValue(os, 10, os.size());
+                fillInValue(os, 10, os.Size);
                 if (requestId > 0)
                 {
                     fillInValue(os, Protocol.headerSize, requestId);
@@ -235,7 +235,7 @@ namespace IceInternal
                 TraceUtil.traceSend(os, _logger, _traceLevels);
             }
 
-            Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), false);
+            Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
 
             iss.Pos = Protocol.requestHdr.Length;
 

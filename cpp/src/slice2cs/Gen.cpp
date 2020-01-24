@@ -65,7 +65,7 @@ opFormatTypeToString(const OperationPtr& op, string ns)
     {
         case DefaultFormat:
         {
-            return getUnqualified("Ice.FormatType.DefaultFormat", ns);
+            return "null";
         }
         case CompactFormat:
         {
@@ -263,18 +263,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
             emitGeneratedCodeAttribute();
         }
         _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
-
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public override void iceWrite(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
-        _out << sb;
-        _out << nl << "ostr.StartClass(IceSlicedData);";
-        _out << nl << "iceWriteImpl(ostr);";
-        _out << nl << "ostr.EndClass();";
-        _out << eb;
     }
 
     _out << sp;
@@ -283,25 +271,43 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         emitGeneratedCodeAttribute();
     }
 
-    _out << nl << "protected override void iceWriteImpl(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
+    _out << nl << "protected override void IceWrite(" << getUnqualified("Ice.OutputStream", ns)
+         << " iceP_ostr, bool iceP_firstSlice)";
     _out << sb;
-    _out << nl << "ostr.StartSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    _out << nl << "iceP_ostr.IceStartSlice" << spar << "ice_staticId()" << "iceP_firstSlice";
+    if (preserved || basePreserved)
+    {
+        _out << "iceP_firstSlice ? IceSlicedData : null";
+    }
+    else
+    {
+        _out << "null";
+    }
+    if (p->compactId() >= 0)
+    {
+        _out << p->compactId();
+    }
+    _out << epar << ";";
     for(auto m : members)
     {
         if(!m->tagged())
         {
-            writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
+            writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
         }
     }
 
     for(auto m : taggedMembers)
     {
-        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns);
+        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
     }
-    _out << nl << "ostr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceWriteImpl(ostr);";
+        _out << nl << "iceP_ostr.IceEndSlice(false);";
+        _out << nl << "base.IceWrite(iceP_ostr, false);";
+    }
+    else
+    {
+         _out << nl << "iceP_ostr.IceEndSlice(true);"; // last slice
     }
     _out << eb;
 
@@ -1719,30 +1725,32 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override void iceWrite(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
-        _out << sb;
-        _out << nl << "ostr.StartException(IceSlicedData);";
-        _out << nl << "iceWriteImpl(ostr);";
-        _out << nl << "ostr.EndException();";
-        _out << eb;
     }
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "protected override void iceWriteImpl(" << getUnqualified("Ice.OutputStream", ns) << " ostr)";
+    _out << nl << "protected override void IceWrite(" << getUnqualified("Ice.OutputStream", ns)
+         << " iceP_ostr, bool iceP_firstSlice)";
     _out << sb;
-    _out << nl << "ostr.StartSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
+    _out << nl << "iceP_ostr.IceStartSlice" << spar << "\"" + scoped + "\"" << "iceP_firstSlice";
+    if (preserved || basePreserved)
+    {
+        _out << "iceP_firstSlice ? IceSlicedData : null";
+    }
+    _out << epar << ";";
+
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns);
+        writeMarshalDataMember(*q, fixId(dataMemberName(*q), Slice::ExceptionType), ns, "iceP_ostr");
     }
-    _out << nl << "ostr.EndSlice();";
     if(base)
     {
-        _out << nl << "base.iceWriteImpl(ostr);";
+        _out << nl << "iceP_ostr.IceEndSlice(false);"; // the current slice is not last slice
+        _out << nl << "base.IceWrite(iceP_ostr, false);"; // the next one is not the first slice
+    }
+    else
+    {
+        _out << nl << "iceP_ostr.IceEndSlice(true);"; // this is the last slice.
     }
     _out << eb;
 

@@ -177,7 +177,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = getObserver();
             if (observer != null)
             {
-                int size = os_!.size() - Protocol.headerSize - 4;
+                int size = os_!.Size - Protocol.headerSize - 4;
                 childObserver_ = observer.getRemoteObserver(info, endpt, requestId, size);
                 if (childObserver_ != null)
                 {
@@ -191,7 +191,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = getObserver();
             if (observer != null)
             {
-                int size = os_!.size() - Protocol.headerSize - 4;
+                int size = os_!.Size - Protocol.headerSize - 4;
                 childObserver_ = observer.getCollocatedObserver(adapter, requestId, size);
                 if (childObserver_ != null)
                 {
@@ -923,7 +923,7 @@ namespace IceInternal
 
         public void invoke(string operation,
                            Ice.OperationMode mode,
-                           Ice.FormatType format,
+                           Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
@@ -1011,7 +1011,7 @@ namespace IceInternal
 
         public void invoke(string operation,
                            Ice.OperationMode mode,
-                           Ice.FormatType format,
+                           Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
