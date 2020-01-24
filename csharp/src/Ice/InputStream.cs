@@ -2472,8 +2472,7 @@ namespace Ice
                 // If this is the last slice, keep the instance as an opaque UnknownSlicedClass object.
                 if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    // Note that mostDerivedId can be null with an unresolved compactId.
-                    v = new UnknownSlicedClass(mostDerivedId ?? "");
+                    v = new UnknownSlicedClass();
                     break;
                 }
 
