@@ -11,36 +11,30 @@ namespace IceInternal
 {
     public interface IOutgoingAsyncCompletionCallback
     {
-        void init(OutgoingAsyncBase og);
+        void Init(OutgoingAsyncBase og);
 
-        bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
-        bool handleException(Ice.Exception ex, OutgoingAsyncBase og);
-        bool handleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
+        bool HandleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
+        bool HandleException(Ice.Exception ex, OutgoingAsyncBase og);
+        bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
-        void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
-        void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og);
-        void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
+        void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
+        void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og);
+        void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
     }
 
     public abstract class OutgoingAsyncBase
     {
-        public virtual bool sent()
-        {
-            return sentImpl(true);
-        }
+        public virtual bool Sent() => SentImpl(true);
 
-        public virtual bool exception(Ice.Exception ex)
-        {
-            return exceptionImpl(ex);
-        }
+        public virtual bool Exception(Ice.Exception ex) => ExceptionImpl(ex);
 
-        public virtual bool response()
+        public virtual bool Response()
         {
             Debug.Assert(false); // Must be overriden by request that can handle responses
             return false;
         }
 
-        public void invokeSentAsync()
+        public void InvokeSentAsync()
         {
             //
             // This is called when it's not safe to call the sent callback
@@ -49,72 +43,72 @@ namespace IceInternal
             //
             try
             {
-                communicator_.ClientThreadPool().dispatch(invokeSent, cachedConnection_);
+                Communicator.ClientThreadPool().Dispatch(InvokeSent, CachedConnection);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
             }
         }
 
-        public void invokeExceptionAsync()
+        public void InvokeExceptionAsync()
         {
             //
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            communicator_.ClientThreadPool().dispatch(invokeException, cachedConnection_);
+            Communicator.ClientThreadPool().Dispatch(InvokeException, CachedConnection);
         }
 
-        public void invokeResponseAsync()
+        public void InvokeResponseAsync()
         {
             //
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            communicator_.ClientThreadPool().dispatch(invokeResponse, cachedConnection_);
+            Communicator.ClientThreadPool().Dispatch(InvokeResponse, CachedConnection);
         }
 
-        public void invokeSent()
+        public void InvokeSent()
         {
             try
             {
-                _completionCallback.handleInvokeSent(sentSynchronously_, _doneInSent, _alreadySent, this);
+                _completionCallback.HandleInvokeSent(sentSynchronously_, _doneInSent, _alreadySent, this);
             }
             catch (System.Exception ex)
             {
-                warning(ex);
+                Warning(ex);
             }
 
-            if (observer_ != null && _doneInSent)
+            if (Observer != null && _doneInSent)
             {
-                observer_.detach();
-                observer_ = null;
+                Observer.Detach();
+                Observer = null;
             }
         }
-        public void invokeException()
+        public void InvokeException()
         {
             Debug.Assert(_ex != null);
             try
             {
-                _completionCallback.handleInvokeException(_ex, this);
+                _completionCallback.HandleInvokeException(_ex, this);
             }
             catch (System.Exception ex)
             {
-                warning(ex);
+                Warning(ex);
             }
 
-            if (observer_ != null)
+            if (Observer != null)
             {
-                observer_.detach();
-                observer_ = null;
+                Observer.Detach();
+                Observer = null;
             }
         }
 
-        public void invokeResponse()
+        public void InvokeResponse()
         {
             if (_ex != null)
             {
-                invokeException();
+                InvokeException();
                 return;
             }
 
@@ -122,13 +116,13 @@ namespace IceInternal
             {
                 try
                 {
-                    _completionCallback.handleInvokeResponse((state_ & StateOK) != 0, this);
+                    _completionCallback.HandleInvokeResponse((State & StateOK) != 0, this);
                 }
                 catch (Ice.Exception ex)
                 {
-                    if (_completionCallback.handleException(ex, this))
+                    if (_completionCallback.HandleException(ex, this))
                     {
-                        _completionCallback.handleInvokeException(ex, this);
+                        _completionCallback.HandleInvokeException(ex, this);
                     }
                 }
                 catch (System.AggregateException ex)
@@ -138,17 +132,17 @@ namespace IceInternal
             }
             catch (System.Exception ex)
             {
-                warning(ex);
+                Warning(ex);
             }
 
-            if (observer_ != null)
+            if (Observer != null)
             {
-                observer_.detach();
-                observer_ = null;
+                Observer.Detach();
+                Observer = null;
             }
         }
 
-        public virtual void cancelable(ICancellationHandler handler)
+        public virtual void Cancelable(ICancellationHandler handler)
         {
             lock (this)
             {
@@ -167,84 +161,81 @@ namespace IceInternal
                 _cancellationHandler = handler;
             }
         }
-        public void cancel()
-        {
-            cancel(new Ice.InvocationCanceledException());
-        }
+        public void Cancel() => Cancel(new Ice.InvocationCanceledException());
 
-        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
+        public void AttachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
         {
-            Ice.Instrumentation.IInvocationObserver? observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = os_!.Size - Protocol.headerSize - 4;
-                childObserver_ = observer.getRemoteObserver(info, endpt, requestId, size);
-                if (childObserver_ != null)
+                int size = Os!.Size - Protocol.headerSize - 4;
+                ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
+                if (ChildObserver != null)
                 {
-                    childObserver_.attach();
+                    ChildObserver.Attach();
                 }
             }
         }
 
-        public void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
+        public void AttachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
         {
-            Ice.Instrumentation.IInvocationObserver? observer = getObserver();
+            Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = os_!.Size - Protocol.headerSize - 4;
-                childObserver_ = observer.getCollocatedObserver(adapter, requestId, size);
-                if (childObserver_ != null)
+                int size = Os!.Size - Protocol.headerSize - 4;
+                ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
+                if (ChildObserver != null)
                 {
-                    childObserver_.attach();
+                    ChildObserver.Attach();
                 }
             }
         }
 
-        public Ice.OutputStream getOs() => os_!;
+        public Ice.OutputStream GetOs() => Os!;
 
-        public Ice.InputStream getIs() => is_!;
+        public Ice.InputStream GetIs() => Is!;
 
-        public virtual void throwUserException()
+        public virtual void ThrowUserException()
         {
         }
 
-        public virtual void cacheMessageBuffers()
+        public virtual void CacheMessageBuffers()
         {
         }
 
-        public bool isSynchronous() => synchronous_;
+        public bool IsSynchronous() => Synchronous;
 
         protected OutgoingAsyncBase(Ice.Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
                                     Ice.OutputStream? os = null, Ice.InputStream? iss = null)
         {
-            communicator_ = communicator;
+            Communicator = communicator;
             sentSynchronously_ = false;
-            synchronous_ = false;
+            Synchronous = false;
             _doneInSent = false;
             _alreadySent = false;
-            state_ = 0;
-            os_ = os ?? new Ice.OutputStream(communicator, Ice.Util.currentProtocolEncoding);
-            is_ = iss ?? new Ice.InputStream(communicator, Ice.Util.currentProtocolEncoding);
+            State = 0;
+            Os = os ?? new Ice.OutputStream(communicator, Ice.Util.CurrentProtocolEncoding);
+            Is = iss ?? new Ice.InputStream(communicator, Ice.Util.CurrentProtocolEncoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
             {
-                _completionCallback.init(this);
+                _completionCallback.Init(this);
             }
         }
 
-        protected virtual bool sentImpl(bool done)
+        protected virtual bool SentImpl(bool done)
         {
             lock (this)
             {
-                _alreadySent = (state_ & StateSent) > 0;
-                state_ |= StateSent;
+                _alreadySent = (State & StateSent) > 0;
+                State |= StateSent;
                 if (done)
                 {
                     _doneInSent = true;
-                    if (childObserver_ != null)
+                    if (ChildObserver != null)
                     {
-                        childObserver_.detach();
-                        childObserver_ = null;
+                        ChildObserver.Detach();
+                        ChildObserver = null;
                     }
                     _cancellationHandler = null;
 
@@ -255,75 +246,75 @@ namespace IceInternal
                     // the buffer won't be reused because it has already
                     // been marked as cached in invokeCollocated.
                     //
-                    cacheMessageBuffers();
+                    CacheMessageBuffers();
                 }
 
-                bool invoke = _completionCallback.handleSent(done, _alreadySent, this);
-                if (!invoke && _doneInSent && observer_ != null)
+                bool invoke = _completionCallback.HandleSent(done, _alreadySent, this);
+                if (!invoke && _doneInSent && Observer != null)
                 {
-                    observer_.detach();
-                    observer_ = null;
+                    Observer.Detach();
+                    Observer = null;
                 }
                 return invoke;
             }
         }
 
-        protected virtual bool exceptionImpl(Ice.Exception ex)
+        protected virtual bool ExceptionImpl(Ice.Exception ex)
         {
             lock (this)
             {
                 _ex = ex;
-                if (childObserver_ != null)
+                if (ChildObserver != null)
                 {
-                    childObserver_.failed(ex.ice_id());
-                    childObserver_.detach();
-                    childObserver_ = null;
+                    ChildObserver.Failed(ex.ice_id());
+                    ChildObserver.Detach();
+                    ChildObserver = null;
                 }
                 _cancellationHandler = null;
 
-                if (observer_ != null)
+                if (Observer != null)
                 {
-                    observer_.failed(ex.ice_id());
+                    Observer.Failed(ex.ice_id());
                 }
-                bool invoke = _completionCallback.handleException(ex, this);
-                if (!invoke && observer_ != null)
+                bool invoke = _completionCallback.HandleException(ex, this);
+                if (!invoke && Observer != null)
                 {
-                    observer_.detach();
-                    observer_ = null;
+                    Observer.Detach();
+                    Observer = null;
                 }
                 return invoke;
             }
         }
-        protected virtual bool responseImpl(bool userThread, bool ok, bool invoke)
+        protected virtual bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
             lock (this)
             {
                 if (ok)
                 {
-                    state_ |= StateOK;
+                    State |= StateOK;
                 }
 
                 _cancellationHandler = null;
 
                 try
                 {
-                    invoke &= _completionCallback.handleResponse(userThread, ok, this);
+                    invoke &= _completionCallback.HandleResponse(userThread, ok, this);
                 }
                 catch (Ice.Exception ex)
                 {
                     _ex = ex;
-                    invoke = _completionCallback.handleException(ex, this);
+                    invoke = _completionCallback.HandleException(ex, this);
                 }
-                if (!invoke && observer_ != null)
+                if (!invoke && Observer != null)
                 {
-                    observer_.detach();
-                    observer_ = null;
+                    Observer.Detach();
+                    Observer = null;
                 }
                 return invoke;
             }
         }
 
-        protected void cancel(Ice.LocalException ex)
+        protected void Cancel(Ice.LocalException ex)
         {
             ICancellationHandler handler;
             {
@@ -340,32 +331,29 @@ namespace IceInternal
             handler.AsyncRequestCanceled(this, ex);
         }
 
-        protected void warning(System.Exception ex)
+        protected void Warning(System.Exception ex)
         {
-            if ((communicator_.GetPropertyAsInt("Ice.Warn.AMICallback") ?? 1) > 0)
+            if ((Communicator.GetPropertyAsInt("Ice.Warn.AMICallback") ?? 1) > 0)
             {
-                communicator_.Logger.warning("exception raised by AMI callback:\n" + ex);
+                Communicator.Logger.Warning("exception raised by AMI callback:\n" + ex);
             }
         }
 
-        protected Ice.Instrumentation.IInvocationObserver? getObserver() => observer_;
+        protected Ice.Instrumentation.IInvocationObserver? GetObserver() => Observer;
 
-        public bool sentSynchronously()
-        {
-            return sentSynchronously_;
-        }
+        public bool SentSynchronously() => sentSynchronously_;
 
-        protected Ice.Communicator communicator_;
-        protected Ice.Connection? cachedConnection_;
+        protected Ice.Communicator Communicator;
+        protected Ice.Connection? CachedConnection;
         protected bool sentSynchronously_;
-        protected bool synchronous_;
-        protected int state_;
+        protected bool Synchronous;
+        protected int State;
 
-        protected Ice.Instrumentation.IInvocationObserver? observer_;
-        protected Ice.Instrumentation.IChildInvocationObserver? childObserver_;
+        protected Ice.Instrumentation.IInvocationObserver? Observer;
+        protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
-        protected Ice.OutputStream? os_;
-        protected Ice.InputStream? is_;
+        protected Ice.OutputStream? Os;
+        protected Ice.InputStream? Is;
 
         private bool _doneInSent;
         private bool _alreadySent;
@@ -393,22 +381,22 @@ namespace IceInternal
     //
     public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, ITimerTask
     {
-        public abstract int invokeRemote(Ice.Connection connection, bool compress, bool response);
-        public abstract int invokeCollocated(CollocatedRequestHandler handler);
+        public abstract int InvokeRemote(Ice.Connection connection, bool compress, bool response);
+        public abstract int InvokeCollocated(CollocatedRequestHandler handler);
 
-        public override bool exception(Ice.Exception exc)
+        public override bool Exception(Ice.Exception exc)
         {
-            if (childObserver_ != null)
+            if (ChildObserver != null)
             {
-                childObserver_.failed(exc.ice_id());
-                childObserver_.detach();
-                childObserver_ = null;
+                ChildObserver.Failed(exc.ice_id());
+                ChildObserver.Detach();
+                ChildObserver = null;
             }
 
-            cachedConnection_ = null;
-            if (proxy_.IceReference.getInvocationTimeout() == -2)
+            CachedConnection = null;
+            if (Proxy.IceReference.GetInvocationTimeout() == -2)
             {
-                communicator_.Timer().cancel(this);
+                Communicator.Timer().Cancel(this);
             }
 
             //
@@ -422,26 +410,26 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                communicator_.AddRetryTask(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+                Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, Mode, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
             {
-                return exceptionImpl(ex); // No retries, we're done
+                return ExceptionImpl(ex); // No retries, we're done
             }
         }
 
-        public override void cancelable(ICancellationHandler handler)
+        public override void Cancelable(ICancellationHandler handler)
         {
-            if (proxy_.IceReference.getInvocationTimeout() == -2 && cachedConnection_ != null)
+            if (Proxy.IceReference.GetInvocationTimeout() == -2 && CachedConnection != null)
             {
-                int timeout = cachedConnection_.Timeout;
+                int timeout = CachedConnection.Timeout;
                 if (timeout > 0)
                 {
-                    communicator_.Timer().schedule(this, timeout);
+                    Communicator.Timer().Schedule(this, timeout);
                 }
             }
-            base.cancelable(handler);
+            base.Cancelable(handler);
         }
 
         public void RetryException()
@@ -454,28 +442,25 @@ namespace IceInternal
                 // require could end up waiting for the flush of the
                 // connection to be done.
                 //
-                proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
-                communicator_.AddRetryTask(this, 0);
+                Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
+                Communicator.AddRetryTask(this, 0);
             }
             catch (Ice.Exception ex)
             {
-                if (exception(ex))
+                if (Exception(ex))
                 {
-                    invokeExceptionAsync();
+                    InvokeExceptionAsync();
                 }
             }
         }
 
-        public void retry()
+        public void Retry() => InvokeImpl(false);
+        public void Abort(Ice.Exception ex)
         {
-            invokeImpl(false);
-        }
-        public void abort(Ice.Exception ex)
-        {
-            Debug.Assert(childObserver_ == null);
-            if (exceptionImpl(ex))
+            Debug.Assert(ChildObserver == null);
+            if (ExceptionImpl(ex))
             {
-                invokeExceptionAsync();
+                InvokeExceptionAsync();
             }
             else if (ex is Ice.CommunicatorDestroyedException)
             {
@@ -494,27 +479,27 @@ namespace IceInternal
                                          Ice.InputStream? iss = null) :
             base(prx.Communicator, completionCallback, os, iss)
         {
-            proxy_ = prx;
-            mode_ = Ice.OperationMode.Normal;
+            Proxy = prx;
+            Mode = Ice.OperationMode.Normal;
             _cnt = 0;
             _sent = false;
         }
 
-        protected void invokeImpl(bool userThread)
+        protected void InvokeImpl(bool userThread)
         {
             try
             {
                 if (userThread)
                 {
-                    int invocationTimeout = proxy_.IceReference.getInvocationTimeout();
+                    int invocationTimeout = Proxy.IceReference.GetInvocationTimeout();
                     if (invocationTimeout > 0)
                     {
-                        communicator_.Timer().schedule(this, invocationTimeout);
+                        Communicator.Timer().Schedule(this, invocationTimeout);
                     }
                 }
-                else if (observer_ != null)
+                else if (Observer != null)
                 {
-                    observer_.retried();
+                    Observer.Retried();
                 }
 
                 while (true)
@@ -522,8 +507,8 @@ namespace IceInternal
                     try
                     {
                         _sent = false;
-                        handler_ = proxy_.IceGetRequestHandler();
-                        int status = handler_.sendAsyncRequest(this);
+                        Handler = Proxy.IceGetRequestHandler();
+                        int status = Handler.SendAsyncRequest(this);
                         if ((status & AsyncStatusSent) != 0)
                         {
                             if (userThread)
@@ -531,14 +516,14 @@ namespace IceInternal
                                 sentSynchronously_ = true;
                                 if ((status & AsyncStatusInvokeSentCallback) != 0)
                                 {
-                                    invokeSent(); // Call the sent callback from the user thread.
+                                    InvokeSent(); // Call the sent callback from the user thread.
                                 }
                             }
                             else
                             {
                                 if ((status & AsyncStatusInvokeSentCallback) != 0)
                                 {
-                                    invokeSentAsync(); // Call the sent callback from a client thread pool thread.
+                                    InvokeSentAsync(); // Call the sent callback from a client thread pool thread.
                                 }
                             }
                         }
@@ -546,25 +531,25 @@ namespace IceInternal
                     }
                     catch (RetryException)
                     {
-                        proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
+                        Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
                     }
                     catch (Ice.Exception ex)
                     {
-                        if (childObserver_ != null)
+                        if (ChildObserver != null)
                         {
-                            childObserver_.failed(ex.ice_id());
-                            childObserver_.detach();
-                            childObserver_ = null;
+                            ChildObserver.Failed(ex.ice_id());
+                            ChildObserver.Detach();
+                            ChildObserver = null;
                         }
-                        int interval = proxy_.IceHandleException(ex, handler_, mode_, _sent, ref _cnt);
+                        int interval = Proxy.IceHandleException(ex, Handler, Mode, _sent, ref _cnt);
                         if (interval > 0)
                         {
-                            communicator_.AddRetryTask(this, interval);
+                            Communicator.AddRetryTask(this, interval);
                             return;
                         }
-                        else if (observer_ != null)
+                        else if (Observer != null)
                         {
-                            observer_.retried();
+                            Observer.Retried();
                         }
                     }
                 }
@@ -579,57 +564,57 @@ namespace IceInternal
                 {
                     throw;
                 }
-                else if (exceptionImpl(ex)) // No retries, we're done
+                else if (ExceptionImpl(ex)) // No retries, we're done
                 {
-                    invokeExceptionAsync();
+                    InvokeExceptionAsync();
                 }
             }
         }
-        protected override bool sentImpl(bool done)
+        protected override bool SentImpl(bool done)
         {
             _sent = true;
             if (done)
             {
-                if (proxy_.IceReference.getInvocationTimeout() != -1)
+                if (Proxy.IceReference.GetInvocationTimeout() != -1)
                 {
-                    communicator_.Timer().cancel(this);
+                    Communicator.Timer().Cancel(this);
                 }
             }
-            return base.sentImpl(done);
+            return base.SentImpl(done);
         }
-        protected override bool exceptionImpl(Ice.Exception ex)
+        protected override bool ExceptionImpl(Ice.Exception ex)
         {
-            if (proxy_.IceReference.getInvocationTimeout() != -1)
+            if (Proxy.IceReference.GetInvocationTimeout() != -1)
             {
-                communicator_.Timer().cancel(this);
+                Communicator.Timer().Cancel(this);
             }
-            return base.exceptionImpl(ex);
+            return base.ExceptionImpl(ex);
         }
 
-        protected override bool responseImpl(bool userThread, bool ok, bool invoke)
+        protected override bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
-            if (proxy_.IceReference.getInvocationTimeout() != -1)
+            if (Proxy.IceReference.GetInvocationTimeout() != -1)
             {
-                communicator_.Timer().cancel(this);
+                Communicator.Timer().Cancel(this);
             }
-            return base.responseImpl(userThread, ok, invoke);
+            return base.ResponseImpl(userThread, ok, invoke);
         }
 
         public void RunTimerTask()
         {
-            if (proxy_.IceReference.getInvocationTimeout() == -2)
+            if (Proxy.IceReference.GetInvocationTimeout() == -2)
             {
-                cancel(new Ice.ConnectionTimeoutException());
+                Cancel(new Ice.ConnectionTimeoutException());
             }
             else
             {
-                cancel(new Ice.InvocationTimeoutException());
+                Cancel(new Ice.InvocationTimeoutException());
             }
         }
 
-        protected readonly Ice.IObjectPrx proxy_;
-        protected IRequestHandler? handler_;
-        protected Ice.OperationMode mode_;
+        protected readonly Ice.IObjectPrx Proxy;
+        protected IRequestHandler? Handler;
+        protected Ice.OperationMode Mode;
 
         private int _cnt;
         private bool _sent;
@@ -644,26 +629,26 @@ namespace IceInternal
                              Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
-            encoding_ = Protocol.getCompatibleEncoding(proxy_.IceReference.getEncoding());
-            synchronous_ = false;
+            Encoding = Protocol.getCompatibleEncoding(Proxy.IceReference.GetEncoding());
+            Synchronous = false;
         }
 
-        public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string>? context)
+        public void Prepare(string operation, Ice.OperationMode mode, Dictionary<string, string>? context)
         {
-            Debug.Assert(os_ != null);
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.IceReference.getProtocol()));
+            Debug.Assert(Os != null);
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(Proxy.IceReference.GetProtocol()));
 
-            mode_ = mode;
+            Mode = mode;
 
-            observer_ = ObserverHelper.get(proxy_, operation, context);
+            Observer = ObserverHelper.get(Proxy, operation, context);
 
-            switch (proxy_.IceReference.getMode())
+            switch (Proxy.IceReference.GetMode())
             {
                 case Ice.InvocationMode.Twoway:
                 case Ice.InvocationMode.Oneway:
                 case Ice.InvocationMode.Datagram:
                     {
-                        os_.WriteBlob(Protocol.requestHdr);
+                        Os.WriteBlob(Protocol.requestHdr);
                         break;
                     }
 
@@ -675,79 +660,76 @@ namespace IceInternal
                     }
             }
 
-            Reference rf = proxy_.IceReference;
+            Reference rf = Proxy.IceReference;
 
-            rf.getIdentity().IceWrite(os_);
+            rf.GetIdentity().IceWrite(Os);
 
             //
             // For compatibility with the old FacetPath.
             //
-            string facet = rf.getFacet();
+            string facet = rf.GetFacet();
             if (facet == null || facet.Length == 0)
             {
-                os_.WriteStringSeq(null);
+                Os.WriteStringSeq(null);
             }
             else
             {
                 string[] facetPath = { facet };
-                os_.WriteStringSeq(facetPath);
+                Os.WriteStringSeq(facetPath);
             }
 
-            os_.WriteString(operation);
+            Os.WriteString(operation);
 
-            os_.WriteByte((byte)mode);
+            Os.WriteByte((byte)mode);
 
             if (context != null)
             {
                 //
                 // Explicit context
                 //
-                Ice.ContextHelper.Write(os_, context);
+                Ice.ContextHelper.Write(Os, context);
             }
             else
             {
                 //
                 // Implicit context
                 //
-                Ice.ImplicitContext? implicitContext = (Ice.ImplicitContext?)rf.getCommunicator().GetImplicitContext();
-                Dictionary<string, string> prxContext = rf.getContext();
+                var implicitContext = (Ice.ImplicitContext?)rf.GetCommunicator().GetImplicitContext();
+                Dictionary<string, string> prxContext = rf.GetContext();
 
                 if (implicitContext == null)
                 {
-                    Ice.ContextHelper.Write(os_, prxContext);
+                    Ice.ContextHelper.Write(Os, prxContext);
                 }
                 else
                 {
-                    implicitContext.write(prxContext, os_);
+                    implicitContext.Write(prxContext, Os);
                 }
             }
         }
-        public override bool sent()
-        {
-            return base.sentImpl(!proxy_.IsTwoway); // done = true if it's not a two-way proxy
-        }
+        public override bool Sent() => base.SentImpl(!Proxy.IsTwoway); // done = true if it's not a two-way proxy
 
-        public override bool response()
+        public override bool Response()
         {
-            Debug.Assert(is_ != null);
+            Debug.Assert(Is != null);
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke
             // any user callbacks.
             //
-            Debug.Assert(proxy_.IsTwoway); // Can only be called for twoways.
+            Debug.Assert(Proxy.IsTwoway); // Can only be called for twoways.
 
-            if (childObserver_ != null)
+            if (ChildObserver != null)
             {
-                childObserver_.reply(is_.Size - Protocol.headerSize - 4);
-                childObserver_.detach();
-                childObserver_ = null;
+                ChildObserver.Reply(Is.Size - Protocol.headerSize - 4);
+                ChildObserver.Detach();
+                ChildObserver = null;
             }
 
             byte replyStatus;
             try
             {
-                replyStatus = is_.ReadByte();
+                replyStatus = Is.ReadByte();
 
                 switch (replyStatus)
                 {
@@ -757,9 +739,9 @@ namespace IceInternal
                         }
                     case ReplyStatus.replyUserException:
                         {
-                            if (observer_ != null)
+                            if (Observer != null)
                             {
-                                observer_.userException();
+                                Observer.UserException();
                             }
                             break;
                         }
@@ -768,13 +750,12 @@ namespace IceInternal
                     case ReplyStatus.replyFacetNotExist:
                     case ReplyStatus.replyOperationNotExist:
                         {
-                            Ice.Identity ident = new Ice.Identity(is_);
+                            var ident = new Ice.Identity(Is);
 
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = is_.ReadStringSeq();
-                            ;
+                            string[] facetPath = Is.ReadStringSeq();
                             string facet;
                             if (facetPath.Length > 0)
                             {
@@ -789,7 +770,7 @@ namespace IceInternal
                                 facet = "";
                             }
 
-                            string operation = is_.ReadString();
+                            string operation = Is.ReadString();
 
                             Ice.RequestFailedException ex;
                             switch (replyStatus)
@@ -819,9 +800,9 @@ namespace IceInternal
                                     }
                             }
 
-                            ex.id = ident;
-                            ex.facet = facet;
-                            ex.operation = operation;
+                            ex.Id = ident;
+                            ex.Facet = facet;
+                            ex.Operation = operation;
                             throw ex;
                         }
 
@@ -829,7 +810,7 @@ namespace IceInternal
                     case ReplyStatus.replyUnknownLocalException:
                     case ReplyStatus.replyUnknownUserException:
                         {
-                            string unknown = is_.ReadString();
+                            string unknown = Is.ReadString();
 
                             Ice.UnknownException ex;
                             switch (replyStatus)
@@ -859,7 +840,7 @@ namespace IceInternal
                                     }
                             }
 
-                            ex.unknown = unknown;
+                            ex.Unknown = unknown;
                             throw ex;
                         }
 
@@ -869,44 +850,44 @@ namespace IceInternal
                         }
                 }
 
-                return responseImpl(false, replyStatus == ReplyStatus.replyOK, true);
+                return ResponseImpl(false, replyStatus == ReplyStatus.replyOK, true);
             }
             catch (Ice.Exception ex)
             {
-                return exception(ex);
+                return Exception(ex);
             }
         }
 
-        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
+        public override int InvokeRemote(Ice.Connection connection, bool compress, bool response)
         {
-            cachedConnection_ = connection;
+            CachedConnection = connection;
             return connection.SendAsyncRequest(this, compress, response);
         }
 
-        public override int invokeCollocated(CollocatedRequestHandler handler)
+        public override int InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if (!proxy_.IsTwoway || proxy_.IceReference.getInvocationTimeout() != -1)
+            if (!Proxy.IsTwoway || Proxy.IceReference.GetInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
-                state_ |= StateCachedBuffers;
+                State |= StateCachedBuffers;
             }
-            return handler.invokeAsyncRequest(this, synchronous_);
+            return handler.InvokeAsyncRequest(this, Synchronous);
         }
 
-        public new void abort(Ice.Exception ex)
+        public new void Abort(Ice.Exception ex)
         {
-            Ice.InvocationMode mode = proxy_.IceReference.getMode();
+            Ice.InvocationMode mode = Proxy.IceReference.GetMode();
 
             Debug.Assert(mode != Ice.InvocationMode.BatchOneway &&
                          mode != Ice.InvocationMode.BatchDatagram); // not implemented
-            base.abort(ex);
+            base.Abort(ex);
         }
 
-        protected void invoke(string operation, bool synchronous)
+        protected void Invoke(string operation, bool synchronous)
         {
-            synchronous_ = synchronous;
-            Ice.InvocationMode mode = proxy_.IceReference.getMode();
+            Synchronous = synchronous;
+            Ice.InvocationMode mode = Proxy.IceReference.GetMode();
             if (mode == Ice.InvocationMode.BatchOneway || mode == Ice.InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // not implemented
@@ -918,85 +899,85 @@ namespace IceInternal
             // try block with the catch block calling abort() in case of an
             // exception.
             //
-            invokeImpl(true); // userThread = true
+            InvokeImpl(true); // userThread = true
         }
 
-        public void invoke(string operation,
+        public void Invoke(string operation,
                            Ice.OperationMode mode,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
         {
-            Debug.Assert(os_ != null);
+            Debug.Assert(Os != null);
             try
             {
-                prepare(operation, mode, context);
+                Prepare(operation, mode, context);
                 if (write != null)
                 {
-                    os_.StartEncapsulation(encoding_, format);
-                    write(os_);
-                    os_.EndEncapsulation();
+                    Os.StartEncapsulation(Encoding, format);
+                    write(Os);
+                    Os.EndEncapsulation();
                 }
                 else
                 {
-                    os_.WriteEmptyEncapsulation(encoding_);
+                    Os.WriteEmptyEncapsulation(Encoding);
                 }
-                invoke(operation, synchronous);
+                Invoke(operation, synchronous);
             }
             catch (Ice.Exception ex)
             {
-                abort(ex);
+                Abort(ex);
             }
         }
 
-        public override void throwUserException()
+        public override void ThrowUserException()
         {
-            Debug.Assert(is_ != null);
+            Debug.Assert(Is != null);
             try
             {
-                is_.StartEncapsulation();
-                is_.ThrowException();
+                Is.StartEncapsulation();
+                Is.ThrowException();
             }
             catch (Ice.UserException ex)
             {
-                is_.EndEncapsulation();
-                if (userException_ != null)
+                Is.EndEncapsulation();
+                if (UserException != null)
                 {
-                    userException_.Invoke(ex);
+                    UserException.Invoke(ex);
                 }
                 throw new Ice.UnknownUserException(ex.ice_id());
             }
         }
 
-        public override void cacheMessageBuffers()
+        public override void CacheMessageBuffers()
         {
-            if (proxy_.Communicator.CacheMessageBuffers > 0)
+            if (Proxy.Communicator.CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
-                    if ((state_ & StateCachedBuffers) > 0)
+                    if ((State & StateCachedBuffers) > 0)
                     {
                         return;
                     }
-                    state_ |= StateCachedBuffers;
+                    State |= StateCachedBuffers;
                 }
 
-                if (is_ != null)
+                if (Is != null)
                 {
-                    is_.Reset();
+                    Is.Reset();
                 }
-                os_!.Reset();
+                Os!.Reset();
 
-                proxy_.CacheMessageBuffers(is_, os_);
+                Proxy.CacheMessageBuffers(Is, Os);
 
-                is_ = null;
-                os_ = null;
+                Is = null;
+                Os = null;
             }
         }
 
-        protected readonly Ice.EncodingVersion encoding_;
-        protected System.Action<Ice.UserException>? userException_;
+        protected readonly Ice.EncodingVersion Encoding;
+        protected System.Action<Ice.UserException>? UserException;
     }
 
     public class OutgoingAsyncT<T> : OutgoingAsync
@@ -1009,7 +990,7 @@ namespace IceInternal
         {
         }
 
-        public void invoke(string operation,
+        public void Invoke(string operation,
                            Ice.OperationMode mode,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
@@ -1018,20 +999,20 @@ namespace IceInternal
                            System.Action<Ice.UserException>? userException = null,
                            System.Func<Ice.InputStream, T>? read = null)
         {
-            read_ = read;
-            userException_ = userException;
-            base.invoke(operation, mode, format, context, synchronous, write);
+            Read = read;
+            UserException = userException;
+            base.Invoke(operation, mode, format, context, synchronous, write);
         }
 
-        public T getResult(bool ok)
+        public T GetResult(bool ok)
         {
             try
             {
                 if (ok)
                 {
-                    if (read_ == null)
+                    if (Read == null)
                     {
-                        if (is_ == null || is_.IsEmpty)
+                        if (Is == null || Is.IsEmpty)
                         {
                             //
                             // If there's no response (oneway), we just set the result
@@ -1040,32 +1021,32 @@ namespace IceInternal
                         }
                         else
                         {
-                            is_.SkipEmptyEncapsulation();
+                            Is.SkipEmptyEncapsulation();
                         }
                         return default;
                     }
                     else
                     {
-                        Debug.Assert(is_ != null);
-                        is_.StartEncapsulation();
-                        T r = read_(is_);
-                        is_.EndEncapsulation();
+                        Debug.Assert(Is != null);
+                        Is.StartEncapsulation();
+                        T r = Read(Is);
+                        Is.EndEncapsulation();
                         return r;
                     }
                 }
                 else
                 {
-                    throwUserException();
+                    ThrowUserException();
                     return default; // make compiler happy
                 }
             }
             finally
             {
-                cacheMessageBuffers();
+                CacheMessageBuffers();
             }
         }
 
-        protected System.Func<Ice.InputStream, T>? read_;
+        protected System.Func<Ice.InputStream, T>? Read;
     }
 
     //
@@ -1078,32 +1059,32 @@ namespace IceInternal
         {
         }
 
-        public override int invokeRemote(Ice.Connection connection, bool compress, bool response)
+        public override int InvokeRemote(Ice.Connection connection, bool compress, bool response)
         {
-            cachedConnection_ = connection;
-            if (responseImpl(false, true, true))
+            CachedConnection = connection;
+            if (ResponseImpl(false, true, true))
             {
-                invokeResponseAsync();
+                InvokeResponseAsync();
             }
             return AsyncStatusSent;
         }
 
-        public override int invokeCollocated(CollocatedRequestHandler handler)
+        public override int InvokeCollocated(CollocatedRequestHandler handler)
         {
-            if (responseImpl(false, true, true))
+            if (ResponseImpl(false, true, true))
             {
-                invokeResponseAsync();
+                InvokeResponseAsync();
             }
             return AsyncStatusSent;
         }
 
-        public Ice.Connection? getConnection() => cachedConnection_;
+        public Ice.Connection? GetConnection() => CachedConnection;
 
-        public void invoke(string operation, bool synchronous)
+        public void Invoke(string operation, bool synchronous)
         {
-            synchronous_ = synchronous;
-            observer_ = ObserverHelper.get(proxy_, operation, null);
-            invokeImpl(true); // userThread = true
+            Synchronous = synchronous;
+            Observer = ObserverHelper.get(Proxy, operation, null);
+            InvokeImpl(true); // userThread = true
         }
     }
 
@@ -1111,39 +1092,39 @@ namespace IceInternal
     {
         public TaskCompletionCallback(System.IProgress<bool>? progress, CancellationToken cancellationToken)
         {
-            progress_ = progress;
+            Progress = progress;
             _cancellationToken = cancellationToken;
         }
 
-        public void init(OutgoingAsyncBase outgoing)
+        public void Init(OutgoingAsyncBase outgoing)
         {
             if (_cancellationToken.CanBeCanceled)
             {
-                _cancellationToken.Register(outgoing.cancel);
+                _cancellationToken.Register(outgoing.Cancel);
             }
         }
 
-        public bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og)
+        public bool HandleSent(bool done, bool alreadySent, OutgoingAsyncBase og)
         {
-            if (done && og.isSynchronous())
+            if (done && og.IsSynchronous())
             {
-                Debug.Assert(progress_ == null);
-                handleInvokeSent(false, done, alreadySent, og);
+                Debug.Assert(Progress == null);
+                HandleInvokeSent(false, done, alreadySent, og);
                 return false;
             }
-            return done || progress_ != null && !alreadySent; // Invoke the sent callback only if not already invoked.
+            return done || (Progress != null && !alreadySent); // Invoke the sent callback only if not already invoked.
         }
 
-        public bool handleException(Ice.Exception ex, OutgoingAsyncBase og)
+        public bool HandleException(Ice.Exception ex, OutgoingAsyncBase og)
         {
             //
             // If this is a synchronous call, we can notify the task from this thread to avoid
             // the thread context switch. We know there aren't any continuations setup with the
             // task.
             //
-            if (og.isSynchronous())
+            if (og.IsSynchronous())
             {
-                handleInvokeException(ex, og);
+                HandleInvokeException(ex, og);
                 return false;
             }
             else
@@ -1152,16 +1133,16 @@ namespace IceInternal
             }
         }
 
-        public bool handleResponse(bool userThread, bool ok, OutgoingAsyncBase og)
+        public bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og)
         {
             //
             // If this is a synchronous call, we can notify the task from this thread to avoid the
             // thread context switch. We know there aren't any continuations setup with the
             // task.
             //
-            if (userThread || og.isSynchronous())
+            if (userThread || og.IsSynchronous())
             {
-                handleInvokeResponse(ok, og);
+                HandleInvokeResponse(ok, og);
                 return false;
             }
             else
@@ -1170,11 +1151,11 @@ namespace IceInternal
             }
         }
 
-        public virtual void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og)
+        public virtual void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og)
         {
-            if (progress_ != null && !alreadySent)
+            if (Progress != null && !alreadySent)
             {
-                progress_.Report(sentSynchronously);
+                Progress.Report(sentSynchronously);
             }
             if (done)
             {
@@ -1182,13 +1163,13 @@ namespace IceInternal
             }
         }
 
-        public void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
+        public void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
-        public abstract void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
+        public abstract void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
 
         private readonly CancellationToken _cancellationToken;
 
-        protected readonly System.IProgress<bool>? progress_;
+        protected readonly System.IProgress<bool>? Progress;
     }
 
     public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
@@ -1198,9 +1179,6 @@ namespace IceInternal
         {
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(((OutgoingAsyncT<T>)og).getResult(ok));
-        }
+        public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((OutgoingAsyncT<T>)og).GetResult(ok));
     }
 }

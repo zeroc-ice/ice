@@ -24,7 +24,7 @@ public class TestService : IService
         if (propFacet != null)
         {
             var admin = (Ice.INativePropertiesAdmin)propFacet;
-            admin.addUpdateCallback(facet.updated);
+            admin.AddUpdateCallback(facet.updated);
         }
     }
 

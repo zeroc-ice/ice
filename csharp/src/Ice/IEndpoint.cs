@@ -7,73 +7,73 @@ namespace Ice
 {
     public abstract class TCPEndpointType
     {
-        public const short value = 1;
+        public const short Value = 1;
     }
 
     public abstract class SSLEndpointType
     {
-        public const short value = 2;
+        public const short Value = 2;
     }
 
     public abstract class UDPEndpointType
     {
-        public const short value = 3;
+        public const short Value = 3;
     }
 
     public abstract class WSEndpointType
     {
-        public const short value = 4;
+        public const short Value = 4;
     }
 
     public abstract class WSSEndpointType
     {
-        public const short value = 5;
+        public const short Value = 5;
     }
 
     public abstract class BTEndpointType
     {
-        public const short value = 6;
+        public const short Value = 6;
     }
 
     public abstract class BTSEndpointType
     {
-        public const short value = 7;
+        public const short Value = 7;
     }
 
     public abstract class iAPEndpointType
     {
-        public const short value = 8;
+        public const short Value = 8;
     }
 
     public abstract class iAPSEndpointType
     {
-        public const short value = 9;
+        public const short Value = 9;
     }
 
     [System.Serializable]
     public abstract class EndpointInfo
     {
-        public EndpointInfo? underlying;
-        public int timeout;
-        public bool compress;
+        public EndpointInfo? Underlying;
+        public int Timeout;
+        public bool Compress;
 
         /// <summary>
         /// Returns the type of the endpoint.
         /// </summary>
         /// <returns>The endpoint type.</returns>
-        public abstract short type();
+        public abstract short Type();
 
         /// <summary>
         /// Returns true if this endpoint is a datagram endpoint.
         /// </summary>
         /// <returns>True for a datagram endpoint.</returns>
-        public abstract bool datagram();
+        public abstract bool Datagram();
 
         /// <summary>
         /// Returns true if this endpoint is a secure endpoint.
         /// </summary>
         /// <returns>True for a secure endpoint.</returns>
-        public abstract bool secure();
+        public abstract bool Secure();
 
         protected EndpointInfo()
         {
@@ -81,9 +81,9 @@ namespace Ice
 
         protected EndpointInfo(EndpointInfo? underlying, int timeout, bool compress)
         {
-            this.underlying = underlying;
-            this.timeout = timeout;
-            this.compress = compress;
+            Underlying = underlying;
+            Timeout = timeout;
+            Compress = compress;
         }
     }
 
@@ -93,20 +93,20 @@ namespace Ice
         /// Returns the endpoint information.
         /// </summary>
         /// <returns>The endpoint information class.</returns>
-        EndpointInfo getInfo();
+        EndpointInfo GetInfo();
     }
 
     [System.Serializable]
     public abstract class IPEndpointInfo : EndpointInfo
     {
-        public string host;
-        public int port;
-        public string sourceAddress;
+        public string Host;
+        public int Port;
+        public string SourceAddress;
 
         protected IPEndpointInfo()
         {
-            host = "";
-            sourceAddress = "";
+            Host = "";
+            SourceAddress = "";
         }
 
         protected IPEndpointInfo(EndpointInfo underlying,
@@ -116,9 +116,9 @@ namespace Ice
                                  int port,
                                  string sourceAddress) : base(underlying, timeout, compress)
         {
-            this.host = host;
-            this.port = port;
-            this.sourceAddress = sourceAddress;
+            Host = host;
+            Port = port;
+            SourceAddress = sourceAddress;
         }
     }
 
@@ -142,10 +142,10 @@ namespace Ice
     [System.Serializable]
     public abstract partial class UDPEndpointInfo : IPEndpointInfo
     {
-        public string mcastInterface;
-        public int mcastTtl;
+        public string McastInterface;
+        public int McastTtl;
 
-        protected UDPEndpointInfo() : base() => mcastInterface = "";
+        protected UDPEndpointInfo() : base() => McastInterface = "";
 
         protected UDPEndpointInfo(EndpointInfo underlying,
                                   int timeout,
@@ -156,29 +156,29 @@ namespace Ice
                                   string mcastInterface,
                                   int mcastTtl) : base(underlying, timeout, compress, host, port, sourceAddress)
         {
-            this.mcastInterface = mcastInterface;
-            this.mcastTtl = mcastTtl;
+            McastInterface = mcastInterface;
+            McastTtl = mcastTtl;
         }
     }
 
     [System.Serializable]
     public abstract partial class WSEndpointInfo : EndpointInfo
     {
-        public string resource;
+        public string Resource;
 
-        protected WSEndpointInfo() => resource = "";
+        protected WSEndpointInfo() => Resource = "";
 
         protected WSEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string resource) :
-            base(underlying, timeout, compress) => this.resource = resource;
+            base(underlying, timeout, compress) => Resource = resource;
     }
 
     [System.Serializable]
     public abstract partial class OpaqueEndpointInfo : EndpointInfo
     {
-        public EncodingVersion rawEncoding;
-        public byte[]? rawBytes;
+        public EncodingVersion RawEncoding;
+        public byte[]? RawBytes;
 
-        protected OpaqueEndpointInfo() => rawEncoding = new EncodingVersion();
+        protected OpaqueEndpointInfo() => RawEncoding = new EncodingVersion();
 
         protected OpaqueEndpointInfo(EndpointInfo? underlying,
                                      int timeout,
@@ -186,8 +186,8 @@ namespace Ice
                                      EncodingVersion rawEncoding,
                                      byte[] rawBytes) : base(underlying, timeout, compress)
         {
-            this.rawEncoding = rawEncoding;
-            this.rawBytes = rawBytes;
+            RawEncoding = rawEncoding;
+            RawBytes = rawBytes;
         }
     }
 }

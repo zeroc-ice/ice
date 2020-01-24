@@ -10,7 +10,7 @@ namespace IceBox
 
     public class Server
     {
-        private static void usage()
+        private static void Usage()
         {
             Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
             Console.Error.WriteLine(
@@ -20,7 +20,7 @@ namespace IceBox
             );
         }
 
-        private static int run(Ice.Communicator communicator, string[] args)
+        private static int Run(Ice.Communicator communicator, string[] args)
         {
             const string prefix = "IceBox.Service.";
             Dictionary<string, string> services = communicator.GetProperties(forPrefix: prefix);
@@ -36,24 +36,24 @@ namespace IceBox
             {
                 if (arg.Equals("-h") || arg.Equals("--help"))
                 {
-                    usage();
+                    Usage();
                     return 0;
                 }
                 else if (arg.Equals("-v") || arg.Equals("--version"))
                 {
-                    Console.Out.WriteLine(Ice.Util.stringVersion());
+                    Console.Out.WriteLine(Ice.Util.StringVersion());
                     return 0;
                 }
                 else
                 {
                     Console.Error.WriteLine("IceBox.Server: unknown option `" + arg + "'");
-                    usage();
+                    Usage();
                     return 1;
                 }
             }
 
-            ServiceManager serviceManagerImpl = new ServiceManager(communicator, args);
-            return serviceManagerImpl.run();
+            var serviceManagerImpl = new ServiceManager(communicator, args);
+            return serviceManagerImpl.Run();
         }
 
         public static int Main(string[] args)
@@ -70,7 +70,7 @@ namespace IceBox
                     communicator.Shutdown();
                 };
 
-                return run(communicator, args);
+                return Run(communicator, args);
             }
             catch (Exception ex)
             {

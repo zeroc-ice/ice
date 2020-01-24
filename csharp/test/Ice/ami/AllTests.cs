@@ -769,7 +769,7 @@ namespace Ice.ami
                     catch (AggregateException ex)
                     {
                         test(ex.InnerException is ConnectionManuallyClosedException);
-                        test((ex.InnerException as ConnectionManuallyClosedException).graceful);
+                        test((ex.InnerException as ConnectionManuallyClosedException).Graceful);
                     }
                     p.finishDispatch();
 
@@ -815,7 +815,7 @@ namespace Ice.ami
                     catch (AggregateException ex)
                     {
                         test(ex.InnerException is ConnectionManuallyClosedException);
-                        test(!(ex.InnerException as ConnectionManuallyClosedException).graceful);
+                        test(!(ex.InnerException as ConnectionManuallyClosedException).Graceful);
                     }
                     p.finishDispatch();
 

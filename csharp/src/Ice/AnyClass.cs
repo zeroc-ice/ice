@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Ice
@@ -36,10 +35,7 @@ namespace Ice
         /// of the state.
         /// </summary>
         /// <returns>The cloned object.</returns>
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
+        public object Clone() => MemberwiseClone();
     }
 
     public static class AnyClassExtensions
@@ -50,9 +46,6 @@ namespace Ice
         /// class UnknownSlicedClass.
         /// </summary>
         /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
-        public static SlicedData? GetSlicedData(this AnyClass obj)
-        {
-            return obj.SlicedData;
-        }
+        public static SlicedData? GetSlicedData(this AnyClass obj) => obj.SlicedData;
     }
 }

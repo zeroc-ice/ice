@@ -45,7 +45,7 @@ namespace Ice
             if (_pluginsInitialized)
             {
                 InitializationException ex = new InitializationException();
-                ex.reason = "plug-ins already initialized";
+                ex.Reason = "plug-ins already initialized";
                 throw ex;
             }
 
@@ -57,7 +57,7 @@ namespace Ice
             {
                 foreach (var p in _plugins)
                 {
-                    p.Plugin.initialize();
+                    p.Plugin.Initialize();
                     initializedPlugins.Add(p.Plugin);
                 }
             }
@@ -72,7 +72,7 @@ namespace Ice
                 {
                     try
                     {
-                        p.destroy();
+                        p.Destroy();
                     }
                     catch (System.Exception)
                     {
@@ -398,7 +398,7 @@ namespace Ice
 
                 try
                 {
-                    pluginFactory = (IPluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
+                    pluginFactory = (IPluginFactory?)IceInternal.AssemblyUtil.CreateInstance(c);
                 }
                 catch (System.Exception ex)
                 {

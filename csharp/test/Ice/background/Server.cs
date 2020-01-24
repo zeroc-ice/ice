@@ -83,7 +83,7 @@ public class Server : TestHelper
 
         using var communicator = initialize(properties);
         var plugin = new Plugin(communicator);
-        plugin.initialize();
+        plugin.Initialize();
         communicator.AddPlugin("Test", plugin);
 
         //

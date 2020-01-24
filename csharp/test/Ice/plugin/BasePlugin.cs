@@ -18,8 +18,8 @@ public abstract class BasePlugin : Ice.IPlugin
         }
     }
 
-    public abstract void initialize();
-    public abstract void destroy();
+    public abstract void Initialize();
+    public abstract void Destroy();
 
     protected Ice.Communicator _communicator;
     protected bool _initialized = false;

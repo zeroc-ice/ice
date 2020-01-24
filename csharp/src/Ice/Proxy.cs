@@ -40,13 +40,7 @@ namespace Ice
         /// Returns the communicator that created this proxy.
         /// </summary>
         /// <returns>The communicator that created this proxy.</returns>
-        public Communicator Communicator
-        {
-            get
-            {
-                return IceReference.getCommunicator();
-            }
-        }
+        public Communicator Communicator => IceReference.GetCommunicator();
 
         /// <summary>
         /// Convert a proxy to a set of proxy properties.
@@ -55,10 +49,7 @@ namespace Ice
         /// The base property name.
         /// </param>
         /// <returns>The property set.</returns>
-        public Dictionary<string, string> ToProperty(string property)
-        {
-            return IceReference.ToProperty(property);
-        }
+        public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
 
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
@@ -71,7 +62,7 @@ namespace Ice
         {
             try
             {
-                return iceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
+                return IceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -90,35 +81,33 @@ namespace Ice
         public Task<bool> IceIsAAsync(string id,
                                       Dictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
-                                      CancellationToken cancel = new CancellationToken())
-        {
-            return iceI_ice_isAAsync(id, context, progress, cancel, false);
-        }
+                                      CancellationToken cancel = new CancellationToken()) =>
+            IceI_ice_isAAsync(id, context, progress, cancel, false);
 
         private Task<bool>
-        iceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
+        IceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
                           bool synchronous)
         {
-            iceCheckTwowayOnly("ice_isA");
+            IceCheckTwowayOnly("ice_isA");
             var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
-            iceI_ice_isA(id, context, completed, synchronous);
+            IceI_ice_isA(id, context, completed, synchronous);
             return completed.Task;
         }
 
-        private void iceI_ice_isA(string id,
+        private void IceI_ice_isA(string id,
                                   Dictionary<string, string>? context,
                                   IOutgoingAsyncCompletionCallback completed,
                                   bool synchronous)
         {
-            iceCheckAsyncTwowayOnly("ice_isA");
-            getOutgoingAsync<bool>(completed).invoke("ice_isA",
+            IceCheckAsyncTwowayOnly("ice_isA");
+            GetOutgoingAsync<bool>(completed).Invoke("ice_isA",
                                                      OperationMode.Nonmutating,
                                                      null,
                                                      context,
                                                      synchronous,
-                                                     (OutputStream os) => { os.WriteString(id); },
+                                                     (OutputStream os) => os.WriteString(id),
                                                      null,
-                                                     (InputStream iss) => { return iss.ReadBool(); });
+                                                     (InputStream iss) => iss.ReadBool());
         }
 
         /// <summary>
@@ -129,7 +118,7 @@ namespace Ice
         {
             try
             {
-                iceI_IcePingAsync(context, null, CancellationToken.None, true).Wait();
+                IceI_IcePingAsync(context, null, CancellationToken.None, true).Wait();
             }
             catch (AggregateException ex)
             {
@@ -146,22 +135,19 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task IcePingAsync(Dictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
-                                 CancellationToken cancel = new CancellationToken())
-        {
-            return iceI_IcePingAsync(context, progress, cancel, false);
-        }
+                                 CancellationToken cancel = new CancellationToken()) => IceI_IcePingAsync(context, progress, cancel, false);
 
         private Task
-        iceI_IcePingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        IceI_IcePingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
             var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
-            iceI_IcePing(context, completed, synchronous);
+            IceI_IcePing(context, completed, synchronous);
             return completed.Task;
         }
 
-        private void iceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
+        private void IceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            getOutgoingAsync<object>(completed).invoke("ice_ping",
+            GetOutgoingAsync<object>(completed).Invoke("ice_ping",
                                                        OperationMode.Nonmutating,
                                                        null,
                                                        context,
@@ -178,7 +164,7 @@ namespace Ice
         {
             try
             {
-                return iceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
+                return IceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -196,31 +182,28 @@ namespace Ice
         public Task<string[]>
         IceIdsAsync(Dictionary<string, string>? context = null,
                     IProgress<bool>? progress = null,
-                    CancellationToken cancel = new CancellationToken())
-        {
-            return iceI_ice_idsAsync(context, progress, cancel, false);
-        }
+                    CancellationToken cancel = new CancellationToken()) => IceI_ice_idsAsync(context, progress, cancel, false);
 
-        private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string>? context,
+        private Task<string[]> IceI_ice_idsAsync(Dictionary<string, string>? context,
                                                  IProgress<bool>? progress,
                                                  CancellationToken cancel,
                                                  bool synchronous)
         {
-            iceCheckTwowayOnly("ice_ids");
+            IceCheckTwowayOnly("ice_ids");
             var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
-            iceI_ice_ids(context, completed, synchronous);
+            IceI_ice_ids(context, completed, synchronous);
             return completed.Task;
         }
 
-        private void iceI_ice_ids(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
+        private void IceI_ice_ids(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            iceCheckAsyncTwowayOnly("ice_ids");
-            getOutgoingAsync<string[]>(completed).invoke("ice_ids",
+            IceCheckAsyncTwowayOnly("ice_ids");
+            GetOutgoingAsync<string[]>(completed).Invoke("ice_ids",
                                                          OperationMode.Nonmutating,
                                                          null,
                                                          context,
                                                          synchronous,
-                                                         read: (InputStream iss) => { return iss.ReadStringSeq(); });
+                                                         read: (InputStream iss) => iss.ReadStringSeq());
         }
 
         /// <summary>
@@ -231,7 +214,7 @@ namespace Ice
         {
             try
             {
-                return iceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
+                return IceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -248,43 +231,35 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string> IceIdAsync(Dictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
-                                       CancellationToken cancel = new CancellationToken())
-        {
-            return iceI_ice_idAsync(context, progress, cancel, false);
-        }
+                                       CancellationToken cancel = new CancellationToken()) =>
+            IceI_ice_idAsync(context, progress, cancel, false);
 
         private Task<string>
-        iceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        IceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
-            iceCheckTwowayOnly("ice_id");
+            IceCheckTwowayOnly("ice_id");
             var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
-            iceI_ice_id(context, completed, synchronous);
+            IceI_ice_id(context, completed, synchronous);
             return completed.Task;
         }
 
-        private void iceI_ice_id(Dictionary<string, string>? context,
+        private void IceI_ice_id(Dictionary<string, string>? context,
                                  IOutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
         {
-            getOutgoingAsync<string>(completed).invoke("ice_id",
+            GetOutgoingAsync<string>(completed).Invoke("ice_id",
                                                        OperationMode.Nonmutating,
                                                        null,
                                                        context,
                                                        synchronous,
-                                                       read: (InputStream iss) => { return iss.ReadString(); });
+                                                       read: (InputStream iss) => iss.ReadString());
         }
 
         /// <summary>
         /// Returns the identity embedded in this proxy.
         /// <returns>The identity of the target object.</returns>
         /// </summary>
-        public Identity Identity
-        {
-            get
-            {
-                return IceReference.getIdentity();
-            }
-        }
+        public Identity Identity => IceReference.GetIdentity();
 
         /// <summary>
         /// Returns the per-proxy context for this proxy.
@@ -295,7 +270,7 @@ namespace Ice
         {
             get
             {
-                var context = IceReference.getContext();
+                Dictionary<string, string> context = IceReference.GetContext();
                 if (context == null)
                 {
                     return null;
@@ -312,257 +287,130 @@ namespace Ice
         /// </summary>
         /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
         /// empty string.</returns>
-        public string Facet
-        {
-            get
-            {
-                return IceReference.getFacet();
-            }
-        }
+        public string Facet => IceReference.GetFacet();
 
         /// <summary>
         /// Returns the adapter ID for this proxy.
         /// </summary>
         /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
         /// empty string.</returns>
-        public string AdapterId
-        {
-            get
-            {
-                return IceReference.getAdapterId();
-            }
-        }
+        public string AdapterId => IceReference.GetAdapterId();
 
         /// <summary>
         /// Returns the endpoints used by this proxy.
         /// </summary>
         /// <returns>The endpoints used by this proxy.</returns>
-        public IEndpoint[] Endpoints
-        {
-            get
-            {
-                return (IEndpoint[])IceReference.getEndpoints().Clone();
-            }
-        }
+        public IEndpoint[] Endpoints => (IEndpoint[])IceReference.GetEndpoints().Clone();
 
         /// <summary>
         /// Returns the locator cache timeout of this proxy.
         /// </summary>
         /// <returns>The locator cache timeout value (in seconds).</returns>
-        public int LocatorCacheTimeout
-        {
-            get
-            {
-                return IceReference.getLocatorCacheTimeout();
-            }
-        }
+        public int LocatorCacheTimeout => IceReference.GetLocatorCacheTimeout();
 
         /// <summary>
         /// Returns the invocation timeout of this proxy.
         /// </summary>
         /// <returns>The invocation timeout value (in seconds).</returns>
-        public int InvocationTimeout
-        {
-            get
-            {
-                return IceReference.getInvocationTimeout();
-            }
-        }
+        public int InvocationTimeout => IceReference.GetInvocationTimeout();
 
         /// <summary>
         /// Returns whether this proxy caches connections.
         /// </summary>
         /// <returns>True if this proxy caches connections; false, otherwise.</returns>
-        public bool IsConnectionCached
-        {
-            get
-            {
-                return IceReference.getCacheConnection();
-            }
-        }
+        public bool IsConnectionCached => IceReference.GetCacheConnection();
 
         /// <summary>
         /// Returns how this proxy selects endpoints (randomly or ordered).
         /// </summary>
         /// <returns>The endpoint selection policy.</returns>
-        public EndpointSelectionType EndpointSelection
-        {
-            get
-            {
-                return IceReference.getEndpointSelection();
-            }
-        }
+        public EndpointSelectionType EndpointSelection => IceReference.GetEndpointSelection();
 
         /// <summary>
         /// Returns whether this proxy communicates only via secure endpoints.
         /// </summary>
         /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
-        public bool IsSecure
-        {
-            get
-            {
-                return IceReference.getSecure();
-            }
-        }
+        public bool IsSecure => IceReference.GetSecure();
 
         /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
         /// <returns>The encoding version.</returns>
-        public EncodingVersion EncodingVersion
-        {
-            get
-            {
-                return IceReference.getEncoding();
-            }
-        }
+        public EncodingVersion EncodingVersion => IceReference.GetEncoding();
 
         /// <summary>
         /// Returns whether this proxy prefers secure endpoints.
         /// </summary>
         /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
         /// attempts to use insecure endpoints; false, otherwise.</returns>
-        public bool IsPreferSecure
-        {
-            get
-            {
-                return IceReference.getPreferSecure();
-            }
-        }
+        public bool IsPreferSecure => IceReference.GetPreferSecure();
 
         /// <summary>
         /// Returns the router for this proxy.
         /// </summary>
         /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
         /// is null.</returns>
-        public IRouterPrx? Router
-        {
-            get
-            {
-                return IceReference.getRouterInfo()?.Router;
-            }
-        }
+        public IRouterPrx? Router => IceReference.GetRouterInfo()?.Router;
 
         /// <summary>
         /// Returns the locator for this proxy.
         /// </summary>
         /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
-        public ILocatorPrx? Locator
-        {
-            get
-            {
-                return IceReference.getLocatorInfo()?.Locator;
-            }
-        }
+        public ILocatorPrx? Locator => IceReference.GetLocatorInfo()?.Locator;
 
         /// <summary>
         /// Returns whether this proxy uses collocation optimization.
         /// </summary>
         /// <returns>True if the proxy uses collocation optimization; false, otherwise.</returns>
-        public bool IsCollocationOptimized
-        {
-            get
-            {
-                return IceReference.getCollocationOptimized();
-
-            }
-        }
+        public bool IsCollocationOptimized => IceReference.GetCollocationOptimized();
 
         /// <summary>
         /// Returns whether this proxy uses twoway invocations.
         /// </summary>
         /// <returns>True if this proxy uses twoway invocations; false, otherwise.</returns>
-        public bool IsTwoway
-        {
-            get
-            {
-                return IceReference.getMode() == Ice.InvocationMode.Twoway;
-            }
-        }
+        public bool IsTwoway => IceReference.GetMode() == InvocationMode.Twoway;
 
         /// <summary>
         /// Returns whether this proxy uses oneway invocations.
         /// </summary>
         /// <returns>True if this proxy uses oneway invocations; false, otherwise.</returns>
-        public bool IsOneway
-        {
-            get
-            {
-                return IceReference.getMode() == Ice.InvocationMode.Oneway;
-            }
-        }
+        public bool IsOneway => IceReference.GetMode() == InvocationMode.Oneway;
 
-        public InvocationMode InvocationMode
-        {
-            get
-            {
-                return IceReference.getMode();
-            }
-        }
+        public InvocationMode InvocationMode => IceReference.GetMode();
 
         /// <summary>
         /// Obtains the compression override setting of this proxy.
         /// </summary>
         /// <returns>The compression override setting. If no optional value is present, no override is
         /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-        public bool? Compress
-        {
-            get
-            {
-                return IceReference.getCompress();
-            }
-        }
+        public bool? Compress => IceReference.GetCompress();
 
         /// <summary>
         /// Obtains the timeout override of this proxy.
         /// </summary>
         /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
         /// returns the timeout override value.</returns>
-        public int? ConnectionTimeout
-        {
-            get
-            {
-                return IceReference.getTimeout();
-            }
-        }
+        public int? ConnectionTimeout => IceReference.GetTimeout();
 
         /// <summary>
         /// Returns the connection id of this proxy.
         /// </summary>
         /// <returns>The connection id.</returns>
-        public string ConnectionId
-        {
-            get
-            {
-                return IceReference.getConnectionId();
-            }
-        }
+        public string ConnectionId => IceReference.GetConnectionId();
 
         /// <summary>
         /// Returns whether this proxy is a fixed proxy.
         /// </summary>
         /// <returns>True if this is a fixed proxy, false otherwise.
         /// </returns>
-        public bool IsFixed
-        {
-            get
-            {
-                return IceReference is IceInternal.FixedReference;
-            }
-        }
+        public bool IsFixed => IceReference is FixedReference;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream os)
         {
-            IceReference.getIdentity().IceWrite(os);
-            IceReference.streamWrite(os);
+            IceReference.GetIdentity().IceWrite(os);
+            IceReference.StreamWrite(os);
         }
 
-        public TaskScheduler Scheduler
-        {
-            get
-            {
-                return IceReference.getThreadPool();
-            }
-        }
+        public TaskScheduler Scheduler => IceReference.GetThreadPool();
 
         public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
         {
@@ -581,10 +429,8 @@ namespace Ice
 
         public static ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
-        public static IObjectPrx Parse(string s, Communicator communicator)
-        {
-            return new ObjectPrx(communicator.CreateReference(s));
-        }
+        public static IObjectPrx Parse(string s, Communicator communicator) =>
+            new ObjectPrx(communicator.CreateReference(s));
 
         public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
         {
@@ -601,7 +447,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void iceCheckTwowayOnly(string name)
+        public void IceCheckTwowayOnly(string name)
         {
             //
             // No mutex lock necessary, there is nothing mutable in this
@@ -615,7 +461,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void iceCheckAsyncTwowayOnly(string name)
+        public void IceCheckAsyncTwowayOnly(string name)
         {
             //
             // No mutex lock necessary, there is nothing mutable in this
@@ -656,7 +502,7 @@ namespace Ice
             {
                 try
                 {
-                    return IceReference.getCommunicator().CheckRetryAfterException((LocalException)ex, IceReference,
+                    return IceReference.GetCommunicator().CheckRetryAfterException((LocalException)ex, IceReference,
                         ref cnt);
                 }
                 catch (CommunicatorDestroyedException)
@@ -676,7 +522,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IRequestHandler IceGetRequestHandler()
         {
-            if (IceReference.getCacheConnection())
+            if (IceReference.GetCacheConnection())
             {
                 lock (this)
                 {
@@ -686,14 +532,14 @@ namespace Ice
                     }
                 }
             }
-            return IceReference.getRequestHandler(this);
+            return IceReference.GetRequestHandler(this);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IRequestHandler
         IceSetRequestHandler(IRequestHandler handler)
         {
-            if (IceReference.getCacheConnection())
+            if (IceReference.GetCacheConnection())
             {
                 lock (this)
                 {
@@ -710,7 +556,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceUpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
         {
-            if (IceReference.getCacheConnection() && previous != null)
+            if (IceReference.GetCacheConnection() && previous != null)
             {
                 lock (this)
                 {
@@ -723,28 +569,28 @@ namespace Ice
                         // replace the request handler if the current handler is the
                         // connect request handler.
                         //
-                        RequestHandler = RequestHandler.update(previous, handler);
+                        RequestHandler = RequestHandler.Update(previous, handler);
                     }
                 }
             }
         }
 
         protected OutgoingAsyncT<T>
-        getOutgoingAsync<T>(IOutgoingAsyncCompletionCallback completed)
+        GetOutgoingAsync<T>(IOutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
             InputStream? iss = null;
             OutputStream? os = null;
 
-            if (IceReference.getCommunicator().CacheMessageBuffers > 0)
+            if (IceReference.GetCommunicator().CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
                     if (StreamCache != null && StreamCache.Count > 0)
                     {
                         haveEntry = true;
-                        iss = StreamCache.First.Value.iss;
-                        os = StreamCache.First.Value.os;
+                        iss = StreamCache.First.Value.Iss;
+                        os = StreamCache.First.Value.Os;
 
                         StreamCache.RemoveFirst();
                     }
@@ -762,21 +608,21 @@ namespace Ice
         }
 
         internal InvokeOutgoingAsyncT
-        getInvokeOutgoingAsync(IOutgoingAsyncCompletionCallback completed)
+        GetInvokeOutgoingAsync(IOutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
             InputStream? iss = null;
             OutputStream? os = null;
 
-            if (IceReference.getCommunicator().CacheMessageBuffers > 0)
+            if (IceReference.GetCommunicator().CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
                     if (StreamCache != null && StreamCache.Count > 0)
                     {
                         haveEntry = true;
-                        iss = StreamCache.First.Value.iss;
-                        os = StreamCache.First.Value.os;
+                        iss = StreamCache.First.Value.Iss;
+                        os = StreamCache.First.Value.Os;
 
                         StreamCache.RemoveFirst();
                     }
@@ -809,16 +655,16 @@ namespace Ice
                     StreamCache = new LinkedList<StreamCacheEntry>();
                 }
                 StreamCacheEntry cacheEntry;
-                cacheEntry.iss = iss;
-                cacheEntry.os = os;
+                cacheEntry.Iss = iss;
+                cacheEntry.Os = os;
                 StreamCache.AddLast(cacheEntry);
             }
         }
 
         public struct StreamCacheEntry
         {
-            public InputStream? iss;
-            public OutputStream os;
+            public InputStream? Iss;
+            public OutputStream Os;
         }
     }
 
@@ -829,8 +675,8 @@ namespace Ice
     {
         public Object_Ice_invokeResult(bool returnValue, byte[]? outEncaps)
         {
-            this.returnValue = returnValue;
-            this.outEncaps = outEncaps;
+            ReturnValue = returnValue;
+            OutEncaps = outEncaps;
         }
 
         /// <summary>
@@ -839,14 +685,14 @@ namespace Ice
         /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception.
         /// </summary>
-        public bool returnValue;
+        public bool ReturnValue;
 
         /// <summary>
         /// The encoded out-paramaters and return value for the operation.
         /// The return value follows any out-parameters. If returnValue is
         /// false it contains the encoded user exception.
         /// </summary>
-        public byte[]? outEncaps;
+        public byte[]? OutEncaps;
     };
 
     internal class InvokeOutgoingAsyncT : OutgoingAsync
@@ -858,49 +704,49 @@ namespace Ice
         {
         }
 
-        public void invoke(string operation, OperationMode mode, byte[] inParams,
+        public void Invoke(string operation, OperationMode mode, byte[] inParams,
                            Dictionary<string, string>? context, bool synchronous)
         {
             try
             {
-                Debug.Assert(os_ != null);
-                prepare(operation, mode, context);
+                Debug.Assert(Os != null);
+                Prepare(operation, mode, context);
                 if (inParams == null || inParams.Length == 0)
                 {
-                    os_.WriteEmptyEncapsulation(encoding_);
+                    Os.WriteEmptyEncapsulation(Encoding);
                 }
                 else
                 {
-                    os_.WriteEncapsulation(inParams);
+                    Os.WriteEncapsulation(inParams);
                 }
-                invoke(operation, synchronous);
+                Invoke(operation, synchronous);
             }
             catch (Exception ex)
             {
-                abort(ex);
+                Abort(ex);
             }
         }
 
         public Object_Ice_invokeResult
-        getResult(bool ok)
+        GetResult(bool ok)
         {
             try
             {
                 var ret = new Object_Ice_invokeResult();
-                if (proxy_.IceReference.getMode() == InvocationMode.Twoway)
+                if (Proxy.IceReference.GetMode() == InvocationMode.Twoway)
                 {
-                    ret.outEncaps = is_!.ReadEncapsulation(out EncodingVersion _);
+                    ret.OutEncaps = Is!.ReadEncapsulation(out EncodingVersion _);
                 }
                 else
                 {
-                    ret.outEncaps = null;
+                    ret.OutEncaps = null;
                 }
-                ret.returnValue = ok;
+                ret.ReturnValue = ok;
                 return ret;
             }
             finally
             {
-                cacheMessageBuffers();
+                CacheMessageBuffers();
             }
         }
     }
@@ -912,12 +758,12 @@ namespace Ice
         {
         }
 
-        public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
+        public override void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
                                               OutgoingAsyncBase og)
         {
-            if (progress_ != null && !alreadySent)
+            if (Progress != null && !alreadySent)
             {
-                progress_.Report(sentSynchronously);
+                Progress.Report(sentSynchronously);
             }
             if (done)
             {
@@ -925,10 +771,8 @@ namespace Ice
             }
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
-        }
+        public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+            SetResult(((InvokeOutgoingAsyncT)og).GetResult(ok));
     }
 
     /// <summary>
@@ -941,10 +785,7 @@ namespace Ice
         public IRequestHandler? RequestHandler { get; set; }
         public LinkedList<IObjectPrx.StreamCacheEntry>? StreamCache { get; set; }
 
-        public virtual IObjectPrx Clone(Reference reference)
-        {
-            return new ObjectPrx(reference);
-        }
+        public virtual IObjectPrx Clone(Reference reference) => new ObjectPrx(reference);
 
         public ObjectPrx(Reference reference, IRequestHandler? requestHandler = null)
         {
@@ -961,10 +802,8 @@ namespace Ice
             IceReference = communicator.CreateReference(info.GetString("proxy"), null);
         }
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
             info.AddValue("proxy", ToString());
-        }
 
         /// <summary>
         /// Returns the stringified form of this proxy.
@@ -980,10 +819,7 @@ namespace Ice
         /// Returns a hash code for this proxy.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode()
-        {
-            return IceReference.GetHashCode();
-        }
+        public override int GetHashCode() => IceReference.GetHashCode();
 
         /// <summary>
         /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
@@ -991,10 +827,7 @@ namespace Ice
         /// </summary>
         /// <param name="other">The object to compare this proxy with.</param>
         /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-        public override bool Equals(object? other)
-        {
-            return Equals(other as IObjectPrx);
-        }
+        public override bool Equals(object? other) => Equals(other as IObjectPrx);
 
         /// <summary>
         /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
@@ -1002,10 +835,7 @@ namespace Ice
         /// </summary>
         /// <param name="other">The object to compare this proxy with.</param>
         /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-        public bool Equals(IObjectPrx? other)
-        {
-            return other != null && IceReference.Equals(other.IceReference);
-        }
+        public bool Equals(IObjectPrx? other) => other != null && IceReference.Equals(other.IceReference);
     }
 
     public static class Proxy
@@ -1034,7 +864,7 @@ namespace Ice
                                        IRouterPrx? router = null,
                                        bool? secure = null)
         {
-            var reference = prx.IceReference.Clone(
+            Reference reference = prx.IceReference.Clone(
                 id,
                 null,
                 adapterId,
@@ -1085,7 +915,7 @@ namespace Ice
                                        IRouterPrx? router = null,
                                        bool? secure = null)
         {
-            var reference = prx.IceReference.Clone(
+            Reference reference = prx.IceReference.Clone(
                 null,
                 facet,
                 adapterId,
@@ -1135,7 +965,7 @@ namespace Ice
                                      IRouterPrx? router = null,
                                      bool? secure = null) where Prx : IObjectPrx
         {
-            var reference = prx.IceReference.Clone(
+            Reference reference = prx.IceReference.Clone(
                 null,
                 null,
                 adapterId,
@@ -1171,8 +1001,8 @@ namespace Ice
             {
             }
 
-            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
-                SetResult(((ProxyGetConnection)og).getConnection()!);
+            public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+                SetResult(((ProxyGetConnection)og).GetConnection()!);
         }
 
         /// <summary>
@@ -1187,7 +1017,7 @@ namespace Ice
             try
             {
                 var completed = new GetConnectionTaskCompletionCallback(prx);
-                iceI_getConnection(prx, completed, true);
+                IceI_getConnection(prx, completed, true);
                 return completed.Task.Result;
             }
             catch (AggregateException ex)
@@ -1201,20 +1031,20 @@ namespace Ice
                                                           CancellationToken cancel = new CancellationToken())
         {
             var completed = new GetConnectionTaskCompletionCallback(prx, progress, cancel);
-            iceI_getConnection(prx, completed, false);
+            IceI_getConnection(prx, completed, false);
             return completed.Task;
         }
 
-        private static void iceI_getConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completed, bool synchronous)
+        private static void IceI_getConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             var outgoing = new ProxyGetConnection(prx, completed);
             try
             {
-                outgoing.invoke("ice_getConnection", synchronous);
+                outgoing.Invoke("ice_getConnection", synchronous);
             }
             catch (Exception ex)
             {
-                outgoing.abort(ex);
+                outgoing.Abort(ex);
             }
         }
 
@@ -1238,7 +1068,7 @@ namespace Ice
             {
                 try
                 {
-                    return handler.getConnection();
+                    return handler.GetConnection();
                 }
                 catch (LocalException)
                 {
@@ -1271,9 +1101,9 @@ namespace Ice
         {
             try
             {
-                var result = prx.iceI_ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
-                outEncaps = result.outEncaps;
-                return result.returnValue;
+                Object_Ice_invokeResult result = prx.IceI_ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
+                outEncaps = result.OutEncaps;
+                return result.ReturnValue;
             }
             catch (AggregateException ex)
             {
@@ -1299,13 +1129,11 @@ namespace Ice
                     byte[] inEncaps,
                     Dictionary<string, string>? context = null,
                     IProgress<bool>? progress = null,
-                    CancellationToken cancel = new CancellationToken())
-        {
-            return prx.iceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
-        }
+                    CancellationToken cancel = new CancellationToken()) =>
+            prx.IceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
 
         private static Task<Object_Ice_invokeResult>
-        iceI_ice_invokeAsync(this IObjectPrx prx,
+        IceI_ice_invokeAsync(this IObjectPrx prx,
                              string operation,
                              OperationMode mode,
                              byte[] inEncaps,
@@ -1315,19 +1143,17 @@ namespace Ice
                              bool synchronous)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            prx.iceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
+            prx.IceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
             return completed.Task;
         }
 
-        private static void iceI_ice_invoke(this IObjectPrx prx,
+        private static void IceI_ice_invoke(this IObjectPrx prx,
                                      string operation,
                                      OperationMode mode,
                                      byte[] inEncaps,
                                      Dictionary<string, string>? context,
                                      IOutgoingAsyncCompletionCallback completed,
-                                     bool synchronous)
-        {
-            prx.getInvokeOutgoingAsync(completed).invoke(operation, mode, inEncaps, context, synchronous);
-        }
+                                     bool synchronous) =>
+            prx.GetInvokeOutgoingAsync(completed).Invoke(operation, mode, inEncaps, context, synchronous);
     }
 }

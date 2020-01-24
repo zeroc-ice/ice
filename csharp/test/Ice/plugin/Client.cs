@@ -124,9 +124,9 @@ public class Client : Test.TestHelper
 
         public bool isDestroyed() => _destroyed;
 
-        public void initialize() => _initialized = true;
+        public void Initialize() => _initialized = true;
 
-        public void destroy() => _destroyed = true;
+        public void Destroy() => _destroyed = true;
 
         private bool _initialized = false;
         private bool _destroyed = false;

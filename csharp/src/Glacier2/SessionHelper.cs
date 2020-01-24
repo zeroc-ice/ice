@@ -64,7 +64,7 @@ namespace Glacier2
         /// called on the associated callback object.
         /// </summary>
         public void
-        destroy()
+        Destroy()
         {
             lock (_mutex)
             {
@@ -80,7 +80,7 @@ namespace Glacier2
                     // We destroy the communicator to trigger the immediate
                     // failure of the connection establishment.
                     //
-                    Thread t1 = new Thread(new ThreadStart(destroyCommunicator));
+                    var t1 = new Thread(new ThreadStart(DestroyCommunicator));
                     t1.Start();
                     return;
                 }
@@ -90,7 +90,7 @@ namespace Glacier2
                 //
                 // Run destroyInternal in a thread because it makes remote invocations.
                 //
-                Thread t2 = new Thread(new ThreadStart(destroyInternal));
+                var t2 = new Thread(new ThreadStart(DestroyInternal));
                 t2.Start();
             }
         }
@@ -100,7 +100,7 @@ namespace Glacier2
         /// </summary>
         /// <returns>The communicator.</returns>
         public Communicator?
-        communicator()
+        Communicator()
         {
             lock (_mutex)
             {
@@ -117,7 +117,7 @@ namespace Glacier2
         /// <returns>The category. Throws SessionNotExistException
         /// No session exists</returns>
         public string
-        categoryForClient()
+        CategoryForClient()
         {
             lock (_mutex)
             {
@@ -138,7 +138,7 @@ namespace Glacier2
         /// <returns>The proxy for the servant. Throws SessionNotExistException
         /// if no session exists.</returns>
         public IObjectPrx
-        addWithUUID(Disp servant)
+        AddWithUUID(Disp servant)
         {
             lock (_mutex)
             {
@@ -147,7 +147,7 @@ namespace Glacier2
                     throw new SessionNotExistException();
                 }
                 Debug.Assert(_category != null);
-                return internalObjectAdapter().Add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
+                return InternalObjectAdapter().Add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
             }
         }
 
@@ -157,7 +157,7 @@ namespace Glacier2
         /// </summary>
         /// <returns>The session proxy, or null if no session exists.</returns>
         public ISessionPrx?
-        session()
+        Session()
         {
             lock (_mutex)
             {
@@ -170,7 +170,7 @@ namespace Glacier2
         /// </summary>
         /// <returns>true if session exists or false if no session exists.</returns>
         public bool
-        isConnected()
+        IsConnected()
         {
             lock (_mutex)
             {
@@ -184,13 +184,10 @@ namespace Glacier2
         /// <return>The object adapter. Throws SessionNotExistException
         /// if no session exists.</return>
         public ObjectAdapter
-        objectAdapter()
-        {
-            return internalObjectAdapter();
-        }
+        ObjectAdapter() => InternalObjectAdapter();
 
         private ObjectAdapter
-        internalObjectAdapter()
+        InternalObjectAdapter()
         {
             lock (_mutex)
             {
@@ -217,11 +214,11 @@ namespace Glacier2
         /// </summary>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        connect(Dictionary<string, string>? context)
+        Connect(Dictionary<string, string>? context)
         {
             lock (_mutex)
             {
-                connectImpl((IRouterPrx router) => router.CreateSessionFromSecureConnection(context));
+                ConnectImpl((IRouterPrx router) => router.CreateSessionFromSecureConnection(context));
             }
         }
 
@@ -235,16 +232,16 @@ namespace Glacier2
         /// <param name="password">The password.</param>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        connect(string username, string password, Dictionary<string, string>? context)
+        Connect(string username, string password, Dictionary<string, string>? context)
         {
             lock (_mutex)
             {
-                connectImpl((IRouterPrx router) => router.CreateSession(username, password, context));
+                ConnectImpl((IRouterPrx router) => router.CreateSession(username, password, context));
             }
         }
 
         private void
-        connected(IRouterPrx router, ISessionPrx session)
+        Connected(IRouterPrx router, ISessionPrx session)
         {
             //
             // Remote invocation should be done without acquiring a mutex lock.
@@ -289,7 +286,7 @@ namespace Glacier2
                     //
                     // Run destroyInternal in a thread because it makes remote invocations.
                     //
-                    Thread t = new Thread(new ThreadStart(destroyInternal));
+                    var t = new Thread(new ThreadStart(DestroyInternal));
                     t.Start();
                     return;
                 }
@@ -310,11 +307,11 @@ namespace Glacier2
                     Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
                     connection.SetACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
-                    connection.SetCloseCallback(_ => destroy());
+                    connection.SetCloseCallback(_ => Destroy());
                 }
             }
 
-            dispatchCallback(() =>
+            DispatchCallback(() =>
                 {
                     try
                     {
@@ -322,13 +319,13 @@ namespace Glacier2
                     }
                     catch (SessionNotExistException)
                     {
-                        destroy();
+                        Destroy();
                     }
                 }, conn);
         }
 
         private void
-        destroyInternal()
+        DestroyInternal()
         {
             IRouterPrx router;
             Communicator? communicator;
@@ -368,17 +365,17 @@ namespace Glacier2
                 //
                 // Not expected.
                 //
-                communicator.Logger.warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
+                communicator.Logger.Warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
             }
 
             communicator.Destroy();
 
             // Notify the callback that the session is gone.
-            dispatchCallback(() => _callback.disconnected(this), null);
+            DispatchCallback(() => _callback.disconnected(this), null);
         }
 
         private void
-        destroyCommunicator()
+        DestroyCommunicator()
         {
             Communicator? communicator;
             lock (_mutex)
@@ -392,7 +389,7 @@ namespace Glacier2
         private delegate ISessionPrx ConnectStrategy(IRouterPrx router);
 
         private void
-        connectImpl(ConnectStrategy factory)
+        ConnectImpl(ConnectStrategy factory)
         {
             Debug.Assert(!_destroy);
             new Thread(new ThreadStart(() =>
@@ -418,7 +415,7 @@ namespace Glacier2
                     {
                         _destroy = true;
                     }
-                    dispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
                     return;
                 }
 
@@ -431,7 +428,7 @@ namespace Glacier2
                     }
                     catch (CommunicatorDestroyedException ex)
                     {
-                        dispatchCallback(() => _callback.connectFailed(this, ex), null);
+                        DispatchCallback(() => _callback.connectFailed(this, ex), null);
                         return;
                     }
                     catch (System.Exception)
@@ -446,23 +443,23 @@ namespace Glacier2
 
                 try
                 {
-                    dispatchCallbackAndWait(() => _callback.createdCommunicator(this));
+                    DispatchCallbackAndWait(() => _callback.createdCommunicator(this));
                     Ice.IRouterPrx? defaultRouter = _communicator.GetDefaultRouter();
                     Debug.Assert(defaultRouter != null);
-                    IRouterPrx routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
+                    var routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
                     ISessionPrx session = factory(routerPrx);
-                    connected(routerPrx, session);
+                    Connected(routerPrx, session);
                 }
                 catch (System.Exception ex)
                 {
                     _communicator.Destroy();
-                    dispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
                 }
             })).Start();
         }
 
         private void
-        dispatchCallback(Action callback, Connection? conn)
+        DispatchCallback(Action callback, Connection? conn)
         {
             if (_dispatcher != null)
             {
@@ -475,7 +472,7 @@ namespace Glacier2
         }
 
         private void
-        dispatchCallbackAndWait(Action callback)
+        DispatchCallbackAndWait(Action callback)
         {
             if (_dispatcher != null)
             {
@@ -499,20 +496,20 @@ namespace Glacier2
         private ISessionPrx? _session;
         private bool _connected = false;
         private string? _category;
-        private string _finderStr;
-        private bool _useCallbacks;
-        private Dictionary<string, string> _properties;
-        private Func<int, string>? _compactIdResolver;
-        private Action<Action, Ice.Connection?>? _dispatcher;
-        private Ice.ILogger? _logger;
-        private Ice.Instrumentation.ICommunicatorObserver? _observer;
-        private Action? _threadStart;
-        private Action? _threadStop;
-        private string[]? _typeIdNamespaces;
+        private readonly string _finderStr;
+        private readonly bool _useCallbacks;
+        private readonly Dictionary<string, string> _properties;
+        private readonly Func<int, string>? _compactIdResolver;
+        private readonly Action<Action, Ice.Connection?>? _dispatcher;
+        private readonly Ice.ILogger? _logger;
+        private readonly Ice.Instrumentation.ICommunicatorObserver? _observer;
+        private readonly Action? _threadStart;
+        private readonly Action? _threadStop;
+        private readonly string[]? _typeIdNamespaces;
 
         private readonly SessionCallback _callback;
         private bool _destroy = false;
-        private object _mutex = new object();
+        private readonly object _mutex = new object();
     }
 
 }

@@ -247,7 +247,7 @@ namespace Ice
                         {
                             if (prop.deprecated())
                             {
-                                Logger.warning($"deprecated property: `{name}'");
+                                Logger.Warning($"deprecated property: `{name}'");
                                 string? deprecatedBy = prop.deprecatedBy();
                                 if (deprecatedBy != null)
                                 {
@@ -272,11 +272,11 @@ namespace Ice
                     }
                     if (!found)
                     {
-                        Logger.warning($"unknown property: `{name}'");
+                        Logger.Warning($"unknown property: `{name}'");
                     }
                     else if (mismatchCase)
                     {
-                        Logger.warning($"unknown property: `{name}'; did you mean `{otherKey}'");
+                        Logger.Warning($"unknown property: `{name}'; did you mean `{otherKey}'");
                     }
                 }
             }

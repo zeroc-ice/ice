@@ -2,23 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
-
     internal sealed class UdpTransceiver : ITransceiver
     {
-        public Socket? fd()
-        {
-            return _fd;
-        }
+        public Socket? Fd() => _fd;
 
-        public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
             Debug.Assert(_fd != null);
             if (_state == StateNeedConnect)
@@ -34,7 +31,7 @@ namespace IceInternal
                 }
                 catch (SocketException ex)
                 {
-                    if (Network.wouldBlock(ex))
+                    if (Network.WouldBlock(ex))
                     {
                         return SocketOperation.Connect;
                     }
@@ -51,7 +48,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int closing(bool initiator, Ice.LocalException? ex)
+        public int Closing(bool initiator, Ice.LocalException? ex)
         {
             //
             // Nothing to do.
@@ -59,7 +56,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public void close()
+        public void Close()
         {
             if (_fd != null)
             {
@@ -74,14 +71,14 @@ namespace IceInternal
             }
         }
 
-        public Endpoint bind()
+        public Endpoint Bind()
         {
             Debug.Assert(_fd != null);
-            if (Network.isMulticast((IPEndPoint)_addr))
+            if (Network.IsMulticast((IPEndPoint)_addr))
             {
-                Network.setReuseAddress(_fd, true);
+                Network.SetReuseAddress(_fd, true);
                 _mcastAddr = (IPEndPoint)_addr;
-                if (AssemblyUtil.isWindows)
+                if (AssemblyUtil.IsWindows)
                 {
                     //
                     // Windows does not allow binding to the mcast address itself
@@ -100,43 +97,43 @@ namespace IceInternal
                     }
                 }
 
-                _addr = Network.doBind(_fd, _addr);
+                _addr = Network.DoBind(_fd, _addr);
                 if (_port == 0)
                 {
                     _mcastAddr.Port = ((IPEndPoint)_addr).Port;
                 }
                 Debug.Assert(_mcastInterface != null);
-                Network.setMcastGroup(_fd, _mcastAddr.Address, _mcastInterface);
+                Network.SetMcastGroup(_fd, _mcastAddr.Address, _mcastInterface);
             }
             else
             {
-                _addr = Network.doBind(_fd, _addr);
+                _addr = Network.DoBind(_fd, _addr);
             }
             _bound = true;
             Debug.Assert(_endpoint != null);
-            _endpoint = _endpoint.endpoint(this);
+            _endpoint = _endpoint.Endpoint(this);
             return _endpoint;
         }
 
-        public void destroy()
+        public void Destroy()
         {
             _readEventArgs.Dispose();
             Debug.Assert(_writeEventArgs != null);
             _writeEventArgs.Dispose();
         }
 
-        public int write(Buffer buf)
+        public int Write(Buffer buf)
         {
-            if (!buf.b.hasRemaining())
+            if (!buf.B.HasRemaining())
             {
                 return SocketOperation.None;
             }
 
-            Debug.Assert(buf.b.position() == 0);
+            Debug.Assert(buf.B.Position() == 0);
             Debug.Assert(_fd != null && _state >= StateConnected);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buf.Size());
 
             int ret;
             while (true)
@@ -145,7 +142,7 @@ namespace IceInternal
                 {
                     if (_state == StateConnected)
                     {
-                        ret = _fd.Send(buf.b.rawBytes(), 0, buf.size(), SocketFlags.None);
+                        ret = _fd.Send(buf.B.RawBytes(), 0, buf.Size(), SocketFlags.None);
                     }
                     else
                     {
@@ -153,23 +150,23 @@ namespace IceInternal
                         {
                             throw new Ice.SocketException();
                         }
-                        ret = _fd.SendTo(buf.b.rawBytes(), 0, buf.size(), SocketFlags.None, _peerAddr);
+                        ret = _fd.SendTo(buf.B.RawBytes(), 0, buf.Size(), SocketFlags.None, _peerAddr);
                     }
                     break;
                 }
                 catch (SocketException ex)
                 {
-                    if (Network.interrupted(ex))
+                    if (Network.Interrupted(ex))
                     {
                         continue;
                     }
 
-                    if (Network.wouldBlock(ex))
+                    if (Network.WouldBlock(ex))
                     {
                         return SocketOperation.Write;
                     }
 
-                    if (Network.connectionLost(ex))
+                    if (Network.ConnectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -185,24 +182,24 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-            Debug.Assert(ret == buf.b.limit());
-            buf.b.position(buf.b.limit());
+            Debug.Assert(ret == buf.B.Limit());
+            buf.B.Position(buf.B.Limit());
             return SocketOperation.None;
         }
 
-        public int read(Buffer buf, ref bool hasMoreData)
+        public int Read(Buffer buf, ref bool hasMoreData)
         {
-            if (!buf.b.hasRemaining())
+            if (!buf.B.HasRemaining())
             {
                 return SocketOperation.None;
             }
 
-            Debug.Assert(buf.b.position() == 0);
+            Debug.Assert(buf.B.Position() == 0);
             Debug.Assert(_fd != null);
 
-            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
-            buf.resize(packetSize, true);
-            buf.b.position(0);
+            int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
+            buf.Resize(packetSize, true);
+            buf.B.Position(0);
 
             int ret;
             while (true)
@@ -225,39 +222,39 @@ namespace IceInternal
 
                     // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                     if (_state == StateConnected ||
-                       AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
+                       (AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                     {
-                        ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
+                        ret = _fd.Receive(buf.B.RawBytes(), 0, buf.B.Limit(), SocketFlags.None);
                     }
                     else
                     {
-                        ret = _fd.ReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr);
+                        ret = _fd.ReceiveFrom(buf.B.RawBytes(), 0, buf.B.Limit(), SocketFlags.None, ref peerAddr);
                         _peerAddr = (IPEndPoint)peerAddr;
                     }
                     break;
                 }
                 catch (SocketException e)
                 {
-                    if (Network.recvTruncated(e))
+                    if (Network.RecvTruncated(e))
                     {
                         // The message was truncated and the whole buffer is filled. We ignore
                         // this error here, it will be detected at the connection level when
                         // the Ice message size is checked against the buffer size.
-                        ret = buf.size();
+                        ret = buf.Size();
                         break;
                     }
 
-                    if (Network.interrupted(e))
+                    if (Network.Interrupted(e))
                     {
                         continue;
                     }
 
-                    if (Network.wouldBlock(e))
+                    if (Network.WouldBlock(e))
                     {
                         return SocketOperation.Read;
                     }
 
-                    if (Network.connectionLost(e))
+                    if (Network.ConnectionLost(e))
                     {
                         throw new Ice.ConnectionLostException();
                     }
@@ -285,40 +282,40 @@ namespace IceInternal
                 // If we must connect, then we connect to the first peer that sends us a packet.
                 //
                 Debug.Assert(_peerAddr != null);
-                bool connected = Network.doConnect(_fd, _peerAddr, null);
+                bool connected = Network.DoConnect(_fd, _peerAddr, null);
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
                 if (_instance.TraceLevel >= 1)
                 {
-                    _instance.Logger.trace(_instance.TraceCategory, $"connected {protocol()} socket\n{this}");
+                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Protocol()} socket\n{this}");
                 }
             }
 
-            buf.resize(ret, true);
-            buf.b.position(ret);
+            buf.Resize(ret, true);
+            buf.B.Position(ret);
 
             return SocketOperation.None;
         }
 
-        public bool startRead(Buffer buf, AsyncCallback callback, object state)
+        public bool StartRead(Buffer buf, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null);
-            Debug.Assert(buf.b.position() == 0);
+            Debug.Assert(buf.B.Position() == 0);
 
-            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
-            buf.resize(packetSize, true);
-            buf.b.position(0);
+            int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
+            buf.Resize(packetSize, true);
+            buf.B.Position(0);
 
             try
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (_state == StateConnected ||
-                   AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
+                   (AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _readCallback = callback;
                     _readEventArgs.UserToken = state;
-                    _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
+                    _readEventArgs.SetBuffer(buf.B.RawBytes(), buf.B.Position(), packetSize);
                     return !_fd.ReceiveAsync(_readEventArgs);
                 }
                 else
@@ -326,20 +323,20 @@ namespace IceInternal
                     Debug.Assert(_incoming);
                     _readCallback = callback;
                     _readEventArgs.UserToken = state;
-                    _readEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
+                    _readEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
                     return !_fd.ReceiveFromAsync(_readEventArgs);
                 }
             }
             catch (SocketException ex)
             {
-                if (Network.recvTruncated(ex))
+                if (Network.RecvTruncated(ex))
                 {
                     // Nothing todo
                     return true;
                 }
                 else
                 {
-                    if (Network.connectionLost(ex))
+                    if (Network.ConnectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -351,7 +348,7 @@ namespace IceInternal
             }
         }
 
-        public void finishRead(Buffer buf)
+        public void FinishRead(Buffer buf)
         {
             if (_fd == null)
             {
@@ -368,28 +365,28 @@ namespace IceInternal
                 ret = _readEventArgs.BytesTransferred;
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (_state != StateConnected &&
-                   !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
+                   !(AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }
             }
             catch (SocketException ex)
             {
-                if (Network.recvTruncated(ex))
+                if (Network.RecvTruncated(ex))
                 {
                     // The message was truncated and the whole buffer is filled. We ignore
                     // this error here, it will be detected at the connection level when
                     // the Ice message size is checked against the buffer size.
-                    ret = buf.size();
+                    ret = buf.Size();
                 }
                 else
                 {
-                    if (Network.connectionLost(ex))
+                    if (Network.ConnectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
 
-                    if (Network.connectionRefused(ex))
+                    if (Network.ConnectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
@@ -421,15 +418,15 @@ namespace IceInternal
 
                 if (_instance.TraceLevel >= 1)
                 {
-                    _instance.Logger.trace(_instance.TraceCategory, $"connected {protocol()} socket\n{this}");
+                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Protocol()} socket\n{this}");
                 }
             }
 
-            buf.resize(ret, true);
-            buf.b.position(ret);
+            buf.Resize(ret, true);
+            buf.B.Position(ret);
         }
 
-        public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
+        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null);
             Debug.Assert(_writeEventArgs != null);
@@ -447,9 +444,9 @@ namespace IceInternal
             }
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buf.Size());
 
-            Debug.Assert(buf.b.position() == 0);
+            Debug.Assert(buf.B.Position() == 0);
 
             bool completedSynchronously;
             try
@@ -459,7 +456,7 @@ namespace IceInternal
                 if (_state == StateConnected)
                 {
                     _writeEventArgs.UserToken = state;
-                    _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
+                    _writeEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
                     completedSynchronously = !_fd.SendAsync(_writeEventArgs);
                 }
                 else
@@ -470,13 +467,13 @@ namespace IceInternal
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
-                    _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
+                    _writeEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
                 }
             }
             catch (SocketException ex)
             {
-                if (Network.connectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -490,12 +487,12 @@ namespace IceInternal
             return completedSynchronously;
         }
 
-        public void finishWrite(Buffer buf)
+        public void FinishWrite(Buffer buf)
         {
             Debug.Assert(_writeEventArgs != null);
             if (_fd == null)
             {
-                buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
+                buf.B.Position(buf.Size()); // Assume all the data was sent for at-most-once semantics.
                 _writeEventArgs = null;
                 return;
             }
@@ -504,8 +501,8 @@ namespace IceInternal
             {
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
-                    if (Network.connectionRefused(ex))
+                    var ex = new SocketException((int)_writeEventArgs.SocketError);
+                    if (Network.ConnectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
@@ -528,7 +525,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                if (Network.connectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -544,66 +541,63 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-            Debug.Assert(ret == buf.b.limit());
-            buf.b.position(buf.b.position() + ret);
+            Debug.Assert(ret == buf.B.Limit());
+            buf.B.Position(buf.B.Position() + ret);
         }
 
-        public string protocol() => _instance.Protocol;
+        public string Protocol() => _instance.Protocol;
 
-        public Ice.ConnectionInfo getInfo()
+        public Ice.ConnectionInfo GetInfo()
         {
-            Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
+            var info = new Ice.UDPConnectionInfo();
             if (_fd != null)
             {
-                EndPoint localEndpoint = Network.getLocalAddress(_fd);
-                info.LocalAddress = Network.endpointAddressToString(localEndpoint);
-                info.LocalPort = Network.endpointPort(localEndpoint);
+                EndPoint localEndpoint = Network.GetLocalAddress(_fd);
+                info.LocalAddress = Network.EndpointAddressToString(localEndpoint);
+                info.LocalPort = Network.EndpointPort(localEndpoint);
                 if (_state == StateNotConnected)
                 {
                     if (_peerAddr != null)
                     {
-                        info.RemoteAddress = Network.endpointAddressToString(_peerAddr);
-                        info.RemotePort = Network.endpointPort(_peerAddr);
+                        info.RemoteAddress = Network.EndpointAddressToString(_peerAddr);
+                        info.RemotePort = Network.EndpointPort(_peerAddr);
                     }
                 }
                 else
                 {
-                    EndPoint? remoteEndpoint = Network.getRemoteAddress(_fd);
+                    EndPoint? remoteEndpoint = Network.GetRemoteAddress(_fd);
                     if (remoteEndpoint != null)
                     {
-                        info.RemoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                        info.RemotePort = Network.endpointPort(remoteEndpoint);
+                        info.RemoteAddress = Network.EndpointAddressToString(remoteEndpoint);
+                        info.RemotePort = Network.EndpointPort(remoteEndpoint);
                     }
                 }
-                info.RcvSize = Network.getRecvBufferSize(_fd);
-                info.SndSize = Network.getSendBufferSize(_fd);
+                info.RcvSize = Network.GetRecvBufferSize(_fd);
+                info.SndSize = Network.GetSendBufferSize(_fd);
             }
 
             if (_mcastAddr != null)
             {
-                info.McastAddress = Network.endpointAddressToString(_mcastAddr);
-                info.McastPort = Network.endpointPort(_mcastAddr);
+                info.McastAddress = Network.EndpointAddressToString(_mcastAddr);
+                info.McastPort = Network.EndpointPort(_mcastAddr);
             }
             return info;
         }
 
-        public void checkSendSize(Buffer buf)
+        public void CheckSendSize(Buffer buf)
         {
             //
             // The maximum packetSize is either the maximum allowable UDP packet size, or
             // the UDP send buffer size (which ever is smaller).
             //
-            int packetSize = Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
-            if (packetSize < buf.size())
+            int packetSize = Math.Min(MaxPacketSize, _sndSize - UdpOverhead);
+            if (packetSize < buf.Size())
             {
                 throw new Ice.DatagramLimitException();
             }
         }
 
-        public void setBufferSize(int rcvSize, int sndSize)
-        {
-            setBufSize(rcvSize, sndSize);
-        }
+        public void SetBufferSize(int rcvSize, int sndSize) => SetBufSize(rcvSize, sndSize);
 
         public override string ToString()
         {
@@ -615,42 +609,42 @@ namespace IceInternal
             string s;
             if (_incoming && !_bound)
             {
-                s = "local address = " + Network.addrToString(_addr);
+                s = "local address = " + Network.AddrToString(_addr);
             }
             else if (_state == StateNotConnected)
             {
-                s = "local address = " + Network.localAddrToString(Network.getLocalAddress(_fd));
+                s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(_fd));
                 if (_peerAddr != null)
                 {
-                    s += "\nremote address = " + Network.addrToString(_peerAddr);
+                    s += "\nremote address = " + Network.AddrToString(_peerAddr);
                 }
             }
             else
             {
-                s = Network.fdToString(_fd);
+                s = Network.FdToString(_fd);
             }
 
             if (_mcastAddr != null)
             {
-                s += "\nmulticast address = " + Network.addrToString(_mcastAddr);
+                s += "\nmulticast address = " + Network.AddrToString(_mcastAddr);
             }
             return s;
         }
 
-        public string toDetailedString()
+        public string ToDetailedString()
         {
-            StringBuilder s = new StringBuilder(ToString());
+            var s = new StringBuilder(ToString());
             List<string> intfs;
             if (_mcastAddr == null)
             {
-                intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
+                intfs = Network.GetHostsForEndpointExpand(Network.EndpointAddressToString(_addr),
                                                           _instance.ProtocolSupport, true);
             }
             else
             {
                 Debug.Assert(_mcastInterface != null);
-                intfs = Network.getInterfacesForMulticast(_mcastInterface,
-                                                          Network.getProtocolSupport(_mcastAddr.Address));
+                intfs = Network.GetInterfacesForMulticast(_mcastInterface,
+                                                          Network.GetProtocolSupport(_mcastAddr.Address));
             }
 
             if (intfs.Count != 0)
@@ -661,10 +655,7 @@ namespace IceInternal
             return s.ToString();
         }
 
-        public int effectivePort()
-        {
-            return Network.endpointPort(_addr);
-        }
+        public int EffectivePort() => Network.EndpointPort(_addr);
 
         //
         // Only for use by UdpConnector.
@@ -678,11 +669,11 @@ namespace IceInternal
 
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.RemoteEndPoint = _addr;
-            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.RemoteEndPoint = _addr;
-            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             _mcastInterface = mcastInterface;
             _state = StateNeedConnect;
@@ -690,18 +681,18 @@ namespace IceInternal
 
             try
             {
-                _fd = Network.createSocket(true, _addr.AddressFamily);
-                setBufSize(-1, -1);
-                Network.setBlock(_fd, false);
-                if (Network.isMulticast((IPEndPoint)_addr))
+                _fd = Network.CreateSocket(true, _addr.AddressFamily);
+                SetBufSize(-1, -1);
+                Network.SetBlock(_fd, false);
+                if (Network.IsMulticast((IPEndPoint)_addr))
                 {
                     if (_mcastInterface.Length > 0)
                     {
-                        Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
+                        Network.SetMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
                     }
                     if (mcastTtl != -1)
                     {
-                        Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
+                        Network.SetMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
                     }
                 }
             }
@@ -715,7 +706,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(UdpEndpointI endpoint, ProtocolInstance instance, string host, int port,
+        internal UdpTransceiver(UdpEndpoint endpoint, ProtocolInstance instance, string host, int port,
                                 string mcastInterface, bool connect)
         {
             _endpoint = endpoint;
@@ -727,19 +718,19 @@ namespace IceInternal
 
             try
             {
-                _addr = Network.getAddressForServer(host, port, instance.ProtocolSupport, instance.PreferIPv6);
+                _addr = Network.GetAddressForServer(host, port, instance.ProtocolSupport, instance.PreferIPv6);
 
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
-                _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+                _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
                 _writeEventArgs = new SocketAsyncEventArgs();
                 _writeEventArgs.RemoteEndPoint = _addr;
-                _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+                _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
-                _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.ProtocolSupport);
-                setBufSize(-1, -1);
-                Network.setBlock(_fd, false);
+                _fd = Network.CreateServerSocket(true, _addr.AddressFamily, instance.ProtocolSupport);
+                SetBufSize(-1, -1);
+                Network.SetBlock(_fd, false);
             }
             catch (Ice.LocalException)
             {
@@ -756,7 +747,7 @@ namespace IceInternal
             }
         }
 
-        private void setBufSize(int rcvSize, int sndSize)
+        private void SetBufSize(int rcvSize, int sndSize)
         {
             Debug.Assert(_fd != null);
 
@@ -772,7 +763,7 @@ namespace IceInternal
                     isSnd = false;
                     direction = "receive";
                     prop = "Ice.UDP.RcvSize";
-                    dfltSize = Network.getRecvBufferSize(_fd);
+                    dfltSize = Network.GetRecvBufferSize(_fd);
                     sizeRequested = rcvSize;
                     _rcvSize = dfltSize;
                 }
@@ -781,7 +772,7 @@ namespace IceInternal
                     isSnd = true;
                     direction = "send";
                     prop = "Ice.UDP.SndSize";
-                    dfltSize = Network.getSendBufferSize(_fd);
+                    dfltSize = Network.GetSendBufferSize(_fd);
                     sizeRequested = sndSize;
                     _sndSize = dfltSize;
                 }
@@ -796,9 +787,9 @@ namespace IceInternal
                 //
                 // Check for sanity.
                 //
-                if (sizeRequested < (_udpOverhead + Protocol.headerSize))
+                if (sizeRequested < (UdpOverhead + IceInternal.Protocol.headerSize))
                 {
-                    _instance.Logger.warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
+                    _instance.Logger.Warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
                     sizeRequested = dfltSize;
                 }
 
@@ -812,14 +803,14 @@ namespace IceInternal
                     int sizeSet;
                     if (i == 0)
                     {
-                        Network.setRecvBufferSize(_fd, sizeRequested);
-                        _rcvSize = Network.getRecvBufferSize(_fd);
+                        Network.SetRecvBufferSize(_fd, sizeRequested);
+                        _rcvSize = Network.GetRecvBufferSize(_fd);
                         sizeSet = _rcvSize;
                     }
                     else
                     {
-                        Network.setSendBufferSize(_fd, sizeRequested);
-                        _sndSize = Network.getSendBufferSize(_fd);
+                        Network.SetSendBufferSize(_fd, sizeRequested);
+                        _sndSize = Network.GetSendBufferSize(_fd);
                         sizeSet = _sndSize;
                     }
 
@@ -829,20 +820,20 @@ namespace IceInternal
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.UDPEndpointType.value);
-                        if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
-                           (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
+                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.UDPEndpointType.Value);
+                        if ((isSnd && (!winfo.SndWarn || winfo.SndSize != sizeRequested)) ||
+                           (!isSnd && (!winfo.RcvWarn || winfo.RcvSize != sizeRequested)))
                         {
-                            _instance.Logger.warning(
+                            _instance.Logger.Warning(
                                 $"UDP {direction} buffer size: requested size of {sizeRequested} adjusted to {sizeSet}");
 
                             if (isSnd)
                             {
-                                _instance.setSndBufSizeWarn(Ice.UDPEndpointType.value, sizeRequested);
+                                _instance.SetSndBufSizeWarn(Ice.UDPEndpointType.Value, sizeRequested);
                             }
                             else
                             {
-                                _instance.setRcvBufSizeWarn(Ice.UDPEndpointType.value, sizeRequested);
+                                _instance.SetRcvBufSizeWarn(Ice.UDPEndpointType.Value, sizeRequested);
                             }
                         }
                     }
@@ -850,7 +841,7 @@ namespace IceInternal
             }
         }
 
-        internal void ioCompleted(object sender, SocketAsyncEventArgs e)
+        internal void IoCompleted(object sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {
@@ -869,7 +860,7 @@ namespace IceInternal
             }
         }
 
-        private UdpEndpointI? _endpoint;
+        private UdpEndpoint? _endpoint;
         private readonly ProtocolInstance _instance;
         private int _state;
         private readonly bool _incoming;
@@ -900,7 +891,7 @@ namespace IceInternal
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
         // to get the maximum payload.
         //
-        private const int _udpOverhead = 20 + 8;
-        private const int _maxPacketSize = 65535 - _udpOverhead;
+        private const int UdpOverhead = 20 + 8;
+        private const int MaxPacketSize = 65535 - UdpOverhead;
     }
 }

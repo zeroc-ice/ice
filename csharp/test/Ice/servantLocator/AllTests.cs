@@ -17,9 +17,9 @@ namespace Ice.servantLocator
             }
             catch (ObjectNotExistException ex)
             {
-                test(ex.id.Equals(obj.Identity));
-                test(ex.facet.Equals(obj.Facet));
-                test(ex.operation.Equals("requestFailedException"));
+                test(ex.Id.Equals(obj.Identity));
+                test(ex.Facet.Equals(obj.Facet));
+                test(ex.Operation.Equals("requestFailedException"));
             }
             catch (Exception)
             {
@@ -33,7 +33,7 @@ namespace Ice.servantLocator
             }
             catch (UnknownUserException ex)
             {
-                test(ex.unknown.Equals("reason"));
+                test(ex.Unknown.Equals("reason"));
             }
             catch (Exception)
             {
@@ -47,7 +47,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownLocalException ex)
             {
-                test(ex.unknown.Equals("reason"));
+                test(ex.Unknown.Equals("reason"));
             }
             catch (Exception)
             {
@@ -61,7 +61,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownException ex)
             {
-                test(ex.unknown.Equals("reason"));
+                test(ex.Unknown.Equals("reason"));
             }
             catch (Exception)
             {
@@ -76,7 +76,7 @@ namespace Ice.servantLocator
             catch (Ice.UnknownUserException ex)
             {
                 //Console.Error.WriteLine(ex.unknown);
-                test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
+                test(ex.Unknown.IndexOf("Test::TestIntfUserException") >= 0);
             }
             catch (Ice.OperationNotExistException)
             {
@@ -93,8 +93,8 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownLocalException ex)
             {
-                test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
-                        ex.unknown.IndexOf("Ice.SocketException") >= 0);
+                test(ex.Unknown.IndexOf("Ice::SocketException") >= 0 ||
+                     ex.Unknown.IndexOf("Ice.SocketException") >= 0);
             }
             catch (Exception)
             {
@@ -108,7 +108,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownException ex)
             {
-                test(ex.unknown.IndexOf("System.Exception") >= 0);
+                test(ex.Unknown.IndexOf("System.Exception") >= 0);
             }
             catch (Ice.OperationNotExistException)
             {
@@ -125,7 +125,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownException ex)
             {
-                test(ex.unknown.Equals("reason"));
+                test(ex.Unknown.Equals("reason"));
             }
             catch (Exception)
             {
@@ -217,7 +217,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownUserException ex)
             {
-                test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                test(ex.Unknown.Equals("::Test::TestIntfUserException"));
             }
             catch (Exception)
             {
@@ -232,7 +232,7 @@ namespace Ice.servantLocator
             }
             catch (Ice.UnknownUserException ex)
             {
-                test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                test(ex.Unknown.Equals("::Test::TestIntfUserException"));
             }
             catch (Exception)
             {

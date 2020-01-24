@@ -414,7 +414,7 @@ namespace Ice.exceptions
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    test(ex.id.Equals(id));
+                    test(ex.Id.Equals(id));
                 }
                 catch (Exception)
                 {
@@ -437,7 +437,7 @@ namespace Ice.exceptions
                 }
                 catch (FacetNotExistException ex)
                 {
-                    test(ex.facet.Equals("no such facet"));
+                    test(ex.Facet.Equals("no such facet"));
                 }
             }
             catch (Exception)
@@ -458,7 +458,7 @@ namespace Ice.exceptions
             }
             catch (OperationNotExistException ex)
             {
-                test(ex.operation.Equals("noSuchOperation"));
+                test(ex.Operation.Equals("noSuchOperation"));
             }
             catch (Exception)
             {
@@ -837,7 +837,7 @@ namespace Ice.exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.id.Equals(id));
+                        test(ex.Id.Equals(id));
                     }
                     catch (Exception)
                     {
@@ -866,7 +866,7 @@ namespace Ice.exceptions
                     }
                     catch (FacetNotExistException ex)
                     {
-                        test(ex.facet.Equals("no such facet"));
+                        test(ex.Facet.Equals("no such facet"));
                     }
                     catch (Exception)
                     {
@@ -895,7 +895,7 @@ namespace Ice.exceptions
                     }
                     catch (OperationNotExistException ex)
                     {
-                        test(ex.operation.Equals("noSuchOperation"));
+                        test(ex.Operation.Equals("noSuchOperation"));
                     }
                     catch (Exception)
                     {
@@ -1081,7 +1081,7 @@ namespace Ice.exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.id.Equals(id));
+                        test(ex.Id.Equals(id));
                     }
                     catch (Exception)
                     {
@@ -1110,7 +1110,7 @@ namespace Ice.exceptions
                     }
                     catch (FacetNotExistException ex)
                     {
-                        test(ex.facet.Equals("no such facet"));
+                        test(ex.Facet.Equals("no such facet"));
                     }
                     catch (Exception)
                     {
@@ -1139,7 +1139,7 @@ namespace Ice.exceptions
                     }
                     catch (OperationNotExistException ex)
                     {
-                        test(ex.operation.Equals("noSuchOperation"));
+                        test(ex.Operation.Equals("noSuchOperation"));
                     }
                     catch (Exception)
                     {

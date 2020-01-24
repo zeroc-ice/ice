@@ -4,24 +4,21 @@
 
 using System;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace IceInternal
 {
     public class Ex
     {
-        public static void throwUOE(Type expectedType, Ice.AnyClass v)
+        public static void ThrowUOE(Type expectedType, Ice.AnyClass v)
         {
             //
             // If the object is an unknown sliced object, we didn't find an
             // class factory, in this case raise a NoClassFactoryException
             // instead.
             //
-            if (v is Ice.UnknownSlicedClass)
+            if (v is Ice.UnknownSlicedClass usv)
             {
-                Ice.UnknownSlicedClass usv = (Ice.UnknownSlicedClass)v;
                 throw new Ice.NoClassFactoryException("", usv.ice_id());
             }
 
@@ -41,7 +38,7 @@ namespace IceInternal
                                                     type + "'", type, expected);
         }
 
-        public static void throwMemoryLimitException(int requested, int maximum)
+        public static void ThrowMemoryLimitException(int requested, int maximum)
         {
             throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
                                                " bytes (see Ice.MessageSizeMax)");
@@ -169,10 +166,7 @@ namespace Ice
 
         internal SlicedData? SlicedData => IceSlicedData;
 
-        public virtual bool iceUsesClasses()
-        {
-            return false;
-        }
+        public virtual bool IceUsesClasses() => false;
 
         // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
@@ -190,10 +184,7 @@ namespace Ice
         /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive.
         /// </summary>
         /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
-        public static SlicedData? GetSlicedData(this UserException ex)
-        {
-            return ex.SlicedData;
-        }
+        public static SlicedData? GetSlicedData(this UserException ex) => ex.SlicedData;
     }
 }
 
@@ -201,16 +192,10 @@ namespace IceInternal
 {
     public class RetryException : Exception
     {
-        public RetryException(Ice.LocalException ex)
-        {
-            _ex = ex;
-        }
+        public RetryException(Ice.LocalException ex) => _ex = ex;
 
-        public Ice.LocalException get()
-        {
-            return _ex;
-        }
+        public Ice.LocalException Get() => _ex;
 
-        private Ice.LocalException _ex;
+        private readonly Ice.LocalException _ex;
     }
 }

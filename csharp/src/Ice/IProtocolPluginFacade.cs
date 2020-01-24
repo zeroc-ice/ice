@@ -51,6 +51,6 @@ namespace IceInternal
         //
         // Obtain the type for a name.
         //
-        public System.Type? FindType(string name) => AssemblyUtil.findType(name);
+        public System.Type? FindType(string name) => AssemblyUtil.FindType(name);
     }
 }

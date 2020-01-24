@@ -6,9 +6,9 @@ internal class Plugin : Ice.IPlugin
 {
     internal Plugin(Ice.Communicator communicator) => _communicator = communicator;
 
-    public void initialize()
+    public void Initialize()
     {
-        IceInternal.IProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
+        IceInternal.IProtocolPluginFacade facade = IceInternal.Util.GetProtocolPluginFacade(_communicator);
         for (short s = 0; s < 100; ++s)
         {
             IceInternal.IEndpointFactory? factory = facade.GetEndpointFactory(s);
@@ -19,7 +19,7 @@ internal class Plugin : Ice.IPlugin
         }
     }
 
-    public void destroy()
+    public void Destroy()
     {
     }
 

@@ -199,7 +199,7 @@ public class AllTests : Test.AllTests
     {
         for (int i = 0; i < 10; ++i)
         {
-            if (observer.getCurrent() > 0)
+            if (observer.GetCurrent() > 0)
             {
                 Thread.Sleep(10);
             }
@@ -414,7 +414,7 @@ public class AllTests : Test.AllTests
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).addUpdateCallback(update.updated);
+        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).AddUpdateCallback(update.updated);
 
         output.WriteLine("ok");
 
@@ -500,9 +500,9 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.EndpointInfo endpointInfo = metrics.GetConnection().Endpoint.getInfo();
-            type = endpointInfo.type().ToString();
-            isSecure = endpointInfo.secure() ? "True" : "False";
+            Ice.EndpointInfo endpointInfo = metrics.GetConnection().Endpoint.GetInfo();
+            type = endpointInfo.Type().ToString();
+            isSecure = endpointInfo.Secure() ? "True" : "False";
         }
 
         Dictionary<string, IceMX.Metrics> map;
@@ -1166,35 +1166,35 @@ public class AllTests : Test.AllTests
         test(obsv.dispatchObserver.getTotal() > 0);
         test(obsv.invocationObserver.getTotal() > 0);
 
-        test(obsv.threadObserver.getCurrent() > 0);
+        test(obsv.threadObserver.GetCurrent() > 0);
         if (!collocated)
         {
-            test(obsv.connectionObserver.getCurrent() > 0);
-            test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
-            test(obsv.endpointLookupObserver.getCurrent() == 0);
+            test(obsv.connectionObserver.GetCurrent() > 0);
+            test(obsv.connectionEstablishmentObserver.GetCurrent() == 0);
+            test(obsv.endpointLookupObserver.GetCurrent() == 0);
             waitForObserverCurrent(obsv.invocationObserver.remoteObserver, 0);
-            test(obsv.invocationObserver.remoteObserver.getCurrent() == 0);
+            test(obsv.invocationObserver.remoteObserver.GetCurrent() == 0);
         }
         else
         {
             waitForObserverCurrent(obsv.invocationObserver.collocatedObserver, 0);
-            test(obsv.invocationObserver.collocatedObserver.getCurrent() == 0);
+            test(obsv.invocationObserver.collocatedObserver.GetCurrent() == 0);
         }
         waitForObserverCurrent(obsv.dispatchObserver, 0);
-        test(obsv.dispatchObserver.getCurrent() == 0);
+        test(obsv.dispatchObserver.GetCurrent() == 0);
         waitForObserverCurrent(obsv.invocationObserver, 0);
-        test(obsv.invocationObserver.getCurrent() == 0);
+        test(obsv.invocationObserver.GetCurrent() == 0);
 
-        test(obsv.threadObserver.getFailedCount() == 0);
+        test(obsv.threadObserver.GetFailedCount() == 0);
         if (!collocated)
         {
-            test(obsv.connectionObserver.getFailedCount() > 0);
-            test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
-            test(obsv.endpointLookupObserver.getFailedCount() > 0);
-            test(obsv.invocationObserver.remoteObserver.getFailedCount() > 0);
+            test(obsv.connectionObserver.GetFailedCount() > 0);
+            test(obsv.connectionEstablishmentObserver.GetFailedCount() > 0);
+            test(obsv.endpointLookupObserver.GetFailedCount() > 0);
+            test(obsv.invocationObserver.remoteObserver.GetFailedCount() > 0);
         }
         //test(obsv.dispatchObserver.getFailedCount() > 0);
-        test(obsv.invocationObserver.getFailedCount() > 0);
+        test(obsv.invocationObserver.GetFailedCount() > 0);
 
         if (!collocated)
         {

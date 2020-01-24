@@ -6,7 +6,7 @@ public class CertificateVerifier : IceSSL.ICertificateVerifier
 {
     public CertificateVerifier() => reset();
 
-    public bool verify(IceSSL.ConnectionInfo info)
+    public bool Verify(IceSSL.ConnectionInfo info)
     {
         _hadCert = info.Certs != null;
         _invoked = true;

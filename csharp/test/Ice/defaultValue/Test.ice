@@ -22,7 +22,6 @@ enum Color { red, green, blue }
 
 }
 
-
 const bool ConstBool = true;
 const byte ConstByte = 254;
 const short ConstShort = 16000;

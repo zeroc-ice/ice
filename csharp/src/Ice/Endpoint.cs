@@ -9,8 +9,8 @@ namespace IceInternal
 {
     public interface IEndpointConnectors
     {
-        void connectors(List<IConnector> connectors);
-        void exception(Ice.LocalException ex);
+        void Connectors(List<IConnector> connectors);
+        void Exception(Ice.LocalException ex);
     }
 
     public abstract class Endpoint : Ice.IEndpoint, IComparable<Endpoint>, IEquatable<Endpoint>
@@ -24,15 +24,12 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            return protocol() + options();
+            return Protocol() + Options();
         }
 
-        public abstract Ice.EndpointInfo getInfo();
+        public abstract Ice.EndpointInfo GetInfo();
 
-        public override bool Equals(object obj)
-        {
-            return obj != null && obj is Endpoint other && Equals(other);
-        }
+        public override bool Equals(object obj) => obj != null && obj is Endpoint other && Equals(other);
 
         public bool Equals(Endpoint other) => CompareTo(other) == 0;
 
@@ -40,75 +37,75 @@ namespace IceInternal
         //
         // Marshal the endpoint.
         //
-        public virtual void streamWrite(Ice.OutputStream s)
+        public virtual void StreamWrite(Ice.OutputStream s)
         {
             s.StartEndpointEncapsulation();
-            streamWriteImpl(s);
+            StreamWriteImpl(s);
             s.EndEndpointEncapsulation();
         }
-        public abstract void streamWriteImpl(Ice.OutputStream s);
+        public abstract void StreamWriteImpl(Ice.OutputStream s);
 
         //
         // Return the endpoint type.
         //
-        public abstract short type();
+        public abstract short Type();
 
         //
         // Return the protocol name.
         //
-        public abstract string protocol();
+        public abstract string Protocol();
 
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
-        public abstract int timeout();
+        public abstract int Timeout();
 
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public abstract Endpoint timeout(int t);
+        public abstract Endpoint Timeout(int t);
 
         //
         // Return the connection ID.
         //
-        public abstract string connectionId();
+        public abstract string ConnectionId();
 
         //
         // Return a new endpoint with a different connection id.
         //
-        public abstract Endpoint connectionId(string connectionId);
+        public abstract Endpoint ConnectionId(string connectionId);
 
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
         //
-        public abstract bool compress();
+        public abstract bool Compress();
 
         //
         // Return a new endpoint with a different compression value,
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        public abstract Endpoint compress(bool co);
+        public abstract Endpoint Compress(bool co);
 
         //
         // Return true if the endpoint is datagram-based.
         //
-        public abstract bool datagram();
+        public abstract bool Datagram();
 
         //
         // Return true if the endpoint is secure.
         //
-        public abstract bool secure();
+        public abstract bool Secure();
 
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public abstract ITransceiver? transceiver();
+        public abstract ITransceiver? Transceiver();
 
         //
         // Return a connector for this endpoint, or empty list if no connector
@@ -120,14 +117,14 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public abstract IAcceptor? acceptor(string adapterName);
+        public abstract IAcceptor? Acceptor(string adapterName);
 
         //
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public abstract List<Endpoint> expandIfWildcard();
+        public abstract List<Endpoint> ExpandIfWildcard();
 
         //
         // Expand endpoint out into separate endpoints for each IP
@@ -138,22 +135,22 @@ namespace IceInternal
         // it returns this endpoint if it uses a fixed port, null
         // otherwise).
         //
-        public abstract List<Endpoint> expandHost(out Endpoint? publishedEndpoint);
+        public abstract List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 
         //
         // Check whether the endpoint is equivalent to another one.
         //
-        public abstract bool equivalent(Endpoint endpoint);
+        public abstract bool Equivalent(Endpoint endpoint);
 
         public abstract int CompareTo(Endpoint obj);
 
-        public abstract string options();
+        public abstract string Options();
 
-        public virtual void initWithOptions(List<string> args)
+        public virtual void InitWithOptions(List<string> args)
         {
-            List<string> unknown = new List<string>();
+            var unknown = new List<string>();
 
-            string str = "`" + protocol() + " ";
+            string str = "`" + Protocol() + " ";
             foreach (string p in args)
             {
                 if (IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
@@ -182,7 +179,7 @@ namespace IceInternal
                     argument = args[++n];
                 }
 
-                if (!checkOption(option, argument, str))
+                if (!CheckOption(option, argument, str))
                 {
                     unknown.Add(option);
                     if (argument != null)
@@ -196,11 +193,9 @@ namespace IceInternal
             args.AddRange(unknown);
         }
 
-        protected virtual bool checkOption(string option, string? argument, string endpoint)
-        {
+        protected virtual bool CheckOption(string option, string? argument, string endpoint) =>
             // Must be overridden to check for options.
-            return false;
-        }
+            false;
     }
 
 }

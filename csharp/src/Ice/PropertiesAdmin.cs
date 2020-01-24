@@ -9,9 +9,9 @@ namespace Ice
 {
     public interface INativePropertiesAdmin
     {
-        void addUpdateCallback(System.Action<Dictionary<string, string>> callback);
+        void AddUpdateCallback(Action<Dictionary<string, string>> callback);
 
-        void removeUpdateCallback(System.Action<Dictionary<string, string>> callback);
+        void RemoveUpdateCallback(Action<Dictionary<string, string>> callback);
     }
 
 }
@@ -42,7 +42,7 @@ namespace IceInternal
 
             if (traceLevel > 0 && props.Count > 0)
             {
-                System.Text.StringBuilder message = new System.Text.StringBuilder("Summary of property changes");
+                var message = new System.Text.StringBuilder("Summary of property changes");
 
                 message.Append("\nNew or updated properties:");
                 foreach (KeyValuePair<string, string> e in props)
@@ -69,7 +69,7 @@ namespace IceInternal
                     }
                 }
 
-                _logger.trace(_traceCategory, message.ToString());
+                _logger.Trace(TraceCategory, message.ToString());
             }
 
             lock (this)
@@ -77,7 +77,7 @@ namespace IceInternal
                 if (_updateCallbacks.Count > 0)
                 {
                     // Copy callbacks to allow callbacks to update callbacks
-                    foreach (var callback in new List<Action<Dictionary<string, string>>>(_updateCallbacks))
+                    foreach (Action<Dictionary<string, string>> callback in new List<Action<Dictionary<string, string>>>(_updateCallbacks))
                     {
                         try
                         {
@@ -87,7 +87,7 @@ namespace IceInternal
                         {
                             if (_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 1)
                             {
-                                _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
+                                _logger.Warning("properties admin update callback raised unexpected exception:\n" + ex);
                             }
                         }
                     }
@@ -95,7 +95,7 @@ namespace IceInternal
             }
         }
 
-        public void addUpdateCallback(Action<Dictionary<string, string>> cb)
+        public void AddUpdateCallback(Action<Dictionary<string, string>> cb)
         {
             lock (this)
             {
@@ -103,7 +103,7 @@ namespace IceInternal
             }
         }
 
-        public void removeUpdateCallback(Action<Dictionary<string, string>> cb)
+        public void RemoveUpdateCallback(Action<Dictionary<string, string>> cb)
         {
             lock (this)
             {
@@ -113,9 +113,9 @@ namespace IceInternal
 
         private readonly Ice.Communicator _communicator;
         private readonly Ice.ILogger _logger;
-        private List<Action<Dictionary<string, string>>> _updateCallbacks =
+        private readonly List<Action<Dictionary<string, string>>> _updateCallbacks =
             new List<Action<Dictionary<string, string>>>();
 
-        private const string _traceCategory = "Admin.Properties";
+        private const string TraceCategory = "Admin.Properties";
     }
 }

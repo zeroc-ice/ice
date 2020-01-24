@@ -18,7 +18,7 @@ namespace Ice
 
         public void RunTimerTask()
         {
-            _outAsync.retry();
+            _outAsync.Retry();
 
             //
             // NOTE: this must be called last, destroy() blocks until all task
@@ -36,11 +36,11 @@ namespace Ice
             {
                 if (_communicator.TraceLevels.retry >= 1)
                 {
-                    _communicator.Logger.trace(_communicator.TraceLevels.retryCat, $"operation retry canceled\n{ex}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.retryCat, $"operation retry canceled\n{ex}");
                 }
-                if (_outAsync.exception(ex))
+                if (_outAsync.Exception(ex))
                 {
-                    _outAsync.invokeExceptionAsync();
+                    _outAsync.InvokeExceptionAsync();
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Ice
         {
             try
             {
-                _outAsync.abort(new CommunicatorDestroyedException());
+                _outAsync.Abort(new CommunicatorDestroyedException());
             }
             catch (CommunicatorDestroyedException)
             {
@@ -72,8 +72,8 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
                 RetryTask task = new RetryTask(this, outAsync);
-                outAsync.cancelable(task); // This will throw if the request is canceled.
-                _timer.schedule(task, interval);
+                outAsync.Cancelable(task); // This will throw if the request is canceled.
+                _timer.Schedule(task, interval);
                 _requests.Add(task, null);
             }
         }
@@ -85,7 +85,7 @@ namespace Ice
                 Dictionary<RetryTask, object?> keep = new Dictionary<RetryTask, object?>();
                 foreach (RetryTask task in _requests.Keys)
                 {
-                    if (_timer.cancel(task))
+                    if (_timer.Cancel(task))
                     {
                         task.destroy();
                     }
@@ -128,7 +128,7 @@ namespace Ice
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _timer.cancel(task);
+                    return _timer.Cancel(task);
                 }
                 return false;
             }

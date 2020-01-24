@@ -9,25 +9,25 @@ namespace Ice.exceptions
 {
     public sealed class DummyLogger : ILogger
     {
-        public void print(string message)
+        public void Print(string message)
         {
         }
 
-        public void trace(string category, string message)
+        public void Trace(string category, string message)
         {
         }
 
-        public void warning(string message)
+        public void Warning(string message)
         {
         }
 
-        public void error(string message)
+        public void Error(string message)
         {
         }
 
-        public string getPrefix() => "";
+        public string GetPrefix() => "";
 
-        public ILogger cloneWithPrefix(string prefix) => new DummyLogger();
+        public ILogger CloneWithPrefix(string prefix) => new DummyLogger();
     }
 
     public class Server : TestHelper

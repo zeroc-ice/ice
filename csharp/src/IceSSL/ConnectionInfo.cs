@@ -12,10 +12,7 @@ namespace IceSSL
         public X509Certificate2[]? Certs;
         public bool Verified;
 
-        public ConnectionInfo()
-        {
-            Cipher = "";
-        }
+        public ConnectionInfo() => Cipher = "";
 
         public ConnectionInfo(Ice.ConnectionInfo underlying,
                               bool incoming,

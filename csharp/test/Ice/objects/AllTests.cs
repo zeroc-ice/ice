@@ -278,8 +278,8 @@ namespace Ice
                     }
                     catch (UnexpectedObjectException ex)
                     {
-                        test(ex.type.Equals("::Test::AlsoEmpty"));
-                        test(ex.expectedType.Equals("::Test::Empty"));
+                        test(ex.Type.Equals("::Test::AlsoEmpty"));
+                        test(ex.ExpectedType.Equals("::Test::Empty"));
                     }
                     catch (System.Exception ex)
                     {

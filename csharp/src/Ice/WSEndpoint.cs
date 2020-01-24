@@ -24,7 +24,7 @@ namespace IceInternal
             _instance = instance;
             _delegate = del;
 
-            initWithOptions(args);
+            InitWithOptions(args);
 
             if (_resource == null)
             {
@@ -44,82 +44,82 @@ namespace IceInternal
         {
             public InfoI(Endpoint e) => _endpoint = e;
 
-            public override short type() => _endpoint.type();
+            public override short Type() => _endpoint.Type();
 
-            public override bool datagram() => _endpoint.datagram();
+            public override bool Datagram() => _endpoint.Datagram();
 
-            public override bool secure() => _endpoint.secure();
+            public override bool Secure() => _endpoint.Secure();
 
             private readonly Endpoint _endpoint;
         }
 
-        public override Ice.EndpointInfo getInfo()
+        public override Ice.EndpointInfo GetInfo()
         {
             Ice.WSEndpointInfo info = new InfoI(this);
-            info.underlying = _delegate.getInfo();
-            info.resource = _resource;
-            info.compress = info.underlying.compress;
-            info.timeout = info.underlying.timeout;
+            info.Underlying = _delegate.GetInfo();
+            info.Resource = _resource;
+            info.Compress = info.Underlying.Compress;
+            info.Timeout = info.Underlying.Timeout;
             return info;
         }
 
-        public override short type() => _delegate.type();
+        public override short Type() => _delegate.Type();
 
-        public override string protocol() => _delegate.protocol();
+        public override string Protocol() => _delegate.Protocol();
 
-        public override void streamWriteImpl(Ice.OutputStream s)
+        public override void StreamWriteImpl(Ice.OutputStream s)
         {
-            _delegate.streamWriteImpl(s);
+            _delegate.StreamWriteImpl(s);
             s.WriteString(_resource);
         }
 
-        public override int timeout() => _delegate.timeout();
+        public override int Timeout() => _delegate.Timeout();
 
-        public override Endpoint timeout(int timeout)
+        public override Endpoint Timeout(int timeout)
         {
-            if (timeout == _delegate.timeout())
+            if (timeout == _delegate.Timeout())
             {
                 return this;
             }
             else
             {
-                return new WSEndpoint(_instance, _delegate.timeout(timeout), _resource);
+                return new WSEndpoint(_instance, _delegate.Timeout(timeout), _resource);
             }
         }
 
-        public override string connectionId() => _delegate.connectionId();
+        public override string ConnectionId() => _delegate.ConnectionId();
 
-        public override Endpoint connectionId(string connectionId)
+        public override Endpoint ConnectionId(string connectionId)
         {
-            if (connectionId.Equals(_delegate.connectionId()))
+            if (connectionId.Equals(_delegate.ConnectionId()))
             {
                 return this;
             }
             else
             {
-                return new WSEndpoint(_instance, _delegate.connectionId(connectionId), _resource);
+                return new WSEndpoint(_instance, _delegate.ConnectionId(connectionId), _resource);
             }
         }
 
-        public override bool compress() => _delegate.compress();
+        public override bool Compress() => _delegate.Compress();
 
-        public override Endpoint compress(bool compress)
+        public override Endpoint Compress(bool compress)
         {
-            if (compress == _delegate.compress())
+            if (compress == _delegate.Compress())
             {
                 return this;
             }
             else
             {
-                return new WSEndpoint(_instance, _delegate.compress(compress), _resource);
+                return new WSEndpoint(_instance, _delegate.Compress(compress), _resource);
             }
         }
 
-        public override bool datagram() => _delegate.datagram();
+        public override bool Datagram() => _delegate.Datagram();
 
-        public override bool secure() => _delegate.secure();
+        public override bool Secure() => _delegate.Secure();
 
-        public override ITransceiver? transceiver() => null;
+        public override ITransceiver? Transceiver() => null;
 
         private sealed class EndpointConnectors : IEndpointConnectors
         {
@@ -131,19 +131,19 @@ namespace IceInternal
                 _callback = cb;
             }
 
-            public void connectors(List<IConnector> connectors)
+            public void Connectors(List<IConnector> connectors)
             {
                 List<IConnector> l = new List<IConnector>();
                 foreach (IConnector c in connectors)
                 {
                     l.Add(new WSConnector(_instance, c, _host, _resource));
                 }
-                _callback.connectors(l);
+                _callback.Connectors(l);
             }
 
-            public void exception(Ice.LocalException ex)
+            public void Exception(Ice.LocalException ex)
             {
-                _callback.exception(ex);
+                _callback.Exception(ex);
             }
 
             private readonly ProtocolInstance _instance;
@@ -155,20 +155,20 @@ namespace IceInternal
         public override void ConnectorsAsync(Ice.EndpointSelectionType selType, IEndpointConnectors callback)
         {
             string host = "";
-            for (Ice.EndpointInfo? p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (Ice.EndpointInfo? p = _delegate.GetInfo(); p != null; p = p.Underlying)
             {
                 if (p is Ice.IPEndpointInfo ipInfo)
                 {
-                    host = ipInfo.host + ":" + ipInfo.port;
+                    host = ipInfo.Host + ":" + ipInfo.Port;
                     break;
                 }
             }
             _delegate.ConnectorsAsync(selType, new EndpointConnectors(_instance, host, _resource, callback));
         }
 
-        public override IAcceptor acceptor(string adapterName)
+        public override IAcceptor Acceptor(string adapterName)
         {
-            var acceptor = _delegate.acceptor(adapterName);
+            var acceptor = _delegate.Acceptor(adapterName);
             Debug.Assert(acceptor != null);
             return new WSAcceptor(this, _instance, acceptor);
         }
@@ -185,20 +185,20 @@ namespace IceInternal
             }
         }
 
-        public override List<Endpoint> expandIfWildcard()
+        public override List<Endpoint> ExpandIfWildcard()
         {
             List<Endpoint> l = new List<Endpoint>();
-            foreach (Endpoint e in _delegate.expandIfWildcard())
+            foreach (Endpoint e in _delegate.ExpandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
             }
             return l;
         }
 
-        public override List<Endpoint> expandHost(out Endpoint? publish)
+        public override List<Endpoint> ExpandHost(out Endpoint? publish)
         {
             List<Endpoint> l = new List<Endpoint>();
-            foreach (Endpoint e in _delegate.expandHost(out publish))
+            foreach (Endpoint e in _delegate.ExpandHost(out publish))
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
             }
@@ -209,17 +209,17 @@ namespace IceInternal
             return l;
         }
 
-        public override bool equivalent(Endpoint endpoint)
+        public override bool Equivalent(Endpoint endpoint)
         {
             if (!(endpoint is WSEndpoint))
             {
                 return false;
             }
             WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
-            return _delegate.equivalent(wsEndpointI._delegate);
+            return _delegate.Equivalent(wsEndpointI._delegate);
         }
 
-        public override string options()
+        public override string Options()
         {
             //
             // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -228,7 +228,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = _delegate.options();
+            string s = _delegate.Options();
 
             if (_resource != null && _resource.Length > 0)
             {
@@ -251,7 +251,7 @@ namespace IceInternal
         public override int GetHashCode()
         {
             int h = _delegate.GetHashCode();
-            HashUtil.hashAdd(ref h, _resource);
+            HashUtil.HashAdd(ref h, _resource);
             return h;
         }
 
@@ -259,7 +259,7 @@ namespace IceInternal
         {
             if (!(obj is WSEndpoint))
             {
-                return type() < obj.type() ? -1 : 1;
+                return Type() < obj.Type() ? -1 : 1;
             }
 
             WSEndpoint p = (WSEndpoint)obj;
@@ -277,14 +277,14 @@ namespace IceInternal
             return _delegate.CompareTo(p._delegate);
         }
 
-        protected override bool checkOption(string option, string? argument, string endpoint)
+        protected override bool CheckOption(string option, string? argument, string endpoint)
         {
             switch (option[1])
             {
                 case 'r':
                     {
                         _resource = argument ?? throw new FormatException(
-                                $"no argument provided for -r option in endpoint {endpoint}{_delegate.options()}");
+                                $"no argument provided for -r option in endpoint {endpoint}{_delegate.Options()}");
                         return true;
                     }
                 default:
@@ -305,15 +305,15 @@ namespace IceInternal
         {
         }
 
-        public override IEndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
+        public override IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short underlying)
         {
             return new WSEndpointFactory(instance, underlying);
         }
 
-        protected override Endpoint createWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint) =>
-            new WSEndpoint(instance_!, underlying, args);
+        protected override Endpoint CreateWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint) =>
+            new WSEndpoint(Instance!, underlying, args);
 
-        protected override Endpoint readWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
-            new WSEndpoint(instance_!, underlying, s);
+        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
+            new WSEndpoint(Instance!, underlying, s);
     }
 }

@@ -19,7 +19,7 @@ namespace Ice
         /// Returns the process-wide logger.
         /// </summary>
         /// <returns>The process-wide logger.</returns>
-        public static ILogger getProcessLogger()
+        public static ILogger GetProcessLogger()
         {
             lock (_processLoggerMutex)
             {
@@ -35,7 +35,7 @@ namespace Ice
         /// Changes the process-wide logger.
         /// </summary>
         /// <param name="logger">The new process-wide logger.</param>
-        public static void setProcessLogger(ILogger logger)
+        public static void SetProcessLogger(ILogger logger)
         {
             lock (_processLoggerMutex)
             {
@@ -49,10 +49,7 @@ namespace Ice
         /// patch level.
         /// </summary>
         /// <returns>The Ice version.</returns>
-        public static string stringVersion()
-        {
-            return "3.7.3"; // "A.B.C", with A=major, B=minor, C=patch
-        }
+        public static string StringVersion() => "3.7.3"; // "A.B.C", with A=major, B=minor, C=patch
 
         /// <summary>
         /// Returns the Ice version as an integer in the form A.BB.CC, where A
@@ -60,19 +57,16 @@ namespace Ice
         /// indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
         /// </summary>
         /// <returns>The Ice version.</returns>
-        public static int intVersion()
-        {
-            return 30703; // AABBCC, with AA=major, BB=minor, CC=patch
-        }
+        public static int IntVersion() => 30703; // AABBCC, with AA=major, BB=minor, CC=patch
 
         /// <summary>
         /// Converts a string to a protocol version.
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted protocol version.</returns>
-        public static ProtocolVersion stringToProtocolVersion(string version)
+        public static ProtocolVersion StringToProtocolVersion(string version)
         {
-            stringToMajorMinor(version, out byte major, out byte minor);
+            StringToMajorMinor(version, out byte major, out byte minor);
             return new ProtocolVersion(major, minor);
         }
 
@@ -81,9 +75,9 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted encoding version.</returns>
-        public static EncodingVersion stringToEncodingVersion(string version)
+        public static EncodingVersion StringToEncodingVersion(string version)
         {
-            stringToMajorMinor(version, out byte major, out byte minor);
+            StringToMajorMinor(version, out byte major, out byte minor);
             return new EncodingVersion(major, minor);
         }
 
@@ -92,22 +86,16 @@ namespace Ice
         /// </summary>
         /// <param name="v">The protocol version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string protocolVersionToString(Ice.ProtocolVersion v)
-        {
-            return majorMinorToString(v.major, v.minor);
-        }
+        public static string ProtocolVersionToString(ProtocolVersion v) => MajorMinorToString(v.major, v.minor);
 
         /// <summary>
         /// Converts an encoding version to a string.
         /// </summary>
         /// <param name="v">The encoding version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string encodingVersionToString(Ice.EncodingVersion v)
-        {
-            return majorMinorToString(v.major, v.minor);
-        }
+        public static string EncodingVersionToString(EncodingVersion v) => MajorMinorToString(v.major, v.minor);
 
-        private static void stringToMajorMinor(string str, out byte major, out byte minor)
+        private static void StringToMajorMinor(string str, out byte major, out byte minor)
         {
             int pos = str.IndexOf('.');
             if (pos == -1)
@@ -115,8 +103,8 @@ namespace Ice
                 throw new FormatException($"malformed version value `{str}'");
             }
 
-            string majStr = str.Substring(0, (pos) - (0));
-            string minStr = str.Substring(pos + 1, (str.Length) - (pos + 1));
+            string majStr = str[..pos];
+            string minStr = str[(pos + 1)..];
             int majVersion;
             int minVersion;
             try
@@ -138,19 +126,16 @@ namespace Ice
             minor = (byte)minVersion;
         }
 
-        private static string majorMinorToString(byte major, byte minor)
-        {
-            return string.Format("{0}.{1}", major, minor);
-        }
+        private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
-        public static readonly ProtocolVersion currentProtocol =
+        public static readonly ProtocolVersion CurrentProtocol =
             new ProtocolVersion(IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor);
 
-        public static readonly EncodingVersion currentProtocolEncoding =
+        public static readonly EncodingVersion CurrentProtocolEncoding =
             new EncodingVersion(IceInternal.Protocol.protocolEncodingMajor,
                                 IceInternal.Protocol.protocolEncodingMinor);
 
-        public static readonly EncodingVersion currentEncoding =
+        public static readonly EncodingVersion CurrentEncoding =
             new EncodingVersion(IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor);
 
         public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
@@ -167,42 +152,28 @@ namespace IceInternal
 {
     public sealed class HashUtil
     {
-        public static void hashAdd(ref int hashCode, bool value)
-        {
+        public static void HashAdd(ref int hashCode, bool value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-        }
 
-        public static void hashAdd(ref int hashCode, short value)
-        {
+        public static void HashAdd(ref int hashCode, short value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-        }
 
-        public static void hashAdd(ref int hashCode, byte value)
-        {
+        public static void HashAdd(ref int hashCode, byte value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-        }
 
-        public static void hashAdd(ref int hashCode, int value)
-        {
+        public static void HashAdd(ref int hashCode, int value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-        }
 
-        public static void hashAdd(ref int hashCode, long value)
-        {
+        public static void HashAdd(ref int hashCode, long value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-        }
 
-        public static void hashAdd(ref int hashCode, float value)
-        {
+        public static void HashAdd(ref int hashCode, float value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-        }
 
-        public static void hashAdd(ref int hashCode, double value)
-        {
+        public static void HashAdd(ref int hashCode, double value) =>
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-        }
 
-        public static void hashAdd(ref int hashCode, object? value)
+        public static void HashAdd(ref int hashCode, object? value)
         {
             if (value != null)
             {
@@ -210,7 +181,7 @@ namespace IceInternal
             }
         }
 
-        public static void hashAdd<T>(ref int hashCode, T[]? arr)
+        public static void HashAdd<T>(ref int hashCode, T[]? arr)
         {
             if (arr != null)
             {
@@ -218,7 +189,7 @@ namespace IceInternal
             }
         }
 
-        public static void hashAdd(ref int hashCode, IEnumerable? s)
+        public static void HashAdd(ref int hashCode, IEnumerable? s)
         {
             if (s != null)
             {
@@ -226,7 +197,7 @@ namespace IceInternal
             }
         }
 
-        public static void hashAdd<Key, AnyClass>(ref int hashCode, Dictionary<Key, AnyClass>? d)
+        public static void HashAdd<Key, AnyClass>(ref int hashCode, Dictionary<Key, AnyClass>? d)
         {
             if (d != null)
             {
@@ -237,12 +208,10 @@ namespace IceInternal
 
     public sealed class Util
     {
-        public static IProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
-        {
-            return new ProtocolPluginFacade(communicator);
-        }
+        public static IProtocolPluginFacade GetProtocolPluginFacade(Ice.Communicator communicator) =>
+            new ProtocolPluginFacade(communicator);
 
-        public static ThreadPriority stringToThreadPriority(string? s)
+        public static ThreadPriority StringToThreadPriority(string? s)
         {
             if (string.IsNullOrEmpty(s))
             {

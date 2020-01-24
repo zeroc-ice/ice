@@ -2,32 +2,31 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.InteropServices;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-
     public sealed class AssemblyUtil
     {
-        public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-        public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        public static readonly bool isMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
+        public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static readonly bool IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        public static readonly bool IsMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
 
-        public static Type? findType(string csharpId)
+        public static Type? FindType(string csharpId)
         {
             lock (_mutex)
             {
-                Type? t;
-                if (_typeTable.TryGetValue(csharpId, out t))
+                if (_typeTable.TryGetValue(csharpId, out Type t))
                 {
                     return t;
                 }
 
-                loadAssemblies(); // Lazy initialization
+                LoadAssemblies(); // Lazy initialization
                 foreach (Assembly a in _loadedAssemblies.Values)
                 {
                     if ((t = a.GetType(csharpId)) != null)
@@ -40,13 +39,13 @@ namespace IceInternal
             return null;
         }
 
-        public static Type[] findTypesWithPrefix(string prefix)
+        public static Type[] FindTypesWithPrefix(string prefix)
         {
-            LinkedList<Type> l = new LinkedList<Type>();
+            var l = new LinkedList<Type>();
 
             lock (_mutex)
             {
-                loadAssemblies(); // Lazy initialization
+                LoadAssemblies(); // Lazy initialization
                 foreach (Assembly a in _loadedAssemblies.Values)
                 {
                     try
@@ -67,7 +66,7 @@ namespace IceInternal
                 }
             }
 
-            Type[] result = new Type[l.Count];
+            var result = new Type[l.Count];
             if (l.Count > 0)
             {
                 l.CopyTo(result, 0);
@@ -75,7 +74,7 @@ namespace IceInternal
             return result;
         }
 
-        public static object? createInstance(Type t)
+        public static object? CreateInstance(Type t)
         {
             try
             {
@@ -87,11 +86,11 @@ namespace IceInternal
             }
         }
 
-        public static void preloadAssemblies()
+        public static void PreloadAssemblies()
         {
             lock (_mutex)
             {
-                loadAssemblies(); // Lazy initialization
+                LoadAssemblies(); // Lazy initialization
             }
         }
 
@@ -104,10 +103,10 @@ namespace IceInternal
         // is no good because it looks only in the calling object's assembly
         // and mscorlib.dll.)
         //
-        private static void loadAssemblies()
+        private static void LoadAssemblies()
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            List<Assembly> newAssemblies = new List<Assembly>();
+            var newAssemblies = new List<Assembly>();
             foreach (Assembly a in assemblies)
             {
                 if (!_loadedAssemblies.Contains(a.FullName))
@@ -119,11 +118,11 @@ namespace IceInternal
 
             foreach (Assembly a in newAssemblies)
             {
-                loadReferencedAssemblies(a);
+                LoadReferencedAssemblies(a);
             }
         }
 
-        private static void loadReferencedAssemblies(Assembly a)
+        private static void LoadReferencedAssemblies(Assembly a)
         {
             try
             {
@@ -134,14 +133,14 @@ namespace IceInternal
                     {
                         try
                         {
-                            Assembly ra = Assembly.Load(name);
+                            var ra = Assembly.Load(name);
                             //
                             // The value of name.FullName may not match that of ra.FullName, so
                             // we record the assembly using both keys.
                             //
                             _loadedAssemblies[name.FullName] = ra;
                             _loadedAssemblies[ra.FullName] = ra;
-                            loadReferencedAssemblies(ra);
+                            LoadReferencedAssemblies(ra);
                         }
                         catch (Exception)
                         {
@@ -156,8 +155,8 @@ namespace IceInternal
             }
         }
 
-        private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
-        private static Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
-        private static object _mutex = new object();
+        private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
+        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
+        private static readonly object _mutex = new object();
     }
 }

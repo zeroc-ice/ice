@@ -19,28 +19,28 @@ namespace Ice.acm
             _output = output;
         }
 
-        public void start()
+        public void Start()
         {
             lock (this)
             {
                 _started = true;
-                dump();
+                Dump();
             }
         }
 
-        public void print(string msg)
+        public void Print(string msg)
         {
             lock (this)
             {
                 _messages.Add(msg);
                 if (_started)
                 {
-                    dump();
+                    Dump();
                 }
             }
         }
 
-        public void trace(string category, string message)
+        public void Trace(string category, string message)
         {
             lock (this)
             {
@@ -57,12 +57,12 @@ namespace Ice.acm
                 _messages.Add(s.ToString());
                 if (_started)
                 {
-                    dump();
+                    Dump();
                 }
             }
         }
 
-        public void warning(string message)
+        public void Warning(string message)
         {
             lock (this)
             {
@@ -76,12 +76,12 @@ namespace Ice.acm
                 _messages.Add(s.ToString());
                 if (_started)
                 {
-                    dump();
+                    Dump();
                 }
             }
         }
 
-        public void error(string message)
+        public void Error(string message)
         {
             lock (this)
             {
@@ -95,16 +95,16 @@ namespace Ice.acm
                 _messages.Add(s.ToString());
                 if (_started)
                 {
-                    dump();
+                    Dump();
                 }
             }
         }
 
-        public string getPrefix() => "";
+        public string GetPrefix() => "";
 
-        public ILogger cloneWithPrefix(string prefix) => this;
+        public ILogger CloneWithPrefix(string prefix) => this;
 
-        private void dump()
+        private void Dump()
         {
             foreach (string line in _messages)
             {
@@ -144,7 +144,7 @@ namespace Ice.acm
             _closed = false;
         }
 
-        public void init()
+        public void Init()
         {
             _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
@@ -167,12 +167,12 @@ namespace Ice.acm
             //initData.SetProperty("Ice.Trace.Protocol", "2");
             //initData.SetProperty("Ice.Trace.Network", "2");
             _communicator = _helper.initialize(properties);
-            _thread = new Thread(this.run);
+            _thread = new Thread(this.Run);
         }
 
-        public void start() => _thread.Start();
+        public void Start() => _thread.Start();
 
-        public void destroy()
+        public void Destroy()
         {
             _adapter.deactivate();
             _communicator.Destroy();
@@ -182,7 +182,7 @@ namespace Ice.acm
         {
             _output.Write("testing " + _name + "... ");
             _output.Flush();
-            _logger.start();
+            _logger.Start();
             _thread.Join();
             if (_msg == null)
             {
@@ -195,7 +195,7 @@ namespace Ice.acm
             }
         }
 
-        public void run()
+        public void Run()
         {
             var proxy = Test.ITestIntfPrx.Parse(_adapter.getTestIntf().ToString(), _communicator);
             try
@@ -217,7 +217,7 @@ namespace Ice.acm
                     }
                 });
 
-                runTestCase(_adapter, proxy);
+                RunTestCase(_adapter, proxy);
             }
             catch (Exception ex)
             {
@@ -242,16 +242,16 @@ namespace Ice.acm
             }
         }
 
-        public abstract void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy);
+        public abstract void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy);
 
-        public void setClientACM(int timeout, int close, int heartbeat)
+        public void SetClientACM(int timeout, int close, int heartbeat)
         {
             _clientACMTimeout = timeout;
             _clientACMClose = close;
             _clientACMHeartbeat = heartbeat;
         }
 
-        public void setServerACM(int timeout, int close, int heartbeat)
+        public void SetServerACM(int timeout, int close, int heartbeat)
         {
             _serverACMTimeout = timeout;
             _serverACMClose = close;
@@ -287,10 +287,10 @@ namespace Ice.acm
             public InvocationHeartbeatTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("invocation heartbeat", com, helper)
             {
-                setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
+                SetServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 proxy.sleep(4);
 
@@ -309,7 +309,7 @@ namespace Ice.acm
                 // Use default ACM configuration.
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 try
                 {
@@ -333,10 +333,10 @@ namespace Ice.acm
             public InvocationNoHeartbeatTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("invocation with no heartbeat", com, helper)
             {
-                setServerACM(2, 2, 0); // Disable heartbeat on invocations
+                SetServerACM(2, 2, 0); // Disable heartbeat on invocations
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 try
                 {
@@ -364,11 +364,11 @@ namespace Ice.acm
             public InvocationHeartbeatCloseOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("invocation with no heartbeat and close on idle", com, helper)
             {
-                setClientACM(1, 1, 0); // Only close on idle.
-                setServerACM(1, 2, 0); // Disable heartbeat on invocations
+                SetClientACM(1, 1, 0); // Only close on idle.
+                SetServerACM(1, 2, 0); // Disable heartbeat on invocations
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 // No close on invocation, the call should succeed this
                 // time.
@@ -387,10 +387,10 @@ namespace Ice.acm
             public CloseOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on idle", com, helper)
             {
-                setClientACM(1, 1, 0); // Only close on idle
+                SetClientACM(1, 1, 0); // Only close on idle
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 waitForClosed();
                 lock (this)
@@ -405,10 +405,10 @@ namespace Ice.acm
             public CloseOnInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on invocation", com, helper)
             {
-                setClientACM(1, 2, 0); // Only close on invocation
+                SetClientACM(1, 2, 0); // Only close on invocation
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 Thread.Sleep(3000); // Idle for 3 seconds
 
@@ -425,10 +425,10 @@ namespace Ice.acm
             public CloseOnIdleAndInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on idle and invocation", com, helper)
             {
-                setClientACM(3, 3, 0); // Only close on idle and invocation
+                SetClientACM(3, 3, 0); // Only close on idle and invocation
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 //
                 // Put the adapter on hold. The server will not respond to
@@ -454,10 +454,10 @@ namespace Ice.acm
             public ForcefulCloseOnIdleAndInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("forceful close on idle and invocation", com, helper)
             {
-                setClientACM(1, 4, 0); // Only close on idle and invocation
+                SetClientACM(1, 4, 0); // Only close on idle and invocation
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 adapter.hold();
                 waitForClosed();
@@ -473,10 +473,10 @@ namespace Ice.acm
             public HeartbeatOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("heartbeat on idle", com, helper)
             {
-                setServerACM(1, -1, 2); // Enable server heartbeats.
+                SetServerACM(1, -1, 2); // Enable server heartbeats.
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 Thread.Sleep(3000);
 
@@ -492,10 +492,10 @@ namespace Ice.acm
             public HeartbeatAlwaysTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("heartbeat always", com, helper)
             {
-                setServerACM(1, -1, 3); // Enable server heartbeats.
+                SetServerACM(1, -1, 3); // Enable server heartbeats.
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 for (int i = 0; i < 10; i++)
                 {
@@ -518,11 +518,11 @@ namespace Ice.acm
                 //
                 // Disable heartbeats.
                 //
-                setClientACM(10, -1, 0);
-                setServerACM(10, -1, 0);
+                SetClientACM(10, -1, 0);
+                SetServerACM(10, -1, 0);
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 proxy.startHeartbeatCount();
                 Connection con = proxy.GetConnection();
@@ -540,10 +540,10 @@ namespace Ice.acm
             public SetACMTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("setACM/getACM", com, helper)
             {
-                setClientACM(15, 4, 0);
+                SetClientACM(15, 4, 0);
             }
 
-            public override void runTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
+            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
                 Ice.Connection con = proxy.GetCachedConnection();
 
@@ -625,11 +625,11 @@ namespace Ice.acm
 
             foreach (TestCase test in tests)
             {
-                test.init();
+                test.Init();
             }
             foreach (TestCase test in tests)
             {
-                test.start();
+                test.Start();
             }
             foreach (TestCase test in tests)
             {
@@ -637,7 +637,7 @@ namespace Ice.acm
             }
             foreach (TestCase test in tests)
             {
-                test.destroy();
+                test.Destroy();
             }
 
             output.Write("shutting down... ");

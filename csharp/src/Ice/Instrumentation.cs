@@ -14,19 +14,19 @@ namespace Ice
             /// This method is called when the instrumented object is created
             /// or when the observer is attached to an existing object.
             /// </summary>
-            void attach();
+            void Attach();
 
             /// <summary>
             /// This method is called when the instrumented object is destroyed
             /// and as a result the observer detached from the object.
             /// </summary>
-            void detach();
+            void Detach();
 
             /// <summary>
             /// Notification of a failure.
             /// </summary>
             /// <param name="exceptionName">The name of the exception.</param>
-            void failed(string exceptionName);
+            void Failed(string exceptionName);
         }
 
         public enum ThreadState
@@ -46,7 +46,7 @@ namespace Ice
             ///
             /// </param>
             /// <param name="newState">The new thread state.</param>
-            void stateChanged(ThreadState oldState, ThreadState newState);
+            void StateChanged(ThreadState oldState, ThreadState newState);
         }
 
         public enum ConnectionState
@@ -64,24 +64,24 @@ namespace Ice
             /// Notification of sent bytes over the connection.
             /// </summary>
             /// <param name="num">The number of bytes sent.</param>
-            void sentBytes(int num);
+            void SentBytes(int num);
 
             /// <summary>
             /// Notification of received bytes over the connection.
             /// </summary>
             /// <param name="num">The number of bytes received.</param>
-            void receivedBytes(int num);
+            void ReceivedBytes(int num);
         }
 
         public partial interface IDispatchObserver : IObserver
         {
-            void userException();
+            void UserException();
 
             /// <summary>
             /// Reply notification.
             /// </summary>
             /// <param name="size">The size of the reply.</param>
-            void reply(int size);
+            void Reply(int size);
         }
 
         public partial interface IChildInvocationObserver : IObserver
@@ -90,7 +90,7 @@ namespace Ice
             /// Reply notification.
             /// </summary>
             /// <param name="size">The size of the reply.</param>
-            void reply(int size);
+            void Reply(int size);
         }
 
         public partial interface IRemoteObserver : IChildInvocationObserver
@@ -103,8 +103,8 @@ namespace Ice
 
         public partial interface IInvocationObserver : IObserver
         {
-            void retried();
-            void userException();
+            void Retried();
+            void UserException();
 
             /// <summary>
             /// Get a remote observer for this invocation.
@@ -122,7 +122,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the remote invocation.</returns>
-            IRemoteObserver getRemoteObserver(global::Ice.ConnectionInfo con, global::Ice.IEndpoint endpt, int requestId, int size);
+            IRemoteObserver GetRemoteObserver(global::Ice.ConnectionInfo con, global::Ice.IEndpoint endpt, int requestId, int size);
 
             /// <summary>
             /// Get a collocated observer for this invocation.
@@ -137,7 +137,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the collocated invocation.</returns>
-            ICollocatedObserver getCollocatedObserver(global::Ice.ObjectAdapter adapter, int requestId, int size);
+            ICollocatedObserver GetCollocatedObserver(global::Ice.ObjectAdapter adapter, int requestId, int size);
         }
 
         public partial interface IObserverUpdater
@@ -180,7 +180,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the connection establishment.</returns>
-            IObserver? getConnectionEstablishmentObserver(IEndpoint endpt, string connector);
+            IObserver? GetConnectionEstablishmentObserver(IEndpoint endpt, string connector);
 
             /// <summary>
             /// This method should return an observer for the given endpoint
@@ -196,7 +196,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the endpoint lookup.</returns>
-            IObserver? getEndpointLookupObserver(IEndpoint endpt);
+            IObserver? GetEndpointLookupObserver(IEndpoint endpt);
 
             /// <summary>
             /// This method should return a connection observer for the given
@@ -220,7 +220,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The connection observer to instrument the connection.</returns>
-            IConnectionObserver? getConnectionObserver(ConnectionInfo c, IEndpoint e, ConnectionState s, IConnectionObserver? o);
+            IConnectionObserver? GetConnectionObserver(ConnectionInfo c, IEndpoint e, ConnectionState s, IConnectionObserver? o);
 
             /// <summary>
             /// This method should return a thread observer for the given
@@ -244,7 +244,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The thread observer to instrument the thread.</returns>
-            IThreadObserver getThreadObserver(string parent, string id, ThreadState s, IThreadObserver? o);
+            IThreadObserver GetThreadObserver(string parent, string id, ThreadState s, IThreadObserver? o);
 
             /// <summary>
             /// This method should return an invocation observer for the given
@@ -263,7 +263,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            IInvocationObserver getInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
+            IInvocationObserver GetInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given
@@ -281,7 +281,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The dispatch observer to instrument the dispatch.</returns>
-            IDispatchObserver getDispatchObserver(Current c, int size);
+            IDispatchObserver GetDispatchObserver(Current c, int size);
 
             /// <summary>
             /// The Ice run-time calls this method when the communicator is
@@ -292,7 +292,7 @@ namespace Ice
             ///
             /// </summary>
             /// <param name="updater">The observer updater object.</param>
-            void setObserverUpdater(IObserverUpdater? updater);
+            void SetObserverUpdater(IObserverUpdater? updater);
         }
     }
 }

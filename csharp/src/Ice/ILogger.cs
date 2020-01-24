@@ -13,7 +13,7 @@ namespace Ice
         ///
         /// </summary>
         /// <param name="message">The message to log.</param>
-        void print(string message);
+        void Print(string message);
 
         /// <summary>
         /// Log a trace message.
@@ -22,7 +22,7 @@ namespace Ice
         ///
         /// </param>
         /// <param name="message">The trace message to log.</param>
-        void trace(string category, string message);
+        void Trace(string category, string message);
 
         /// <summary>
         /// Log a warning message.
@@ -30,7 +30,7 @@ namespace Ice
         /// <param name="message">The warning message to log.
         ///
         /// </param>
-        void warning(string message);
+        void Warning(string message);
 
         /// <summary>
         /// Log an error message.
@@ -38,13 +38,13 @@ namespace Ice
         /// <param name="message">The error message to log.
         ///
         /// </param>
-        void error(string message);
+        void Error(string message);
 
         /// <summary>
         /// Returns this logger's prefix.
         /// </summary>
         /// <returns>The prefix.</returns>
-        string getPrefix();
+        string GetPrefix();
 
         /// <summary>
         /// Returns a clone of the logger with a new prefix.
@@ -52,6 +52,6 @@ namespace Ice
         /// <param name="prefix">The new prefix for the logger.
         /// </param>
         /// <returns>A logger instance.</returns>
-        ILogger cloneWithPrefix(string prefix);
+        ILogger CloneWithPrefix(string prefix);
     }
 }

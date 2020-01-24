@@ -6,53 +6,35 @@ namespace IceSSL
 {
     internal class Acceptor : IceInternal.IAcceptor
     {
-        public void close()
-        {
-            _delegate.close();
-        }
+        public void Close() => _delegate.Close();
 
-        public IceInternal.Endpoint listen()
+        public IceInternal.Endpoint Listen()
         {
-            _endpoint = _endpoint.endpoint(_delegate.listen());
+            _endpoint = _endpoint.endpoint(_delegate.Listen());
             return _endpoint;
         }
 
-        public bool startAccept(IceInternal.AsyncCallback callback, object state)
+        public bool StartAccept(IceInternal.AsyncCallback callback, object state)
         {
             //
             // The plug-in may not be fully initialized.
             //
-            if (!_instance.initialized())
+            if (!_instance.Initialized())
             {
                 throw new Ice.InitializationException("IceSSL: plug-in is not initialized");
             }
-            return _delegate.startAccept(callback, state);
+            return _delegate.StartAccept(callback, state);
         }
 
-        public void finishAccept()
-        {
-            _delegate.finishAccept();
-        }
+        public void FinishAccept() => _delegate.FinishAccept();
 
-        public IceInternal.ITransceiver accept()
-        {
-            return new Transceiver(_instance, _delegate.accept(), _adapterName, true);
-        }
+        public IceInternal.ITransceiver Accept() => new Transceiver(_instance, _delegate.Accept(), _adapterName, true);
 
-        public string protocol()
-        {
-            return _delegate.protocol();
-        }
+        public string Protocol() => _delegate.Protocol();
 
-        public override string ToString()
-        {
-            return _delegate.ToString();
-        }
+        public override string ToString() => _delegate.ToString();
 
-        public string toDetailedString()
-        {
-            return _delegate.toDetailedString();
-        }
+        public string ToDetailedString() => _delegate.ToDetailedString();
 
         internal Acceptor(Endpoint endpoint, Instance instance, IceInternal.IAcceptor del, string adapterName)
         {
@@ -64,18 +46,16 @@ namespace IceSSL
             //
             // .NET requires that a certificate be supplied.
             //
-            var certs = instance.certs();
+            System.Security.Cryptography.X509Certificates.X509Certificate2Collection? certs = instance.Certs();
             if (certs == null || certs.Count == 0)
             {
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = "IceSSL: certificate required for server endpoint";
-                throw ex;
+                throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");
             }
         }
 
         private Endpoint _endpoint;
-        private IceInternal.IAcceptor _delegate;
-        private Instance _instance;
-        private string _adapterName;
+        private readonly IceInternal.IAcceptor _delegate;
+        private readonly Instance _instance;
+        private readonly string _adapterName;
     }
 }

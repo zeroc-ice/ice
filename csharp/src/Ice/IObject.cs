@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using IceInternal;
 
 namespace Ice
 {
@@ -18,7 +18,7 @@ namespace Ice
         /// Returns the {@link Current} object for this the request.
         /// </summary>
         /// <returns>The Current object for this request.</returns>
-        Current? getCurrent();
+        Current? GetCurrent();
     }
 
     /// <summary>
@@ -59,52 +59,52 @@ namespace Ice
         public string IceId(Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? iceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? IceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
         {
-            InputStream istr = inS.startReadParams();
-            var id = istr.ReadString();
-            inS.endReadParams();
-            var ret = obj.IceIsA(id, current);
-            var ostr = inS.startWriteParams();
+            InputStream istr = inS.StartReadParams();
+            string id = istr.ReadString();
+            inS.EndReadParams();
+            bool ret = obj.IceIsA(id, current);
+            OutputStream ostr = inS.StartWriteParams();
             ostr.WriteBool(ret);
-            inS.endWriteParams(ostr);
-            return inS.setResult(ostr)!;
+            inS.EndWriteParams(ostr);
+            return inS.SetResult(ostr)!;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? iceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? IceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
         {
-            inS.readEmptyParams();
+            inS.ReadEmptyParams();
             obj.IcePing(current);
-            inS.setResult(inS.writeEmptyParams());
+            inS.SetResult(inS.WriteEmptyParams());
             return null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? iceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? IceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
         {
-            inS.readEmptyParams();
-            var ret = obj.IceIds(current);
-            var ostr = inS.startWriteParams();
+            inS.ReadEmptyParams();
+            string[] ret = obj.IceIds(current);
+            OutputStream ostr = inS.StartWriteParams();
             ostr.WriteStringSeq(ret);
-            inS.endWriteParams(ostr);
-            inS.setResult(ostr);
+            inS.EndWriteParams(ostr);
+            inS.SetResult(ostr);
             return null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? iceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
+        public static Task<OutputStream?>? IceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
         {
-            inS.readEmptyParams();
-            var ret = obj.IceId(current);
-            var ostr = inS.startWriteParams();
+            inS.ReadEmptyParams();
+            string ret = obj.IceId(current);
+            OutputStream ostr = inS.StartWriteParams();
             ostr.WriteString(ret);
-            inS.endWriteParams(ostr);
-            inS.setResult(ostr);
+            inS.EndWriteParams(ostr);
+            inS.SetResult(ostr);
             return null;
         }
 
-        private static string operationModeToString(OperationMode mode)
+        private static string OperationModeToString(OperationMode mode)
         {
             if (mode == OperationMode.Normal)
             {
@@ -123,7 +123,7 @@ namespace Ice
             return "???";
         }
 
-        public static void iceCheckMode(OperationMode expected, OperationMode received)
+        public static void IceCheckMode(OperationMode expected, OperationMode received)
         {
             if (expected != received)
             {
@@ -136,10 +136,10 @@ namespace Ice
                 }
                 else
                 {
-                    MarshalException ex = new MarshalException();
-                    ex.reason = "unexpected operation mode. expected = " + operationModeToString(expected) +
-                        " received = " + operationModeToString(received);
-                    throw ex;
+                    throw new MarshalException(
+                        $"unexpected operation mode. expected = {OperationModeToString(expected)} " +
+                        $"received = {OperationModeToString(received)}");
+
                 }
             }
         }
@@ -164,35 +164,34 @@ namespace Ice
         /// the return value is false; in this case, outParams
         /// must contain the encoded user exception. If the operation raises an
         /// Ice run-time exception, it must throw it directly.</returns>
-        public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
+        public abstract bool IceInvoke(byte[] inParams, out byte[] outParams, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
         {
-            incoming.startOver();
-            byte[] inEncaps = incoming.readParamEncaps();
-            byte[] outEncaps;
-            bool ok = ice_invoke(inEncaps, out outEncaps, current);
-            incoming.setResult(incoming.writeParamEncaps(incoming.getAndClearCachedOutputStream(), outEncaps, ok));
+            incoming.StartOver();
+            byte[] inEncaps = incoming.ReadParamEncaps();
+            bool ok = IceInvoke(inEncaps, out byte[] outEncaps, current);
+            incoming.SetResult(incoming.WriteParamEncaps(incoming.GetAndClearCachedOutputStream(), outEncaps, ok));
             return null;
         }
     }
 
     public abstract class BlobjectAsync
     {
-        public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
+        public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Task<OutputStream> Dispatch(Incoming incoming, Current current)
         {
-            incoming.startOver();
-            byte[] inEncaps = incoming.readParamEncaps();
-            var task = ice_invokeAsync(inEncaps, current);
-            var cached = incoming.getAndClearCachedOutputStream();
+            incoming.StartOver();
+            byte[] inEncaps = incoming.ReadParamEncaps();
+            Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
+            OutputStream? cached = incoming.GetAndClearCachedOutputStream();
             return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
                 {
-                    var ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.writeParamEncaps(cached, ret.outEncaps, ret.returnValue));
+                    Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
+                    return Task.FromResult(incoming.WriteParamEncaps(cached, ret.OutEncaps, ret.ReturnValue));
                 },
                 TaskScheduler.Current).Unwrap();
         }
@@ -207,26 +206,18 @@ namespace Ice
 
     public class Object<T, Traits> : IObject where Traits : struct, IInterfaceTraits<T>
     {
-        public string IceId(Current current)
-        {
-            return _traits.Id;
-        }
+        public string IceId(Current current) => _traits.Id;
 
-        public virtual bool IceIsA(string s, Current current)
-        {
-            return Array.BinarySearch(_traits.Ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;
-        }
+        public virtual bool IceIsA(string s, Current current) =>
+            Array.BinarySearch(_traits.Ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;
 
         public virtual void IcePing(Current current)
         {
             // Nothing to do
         }
 
-        public virtual string[] IceIds(Current current)
-        {
-            return _traits.Ids;
-        }
+        public virtual string[] IceIds(Current current) => _traits.Ids;
 
-        private static Traits _traits = default;
+        private static readonly Traits _traits = default;
     }
 }

@@ -12,38 +12,38 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
         _factory = factory;
     }
 
-    public void initialize()
+    public void Initialize()
     {
     }
 
-    public short type()
+    public short Type()
     {
-        return (short)(Endpoint.TYPE_BASE + _factory.type());
+        return (short)(Endpoint.TYPE_BASE + _factory.Type());
     }
 
-    public string protocol()
+    public string Protocol()
     {
-        return "test-" + _factory.protocol();
+        return "test-" + _factory.Protocol();
     }
 
-    public IceInternal.Endpoint create(List<string> args, bool server)
+    public IceInternal.Endpoint Create(List<string> args, bool server)
     {
-        return new Endpoint(_factory.create(args, server));
+        return new Endpoint(_factory.Create(args, server));
     }
 
-    public IceInternal.Endpoint read(Ice.InputStream s)
+    public IceInternal.Endpoint Read(Ice.InputStream s)
     {
         short type = s.ReadShort();
-        Debug.Assert(type == _factory.type());
-        IceInternal.Endpoint endpoint = new Endpoint(_factory.read(s));
+        Debug.Assert(type == _factory.Type());
+        IceInternal.Endpoint endpoint = new Endpoint(_factory.Read(s));
         return endpoint;
     }
 
-    public void destroy()
+    public void Destroy()
     {
     }
 
-    public IceInternal.IEndpointFactory clone(IceInternal.ProtocolInstance instance)
+    public IceInternal.IEndpointFactory Clone(IceInternal.ProtocolInstance instance)
     {
         return this;
     }

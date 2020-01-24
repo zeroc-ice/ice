@@ -2,11 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
 
     public class AsyncIOThread
     {
@@ -15,31 +16,31 @@ namespace IceInternal
             _communicator = communicator;
 
             _thread = new HelperThread(this);
-            updateObserver();
-            _thread.Start(Util.stringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
+            UpdateObserver();
+            _thread.Start(Util.StringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
         }
 
         public void
-        updateObserver()
+        UpdateObserver()
         {
             lock (this)
             {
                 Ice.Instrumentation.ICommunicatorObserver? obsv = _communicator.Observer;
                 if (obsv != null)
                 {
-                    _observer = obsv.getThreadObserver("Communicator",
-                                                       _thread.getName(),
+                    _observer = obsv.GetThreadObserver("Communicator",
+                                                       _thread.GetName(),
                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
                     if (_observer != null)
                     {
-                        _observer.attach();
+                        _observer.Attach();
                     }
                 }
             }
         }
 
-        public void queue(ThreadPoolWorkItem callback)
+        public void Queue(ThreadPoolWorkItem callback)
         {
             lock (this)
             {
@@ -49,7 +50,7 @@ namespace IceInternal
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             lock (this)
             {
@@ -59,7 +60,7 @@ namespace IceInternal
             }
         }
 
-        public void joinWithThread()
+        public void JoinWithThread()
         {
             if (_thread != null)
             {
@@ -67,9 +68,9 @@ namespace IceInternal
             }
         }
 
-        public void run()
+        public void Run()
         {
-            LinkedList<ThreadPoolWorkItem> queue = new LinkedList<ThreadPoolWorkItem>();
+            var queue = new LinkedList<ThreadPoolWorkItem>();
             bool inUse = false;
             while (true)
             {
@@ -77,7 +78,7 @@ namespace IceInternal
                 {
                     if (_observer != null && inUse)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO,
+                        _observer.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO,
                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         inUse = false;
                     }
@@ -98,7 +99,7 @@ namespace IceInternal
 
                     if (_observer != null)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                        _observer.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                         inUse = true;
                     }
@@ -113,12 +114,12 @@ namespace IceInternal
                     catch (Ice.LocalException ex)
                     {
                         string s = "exception in asynchronous IO thread:\n" + ex;
-                        _communicator.Logger.error(s);
+                        _communicator.Logger.Error(s);
                     }
                     catch (System.Exception ex)
                     {
                         string s = "unknown exception in asynchronous IO thread:\n" + ex;
-                        _communicator.Logger.error(s);
+                        _communicator.Logger.Error(s);
                     }
                 }
                 queue.Clear();
@@ -126,7 +127,7 @@ namespace IceInternal
 
             if (_observer != null)
             {
-                _observer.detach();
+                _observer.Detach();
             }
         }
 
@@ -148,15 +149,9 @@ namespace IceInternal
                 _name += "Ice.AsyncIOThread";
             }
 
-            public void Join()
-            {
-                _thread!.Join();
-            }
+            public void Join() => _thread!.Join();
 
-            public string getName()
-            {
-                return _name;
-            }
+            public string GetName() => _name;
 
             public void Start(ThreadPriority priority)
             {
@@ -168,10 +163,7 @@ namespace IceInternal
                 _thread.Start();
             }
 
-            public void Run()
-            {
-                _asyncIOThread.run();
-            }
+            public void Run() => _asyncIOThread.Run();
 
             private readonly AsyncIOThread _asyncIOThread;
             private readonly string _name;

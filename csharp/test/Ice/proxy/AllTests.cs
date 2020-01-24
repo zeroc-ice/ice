@@ -229,7 +229,7 @@ namespace Ice.proxy
             b1 = IObjectPrx.Parse("test -s", communicator);
             test(b1.IsSecure);
 
-            test(b1.EncodingVersion.Equals(Util.currentEncoding));
+            test(b1.EncodingVersion.Equals(Util.CurrentEncoding));
 
             b1 = IObjectPrx.Parse("test -e 1.0", communicator);
             test(b1.EncodingVersion.major == 1 && b1.EncodingVersion.minor == 0);
@@ -558,7 +558,7 @@ namespace Ice.proxy
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -e " + Util.encodingVersionToString(Util.currentEncoding)));
+                        "locator -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -568,7 +568,7 @@ namespace Ice.proxy
             test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             test(proxyProps["Test.Locator.Router"].Equals(
-                        "router -t -e " + Util.encodingVersionToString(Util.currentEncoding)));
+                        "router -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
             test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));
@@ -865,7 +865,7 @@ namespace Ice.proxy
                     test(cl.Clone(fixedConnection: connection).Clone(fixedConnection: fixedConnection).GetConnection() == fixedConnection);
                     try
                     {
-                        cl.Clone(secure: !connection.Endpoint.getInfo().secure(),
+                        cl.Clone(secure: !connection.Endpoint.GetInfo().Secure(),
                             fixedConnection: connection);
                         test(false);
                     }
@@ -922,7 +922,7 @@ namespace Ice.proxy
             catch (UnknownLocalException ex)
             {
                 // The server thrown an UnsupportedEncodingException
-                test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
+                test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
             }
 
             try
@@ -942,7 +942,7 @@ namespace Ice.proxy
             catch (UnknownLocalException ex)
             {
                 // The server thrown an UnsupportedEncodingException
-                test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
+                test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
             }
 
             output.WriteLine("ok");

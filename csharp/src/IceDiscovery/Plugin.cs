@@ -18,7 +18,7 @@ namespace IceDiscovery
         public
         Plugin(Communicator communicator) => _communicator = communicator;
 
-        public void initialize()
+        public void Initialize()
         {
             bool ipv4 = (_communicator.GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
             bool preferIPv6 = _communicator.GetPropertyAsInt("Ice.PreferIPv6Address") > 0;
@@ -44,7 +44,7 @@ namespace IceDiscovery
             if (lookupEndpoints.Length == 0)
             {
                 int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+                System.Collections.Generic.List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, protocol);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])
@@ -73,7 +73,7 @@ namespace IceDiscovery
             //
             // Setup locatory registry.
             //
-            LocatorRegistry locatorRegistry = new LocatorRegistry(_communicator);
+            var locatorRegistry = new LocatorRegistry(_communicator);
             ILocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry);
 
             ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
@@ -82,11 +82,11 @@ namespace IceDiscovery
             //
             // Add lookup and lookup reply Ice objects
             //
-            Lookup lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
+            var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
             _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
             LookupReplyTraits lookupT = default;
-            LookupReply lookupReply = new LookupReply(lookup);
+            var lookupReply = new LookupReply(lookup);
             _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
             lookup.SetLookupReply(ILookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
@@ -103,7 +103,7 @@ namespace IceDiscovery
             _locatorAdapter.Activate();
         }
 
-        public void destroy()
+        public void Destroy()
         {
             if (_multicastAdapter != null)
             {
@@ -126,7 +126,7 @@ namespace IceDiscovery
             }
         }
 
-        private Communicator _communicator;
+        private readonly Communicator _communicator;
         private ObjectAdapter? _multicastAdapter;
         private ObjectAdapter? _replyAdapter;
         private ObjectAdapter? _locatorAdapter;
@@ -137,9 +137,7 @@ namespace IceDiscovery
     public class Util
     {
         public static void
-        registerIceDiscovery(bool loadOnInitialize)
-        {
+        RegisterIceDiscovery(bool loadOnInitialize) =>
             Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-        }
     }
 }

@@ -16,7 +16,7 @@ public class PluginOneFailFactory : Ice.IPluginFactory
         {
         }
 
-        public override void initialize()
+        public override void Initialize()
         {
             BasePluginFail? two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
             Debug.Assert(two != null);
@@ -29,7 +29,7 @@ public class PluginOneFailFactory : Ice.IPluginFactory
             _initialized = true;
         }
 
-        public override void destroy()
+        public override void Destroy()
         {
             test(_two.isDestroyed());
             //

@@ -1792,7 +1792,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override bool iceUsesClasses()";
+        _out << nl << "public override bool IceUsesClasses()";
         _out << sb;
         _out << nl << "return true;";
         _out << eb;
@@ -1869,10 +1869,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public override int GetHashCode()";
     _out << sb;
     _out << nl << "int h_ = 5381;";
-    _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
+    _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, \"" << p->scoped() << "\");";
     for(const auto& i : dataMembers)
     {
-        _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, " << fixId(dataMemberName(i), Slice::ObjectType)
+        _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, " << fixId(dataMemberName(i), Slice::ObjectType)
              << ");";
     }
     _out << nl << "return h_;";
@@ -2060,7 +2060,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name()) << ");";
+        _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, " << fixId((*q)->name()) << ");";
     }
 }
 
@@ -2340,16 +2340,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         if(operation->returnsData())
         {
-            _out << nl << "iceCheckTwowayOnly(\"" << operation->name() << "\");";
+            _out << nl << "IceCheckTwowayOnly(\"" << operation->name() << "\");";
         }
 
         string resultT = resultType(operation, ns, false);
 
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
              << (outParams.empty() ? "object" : resultT) << ">(progress, cancel);";
-        _out << nl << "var outAsync = getOutgoingAsync<" << (outParams.empty() ? "object" : resultT) << ">(completed);";
+        _out << nl << "var outAsync = GetOutgoingAsync<" << (outParams.empty() ? "object" : resultT) << ">(completed);";
 
-        _out << nl << "outAsync.invoke(";
+        _out << nl << "outAsync.Invoke(";
         _out.inc();
         _out << nl << '"' << operation->name() << '"' << ",";
         _out << nl << sliceModeToIceMode(operation->sendMode(), ns) << ",";
@@ -2656,7 +2656,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     {
         _out << sp;
         _out << nl << "public struct " << opName << "MarshaledReturnValue : "
-             << getUnqualified("Ice.MarshaledReturnValue", ns);
+             << getUnqualified("Ice.IMarshaledReturnValue", ns);
         _out << sb;
         _out << nl << "private " << getUnqualified("Ice.OutputStream", ns) << " _ostr;";
 
@@ -2668,14 +2668,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "_ostr = global::IceInternal.Incoming.createResponseOutputStream(current);";
+        _out << nl << "_ostr = global::IceInternal.Incoming.CreateResponseOutputStream(current);";
         _out << nl << "_ostr.StartEncapsulation(current.Encoding, " << opFormatTypeToString(operation, ns) << ");";
         writeMarshalParams(operation, requiredOutParams, taggedOutParams, "_ostr");
         _out << nl << "_ostr.EndEncapsulation();";
         _out << eb;
 
         _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " getOutputStream("
+        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " GetOutputStream("
              << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
         _out << nl << "if(_ostr == null)";
@@ -2685,7 +2685,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         {
             _out << writeValue(p.type, ns);
         }
-        _out << "current" << epar << ".getOutputStream(current);";
+        _out << "current" << epar << ".GetOutputStream(current);";
         _out << eb;
         _out << nl << "return _ostr;";
         _out << eb;
@@ -2794,7 +2794,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string ns = getNamespace(cl);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
-    string internalName = "iceD_" + opName;
+    string internalName = "IceD_" + opName;
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
@@ -2820,33 +2820,33 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
          << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
 
-    _out << nl << getUnqualified("Ice.IObject", ns) << ".iceCheckMode(" << sliceModeToIceMode(operation->mode(), ns)
+    _out << nl << getUnqualified("Ice.IObject", ns) << ".IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns)
          << ", current.Mode);";
     if(inParams.empty())
     {
-        _out << nl << "inS.readEmptyParams();";
+        _out << nl << "inS.ReadEmptyParams();";
     }
     else
     {
-        _out << nl << "var istr = inS.startReadParams();";
+        _out << nl << "var istr = inS.StartReadParams();";
         writeUnmarshalParams(operation, requiredInParams, taggedInParams);
-        _out << nl << "inS.endReadParams();";
+        _out << nl << "inS.EndReadParams();";
     }
 
     if(operation->format() != DefaultFormat)
     {
-        _out << nl << "inS.setFormat(" << opFormatTypeToString(operation, ns) << ");";
+        _out << nl << "inS.SetFormat(" << opFormatTypeToString(operation, ns) << ");";
     }
 
     if(operation->hasMarshaledResult())
     {
-        _out << nl << "return inS." << (amd ? "setMarshaledResultTask" : "setMarshaledResult");
+        _out << nl << "return inS." << (amd ? "SetMarshaledResultTask" : "SetMarshaledResult");
         _out << "(obj." << opName << (amd ? "Async" : "") << spar << getNames(inParams) << "current" << epar << ");";
         _out << eb;
     }
     else if(amd)
     {
-        _out << nl << "return inS.setResultTask" << "(obj." << opName << "Async" << spar
+        _out << nl << "return inS.SetResultTask" << "(obj." << opName << "Async" << spar
              << getNames(inParams) << "current" << epar;
         if(outParams.size() > 0)
         {
@@ -2888,14 +2888,14 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
         if(outParams.size() == 0)
         {
-            _out << nl << "return inS.setResult(inS.writeEmptyParams());";
+            _out << nl << "return inS.SetResult(inS.WriteEmptyParams());";
         }
         else
         {
-            _out << nl << "var ostr = inS.startWriteParams();";
+            _out << nl << "var ostr = inS.StartWriteParams();";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-            _out << nl << "inS.endWriteParams(ostr);";
-            _out << nl << "return inS.setResult(ostr);";
+            _out << nl << "inS.EndWriteParams(ostr);";
+            _out << nl << "return inS.SetResult(ostr);";
         }
         _out << eb;
     }
@@ -2935,7 +2935,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << fixId(name) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
     _out << sb;
 
-    _out << nl << "incoming.startOver();";
+    _out << nl << "incoming.StartOver();";
     _out << nl << "switch(current.Operation)";
     _out << sb;
 
@@ -2949,7 +2949,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return " << getUnqualified("Ice.IObject", ns) << ".iceD_"
+        _out << nl << "return " << getUnqualified("Ice.IObject", ns) << ".IceD_"
              << opName << "(servant as " << getUnqualified("Ice.IObject", ns)
              << " ?? _defaultObject, incoming, current);";
         _out << eb;
@@ -2961,7 +2961,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << nl << "case \"" << op->name() << "\":";
         _out << sb;
         _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
-             << ".iceD_" << operationName(op)
+             << ".IceD_" << operationName(op)
              << "(servant, incoming, current);";
         _out << eb;
     }

@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Net.Sockets;
+
 namespace IceInternal
 {
-    using System.Net.Sockets;
-
     public interface ITransceiver
     {
-        Socket? fd();
-        int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
-        int closing(bool initiator, Ice.LocalException? ex);
-        void close();
-        void destroy();
+        Socket? Fd();
+        int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
+        int Closing(bool initiator, Ice.LocalException? ex);
+        void Close();
+        void Destroy();
 
-        Endpoint bind();
-        int write(Buffer buf);
-        int read(Buffer buf, ref bool hasMoreData);
+        Endpoint Bind();
+        int Write(Buffer buf);
+        int Read(Buffer buf, ref bool hasMoreData);
 
         //
         // Read data asynchronously.
@@ -30,8 +30,8 @@ namespace IceInternal
         // calls startRead, or when the socket is closed. In this case finishRead
         // raises ReadAbortedException.
         //
-        bool startRead(Buffer buf, AsyncCallback callback, object state);
-        void finishRead(Buffer buf);
+        bool StartRead(Buffer buf, AsyncCallback callback, object state);
+        void FinishRead(Buffer buf);
 
         //
         // Write data asynchronously.
@@ -40,14 +40,14 @@ namespace IceInternal
         // will be invoked in the same thread as startWrite. The request
         // will be canceled upon the termination of the thread that calls startWrite.
         //
-        bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
-        void finishWrite(Buffer buf);
+        bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
+        void FinishWrite(Buffer buf);
 
-        string protocol();
-        string toDetailedString();
-        Ice.ConnectionInfo getInfo();
-        void checkSendSize(Buffer buf);
-        void setBufferSize(int rcvSize, int sndSize);
+        string Protocol();
+        string ToDetailedString();
+        Ice.ConnectionInfo GetInfo();
+        void CheckSendSize(Buffer buf);
+        void SetBufferSize(int rcvSize, int sndSize);
     }
 
 }

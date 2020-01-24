@@ -21,7 +21,7 @@ namespace Ice
         public int GetHashCode(IObjectPrx obj)
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, obj.Identity);
+            IceInternal.HashUtil.HashAdd(ref h, obj.Identity);
             return h;
         }
 
@@ -83,8 +83,8 @@ namespace Ice
         public int GetHashCode(IObjectPrx obj)
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, obj.Identity);
-            IceInternal.HashUtil.hashAdd(ref h, obj.Facet);
+            IceInternal.HashUtil.HashAdd(ref h, obj.Identity);
+            IceInternal.HashUtil.HashAdd(ref h, obj.Facet);
             return h;
         }
 

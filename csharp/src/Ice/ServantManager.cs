@@ -10,7 +10,7 @@ namespace IceInternal
 {
     public sealed class ServantManager
     {
-        public void addServant(Ice.Disp servant, Ice.Identity ident, string facet)
+        public void AddServant(Ice.Disp servant, Ice.Identity ident, string facet)
         {
             lock (this)
             {
@@ -21,11 +21,10 @@ namespace IceInternal
                     facet = "";
                 }
 
-                Dictionary<string, Ice.Disp> m;
-                _servantMapMap.TryGetValue(ident, out m);
+                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Disp> m);
                 if (m == null)
                 {
-                    _servantMapMap[ident] = (m = new Dictionary<string, Ice.Disp>());
+                    _servantMapMap[ident] = m = new Dictionary<string, Ice.Disp>();
                 }
                 else
                 {
@@ -41,7 +40,7 @@ namespace IceInternal
             }
         }
 
-        public void addDefaultServant(Ice.Disp servant, string category)
+        public void AddDefaultServant(Ice.Disp servant, string category)
         {
             lock (this)
             {
@@ -55,7 +54,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Disp removeServant(Ice.Identity ident, string facet)
+        public Ice.Disp RemoveServant(Ice.Identity ident, string facet)
         {
             lock (this)
             {
@@ -66,16 +65,15 @@ namespace IceInternal
                     facet = "";
                 }
 
-                Dictionary<string, Ice.Disp> m;
-                _servantMapMap.TryGetValue(ident, out m);
+                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Disp> m);
                 if (m == null || !m.ContainsKey(facet))
                 {
-                    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = ident.ToString(_communicator.ToStringMode);
-                    ex.kindOfObject = "servant";
+                    var ex = new Ice.NotRegisteredException();
+                    ex.Id = ident.ToString(_communicator.ToStringMode);
+                    ex.KindOfObject = "servant";
                     if (facet.Length > 0)
                     {
-                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.ToStringMode);
+                        ex.Id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.ToStringMode);
                     }
                     throw ex;
                 }
@@ -90,14 +88,13 @@ namespace IceInternal
             }
         }
 
-        public Ice.Disp removeDefaultServant(string category)
+        public Ice.Disp RemoveDefaultServant(string category)
         {
             lock (this)
             {
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
 
-                Ice.Disp? obj = null;
-                _defaultServantMap.TryGetValue(category, out obj);
+                _defaultServantMap.TryGetValue(category, out Ice.Disp obj);
                 if (obj == null)
                 {
                     throw new Ice.NotRegisteredException("default servant", category);
@@ -108,19 +105,18 @@ namespace IceInternal
             }
         }
 
-        public Dictionary<string, Ice.Disp> removeAllFacets(Ice.Identity ident)
+        public Dictionary<string, Ice.Disp> RemoveAllFacets(Ice.Identity ident)
         {
             lock (this)
             {
                 Debug.Assert(_communicator != null);
 
-                Dictionary<string, Ice.Disp>? m;
-                _servantMapMap.TryGetValue(ident, out m);
+                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Disp> m);
                 if (m == null)
                 {
-                    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = ident.ToString(_communicator.ToStringMode);
-                    ex.kindOfObject = "servant";
+                    var ex = new Ice.NotRegisteredException();
+                    ex.Id = ident.ToString(_communicator.ToStringMode);
+                    ex.KindOfObject = "servant";
                     throw ex;
                 }
                 _servantMapMap.Remove(ident);
@@ -129,7 +125,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Disp findServant(Ice.Identity ident, string facet)
+        public Ice.Disp FindServant(Ice.Identity ident, string facet)
         {
             lock (this)
             {
@@ -146,8 +142,7 @@ namespace IceInternal
                     facet = "";
                 }
 
-                Dictionary<string, Ice.Disp> m;
-                _servantMapMap.TryGetValue(ident, out m);
+                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Disp> m);
                 Ice.Disp? obj = null;
                 if (m == null)
                 {
@@ -166,7 +161,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Disp? findDefaultServant(string category)
+        public Ice.Disp? FindDefaultServant(string category)
         {
             lock (this)
             {
@@ -177,7 +172,7 @@ namespace IceInternal
             }
         }
 
-        public Dictionary<string, Ice.Disp> findAllFacets(Ice.Identity ident)
+        public Dictionary<string, Ice.Disp> FindAllFacets(Ice.Identity ident)
         {
             lock (this)
             {
@@ -186,7 +181,7 @@ namespace IceInternal
             }
         }
 
-        public bool hasServant(Ice.Identity ident)
+        public bool HasServant(Ice.Identity ident)
         {
             lock (this)
             {
@@ -199,8 +194,7 @@ namespace IceInternal
                 //
                 //Debug.Assert(_instance != null); // Must not be called after destruction.
 
-                Dictionary<string, Ice.Disp> m;
-                _servantMapMap.TryGetValue(ident, out m);
+                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Disp> m);
                 if (m == null)
                 {
                     return false;
@@ -213,7 +207,7 @@ namespace IceInternal
             }
         }
 
-        public void addServantLocator(Ice.IServantLocator locator, string category)
+        public void AddServantLocator(Ice.IServantLocator locator, string category)
         {
             lock (this)
             {
@@ -228,19 +222,18 @@ namespace IceInternal
             }
         }
 
-        public Ice.IServantLocator removeServantLocator(string category)
+        public Ice.IServantLocator RemoveServantLocator(string category)
         {
             lock (this)
             {
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
 
-                Ice.IServantLocator l;
-                _locatorMap.TryGetValue(category, out l);
+                _locatorMap.TryGetValue(category, out Ice.IServantLocator l);
                 if (l == null)
                 {
-                    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
-                    ex.kindOfObject = "servant locator";
+                    var ex = new Ice.NotRegisteredException();
+                    ex.Id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
+                    ex.KindOfObject = "servant locator";
                     throw ex;
                 }
                 _locatorMap.Remove(category);
@@ -248,7 +241,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.IServantLocator findServantLocator(string category)
+        public Ice.IServantLocator FindServantLocator(string category)
         {
             lock (this)
             {
@@ -261,8 +254,7 @@ namespace IceInternal
                 //
                 //Debug.Assert(_instance != null); // Must not be called after destruction.
 
-                Ice.IServantLocator result;
-                _locatorMap.TryGetValue(category, out result);
+                _locatorMap.TryGetValue(category, out Ice.IServantLocator result);
                 return result;
             }
         }
@@ -279,7 +271,7 @@ namespace IceInternal
         //
         // Only for use by Ice.ObjectAdapterI.
         //
-        public void destroy()
+        public void Destroy()
         {
             Dictionary<string, Ice.IServantLocator> locatorMap;
             Ice.ILogger logger;
@@ -310,23 +302,23 @@ namespace IceInternal
                 Ice.IServantLocator locator = p.Value;
                 try
                 {
-                    locator.deactivate(p.Key);
+                    locator.Deactivate(p.Key);
                 }
                 catch (System.Exception ex)
                 {
                     string s = "exception during locator deactivation:\n" + "object adapter: `"
                                 + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
-                    logger.error(s);
+                    logger.Error(s);
                 }
             }
         }
 
         private Ice.Communicator? _communicator;
         private readonly string _adapterName;
-        private Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>> _servantMapMap
+        private readonly Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>> _servantMapMap
                 = new Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>>();
-        private Dictionary<string, Ice.Disp> _defaultServantMap = new Dictionary<string, Ice.Disp>();
-        private Dictionary<string, Ice.IServantLocator> _locatorMap = new Dictionary<string, Ice.IServantLocator>();
+        private readonly Dictionary<string, Ice.Disp> _defaultServantMap = new Dictionary<string, Ice.Disp>();
+        private readonly Dictionary<string, Ice.IServantLocator> _locatorMap = new Dictionary<string, Ice.IServantLocator>();
     }
 
 }

@@ -3,14 +3,14 @@
 //
 
 using IceInternal;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ice
 {
     public sealed partial class Communicator
     {
-        private List<IEndpointFactory> _endpointFactories;
+        private readonly List<IEndpointFactory> _endpointFactories;
 
         public void AddEndpointFactory(IEndpointFactory factory)
         {
@@ -18,7 +18,7 @@ namespace Ice
             {
                 foreach (IEndpointFactory f in _endpointFactories)
                 {
-                    if (f.type() == factory.type())
+                    if (f.Type() == factory.Type())
                     {
                         Debug.Assert(false);
                     }
@@ -40,13 +40,13 @@ namespace Ice
                 throw new System.FormatException("value has no non-whitespace characters");
             }
 
-            List<string> v = new List<string>(arr);
+            var v = new List<string>(arr);
             string protocol = v[0];
             v.RemoveAt(0);
 
             if (protocol.Equals("default"))
             {
-                protocol = DefaultsAndOverrides.defaultProtocol;
+                protocol = DefaultsAndOverrides.DefaultProtocol;
             }
 
             IEndpointFactory? factory = null;
@@ -56,7 +56,7 @@ namespace Ice
                 for (int i = 0; i < _endpointFactories.Count; i++)
                 {
                     IEndpointFactory f = _endpointFactories[i];
-                    if (f.protocol().Equals(protocol))
+                    if (f.Protocol().Equals(protocol))
                     {
                         factory = f;
                     }
@@ -65,7 +65,7 @@ namespace Ice
 
             if (factory != null)
             {
-                Endpoint? e = factory.create(v, oaEndpoint);
+                Endpoint? e = factory.Create(v, oaEndpoint);
                 if (v.Count > 0)
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
@@ -99,7 +99,7 @@ namespace Ice
                 {
                     throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
-                factory = GetEndpointFactory(ue.type());
+                factory = GetEndpointFactory(ue.Type());
                 if (factory != null)
                 {
                     //
@@ -107,14 +107,14 @@ namespace Ice
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    OutputStream os = new OutputStream(this, Util.currentProtocolEncoding);
-                    os.WriteShort(ue.type());
-                    ue.streamWrite(os);
-                    InputStream iss = new InputStream(this, Util.currentProtocolEncoding, os.GetBuffer(), true);
+                    var os = new OutputStream(this, Util.CurrentProtocolEncoding);
+                    os.WriteShort(ue.Type());
+                    ue.StreamWrite(os);
+                    var iss = new InputStream(this, Util.CurrentProtocolEncoding, os.GetBuffer(), true);
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
-                    Endpoint? e = factory.read(iss);
+                    Endpoint? e = factory.Read(iss);
                     iss.EndEndpointEncapsulation();
                     return e;
                 }
@@ -130,7 +130,7 @@ namespace Ice
             {
                 foreach (IEndpointFactory f in _endpointFactories)
                 {
-                    if (f.type() == type)
+                    if (f.Type() == type)
                     {
                         return f;
                     }
@@ -152,7 +152,7 @@ namespace Ice
 
                 if (factory != null)
                 {
-                    e = factory.read(s);
+                    e = factory.Read(s);
                 }
                 //
                 // If the factory failed to read the endpoint, return an opaque endpoint. This can

@@ -21,7 +21,7 @@ namespace IceInternal
 
     public sealed class Timer
     {
-        public void destroy()
+        public void Destroy()
         {
             lock (this)
             {
@@ -40,7 +40,7 @@ namespace IceInternal
             _thread.Join();
         }
 
-        public void schedule(ITimerTask task, long delay)
+        public void Schedule(ITimerTask task, long delay)
         {
             lock (this)
             {
@@ -49,7 +49,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Token token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
+                var token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
                 try
                 {
@@ -61,14 +61,14 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
 
-                if (token.scheduledTime < _wakeUpTime)
+                if (token.ScheduledTime < _wakeUpTime)
                 {
                     Monitor.Pulse(this);
                 }
             }
         }
 
-        public void scheduleRepeated(ITimerTask task, long period)
+        public void ScheduleRepeated(ITimerTask task, long period)
         {
             lock (this)
             {
@@ -77,7 +77,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Token token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
+                var token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
                 try
                 {
@@ -89,14 +89,14 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
 
-                if (token.scheduledTime < _wakeUpTime)
+                if (token.ScheduledTime < _wakeUpTime)
                 {
                     Monitor.Pulse(this);
                 }
             }
         }
 
-        public bool cancel(ITimerTask task)
+        public bool Cancel(ITimerTask task)
         {
             lock (this)
             {
@@ -105,8 +105,7 @@ namespace IceInternal
                     return false;
                 }
 
-                Token token;
-                if (!_tasks.TryGetValue(task, out token))
+                if (!_tasks.TryGetValue(task, out Token token))
                 {
                     return false;
                 }
@@ -135,18 +134,18 @@ namespace IceInternal
             _thread.Start();
         }
 
-        internal void updateObserver(Ice.Instrumentation.ICommunicatorObserver obsv)
+        internal void UpdateObserver(Ice.Instrumentation.ICommunicatorObserver obsv)
         {
             lock (this)
             {
                 Debug.Assert(obsv != null);
-                _observer = obsv.getThreadObserver("Communicator",
+                _observer = obsv.GetThreadObserver("Communicator",
                                                    _thread.Name,
                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
                 if (_observer != null)
                 {
-                    _observer.attach();
+                    _observer.Attach();
                 }
             }
         }
@@ -164,11 +163,11 @@ namespace IceInternal
                         // If the task we just ran is a repeated task, schedule it
                         // again for execution if it wasn't canceled.
                         //
-                        if (token != null && token.delay > 0)
+                        if (token != null && token.Delay > 0)
                         {
-                            if (_tasks.ContainsKey(token.task))
+                            if (_tasks.ContainsKey(token.Task))
                             {
-                                token.scheduledTime = Time.currentMonotonicTimeMillis() + token.delay;
+                                token.ScheduledTime = Time.currentMonotonicTimeMillis() + token.Delay;
                                 _tokens.Add(token, null);
                             }
                         }
@@ -203,19 +202,19 @@ namespace IceInternal
                         }
                         Debug.Assert(first != null);
 
-                        if (first.scheduledTime <= now)
+                        if (first.ScheduledTime <= now)
                         {
                             _tokens.Remove(first);
                             token = first;
-                            if (token.delay == 0)
+                            if (token.Delay == 0)
                             {
-                                _tasks.Remove(token.task);
+                                _tasks.Remove(token.Task);
                             }
                             break;
                         }
 
-                        _wakeUpTime = first.scheduledTime;
-                        Monitor.Wait(this, (int)(first.scheduledTime - now));
+                        _wakeUpTime = first.ScheduledTime;
+                        Monitor.Wait(this, (int)(first.ScheduledTime - now));
                     }
 
                     if (_communicator == null)
@@ -231,21 +230,21 @@ namespace IceInternal
                         Ice.Instrumentation.IThreadObserver? threadObserver = _observer;
                         if (threadObserver != null)
                         {
-                            threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                            threadObserver.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                             try
                             {
-                                token.task.RunTimerTask();
+                                token.Task.RunTimerTask();
                             }
                             finally
                             {
-                                threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                threadObserver.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                             Ice.Instrumentation.ThreadState.ThreadStateIdle);
                             }
                         }
                         else
                         {
-                            token.task.RunTimerTask();
+                            token.Task.RunTimerTask();
                         }
                     }
                     catch (System.Exception ex)
@@ -255,7 +254,7 @@ namespace IceInternal
                             if (_communicator != null)
                             {
                                 string s = "unexpected exception from task run method in timer thread:\n" + ex;
-                                _communicator.Logger.error(s);
+                                _communicator.Logger.Error(s);
                             }
                         }
                     }
@@ -268,10 +267,10 @@ namespace IceInternal
             public
             Token(long scheduledTime, int id, long delay, ITimerTask task)
             {
-                this.scheduledTime = scheduledTime;
-                this.id = id;
-                this.delay = delay;
-                this.task = task;
+                ScheduledTime = scheduledTime;
+                Id = id;
+                Delay = delay;
+                Task = task;
             }
 
             public int CompareTo(object o)
@@ -279,21 +278,21 @@ namespace IceInternal
                 //
                 // Token are sorted by scheduled time and token id.
                 //
-                Token r = (Token)o;
-                if (scheduledTime < r.scheduledTime)
+                var r = (Token)o;
+                if (ScheduledTime < r.ScheduledTime)
                 {
                     return -1;
                 }
-                else if (scheduledTime > r.scheduledTime)
+                else if (ScheduledTime > r.ScheduledTime)
                 {
                     return 1;
                 }
 
-                if (id < r.id)
+                if (Id < r.Id)
                 {
                     return -1;
                 }
-                else if (id > r.id)
+                else if (Id > r.Id)
                 {
                     return 1;
                 }
@@ -307,30 +306,29 @@ namespace IceInternal
                 {
                     return true;
                 }
-                Token? t = o as Token;
-                return t == null ? false : CompareTo(t) == 0;
+                return !(o is Token t) ? false : CompareTo(t) == 0;
             }
 
             public override int GetHashCode()
             {
                 int h = 5381;
-                HashUtil.hashAdd(ref h, id);
-                HashUtil.hashAdd(ref h, scheduledTime);
+                HashUtil.HashAdd(ref h, Id);
+                HashUtil.HashAdd(ref h, ScheduledTime);
                 return h;
             }
 
-            public long scheduledTime;
-            public int id; // Since we can't compare references, we need to use another id.
-            public long delay;
-            public ITimerTask task;
+            public long ScheduledTime;
+            public int Id; // Since we can't compare references, we need to use another id.
+            public long Delay;
+            public ITimerTask Task;
         }
 
-        private IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
-        private IDictionary<ITimerTask, Token> _tasks = new Dictionary<ITimerTask, Token>();
+        private readonly IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
+        private readonly IDictionary<ITimerTask, Token> _tasks = new Dictionary<ITimerTask, Token>();
         private Ice.Communicator? _communicator;
         private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
-        private Thread _thread;
+        private readonly Thread _thread;
 
         //
         // We use a volatile to avoid synchronization when reading

@@ -32,19 +32,19 @@ namespace Ice
         /// Determines the current size of the stream.
         /// </summary>
         /// <value>The current size.</value>
-        internal int Size => _buf.size();
+        internal int Size => _buf.Size();
 
         /// <summary>
         /// Determines whether the stream is empty.
         /// </summary>
         /// <returns>True if no data has been written yet, false otherwise.</returns>
-        internal bool IsEmpty => _buf.empty();
+        internal bool IsEmpty => _buf.Empty();
 
         // The position (offset) in the underlying buffer.
         internal int Pos
         {
-            get => _buf.b.position();
-            set => _buf.b.position(value);
+            get => _buf.B.Position();
+            set => _buf.B.Position(value);
         }
 
         // When set, we are writing to a top-level encapsulation.
@@ -80,7 +80,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         public OutputStream(Communicator communicator)
-            : this(communicator, communicator.DefaultsAndOverrides.defaultEncoding, new IceInternal.Buffer())
+            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding, new IceInternal.Buffer())
         {
         }
 
@@ -94,7 +94,7 @@ namespace Ice
         {
         }
 
-        public OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+        public OutputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
             : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
         {
         }
@@ -106,18 +106,15 @@ namespace Ice
         public byte[] Finished()
         {
             IceInternal.Buffer buf = PrepareWrite();
-            byte[] result = new byte[buf.b.limit()];
-            buf.b.get(result);
+            byte[] result = new byte[buf.B.Limit()];
+            buf.B.Get(result);
             return result;
         }
 
         /// <summary>
         /// Writes the start of an encapsulation to the stream.
         /// </summary>
-        public void StartEncapsulation()
-        {
-            StartEncapsulation(Encoding);
-        }
+        public void StartEncapsulation() => StartEncapsulation(Encoding);
 
         /// <summary>
         /// Writes the start of an encapsulation to the stream.
@@ -129,7 +126,7 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _mainEncaps = new Encaps(Encoding, _format, _buf.b.position());
+            _mainEncaps = new Encaps(Encoding, _format, _buf.B.Position());
 
             Encoding = encoding;
             if (format.HasValue)
@@ -150,8 +147,8 @@ namespace Ice
             Encaps encaps = _mainEncaps.Value;
 
             // Size includes size and version.
-            int sz = _buf.size() - encaps.StartPos;
-            _buf.b.putInt(encaps.StartPos, sz);
+            int sz = _buf.Size() - encaps.StartPos;
+            _buf.B.PutInt(encaps.StartPos, sz);
 
             Encoding = encaps.OldEncoding;
             _format = encaps.OldFormat;
@@ -265,7 +262,7 @@ namespace Ice
                 _current.SliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                 WriteSize(_current.IndirectionTable.Count);
-                foreach (var v in _current.IndirectionTable)
+                foreach (AnyClass v in _current.IndirectionTable)
                 {
                     WriteInstance(v);
                 }
@@ -286,13 +283,13 @@ namespace Ice
             if (v > 254)
             {
                 Expand(5);
-                _buf.b.put(255);
-                _buf.b.putInt(v);
+                _buf.B.Put(255);
+                _buf.B.PutInt(v);
             }
             else
             {
                 Expand(1);
-                _buf.b.put((byte)v);
+                _buf.B.Put((byte)v);
             }
         }
 
@@ -301,7 +298,7 @@ namespace Ice
         /// </summary>
         public int StartSize()
         {
-            int pos = _buf.b.position();
+            int pos = _buf.B.Position();
             WriteInt(0); // Placeholder for 32-bit size
             return pos;
         }
@@ -314,7 +311,7 @@ namespace Ice
         public void EndSize(int pos)
         {
             Debug.Assert(pos >= 0);
-            RewriteInt(_buf.b.position() - pos - 4, pos);
+            RewriteInt(_buf.B.Position() - pos - 4, pos);
         }
 
         /// <summary>
@@ -328,7 +325,7 @@ namespace Ice
                 return;
             }
             Expand(v.Length);
-            _buf.b.put(v);
+            _buf.B.Put(v);
         }
 
         /// <summary>
@@ -372,7 +369,7 @@ namespace Ice
         public void WriteByte(byte v)
         {
             Expand(1);
-            _buf.b.put(v);
+            _buf.B.Put(v);
         }
 
         /// <summary>
@@ -393,10 +390,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The byte to write to the stream.</param>
         /// <param name="dest">The position at which to store the byte in the buffer.</param>
-        private void RewriteByte(byte v, int dest)
-        {
-            _buf.b.put(dest, v);
-        }
+        private void RewriteByte(byte v, int dest) => _buf.B.Put(dest, v);
 
         /// <summary>
         /// Writes a byte sequence to the stream.
@@ -413,7 +407,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length);
-                _buf.b.put(v);
+                _buf.B.Put(v);
             }
         }
 
@@ -431,8 +425,7 @@ namespace Ice
             }
 
             {
-                List<byte>? value = v as List<byte>;
-                if (value != null)
+                if (v is List<byte> value)
                 {
                     WriteByteSeq(value.ToArray());
                     return;
@@ -440,23 +433,21 @@ namespace Ice
             }
 
             {
-                LinkedList<byte>? value = v as LinkedList<byte>;
-                if (value != null)
+                if (v is LinkedList<byte> value)
                 {
                     WriteSize(count);
                     Expand(count);
                     IEnumerator<byte> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.put(i.Current);
+                        _buf.B.Put(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<byte>? value = v as Queue<byte>;
-                if (value != null)
+                if (v is Queue<byte> value)
                 {
                     WriteByteSeq(value.ToArray());
                     return;
@@ -464,8 +455,7 @@ namespace Ice
             }
 
             {
-                Stack<byte>? value = v as Stack<byte>;
-                if (value != null)
+                if (v is Stack<byte> value)
                 {
                     WriteByteSeq(value.ToArray());
                     return;
@@ -476,7 +466,7 @@ namespace Ice
             Expand(count);
             foreach (byte b in v)
             {
-                _buf.b.put(b);
+                _buf.B.Put(b);
             }
         }
 
@@ -520,7 +510,7 @@ namespace Ice
             }
             try
             {
-                IceInternal.OutputStreamWrapper w = new IceInternal.OutputStreamWrapper(this);
+                var w = new IceInternal.OutputStreamWrapper(this);
                 IFormatter f = new BinaryFormatter();
                 f.Serialize(w, o);
                 w.Close();
@@ -538,7 +528,7 @@ namespace Ice
         public void WriteBool(bool v)
         {
             Expand(1);
-            _buf.b.put(v ? (byte)1 : (byte)0);
+            _buf.B.Put(v ? (byte)1 : (byte)0);
         }
 
         /// <summary>
@@ -569,7 +559,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length);
-                _buf.b.putBoolSeq(v);
+                _buf.B.PutBoolSeq(v);
             }
         }
 
@@ -587,8 +577,7 @@ namespace Ice
             }
 
             {
-                List<bool>? value = v as List<bool>;
-                if (value != null)
+                if (v is List<bool> value)
                 {
                     WriteBoolSeq(value.ToArray());
                     return;
@@ -596,23 +585,21 @@ namespace Ice
             }
 
             {
-                LinkedList<bool>? value = v as LinkedList<bool>;
-                if (value != null)
+                if (v is LinkedList<bool> value)
                 {
                     WriteSize(count);
                     Expand(count);
                     IEnumerator<bool> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putBool(i.Current);
+                        _buf.B.PutBool(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<bool>? value = v as Queue<bool>;
-                if (value != null)
+                if (v is Queue<bool> value)
                 {
                     WriteBoolSeq(value.ToArray());
                     return;
@@ -620,8 +607,7 @@ namespace Ice
             }
 
             {
-                Stack<bool>? value = v as Stack<bool>;
-                if (value != null)
+                if (v is Stack<bool> value)
                 {
                     WriteBoolSeq(value.ToArray());
                     return;
@@ -632,7 +618,7 @@ namespace Ice
             Expand(count);
             foreach (bool b in v)
             {
-                _buf.b.putBool(b);
+                _buf.B.PutBool(b);
             }
         }
 
@@ -670,7 +656,7 @@ namespace Ice
         public void WriteShort(short v)
         {
             Expand(2);
-            _buf.b.putShort(v);
+            _buf.B.PutShort(v);
         }
 
         /// <summary>
@@ -701,7 +687,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length * 2);
-                _buf.b.putShortSeq(v);
+                _buf.B.PutShortSeq(v);
             }
         }
 
@@ -719,8 +705,7 @@ namespace Ice
             }
 
             {
-                List<short>? value = v as List<short>;
-                if (value != null)
+                if (v is List<short> value)
                 {
                     WriteShortSeq(value.ToArray());
                     return;
@@ -728,23 +713,21 @@ namespace Ice
             }
 
             {
-                LinkedList<short>? value = v as LinkedList<short>;
-                if (value != null)
+                if (v is LinkedList<short> value)
                 {
                     WriteSize(count);
                     Expand(count * 2);
                     IEnumerator<short> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putShort(i.Current);
+                        _buf.B.PutShort(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<short>? value = v as Queue<short>;
-                if (value != null)
+                if (v is Queue<short> value)
                 {
                     WriteShortSeq(value.ToArray());
                     return;
@@ -752,8 +735,7 @@ namespace Ice
             }
 
             {
-                Stack<short>? value = v as Stack<short>;
-                if (value != null)
+                if (v is Stack<short> value)
                 {
                     WriteShortSeq(value.ToArray());
                     return;
@@ -764,7 +746,7 @@ namespace Ice
             Expand(count * 2);
             foreach (short s in v)
             {
-                _buf.b.putShort(s);
+                _buf.B.PutShort(s);
             }
         }
 
@@ -777,7 +759,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
+                WriteSize(v.Length == 0 ? 1 : (v.Length * 2) + (v.Length > 254 ? 5 : 1));
                 WriteShortSeq(v);
             }
         }
@@ -792,7 +774,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * 2) + (count > 254 ? 5 : 1));
                 WriteShortSeq(count, v);
             }
         }
@@ -804,7 +786,7 @@ namespace Ice
         public void WriteInt(int v)
         {
             Expand(4);
-            _buf.b.putInt(v);
+            _buf.B.PutInt(v);
         }
 
         /// <summary>
@@ -825,10 +807,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The int to write to the stream.</param>
         /// <param name="dest">The position at which to store the int in the buffer.</param>
-        internal void RewriteInt(int v, int dest)
-        {
-            _buf.b.putInt(dest, v);
-        }
+        internal void RewriteInt(int v, int dest) => _buf.B.PutInt(dest, v);
 
         /// <summary>
         /// Writes an int sequence to the stream.
@@ -845,7 +824,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length * 4);
-                _buf.b.putIntSeq(v);
+                _buf.B.PutIntSeq(v);
             }
         }
 
@@ -863,8 +842,7 @@ namespace Ice
             }
 
             {
-                List<int>? value = v as List<int>;
-                if (value != null)
+                if (v is List<int> value)
                 {
                     WriteIntSeq(value.ToArray());
                     return;
@@ -872,23 +850,21 @@ namespace Ice
             }
 
             {
-                LinkedList<int>? value = v as LinkedList<int>;
-                if (value != null)
+                if (v is LinkedList<int> value)
                 {
                     WriteSize(count);
                     Expand(count * 4);
                     IEnumerator<int> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putInt(i.Current);
+                        _buf.B.PutInt(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<int>? value = v as Queue<int>;
-                if (value != null)
+                if (v is Queue<int> value)
                 {
                     WriteIntSeq(value.ToArray());
                     return;
@@ -896,8 +872,7 @@ namespace Ice
             }
 
             {
-                Stack<int>? value = v as Stack<int>;
-                if (value != null)
+                if (v is Stack<int> value)
                 {
                     WriteIntSeq(value.ToArray());
                     return;
@@ -908,7 +883,7 @@ namespace Ice
             Expand(count * 4);
             foreach (int i in v)
             {
-                _buf.b.putInt(i);
+                _buf.B.PutInt(i);
             }
         }
 
@@ -921,7 +896,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
+                WriteSize(v.Length == 0 ? 1 : (v.Length * 4) + (v.Length > 254 ? 5 : 1));
                 WriteIntSeq(v);
             }
         }
@@ -936,7 +911,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
                 WriteIntSeq(count, v);
             }
         }
@@ -948,7 +923,7 @@ namespace Ice
         public void WriteLong(long v)
         {
             Expand(8);
-            _buf.b.putLong(v);
+            _buf.B.PutLong(v);
         }
 
         /// <summary>
@@ -979,7 +954,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length * 8);
-                _buf.b.putLongSeq(v);
+                _buf.B.PutLongSeq(v);
             }
         }
 
@@ -997,8 +972,7 @@ namespace Ice
             }
 
             {
-                List<long>? value = v as List<long>;
-                if (value != null)
+                if (v is List<long> value)
                 {
                     WriteLongSeq(value.ToArray());
                     return;
@@ -1006,23 +980,21 @@ namespace Ice
             }
 
             {
-                LinkedList<long>? value = v as LinkedList<long>;
-                if (value != null)
+                if (v is LinkedList<long> value)
                 {
                     WriteSize(count);
                     Expand(count * 8);
                     IEnumerator<long> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putLong(i.Current);
+                        _buf.B.PutLong(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<long>? value = v as Queue<long>;
-                if (value != null)
+                if (v is Queue<long> value)
                 {
                     WriteLongSeq(value.ToArray());
                     return;
@@ -1030,8 +1002,7 @@ namespace Ice
             }
 
             {
-                Stack<long>? value = v as Stack<long>;
-                if (value != null)
+                if (v is Stack<long> value)
                 {
                     WriteLongSeq(value.ToArray());
                     return;
@@ -1042,7 +1013,7 @@ namespace Ice
             Expand(count * 8);
             foreach (long l in v)
             {
-                _buf.b.putLong(l);
+                _buf.B.PutLong(l);
             }
         }
 
@@ -1055,7 +1026,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
+                WriteSize(v.Length == 0 ? 1 : (v.Length * 8) + (v.Length > 254 ? 5 : 1));
                 WriteLongSeq(v);
             }
         }
@@ -1070,7 +1041,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
                 WriteLongSeq(count, v);
             }
         }
@@ -1082,7 +1053,7 @@ namespace Ice
         public void WriteFloat(float v)
         {
             Expand(4);
-            _buf.b.putFloat(v);
+            _buf.B.PutFloat(v);
         }
 
         /// <summary>
@@ -1113,7 +1084,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length * 4);
-                _buf.b.putFloatSeq(v);
+                _buf.B.PutFloatSeq(v);
             }
         }
 
@@ -1131,8 +1102,7 @@ namespace Ice
             }
 
             {
-                List<float>? value = v as List<float>;
-                if (value != null)
+                if (v is List<float> value)
                 {
                     WriteFloatSeq(value.ToArray());
                     return;
@@ -1140,23 +1110,21 @@ namespace Ice
             }
 
             {
-                LinkedList<float>? value = v as LinkedList<float>;
-                if (value != null)
+                if (v is LinkedList<float> value)
                 {
                     WriteSize(count);
                     Expand(count * 4);
                     IEnumerator<float> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putFloat(i.Current);
+                        _buf.B.PutFloat(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<float>? value = v as Queue<float>;
-                if (value != null)
+                if (v is Queue<float> value)
                 {
                     WriteFloatSeq(value.ToArray());
                     return;
@@ -1164,8 +1132,7 @@ namespace Ice
             }
 
             {
-                Stack<float>? value = v as Stack<float>;
-                if (value != null)
+                if (v is Stack<float> value)
                 {
                     WriteFloatSeq(value.ToArray());
                     return;
@@ -1176,7 +1143,7 @@ namespace Ice
             Expand(count * 4);
             foreach (float f in v)
             {
-                _buf.b.putFloat(f);
+                _buf.B.PutFloat(f);
             }
         }
 
@@ -1189,7 +1156,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
+                WriteSize(v.Length == 0 ? 1 : (v.Length * 4) + (v.Length > 254 ? 5 : 1));
                 WriteFloatSeq(v);
             }
         }
@@ -1204,7 +1171,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
                 WriteFloatSeq(count, v);
             }
         }
@@ -1216,7 +1183,7 @@ namespace Ice
         public void WriteDouble(double v)
         {
             Expand(8);
-            _buf.b.putDouble(v);
+            _buf.B.PutDouble(v);
         }
 
         /// <summary>
@@ -1247,7 +1214,7 @@ namespace Ice
             {
                 WriteSize(v.Length);
                 Expand(v.Length * 8);
-                _buf.b.putDoubleSeq(v);
+                _buf.B.PutDoubleSeq(v);
             }
         }
 
@@ -1265,8 +1232,7 @@ namespace Ice
             }
 
             {
-                List<double>? value = v as List<double>;
-                if (value != null)
+                if (v is List<double> value)
                 {
                     WriteDoubleSeq(value.ToArray());
                     return;
@@ -1274,23 +1240,21 @@ namespace Ice
             }
 
             {
-                LinkedList<double>? value = v as LinkedList<double>;
-                if (value != null)
+                if (v is LinkedList<double> value)
                 {
                     WriteSize(count);
                     Expand(count * 8);
                     IEnumerator<double> i = v.GetEnumerator();
                     while (i.MoveNext())
                     {
-                        _buf.b.putDouble(i.Current);
+                        _buf.B.PutDouble(i.Current);
                     }
                     return;
                 }
             }
 
             {
-                Queue<double>? value = v as Queue<double>;
-                if (value != null)
+                if (v is Queue<double> value)
                 {
                     WriteDoubleSeq(value.ToArray());
                     return;
@@ -1298,8 +1262,7 @@ namespace Ice
             }
 
             {
-                Stack<double>? value = v as Stack<double>;
-                if (value != null)
+                if (v is Stack<double> value)
                 {
                     WriteDoubleSeq(value.ToArray());
                     return;
@@ -1310,7 +1273,7 @@ namespace Ice
             Expand(count * 8);
             foreach (double d in v)
             {
-                _buf.b.putDouble(d);
+                _buf.B.PutDouble(d);
             }
         }
 
@@ -1323,7 +1286,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
+                WriteSize(v.Length == 0 ? 1 : (v.Length * 8) + (v.Length > 254 ? 5 : 1));
                 WriteDoubleSeq(v);
             }
         }
@@ -1338,12 +1301,12 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
                 WriteDoubleSeq(count, v);
             }
         }
 
-        private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+        private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
         /// <summary>
         /// Writes a string to the stream.
@@ -1357,10 +1320,10 @@ namespace Ice
                 WriteSize(0);
                 return;
             }
-            byte[] arr = utf8.GetBytes(v);
+            byte[] arr = _utf8.GetBytes(v);
             WriteSize(arr.Length);
             Expand(arr.Length);
-            _buf.b.put(arr);
+            _buf.B.Put(arr);
         }
 
         /// <summary>
@@ -1530,8 +1493,7 @@ namespace Ice
             {
                 // If writing an instance within a slice and using the sliced format, write an index of that slice's
                 // indirection table.
-                int index = 0;
-                if (_current.IndirectionMap != null && _current.IndirectionMap.TryGetValue(v, out index))
+                if (_current.IndirectionMap != null && _current.IndirectionMap.TryGetValue(v, out int index))
                 {
                     // Found, index is position in indirection table + 1
                     Debug.Assert(index > 0);
@@ -1582,10 +1544,7 @@ namespace Ice
         /// Expand the stream to accept more data.
         /// </summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
-        internal void Expand(int n)
-        {
-            _buf.expand(n);
-        }
+        internal void Expand(int n) => _buf.Expand(n);
 
         /// <summary>
         /// Resets this output stream. This method allows the stream to be reused, to avoid creating
@@ -1593,18 +1552,15 @@ namespace Ice
         /// </summary>
         internal void Reset()
         {
-            _buf.reset();
+            _buf.Reset();
             Clear();
-            _format = Communicator.DefaultsAndOverrides.defaultFormat;
+            _format = Communicator.DefaultsAndOverrides.DefaultFormat;
         }
 
         /// <summary>
         /// Releases any data retained by encapsulations. The reset() method internally calls clear().
         /// </summary>
-        internal void Clear()
-        {
-            ResetEncapsulation();
-        }
+        internal void Clear() => ResetEncapsulation();
 
         /// <summary>
         /// Swaps the contents of one stream with another.
@@ -1635,8 +1591,8 @@ namespace Ice
         /// <param name="sz">The new size.</param>
         internal void Resize(int sz)
         {
-            _buf.resize(sz, false);
-            _buf.b.position(sz);
+            _buf.Resize(sz, false);
+            _buf.B.Position(sz);
         }
 
         /// <summary>
@@ -1644,8 +1600,8 @@ namespace Ice
         /// </summary>
         internal IceInternal.Buffer PrepareWrite()
         {
-            _buf.b.limit(_buf.size());
-            _buf.b.position(0);
+            _buf.B.Limit(_buf.Size());
+            _buf.B.Position(0);
             return _buf;
         }
 
@@ -1653,22 +1609,16 @@ namespace Ice
         /// Retrieves the internal data buffer.
         /// </summary>
         /// <returns>The buffer.</returns>
-        internal IceInternal.Buffer GetBuffer()
-        {
-            return _buf;
-        }
+        internal IceInternal.Buffer GetBuffer() => _buf;
 
-        internal void StartEndpointEncapsulation()
-        {
-            StartEndpointEncapsulation(Encoding);
-        }
+        internal void StartEndpointEncapsulation() => StartEndpointEncapsulation(Encoding);
 
         internal void StartEndpointEncapsulation(EncodingVersion encoding)
         {
             Debug.Assert(_endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _endpointEncaps = new Encaps(Encoding, _format, _buf.b.position());
+            _endpointEncaps = new Encaps(Encoding, _format, _buf.B.Position());
             Encoding = encoding;
             // We didn't change _format, so no need to restore it.
 
@@ -1681,8 +1631,8 @@ namespace Ice
 
             // Size includes size and version.
             int startPos = _endpointEncaps.Value.StartPos;
-            int sz = _buf.size() - startPos;
-            _buf.b.putInt(startPos, sz);
+            int sz = _buf.Size() - startPos;
+            _buf.B.PutInt(startPos, sz);
 
             Encoding = _endpointEncaps.Value.OldEncoding;
             // No need to restore format since it didn't change.
@@ -1710,7 +1660,7 @@ namespace Ice
                 throw new EncapsulationException();
             }
             Expand(v.Length);
-            _buf.b.put(v);
+            _buf.B.Put(v);
         }
 
         // Returns true when something was written, and false otherwise
@@ -1726,13 +1676,13 @@ namespace Ice
             }
 
             bool firstSlice = true;
-            foreach (var info in slicedData.Slices)
+            foreach (SliceInfo info in slicedData.Slices)
             {
                 IceStartSlice(info.TypeId ?? "", firstSlice, null, info.CompactId);
                 firstSlice = false;
 
                 // Write the bytes associated with this slice. TODO: need better write bytes API
-                var sliceBytes = new byte[info.Bytes.Count];
+                byte[] sliceBytes = new byte[info.Bytes.Count];
                 info.Bytes.CopyTo(sliceBytes, 0);
                 WriteBlob(sliceBytes);
 
@@ -1817,7 +1767,7 @@ namespace Ice
 
                 WriteSize(1); // Class instance marker.
 
-                var savedInstanceData = Push(InstanceType.Class);
+                InstanceData? savedInstanceData = Push(InstanceType.Class);
                 v.Write(this);
                 Pop(savedInstanceData);
             }
@@ -1825,15 +1775,12 @@ namespace Ice
 
         private InstanceData? Push(InstanceType instanceType)
         {
-            var savedInstanceData = _current;
+            InstanceData? savedInstanceData = _current;
             _current = new InstanceData(instanceType);
             return savedInstanceData;
         }
 
-        private void Pop(InstanceData? savedInstanceData)
-        {
-            _current = savedInstanceData;
-        }
+        private void Pop(InstanceData? savedInstanceData) => _current = savedInstanceData;
 
         private enum InstanceType { Class, Exception }
 

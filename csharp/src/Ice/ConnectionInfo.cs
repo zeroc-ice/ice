@@ -117,9 +117,6 @@ namespace Ice
         }
 
         public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-            Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId)
-        {
-            Headers = headers;
-        }
+            Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId) => Headers = headers;
     }
 }

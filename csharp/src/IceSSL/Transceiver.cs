@@ -14,16 +14,13 @@ namespace IceSSL
 {
     internal sealed class Transceiver : IceInternal.ITransceiver
     {
-        public Socket? fd()
-        {
-            return _delegate.fd();
-        }
+        public Socket? Fd() => _delegate.Fd();
 
-        public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
         {
             if (!_isConnected)
             {
-                int status = _delegate.initialize(readBuffer, writeBuffer, ref hasMoreData);
+                int status = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
                 if (status != IceInternal.SocketOperation.None)
                 {
                     return status;
@@ -31,10 +28,10 @@ namespace IceSSL
                 _isConnected = true;
             }
 
-            Socket? fd = _delegate.fd();
+            Socket? fd = _delegate.Fd();
             Debug.Assert(fd != null);
 
-            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket
+            IceInternal.Network.SetBlock(fd, true); // SSL requires a blocking socket
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -43,8 +40,8 @@ namespace IceSSL
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd));
-            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd));
+            _maxSendPacketSize = Math.Max(512, IceInternal.Network.GetSendBufferSize(fd));
+            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.GetRecvBufferSize(fd));
 
             if (_sslStream == null)
             {
@@ -52,12 +49,12 @@ namespace IceSSL
                 {
                     _sslStream = new SslStream(new NetworkStream(fd, false),
                                                false,
-                                               new RemoteCertificateValidationCallback(validationCallback),
-                                               new LocalCertificateSelectionCallback(selectCertificate));
+                                               new RemoteCertificateValidationCallback(ValidationCallback),
+                                               new LocalCertificateSelectionCallback(SelectCertificate));
                 }
                 catch (IOException ex)
                 {
-                    if (IceInternal.Network.connectionLost(ex))
+                    if (IceInternal.Network.ConnectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -73,21 +70,18 @@ namespace IceSSL
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
+            _instance.VerifyPeer((ConnectionInfo)GetInfo(), ToString());
 
-            if (_instance.securityTraceLevel() >= 1)
+            if (_instance.SecurityTraceLevel() >= 1)
             {
-                _instance.traceStream(_sslStream, ToString());
+                _instance.TraceStream(_sslStream, ToString());
             }
             return IceInternal.SocketOperation.None;
         }
 
-        public int closing(bool initiator, Ice.LocalException? ex)
-        {
-            return _delegate.closing(initiator, ex);
-        }
+        public int Closing(bool initiator, Ice.LocalException? ex) => _delegate.Closing(initiator, ex);
 
-        public void close()
+        public void Close()
         {
             if (_sslStream != null)
             {
@@ -95,59 +89,56 @@ namespace IceSSL
                 _sslStream = null;
             }
 
-            _delegate.close();
+            _delegate.Close();
         }
 
-        public IceInternal.Endpoint bind()
+        public IceInternal.Endpoint Bind()
         {
             Debug.Assert(false);
             return null;
         }
 
-        public void destroy()
-        {
-            _delegate.destroy();
-        }
+        public void Destroy() => _delegate.Destroy();
 
-        public int write(IceInternal.Buffer buf)
+        public int Write(IceInternal.Buffer buf)
         {
             //
             // Force caller to use async write.
             //
-            return buf.b.hasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
+            return buf.B.HasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
         }
 
-        public int read(IceInternal.Buffer buf, ref bool hasMoreData)
+        public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
         {
             //
             // Force caller to use async read.
             //
-            return buf.b.hasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
+            return buf.B.HasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
         }
 
-        public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
+        public bool StartRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
         {
             if (!_isConnected)
             {
-                return _delegate.startRead(buf, callback, state);
+                return _delegate.StartRead(buf, callback, state);
             }
 
             Debug.Assert(_sslStream != null && _sslStream.IsAuthenticated);
 
-            int packetSz = getRecvPacketSize(buf.b.remaining());
+            int packetSz = GetRecvPacketSize(buf.B.Remaining());
             try
             {
                 _readCallback = callback;
-                _readResult = _sslStream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSz, readCompleted, state);
+                _readResult = _sslStream.BeginRead(buf.B.RawBytes(), buf.B.Position(), packetSz, ReadCompleted, state);
                 return _readResult.CompletedSynchronously;
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.timeout(ex))
+                if (IceInternal.Network.Timeout(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -163,11 +154,11 @@ namespace IceSSL
             }
         }
 
-        public void finishRead(IceInternal.Buffer buf)
+        public void FinishRead(IceInternal.Buffer buf)
         {
             if (!_isConnected)
             {
-                _delegate.finishRead(buf);
+                _delegate.FinishRead(buf);
                 return;
             }
             else if (_sslStream == null) // Transceiver was closed
@@ -187,7 +178,7 @@ namespace IceSSL
                     throw new Ice.ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
-                buf.b.position(buf.b.position() + ret);
+                buf.B.Position(buf.B.Position() + ret);
             }
             catch (Ice.LocalException)
             {
@@ -195,11 +186,11 @@ namespace IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.timeout(ex))
+                if (IceInternal.Network.Timeout(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -215,40 +206,40 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback cb, object state, out bool completed)
+        public bool StartWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback cb, object state, out bool completed)
         {
             if (!_isConnected)
             {
-                return _delegate.startWrite(buf, cb, state, out completed);
+                return _delegate.StartWrite(buf, cb, state, out completed);
             }
 
             Debug.Assert(_sslStream != null);
             if (!_authenticated)
             {
                 completed = false;
-                return startAuthenticate(cb, state);
+                return StartAuthenticate(cb, state);
             }
 
             //
             // We limit the packet size for beingWrite to ensure connection timeouts are based
             // on a fixed packet size.
             //
-            int packetSize = getSendPacketSize(buf.b.remaining());
+            int packetSize = GetSendPacketSize(buf.B.Remaining());
             try
             {
                 _writeCallback = cb;
-                _writeResult = _sslStream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted,
+                _writeResult = _sslStream.BeginWrite(buf.B.RawBytes(), buf.B.Position(), packetSize, WriteCompleted,
                                                      state);
-                completed = packetSize == buf.b.remaining();
+                completed = packetSize == buf.B.Remaining();
                 return _writeResult.CompletedSynchronously;
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.timeout(ex))
+                if (IceInternal.Network.Timeout(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -264,43 +255,43 @@ namespace IceSSL
             }
         }
 
-        public void finishWrite(IceInternal.Buffer buf)
+        public void FinishWrite(IceInternal.Buffer buf)
         {
             if (!_isConnected)
             {
-                _delegate.finishWrite(buf);
+                _delegate.FinishWrite(buf);
                 return;
             }
             else if (_sslStream == null) // Transceiver was closed
             {
-                if (getSendPacketSize(buf.b.remaining()) == buf.b.remaining()) // Sent last packet
+                if (GetSendPacketSize(buf.B.Remaining()) == buf.B.Remaining()) // Sent last packet
                 {
-                    buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
+                    buf.B.Position(buf.B.Limit()); // Assume all the data was sent for at-most-once semantics.
                 }
                 _writeResult = null;
                 return;
             }
             else if (!_authenticated)
             {
-                finishAuthenticate();
+                FinishAuthenticate();
                 return;
             }
 
             Debug.Assert(_writeResult != null);
-            int sent = getSendPacketSize(buf.b.remaining());
+            int sent = GetSendPacketSize(buf.B.Remaining());
             try
             {
                 _sslStream.EndWrite(_writeResult);
                 _writeResult = null;
-                buf.b.position(buf.b.position() + sent);
+                buf.B.Position(buf.B.Position() + sent);
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.timeout(ex))
+                if (IceInternal.Network.Timeout(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -316,15 +307,12 @@ namespace IceSSL
             }
         }
 
-        public string protocol()
-        {
-            return _delegate.protocol();
-        }
+        public string Protocol() => _delegate.Protocol();
 
-        public Ice.ConnectionInfo getInfo()
+        public Ice.ConnectionInfo GetInfo()
         {
-            ConnectionInfo info = new ConnectionInfo();
-            info.Underlying = _delegate.getInfo();
+            var info = new ConnectionInfo();
+            info.Underlying = _delegate.GetInfo();
             info.Incoming = _incoming;
             info.AdapterName = _adapterName;
             info.Cipher = _cipher;
@@ -333,25 +321,13 @@ namespace IceSSL
             return info;
         }
 
-        public void checkSendSize(IceInternal.Buffer buf)
-        {
-            _delegate.checkSendSize(buf);
-        }
+        public void CheckSendSize(IceInternal.Buffer buf) => _delegate.CheckSendSize(buf);
 
-        public void setBufferSize(int rcvSize, int sndSize)
-        {
-            _delegate.setBufferSize(rcvSize, sndSize);
-        }
+        public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
-        public override string ToString()
-        {
-            return _delegate.ToString();
-        }
+        public override string ToString() => _delegate.ToString();
 
-        public string toDetailedString()
-        {
-            return _delegate.toDetailedString();
-        }
+        public string ToDetailedString() => _delegate.ToDetailedString();
 
         //
         // Only for use by ConnectorI, AcceptorI.
@@ -375,7 +351,7 @@ namespace IceSSL
             _verifyPeer = _instance.Communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
-        private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)
+        private bool StartAuthenticate(IceInternal.AsyncCallback callback, object state)
         {
             Debug.Assert(_sslStream != null);
             try
@@ -387,10 +363,10 @@ namespace IceSSL
                     // Client authentication.
                     //
                     _writeResult = _sslStream.BeginAuthenticateAsClient(_host,
-                                                                        _instance.certs(),
-                                                                        _instance.protocols(),
-                                                                        _instance.checkCRL() > 0,
-                                                                        writeCompleted,
+                                                                        _instance.Certs(),
+                                                                        _instance.Protocols(),
+                                                                        _instance.CheckCRL() > 0,
+                                                                        WriteCompleted,
                                                                         state);
                 }
                 else
@@ -400,7 +376,7 @@ namespace IceSSL
                     //
                     // Get the certificate collection and select the first one.
                     //
-                    X509Certificate2Collection? certs = _instance.certs();
+                    X509Certificate2Collection? certs = _instance.Certs();
                     X509Certificate2? cert = null;
                     if (certs != null && certs.Count > 0)
                     {
@@ -409,15 +385,15 @@ namespace IceSSL
 
                     _writeResult = _sslStream.BeginAuthenticateAsServer(cert,
                                                                         _verifyPeer > 0,
-                                                                        _instance.protocols(),
-                                                                        _instance.checkCRL() > 0,
-                                                                        writeCompleted,
+                                                                        _instance.Protocols(),
+                                                                        _instance.CheckCRL() > 0,
+                                                                        WriteCompleted,
                                                                         state);
                 }
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     //
                     // This situation occurs when connectToSelf is called; the "remote" end
@@ -429,9 +405,7 @@ namespace IceSSL
             }
             catch (AuthenticationException ex)
             {
-                Ice.SecurityException e = new Ice.SecurityException(ex);
-                e.reason = ex.Message;
-                throw e;
+                throw new Ice.SecurityException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -442,7 +416,7 @@ namespace IceSSL
             return _writeResult.CompletedSynchronously;
         }
 
-        private void finishAuthenticate()
+        private void FinishAuthenticate()
         {
             Debug.Assert(_writeResult != null);
             Debug.Assert(_sslStream != null);
@@ -460,7 +434,7 @@ namespace IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (IceInternal.Network.ConnectionLost(ex))
                 {
                     //
                     // This situation occurs when connectToSelf is called; the "remote" end
@@ -472,9 +446,7 @@ namespace IceSSL
             }
             catch (AuthenticationException ex)
             {
-                Ice.SecurityException e = new Ice.SecurityException(ex);
-                e.reason = ex.Message;
-                throw e;
+                throw new Ice.SecurityException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -482,7 +454,7 @@ namespace IceSSL
             }
         }
 
-        private X509Certificate? selectCertificate(object sender,
+        private X509Certificate? SelectCertificate(object sender,
             string targetHost,
             X509CertificateCollection? certs,
             X509Certificate remoteCertificate,
@@ -513,18 +485,18 @@ namespace IceSSL
             return certs[0];
         }
 
-        private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
+        private bool ValidationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                         SslPolicyErrors policyErrors)
         {
-            X509Chain chain = new X509Chain(_instance.engine().useMachineContext());
+            var chain = new X509Chain(_instance.Engine().UseMachineContext());
             try
             {
-                if (_instance.checkCRL() == 0)
+                if (_instance.CheckCRL() == 0)
                 {
                     chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
 
-                X509Certificate2Collection? caCerts = _instance.engine().caCerts();
+                X509Certificate2Collection? caCerts = _instance.Engine().CaCerts();
                 if (caCerts != null)
                 {
                     //
@@ -546,7 +518,7 @@ namespace IceSSL
                     {
                         errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
-                    else if (_instance.engine().caCerts() != null)
+                    else if (_instance.Engine().CaCerts() != null)
                     {
                         X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
@@ -588,9 +560,9 @@ namespace IceSSL
                     {
                         if (_verifyPeer > 1)
                         {
-                            if (_instance.securityTraceLevel() >= 1)
+                            if (_instance.SecurityTraceLevel() >= 1)
                             {
-                                _instance.Logger.trace(_instance.securityTraceCategory(),
+                                _instance.Logger.Trace(_instance.SecurityTraceCategory(),
                                     "SSL certificate validation failed - client certificate not provided");
                             }
                             return false;
@@ -603,16 +575,16 @@ namespace IceSSL
                 bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
                 if (certificateNameMismatch)
                 {
-                    if (_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
+                    if (_instance.Engine().GetCheckCertName() && !string.IsNullOrEmpty(_host))
                     {
-                        if (_instance.securityTraceLevel() >= 1)
+                        if (_instance.SecurityTraceLevel() >= 1)
                         {
                             string msg = "SSL certificate validation failed - Hostname mismatch";
                             if (_verifyPeer == 0)
                             {
                                 msg += " (ignored)";
                             }
-                            _instance.Logger.trace(_instance.securityTraceCategory(), msg);
+                            _instance.Logger.Trace(_instance.SecurityTraceCategory(), msg);
                         }
 
                         if (_verifyPeer > 0)
@@ -637,7 +609,7 @@ namespace IceSSL
                     int errorCount = 0;
                     foreach (X509ChainStatus status in chain.ChainStatus)
                     {
-                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.engine().caCerts() != null)
+                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.Engine().CaCerts() != null)
                         {
                             //
                             // Untrusted root is OK when using our custom chain engine if
@@ -663,7 +635,7 @@ namespace IceSSL
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
                         {
-                            if (_instance.checkCRL() > 0)
+                            if (_instance.CheckCRL() > 0)
                             {
                                 message += "\ncertificate revoked";
                                 ++errorCount;
@@ -679,7 +651,7 @@ namespace IceSSL
                             // If a certificate's revocation status cannot be determined, the strictest
                             // policy is to reject the connection.
                             //
-                            if (_instance.checkCRL() > 1)
+                            if (_instance.CheckCRL() > 1)
                             {
                                 message += "\ncertificate revocation status unknown";
                                 ++errorCount;
@@ -716,23 +688,23 @@ namespace IceSSL
 
                 if (errors > 0)
                 {
-                    if (_instance.securityTraceLevel() >= 1)
+                    if (_instance.SecurityTraceLevel() >= 1)
                     {
                         if (message.Length > 0)
                         {
-                            _instance.Logger.trace(_instance.securityTraceCategory(),
+                            _instance.Logger.Trace(_instance.SecurityTraceCategory(),
                                 $"SSL certificate validation failed:{message}");
                         }
                         else
                         {
-                            _instance.Logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed");
+                            _instance.Logger.Trace(_instance.SecurityTraceCategory(), "SSL certificate validation failed");
                         }
                     }
                     return false;
                 }
-                else if (message.Length > 0 && _instance.securityTraceLevel() >= 1)
+                else if (message.Length > 0 && _instance.SecurityTraceLevel() >= 1)
                 {
-                    _instance.Logger.trace(_instance.securityTraceCategory(), $"SSL certificate validation status:{message}");
+                    _instance.Logger.Trace(_instance.SecurityTraceCategory(), $"SSL certificate validation status:{message}");
                 }
                 return true;
             }
@@ -757,7 +729,7 @@ namespace IceSSL
             }
         }
 
-        internal void readCompleted(IAsyncResult result)
+        internal void ReadCompleted(IAsyncResult result)
         {
             if (!result.CompletedSynchronously)
             {
@@ -766,7 +738,7 @@ namespace IceSSL
             }
         }
 
-        internal void writeCompleted(IAsyncResult result)
+        internal void WriteCompleted(IAsyncResult result)
         {
             if (!result.CompletedSynchronously)
             {
@@ -775,15 +747,9 @@ namespace IceSSL
             }
         }
 
-        private int getSendPacketSize(int length)
-        {
-            return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-        }
+        private int GetSendPacketSize(int length) => _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
-        public int getRecvPacketSize(int length)
-        {
-            return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-        }
+        public int GetRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
         private readonly Instance _instance;
         private readonly IceInternal.ITransceiver _delegate;

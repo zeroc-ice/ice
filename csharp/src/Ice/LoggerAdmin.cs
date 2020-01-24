@@ -21,9 +21,9 @@ namespace IceInternal
                 return; // can't send this null RemoteLogger anything!
             }
 
-            var remoteLogger = prx.Clone(oneway: false);
+            IRemoteLoggerPrx remoteLogger = prx.Clone(oneway: false);
 
-            Filters filters = new Filters(messageTypes, categories);
+            var filters = new Filters(messageTypes, categories);
             LinkedList<LogMessage>? initLogMessages = null;
 
             lock (this)
@@ -36,7 +36,7 @@ namespace IceInternal
                     }
 
                     _sendLogCommunicator =
-                        createSendLogCommunicator(current.Adapter.Communicator, _logger.getLocalLogger());
+                        CreateSendLogCommunicator(current.Adapter.Communicator, _logger.GetLocalLogger());
                 }
 
                 Identity remoteLoggerId = remoteLogger.Identity;
@@ -45,7 +45,7 @@ namespace IceInternal
                 {
                     if (_traceLevel > 0)
                     {
-                        _logger.trace(_traceCategory, "rejecting `" + remoteLogger.ToString() +
+                        _logger.Trace(TraceCategory, "rejecting `" + remoteLogger.ToString() +
                                      "' with RemoteLoggerAlreadyAttachedException");
                     }
 
@@ -53,7 +53,7 @@ namespace IceInternal
                 }
 
                 _remoteLoggerMap.Add(remoteLoggerId,
-                                     new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+                                     new RemoteLoggerData(ChangeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
                 if (messageMax != 0)
                 {
@@ -67,17 +67,17 @@ namespace IceInternal
 
             if (_traceLevel > 0)
             {
-                _logger.trace(_traceCategory, "attached `" + remoteLogger.ToString() + "'");
+                _logger.Trace(TraceCategory, "attached `" + remoteLogger.ToString() + "'");
             }
 
             if (initLogMessages.Count > 0)
             {
-                filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
+                FilterLogMessages(initLogMessages, filters.MessageTypes, filters.TraceCategories, messageMax);
             }
 
             try
             {
-                remoteLogger.InitAsync(_logger.getPrefix(), initLogMessages.ToArray()).ContinueWith(
+                remoteLogger.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray()).ContinueWith(
                     (t) =>
                     {
                         try
@@ -85,21 +85,21 @@ namespace IceInternal
                             t.Wait();
                             if (_traceLevel > 1)
                             {
-                                _logger.trace(_traceCategory, "init on `" + remoteLogger.ToString()
+                                _logger.Trace(TraceCategory, "init on `" + remoteLogger.ToString()
                                               + "' completed successfully");
                             }
                         }
                         catch (AggregateException ae)
                         {
                             Debug.Assert(ae.InnerException is LocalException);
-                            deadRemoteLogger(remoteLogger, _logger, (LocalException)ae.InnerException, "init");
+                            DeadRemoteLogger(remoteLogger, _logger, (LocalException)ae.InnerException, "init");
                         }
                     },
                     System.Threading.Tasks.TaskScheduler.Current);
             }
             catch (LocalException ex)
             {
-                deadRemoteLogger(remoteLogger, _logger, ex, "init");
+                DeadRemoteLogger(remoteLogger, _logger, ex, "init");
                 throw;
             }
         }
@@ -115,17 +115,17 @@ namespace IceInternal
             //
             // No need to convert the proxy as we only use its identity
             //
-            bool found = removeRemoteLogger(remoteLogger);
+            bool found = RemoveRemoteLogger(remoteLogger);
 
             if (_traceLevel > 0)
             {
                 if (found)
                 {
-                    _logger.trace(_traceCategory, "detached `" + remoteLogger.ToString() + "'");
+                    _logger.Trace(TraceCategory, "detached `" + remoteLogger.ToString() + "'");
                 }
                 else
                 {
-                    _logger.trace(_traceCategory, "cannot detach `" + remoteLogger.ToString() + "': not found");
+                    _logger.Trace(TraceCategory, "cannot detach `" + remoteLogger.ToString() + "': not found");
                 }
             }
 
@@ -148,12 +148,12 @@ namespace IceInternal
                 }
             }
 
-            var prefix = _logger.getPrefix();
+            string prefix = _logger.GetPrefix();
 
             if (logMessages.Count > 0)
             {
-                Filters filters = new Filters(messageTypes, categories);
-                filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
+                var filters = new Filters(messageTypes, categories);
+                FilterLogMessages(logMessages, filters.MessageTypes, filters.TraceCategories, messageMax);
             }
             return new ILoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
         }
@@ -166,7 +166,7 @@ namespace IceInternal
             _logger = logger;
         }
 
-        internal void destroy()
+        internal void Destroy()
         {
             Communicator? sendLogCommunicator = null;
 
@@ -190,7 +190,7 @@ namespace IceInternal
             }
         }
 
-        internal List<IRemoteLoggerPrx>? log(LogMessage logMessage)
+        internal List<IRemoteLoggerPrx>? Log(LogMessage logMessage)
         {
             lock (this)
             {
@@ -213,7 +213,7 @@ namespace IceInternal
                             // Need to remove the oldest log from the queue
                             //
                             Debug.Assert(_oldestLog != null);
-                            var next = _oldestLog.Next;
+                            LinkedListNode<LogMessage> next = _oldestLog.Next;
                             _queue.Remove(_oldestLog);
                             _oldestLog = next;
 
@@ -242,7 +242,7 @@ namespace IceInternal
                             // Need to remove the oldest trace from the queue
                             //
                             Debug.Assert(_oldestTrace != null);
-                            var next = _oldestTrace.Next;
+                            LinkedListNode<LogMessage> next = _oldestTrace.Next;
                             _queue.Remove(_oldestTrace);
                             _oldestTrace = next;
 
@@ -269,18 +269,18 @@ namespace IceInternal
                 //
                 foreach (RemoteLoggerData p in _remoteLoggerMap.Values)
                 {
-                    Filters filters = p.filters;
+                    Filters filters = p.Filters;
 
-                    if (filters.messageTypes.Count == 0 || filters.messageTypes.Contains(logMessage.Type))
+                    if (filters.MessageTypes.Count == 0 || filters.MessageTypes.Contains(logMessage.Type))
                     {
-                        if (logMessage.Type != LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
-                           filters.traceCategories.Contains(logMessage.TraceCategory))
+                        if (logMessage.Type != LogMessageType.TraceMessage || filters.TraceCategories.Count == 0 ||
+                           filters.TraceCategories.Contains(logMessage.TraceCategory))
                         {
                             if (remoteLoggers == null)
                             {
                                 remoteLoggers = new List<IRemoteLoggerPrx>();
                             }
-                            remoteLoggers.Add(p.remoteLogger);
+                            remoteLoggers.Add(p.RemoteLogger);
                         }
                     }
                 }
@@ -289,28 +289,25 @@ namespace IceInternal
             }
         }
 
-        internal void deadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, LocalException ex,
+        internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, LocalException ex,
                                        string operation)
         {
             //
             // No need to convert remoteLogger as we only use its identity
             //
-            if (removeRemoteLogger(remoteLogger))
+            if (RemoveRemoteLogger(remoteLogger))
             {
                 if (_traceLevel > 0)
                 {
-                    logger.trace(_traceCategory, "detached `" + remoteLogger.ToString() + "' because "
+                    logger.Trace(TraceCategory, "detached `" + remoteLogger.ToString() + "' because "
                                  + operation + " raised:\n" + ex.ToString());
                 }
             }
         }
 
-        internal int getTraceLevel()
-        {
-            return _traceLevel;
-        }
+        internal int GetTraceLevel() => _traceLevel;
 
-        private bool removeRemoteLogger(IRemoteLoggerPrx remoteLogger)
+        private bool RemoveRemoteLogger(IRemoteLoggerPrx remoteLogger)
         {
             lock (this)
             {
@@ -318,7 +315,7 @@ namespace IceInternal
             }
         }
 
-        private static void filterLogMessages(LinkedList<LogMessage> logMessages,
+        private static void FilterLogMessages(LinkedList<LogMessage> logMessages,
                                               HashSet<LogMessageType> messageTypes,
                                               HashSet<string> traceCategories, int messageMax)
         {
@@ -331,7 +328,7 @@ namespace IceInternal
             if (messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
             {
                 int count = 0;
-                var p = logMessages.Last;
+                LinkedListNode<LogMessage> p = logMessages.Last;
                 while (p != null)
                 {
                     bool keepIt = false;
@@ -354,7 +351,7 @@ namespace IceInternal
                             p = p.Previous;
                             while (p != null)
                             {
-                                var previous = p.Previous;
+                                LinkedListNode<LogMessage> previous = p.Previous;
                                 logMessages.Remove(p);
                                 p = previous;
                             }
@@ -367,7 +364,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        var previous = p.Previous;
+                        LinkedListNode<LogMessage> previous = p.Previous;
                         logMessages.Remove(p);
                         p = previous;
                     }
@@ -379,14 +376,12 @@ namespace IceInternal
         //
         // Change this proxy's communicator, while keeping its invocation timeout
         //
-        private static IRemoteLoggerPrx changeCommunicator(IRemoteLoggerPrx prx, Communicator communicator)
-        {
-            return IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
-        }
+        private static IRemoteLoggerPrx ChangeCommunicator(IRemoteLoggerPrx prx, Communicator communicator) =>
+            IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
 
-        private static Communicator createSendLogCommunicator(Communicator communicator, ILogger logger)
+        private static Communicator CreateSendLogCommunicator(Communicator communicator, ILogger logger)
         {
-            Dictionary<string, string> properties = communicator.GetProperties().Where(
+            var properties = communicator.GetProperties().Where(
                 p => p.Key == "Ice.Default.Locator" || p.Key == "Ice.Plugin.IceSSL" || p.Key.StartsWith("IceSSL.")
             ).ToDictionary(p => p.Key, p => p.Value);
 
@@ -409,24 +404,24 @@ namespace IceInternal
         {
             internal Filters(LogMessageType[] m, string[] c)
             {
-                messageTypes = new HashSet<LogMessageType>(m);
-                traceCategories = new HashSet<string>(c);
+                MessageTypes = new HashSet<LogMessageType>(m);
+                TraceCategories = new HashSet<string>(c);
             }
 
-            internal readonly HashSet<LogMessageType> messageTypes;
-            internal readonly HashSet<string> traceCategories;
+            internal readonly HashSet<LogMessageType> MessageTypes;
+            internal readonly HashSet<string> TraceCategories;
         }
 
         private class RemoteLoggerData
         {
             internal RemoteLoggerData(IRemoteLoggerPrx prx, Filters f)
             {
-                remoteLogger = prx;
-                filters = f;
+                RemoteLogger = prx;
+                Filters = f;
             }
 
-            internal readonly IRemoteLoggerPrx remoteLogger;
-            internal readonly Filters filters;
+            internal readonly IRemoteLoggerPrx RemoteLogger;
+            internal readonly Filters Filters;
         }
 
         private readonly Dictionary<Identity, RemoteLoggerData> _remoteLoggerMap
@@ -436,7 +431,7 @@ namespace IceInternal
 
         private Communicator? _sendLogCommunicator = null;
         private bool _destroyed = false;
-        private const string _traceCategory = "Admin.Logger";
+        private const string TraceCategory = "Admin.Logger";
     }
 
 }

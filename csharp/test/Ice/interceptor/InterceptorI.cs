@@ -28,7 +28,7 @@ namespace Ice.interceptor
         {
             try
             {
-                incoming.startOver();
+                incoming.StartOver();
                 string context;
                 if (current.Context.TryGetValue("raiseBeforeDispatch", out context))
                 {
@@ -114,7 +114,7 @@ namespace Ice.interceptor
                 //
                 if (current.Encoding == null || (current.Encoding.major == 0 && current.Encoding.minor == 0))
                 {
-                    incoming.skipReadParams();
+                    incoming.SkipReadParams();
                 }
                 throw;
             }

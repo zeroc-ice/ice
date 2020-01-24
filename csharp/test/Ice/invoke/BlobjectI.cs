@@ -9,7 +9,7 @@ namespace Ice.invoke
     public class BlobjectI : Blobject
     {
         public override bool
-        ice_invoke(byte[] inParams, out byte[]? outParams, Current current)
+        IceInvoke(byte[] inParams, out byte[]? outParams, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
             InputStream inS = new InputStream(communicator, inParams);
@@ -66,9 +66,9 @@ namespace Ice.invoke
             else
             {
                 OperationNotExistException ex = new OperationNotExistException();
-                ex.id = current.Id;
-                ex.facet = current.Facet;
-                ex.operation = current.Operation;
+                ex.Id = current.Id;
+                ex.Facet = current.Facet;
+                ex.Operation = current.Operation;
                 throw ex;
             }
         }
@@ -77,7 +77,7 @@ namespace Ice.invoke
     public class BlobjectAsyncI : BlobjectAsync
     {
         public override Task<Object_Ice_invokeResult>
-        ice_invokeAsync(byte[] inParams, Current current)
+        IceInvokeAsync(byte[] inParams, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
             InputStream inS = new InputStream(communicator, inParams);
@@ -125,9 +125,9 @@ namespace Ice.invoke
             else
             {
                 OperationNotExistException ex = new OperationNotExistException();
-                ex.id = current.Id;
-                ex.facet = current.Facet;
-                ex.operation = current.Operation;
+                ex.Id = current.Id;
+                ex.Facet = current.Facet;
+                ex.Operation = current.Operation;
                 throw ex;
             }
         }

@@ -7,19 +7,19 @@ using System.Security;
 
 public class PasswordCallback : IceSSL.IPasswordCallback
 {
-    public PasswordCallback() => _password = createSecureString("password");
+    public PasswordCallback() => _password = CreateSecureString("password");
 
-    public PasswordCallback(string password) => _password = createSecureString(password);
+    public PasswordCallback(string password) => _password = CreateSecureString(password);
 
-    public SecureString getPassword(string file) => _password;
+    public SecureString GetPassword(string file) => _password;
 
-    public SecureString getImportPassword(string file)
+    public SecureString GetImportPassword(string file)
     {
         Debug.Assert(false);
         return null;
     }
 
-    private static SecureString createSecureString(string s)
+    private static SecureString CreateSecureString(string s)
     {
         SecureString result = new SecureString();
         foreach (char ch in s)

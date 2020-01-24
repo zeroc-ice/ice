@@ -25,14 +25,14 @@ namespace IceSSL
             _trustManager = new TrustManager(_communicator);
         }
 
-        internal void initialize()
+        internal void Initialize()
         {
             if (_initialized)
             {
                 return;
             }
 
-            var ic = communicator();
+            Ice.Communicator ic = Communicator();
             //
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
@@ -51,7 +51,7 @@ namespace IceSSL
             }
             else
             {
-                _logger.warning($"Invalid IceSSL.CertStoreLocation value `{certStoreLocation}' adjusted to `CurrentUser'");
+                _logger.Warning($"Invalid IceSSL.CertStoreLocation value `{certStoreLocation}' adjusted to `CurrentUser'");
                 storeLocation = StoreLocation.CurrentUser;
             }
             _useMachineContext = certStoreLocation == "LocalMachine";
@@ -63,7 +63,7 @@ namespace IceSSL
             string[]? protocols = ic.GetPropertyAsList("IceSSL.Protocols");
             if (protocols != null)
             {
-                _protocols = parseProtocols(protocols);
+                _protocols = ParseProtocols(protocols);
             }
             else
             {
@@ -114,7 +114,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -149,7 +149,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
+                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -184,7 +184,7 @@ namespace IceSSL
 
                 if (certFile != null)
                 {
-                    if (!checkPath(ref certFile))
+                    if (!CheckPath(ref certFile))
                     {
                         throw new FileNotFoundException("IceSSL: certificate file not found: `{certFile}'", certFile);
                     }
@@ -192,11 +192,11 @@ namespace IceSSL
                     SecureString? password = null;
                     if (passwordStr != null)
                     {
-                        password = createSecureString(passwordStr);
+                        password = CreateSecureString(passwordStr);
                     }
                     else if (_passwordCallback != null)
                     {
-                        password = _passwordCallback.getPassword(certFile);
+                        password = _passwordCallback.GetPassword(certFile);
                     }
 
                     try
@@ -231,7 +231,7 @@ namespace IceSSL
                 else if (findCert != null)
                 {
                     string certStore = ic.GetProperty("IceSSL.CertStore") ?? "My";
-                    _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
+                    _certs.AddRange(FindCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
                     if (_certs.Count == 0)
                     {
                         throw new InvalidOperationException("IceSSL: no certificates found");
@@ -253,12 +253,12 @@ namespace IceSSL
                             StoreLocation storeLoc = 0;
                             StoreName storeName = 0;
                             string? sname = null;
-                            parseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
+                            ParseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
                             if (sname == null)
                             {
                                 sname = storeName.ToString();
                             }
-                            X509Certificate2Collection coll = findCertificates(name, storeLoc, sname, val);
+                            X509Certificate2Collection coll = FindCertificates(name, storeLoc, sname, val);
                             _certs.AddRange(coll);
                         }
                     }
@@ -284,7 +284,7 @@ namespace IceSSL
 
                 if (certAuthFile != null)
                 {
-                    if (!checkPath(ref certAuthFile))
+                    if (!CheckPath(ref certAuthFile))
                     {
                         throw new FileNotFoundException("IceSSL: CA certificate file not found: `{certAuthFile}'",
                             certAuthFile);
@@ -292,54 +292,52 @@ namespace IceSSL
 
                     try
                     {
-                        using (FileStream fs = File.OpenRead(certAuthFile))
+                        using FileStream fs = File.OpenRead(certAuthFile);
+                        byte[] data = new byte[fs.Length];
+                        fs.Read(data, 0, data.Length);
+
+                        string strbuf = "";
+                        try
                         {
-                            byte[] data = new byte[fs.Length];
-                            fs.Read(data, 0, data.Length);
+                            strbuf = System.Text.Encoding.UTF8.GetString(data);
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore
+                        }
 
-                            string strbuf = "";
-                            try
+                        if (strbuf.Length == data.Length)
+                        {
+                            int size, startpos, endpos = 0;
+                            bool first = true;
+                            while (true)
                             {
-                                strbuf = System.Text.Encoding.UTF8.GetString(data);
-                            }
-                            catch (Exception)
-                            {
-                                // Ignore
-                            }
-
-                            if (strbuf.Length == data.Length)
-                            {
-                                int size, startpos, endpos = 0;
-                                bool first = true;
-                                while (true)
+                                startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
+                                if (startpos != -1)
                                 {
-                                    startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                                    if (startpos != -1)
-                                    {
-                                        endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
-                                        size = endpos - startpos + "-----END CERTIFICATE-----".Length;
-                                    }
-                                    else if (first)
-                                    {
-                                        startpos = 0;
-                                        endpos = strbuf.Length;
-                                        size = strbuf.Length;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-
-                                    byte[] cert = new byte[size];
-                                    Buffer.BlockCopy(data, startpos, cert, 0, size);
-                                    _caCerts!.Import(cert);
-                                    first = false;
+                                    endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
+                                    size = endpos - startpos + "-----END CERTIFICATE-----".Length;
                                 }
+                                else if (first)
+                                {
+                                    startpos = 0;
+                                    endpos = strbuf.Length;
+                                    size = strbuf.Length;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+
+                                byte[] cert = new byte[size];
+                                Buffer.BlockCopy(data, startpos, cert, 0, size);
+                                _caCerts!.Import(cert);
+                                first = false;
                             }
-                            else
-                            {
-                                _caCerts!.Import(data);
-                            }
+                        }
+                        else
+                        {
+                            _caCerts!.Import(data);
                         }
                     }
                     catch (Exception ex)
@@ -352,17 +350,11 @@ namespace IceSSL
             _initialized = true;
         }
 
-        internal bool useMachineContext()
-        {
-            return _useMachineContext;
-        }
+        internal bool UseMachineContext() => _useMachineContext;
 
-        internal X509Certificate2Collection? caCerts()
-        {
-            return _caCerts;
-        }
+        internal X509Certificate2Collection? CaCerts() => _caCerts;
 
-        internal void setCACertificates(X509Certificate2Collection caCerts)
+        internal void SetCACertificates(X509Certificate2Collection caCerts)
         {
             if (_initialized)
             {
@@ -372,7 +364,7 @@ namespace IceSSL
             _caCerts = caCerts;
         }
 
-        internal void setCertificates(X509Certificate2Collection certs)
+        internal void SetCertificates(X509Certificate2Collection certs)
         {
             if (_initialized)
             {
@@ -382,69 +374,33 @@ namespace IceSSL
             _certs = certs;
         }
 
-        internal void setCertificateVerifier(ICertificateVerifier verifier)
-        {
-            _verifier = verifier;
-        }
+        internal void SetCertificateVerifier(ICertificateVerifier verifier) => _verifier = verifier;
 
-        internal ICertificateVerifier? getCertificateVerifier()
-        {
-            return _verifier;
-        }
+        internal ICertificateVerifier? GetCertificateVerifier() => _verifier;
 
-        internal bool getCheckCertName()
-        {
-            return _checkCertName;
-        }
+        internal bool GetCheckCertName() => _checkCertName;
 
-        internal void setPasswordCallback(IPasswordCallback callback)
-        {
-            _passwordCallback = callback;
-        }
+        internal void SetPasswordCallback(IPasswordCallback callback) => _passwordCallback = callback;
 
-        internal IPasswordCallback? getPasswordCallback()
-        {
-            return _passwordCallback;
-        }
+        internal IPasswordCallback? GetPasswordCallback() => _passwordCallback;
 
-        internal Ice.Communicator communicator()
-        {
-            return _facade.Communicator;
-        }
+        internal Ice.Communicator Communicator() => _facade.Communicator;
 
-        internal int securityTraceLevel()
-        {
-            return _securityTraceLevel;
-        }
+        internal int SecurityTraceLevel() => _securityTraceLevel;
 
-        internal string securityTraceCategory()
-        {
-            return _securityTraceCategory;
-        }
+        internal string SecurityTraceCategory() => _securityTraceCategory;
 
-        internal bool initialized()
-        {
-            return _initialized;
-        }
+        internal bool Initialized() => _initialized;
 
-        internal X509Certificate2Collection? certs()
-        {
-            return _certs;
-        }
+        internal X509Certificate2Collection? Certs() => _certs;
 
-        internal SslProtocols protocols()
-        {
-            return _protocols;
-        }
+        internal SslProtocols Protocols() => _protocols;
 
-        internal int checkCRL()
-        {
-            return _checkCRL;
-        }
+        internal int CheckCRL() => _checkCRL;
 
-        internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
+        internal void TraceStream(System.Net.Security.SslStream stream, string connInfo)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("SSL connection summary");
             if (connInfo.Length > 0)
             {
@@ -459,10 +415,10 @@ namespace IceSSL
             s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
             s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
             s.Append("\nprotocol = " + stream.SslProtocol);
-            _logger.trace(_securityTraceCategory, s.ToString());
+            _logger.Trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(string? address, ConnectionInfo info, string desc)
+        internal void VerifyPeer(ConnectionInfo info, string desc)
         {
             if (_verifyDepthMax > 0 && info.Certs != null && info.Certs.Length > _verifyDepthMax)
             {
@@ -471,46 +427,41 @@ namespace IceSSL
                     _verifyDepthMax + "\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {
-                    _logger.trace(_securityTraceCategory, msg);
+                    _logger.Trace(_securityTraceCategory, msg);
                 }
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = msg;
-                throw ex;
+                throw new Ice.SecurityException(msg);
             }
 
-            if (!_trustManager.verify(info, desc))
+            if (!_trustManager.Verify(info, desc))
             {
                 string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
                 if (_securityTraceLevel >= 1)
                 {
-                    _logger.trace(_securityTraceCategory, msg);
+                    _logger.Trace(_securityTraceCategory, msg);
                 }
 
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = "IceSSL: " + msg;
-                throw ex;
+                throw new Ice.SecurityException($"IceSSL: {msg}");
+
             }
 
-            if (_verifier != null && !_verifier.verify(info))
+            if (_verifier != null && !_verifier.Verify(info))
             {
                 string msg = (info.Incoming ? "incoming" : "outgoing") +
                     " connection rejected by certificate verifier\n" + desc;
                 if (_securityTraceLevel >= 1)
                 {
-                    _logger.trace(_securityTraceCategory, msg);
+                    _logger.Trace(_securityTraceCategory, msg);
                 }
 
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = "IceSSL: " + msg;
-                throw ex;
+                throw new Ice.SecurityException($"IceSSL: {msg}");
             }
         }
 
         //
         // Parse a string of the form "location.name" into two parts.
         //
-        private static void parseStore(string prop, string store, ref StoreLocation loc, ref StoreName name,
+        private static void ParseStore(string prop, string store, ref StoreLocation loc, ref StoreName name,
                                        ref string? sname)
         {
             int pos = store.IndexOf('.');
@@ -553,14 +504,14 @@ namespace IceSSL
             }
         }
 
-        private static bool isAbsolutePath(string path)
+        private static bool IsAbsolutePath(string path)
         {
             //
             // Skip whitespace
             //
             path = path.Trim();
 
-            if (IceInternal.AssemblyUtil.isWindows)
+            if (IceInternal.AssemblyUtil.IsWindows)
             {
                 //
                 // We need at least 3 non-whitespace characters to have an absolute path
@@ -585,14 +536,14 @@ namespace IceSSL
             return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
-        private bool checkPath(ref string path)
+        private bool CheckPath(ref string path)
         {
             if (File.Exists(path))
             {
                 return true;
             }
 
-            if (_defaultDir.Length > 0 && !isAbsolutePath(path))
+            if (_defaultDir.Length > 0 && !IsAbsolutePath(path))
             {
                 string s = _defaultDir + Path.DirectorySeparatorChar + path;
                 if (File.Exists(s))
@@ -605,7 +556,7 @@ namespace IceSSL
             return false;
         }
 
-        private SslProtocols parseProtocols(string[] arr)
+        private SslProtocols ParseProtocols(string[] arr)
         {
             SslProtocols result = SslProtocols.None;
 
@@ -659,7 +610,7 @@ namespace IceSSL
 
                     try
                     {
-                        SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
+                        var value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
                         result |= value;
                     }
                     catch (Exception ex)
@@ -671,7 +622,7 @@ namespace IceSSL
             return result;
         }
 
-        private static X509Certificate2Collection findCertificates(string prop, StoreLocation storeLocation,
+        private static X509Certificate2Collection FindCertificates(string prop, StoreLocation storeLocation,
                                                                    string name, string value)
         {
             //
@@ -711,7 +662,7 @@ namespace IceSSL
             //
             //   A value must be enclosed in single or double quotes if it contains whitespace.
             //
-            X509Certificate2Collection result = new X509Certificate2Collection();
+            var result = new X509Certificate2Collection();
             result.AddRange(store.Certificates);
             try
             {
@@ -728,7 +679,7 @@ namespace IceSSL
                         //
                         // Parse the X509FindType.
                         //
-                        string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
+                        string field = value[start..pos].Trim().ToUpperInvariant();
                         X509FindType findType;
                         if (field.Equals("SUBJECT"))
                         {
@@ -794,7 +745,7 @@ namespace IceSSL
                                 throw new FormatException("IceSSL: unmatched quote in `{value}'");
                             }
                             ++start;
-                            arg = value.Substring(start, end - start);
+                            arg = value[start..end];
                             start = end + 1;
                         }
                         else
@@ -808,7 +759,7 @@ namespace IceSSL
                             }
                             else
                             {
-                                arg = value.Substring(start, end - start);
+                                arg = value[start..end];
                                 start = end + 1;
                             }
                         }
@@ -826,7 +777,7 @@ namespace IceSSL
                                 X500DistinguishedNameFlags.None,
                                 X500DistinguishedNameFlags.Reversed,
                             };
-                            X500DistinguishedName dn = new X500DistinguishedName(arg);
+                            var dn = new X500DistinguishedName(arg);
                             X509Certificate2Collection r = result;
                             for (int i = 0; i < flags.Length; ++i)
                             {
@@ -853,49 +804,14 @@ namespace IceSSL
             return result;
         }
 
-        private static SecureString createSecureString(string s)
+        private static SecureString CreateSecureString(string s)
         {
-            SecureString result = new SecureString();
+            var result = new SecureString();
             foreach (char ch in s)
             {
                 result.AppendChar(ch);
             }
             return result;
-        }
-
-        private static bool decodeASN1Length(byte[] data, int start, out int len, out int next)
-        {
-            len = 0;
-            next = 0;
-
-            if (start + 1 > data.Length)
-            {
-                return false;
-            }
-
-            len = data[start];
-            int len2 = 0;
-            if (len > 0x80) // Composed length
-            {
-                len2 = len - 0x80;
-                if (start + len2 + 1 > data.Length)
-                {
-                    return false;
-                }
-                len = 0;
-                for (int i = 0; i < len2; i++)
-                {
-                    len *= 256;
-                    len += data[start + i + 1];
-                }
-            }
-            else if (len == 0x80) // Undefined length encoding
-            {
-                return false;
-            }
-
-            next = start + len2 + 1;
-            return (next + len <= data.Length);
         }
 
         private readonly Ice.Communicator _communicator;

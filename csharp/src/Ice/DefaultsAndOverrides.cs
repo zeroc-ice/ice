@@ -14,15 +14,15 @@ namespace IceInternal
         {
             string? val;
 
-            defaultProtocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            DefaultProtocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
 
-            defaultHost = communicator.GetProperty("Ice.Default.Host");
+            DefaultHost = communicator.GetProperty("Ice.Default.Host");
 
             val = communicator.GetProperty("Ice.Default.SourceAddress");
             if (val != null)
             {
-                defaultSourceAddress = Network.getNumericAddress(val);
-                if (defaultSourceAddress == null)
+                DefaultSourceAddress = Network.GetNumericAddress(val);
+                if (DefaultSourceAddress == null)
                 {
                     throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
                                                           val + "'");
@@ -30,177 +30,177 @@ namespace IceInternal
             }
             else
             {
-                defaultSourceAddress = null;
+                DefaultSourceAddress = null;
             }
 
             val = communicator.GetProperty("Ice.Override.Timeout");
             if (val != null)
             {
-                overrideTimeout = true;
-                overrideTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.Timeout") ?? 0;
-                if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
+                OverrideTimeout = true;
+                OverrideTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.Timeout") ?? 0;
+                if (OverrideTimeoutValue < 1 && OverrideTimeoutValue != -1)
                 {
-                    overrideTimeoutValue = -1;
-                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
+                    OverrideTimeoutValue = -1;
+                    var msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.Timeout"));
                     msg.Append("': defaulting to -1");
-                    logger.warning(msg.ToString());
+                    logger.Warning(msg.ToString());
                 }
             }
             else
             {
-                overrideTimeout = false;
-                overrideTimeoutValue = -1;
+                OverrideTimeout = false;
+                OverrideTimeoutValue = -1;
             }
 
             val = communicator.GetProperty("Ice.Override.ConnectTimeout");
             if (val != null)
             {
-                overrideConnectTimeout = true;
-                overrideConnectTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.ConnectTimeout") ?? -1;
-                if (overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
+                OverrideConnectTimeout = true;
+                OverrideConnectTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.ConnectTimeout") ?? -1;
+                if (OverrideConnectTimeoutValue < 1 && OverrideConnectTimeoutValue != -1)
                 {
-                    overrideConnectTimeoutValue = -1;
-                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
+                    OverrideConnectTimeoutValue = -1;
+                    var msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.ConnectTimeout"));
                     msg.Append("': defaulting to -1");
-                    logger.warning(msg.ToString());
+                    logger.Warning(msg.ToString());
                 }
             }
             else
             {
-                overrideConnectTimeout = false;
-                overrideConnectTimeoutValue = -1;
+                OverrideConnectTimeout = false;
+                OverrideConnectTimeoutValue = -1;
             }
 
             val = communicator.GetProperty("Ice.Override.CloseTimeout");
             if (val != null)
             {
-                overrideCloseTimeout = true;
-                overrideCloseTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.CloseTimeout") ?? -1;
-                if (overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
+                OverrideCloseTimeout = true;
+                OverrideCloseTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.CloseTimeout") ?? -1;
+                if (OverrideCloseTimeoutValue < 1 && OverrideCloseTimeoutValue != -1)
                 {
-                    overrideCloseTimeoutValue = -1;
-                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
+                    OverrideCloseTimeoutValue = -1;
+                    var msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.CloseTimeout"));
                     msg.Append("': defaulting to -1");
-                    logger.warning(msg.ToString());
+                    logger.Warning(msg.ToString());
                 }
             }
             else
             {
-                overrideCloseTimeout = false;
-                overrideCloseTimeoutValue = -1;
+                OverrideCloseTimeout = false;
+                OverrideCloseTimeoutValue = -1;
             }
 
             val = communicator.GetProperty("Ice.Override.Compress");
             if (val != null)
             {
-                overrideCompress = true;
-                overrideCompressValue = communicator.GetPropertyAsInt("Ice.Override.Compress") > 0;
-                if (!BZip2.supported() && overrideCompressValue)
+                OverrideCompress = true;
+                OverrideCompressValue = communicator.GetPropertyAsInt("Ice.Override.Compress") > 0;
+                if (!BZip2.Supported() && OverrideCompressValue)
                 {
-                    string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
+                    string lib = AssemblyUtil.IsWindows ? "bzip2.dll" : "libbz2.so.1";
                     Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
-                    overrideCompressValue = false;
+                    OverrideCompressValue = false;
                 }
             }
             else
             {
-                overrideCompress = !BZip2.supported();
-                overrideCompressValue = false;
+                OverrideCompress = !BZip2.Supported();
+                OverrideCompressValue = false;
             }
 
             val = communicator.GetProperty("Ice.Override.Secure");
             if (val != null)
             {
-                overrideSecure = true;
-                overrideSecureValue = communicator.GetPropertyAsInt("Ice.Override.Secure") > 0;
+                OverrideSecure = true;
+                OverrideSecureValue = communicator.GetPropertyAsInt("Ice.Override.Secure") > 0;
             }
             else
             {
-                overrideSecure = false;
-                overrideSecureValue = false;
+                OverrideSecure = false;
+                OverrideSecureValue = false;
             }
 
-            defaultCollocationOptimization = (communicator.GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
+            DefaultCollocationOptimization = (communicator.GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
             val = communicator.GetProperty("Ice.Default.EndpointSelection") ?? "Random";
             if (val.Equals("Random"))
             {
-                defaultEndpointSelection = Ice.EndpointSelectionType.Random;
+                DefaultEndpointSelection = Ice.EndpointSelectionType.Random;
             }
             else if (val.Equals("Ordered"))
             {
-                defaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
+                DefaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
             }
             else
             {
                 throw new ArgumentException($"illegal value `{val}'; expected `Random' or `Ordered'");
             }
 
-            defaultTimeout = communicator.GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
-            if (defaultTimeout < 1 && defaultTimeout != -1)
+            DefaultTimeout = communicator.GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
+            if (DefaultTimeout < 1 && DefaultTimeout != -1)
             {
-                defaultTimeout = 60000;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
+                DefaultTimeout = 60000;
+                var msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.Timeout"));
                 msg.Append("': defaulting to 60000");
-                logger.warning(msg.ToString());
+                logger.Warning(msg.ToString());
             }
 
-            defaultLocatorCacheTimeout = communicator.GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
-            if (defaultLocatorCacheTimeout < -1)
+            DefaultLocatorCacheTimeout = communicator.GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
+            if (DefaultLocatorCacheTimeout < -1)
             {
-                defaultLocatorCacheTimeout = -1;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
+                DefaultLocatorCacheTimeout = -1;
+                var msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.LocatorCacheTimeout"));
                 msg.Append("': defaulting to -1");
-                logger.warning(msg.ToString());
+                logger.Warning(msg.ToString());
             }
 
-            defaultInvocationTimeout = communicator.GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
-            if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
+            DefaultInvocationTimeout = communicator.GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
+            if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1 && DefaultInvocationTimeout != -2)
             {
-                defaultInvocationTimeout = -1;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
+                DefaultInvocationTimeout = -1;
+                var msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.InvocationTimeout"));
                 msg.Append("': defaulting to -1");
-                logger.warning(msg.ToString());
+                logger.Warning(msg.ToString());
             }
 
-            defaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
+            DefaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-            val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.encodingVersionToString(Ice.Util.currentEncoding);
-            defaultEncoding = Ice.Util.stringToEncodingVersion(val);
-            Protocol.checkSupportedEncoding(defaultEncoding);
+            val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.EncodingVersionToString(Ice.Util.CurrentEncoding);
+            DefaultEncoding = Ice.Util.StringToEncodingVersion(val);
+            Protocol.checkSupportedEncoding(DefaultEncoding);
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
-            defaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
+            DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
         }
 
-        public string? defaultHost;
-        public EndPoint? defaultSourceAddress;
-        public string defaultProtocol;
-        public bool defaultCollocationOptimization;
-        public Ice.EndpointSelectionType defaultEndpointSelection;
-        public int defaultTimeout;
-        public int defaultLocatorCacheTimeout;
-        public int defaultInvocationTimeout;
-        public bool defaultPreferSecure;
-        public Ice.EncodingVersion defaultEncoding;
-        public Ice.FormatType defaultFormat;
+        public string? DefaultHost;
+        public EndPoint? DefaultSourceAddress;
+        public string DefaultProtocol;
+        public bool DefaultCollocationOptimization;
+        public Ice.EndpointSelectionType DefaultEndpointSelection;
+        public int DefaultTimeout;
+        public int DefaultLocatorCacheTimeout;
+        public int DefaultInvocationTimeout;
+        public bool DefaultPreferSecure;
+        public Ice.EncodingVersion DefaultEncoding;
+        public Ice.FormatType DefaultFormat;
 
-        public bool overrideTimeout;
-        public int overrideTimeoutValue;
-        public bool overrideConnectTimeout;
-        public int overrideConnectTimeoutValue;
-        public bool overrideCloseTimeout;
-        public int overrideCloseTimeoutValue;
-        public bool overrideCompress;
-        public bool overrideCompressValue;
-        public bool overrideSecure;
-        public bool overrideSecureValue;
+        public bool OverrideTimeout;
+        public int OverrideTimeoutValue;
+        public bool OverrideConnectTimeout;
+        public int OverrideConnectTimeoutValue;
+        public bool OverrideCloseTimeout;
+        public int OverrideCloseTimeoutValue;
+        public bool OverrideCompress;
+        public bool OverrideCompressValue;
+        public bool OverrideSecure;
+        public bool OverrideSecureValue;
     }
 
 }

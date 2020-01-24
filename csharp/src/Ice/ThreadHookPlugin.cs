@@ -30,7 +30,7 @@ namespace Ice
         /// by the thread notification hook.
         /// </summary>
         public void
-        initialize()
+        Initialize()
         {
         }
 
@@ -40,7 +40,7 @@ namespace Ice
         /// by thread notification hook.
         /// </summary>
         public void
-        destroy()
+        Destroy()
         {
         }
     }

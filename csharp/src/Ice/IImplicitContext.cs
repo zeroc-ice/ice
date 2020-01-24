@@ -12,13 +12,13 @@ namespace Ice
         /// Get a copy of the underlying context.
         /// </summary>
         /// <returns>A copy of the underlying context.</returns>
-        Dictionary<string, string> getContext();
+        Dictionary<string, string> GetContext();
 
         /// <summary>
         /// Set the underlying context.
         /// </summary>
         /// <param name="newContext">The new context.</param>
-        void setContext(Dictionary<string, string> newContext);
+        void SetContext(Dictionary<string, string> newContext);
 
         /// <summary>
         /// Check if this key has an associated value in the underlying context.
@@ -27,7 +27,7 @@ namespace Ice
         ///
         /// </param>
         /// <returns>True if the key has an associated value, False otherwise.</returns>
-        bool containsKey(string key);
+        bool ContainsKey(string key);
 
         /// <summary>
         /// Get the value associated with the given key in the underlying context.
@@ -40,7 +40,7 @@ namespace Ice
         ///
         /// </param>
         /// <returns>The value associated with the key.</returns>
-        string get(string key);
+        string Get(string key);
 
         /// <summary>
         /// Create or update a key/value entry in the underlying context.
@@ -52,7 +52,7 @@ namespace Ice
         ///
         /// </param>
         /// <returns>The previous value associated with the key, if any.</returns>
-        string put(string key, string value);
+        string Put(string key, string value);
 
         /// <summary>
         /// Remove the entry for the given key in the underlying context.
@@ -61,6 +61,6 @@ namespace Ice
         ///
         /// </param>
         /// <returns>The value associated with the key, if any.</returns>
-        string remove(string key);
+        string Remove(string key);
     }
 }

@@ -10,7 +10,7 @@ namespace Ice.info
     {
         private static TCPEndpointInfo getTCPEndpointInfo(EndpointInfo info)
         {
-            for (; info != null; info = info.underlying)
+            for (; info != null; info = info.Underlying)
             {
                 if (info is TCPEndpointInfo)
                 {
@@ -46,39 +46,39 @@ namespace Ice.info
 
                 IEndpoint[] endps = p1.Endpoints;
 
-                EndpointInfo info = endps[0].getInfo();
+                EndpointInfo info = endps[0].GetInfo();
                 TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(info);
-                test(tcpEndpoint.host.Equals("tcphost"));
-                test(tcpEndpoint.port == 10000);
-                test(tcpEndpoint.sourceAddress.Equals("10.10.10.10"));
-                test(tcpEndpoint.timeout == 1200);
-                test(tcpEndpoint.compress);
-                test(!tcpEndpoint.datagram());
+                test(tcpEndpoint.Host.Equals("tcphost"));
+                test(tcpEndpoint.Port == 10000);
+                test(tcpEndpoint.SourceAddress.Equals("10.10.10.10"));
+                test(tcpEndpoint.Timeout == 1200);
+                test(tcpEndpoint.Compress);
+                test(!tcpEndpoint.Datagram());
 
-                test(tcpEndpoint.type() == TCPEndpointType.value && !tcpEndpoint.secure() ||
-                        tcpEndpoint.type() == SSLEndpointType.value && tcpEndpoint.secure() ||
-                        tcpEndpoint.type() == WSEndpointType.value && !tcpEndpoint.secure() ||
-                        tcpEndpoint.type() == WSSEndpointType.value && tcpEndpoint.secure());
-                test(tcpEndpoint.type() == TCPEndpointType.value && info is TCPEndpointInfo ||
-                        tcpEndpoint.type() == SSLEndpointType.value && info is IceSSL.EndpointInfo ||
-                        tcpEndpoint.type() == WSEndpointType.value && info is WSEndpointInfo ||
-                        tcpEndpoint.type() == WSSEndpointType.value && info is WSEndpointInfo);
+                test(tcpEndpoint.Type() == TCPEndpointType.Value && !tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == SSLEndpointType.Value && tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == WSEndpointType.Value && !tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == WSSEndpointType.Value && tcpEndpoint.Secure());
+                test(tcpEndpoint.Type() == TCPEndpointType.Value && info is TCPEndpointInfo ||
+                        tcpEndpoint.Type() == SSLEndpointType.Value && info is IceSSL.EndpointInfo ||
+                        tcpEndpoint.Type() == WSEndpointType.Value && info is WSEndpointInfo ||
+                        tcpEndpoint.Type() == WSSEndpointType.Value && info is WSEndpointInfo);
 
-                UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endps[1].getInfo();
-                test(udpEndpoint.host.Equals("udphost"));
-                test(udpEndpoint.port == 10001);
-                test(udpEndpoint.mcastInterface.Equals("eth0"));
-                test(udpEndpoint.mcastTtl == 5);
-                test(udpEndpoint.sourceAddress.Equals("10.10.10.10"));
-                test(udpEndpoint.timeout == -1);
-                test(!udpEndpoint.compress);
-                test(!udpEndpoint.secure());
-                test(udpEndpoint.datagram());
-                test(udpEndpoint.type() == 3);
+                UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endps[1].GetInfo();
+                test(udpEndpoint.Host.Equals("udphost"));
+                test(udpEndpoint.Port == 10001);
+                test(udpEndpoint.McastInterface.Equals("eth0"));
+                test(udpEndpoint.McastTtl == 5);
+                test(udpEndpoint.SourceAddress.Equals("10.10.10.10"));
+                test(udpEndpoint.Timeout == -1);
+                test(!udpEndpoint.Compress);
+                test(!udpEndpoint.Secure());
+                test(udpEndpoint.Datagram());
+                test(udpEndpoint.Type() == 3);
 
-                OpaqueEndpointInfo opaqueEndpoint = (OpaqueEndpointInfo)endps[2].getInfo();
-                test(opaqueEndpoint.rawBytes.Length > 0);
-                test(opaqueEndpoint.rawEncoding.Equals(new EncodingVersion(1, 8)));
+                OpaqueEndpointInfo opaqueEndpoint = (OpaqueEndpointInfo)endps[2].GetInfo();
+                test(opaqueEndpoint.RawBytes.Length > 0);
+                test(opaqueEndpoint.RawEncoding.Equals(new EncodingVersion(1, 8)));
             }
             output.WriteLine("ok");
 
@@ -97,20 +97,20 @@ namespace Ice.info
                 IEndpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
                 test(Collections.Equals(endpoints, publishedEndpoints));
 
-                TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
-                test(tcpEndpoint.type() == TCPEndpointType.value ||
-                        tcpEndpoint.type() == SSLEndpointType.value ||
-                        tcpEndpoint.type() == WSEndpointType.value ||
-                        tcpEndpoint.type() == WSSEndpointType.value);
+                TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].GetInfo());
+                test(tcpEndpoint.Type() == TCPEndpointType.Value ||
+                        tcpEndpoint.Type() == SSLEndpointType.Value ||
+                        tcpEndpoint.Type() == WSEndpointType.Value ||
+                        tcpEndpoint.Type() == WSSEndpointType.Value);
 
-                test(tcpEndpoint.host.Equals(host));
-                test(tcpEndpoint.port > 0);
-                test(tcpEndpoint.timeout == 15000);
+                test(tcpEndpoint.Host.Equals(host));
+                test(tcpEndpoint.Port > 0);
+                test(tcpEndpoint.Timeout == 15000);
 
-                UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endpoints[1].getInfo();
-                test(udpEndpoint.host.Equals(host));
-                test(udpEndpoint.datagram());
-                test(udpEndpoint.port > 0);
+                UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endpoints[1].GetInfo();
+                test(udpEndpoint.Host.Equals(host));
+                test(udpEndpoint.Datagram());
+                test(udpEndpoint.Port > 0);
 
                 endpoints = new IEndpoint[] { endpoints[0] };
                 test(endpoints.Length == 1);
@@ -132,13 +132,13 @@ namespace Ice.info
 
                 foreach (var endpoint in endpoints)
                 {
-                    tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
-                    test(tcpEndpoint.port == port);
+                    tcpEndpoint = getTCPEndpointInfo(endpoint.GetInfo());
+                    test(tcpEndpoint.Port == port);
                 }
 
-                tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
-                test(tcpEndpoint.host == "127.0.0.1");
-                test(tcpEndpoint.port == port);
+                tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].GetInfo());
+                test(tcpEndpoint.Host == "127.0.0.1");
+                test(tcpEndpoint.Port == port);
 
                 adapter.Destroy();
             }
@@ -156,22 +156,22 @@ namespace Ice.info
             output.Write("test connection endpoint information... ");
             output.Flush();
             {
-                EndpointInfo info = @base.GetConnection().Endpoint.getInfo();
+                EndpointInfo info = @base.GetConnection().Endpoint.GetInfo();
                 TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
-                test(tcpinfo.port == endpointPort);
-                test(!tcpinfo.compress);
-                test(tcpinfo.host.Equals(defaultHost));
+                test(tcpinfo.Port == endpointPort);
+                test(!tcpinfo.Compress);
+                test(tcpinfo.Host.Equals(defaultHost));
 
                 Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
-                test(ctx["host"].Equals(tcpinfo.host));
+                test(ctx["host"].Equals(tcpinfo.Host));
                 test(ctx["compress"].Equals("false"));
                 int port = int.Parse(ctx["port"]);
                 test(port > 0);
 
-                info = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint.getInfo();
+                info = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint.GetInfo();
                 UDPEndpointInfo udp = (UDPEndpointInfo)info;
-                test(udp.port == endpointPort);
-                test(udp.host.Equals(defaultHost));
+                test(udp.Port == endpointPort);
+                test(udp.Host.Equals(defaultHost));
             }
             output.WriteLine("ok");
 
@@ -203,7 +203,7 @@ namespace Ice.info
                 test(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
                 test(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
-                if (@base.GetConnection().type().Equals("ws") || @base.GetConnection().type().Equals("wss"))
+                if (@base.GetConnection().Type().Equals("ws") || @base.GetConnection().Type().Equals("wss"))
                 {
                     Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers;
                     test(headers["Upgrade"].Equals("websocket"));

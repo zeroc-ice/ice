@@ -2,116 +2,114 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-
     internal sealed class TraceUtil
     {
-        internal static void traceSend(Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceSend(Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
                 int p = str.Pos;
-                Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
+                var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
-                    byte type = printMessage(s, iss);
+                    byte type = PrintMessage(s, iss);
 
-                    logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.ToString());
+                    logger.Trace(tl.protocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.Pos = p;
             }
         }
 
-        internal static void traceRecv(Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceRecv(Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
 
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
-                    byte type = printMessage(s, str);
+                    byte type = PrintMessage(s, str);
 
-                    logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.ToString());
+                    logger.Trace(tl.protocolCat, "received " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.Pos = p;
             }
         }
 
-        internal static void trace(string heading, Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void Trace(string heading, Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
                 int p = str.Pos;
-                Ice.InputStream iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
+                var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
                 iss.Pos = 0;
 
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
-                    printMessage(s, iss);
+                    PrintMessage(s, iss);
 
-                    logger.trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.protocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
         }
 
-        internal static void trace(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void Trace(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
 
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
-                    printMessage(s, str);
+                    PrintMessage(s, str);
 
-                    logger.trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.protocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
         }
 
-        private static HashSet<string> slicingIds = new HashSet<string>();
+        private static readonly HashSet<string> _slicingIds = new HashSet<string>();
 
-        internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.ILogger logger)
+        internal static void TraceSlicing(string kind, string typeId, string slicingCat, Ice.ILogger logger)
         {
-            lock (mutex)
+            lock (_mutex)
             {
-                if (slicingIds.Add(typeId))
+                if (_slicingIds.Add(typeId))
                 {
-                    using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                    {
-                        s.Write("unknown " + kind + " type `" + typeId + "'");
-                        logger.trace(slicingCat, s.ToString());
-                    }
+                    using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                    s.Write("unknown " + kind + " type `" + typeId + "'");
+                    logger.Trace(slicingCat, s.ToString());
                 }
             }
         }
 
-        public static void dumpStream(Ice.InputStream stream)
+        public static void DumpStream(Ice.InputStream stream)
         {
             int pos = stream.Pos;
             stream.Pos = 0;
 
             byte[] data = new byte[stream.Size];
             stream.ReadBlob(data);
-            dumpOctets(data);
+            DumpOctets(data);
 
             stream.Pos = pos;
         }
 
-        public static void dumpOctets(byte[] data)
+        public static void DumpOctets(byte[] data)
         {
             const int inc = 8;
 
@@ -166,13 +164,13 @@ namespace IceInternal
             }
         }
 
-        private static void printIdentityFacetOperation(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintIdentityFacetOperation(System.IO.StringWriter s, Ice.InputStream str)
         {
             try
             {
                 Ice.ToStringMode toStringMode = str.Communicator.ToStringMode;
 
-                Ice.Identity identity = new Ice.Identity(str);
+                var identity = new Ice.Identity(str);
                 s.Write("\nidentity = " + identity.ToString(toStringMode));
 
                 string[] facet = str.ReadStringSeq();
@@ -191,7 +189,7 @@ namespace IceInternal
             }
         }
 
-        private static void printRequest(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintRequest(System.IO.StringWriter s, Ice.InputStream str)
         {
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
@@ -200,10 +198,10 @@ namespace IceInternal
                 s.Write(" (oneway)");
             }
 
-            printRequestHeader(s, str);
+            PrintRequestHeader(s, str);
         }
 
-        private static void printBatchRequest(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintBatchRequest(System.IO.StringWriter s, Ice.InputStream str)
         {
             int batchRequestNum = str.ReadInt();
             s.Write("\nnumber of requests = " + batchRequestNum);
@@ -211,11 +209,11 @@ namespace IceInternal
             for (int i = 0; i < batchRequestNum; ++i)
             {
                 s.Write("\nrequest #" + i + ':');
-                printRequestHeader(s, str);
+                PrintRequestHeader(s, str);
             }
         }
 
-        private static void printReply(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintReply(System.IO.StringWriter s, Ice.InputStream str)
         {
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
@@ -268,7 +266,7 @@ namespace IceInternal
                                 }
                         }
 
-                        printIdentityFacetOperation(s, str);
+                        PrintIdentityFacetOperation(s, str);
                         break;
                     }
 
@@ -321,14 +319,14 @@ namespace IceInternal
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.encodingVersionToString(v));
+                    s.Write(Ice.Util.EncodingVersionToString(v));
                 }
             }
         }
 
-        private static void printRequestHeader(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintRequestHeader(System.IO.StringWriter s, Ice.InputStream str)
         {
-            printIdentityFacetOperation(s, str);
+            PrintIdentityFacetOperation(s, str);
 
             try
             {
@@ -378,7 +376,7 @@ namespace IceInternal
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.encodingVersionToString(v));
+                    s.Write(Ice.Util.EncodingVersionToString(v));
                 }
             }
             catch (System.IO.IOException)
@@ -387,7 +385,7 @@ namespace IceInternal
             }
         }
 
-        private static byte printHeader(System.IO.StringWriter s, Ice.InputStream str)
+        private static byte PrintHeader(System.IO.StringWriter s, Ice.InputStream str)
         {
             try
             {
@@ -409,7 +407,7 @@ namespace IceInternal
                 //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
                 byte type = str.ReadByte();
-                s.Write("\nmessage type = " + (int)type + " (" + getMessageTypeAsString(type) + ')');
+                s.Write("\nmessage type = " + (int)type + " (" + GetMessageTypeAsString(type) + ')');
 
                 byte compress = str.ReadByte();
                 s.Write("\ncompression status = " + (int)compress + ' ');
@@ -451,9 +449,9 @@ namespace IceInternal
             }
         }
 
-        private static byte printMessage(System.IO.StringWriter s, Ice.InputStream str)
+        private static byte PrintMessage(System.IO.StringWriter s, Ice.InputStream str)
         {
-            byte type = printHeader(s, str);
+            byte type = PrintHeader(s, str);
 
             switch (type)
             {
@@ -466,19 +464,19 @@ namespace IceInternal
 
                 case Protocol.requestMsg:
                     {
-                        printRequest(s, str);
+                        PrintRequest(s, str);
                         break;
                     }
 
                 case Protocol.requestBatchMsg:
                     {
-                        printBatchRequest(s, str);
+                        PrintBatchRequest(s, str);
                         break;
                     }
 
                 case Protocol.replyMsg:
                     {
-                        printReply(s, str);
+                        PrintReply(s, str);
                         break;
                     }
 
@@ -492,43 +490,37 @@ namespace IceInternal
             return type;
         }
 
-        internal static void traceHeader(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceHeader(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
             if (tl.protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
 
-                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
-                    printHeader(s, str);
+                    PrintHeader(s, str);
 
-                    logger.trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.protocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
         }
 
-        private static string getMessageTypeAsString(byte type)
+        private static string GetMessageTypeAsString(byte type)
         {
-            switch (type)
+            return type switch
             {
-                case Protocol.requestMsg:
-                    return "request";
-                case Protocol.requestBatchMsg:
-                    return "batch request";
-                case Protocol.replyMsg:
-                    return "reply";
-                case Protocol.closeConnectionMsg:
-                    return "close connection";
-                case Protocol.validateConnectionMsg:
-                    return "validate connection";
-                default:
-                    return "unknown";
-            }
+                Protocol.requestMsg => "request",
+                Protocol.requestBatchMsg => "batch request",
+                Protocol.replyMsg => "reply",
+                Protocol.closeConnectionMsg => "close connection",
+                Protocol.validateConnectionMsg => "validate connection",
+                _ => "unknown",
+            };
         }
 
-        private static readonly object mutex = new object();
+        private static readonly object _mutex = new object();
     }
 }

@@ -13,38 +13,38 @@ namespace IceInternal
 {
     internal class TcpAcceptor : IAcceptor
     {
-        public virtual void close()
+        public virtual void Close()
         {
             if (_acceptFd != null)
             {
-                Network.closeSocketNoThrow(_acceptFd);
+                Network.CloseSocketNoThrow(_acceptFd);
                 _acceptFd = null;
             }
             if (_fd != null)
             {
-                Network.closeSocketNoThrow(_fd);
+                Network.CloseSocketNoThrow(_fd);
                 _fd = null;
             }
         }
 
-        public virtual Endpoint listen()
+        public virtual Endpoint Listen()
         {
             try
             {
                 Debug.Assert(_fd != null);
-                _addr = Network.doBind(_fd, _addr);
-                Network.doListen(_fd, _backlog);
+                _addr = Network.DoBind(_fd, _addr);
+                Network.DoListen(_fd, _backlog);
             }
             catch (SystemException)
             {
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.endpoint(this);
+            _endpoint = _endpoint.Endpoint(this);
             return _endpoint;
         }
 
-        public virtual bool startAccept(AsyncCallback callback, object state)
+        public virtual bool StartAccept(AsyncCallback callback, object state)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace IceInternal
             return _result.CompletedSynchronously;
         }
 
-        public virtual void finishAccept()
+        public virtual void FinishAccept()
         {
             if (_fd != null)
             {
@@ -80,7 +80,7 @@ namespace IceInternal
             }
         }
 
-        public virtual ITransceiver accept()
+        public virtual ITransceiver Accept()
         {
             if (_acceptFd == null)
             {
@@ -94,17 +94,17 @@ namespace IceInternal
             return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
         }
 
-        public string protocol() => _instance.Protocol;
+        public string Protocol() => _instance.Protocol;
 
-        public override string ToString() => Network.addrToString(_addr);
+        public override string ToString() => Network.AddrToString(_addr);
 
-        public string toDetailedString()
+        public string ToDetailedString()
         {
-            StringBuilder s = new StringBuilder("local address = ");
+            var s = new StringBuilder("local address = ");
             s.Append(ToString());
 
             List<string> intfs =
-                Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.ProtocolSupport, true);
+                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _instance.ProtocolSupport, true);
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -113,10 +113,7 @@ namespace IceInternal
             return s.ToString();
         }
 
-        internal int effectivePort()
-        {
-            return _addr.Port;
-        }
+        internal int EffectivePort() => _addr.Port;
 
         internal TcpAcceptor(TcpEndpoint endpoint, ProtocolInstance instance, string host, int port)
         {
@@ -127,10 +124,10 @@ namespace IceInternal
             try
             {
                 int protocol = _instance.ProtocolSupport;
-                _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, _instance.PreferIPv6);
-                _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
-                Network.setBlock(_fd, false);
-                Network.setTcpBufSize(_fd, _instance);
+                _addr = (IPEndPoint)Network.GetAddressForServer(host, port, protocol, _instance.PreferIPv6);
+                _fd = Network.CreateServerSocket(false, _addr.AddressFamily, protocol);
+                Network.SetBlock(_fd, false);
+                Network.SetTcpBufSize(_fd, _instance);
             }
             catch (Exception)
             {
@@ -140,11 +137,11 @@ namespace IceInternal
         }
 
         private TcpEndpoint _endpoint;
-        private ProtocolInstance _instance;
+        private readonly ProtocolInstance _instance;
         private Socket? _fd;
         private Socket? _acceptFd;
         private Exception? _acceptError;
-        private int _backlog;
+        private readonly int _backlog;
         private IPEndPoint _addr;
         private IAsyncResult? _result;
     }

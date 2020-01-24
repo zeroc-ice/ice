@@ -13,12 +13,12 @@ namespace Ice.retry
         class InvocationObserver : Ice.Instrumentation.IInvocationObserver
         {
             public void
-            attach()
+            Attach()
             {
             }
 
             public void
-            detach()
+            Detach()
             {
                 lock (mutex)
                 {
@@ -27,7 +27,7 @@ namespace Ice.retry
             }
 
             public void
-            failed(string msg)
+            Failed(string msg)
             {
                 lock (mutex)
                 {
@@ -36,7 +36,7 @@ namespace Ice.retry
             }
 
             public void
-            retried()
+            Retried()
             {
                 lock (mutex)
                 {
@@ -45,18 +45,18 @@ namespace Ice.retry
             }
 
             public void
-            userException()
+            UserException()
             {
             }
 
             public Ice.Instrumentation.IRemoteObserver
-            getRemoteObserver(ConnectionInfo ci, IEndpoint ei, int i, int j)
+            GetRemoteObserver(ConnectionInfo ci, IEndpoint ei, int i, int j)
             {
                 return null;
             }
 
             public Ice.Instrumentation.ICollocatedObserver
-            getCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j)
+            GetCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j)
             {
                 return null;
             }
@@ -67,20 +67,20 @@ namespace Ice.retry
 
         class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
         {
-            public Ice.Instrumentation.IObserver
-            getConnectionEstablishmentObserver(Ice.IEndpoint e, string s)
+            public Ice.Instrumentation.IObserver?
+            GetConnectionEstablishmentObserver(Ice.IEndpoint e, string s)
             {
                 return null;
             }
 
-            public Ice.Instrumentation.IObserver
-            getEndpointLookupObserver(Ice.IEndpoint e)
+            public Ice.Instrumentation.IObserver?
+            GetEndpointLookupObserver(Ice.IEndpoint e)
             {
                 return null;
             }
 
-            public Ice.Instrumentation.IConnectionObserver
-            getConnectionObserver(Ice.ConnectionInfo ci,
+            public Ice.Instrumentation.IConnectionObserver?
+            GetConnectionObserver(Ice.ConnectionInfo ci,
                                     Ice.IEndpoint ei,
                                     Ice.Instrumentation.ConnectionState s,
                                     Ice.Instrumentation.IConnectionObserver o)
@@ -88,8 +88,8 @@ namespace Ice.retry
                 return null;
             }
 
-            public Ice.Instrumentation.IThreadObserver
-            getThreadObserver(string p,
+            public Ice.Instrumentation.IThreadObserver?
+            GetThreadObserver(string p,
                                 string n,
                                 Ice.Instrumentation.ThreadState s,
                                 Ice.Instrumentation.IThreadObserver o)
@@ -97,20 +97,20 @@ namespace Ice.retry
                 return null;
             }
 
-            public Ice.Instrumentation.IInvocationObserver
-            getInvocationObserver(Ice.IObjectPrx p, string o, Dictionary<string, string> c)
+            public Ice.Instrumentation.IInvocationObserver?
+            GetInvocationObserver(Ice.IObjectPrx p, string o, Dictionary<string, string> c)
             {
                 return invocationObserver;
             }
 
             public Ice.Instrumentation.IDispatchObserver
-            getDispatchObserver(Ice.Current c, int i)
+            GetDispatchObserver(Ice.Current c, int i)
             {
                 return null;
             }
 
             public void
-            setObserverUpdater(Ice.Instrumentation.IObserverUpdater u)
+            SetObserverUpdater(Ice.Instrumentation.IObserverUpdater u)
             {
             }
         };
@@ -118,7 +118,7 @@ namespace Ice.retry
         static private Ice.Instrumentation.ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
         static public Ice.Instrumentation.ICommunicatorObserver
-        getObserver()
+        GetObserver()
         {
             return communicatorObserver;
         }

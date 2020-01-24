@@ -231,8 +231,8 @@ public class AllTests : Test.AllTests
         }
         catch (NotRegisteredException ex)
         {
-            test(ex.kindOfObject.Equals("object"));
-            test(ex.id.Equals("unknown/unknown"));
+            test(ex.KindOfObject.Equals("object"));
+            test(ex.Id.Equals("unknown/unknown"));
         }
         Console.Out.WriteLine("ok");
 
@@ -245,8 +245,8 @@ public class AllTests : Test.AllTests
         }
         catch (NotRegisteredException ex)
         {
-            test(ex.kindOfObject.Equals("object adapter"));
-            test(ex.id.Equals("TestAdapterUnknown"));
+            test(ex.KindOfObject.Equals("object adapter"));
+            test(ex.Id.Equals("TestAdapterUnknown"));
         }
         Console.Out.WriteLine("ok");
 

@@ -2,74 +2,74 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+
 namespace Ice
 {
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-
     public abstract class LoggerI : ILogger
     {
         public LoggerI(string prefix)
         {
-            _prefix = prefix;
+            Prefix = prefix;
 
             if (prefix.Length > 0)
             {
-                _formattedPrefix = prefix + ": ";
+                FormattedPrefix = prefix + ": ";
             }
             else
             {
-                _formattedPrefix = "";
+                FormattedPrefix = "";
             }
         }
 
-        public void print(string message)
+        public void Print(string message)
         {
-            lock (_globalMutex)
+            lock (GlobalMutex)
             {
-                write(message);
+                Write(message);
             }
         }
 
-        public virtual void trace(string category, string message)
+        public virtual void Trace(string category, string message)
         {
-            string s = format("--", category, message);
-            lock (_globalMutex)
+            string s = Format("--", category, message);
+            lock (GlobalMutex)
             {
-                write(s);
+                Write(s);
             }
         }
 
-        public virtual void warning(string message)
+        public virtual void Warning(string message)
         {
-            string s = format("-!", "warning", message);
-            lock (_globalMutex)
+            string s = Format("-!", "warning", message);
+            lock (GlobalMutex)
             {
-                write(s);
+                Write(s);
             }
         }
 
-        public virtual void error(string message)
+        public virtual void Error(string message)
         {
-            string s = format("!!", "error", message);
-            lock (_globalMutex)
+            string s = Format("!!", "error", message);
+            lock (GlobalMutex)
             {
-                write(s);
+                Write(s);
             }
         }
 
-        public string getPrefix() => _prefix;
+        public string GetPrefix() => Prefix;
 
-        private string format(string prefix, string category, string message)
+        private string Format(string prefix, string category, string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder(prefix);
+            var s = new System.Text.StringBuilder(prefix);
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(System.DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(System.DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(_formattedPrefix);
+            s.Append(FormattedPrefix);
             s.Append(category);
             s.Append(": ");
             s.Append(message);
@@ -77,16 +77,16 @@ namespace Ice
             return s.ToString();
         }
 
-        public abstract ILogger cloneWithPrefix(string prefix);
+        public abstract ILogger CloneWithPrefix(string prefix);
 
-        protected abstract void write(string message);
+        protected abstract void Write(string message);
 
-        protected readonly string _prefix;
-        protected readonly string _formattedPrefix;
-        protected const string _date = "d";
-        protected const string _time = "HH:mm:ss:fff";
+        protected readonly string Prefix;
+        protected readonly string FormattedPrefix;
+        protected const string Date = "d";
+        protected const string Time = "HH:mm:ss:fff";
 
-        internal static object _globalMutex = new object();
+        internal static object GlobalMutex = new object();
     }
 
     public sealed class ConsoleLoggerI : LoggerI
@@ -95,9 +95,9 @@ namespace Ice
         {
         }
 
-        public override ILogger cloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
+        public override ILogger CloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
 
-        protected override void write(string message) => System.Console.Error.WriteLine(message);
+        protected override void Write(string message) => System.Console.Error.WriteLine(message);
     }
 
     public sealed class FileLoggerI : LoggerI
@@ -109,29 +109,23 @@ namespace Ice
             _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
         }
 
-        public override ILogger cloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
+        public override ILogger CloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
 
-        protected override void write(string message)
+        protected override void Write(string message)
         {
             _writer.WriteLine(message);
             _writer.Flush();
         }
 
-        public void destroy() => _writer.Close();
+        public void Destroy() => _writer.Close();
 
-        private string _file;
-        private TextWriter _writer;
+        private readonly string _file;
+        private readonly TextWriter _writer;
     }
 
     public class ConsoleListener : TraceListener
     {
-        public override bool IsThreadSafe
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsThreadSafe => true;
 
         public override void TraceEvent(TraceEventCache cache, string source, TraceEventType type,
                                         int id, string message)
@@ -150,9 +144,9 @@ namespace Ice
                 s = new System.Text.StringBuilder("--");
             }
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(System.DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(System.DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(message);
             WriteLine(s.ToString());
@@ -162,8 +156,8 @@ namespace Ice
 
         public override void WriteLine(string message) => System.Console.Error.WriteLine(message);
 
-        private const string _date = "d";
-        private const string _time = "HH:mm:ss:fff";
+        private const string Date = "d";
+        private const string Time = "HH:mm:ss:fff";
     }
 
     public sealed class TraceLoggerI : LoggerI
@@ -171,44 +165,44 @@ namespace Ice
         public TraceLoggerI(string prefix, bool console) : base(prefix)
         {
             _console = console;
-            if (console && !Trace.Listeners.Contains(_consoleListener))
+            if (console && !System.Diagnostics.Trace.Listeners.Contains(_consoleListener))
             {
-                Trace.Listeners.Add(_consoleListener);
+                System.Diagnostics.Trace.Listeners.Add(_consoleListener);
             }
         }
 
-        public override void trace(string category, string message)
+        public override void Trace(string category, string message)
         {
-            Trace.TraceInformation(format(category, message));
-            Trace.Flush();
+            System.Diagnostics.Trace.TraceInformation(Format(category, message));
+            System.Diagnostics.Trace.Flush();
         }
 
-        public override void warning(string message)
+        public override void Warning(string message)
         {
-            Trace.TraceWarning(format("warning", message));
-            Trace.Flush();
+            System.Diagnostics.Trace.TraceWarning(Format("warning", message));
+            System.Diagnostics.Trace.Flush();
         }
 
-        public override void error(string message)
+        public override void Error(string message)
         {
-            string s = format("error", message);
+            string s = Format("error", message);
             {
-                Trace.TraceError(s);
-                Trace.Flush();
+                System.Diagnostics.Trace.TraceError(s);
+                System.Diagnostics.Trace.Flush();
             }
         }
 
-        public override ILogger cloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
+        public override ILogger CloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
 
-        protected override void write(string message)
+        protected override void Write(string message)
         {
-            Trace.WriteLine(message);
-            Trace.Flush();
+            System.Diagnostics.Trace.WriteLine(message);
+            System.Diagnostics.Trace.Flush();
         }
 
-        private string format(string category, string message)
+        private string Format(string category, string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder(_formattedPrefix);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(FormattedPrefix);
             s.Append(category);
             s.Append(": ");
             s.Append(message);

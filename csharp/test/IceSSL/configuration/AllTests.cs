@@ -100,7 +100,7 @@ public class AllTests
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        if (IceInternal.AssemblyUtil.isWindows)
+        if (IceInternal.AssemblyUtil.IsWindows)
         {
             try
             {
@@ -170,7 +170,7 @@ public class AllTests
                 var comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                plugin.setCertificates(coll);
+                plugin.SetCertificates(coll);
                 comm.InitializePlugins();
                 var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
@@ -201,7 +201,7 @@ public class AllTests
                 var comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                plugin.setCACertificates(coll);
+                plugin.SetCACertificates(coll);
                 comm.InitializePlugins();
                 var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
@@ -536,7 +536,7 @@ public class AllTests
                             //
                             // macOS catalina does not check the certificate common name
                             //
-                            if (!IceInternal.AssemblyUtil.isMacOS)
+                            if (!IceInternal.AssemblyUtil.IsMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -724,7 +724,7 @@ public class AllTests
                             //
                             // macOS catalina does not check the certificate common name
                             //
-                            if (!IceInternal.AssemblyUtil.isMacOS)
+                            if (!IceInternal.AssemblyUtil.IsMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -798,7 +798,7 @@ public class AllTests
                 certStore.Open(OpenFlags.ReadWrite);
                 X509Certificate2Collection certs = new X509Certificate2Collection();
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if (IceInternal.AssemblyUtil.isMacOS)
+                if (IceInternal.AssemblyUtil.IsMacOS)
                 {
                     //
                     // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -943,7 +943,7 @@ public class AllTests
                     }
                     comm.Destroy();
 
-                    if (IceInternal.AssemblyUtil.isWindows)
+                    if (IceInternal.AssemblyUtil.IsWindows)
                     {
                         //
                         // The certificate chain on Linux doesn't include the intermeidate
@@ -1100,7 +1100,7 @@ public class AllTests
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 var verifier = new CertificateVerifier();
-                plugin.setCertificateVerifier(verifier);
+                plugin.SetCertificateVerifier(verifier);
 
                 var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
@@ -1156,7 +1156,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                test(plugin.getCertificateVerifier() != null);
+                test(plugin.GetCertificateVerifier() != null);
                 comm.Destroy();
             }
             Console.Out.WriteLine("ok");
@@ -1301,7 +1301,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (IceInternal.AssemblyUtil.IsWindows && isAdministrator)
             {
                 //
                 // LocalMachine certificate store is not supported on non
@@ -1415,7 +1415,7 @@ public class AllTests
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 var cb = new PasswordCallback("bogus");
-                plugin.setPasswordCallback(cb);
+                plugin.SetPasswordCallback(cb);
                 try
                 {
                     comm.InitializePlugins();
@@ -1438,8 +1438,8 @@ public class AllTests
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 var cb = new PasswordCallback();
-                plugin.setPasswordCallback(cb);
-                test(plugin.getPasswordCallback() == cb);
+                plugin.SetPasswordCallback(cb);
+                test(plugin.GetPasswordCallback() == cb);
                 try
                 {
                     comm.InitializePlugins();
@@ -1462,7 +1462,7 @@ public class AllTests
                 Communicator comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
-                test(plugin.getPasswordCallback() != null);
+                test(plugin.GetPasswordCallback() != null);
                 comm.Destroy();
             }
             Console.Out.WriteLine("ok");
@@ -2191,7 +2191,7 @@ public class AllTests
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if (IceInternal.AssemblyUtil.isMacOS)
+                if (IceInternal.AssemblyUtil.IsMacOS)
                 {
                     //
                     // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -2304,7 +2304,7 @@ public class AllTests
                 clientProperties["IceSSL.DefaultDir"] = "";
                 clientProperties["IceSSL.VerifyDepthMax"] = "4";
                 clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-                if (IceInternal.AssemblyUtil.isWindows)
+                if (IceInternal.AssemblyUtil.IsWindows)
                 {
                     //
                     // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
@@ -2354,7 +2354,7 @@ public class AllTests
                 clientProperties["IceSSL.VerifyDepthMax"] = "4";
                 clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
                 clientProperties["IceSSL.UsePlatformCAs"] = "1";
-                if (IceInternal.AssemblyUtil.isWindows)
+                if (IceInternal.AssemblyUtil.IsWindows)
                 {
                     //
                     // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
@@ -2399,7 +2399,7 @@ public class AllTests
         }
         finally
         {
-            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (IceInternal.AssemblyUtil.IsWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);

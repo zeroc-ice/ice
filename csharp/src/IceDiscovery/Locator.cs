@@ -173,7 +173,7 @@ namespace IceDiscovery
         }
 
         public Task<IObjectPrx>
-        FindObjectByIdAsync(Identity id, Current current) => _lookup.findObject(id);
+        FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
 
         public Task<IObjectPrx>
         FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);

@@ -41,7 +41,7 @@ public class Client : Test.TestHelper
 
         using var communicator = initialize(properties);
         Plugin plugin = new Plugin(communicator);
-        plugin.initialize();
+        plugin.Initialize();
         communicator.AddPlugin("Test", plugin);
         Test.IBackgroundPrx background = AllTests.allTests(this);
         background.shutdown();

@@ -20,19 +20,19 @@ namespace IceSSL
             string key = "IceSSL.TrustOnly";
             try
             {
-                parse(_communicator.GetProperty(key) ?? "", _rejectAll, _acceptAll);
+                Parse(_communicator.GetProperty(key) ?? "", _rejectAll, _acceptAll);
                 key = "IceSSL.TrustOnly.Client";
-                parse(_communicator.GetProperty(key) ?? "", _rejectClient, _acceptClient);
+                Parse(_communicator.GetProperty(key) ?? "", _rejectClient, _acceptClient);
                 key = "IceSSL.TrustOnly.Server";
-                parse(_communicator.GetProperty(key) ?? "", _rejectAllServer, _acceptAllServer);
+                Parse(_communicator.GetProperty(key) ?? "", _rejectAllServer, _acceptAllServer);
                 Dictionary<string, string> dict = _communicator.GetProperties(forPrefix: "IceSSL.TrustOnly.Server.");
                 foreach (KeyValuePair<string, string> entry in dict)
                 {
                     key = entry.Key;
                     string name = key.Substring("IceSSL.TrustOnly.Server.".Length);
-                    List<List<RFC2253.RDNPair>> reject = new List<List<RFC2253.RDNPair>>();
-                    List<List<RFC2253.RDNPair>> accept = new List<List<RFC2253.RDNPair>>();
-                    parse(entry.Value, reject, accept);
+                    var reject = new List<List<RFC2253.RDNPair>>();
+                    var accept = new List<List<RFC2253.RDNPair>>();
+                    Parse(entry.Value, reject, accept);
                     if (reject.Count > 0)
                     {
                         _rejectServer[name] = reject;
@@ -49,7 +49,7 @@ namespace IceSSL
             }
         }
 
-        internal bool verify(IceSSL.ConnectionInfo info, string desc)
+        internal bool Verify(IceSSL.ConnectionInfo info, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -131,12 +131,12 @@ namespace IceSSL
                     {
                         if (info.Incoming)
                         {
-                            _communicator.Logger.trace("Security", "trust manager evaluating client:\n" +
+                            _communicator.Logger.Trace("Security", "trust manager evaluating client:\n" +
                                 "subject = " + subjectName + "\n" + "adapter = " + info.AdapterName + "\n" + desc);
                         }
                         else
                         {
-                            _communicator.Logger.trace("Security", "trust manager evaluating server:\n" +
+                            _communicator.Logger.Trace("Security", "trust manager evaluating server:\n" +
                                 "subject = " + subjectName + "\n" + desc);
                         }
                     }
@@ -162,11 +162,11 @@ namespace IceSSL
                     {
                         if (_traceLevel > 0)
                         {
-                            StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
-                            stringify(matchSet, s);
-                            _communicator.Logger.trace("Security", s.ToString());
+                            var s = new StringBuilder("trust manager rejecting PDNs:\n");
+                            Stringify(matchSet, s);
+                            _communicator.Logger.Trace("Security", s.ToString());
                         }
-                        if (match(matchSet, dn))
+                        if (Match(matchSet, dn))
                         {
                             return false;
                         }
@@ -179,11 +179,11 @@ namespace IceSSL
                     {
                         if (_traceLevel > 0)
                         {
-                            StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
-                            stringify(matchSet, s);
-                            _communicator.Logger.trace("Security", s.ToString());
+                            var s = new StringBuilder("trust manager accepting PDNs:\n");
+                            Stringify(matchSet, s);
+                            _communicator.Logger.Trace("Security", s.ToString());
                         }
-                        if (match(matchSet, dn))
+                        if (Match(matchSet, dn))
                         {
                             return true;
                         }
@@ -191,7 +191,7 @@ namespace IceSSL
                 }
                 catch (FormatException e)
                 {
-                    _communicator.Logger.warning(
+                    _communicator.Logger.Warning(
                         $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
                 }
 
@@ -204,11 +204,11 @@ namespace IceSSL
             return false;
         }
 
-        private bool match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
+        private bool Match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
         {
             foreach (List<RFC2253.RDNPair> item in matchSet)
             {
-                if (matchRDNs(item, subject))
+                if (MatchRDNs(item, subject))
                 {
                     return true;
                 }
@@ -216,7 +216,7 @@ namespace IceSSL
             return false;
         }
 
-        private bool matchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
+        private bool MatchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
         {
             foreach (RFC2253.RDNPair matchRDN in match)
             {
@@ -241,7 +241,7 @@ namespace IceSSL
         }
 
         // Note that unlike the C++ & Java implementation this returns unescaped data.
-        private void parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
+        private void Parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
         {
             //
             // As with the Java implementation, the DN that comes from
@@ -280,7 +280,7 @@ namespace IceSSL
             }
         }
 
-        private static void stringify(List<List<RFC2253.RDNPair>> matchSet, StringBuilder s)
+        private static void Stringify(List<List<RFC2253.RDNPair>> matchSet, StringBuilder s)
         {
             bool addSemi = false;
             foreach (List<RFC2253.RDNPair> rdnSet in matchSet)

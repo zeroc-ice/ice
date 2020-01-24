@@ -29,13 +29,13 @@ namespace Ice.admin
             }
         }
 
-        public void print(string message, Current current) => _communicator.Logger.print(message);
+        public void print(string message, Current current) => _communicator.Logger.Print(message);
 
-        public void trace(string category, string message, Current current) => _communicator.Logger.trace(category, message);
+        public void trace(string category, string message, Current current) => _communicator.Logger.Trace(category, message);
 
-        public void warning(string message, Current current) => _communicator.Logger.warning(message);
+        public void warning(string message, Current current) => _communicator.Logger.Warning(message);
 
-        public void error(string message, Current current) => _communicator.Logger.error(message);
+        public void error(string message, Current current) => _communicator.Logger.Error(message);
 
         public void shutdown(Current current) => _communicator.Shutdown();
 
@@ -99,7 +99,7 @@ namespace Ice.admin
             {
                 var admin = (INativePropertiesAdmin)propFacet;
                 Debug.Assert(admin != null);
-                admin.addUpdateCallback(servant.updated);
+                admin.AddUpdateCallback(servant.updated);
             }
 
             return current.Adapter.Add(servant);
@@ -109,25 +109,25 @@ namespace Ice.admin
 
         private class NullLogger : ILogger
         {
-            public void print(string message)
+            public void Print(string message)
             {
             }
 
-            public void trace(string category, string message)
+            public void Trace(string category, string message)
             {
             }
 
-            public void warning(string message)
+            public void Warning(string message)
             {
             }
 
-            public void error(string message)
+            public void Error(string message)
             {
             }
 
-            public string getPrefix() => "NullLogger";
+            public string GetPrefix() => "NullLogger";
 
-            public ILogger cloneWithPrefix(string prefix) => this;
+            public ILogger CloneWithPrefix(string prefix) => this;
         }
     }
 }

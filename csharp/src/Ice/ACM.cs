@@ -2,18 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     public sealed class ACMConfig
     {
         internal ACMConfig(bool server)
         {
-            timeout = 60 * 1000;
-            heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
-            close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
+            Timeout = 60 * 1000;
+            Heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
+            Close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
         }
 
         public ACMConfig(Ice.Communicator communicator, Ice.ILogger logger, string prefix, ACMConfig defaults)
@@ -31,54 +31,51 @@ namespace IceInternal
                 timeoutProperty = prefix + ".Timeout";
             }
 
-            timeout = communicator.GetPropertyAsInt(timeoutProperty) * 1000 ?? defaults.timeout;
-            if (timeout < 0)
+            Timeout = communicator.GetPropertyAsInt(timeoutProperty) * 1000 ?? defaults.Timeout;
+            if (Timeout < 0)
             {
-                logger.warning($"invalid value for property `{timeoutProperty}', default value will be used instead");
-                timeout = defaults.timeout;
+                logger.Warning($"invalid value for property `{timeoutProperty}', default value will be used instead");
+                Timeout = defaults.Timeout;
             }
 
-            int hb = communicator.GetPropertyAsInt($"{prefix}.Heartbeat") ?? (int)defaults.heartbeat;
+            int hb = communicator.GetPropertyAsInt($"{prefix}.Heartbeat") ?? (int)defaults.Heartbeat;
             if (hb >= (int)Ice.ACMHeartbeat.HeartbeatOff && hb <= (int)Ice.ACMHeartbeat.HeartbeatAlways)
             {
-                heartbeat = (Ice.ACMHeartbeat)hb;
+                Heartbeat = (Ice.ACMHeartbeat)hb;
             }
             else
             {
-                logger.warning($"invalid value for property `{prefix}.Heartbeat', default value will be used instead");
-                heartbeat = defaults.heartbeat;
+                logger.Warning($"invalid value for property `{prefix}.Heartbeat', default value will be used instead");
+                Heartbeat = defaults.Heartbeat;
             }
 
-            int cl = communicator.GetPropertyAsInt($"{prefix}.Close") ?? (int)defaults.close;
+            int cl = communicator.GetPropertyAsInt($"{prefix}.Close") ?? (int)defaults.Close;
             if (cl >= (int)Ice.ACMClose.CloseOff && cl <= (int)Ice.ACMClose.CloseOnIdleForceful)
             {
-                close = (Ice.ACMClose)cl;
+                Close = (Ice.ACMClose)cl;
             }
             else
             {
-                logger.warning($"invalid value for property `{prefix}.Close', default value will be used instead");
-                close = defaults.close;
+                logger.Warning($"invalid value for property `{prefix}.Close', default value will be used instead");
+                Close = defaults.Close;
             }
         }
 
-        public ACMConfig Clone()
-        {
-            return (ACMConfig)MemberwiseClone();
-        }
+        public ACMConfig Clone() => (ACMConfig)MemberwiseClone();
 
-        public int timeout;
-        public Ice.ACMHeartbeat heartbeat;
-        public Ice.ACMClose close;
+        public int Timeout;
+        public Ice.ACMHeartbeat Heartbeat;
+        public Ice.ACMClose Close;
     }
 
     public interface IACMMonitor : ITimerTask
     {
-        void add(Ice.Connection con);
-        void remove(Ice.Connection con);
-        void reap(Ice.Connection con);
+        void Add(Ice.Connection con);
+        void Remove(Ice.Connection con);
+        void Reap(Ice.Connection con);
 
-        IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
-        Ice.ACM getACM();
+        IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
+        Ice.ACM GetACM();
     }
 
     public class FactoryACMMonitor : IACMMonitor
@@ -87,12 +84,12 @@ namespace IceInternal
         {
             internal Change(Ice.Connection connection, bool remove)
             {
-                this.connection = connection;
-                this.remove = remove;
+                Connection = connection;
+                Remove = remove;
             }
 
-            public readonly Ice.Connection connection;
-            public readonly bool remove;
+            public readonly Ice.Connection Connection;
+            public readonly bool Remove;
         }
 
         internal FactoryACMMonitor(Ice.Communicator communicator, ACMConfig config)
@@ -101,7 +98,7 @@ namespace IceInternal
             _config = config;
         }
 
-        internal void destroy()
+        internal void Destroy()
         {
             lock (this)
             {
@@ -124,8 +121,8 @@ namespace IceInternal
                     // Cancel the scheduled timer task and schedule it again now to clear the
                     // connection set from the timer thread.
                     //
-                    _communicator.Timer().cancel(this);
-                    _communicator.Timer().schedule(this, 0);
+                    _communicator.Timer().Cancel(this);
+                    _communicator.Timer().Schedule(this, 0);
                 }
 
                 _communicator = null;
@@ -141,9 +138,9 @@ namespace IceInternal
             }
         }
 
-        public void add(Ice.Connection connection)
+        public void Add(Ice.Connection connection)
         {
-            if (_config.timeout == 0)
+            if (_config.Timeout == 0)
             {
                 return;
             }
@@ -154,7 +151,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_communicator != null);
                     _connections.Add(connection);
-                    _communicator.Timer().scheduleRepeated(this, _config.timeout / 2);
+                    _communicator.Timer().ScheduleRepeated(this, _config.Timeout / 2);
                 }
                 else
                 {
@@ -163,9 +160,9 @@ namespace IceInternal
             }
         }
 
-        public void remove(Ice.Connection connection)
+        public void Remove(Ice.Connection connection)
         {
-            if (_config.timeout == 0)
+            if (_config.Timeout == 0)
             {
                 return;
             }
@@ -177,7 +174,7 @@ namespace IceInternal
             }
         }
 
-        public void reap(Ice.Connection connection)
+        public void Reap(Ice.Connection connection)
         {
             lock (this)
             {
@@ -185,37 +182,37 @@ namespace IceInternal
             }
         }
 
-        public IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
+        public IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
         {
             Debug.Assert(_communicator != null);
 
             ACMConfig config = _config.Clone();
             if (timeout.HasValue)
             {
-                config.timeout = timeout.Value * 1000; // To milliseconds
+                config.Timeout = timeout.Value * 1000; // To milliseconds
             }
             if (c.HasValue)
             {
-                config.close = c.Value;
+                config.Close = c.Value;
             }
             if (h.HasValue)
             {
-                config.heartbeat = h.Value;
+                config.Heartbeat = h.Value;
             }
             return new ConnectionACMMonitor(this, _communicator.Timer(), config);
         }
 
-        public Ice.ACM getACM()
+        public Ice.ACM GetACM()
         {
             return new Ice.ACM
             {
-                Timeout = _config.timeout / 1000,
-                Close = _config.close,
-                Heartbeat = _config.heartbeat
+                Timeout = _config.Timeout / 1000,
+                Close = _config.Close,
+                Heartbeat = _config.Heartbeat
             };
         }
 
-        internal List<Ice.Connection>? swapReapedConnections()
+        internal List<Ice.Connection>? SwapReapedConnections()
         {
             lock (this)
             {
@@ -242,20 +239,20 @@ namespace IceInternal
 
                 foreach (Change change in _changes)
                 {
-                    if (change.remove)
+                    if (change.Remove)
                     {
-                        _connections.Remove(change.connection);
+                        _connections.Remove(change.Connection);
                     }
                     else
                     {
-                        _connections.Add(change.connection);
+                        _connections.Add(change.Connection);
                     }
                 }
                 _changes.Clear();
 
                 if (_connections.Count == 0)
                 {
-                    _communicator.Timer().cancel(this);
+                    _communicator.Timer().Cancel(this);
                     return;
                 }
             }
@@ -265,7 +262,7 @@ namespace IceInternal
             // that connections can be added or removed during monitoring.
             //
             long now = Time.currentMonotonicTimeMillis();
-            foreach (var connection in _connections)
+            foreach (Ice.Connection connection in _connections)
             {
                 try
                 {
@@ -273,12 +270,12 @@ namespace IceInternal
                 }
                 catch (System.Exception ex)
                 {
-                    handleException(ex);
+                    HandleException(ex);
                 }
             }
         }
 
-        internal void handleException(System.Exception ex)
+        internal void HandleException(System.Exception ex)
         {
             lock (this)
             {
@@ -286,7 +283,7 @@ namespace IceInternal
                 {
                     return;
                 }
-                _communicator.Logger.error("exception in connection monitor:\n" + ex);
+                _communicator.Logger.Error("exception in connection monitor:\n" + ex);
             }
         }
 
@@ -307,49 +304,43 @@ namespace IceInternal
             _config = config;
         }
 
-        public void add(Ice.Connection connection)
+        public void Add(Ice.Connection connection)
         {
             lock (this)
             {
                 Debug.Assert(_connection == null);
                 _connection = connection;
-                if (_config.timeout > 0)
+                if (_config.Timeout > 0)
                 {
-                    _timer.scheduleRepeated(this, _config.timeout / 2);
+                    _timer.ScheduleRepeated(this, _config.Timeout / 2);
                 }
             }
         }
 
-        public void remove(Ice.Connection connection)
+        public void Remove(Ice.Connection connection)
         {
             lock (this)
             {
                 Debug.Assert(_connection == connection);
                 _connection = null;
-                if (_config.timeout > 0)
+                if (_config.Timeout > 0)
                 {
-                    _timer.cancel(this);
+                    _timer.Cancel(this);
                 }
             }
         }
 
-        public void reap(Ice.Connection connection)
-        {
-            _parent.reap(connection);
-        }
+        public void Reap(Ice.Connection connection) => _parent.Reap(connection);
 
-        public IACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
-        {
-            return _parent.acm(timeout, c, h);
-        }
+        public IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h) => _parent.Acm(timeout, c, h);
 
-        public Ice.ACM getACM()
+        public Ice.ACM GetACM()
         {
             return new Ice.ACM
             {
-                Timeout = _config.timeout / 1000,
-                Close = _config.close,
-                Heartbeat = _config.heartbeat
+                Timeout = _config.Timeout / 1000,
+                Close = _config.Close,
+                Heartbeat = _config.Heartbeat
             };
         }
 
@@ -371,7 +362,7 @@ namespace IceInternal
             }
             catch (System.Exception ex)
             {
-                _parent.handleException(ex);
+                _parent.HandleException(ex);
             }
         }
 

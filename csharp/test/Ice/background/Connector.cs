@@ -4,15 +4,15 @@
 
 internal class Connector : IceInternal.IConnector
 {
-    public IceInternal.ITransceiver connect()
+    public IceInternal.ITransceiver Connect()
     {
         _configuration.checkConnectException();
-        return new Transceiver(_connector.connect());
+        return new Transceiver(_connector.Connect());
     }
 
-    public short type()
+    public short Type()
     {
-        return (short)(Endpoint.TYPE_BASE + _connector.type());
+        return (short)(Endpoint.TYPE_BASE + _connector.Type());
     }
 
     //

@@ -10,9 +10,9 @@ namespace IceInternal
         // Create a transceiver without blocking. The transceiver may not be fully connected
         // until its initialize method is called.
         //
-        ITransceiver connect();
+        ITransceiver Connect();
 
-        short type();
+        short Type();
     }
 
 }

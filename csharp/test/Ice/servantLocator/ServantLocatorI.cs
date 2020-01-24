@@ -31,7 +31,7 @@ namespace Ice.servantLocator
             }
         }
 
-        public Disp locate(Current current, out object cookie)
+        public Disp Locate(Current current, out object cookie)
         {
             lock (this)
             {
@@ -71,7 +71,7 @@ namespace Ice.servantLocator
             return (current, incoming) => testT.Dispatch(testI, current, incoming);
         }
 
-        public void finished(Current current, Disp servant, object cookie)
+        public void Finished(Current current, Disp servant, object cookie)
         {
             lock (this)
             {
@@ -96,7 +96,7 @@ namespace Ice.servantLocator
             test(co.message().Equals("blahblah"));
         }
 
-        public void deactivate(string category)
+        public void Deactivate(string category)
         {
             lock (this)
             {
@@ -119,19 +119,19 @@ namespace Ice.servantLocator
             else if (current.Operation.Equals("unknownUserException"))
             {
                 var ex = new UnknownUserException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("unknownLocalException"))
             {
                 var ex = new UnknownLocalException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("unknownException"))
             {
                 var ex = new UnknownException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("userException"))
@@ -141,7 +141,7 @@ namespace Ice.servantLocator
             else if (current.Operation.Equals("localException"))
             {
                 var ex = new SocketException();
-                ex.error = 0;
+                ex.Error = 0;
                 throw ex;
             }
             else if (current.Operation.Equals("csException"))

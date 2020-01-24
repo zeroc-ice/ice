@@ -103,10 +103,7 @@ namespace Ice
             }
         }
 
-        public override string ToString()
-        {
-            return ToString(ToStringMode.Unicode);
-        }
+        public override string ToString() => ToString(ToStringMode.Unicode);
 
         /// <summary>
         /// Converts an object identity to a string.

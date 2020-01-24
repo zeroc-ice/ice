@@ -2,18 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Net;
+
 namespace IceInternal
 {
-    using System.Net;
-
     internal sealed class UdpConnector : IConnector
     {
-        public ITransceiver connect()
-        {
-            return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
-        }
+        public ITransceiver Connect() =>
+            new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 
-        public short type() => _instance.Type;
+        public short Type() => _instance.Type;
 
         //
         // Only for use by UdpEndpointI
@@ -29,14 +27,14 @@ namespace IceInternal
             _connectionId = connectionId;
 
             _hashCode = 5381;
-            HashUtil.hashAdd(ref _hashCode, _addr);
+            HashUtil.HashAdd(ref _hashCode, _addr);
             if (sourceAddr != null)
             {
-                HashUtil.hashAdd(ref _hashCode, _sourceAddr);
+                HashUtil.HashAdd(ref _hashCode, _sourceAddr);
             }
-            HashUtil.hashAdd(ref _hashCode, _mcastInterface);
-            HashUtil.hashAdd(ref _hashCode, _mcastTtl);
-            HashUtil.hashAdd(ref _hashCode, _connectionId);
+            HashUtil.HashAdd(ref _hashCode, _mcastInterface);
+            HashUtil.HashAdd(ref _hashCode, _mcastTtl);
+            HashUtil.HashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)
@@ -51,7 +49,7 @@ namespace IceInternal
                 return true;
             }
 
-            UdpConnector p = (UdpConnector)obj;
+            var p = (UdpConnector)obj;
             if (!_connectionId.Equals(p._connectionId))
             {
                 return false;
@@ -75,16 +73,16 @@ namespace IceInternal
             return _addr.Equals(p._addr);
         }
 
-        public override string ToString() => Network.addrToString(_addr);
+        public override string ToString() => Network.AddrToString(_addr);
 
         public override int GetHashCode() => _hashCode;
 
-        private ProtocolInstance _instance;
-        private EndPoint _addr;
-        private EndPoint _sourceAddr;
-        private string _mcastInterface;
-        private int _mcastTtl;
-        private string _connectionId;
-        private int _hashCode;
+        private readonly ProtocolInstance _instance;
+        private readonly EndPoint _addr;
+        private readonly EndPoint _sourceAddr;
+        private readonly string _mcastInterface;
+        private readonly int _mcastTtl;
+        private readonly string _connectionId;
+        private readonly int _hashCode;
     }
 }

@@ -6,14 +6,14 @@ namespace IceInternal
 {
     public interface IAcceptor
     {
-        void close();
-        Endpoint listen();
-        bool startAccept(AsyncCallback callback, object state);
-        void finishAccept();
-        ITransceiver accept();
-        string protocol();
+        void Close();
+        Endpoint Listen();
+        bool StartAccept(AsyncCallback callback, object state);
+        void FinishAccept();
+        ITransceiver Accept();
+        string Protocol();
         string ToString();
-        string toDetailedString();
+        string ToDetailedString();
     }
 
 }

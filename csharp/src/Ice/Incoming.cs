@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Ice
 {
-    public interface MarshaledReturnValue
+    public interface IMarshaledReturnValue
     {
-        OutputStream getOutputStream(Current current);
+        OutputStream GetOutputStream(Current current);
     };
 }
 
@@ -38,7 +38,7 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection connection,
+        public void Reset(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection connection,
                           Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
             _communicator = communicator;
@@ -59,7 +59,7 @@ namespace IceInternal
             _inParamPos = -1;
         }
 
-        public bool reclaim()
+        public bool Reclaim()
         {
             if (_responseHandler != null) // Async dispatch not ready for being reclaimed!
             {
@@ -89,9 +89,9 @@ namespace IceInternal
             return true;
         }
 
-        public Ice.Current? getCurrent() => _current;
+        public Ice.Current? GetCurrent() => _current;
 
-        public void invoke(ServantManager servantManager, Ice.InputStream stream)
+        public void Invoke(ServantManager servantManager, Ice.InputStream stream)
         {
             _is = stream;
 
@@ -121,7 +121,7 @@ namespace IceInternal
 
             string operation = _is.ReadString();
             byte mode = _is.ReadByte();
-            Dictionary<string, string> context = new Dictionary<string, string>();
+            var context = new Dictionary<string, string>();
             int sz = _is.ReadSize();
             while (sz-- > 0)
             {
@@ -135,12 +135,12 @@ namespace IceInternal
             {
                 // Read the encapsulation size.
                 int size = _is.ReadInt();
-                _is.Pos = _is.Pos - 4;
+                _is.Pos -= 4;
 
-                _observer = obsv.getDispatchObserver(_current, _is.Pos - start + size);
+                _observer = obsv.GetDispatchObserver(_current, _is.Pos - start + size);
                 if (_observer != null)
                 {
-                    _observer.attach();
+                    _observer.Attach();
                 }
             }
 
@@ -152,13 +152,13 @@ namespace IceInternal
 
             if (servantManager != null)
             {
-                _servant = servantManager.findServant(_current.Id, _current.Facet);
+                _servant = servantManager.FindServant(_current.Id, _current.Facet);
                 if (_servant == null)
                 {
-                    _locator = servantManager.findServantLocator(_current.Id.Category);
+                    _locator = servantManager.FindServantLocator(_current.Id.Category);
                     if (_locator == null && _current.Id.Category.Length > 0)
                     {
-                        _locator = servantManager.findServantLocator("");
+                        _locator = servantManager.FindServantLocator("");
                     }
 
                     if (_locator != null)
@@ -166,12 +166,12 @@ namespace IceInternal
                         Debug.Assert(_locator != null);
                         try
                         {
-                            _servant = _locator.locate(_current, out _cookie);
+                            _servant = _locator.Locate(_current, out _cookie);
                         }
                         catch (Exception ex)
                         {
-                            skipReadParams(); // Required for batch requests.
-                            handleException(ex, false);
+                            SkipReadParams(); // Required for batch requests.
+                            HandleException(ex, false);
                             return;
                         }
                     }
@@ -182,7 +182,7 @@ namespace IceInternal
             {
                 try
                 {
-                    if (servantManager != null && servantManager.hasServant(_current.Id))
+                    if (servantManager != null && servantManager.HasServant(_current.Id))
                     {
                         throw new Ice.FacetNotExistException(_current.Id, _current.Facet, _current.Operation);
                     }
@@ -193,8 +193,8 @@ namespace IceInternal
                 }
                 catch (Exception ex)
                 {
-                    skipReadParams(); // Required for batch requests
-                    handleException(ex, false);
+                    SkipReadParams(); // Required for batch requests
+                    HandleException(ex, false);
                     return;
                 }
             }
@@ -204,14 +204,14 @@ namespace IceInternal
                 Task<Ice.OutputStream?>? task = _servant(this, _current);
                 if (task == null)
                 {
-                    completed(null, false);
+                    Completed(null, false);
                 }
                 else
                 {
                     if (task.IsCompleted)
                     {
                         _os = task.GetAwaiter().GetResult(); // Get the response
-                        completed(null, false);
+                        Completed(null, false);
                     }
                     else
                     {
@@ -220,11 +220,11 @@ namespace IceInternal
                             try
                             {
                                 _os = t.GetAwaiter().GetResult();
-                                completed(null, true); // true = asynchronous
+                                Completed(null, true); // true = asynchronous
                             }
                             catch (Exception ex)
                             {
-                                completed(ex, true); // true = asynchronous
+                                Completed(ex, true); // true = asynchronous
                             }
                         },
                         CancellationToken.None,
@@ -235,38 +235,38 @@ namespace IceInternal
             }
             catch (Exception ex)
             {
-                completed(ex, false);
+                Completed(ex, false);
             }
         }
 
-        public Task<Ice.OutputStream?>? setResult(Ice.OutputStream? os)
+        public Task<Ice.OutputStream?>? SetResult(Ice.OutputStream? os)
         {
             _os = os;
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
-        public Task<Ice.OutputStream>? setMarshaledResult<T>(T result) where T : struct, Ice.MarshaledReturnValue
+        public Task<Ice.OutputStream>? SetMarshaledResult<T>(T result) where T : struct, Ice.IMarshaledReturnValue
         {
             Debug.Assert(_current != null);
-            _os = result.getOutputStream(_current);
+            _os = result.GetOutputStream(_current);
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
-        public Task<Ice.OutputStream?>? setResultTask<R>(Task<R>? task, Action<Ice.OutputStream, R> write)
+        public Task<Ice.OutputStream?>? SetResultTask<R>(Task<R>? task, Action<Ice.OutputStream, R> write)
         {
             if (task == null)
             {
                 //
                 // Write default constructed response if no task is provided
                 //
-                var os = startWriteParams();
+                Ice.OutputStream os = StartWriteParams();
                 write(os, default);
-                endWriteParams(os);
-                return setResult(os);
+                EndWriteParams(os);
+                return SetResult(os);
             }
             else
             {
-                var cached = getAndClearCachedOutputStream(); // If an output stream is cached, re-use it
+                Ice.OutputStream? cached = GetAndClearCachedOutputStream(); // If an output stream is cached, re-use it
 
                 //
                 // NOTE: it's important that the continuation doesn't mutate the Incoming state to
@@ -275,10 +275,10 @@ namespace IceInternal
                 //
                 return task.ContinueWith((Task<R> t) =>
                 {
-                    var result = t.GetAwaiter().GetResult();
-                    var os = startWriteParams(cached);
+                    R result = t.GetAwaiter().GetResult();
+                    Ice.OutputStream os = StartWriteParams(cached);
                     write(os, result);
-                    endWriteParams(os);
+                    EndWriteParams(os);
                     return Task.FromResult<Ice.OutputStream?>(os);
                 },
                 CancellationToken.None,
@@ -287,18 +287,18 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? setResultTask(Task task)
+        public Task<Ice.OutputStream?>? SetResultTask(Task task)
         {
             if (task == null)
             {
                 //
                 // Write response if no task is provided
                 //
-                return setResult(writeEmptyParams());
+                return SetResult(WriteEmptyParams());
             }
             else
             {
-                var cached = getAndClearCachedOutputStream(); // If an output stream is cached, re-use it
+                Ice.OutputStream? cached = GetAndClearCachedOutputStream(); // If an output stream is cached, re-use it
 
                 //
                 // NOTE: it's important that the continuation doesn't mutate the Incoming state to
@@ -308,7 +308,7 @@ namespace IceInternal
                 return task.ContinueWith((Task t) =>
                     {
                         t.GetAwaiter().GetResult();
-                        return Task.FromResult(writeEmptyParams(cached));
+                        return Task.FromResult(WriteEmptyParams(cached));
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
@@ -316,12 +316,12 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? setMarshaledResultTask<T>(Task<T> task) where T : struct, Ice.MarshaledReturnValue
+        public Task<Ice.OutputStream?>? SetMarshaledResultTask<T>(Task<T> task) where T : struct, Ice.IMarshaledReturnValue
         {
             Debug.Assert(_current != null);
             if (task == null)
             {
-                return setResult(default(T).getOutputStream(_current));
+                return SetResult(default(T).GetOutputStream(_current));
             }
             else
             {
@@ -331,16 +331,14 @@ namespace IceInternal
                 // user installed a dispatch interceptor and the dispatch is retried.
                 //
                 return task.ContinueWith((Task<T> t) =>
-                    {
-                        return Task.FromResult<Ice.OutputStream?>(t.GetAwaiter().GetResult().getOutputStream(_current));
-                    },
-                    CancellationToken.None,
-                    TaskContinuationOptions.ExecuteSynchronously,
-                    TaskScheduler.Current).Unwrap();
+                    Task.FromResult<Ice.OutputStream?>(t.GetAwaiter().GetResult().GetOutputStream(_current)),
+                        CancellationToken.None,
+                        TaskContinuationOptions.ExecuteSynchronously,
+                        TaskScheduler.Current).Unwrap();
             }
         }
 
-        private void completed(Exception? exc, bool amd)
+        private void Completed(Exception? exc, bool amd)
         {
             Debug.Assert(_responseHandler != null, "null response handler");
             Debug.Assert(_current != null, "null current");
@@ -351,25 +349,25 @@ namespace IceInternal
                     Debug.Assert(_servant != null, "null servant");
                     try
                     {
-                        _locator.finished(_current, _servant, _cookie);
+                        _locator.Finished(_current, _servant, _cookie);
                     }
                     catch (Exception ex)
                     {
-                        handleException(ex, amd);
+                        HandleException(ex, amd);
                         return;
                     }
                 }
 
                 if (exc != null)
                 {
-                    handleException(exc, amd);
+                    HandleException(exc, amd);
                 }
                 else if (_response)
                 {
                     Debug.Assert(_os != null, "null output stream");
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -386,14 +384,14 @@ namespace IceInternal
             {
                 if (_observer != null)
                 {
-                    _observer.detach();
+                    _observer.Detach();
                     _observer = null;
                 }
                 _responseHandler = null;
             }
         }
 
-        public void startOver()
+        public void StartOver()
         {
             Debug.Assert(_is != null);
             if (_inParamPos == -1)
@@ -416,7 +414,7 @@ namespace IceInternal
             }
         }
 
-        public void skipReadParams()
+        public void SkipReadParams()
         {
             Debug.Assert(_is != null);
             Debug.Assert(_current != null);
@@ -427,7 +425,7 @@ namespace IceInternal
             _current.Encoding = _is.SkipEncapsulation();
         }
 
-        public Ice.InputStream startReadParams()
+        public Ice.InputStream StartReadParams()
         {
             Debug.Assert(_is != null);
             Debug.Assert(_current != null);
@@ -439,39 +437,35 @@ namespace IceInternal
             return _is;
         }
 
-        public void endReadParams()
+        public void EndReadParams()
         {
             Debug.Assert(_is != null);
             _is.EndEncapsulation();
         }
 
-        public void readEmptyParams()
+        public void ReadEmptyParams()
         {
             Debug.Assert(_is != null);
             Debug.Assert(_current != null);
             _current.Encoding = _is.SkipEmptyEncapsulation();
         }
 
-        public byte[] readParamEncaps()
+        public byte[] ReadParamEncaps()
         {
             Debug.Assert(_is != null);
             Debug.Assert(_current != null);
-            Ice.EncodingVersion encoding;
-            byte[] result = _is.ReadEncapsulation(out encoding);
+            byte[] result = _is.ReadEncapsulation(out Ice.EncodingVersion encoding);
             _current.Encoding = encoding;
             return result;
         }
 
-        public void setFormat(Ice.FormatType format)
-        {
-            _format = format;
-        }
+        public void SetFormat(Ice.FormatType format) => _format = format;
 
-        public Ice.OutputStream? getAndClearCachedOutputStream()
+        public Ice.OutputStream? GetAndClearCachedOutputStream()
         {
             if (_response)
             {
-                var cached = _os;
+                Ice.OutputStream? cached = _os;
                 _os = null;
                 return cached;
             }
@@ -481,16 +475,16 @@ namespace IceInternal
             }
         }
 
-        public static Ice.OutputStream createResponseOutputStream(Ice.Current current)
+        public static Ice.OutputStream CreateResponseOutputStream(Ice.Current current)
         {
-            var os = new Ice.OutputStream(current.Adapter!.Communicator, Ice.Util.currentProtocolEncoding);
+            var os = new Ice.OutputStream(current.Adapter!.Communicator, Ice.Util.CurrentProtocolEncoding);
             os.WriteBlob(Protocol.replyHdr);
             os.WriteInt(current.RequestId);
             os.WriteByte(ReplyStatus.replyOK);
             return os;
         }
 
-        private Ice.OutputStream startWriteParams(Ice.OutputStream? os)
+        private Ice.OutputStream StartWriteParams(Ice.OutputStream? os)
         {
             if (!_response)
             {
@@ -499,7 +493,7 @@ namespace IceInternal
 
             if (os == null) // Create the output stream if none is provided
             {
-                os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
+                os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
             }
             Debug.Assert(_current != null);
             Debug.Assert(os.Pos == 0);
@@ -510,12 +504,9 @@ namespace IceInternal
             return os;
         }
 
-        public Ice.OutputStream startWriteParams()
-        {
-            return startWriteParams(getAndClearCachedOutputStream());
-        }
+        public Ice.OutputStream StartWriteParams() => StartWriteParams(GetAndClearCachedOutputStream());
 
-        public void endWriteParams(Ice.OutputStream os)
+        public void EndWriteParams(Ice.OutputStream os)
         {
             if (_response)
             {
@@ -523,13 +514,13 @@ namespace IceInternal
             }
         }
 
-        private Ice.OutputStream? writeEmptyParams(Ice.OutputStream? os)
+        private Ice.OutputStream? WriteEmptyParams(Ice.OutputStream? os)
         {
             if (_response)
             {
                 if (os == null) // Create the output stream if none is provided
                 {
-                    os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
+                    os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
                 }
                 Debug.Assert(_current != null);
                 Debug.Assert(os.Pos == 0);
@@ -545,23 +536,20 @@ namespace IceInternal
             }
         }
 
-        public Ice.OutputStream? writeEmptyParams()
-        {
-            return writeEmptyParams(getAndClearCachedOutputStream());
-        }
+        public Ice.OutputStream? WriteEmptyParams() => WriteEmptyParams(GetAndClearCachedOutputStream());
 
-        public Ice.OutputStream? writeParamEncaps(Ice.OutputStream? os, byte[] v, bool ok)
+        public Ice.OutputStream? WriteParamEncaps(Ice.OutputStream? os, byte[] v, bool ok)
         {
             if (!ok && _observer != null)
             {
-                _observer.userException();
+                _observer.UserException();
             }
 
             if (_response)
             {
                 if (os == null) // Create the output stream if none is provided
                 {
-                    os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
+                    os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
                 }
                 Debug.Assert(_current != null);
                 Debug.Assert(os.Pos == 0);
@@ -584,7 +572,7 @@ namespace IceInternal
             }
         }
 
-        private void warning(Exception ex)
+        private void Warning(Exception ex)
         {
             Debug.Assert(_communicator != null);
             Debug.Assert(_current != null);
@@ -601,9 +589,8 @@ namespace IceInternal
                 {
                     for (Ice.ConnectionInfo? p = _current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
                     {
-                        if (p is Ice.IPConnectionInfo)
+                        if (p is Ice.IPConnectionInfo ipinfo)
                         {
-                            Ice.IPConnectionInfo ipinfo = (Ice.IPConnectionInfo)p;
                             output.Append("\nremote host: ").Append(ipinfo.RemoteAddress)
                                   .Append(" remote port: ")
                                   .Append(ipinfo.RemotePort);
@@ -617,10 +604,10 @@ namespace IceInternal
             }
             output.Append("\n");
             output.Append(ex.ToString());
-            _communicator.Logger.warning(output.ToString());
+            _communicator.Logger.Warning(output.ToString());
         }
 
-        private void handleException(Exception exc, bool amd)
+        private void HandleException(Exception exc, bool amd)
         {
             Debug.Assert(_current != null);
             Debug.Assert(_responseHandler != null);
@@ -644,7 +631,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    _os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
+                    _os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
                 }
             }
 
@@ -654,29 +641,29 @@ namespace IceInternal
             }
             catch (Ice.RequestFailedException ex)
             {
-                if (ex.id.Name == null || ex.id.Name.Length == 0)
+                if (ex.Id.Name == null || ex.Id.Name.Length == 0)
                 {
-                    ex.id = _current.Id;
+                    ex.Id = _current.Id;
                 }
 
-                if (ex.facet == null || ex.facet.Length == 0)
+                if (ex.Facet == null || ex.Facet.Length == 0)
                 {
-                    ex.facet = _current.Facet;
+                    ex.Facet = _current.Facet;
                 }
 
-                if (ex.operation == null || ex.operation.Length == 0)
+                if (ex.Operation == null || ex.Operation.Length == 0)
                 {
-                    ex.operation = _current.Operation;
+                    ex.Operation = _current.Operation;
                 }
 
                 if (_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 1)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.ice_id());
+                    _observer.Failed(ex.ice_id());
                 }
 
                 if (_response)
@@ -700,26 +687,26 @@ namespace IceInternal
                     {
                         Debug.Assert(false);
                     }
-                    ex.id.IceWrite(_os);
+                    ex.Id.IceWrite(_os);
 
                     //
                     // For compatibility with the old FacetPath.
                     //
-                    if (ex.facet == null || ex.facet.Length == 0)
+                    if (ex.Facet == null || ex.Facet.Length == 0)
                     {
                         _os.WriteStringSeq(null);
                     }
                     else
                     {
-                        string[] facetPath2 = { ex.facet };
+                        string[] facetPath2 = { ex.Facet };
                         _os.WriteStringSeq(facetPath2);
                     }
 
-                    _os.WriteString(ex.operation);
+                    _os.WriteString(ex.Operation);
 
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -732,12 +719,12 @@ namespace IceInternal
             {
                 if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.ice_id());
+                    _observer.Failed(ex.ice_id());
                 }
 
                 if (_response)
@@ -746,10 +733,10 @@ namespace IceInternal
                     _os.WriteBlob(Protocol.replyHdr);
                     _os.WriteInt(_current.RequestId);
                     _os.WriteByte(ReplyStatus.replyUnknownLocalException);
-                    _os.WriteString(ex.unknown);
+                    _os.WriteString(ex.Unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -762,12 +749,12 @@ namespace IceInternal
             {
                 if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.ice_id());
+                    _observer.Failed(ex.ice_id());
                 }
 
                 if (_response)
@@ -776,10 +763,10 @@ namespace IceInternal
                     _os.WriteBlob(Protocol.replyHdr);
                     _os.WriteInt(_current.RequestId);
                     _os.WriteByte(ReplyStatus.replyUnknownUserException);
-                    _os.WriteString(ex.unknown);
+                    _os.WriteString(ex.Unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     Debug.Assert(_responseHandler != null && _current != null);
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
@@ -793,12 +780,12 @@ namespace IceInternal
             {
                 if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.ice_id());
+                    _observer.Failed(ex.ice_id());
                 }
 
                 if (_response)
@@ -807,10 +794,10 @@ namespace IceInternal
                     _os.WriteBlob(Protocol.replyHdr);
                     _os.WriteInt(_current.RequestId);
                     _os.WriteByte(ReplyStatus.replyUnknownException);
-                    _os.WriteString(ex.unknown);
+                    _os.WriteString(ex.Unknown);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -823,7 +810,7 @@ namespace IceInternal
             {
                 if (_observer != null)
                 {
-                    _observer.userException();
+                    _observer.UserException();
                 }
 
                 if (_response)
@@ -837,7 +824,7 @@ namespace IceInternal
                     _os.EndEncapsulation();
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, false);
                 }
@@ -850,12 +837,12 @@ namespace IceInternal
             {
                 if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.ice_id());
+                    _observer.Failed(ex.ice_id());
                 }
 
                 if (_response)
@@ -867,7 +854,7 @@ namespace IceInternal
                     _os.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -880,12 +867,12 @@ namespace IceInternal
             {
                 if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
-                    warning(ex);
+                    Warning(ex);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.failed(ex.GetType().FullName);
+                    _observer.Failed(ex.GetType().FullName);
                 }
 
                 if (_response)
@@ -897,7 +884,7 @@ namespace IceInternal
                     _os.WriteString(ex.ToString());
                     if (_observer != null)
                     {
-                        _observer.reply(_os.Size - Protocol.headerSize - 4);
+                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
                     }
                     _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
                 }
@@ -909,7 +896,7 @@ namespace IceInternal
 
             if (_observer != null)
             {
-                _observer.detach();
+                _observer.Detach();
                 _observer = null;
             }
             _responseHandler = null;
@@ -935,6 +922,6 @@ namespace IceInternal
 
         private int _inParamPos = -1;
 
-        public Incoming? next; // For use by Connection.
+        public Incoming? Next; // For use by Connection.
     }
 }

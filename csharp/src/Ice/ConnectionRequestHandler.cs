@@ -6,7 +6,7 @@ namespace IceInternal
 {
     public class ConnectionRequestHandler : IRequestHandler
     {
-        public IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler)
+        public IRequestHandler? Update(IRequestHandler previousHandler, IRequestHandler? newHandler)
         {
             try
             {
@@ -14,7 +14,7 @@ namespace IceInternal
                 {
                     return newHandler;
                 }
-                else if (previousHandler.getConnection() == _connection)
+                else if (previousHandler.GetConnection() == _connection)
                 {
                     //
                     // If both request handlers point to the same connection, we also
@@ -31,37 +31,27 @@ namespace IceInternal
             return this;
         }
 
-        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
-        {
-            return outAsync.invokeRemote(_connection, _compress, _response);
-        }
+        public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) =>
+            outAsync.InvokeRemote(_connection, _compress, _response);
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
-        {
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex) =>
             _connection.AsyncRequestCanceled(outAsync, ex);
-        }
 
-        public Reference getReference()
-        {
-            return _reference;
-        }
+        public Reference GetReference() => _reference;
 
-        public Ice.Connection getConnection()
-        {
-            return _connection;
-        }
+        public Ice.Connection GetConnection() => _connection;
 
         public ConnectionRequestHandler(Reference @ref, Ice.Connection connection, bool compress)
         {
             _reference = @ref;
-            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
+            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _connection = connection;
             _compress = compress;
         }
 
-        private Reference _reference;
-        private bool _response;
-        private Ice.Connection _connection;
-        private bool _compress;
+        private readonly Reference _reference;
+        private readonly bool _response;
+        private readonly Ice.Connection _connection;
+        private readonly bool _compress;
     }
 }

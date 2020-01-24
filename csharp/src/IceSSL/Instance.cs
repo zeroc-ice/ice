@@ -2,64 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+
 namespace IceSSL
 {
-    using System.Security.Authentication;
-    using System.Security.Cryptography.X509Certificates;
-
     internal class Instance : IceInternal.ProtocolInstance
     {
         internal Instance(SSLEngine engine, short type, string protocol) :
-            base(engine.communicator(), type, protocol, true)
-        {
-            _engine = engine;
-        }
+            base(engine.Communicator(), type, protocol, true) => _engine = engine;
 
-        internal SSLEngine engine()
-        {
-            return _engine;
-        }
+        internal SSLEngine Engine() => _engine;
 
-        internal int securityTraceLevel()
-        {
-            return _engine.securityTraceLevel();
-        }
+        internal int SecurityTraceLevel() => _engine.SecurityTraceLevel();
 
-        internal string securityTraceCategory()
-        {
-            return _engine.securityTraceCategory();
-        }
+        internal string SecurityTraceCategory() => _engine.SecurityTraceCategory();
 
-        internal bool initialized()
-        {
-            return _engine.initialized();
-        }
+        internal bool Initialized() => _engine.Initialized();
 
-        internal X509Certificate2Collection? certs()
-        {
-            return _engine.certs();
-        }
+        internal X509Certificate2Collection? Certs() => _engine.Certs();
 
-        internal SslProtocols protocols()
-        {
-            return _engine.protocols();
-        }
+        internal SslProtocols Protocols() => _engine.Protocols();
 
-        internal int checkCRL()
-        {
-            return _engine.checkCRL();
-        }
+        internal int CheckCRL() => _engine.CheckCRL();
 
-        internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
-        {
-            _engine.traceStream(stream, connInfo);
-        }
+        internal void TraceStream(System.Net.Security.SslStream stream, string connInfo) => _engine.TraceStream(stream, connInfo);
 
-        internal void verifyPeer(string? address, IceSSL.ConnectionInfo info, string desc)
-        {
-            _engine.verifyPeer(address, info, desc);
-        }
+        internal void VerifyPeer(ConnectionInfo info, string desc) => _engine.VerifyPeer(info, desc);
 
-        private SSLEngine _engine;
+        private readonly SSLEngine _engine;
     }
 }

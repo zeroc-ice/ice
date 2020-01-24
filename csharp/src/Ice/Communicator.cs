@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Text;
-using System.Linq;
-using System.Globalization;
-using IceInternal;
 
 namespace Ice
 {
@@ -25,16 +25,16 @@ namespace Ice
     internal sealed class BufSizeWarnInfo
     {
         // Whether send size warning has been emitted
-        public bool sndWarn;
+        public bool SndWarn;
 
         // The send size for which the warning wwas emitted
-        public int sndSize;
+        public int SndSize;
 
         // Whether receive size warning has been emitted
-        public bool rcvWarn;
+        public bool RcvWarn;
 
         // The receive size for which the warning wwas emitted
-        public int rcvSize;
+        public int RcvSize;
     }
 
     public sealed partial class Communicator : IDisposable
@@ -104,20 +104,20 @@ namespace Ice
             new Dictionary<string, (object servant, Disp disp)>();
         private Identity? _adminIdentity;
         private AsyncIOThread? _asyncIOThread;
-        private IceInternal.ThreadPool _clientThreadPool;
+        private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly Func<int, string>? _compactIdResolver;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
         private readonly ImplicitContext? _implicitContext; // Immutable
         private static bool _oneOffDone = false;
-        private OutgoingConnectionFactory _outgoingConnectionFactory;
+        private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
         private readonly int[] _retryIntervals;
         private IceInternal.ThreadPool? _serverThreadPool;
         private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
         private int _state;
-        private IceInternal.Timer _timer;
-        private string[] _typeIdNamespaces = { "Ice.TypeId" };
+        private readonly IceInternal.Timer _timer;
+        private readonly string[] _typeIdNamespaces = { "Ice.TypeId" };
 
         public Communicator(Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
@@ -198,7 +198,7 @@ namespace Ice
             _state = StateActive;
             _compactIdResolver = compactIdResolver;
             Dispatcher = dispatcher;
-            Logger = logger ?? Util.getProcessLogger();
+            Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
             ThreadStart = threadStart;
             ThreadStop = threadStop;
@@ -217,7 +217,7 @@ namespace Ice
 
             if (appSettings != null)
             {
-                foreach (var key in appSettings.AllKeys)
+                foreach (string key in appSettings.AllKeys)
                 {
                     string[]? values = appSettings.GetValues(key);
                     if (values == null)
@@ -259,8 +259,8 @@ namespace Ice
                             }
                             catch (System.IO.IOException ex)
                             {
-                                FileException fe = new Ice.FileException(ex);
-                                fe.path = stdOut;
+                                var fe = new Ice.FileException(ex);
+                                fe.Path = stdOut;
                                 throw fe;
                             }
                             outStream.AutoFlush = true;
@@ -284,8 +284,8 @@ namespace Ice
                                 }
                                 catch (System.IO.IOException ex)
                                 {
-                                    Ice.FileException fe = new Ice.FileException(ex);
-                                    fe.path = stdErr;
+                                    var fe = new Ice.FileException(ex);
+                                    fe.Path = stdErr;
                                     throw fe;
                                 }
                                 errStream.AutoFlush = true;
@@ -307,7 +307,7 @@ namespace Ice
                     {
                         Logger = new FileLoggerI(programName, logfile);
                     }
-                    else if (Util.getProcessLogger() is LoggerI)
+                    else if (Util.GetProcessLogger() is LoggerI)
                     {
                         //
                         // Ice.ConsoleListener is enabled by default.
@@ -340,7 +340,7 @@ namespace Ice
                 }
 
                 {
-                    var num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
+                    int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
                     if (num < 1 || num > 0x7fffffff)
                     {
                         ClassGraphDepthMax = 0x7fffffff;
@@ -384,7 +384,7 @@ namespace Ice
                     }
                 }
 
-                bool isIPv6Supported = Network.isIPv6Supported();
+                bool isIPv6Supported = Network.IsIPv6Supported();
                 bool ipv4 = (GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
                 bool ipv6 = (GetPropertyAsInt("Ice.IPv6") ?? (isIPv6Supported ? 1 : 0)) > 0;
                 if (!ipv4 && !ipv6)
@@ -408,16 +408,16 @@ namespace Ice
                 NetworkProxy = CreateNetworkProxy(ProtocolSupport);
 
                 _endpointFactories = new List<IEndpointFactory>();
-                AddEndpointFactory(new TcpEndpointFactory(new ProtocolInstance(this, TCPEndpointType.value, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new ProtocolInstance(this, UDPEndpointType.value, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSEndpointType.value, "ws", false), TCPEndpointType.value));
-                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSSEndpointType.value, "wss", true), SSLEndpointType.value));
+                AddEndpointFactory(new TcpEndpointFactory(new ProtocolInstance(this, TCPEndpointType.Value, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(new ProtocolInstance(this, UDPEndpointType.Value, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSEndpointType.Value, "ws", false), TCPEndpointType.Value));
+                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSSEndpointType.Value, "wss", true), SSLEndpointType.Value));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
                 if (GetPropertyAsInt("Ice.PreloadAssemblies") > 0)
                 {
-                    AssemblyUtil.preloadAssemblies();
+                    AssemblyUtil.PreloadAssemblies();
                 }
 
                 //
@@ -432,7 +432,7 @@ namespace Ice
                 //
                 foreach (IEndpointFactory f in _endpointFactories)
                 {
-                    f.initialize();
+                    f.Initialize();
                 }
 
                 //
@@ -477,7 +477,7 @@ namespace Ice
                         ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, Logger);
                         Logger = loggerAdminLogger;
                         LoggerAdminTraits traits = default;
-                        ILoggerAdmin servant = loggerAdminLogger.getFacet();
+                        ILoggerAdmin servant = loggerAdminLogger.GetFacet();
                         Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
                         _adminFacets.Add(loggerFacetName, (servant, disp));
                     }
@@ -504,7 +504,7 @@ namespace Ice
                         var communicatorObserver = new CommunicatorObserverI(this, Logger);
                         Observer = communicatorObserver;
                         IceMX.MetricsAdminTraits traits = default;
-                        var metricsAdmin = communicatorObserver.getFacet();
+                        MetricsAdminI metricsAdmin = communicatorObserver.GetFacet();
                         Disp disp = (current, incoming) => traits.Dispatch(metricsAdmin, current, incoming);
                         _adminFacets.Add(metricsFacetName, (metricsAdmin, disp));
 
@@ -513,10 +513,8 @@ namespace Ice
                         //
                         if (propsAdmin != null)
                         {
-                            propsAdmin.addUpdateCallback((Dictionary<string, string> updates) =>
-                            {
-                                communicatorObserver.getFacet().updated(updates);
-                            });
+                            propsAdmin.AddUpdateCallback((Dictionary<string, string> updates) =>
+                                communicatorObserver.GetFacet().Updated(updates));
                         }
                     }
                 }
@@ -526,7 +524,7 @@ namespace Ice
                 //
                 if (Observer != null)
                 {
-                    Observer.setObserverUpdater(new ObserverUpdater(this));
+                    Observer.SetObserverUpdater(new ObserverUpdater(this));
                 }
 
                 //
@@ -534,12 +532,12 @@ namespace Ice
                 //
                 try
                 {
-                    _timer = new IceInternal.Timer(this, IceInternal.Util.stringToThreadPriority(
+                    _timer = new IceInternal.Timer(this, IceInternal.Util.StringToThreadPriority(
                                                    GetProperty("Ice.ThreadPriority")));
                 }
                 catch (System.Exception ex)
                 {
-                    Logger.error($"cannot create thread for timer:\n{ex}");
+                    Logger.Error($"cannot create thread for timer:\n{ex}");
                     throw;
                 }
 
@@ -547,11 +545,11 @@ namespace Ice
                 {
                     _endpointHostResolverThread = new HelperThread(this);
                     UpdateEndpointHostResolverObserver();
-                    _endpointHostResolverThread.Start(IceInternal.Util.stringToThreadPriority(GetProperty("Ice.ThreadPriority")));
+                    _endpointHostResolverThread.Start(IceInternal.Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
                 }
                 catch (System.Exception ex)
                 {
-                    Logger.error($"cannot create thread for endpoint host resolver:\n{ex}");
+                    Logger.Error($"cannot create thread for endpoint host resolver:\n{ex}");
                     throw;
                 }
                 _clientThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Client", 0);
@@ -867,12 +865,12 @@ namespace Ice
                 {
                     end = s.Length;
                 }
-                idstr = s.Substring(beg, end - beg);
+                idstr = s[beg..end];
             }
             else
             {
                 beg++; // Skip leading quote
-                idstr = s.Substring(beg, end - beg);
+                idstr = s[beg..end];
                 end++; // Skip trailing quote
             }
 
@@ -884,12 +882,12 @@ namespace Ice
             //
             // Parsing the identity may raise FormatException.
             //
-            Identity ident = Identity.Parse(idstr);
+            var ident = Identity.Parse(idstr);
 
             string facet = "";
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
-            EncodingVersion encoding = DefaultsAndOverrides.defaultEncoding;
+            EncodingVersion encoding = DefaultsAndOverrides.DefaultEncoding;
             ProtocolVersion protocol = Util.Protocol_1_0;
             string adapter;
 
@@ -917,7 +915,7 @@ namespace Ice
                     break;
                 }
 
-                string option = s.Substring(beg, end - beg);
+                string option = s[beg..end];
                 if (option.Length != 2 || option[0] != '-')
                 {
                     throw new FormatException("expected a proxy option but found `{option}' in `{s}'");
@@ -948,12 +946,12 @@ namespace Ice
                             {
                                 end = s.Length;
                             }
-                            argument = s.Substring(beg, end - beg);
+                            argument = s[beg..end];
                         }
                         else
                         {
                             beg++; // Skip leading quote
-                            argument = s.Substring(beg, end - beg);
+                            argument = s[beg..end];
                             end++; // Skip trailing quote
                         }
                     }
@@ -1049,7 +1047,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            encoding = Util.stringToEncodingVersion(argument);
+                            encoding = Util.StringToEncodingVersion(argument);
                             break;
                         }
 
@@ -1060,7 +1058,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            protocol = Util.stringToProtocolVersion(argument);
+                            protocol = Util.StringToProtocolVersion(argument);
                             break;
                         }
 
@@ -1077,11 +1075,11 @@ namespace Ice
                     null, propertyPrefix);
             }
 
-            List<Endpoint> endpoints = new List<Endpoint>();
+            var endpoints = new List<Endpoint>();
 
             if (s[beg] == ':')
             {
-                List<string> unknownEndpoints = new List<string>();
+                var unknownEndpoints = new List<string>();
                 end = beg;
 
                 while (end < s.Length && s[end] == ':')
@@ -1131,7 +1129,7 @@ namespace Ice
                         }
                     }
 
-                    string es = s.Substring(beg, end - beg);
+                    string es = s[beg..end];
                     Endpoint? endp = CreateEndpoint(es, false);
                     if (endp != null)
                     {
@@ -1150,7 +1148,7 @@ namespace Ice
                 }
                 else if (unknownEndpoints.Count != 0 && (GetPropertyAsInt("Ice.Warn.Endpoints") ?? 1) > 0)
                 {
-                    StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
+                    var msg = new StringBuilder("Proxy contains unknown endpoints:");
                     int sz = unknownEndpoints.Count;
                     for (int idx = 0; idx < sz; ++idx)
                     {
@@ -1158,7 +1156,7 @@ namespace Ice
                         msg.Append(unknownEndpoints[idx]);
                         msg.Append("'");
                     }
-                    Logger.warning(msg.ToString());
+                    Logger.Warning(msg.ToString());
                 }
 
                 Endpoint[] ep = endpoints.ToArray();
@@ -1185,12 +1183,12 @@ namespace Ice
                     {
                         end = s.Length;
                     }
-                    adapterstr = s.Substring(beg, end - beg);
+                    adapterstr = s[beg..end];
                 }
                 else
                 {
                     beg++; // Skip leading quote
-                    adapterstr = s.Substring(beg, end - beg);
+                    adapterstr = s[beg..end];
                     end++; // Skip trailing quote
                 }
 
@@ -1319,7 +1317,7 @@ namespace Ice
             // connections and wait for the connections to be finished.
             //
             Shutdown();
-            _outgoingConnectionFactory.destroy();
+            _outgoingConnectionFactory.Destroy();
 
             //
             // First wait for shutdown to finish.
@@ -1342,18 +1340,18 @@ namespace Ice
                 _adapters.Clear();
             }
 
-            _outgoingConnectionFactory.waitUntilFinished();
+            _outgoingConnectionFactory.WaitUntilFinished();
 
             DestroyRetryTask(); // Must be called before destroying thread pools.
 
             if (Observer != null)
             {
-                Observer.setObserverUpdater(null);
+                Observer.SetObserverUpdater(null);
             }
 
             if (Logger is ILoggerAdminLogger)
             {
-                ((ILoggerAdminLogger)Logger).destroy();
+                ((ILoggerAdminLogger)Logger).Destroy();
             }
 
             //
@@ -1363,13 +1361,13 @@ namespace Ice
             //
             if (_serverThreadPool != null)
             {
-                _serverThreadPool.destroy();
+                _serverThreadPool.Destroy();
             }
-            _clientThreadPool.destroy();
+            _clientThreadPool.Destroy();
 
             if (_asyncIOThread != null)
             {
-                _asyncIOThread.destroy();
+                _asyncIOThread.Destroy();
             }
 
             lock (_endpointHostResolverThread)
@@ -1382,15 +1380,15 @@ namespace Ice
             //
             // Wait for all the threads to be finished.
             //
-            _timer.destroy();
-            _clientThreadPool.joinWithAllThreads();
+            _timer.Destroy();
+            _clientThreadPool.JoinWithAllThreads();
             if (_serverThreadPool != null)
             {
-                _serverThreadPool.joinWithAllThreads();
+                _serverThreadPool.JoinWithAllThreads();
             }
             if (_asyncIOThread != null)
             {
-                _asyncIOThread.joinWithThread();
+                _asyncIOThread.JoinWithThread();
             }
 
             _endpointHostResolverThread.Join();
@@ -1416,7 +1414,7 @@ namespace Ice
 
             foreach (IEndpointFactory f in _endpointFactories)
             {
-                f.destroy();
+                f.Destroy();
             }
             _endpointFactories.Clear();
 
@@ -1425,13 +1423,13 @@ namespace Ice
                 List<string> unusedProperties = GetUnusedProperties();
                 if (unusedProperties.Count != 0)
                 {
-                    StringBuilder message = new StringBuilder("The following properties were set but never read:");
+                    var message = new StringBuilder("The following properties were set but never read:");
                     foreach (string s in unusedProperties)
                     {
                         message.Append("\n    ");
                         message.Append(s);
                     }
-                    Logger.warning(message.ToString());
+                    Logger.Warning(message.ToString());
                 }
             }
 
@@ -1444,16 +1442,16 @@ namespace Ice
                 plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
             }
             plugins.Reverse();
-            foreach (var p in plugins)
+            foreach ((string Name, IPlugin Plugin) in plugins)
             {
                 try
                 {
-                    p.Plugin.destroy();
+                    Plugin.Destroy();
                 }
                 catch (System.Exception ex)
                 {
-                    Util.getProcessLogger().warning(
-                        $"unexpected exception raised by plug-in `{p.Name}' destruction:\n{ex}");
+                    Util.GetProcessLogger().Warning(
+                        $"unexpected exception raised by plug-in `{Name}' destruction:\n{ex}");
                 }
             }
 
@@ -1472,7 +1470,7 @@ namespace Ice
             {
                 if (Logger != null && Logger is FileLoggerI)
                 {
-                    ((FileLoggerI)Logger).destroy();
+                    ((FileLoggerI)Logger).Destroy();
                 }
             }
         }
@@ -1495,8 +1493,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                (object servant, Disp disp) result;
-                if (!_adminFacets.TryGetValue(facet, out result))
+                if (!_adminFacets.TryGetValue(facet, out (object servant, Disp disp) result))
                 {
                     return default;
                 }
@@ -1672,8 +1669,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                (object servant, Disp disp) result = default;
-                if (!_adminFacets.TryGetValue(facet, out result))
+                if (!_adminFacets.TryGetValue(facet, out (object servant, Disp disp) result))
                 {
                     throw new NotRegisteredException("facet", facet);
                 }
@@ -1854,17 +1850,16 @@ namespace Ice
         {
             ILogger logger = Logger;
 
-            if (@ref.getMode() == InvocationMode.BatchOneway || @ref.getMode() == InvocationMode.BatchDatagram)
+            if (@ref.GetMode() == InvocationMode.BatchOneway || @ref.GetMode() == InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // batch no longer implemented anyway
                 throw ex;
             }
 
-            if (ex is ObjectNotExistException)
+            if (ex is ObjectNotExistException one)
             {
-                ObjectNotExistException one = (ObjectNotExistException)ex;
-                RouterInfo? ri = @ref.getRouterInfo();
-                if (ri != null && one.operation.Equals("ice_add_proxy"))
+                RouterInfo? ri = @ref.GetRouterInfo();
+                if (ri != null && one.Operation.Equals("ice_add_proxy"))
                 {
                     //
                     // If we have a router, an ObjectNotExistException with an
@@ -1880,20 +1875,20 @@ namespace Ice
                     if (TraceLevels.retry >= 1)
                     {
                         string s = "retrying operation call to add proxy to router\n" + ex;
-                        logger.trace(TraceLevels.retryCat, s);
+                        logger.Trace(TraceLevels.retryCat, s);
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
-                else if (@ref.isIndirect())
+                else if (@ref.IsIndirect())
                 {
                     //
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
 
-                    if (@ref.isWellKnown())
+                    if (@ref.IsWellKnown())
                     {
-                        @ref.getLocatorInfo()?.ClearCache(@ref);
+                        @ref.GetLocatorInfo()?.ClearCache(@ref);
                     }
                 }
                 else
@@ -1957,7 +1952,7 @@ namespace Ice
                 if (TraceLevels.retry >= 1)
                 {
                     string s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
-                    logger.trace(TraceLevels.retryCat, s);
+                    logger.Trace(TraceLevels.retryCat, s);
                 }
                 throw ex;
             }
@@ -1974,7 +1969,7 @@ namespace Ice
                     s += " in " + interval + "ms";
                 }
                 s += " because of exception\n" + ex;
-                logger.trace(TraceLevels.retryCat, s);
+                logger.Trace(TraceLevels.retryCat, s);
             }
 
             return interval;
@@ -1994,7 +1989,7 @@ namespace Ice
 
         internal Reference CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
         {
-            return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
+            return CreateReference(ident, facet, tmpl.GetMode(), tmpl.GetSecure(), tmpl.GetProtocol(), tmpl.GetEncoding(),
                           endpoints, null, null);
         }
 
@@ -2003,7 +1998,7 @@ namespace Ice
             //
             // Create new reference
             //
-            return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
+            return CreateReference(ident, facet, tmpl.GetMode(), tmpl.GetSecure(), tmpl.GetProtocol(), tmpl.GetEncoding(),
                           Array.Empty<Endpoint>(), adapterId, null);
         }
 
@@ -2016,10 +2011,10 @@ namespace Ice
                 this,
                 ident,
                 "", // Facet
-                ((Endpoint)connection.Endpoint).datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
-                ((Endpoint)connection.Endpoint).secure(),
+                ((Endpoint)connection.Endpoint).Datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
+                ((Endpoint)connection.Endpoint).Secure(),
                 Util.Protocol_1_0,
-                DefaultsAndOverrides.defaultEncoding,
+                DefaultsAndOverrides.DefaultEncoding,
                 connection,
                 -1,
                 null,
@@ -2034,10 +2029,10 @@ namespace Ice
                 if (!_setBufSizeWarn.ContainsKey(type))
                 {
                     info = new BufSizeWarnInfo();
-                    info.sndWarn = false;
-                    info.sndSize = -1;
-                    info.rcvWarn = false;
-                    info.rcvSize = -1;
+                    info.SndWarn = false;
+                    info.SndSize = -1;
+                    info.RcvWarn = false;
+                    info.RcvSize = -1;
                     _setBufSizeWarn.Add(type, info);
                 }
                 else
@@ -2070,16 +2065,16 @@ namespace Ice
             // enclosing top-level module
             //
             string className = TypeToClass(id);
-            Type? c = AssemblyUtil.findType(className);
+            Type? c = AssemblyUtil.FindType(className);
 
             //
             // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
             //
             if (c == null && _typeIdNamespaces != null)
             {
-                foreach (var ns in _typeIdNamespaces)
+                foreach (string ns in _typeIdNamespaces)
                 {
-                    Type? helper = AssemblyUtil.findType(ns + "." + className);
+                    Type? helper = AssemblyUtil.FindType(ns + "." + className);
                     if (helper != null)
                     {
                         try
@@ -2117,11 +2112,11 @@ namespace Ice
 
             string? result = null;
 
-            foreach (var ns in compactIdNamespaces)
+            foreach (string ns in compactIdNamespaces)
             {
                 try
                 {
-                    Type? c = AssemblyUtil.findType($"{ns}.TypeId_{compactId}");
+                    Type? c = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
                     if (c != null)
                     {
                         result = (string)c.GetField("typeId").GetValue(null);
@@ -2163,8 +2158,8 @@ namespace Ice
             lock (_setBufSizeWarn)
             {
                 BufSizeWarnInfo info = GetBufSizeWarn(type);
-                info.rcvWarn = true;
-                info.rcvSize = size;
+                info.RcvWarn = true;
+                info.RcvSize = size;
                 _setBufSizeWarn[type] = info;
             }
         }
@@ -2177,7 +2172,7 @@ namespace Ice
 
             if (locator != null && serverId != null)
             {
-                IProcessPrx process = IProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
+                var process = IProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
                 try
                 {
                     //
@@ -2190,10 +2185,10 @@ namespace Ice
                 {
                     if (TraceLevels.location >= 1)
                     {
-                        StringBuilder s = new StringBuilder();
+                        var s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                         s.Append("the server is not known to the locator registry");
-                        Logger.trace(TraceLevels.locationCat, s.ToString());
+                        Logger.Trace(TraceLevels.locationCat, s.ToString());
                     }
 
                     throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
@@ -2202,18 +2197,18 @@ namespace Ice
                 {
                     if (TraceLevels.location >= 1)
                     {
-                        StringBuilder s = new StringBuilder();
+                        var s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        Logger.trace(TraceLevels.locationCat, s.ToString());
+                        Logger.Trace(TraceLevels.locationCat, s.ToString());
                     }
                     throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
 
                 if (TraceLevels.location >= 1)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("registered server `" + serverId + "' with the locator registry");
-                    Logger.trace(TraceLevels.locationCat, s.ToString());
+                    Logger.Trace(TraceLevels.locationCat, s.ToString());
                 }
             }
         }
@@ -2223,8 +2218,8 @@ namespace Ice
             lock (_setBufSizeWarn)
             {
                 BufSizeWarnInfo info = GetBufSizeWarn(type);
-                info.sndWarn = true;
-                info.sndSize = size;
+                info.SndWarn = true;
+                info.SndSize = size;
                 _setBufSizeWarn[type] = info;
             }
         }
@@ -2242,7 +2237,7 @@ namespace Ice
         {
             try
             {
-                _outgoingConnectionFactory.updateConnectionObservers();
+                _outgoingConnectionFactory.UpdateConnectionObservers();
 
                 List<ObjectAdapter> adapters;
                 lock (this)
@@ -2264,10 +2259,10 @@ namespace Ice
         {
             try
             {
-                _clientThreadPool.updateObservers();
+                _clientThreadPool.UpdateObservers();
                 if (_serverThreadPool != null)
                 {
-                    _serverThreadPool.updateObservers();
+                    _serverThreadPool.UpdateObservers();
                 }
 
                 List<ObjectAdapter> adapters;
@@ -2285,10 +2280,10 @@ namespace Ice
 
                 if (_asyncIOThread != null)
                 {
-                    _asyncIOThread.updateObserver();
+                    _asyncIOThread.UpdateObserver();
                 }
                 Debug.Assert(Observer != null);
-                _timer.updateObserver(Observer);
+                _timer.UpdateObserver(Observer);
             }
             catch (CommunicatorDestroyedException)
             {
@@ -2309,7 +2304,7 @@ namespace Ice
             lock (this)
             {
                 Debug.Assert(_adminAdapter != null);
-                foreach (var entry in _adminFacets)
+                foreach (KeyValuePair<string, (object servant, Disp disp)> entry in _adminFacets)
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
@@ -2332,7 +2327,7 @@ namespace Ice
                 }
             }
 
-            List<string> unknownProps = new List<string>();
+            var unknownProps = new List<string>();
             Dictionary<string, string> props = GetProperties(forPrefix: $"{prefix}.");
             foreach (string prop in props.Keys)
             {
@@ -2355,7 +2350,7 @@ namespace Ice
 
             if (unknownProps.Count != 0)
             {
-                StringBuilder message = new StringBuilder("found unknown properties for proxy '");
+                var message = new StringBuilder("found unknown properties for proxy '");
                 message.Append(prefix);
                 message.Append("':");
                 foreach (string s in unknownProps)
@@ -2363,7 +2358,7 @@ namespace Ice
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                Logger.warning(message.ToString());
+                Logger.Warning(message.ToString());
             }
         }
 
@@ -2413,7 +2408,7 @@ namespace Ice
             LocatorInfo? locatorInfo = null;
             if (_defaultLocator != null)
             {
-                if (!_defaultLocator.IceReference.getEncoding().Equals(encoding))
+                if (!_defaultLocator.IceReference.GetEncoding().Equals(encoding))
                 {
                     locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encodingVersion: encoding));
                 }
@@ -2427,12 +2422,12 @@ namespace Ice
             {
                 routerInfo = GetRouterInfo(_defaultRouter);
             }
-            bool collocOptimized = DefaultsAndOverrides.defaultCollocationOptimization;
+            bool collocOptimized = DefaultsAndOverrides.DefaultCollocationOptimization;
             bool cacheConnection = true;
-            bool preferSecure = DefaultsAndOverrides.defaultPreferSecure;
-            EndpointSelectionType endpointSelection = DefaultsAndOverrides.defaultEndpointSelection;
-            int locatorCacheTimeout = DefaultsAndOverrides.defaultLocatorCacheTimeout;
-            int invocationTimeout = DefaultsAndOverrides.defaultInvocationTimeout;
+            bool preferSecure = DefaultsAndOverrides.DefaultPreferSecure;
+            EndpointSelectionType endpointSelection = DefaultsAndOverrides.DefaultEndpointSelection;
+            int locatorCacheTimeout = DefaultsAndOverrides.DefaultLocatorCacheTimeout;
+            int invocationTimeout = DefaultsAndOverrides.DefaultInvocationTimeout;
             Dictionary<string, string>? context = null;
 
             //
@@ -2452,7 +2447,7 @@ namespace Ice
                 ILocatorPrx? locator = GetPropertyAsProxy(property, ILocatorPrx.Factory);
                 if (locator != null)
                 {
-                    if (!locator.IceReference.getEncoding().Equals(encoding))
+                    if (!locator.IceReference.GetEncoding().Equals(encoding))
                     {
                         locatorInfo = GetLocatorInfo(locator.Clone(encodingVersion: encoding));
                     }
@@ -2468,7 +2463,7 @@ namespace Ice
                 {
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
-                        Logger.warning($"`{property}={GetProperty(property)}': cannot set a router on a router; setting ignored");
+                        Logger.Warning($"`{property}={GetProperty(property)}': cannot set a router on a router; setting ignored");
                     }
                     else
                     {
@@ -2500,7 +2495,7 @@ namespace Ice
                     if (locatorCacheTimeout < -1)
                     {
                         locatorCacheTimeout = -1;
-                        Logger.warning($"invalid value for {property} `{val}': defaulting to -1");
+                        Logger.Warning($"invalid value for {property} `{val}': defaulting to -1");
                     }
                 }
 
@@ -2512,7 +2507,7 @@ namespace Ice
                     if (invocationTimeout < 1 && invocationTimeout != -1)
                     {
                         invocationTimeout = -1;
-                        Logger.warning($"invalid value for {property} `{val}': defaulting to -1");
+                        Logger.Warning($"invalid value for {property} `{val}': defaulting to -1");
                     }
                 }
 

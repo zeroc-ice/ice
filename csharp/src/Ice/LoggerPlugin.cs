@@ -17,10 +17,7 @@ namespace Ice
         /// <param name="communicator">The communicator using the custom logger.</param>
         /// <param name="logger">The custom logger for the communicator.</param>
         public
-        LoggerPlugin(Communicator communicator, ILogger logger)
-        {
-            communicator.Logger = logger;
-        }
+        LoggerPlugin(Communicator communicator, ILogger logger) => communicator.Logger = logger;
 
         /// <summary>
         /// Called by the Ice run time during communicator initialization. The derived class
@@ -28,7 +25,7 @@ namespace Ice
         /// by a custom logger.
         /// </summary>
         public void
-        initialize()
+        Initialize()
         {
         }
 
@@ -38,7 +35,7 @@ namespace Ice
         /// by a custom logger.
         /// </summary>
         public void
-        destroy()
+        Destroy()
         {
         }
     }

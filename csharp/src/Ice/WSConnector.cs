@@ -6,11 +6,11 @@ namespace IceInternal
 {
     internal sealed class WSConnector : IConnector
     {
-        public ITransceiver connect() => new WSTransceiver(_instance, _delegate.connect(), _host, _resource);
+        public ITransceiver Connect() => new WSTransceiver(_instance, _delegate.Connect(), _host, _resource);
 
-        public short type()
+        public short Type()
         {
-            return _delegate.type();
+            return _delegate.Type();
         }
 
         internal WSConnector(ProtocolInstance instance, IConnector del, string host, string resource)

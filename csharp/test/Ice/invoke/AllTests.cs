@@ -105,9 +105,9 @@ namespace Ice.invoke
 
                 // begin_ice_invoke with no callback
                 var result = cl.InvokeAsync("opString", OperationMode.Normal, inEncaps).Result;
-                if (result.returnValue)
+                if (result.ReturnValue)
                 {
-                    InputStream inS = new InputStream(communicator, result.outEncaps);
+                    InputStream inS = new InputStream(communicator, result.OutEncaps);
                     inS.StartEncapsulation();
                     string s = inS.ReadString();
                     test(s.Equals(testString));
@@ -123,13 +123,13 @@ namespace Ice.invoke
 
             {
                 var result = cl.InvokeAsync("opException", OperationMode.Normal, null).Result;
-                if (result.returnValue)
+                if (result.ReturnValue)
                 {
                     test(false);
                 }
                 else
                 {
-                    InputStream inS = new InputStream(communicator, result.outEncaps);
+                    InputStream inS = new InputStream(communicator, result.OutEncaps);
                     inS.StartEncapsulation();
                     try
                     {

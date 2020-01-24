@@ -47,7 +47,7 @@ namespace Ice.operations
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public bool supportsCompress(Current current) => IceInternal.BZip2.supported();
+        public bool supportsCompress(Current current) => IceInternal.BZip2.Supported();
 
         public void opVoid(Current current) => test(current.Mode == OperationMode.Normal);
 

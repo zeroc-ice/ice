@@ -8,9 +8,9 @@ public class PluginInitializeFailFactory : Ice.IPluginFactory
 
     internal class PluginInitializeFail : Ice.IPlugin
     {
-        public void initialize() => throw new PluginInitializeFailException();
+        public void Initialize() => throw new PluginInitializeFailException();
 
-        public void destroy() => test(false);
+        public void Destroy() => test(false);
 
         private static void test(bool b)
         {

@@ -2,20 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Ice;
 
 namespace IceInternal
 {
-    public class ConnectRequestHandler : IRequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
+    public class ConnectRequestHandler : IRequestHandler, Reference.IGetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        public IRequestHandler connect(Ice.IObjectPrx proxy)
+        public IRequestHandler Connect(Ice.IObjectPrx proxy)
         {
             lock (this)
             {
-                if (!initialized())
+                if (!Initialized())
                 {
                     _proxies.Add(proxy);
                 }
@@ -23,26 +23,26 @@ namespace IceInternal
             }
         }
 
-        public IRequestHandler? update(IRequestHandler? previousHandler, IRequestHandler? newHandler) =>
+        public IRequestHandler? Update(IRequestHandler? previousHandler, IRequestHandler? newHandler) =>
             previousHandler == this ? newHandler : this;
 
-        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
+        public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
         {
             lock (this)
             {
                 if (!_initialized)
                 {
-                    outAsync.cancelable(this); // This will throw if the request is canceled
+                    outAsync.Cancelable(this); // This will throw if the request is canceled
                 }
 
-                if (!initialized())
+                if (!Initialized())
                 {
                     _requests.AddLast(outAsync);
                     return OutgoingAsyncBase.AsyncStatusQueued;
                 }
             }
             Debug.Assert(_connection != null);
-            return outAsync.invokeRemote(_connection, _compress, _response);
+            return outAsync.InvokeRemote(_connection, _compress, _response);
         }
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
@@ -54,7 +54,7 @@ namespace IceInternal
                     return; // The request has been notified of a failure already.
                 }
 
-                if (!initialized())
+                if (!Initialized())
                 {
                     LinkedListNode<ProxyOutgoingAsyncBase> p = _requests.First;
                     while (p != null)
@@ -62,9 +62,9 @@ namespace IceInternal
                         if (p.Value == outAsync)
                         {
                             _requests.Remove(p);
-                            if (outAsync.exception(ex))
+                            if (outAsync.Exception(ex))
                             {
-                                outAsync.invokeExceptionAsync();
+                                outAsync.InvokeExceptionAsync();
                             }
                             return;
                         }
@@ -77,9 +77,9 @@ namespace IceInternal
             _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
-        public Reference getReference() => _reference;
+        public Reference GetReference() => _reference;
 
-        public Ice.Connection? getConnection()
+        public Ice.Connection? GetConnection()
         {
             lock (this)
             {
@@ -104,7 +104,7 @@ namespace IceInternal
         // Implementation of Reference.GetConnectionCallback
         //
 
-        public void setConnection(Ice.Connection connection, bool compress)
+        public void SetConnection(Ice.Connection connection, bool compress)
         {
             lock (this)
             {
@@ -118,7 +118,7 @@ namespace IceInternal
             // add this proxy to the router info object.
             //
             Debug.Assert(_proxy != null);
-            RouterInfo? ri = _reference.getRouterInfo();
+            RouterInfo? ri = _reference.GetRouterInfo();
             if (ri != null && !ri.AddProxy(_proxy, this))
             {
                 return; // The request handler will be initialized once addProxy returns.
@@ -127,10 +127,10 @@ namespace IceInternal
             //
             // We can now send the queued requests.
             //
-            flushRequests();
+            FlushRequests();
         }
 
-        public void setException(Ice.LocalException ex)
+        public void SetException(Ice.LocalException ex)
         {
             lock (this)
             {
@@ -146,7 +146,7 @@ namespace IceInternal
             //
             try
             {
-                _reference.getCommunicator().RemoveRequestHandler(_reference, this);
+                _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -155,9 +155,9 @@ namespace IceInternal
 
             foreach (ProxyOutgoingAsyncBase outAsync in _requests)
             {
-                if (outAsync.exception(_exception))
+                if (outAsync.Exception(_exception))
                 {
-                    outAsync.invokeExceptionAsync();
+                    outAsync.InvokeExceptionAsync();
                 }
             }
             _requests.Clear();
@@ -177,19 +177,19 @@ namespace IceInternal
         // The proxy was added to the router info, we're now ready to send the
         // queued requests.
         //
-        public void addedProxy() => flushRequests();
+        public void addedProxy() => FlushRequests();
 
         public ConnectRequestHandler(Reference @ref, Ice.IObjectPrx proxy)
         {
             _reference = @ref;
-            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
+            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _proxy = proxy;
             _initialized = false;
             _flushing = false;
             _requestHandler = this;
         }
 
-        private bool initialized()
+        private bool Initialized()
         {
             if (_initialized)
             {
@@ -224,7 +224,7 @@ namespace IceInternal
             }
         }
 
-        private void flushRequests()
+        private void FlushRequests()
         {
             lock (this)
             {
@@ -243,26 +243,26 @@ namespace IceInternal
             {
                 try
                 {
-                    if ((outAsync.invokeRemote(_connection, _compress, _response) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
+                    if ((outAsync.InvokeRemote(_connection, _compress, _response) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
                     {
-                        outAsync.invokeSentAsync();
+                        outAsync.InvokeSentAsync();
                     }
                 }
                 catch (RetryException ex)
                 {
-                    exception = ex.get();
+                    exception = ex.Get();
 
                     // Remove the request handler before retrying.
-                    _reference.getCommunicator().RemoveRequestHandler(_reference, this);
+                    _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
 
                     outAsync.RetryException();
                 }
                 catch (Ice.LocalException ex)
                 {
                     exception = ex;
-                    if (outAsync.exception(ex))
+                    if (outAsync.Exception(ex))
                     {
-                        outAsync.invokeExceptionAsync();
+                        outAsync.InvokeExceptionAsync();
                     }
                 }
             }
@@ -274,7 +274,7 @@ namespace IceInternal
             // request handler to use the more efficient connection request
             // handler.
             //
-            if (_reference.getCacheConnection() && exception == null)
+            if (_reference.GetCacheConnection() && exception == null)
             {
                 _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
                 foreach (Ice.IObjectPrx prx in _proxies)
@@ -294,7 +294,7 @@ namespace IceInternal
                 // Only remove once all the requests are flushed to
                 // guarantee serialization.
                 //
-                _reference.getCommunicator().RemoveRequestHandler(_reference, this);
+                _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
 
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
@@ -302,19 +302,19 @@ namespace IceInternal
             }
         }
 
-        private Reference _reference;
-        private bool _response;
+        private readonly Reference _reference;
+        private readonly bool _response;
 
-        private Ice.IObjectPrx? _proxy;
-        private HashSet<Ice.IObjectPrx> _proxies = new HashSet<Ice.IObjectPrx>();
+        private IObjectPrx? _proxy;
+        private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
 
-        private Ice.Connection? _connection;
+        private Connection? _connection;
         private bool _compress;
-        private Ice.LocalException? _exception;
+        private LocalException? _exception;
         private bool _initialized;
         private bool _flushing;
 
-        private LinkedList<ProxyOutgoingAsyncBase> _requests = new LinkedList<ProxyOutgoingAsyncBase>();
+        private readonly LinkedList<ProxyOutgoingAsyncBase> _requests = new LinkedList<ProxyOutgoingAsyncBase>();
         private IRequestHandler _requestHandler;
     }
 }

@@ -14,10 +14,10 @@ namespace IceInternal
             ICommunicatorObserver? obsv = communicator.Observer;
             if (obsv != null)
             {
-                IInvocationObserver? observer = obsv.getInvocationObserver(null, op, _emptyContext);
+                IInvocationObserver? observer = obsv.GetInvocationObserver(null, op, _emptyContext);
                 if (observer != null)
                 {
-                    observer.attach();
+                    observer.Attach();
                 }
                 return observer;
             }
@@ -37,15 +37,15 @@ namespace IceInternal
                 IInvocationObserver observer;
                 if (context == null)
                 {
-                    observer = obsv.getInvocationObserver(proxy, op, _emptyContext);
+                    observer = obsv.GetInvocationObserver(proxy, op, _emptyContext);
                 }
                 else
                 {
-                    observer = obsv.getInvocationObserver(proxy, op, context);
+                    observer = obsv.GetInvocationObserver(proxy, op, context);
                 }
                 if (observer != null)
                 {
-                    observer.attach();
+                    observer.Attach();
                 }
                 return observer;
             }

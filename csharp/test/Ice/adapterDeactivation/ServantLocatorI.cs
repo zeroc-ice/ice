@@ -52,7 +52,7 @@ namespace Ice.adapterDeactivation
             }
         }
 
-        public Disp locate(Current current, out object cookie)
+        public Disp Locate(Current current, out object cookie)
         {
             lock (this)
             {
@@ -76,7 +76,7 @@ namespace Ice.adapterDeactivation
             return (incoming, current) => testT.Dispatch(testI, incoming, current);
         }
 
-        public void finished(Current current, Disp servant, object cookie)
+        public void Finished(Current current, Disp servant, object cookie)
         {
             lock (this)
             {
@@ -92,7 +92,7 @@ namespace Ice.adapterDeactivation
             test(co.message().Equals("blahblah"));
         }
 
-        public void deactivate(string category)
+        public void Deactivate(string category)
         {
             lock (this)
             {

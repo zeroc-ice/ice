@@ -249,7 +249,7 @@ namespace Ice.timeout
                     catch (ConnectionManuallyClosedException ex)
                     {
                         // Expected.
-                        test(ex.graceful);
+                        test(ex.Graceful);
                         break;
                     }
                 }

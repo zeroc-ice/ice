@@ -11,7 +11,7 @@ namespace Ice.info
     {
         private static IPEndpointInfo? getIPEndpointInfo(Ice.EndpointInfo info)
         {
-            for (EndpointInfo? i = info; i != null; i = i.underlying)
+            for (EndpointInfo? i = info; i != null; i = i.Underlying)
             {
                 if (i is IPEndpointInfo)
                 {
@@ -39,23 +39,23 @@ namespace Ice.info
         {
             Debug.Assert(current.Connection != null);
             Dictionary<string, string> ctx = new Dictionary<string, string>();
-            Ice.EndpointInfo info = current.Connection.Endpoint.getInfo();
-            ctx["timeout"] = info.timeout.ToString();
-            ctx["compress"] = info.compress ? "true" : "false";
-            ctx["datagram"] = info.datagram() ? "true" : "false";
-            ctx["secure"] = info.datagram() ? "true" : "false";
-            ctx["type"] = info.type().ToString();
+            Ice.EndpointInfo info = current.Connection.Endpoint.GetInfo();
+            ctx["timeout"] = info.Timeout.ToString();
+            ctx["compress"] = info.Compress ? "true" : "false";
+            ctx["datagram"] = info.Datagram() ? "true" : "false";
+            ctx["secure"] = info.Datagram() ? "true" : "false";
+            ctx["type"] = info.Type().ToString();
 
             IPEndpointInfo? ipinfo = getIPEndpointInfo(info);
             Debug.Assert(ipinfo != null);
-            ctx["host"] = ipinfo.host;
-            ctx["port"] = ipinfo.port.ToString();
+            ctx["host"] = ipinfo.Host;
+            ctx["port"] = ipinfo.Port.ToString();
 
             if (ipinfo is UDPEndpointInfo)
             {
                 UDPEndpointInfo udp = (UDPEndpointInfo)ipinfo;
-                ctx["mcastInterface"] = udp.mcastInterface;
-                ctx["mcastTtl"] = udp.mcastTtl.ToString();
+                ctx["mcastInterface"] = udp.McastInterface;
+                ctx["mcastTtl"] = udp.McastTtl.ToString();
             }
 
             return ctx;

@@ -16,9 +16,9 @@ namespace Ice.servantLocator
             else
             {
                 var locator = current.Adapter.RemoveServantLocator("");
-                locator.deactivate("");
+                locator.Deactivate("");
                 locator = current.Adapter.RemoveServantLocator("category");
-                locator.deactivate("category");
+                locator.Deactivate("category");
             }
         }
     }

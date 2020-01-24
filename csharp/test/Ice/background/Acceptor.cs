@@ -4,35 +4,35 @@
 
 internal class Acceptor : IceInternal.IAcceptor
 {
-    public void close()
+    public void Close()
     {
-        _acceptor.close();
+        _acceptor.Close();
     }
 
-    public IceInternal.Endpoint listen()
+    public IceInternal.Endpoint Listen()
     {
-        _endpoint = _endpoint.endpoint(_acceptor.listen());
+        _endpoint = _endpoint.endpoint(_acceptor.Listen());
         return _endpoint;
     }
 
-    public bool startAccept(IceInternal.AsyncCallback callback, object state)
+    public bool StartAccept(IceInternal.AsyncCallback callback, object state)
     {
-        return _acceptor.startAccept(callback, state);
+        return _acceptor.StartAccept(callback, state);
     }
 
-    public void finishAccept()
+    public void FinishAccept()
     {
-        _acceptor.finishAccept();
+        _acceptor.FinishAccept();
     }
 
-    public IceInternal.ITransceiver accept()
+    public IceInternal.ITransceiver Accept()
     {
-        return new Transceiver(_acceptor.accept());
+        return new Transceiver(_acceptor.Accept());
     }
 
-    public string protocol()
+    public string Protocol()
     {
-        return _acceptor.protocol();
+        return _acceptor.Protocol();
     }
 
     public override string ToString()
@@ -40,9 +40,9 @@ internal class Acceptor : IceInternal.IAcceptor
         return _acceptor.ToString();
     }
 
-    public string toDetailedString()
+    public string ToDetailedString()
     {
-        return _acceptor.toDetailedString();
+        return _acceptor.ToDetailedString();
     }
 
     public IceInternal.IAcceptor getDelegate()

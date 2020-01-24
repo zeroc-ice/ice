@@ -12,56 +12,47 @@ namespace IceInternal
 
     internal interface ILoggerAdminLogger : Ice.ILogger
     {
-        Ice.ILoggerAdmin getFacet();
-        void destroy();
+        Ice.ILoggerAdmin GetFacet();
+        void Destroy();
     }
 
     internal sealed class LoggerAdminLogger : ILoggerAdminLogger
     {
-        public void print(string message)
+        public void Print(string message)
         {
-            Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
-            _localLogger.print(message);
-            log(logMessage);
+            var logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, Now(), "", message);
+            _localLogger.Print(message);
+            Log(logMessage);
         }
 
-        public void trace(string category, string message)
+        public void Trace(string category, string message)
         {
-            Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
-            _localLogger.trace(category, message);
-            log(logMessage);
+            var logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, Now(), category, message);
+            _localLogger.Trace(category, message);
+            Log(logMessage);
         }
 
-        public void warning(string message)
+        public void Warning(string message)
         {
-            Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
-            _localLogger.warning(message);
-            log(logMessage);
+            var logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, Now(), "", message);
+            _localLogger.Warning(message);
+            Log(logMessage);
         }
 
-        public void error(string message)
+        public void Error(string message)
         {
-            Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
-            _localLogger.error(message);
-            log(logMessage);
+            var logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, Now(), "", message);
+            _localLogger.Error(message);
+            Log(logMessage);
         }
 
-        public string getPrefix()
-        {
-            return _localLogger.getPrefix();
-        }
+        public string GetPrefix() => _localLogger.GetPrefix();
 
-        public Ice.ILogger cloneWithPrefix(string prefix)
-        {
-            return _localLogger.cloneWithPrefix(prefix);
-        }
+        public Ice.ILogger CloneWithPrefix(string prefix) => _localLogger.CloneWithPrefix(prefix);
 
-        public Ice.ILoggerAdmin getFacet()
-        {
-            return _loggerAdmin;
-        }
+        public Ice.ILoggerAdmin GetFacet() => _loggerAdmin;
 
-        public void destroy()
+        public void Destroy()
         {
             Thread? thread = null;
             lock (this)
@@ -80,14 +71,14 @@ namespace IceInternal
                 thread.Join();
             }
 
-            _loggerAdmin.destroy();
+            _loggerAdmin.Destroy();
         }
 
         internal LoggerAdminLogger(Ice.Communicator communicator, Ice.ILogger localLogger)
         {
             if (localLogger is LoggerAdminLogger)
             {
-                _localLogger = ((LoggerAdminLogger)localLogger).getLocalLogger();
+                _localLogger = ((LoggerAdminLogger)localLogger).GetLocalLogger();
             }
             else
             {
@@ -96,14 +87,11 @@ namespace IceInternal
             _loggerAdmin = new LoggerAdmin(communicator, this);
         }
 
-        internal Ice.ILogger getLocalLogger()
-        {
-            return _localLogger;
-        }
+        internal Ice.ILogger GetLocalLogger() => _localLogger;
 
-        internal void log(Ice.LogMessage logMessage)
+        internal void Log(Ice.LogMessage logMessage)
         {
-            List<Ice.IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.log(logMessage);
+            List<Ice.IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.Log(logMessage);
 
             if (remoteLoggers != null)
             {
@@ -113,7 +101,7 @@ namespace IceInternal
                 {
                     if (_sendLogThread == null)
                     {
-                        _sendLogThread = new Thread(new ThreadStart(run));
+                        _sendLogThread = new Thread(new ThreadStart(Run));
                         _sendLogThread.Name = "Ice.SendLogThread";
                         _sendLogThread.IsBackground = true;
                         _sendLogThread.Start();
@@ -125,11 +113,11 @@ namespace IceInternal
             }
         }
 
-        private void run()
+        private void Run()
         {
-            if (_loggerAdmin.getTraceLevel() > 1)
+            if (_loggerAdmin.GetTraceLevel() > 1)
             {
-                _localLogger.trace(_traceCategory, "send log thread started");
+                _localLogger.Trace(TraceCategory, "send log thread started");
             }
 
             for (; ; )
@@ -151,11 +139,11 @@ namespace IceInternal
                     job = _jobQueue.Dequeue();
                 }
 
-                foreach (var p in job.remoteLoggers)
+                foreach (Ice.IRemoteLoggerPrx p in job.RemoteLoggers)
                 {
-                    if (_loggerAdmin.getTraceLevel() > 1)
+                    if (_loggerAdmin.GetTraceLevel() > 1)
                     {
-                        _localLogger.trace(_traceCategory, "sending log message to `" + p.ToString() + "'");
+                        _localLogger.Trace(TraceCategory, "sending log message to `" + p.ToString() + "'");
                     }
 
                     try
@@ -163,15 +151,15 @@ namespace IceInternal
                         //
                         // p is a proxy associated with the _sendLogCommunicator
                         //
-                        p.LogAsync(job.logMessage).ContinueWith(
+                        p.LogAsync(job.LogMessage).ContinueWith(
                             (t) =>
                             {
                                 try
                                 {
                                     t.Wait();
-                                    if (_loggerAdmin.getTraceLevel() > 1)
+                                    if (_loggerAdmin.GetTraceLevel() > 1)
                                     {
-                                        _localLogger.trace(_traceCategory, "log on `" + p.ToString()
+                                        _localLogger.Trace(TraceCategory, "log on `" + p.ToString()
                                                            + "' completed successfully");
                                     }
                                 }
@@ -183,7 +171,7 @@ namespace IceInternal
                                     }
                                     if (ae.InnerException is Ice.LocalException)
                                     {
-                                        _loggerAdmin.deadRemoteLogger(p, _localLogger,
+                                        _loggerAdmin.DeadRemoteLogger(p, _localLogger,
                                                                       (Ice.LocalException)ae.InnerException, "log");
                                     }
                                 }
@@ -192,32 +180,29 @@ namespace IceInternal
                     }
                     catch (Ice.LocalException ex)
                     {
-                        _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
+                        _loggerAdmin.DeadRemoteLogger(p, _localLogger, ex, "log");
                     }
                 }
             }
 
-            if (_loggerAdmin.getTraceLevel() > 1)
+            if (_loggerAdmin.GetTraceLevel() > 1)
             {
-                _localLogger.trace(_traceCategory, "send log thread completed");
+                _localLogger.Trace(TraceCategory, "send log thread completed");
             }
         }
 
-        private static long now()
-        {
-            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
-        }
+        private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
 
         private class Job
         {
             internal Job(List<Ice.IRemoteLoggerPrx> r, Ice.LogMessage l)
             {
-                remoteLoggers = r;
-                logMessage = l;
+                RemoteLoggers = r;
+                LogMessage = l;
             }
 
-            internal readonly List<Ice.IRemoteLoggerPrx> remoteLoggers;
-            internal readonly Ice.LogMessage logMessage;
+            internal readonly List<Ice.IRemoteLoggerPrx> RemoteLoggers;
+            internal readonly Ice.LogMessage LogMessage;
         }
 
         private readonly Ice.ILogger _localLogger;
@@ -226,7 +211,7 @@ namespace IceInternal
         private Thread? _sendLogThread;
         private readonly Queue<Job> _jobQueue = new Queue<Job>();
 
-        private const string _traceCategory = "Admin.Logger";
+        private const string TraceCategory = "Admin.Logger";
     }
 
 }

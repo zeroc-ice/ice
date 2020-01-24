@@ -28,10 +28,10 @@ namespace IceInternal
         public Ice.Communicator Communicator { get; protected set; }
         public bool PreferIPv6 => Communicator.PreferIPv6;
         public int ProtocolSupport => Communicator.ProtocolSupport;
-        public string DefaultHost => Communicator.DefaultsAndOverrides.defaultHost ?? "";
-        public EndPoint? DefaultSourceAddress => Communicator.DefaultsAndOverrides.defaultSourceAddress;
-        public Ice.EncodingVersion DefaultEncoding => Communicator.DefaultsAndOverrides.defaultEncoding;
-        public int DefaultTimeout => Communicator.DefaultsAndOverrides.defaultTimeout;
+        public string DefaultHost => Communicator.DefaultsAndOverrides.DefaultHost ?? "";
+        public EndPoint? DefaultSourceAddress => Communicator.DefaultsAndOverrides.DefaultSourceAddress;
+        public Ice.EncodingVersion DefaultEncoding => Communicator.DefaultsAndOverrides.DefaultEncoding;
+        public int DefaultTimeout => Communicator.DefaultsAndOverrides.DefaultTimeout;
         public int MessageSizeMax => Communicator.MessageSizeMax;
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
@@ -39,8 +39,8 @@ namespace IceInternal
         public void Resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback) =>
             Communicator.Resolve(host, port, type, endpt, callback);
-        public void setSndBufSizeWarn(short type, int size) => Communicator.SetSndBufSizeWarn(type, size);
-        public void setRcvBufSizeWarn(short type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
+        public void SetSndBufSizeWarn(short type, int size) => Communicator.SetSndBufSizeWarn(type, size);
+        public void SetRcvBufSizeWarn(short type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
 
         internal Ice.BufSizeWarnInfo GetBufSizeWarn(short type) => Communicator.GetBufSizeWarn(type);
     }

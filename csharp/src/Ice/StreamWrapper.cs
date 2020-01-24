@@ -1,12 +1,11 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using System.Diagnostics;
+using System.IO;
 
 namespace IceInternal
 {
-    using System.Diagnostics;
-    using System.IO;
-
     //
     // Classes to provide a System.IO.Stream interface on top of an Ice stream.
     // We use this to serialize arbitrary .NET serializable classes into
@@ -76,7 +75,7 @@ namespace IceInternal
                         // Write the current contents of _bytes.
                         //
                         _s.Expand(_pos);
-                        _s.GetBuffer().b.put(_bytes, 0, _pos);
+                        _s.GetBuffer().B.Put(_bytes, 0, _pos);
                     }
 
                     _bytes = null;
@@ -86,7 +85,7 @@ namespace IceInternal
                 // Write data passed by caller.
                 //
                 _s.Expand(count);
-                _s.GetBuffer().b.put(array, offset, count);
+                _s.GetBuffer().B.Put(array, offset, count);
                 _pos += count;
             }
             catch (System.Exception ex)
@@ -118,7 +117,7 @@ namespace IceInternal
                         // Write the current contents of _bytes.
                         //
                         _s.Expand(_pos);
-                        _s.GetBuffer().b.put(_bytes, 0, _pos);
+                        _s.GetBuffer().B.Put(_bytes, 0, _pos);
                     }
 
                     _bytes = null;
@@ -128,7 +127,7 @@ namespace IceInternal
                 // Write data passed by caller.
                 //
                 _s.Expand(1);
-                _s.GetBuffer().b.put(value);
+                _s.GetBuffer().B.Put(value);
                 _pos += 1;
             }
             catch (System.Exception ex)
@@ -137,29 +136,11 @@ namespace IceInternal
             }
         }
 
-        public override bool CanRead
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanRead => false;
 
-        public override bool CanWrite
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanWrite => true;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanSeek => false;
 
         public override void Flush()
         {
@@ -171,7 +152,7 @@ namespace IceInternal
                     _s.Pos = _spos;
                     _s.WriteSize(_pos);
                     _s.Expand(_pos);
-                    _s.GetBuffer().b.put(_bytes, 0, _pos);
+                    _s.GetBuffer().B.Put(_bytes, 0, _pos);
                 }
                 else
                 {
@@ -187,25 +168,13 @@ namespace IceInternal
             }
         }
 
-        public override long Length
-        {
-            get
-            {
-                return _length;
-            }
-        }
+        public override long Length => _length;
 
         public override long Position
         {
-            get
-            {
-                return _pos;
-            }
+            get => _pos;
 
-            set
-            {
-                Seek(value, SeekOrigin.Begin);
-            }
+            set => _ = Seek(value, SeekOrigin.Begin);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -220,8 +189,8 @@ namespace IceInternal
             _length = value;
         }
 
-        private Ice.OutputStream _s;
-        private int _spos;
+        private readonly Ice.OutputStream _s;
+        private readonly int _spos;
         private byte[]? _bytes;
         private int _pos;
         private long _length;
@@ -241,7 +210,7 @@ namespace IceInternal
             Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
             try
             {
-                _s.GetBuffer().b.get(buffer, offset, count);
+                _s.GetBuffer().B.Get(buffer, offset, count);
             }
             catch (System.Exception ex)
             {
@@ -254,7 +223,7 @@ namespace IceInternal
         {
             try
             {
-                return _s.GetBuffer().b.get();
+                return _s.GetBuffer().B.Get();
             }
             catch (System.Exception ex)
             {
@@ -262,63 +231,27 @@ namespace IceInternal
             }
         }
 
-        public override void Write(byte[] array, int offset, int count)
-        {
-            Debug.Assert(false);
-        }
+        public override void Write(byte[] array, int offset, int count) => Debug.Assert(false);
 
-        public override void WriteByte(byte value)
-        {
-            Debug.Assert(false);
-        }
+        public override void WriteByte(byte value) => Debug.Assert(false);
 
-        public override bool CanRead
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanWrite
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanWrite => false;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanSeek => true;
 
         public override void Flush()
         {
         }
 
-        public override long Length
-        {
-            get
-            {
-                return _length;
-            }
-        }
+        public override long Length => _length;
 
         public override long Position
         {
-            get
-            {
-                return _pos;
-            }
+            get => _pos;
 
-            set
-            {
-                Seek(value, SeekOrigin.Begin);
-            }
+            set => _ = Seek(value, SeekOrigin.Begin);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -351,13 +284,10 @@ namespace IceInternal
             return _pos;
         }
 
-        public override void SetLength(long value)
-        {
-            Debug.Assert(false);
-        }
+        public override void SetLength(long value) => Debug.Assert(false);
 
-        private Ice.InputStream _s;
+        private readonly Ice.InputStream _s;
         private int _pos;
-        private long _length;
+        private readonly long _length;
     }
 }

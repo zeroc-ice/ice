@@ -16,115 +16,100 @@ namespace IceDiscovery
     {
         protected Request(Lookup lookup, T id, int retryCount)
         {
-            lookup_ = lookup;
-            retryCount_ = retryCount;
-            _id = id;
+            Lookup = lookup;
+            RetryCount = retryCount;
+            Id = id;
             _requestId = Guid.NewGuid().ToString();
         }
 
-        public T getId()
+        public T GetId() => Id;
+
+        public bool AddCallback(TaskCompletionSource<Ice.IObjectPrx> cb)
         {
-            return _id;
+            Callbacks.Add(cb);
+            return Callbacks.Count == 1;
         }
 
-        public bool addCallback(TaskCompletionSource<Ice.IObjectPrx> cb)
-        {
-            callbacks_.Add(cb);
-            return callbacks_.Count == 1;
-        }
+        public virtual bool Retry() => --RetryCount >= 0;
 
-        public virtual bool retry()
+        public void Invoke(string domainId, Dictionary<ILookupPrx, ILookupReplyPrx?> lookups)
         {
-            return --retryCount_ >= 0;
-        }
-
-        public void invoke(string domainId, Dictionary<ILookupPrx, ILookupReplyPrx?> lookups)
-        {
-            _lookupCount = lookups.Count;
-            _failureCount = 0;
-            Ice.Identity id = new Ice.Identity(_requestId, "");
-            foreach (var entry in lookups)
+            LookupCount = lookups.Count;
+            FailureCount = 0;
+            var id = new Ice.Identity(_requestId, "");
+            foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> entry in lookups)
             {
-                invokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
+                InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
             }
         }
 
-        public bool exception()
+        public bool Exception()
         {
-            if (++_failureCount == _lookupCount)
+            if (++FailureCount == LookupCount)
             {
-                finished(null);
+                Finished(null);
                 return true;
             }
             return false;
         }
 
-        public string getRequestId()
-        {
-            return _requestId;
-        }
+        public string GetRequestId() => _requestId;
 
-        public abstract void finished(IObjectPrx? proxy);
+        public abstract void Finished(IObjectPrx? proxy);
 
-        protected abstract void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
+        protected abstract void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
 
         private readonly string _requestId;
 
-        protected Lookup lookup_;
-        protected int retryCount_;
-        protected int _lookupCount;
-        protected int _failureCount;
-        protected List<TaskCompletionSource<IObjectPrx?>> callbacks_ = new List<TaskCompletionSource<IObjectPrx?>>();
+        protected Lookup Lookup;
+        protected int RetryCount;
+        protected int LookupCount;
+        protected int FailureCount;
+        protected List<TaskCompletionSource<IObjectPrx?>> Callbacks = new List<TaskCompletionSource<IObjectPrx?>>();
 
-        protected T _id;
+        protected T Id;
     };
 
     internal class AdapterRequest : Request<string>, IceInternal.ITimerTask
     {
-        public AdapterRequest(Lookup lookup, string id, int retryCount) : base(lookup, id, retryCount)
-        {
-            _start = DateTime.Now.Ticks;
-        }
+        public AdapterRequest(Lookup lookup, string id, int retryCount) : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
-        public override bool retry()
-        {
-            return _proxies.Count == 0 && --retryCount_ >= 0;
-        }
+        public override bool Retry() => _proxies.Count == 0 && --RetryCount >= 0;
 
-        public bool response(IObjectPrx proxy, bool isReplicaGroup)
+        public bool Response(IObjectPrx proxy, bool isReplicaGroup)
         {
             if (isReplicaGroup)
             {
                 _proxies.Add(proxy);
                 if (_latency == 0)
                 {
-                    _latency = (long)((DateTime.Now.Ticks - _start) * lookup_.latencyMultiplier() / 10000.0);
+                    _latency = (long)((DateTime.Now.Ticks - _start) * Lookup.LatencyMultiplier() / 10000.0);
                     if (_latency == 0)
                     {
                         _latency = 1; // 1ms
                     }
-                    lookup_.timer().cancel(this);
-                    lookup_.timer().schedule(this, _latency);
+                    Lookup.Timer().Cancel(this);
+                    Lookup.Timer().Schedule(this, _latency);
                 }
                 return false;
             }
-            finished(proxy);
+            Finished(proxy);
             return true;
         }
 
-        public override void finished(IObjectPrx? proxy)
+        public override void Finished(IObjectPrx? proxy)
         {
             if (proxy != null || _proxies.Count == 0)
             {
-                sendResponse(proxy);
+                SendResponse(proxy);
             }
             else if (_proxies.Count == 1)
             {
-                sendResponse(_proxies.First());
+                SendResponse(_proxies.First());
             }
             else
             {
-                List<IEndpoint> endpoints = new List<IEndpoint>();
+                var endpoints = new List<IEndpoint>();
                 IObjectPrx? result = null;
                 foreach (IObjectPrx prx in _proxies)
                 {
@@ -135,15 +120,15 @@ namespace IceDiscovery
                     endpoints.AddRange(prx.Endpoints);
                 }
                 Debug.Assert(result != null);
-                sendResponse(result.Clone(endpoints: endpoints.ToArray()));
+                SendResponse(result.Clone(endpoints: endpoints.ToArray()));
             }
         }
 
-        public void RunTimerTask() => lookup_.AdapterRequestTimedOut(this);
+        public void RunTimerTask() => Lookup.AdapterRequestTimedOut(this);
 
-        protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
+            lookup.FindAdapterByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
             {
                 try
                 {
@@ -151,18 +136,18 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.AdapterRequestException(this, ex.InnerException);
+                    Lookup.AdapterRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);
         }
 
-        private void sendResponse(IObjectPrx? proxy)
+        private void SendResponse(IObjectPrx? proxy)
         {
-            foreach (var cb in callbacks_)
+            foreach (TaskCompletionSource<IObjectPrx?> cb in Callbacks)
             {
                 cb.SetResult(proxy);
             }
-            callbacks_.Clear();
+            Callbacks.Clear();
         }
 
         //
@@ -181,22 +166,22 @@ namespace IceDiscovery
         {
         }
 
-        public void response(IObjectPrx proxy) => finished(proxy);
+        public void Response(IObjectPrx proxy) => Finished(proxy);
 
-        public override void finished(IObjectPrx? proxy)
+        public override void Finished(IObjectPrx? proxy)
         {
-            foreach (var cb in callbacks_)
+            foreach (TaskCompletionSource<IObjectPrx?> cb in Callbacks)
             {
                 cb.SetResult(proxy);
             }
-            callbacks_.Clear();
+            Callbacks.Clear();
         }
 
-        public void RunTimerTask() => lookup_.objectRequestTimedOut(this);
+        public void RunTimerTask() => Lookup.ObjectRequestTimedOut(this);
 
-        protected override void invokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task =>
+            lookup.FindObjectByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
             {
                 try
                 {
@@ -204,7 +189,7 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
-                    lookup_.ObjectRequestException(this, ex.InnerException);
+                    Lookup.ObjectRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);
         }
@@ -227,7 +212,7 @@ namespace IceDiscovery
             // datagram on each endpoint.
             //
             var single = new Ice.IEndpoint[1];
-            foreach (var endpt in lookup.Endpoints)
+            foreach (IEndpoint endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
                 _lookups[lookup.Clone(endpoints: single)] = null;
@@ -241,15 +226,15 @@ namespace IceDiscovery
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
             var single = new Ice.IEndpoint[1];
-            foreach (var key in new List<ILookupPrx>(_lookups.Keys))
+            foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
             {
-                var info = (Ice.UDPEndpointInfo)key.Endpoints[0].getInfo();
-                if (info.mcastInterface.Length > 0)
+                var info = (Ice.UDPEndpointInfo)key.Endpoints[0].GetInfo();
+                if (info.McastInterface.Length > 0)
                 {
-                    foreach (var q in lookupReply.Endpoints)
+                    foreach (IEndpoint q in lookupReply.Endpoints)
                     {
-                        var r = q.getInfo();
-                        if (r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                        EndpointInfo r = q.GetInfo();
+                        if (r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).Host.Equals(info.McastInterface))
                         {
                             single[0] = q;
                             _lookups[key] = lookupReply.Clone(endpoints: single);
@@ -296,8 +281,7 @@ namespace IceDiscovery
                 return; // Ignore
             }
 
-            bool isReplicaGroup;
-            IObjectPrx proxy = _registry.FindAdapter(adapterId, out isReplicaGroup);
+            IObjectPrx proxy = _registry.FindAdapter(adapterId, out bool isReplicaGroup);
             if (proxy != null)
             {
                 //
@@ -314,28 +298,27 @@ namespace IceDiscovery
             }
         }
 
-        internal Task<IObjectPrx> findObject(Identity id)
+        internal Task<IObjectPrx> FindObject(Identity id)
         {
             lock (this)
             {
-                ObjectRequest request;
-                if (!_objectRequests.TryGetValue(id, out request))
+                if (!_objectRequests.TryGetValue(id, out ObjectRequest request))
                 {
                     request = new ObjectRequest(this, id, _retryCount);
                     _objectRequests.Add(id, request);
                 }
 
                 var task = new TaskCompletionSource<Ice.IObjectPrx>();
-                if (request.addCallback(task))
+                if (request.AddCallback(task))
                 {
                     try
                     {
-                        request.invoke(_domainId, _lookups);
-                        _timer.schedule(request, _timeout);
+                        request.Invoke(_domainId, _lookups);
+                        _timer.Schedule(request, _timeout);
                     }
                     catch (LocalException)
                     {
-                        request.finished(null);
+                        request.Finished(null);
                         _objectRequests.Remove(id);
                     }
                 }
@@ -347,24 +330,23 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                AdapterRequest request;
-                if (!_adapterRequests.TryGetValue(adapterId, out request))
+                if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest request))
                 {
                     request = new AdapterRequest(this, adapterId, _retryCount);
                     _adapterRequests.Add(adapterId, request);
                 }
 
                 var task = new TaskCompletionSource<Ice.IObjectPrx>();
-                if (request.addCallback(task))
+                if (request.AddCallback(task))
                 {
                     try
                     {
-                        request.invoke(_domainId, _lookups);
-                        _timer.schedule(request, _timeout);
+                        request.Invoke(_domainId, _lookups);
+                        _timer.Schedule(request, _timeout);
                     }
                     catch (LocalException)
                     {
-                        request.finished(null);
+                        request.Finished(null);
                         _adapterRequests.Remove(adapterId);
                     }
                 }
@@ -376,11 +358,10 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                ObjectRequest request;
-                if (_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
+                if (_objectRequests.TryGetValue(id, out ObjectRequest request) && request.GetRequestId() == requestId)
                 {
-                    request.response(proxy);
-                    _timer.cancel(request);
+                    request.Response(proxy);
+                    _timer.Cancel(request);
                     _objectRequests.Remove(id);
                 }
                 // else ignore responses from old requests
@@ -391,35 +372,33 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                AdapterRequest request;
-                if (_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
+                if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest request) && request.GetRequestId() == requestId)
                 {
-                    if (request.response(proxy, isReplicaGroup))
+                    if (request.Response(proxy, isReplicaGroup))
                     {
-                        _timer.cancel(request);
-                        _adapterRequests.Remove(request.getId());
+                        _timer.Cancel(request);
+                        _adapterRequests.Remove(request.GetId());
                     }
                 }
                 // else ignore responses from old requests
             }
         }
 
-        internal void objectRequestTimedOut(ObjectRequest request)
+        internal void ObjectRequestTimedOut(ObjectRequest request)
         {
             lock (this)
             {
-                ObjectRequest r;
-                if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest r) || r != request)
                 {
                     return;
                 }
 
-                if (request.retry())
+                if (request.Retry())
                 {
                     try
                     {
-                        request.invoke(_domainId, _lookups);
-                        _timer.schedule(request, _timeout);
+                        request.Invoke(_domainId, _lookups);
+                        _timer.Schedule(request, _timeout);
                         return;
                     }
                     catch (Ice.LocalException)
@@ -427,9 +406,9 @@ namespace IceDiscovery
                     }
                 }
 
-                request.finished(null);
-                _objectRequests.Remove(request.getId());
-                _timer.cancel(request);
+                request.Finished(null);
+                _objectRequests.Remove(request.GetId());
+                _timer.Cancel(request);
             }
         }
 
@@ -437,28 +416,27 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                ObjectRequest r;
-                if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest r) || r != request)
                 {
                     return;
                 }
 
-                if (request.exception())
+                if (request.Exception())
                 {
                     if (_warnOnce)
                     {
-                        StringBuilder s = new StringBuilder();
+                        var s = new StringBuilder();
                         s.Append("failed to lookup object `");
-                        s.Append(request.getId().ToString(_lookup.Communicator.ToStringMode));
+                        s.Append(request.GetId().ToString(_lookup.Communicator.ToStringMode));
                         s.Append("' with lookup proxy `");
                         s.Append(_lookup);
                         s.Append("':\n");
                         s.Append(ex.ToString());
-                        _lookup.Communicator.Logger.warning(s.ToString());
+                        _lookup.Communicator.Logger.Warning(s.ToString());
                         _warnOnce = false;
                     }
-                    _timer.cancel(request);
-                    _objectRequests.Remove(request.getId());
+                    _timer.Cancel(request);
+                    _objectRequests.Remove(request.GetId());
                 }
             }
         }
@@ -467,18 +445,17 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                AdapterRequest r;
-                if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest r) || r != request)
                 {
                     return;
                 }
 
-                if (request.retry())
+                if (request.Retry())
                 {
                     try
                     {
-                        request.invoke(_domainId, _lookups);
-                        _timer.schedule(request, _timeout);
+                        request.Invoke(_domainId, _lookups);
+                        _timer.Schedule(request, _timeout);
                         return;
                     }
                     catch (LocalException)
@@ -486,9 +463,9 @@ namespace IceDiscovery
                     }
                 }
 
-                request.finished(null);
-                _adapterRequests.Remove(request.getId());
-                _timer.cancel(request);
+                request.Finished(null);
+                _adapterRequests.Remove(request.GetId());
+                _timer.Cancel(request);
             }
         }
 
@@ -496,35 +473,34 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                AdapterRequest r;
-                if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest r) || r != request)
                 {
                     return;
                 }
 
-                if (request.exception())
+                if (request.Exception())
                 {
                     if (_warnOnce)
                     {
-                        StringBuilder s = new StringBuilder();
+                        var s = new StringBuilder();
                         s.Append("failed to lookup adapter `");
-                        s.Append(request.getId());
+                        s.Append(request.GetId());
                         s.Append("' with lookup proxy `");
                         s.Append(_lookup);
                         s.Append("':\n");
                         s.Append(ex.ToString());
-                        _lookup.Communicator.Logger.warning(s.ToString());
+                        _lookup.Communicator.Logger.Warning(s.ToString());
                         _warnOnce = false;
                     }
-                    _timer.cancel(request);
-                    _adapterRequests.Remove(request.getId());
+                    _timer.Cancel(request);
+                    _adapterRequests.Remove(request.GetId());
                 }
             }
         }
 
-        internal IceInternal.Timer timer() => _timer;
+        internal IceInternal.Timer Timer() => _timer;
 
-        internal int latencyMultiplier() => _latencyMultiplier;
+        internal int LatencyMultiplier() => _latencyMultiplier;
 
         private readonly LocatorRegistry _registry;
         private readonly ILookupPrx _lookup;

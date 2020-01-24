@@ -24,13 +24,13 @@ namespace IceInternal
         //
         public abstract void Finished(ref ThreadPoolCurrent op);
 
-        internal int _ready = 0;
-        internal int _pending = 0;
-        internal int _started = 0;
-        internal bool _finish = false;
+        internal int Ready = 0;
+        internal int Pending = 0;
+        internal int Started = 0;
+        internal bool Finish = false;
 
-        internal bool _hasMoreData = false;
-        internal int _registered = 0;
+        internal bool HasMoreData = false;
+        internal int Registered = 0;
     }
 
 }

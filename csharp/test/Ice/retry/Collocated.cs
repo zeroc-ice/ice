@@ -11,7 +11,7 @@ namespace Ice.retry
     {
         public override void run(string[] args)
         {
-            var observer = Instrumentation.getObserver();
+            var observer = Instrumentation.GetObserver();
             var properties = createTestProperties(ref args);
             properties["Ice.RetryIntervals"] = "0 1 10 1";
             properties["Ice.Warn.Dispatch"] = "0";

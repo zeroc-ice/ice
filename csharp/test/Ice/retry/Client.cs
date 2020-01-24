@@ -17,14 +17,14 @@ namespace Ice.retry
             // This test kills connections, so we don't want warnings.
             //
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = initialize(properties, observer: Instrumentation.getObserver());
+            using var communicator = initialize(properties, observer: Instrumentation.GetObserver());
             //
             // Configure a second communicator for the invocation timeout
             // + retry test, we need to configure a large retry interval
             // to avoid time-sensitive failures.
             //
             properties["Ice.RetryIntervals"] = "0 1 10000";
-            using var communicator2 = initialize(properties, observer: Instrumentation.getObserver());
+            using var communicator2 = initialize(properties, observer: Instrumentation.GetObserver());
             AllTests.allTests(this, communicator, communicator2, $"retry:{getTestEndpoint(0)}").shutdown();
         }
 

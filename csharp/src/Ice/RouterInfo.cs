@@ -19,7 +19,7 @@ namespace Ice
         public interface AddProxyCallback
         {
             void addedProxy();
-            void setException(Ice.LocalException ex);
+            void SetException(Ice.LocalException ex);
         }
 
         internal RouterInfo(IRouterPrx router) => Router = router;
@@ -105,7 +105,7 @@ namespace Ice
             }
 
             serverProxy = serverProxy.Clone(clearRouter: true); // The server proxy cannot be routed.
-            return serverProxy.IceReference.getEndpoints();
+            return serverProxy.IceReference.GetEndpoints();
         }
 
         public void AddProxy(IObjectPrx proxy)
@@ -154,7 +154,7 @@ namespace Ice
                     catch (System.AggregateException ae)
                     {
                         Debug.Assert(ae.InnerException is LocalException);
-                        callback.setException((LocalException)ae.InnerException);
+                        callback.SetException((LocalException)ae.InnerException);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -183,7 +183,7 @@ namespace Ice
         {
             lock (this)
             {
-                _identities.Remove(reference.getIdentity());
+                _identities.Remove(reference.GetIdentity());
             }
         }
 
@@ -199,7 +199,7 @@ namespace Ice
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = Router.IceReference.getEndpoints();
+                        _clientEndpoints = Router.IceReference.GetEndpoints();
                     }
                     else
                     {
@@ -215,7 +215,7 @@ namespace Ice
                             clientProxy = clientProxy.Clone(connectionTimeout: Router.GetConnection().Timeout);
                         }
 
-                        _clientEndpoints = clientProxy.IceReference.getEndpoints();
+                        _clientEndpoints = clientProxy.IceReference.GetEndpoints();
                     }
                 }
                 return _clientEndpoints;

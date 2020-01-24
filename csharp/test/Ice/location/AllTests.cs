@@ -192,8 +192,8 @@ namespace Ice.location
             }
             catch (NotRegisteredException ex)
             {
-                test(ex.kindOfObject.Equals("object"));
-                test(ex.id.Equals("unknown/unknown"));
+                test(ex.KindOfObject.Equals("object"));
+                test(ex.Id.Equals("unknown/unknown"));
             }
             output.WriteLine("ok");
 
@@ -207,8 +207,8 @@ namespace Ice.location
             }
             catch (NotRegisteredException ex)
             {
-                test(ex.kindOfObject.Equals("object adapter"));
-                test(ex.id.Equals("TestAdapterUnknown"));
+                test(ex.KindOfObject.Equals("object adapter"));
+                test(ex.Id.Equals("TestAdapterUnknown"));
             }
             output.WriteLine("ok");
 
@@ -314,8 +314,8 @@ namespace Ice.location
             }
             catch (NotRegisteredException ex)
             {
-                test(ex.kindOfObject == "object adapter");
-                test(ex.id.Equals("TestAdapter3"));
+                test(ex.KindOfObject == "object adapter");
+                test(ex.Id.Equals("TestAdapter3"));
             }
             registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
             try
@@ -367,8 +367,8 @@ namespace Ice.location
             }
             catch (NotRegisteredException ex)
             {
-                test(ex.kindOfObject == "object adapter");
-                test(ex.id.Equals("TestUnknown"));
+                test(ex.KindOfObject == "object adapter");
+                test(ex.Id.Equals("TestUnknown"));
             }
             registry.addObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
             registry.SetAdapterDirectProxy("TestAdapter4",

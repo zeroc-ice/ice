@@ -17,7 +17,7 @@ namespace IceInternal
             _rawEncoding = Ice.Util.Encoding_1_0;
             _rawBytes = System.Array.Empty<byte>();
 
-            initWithOptions(args);
+            InitWithOptions(args);
 
             if (_type < 0)
             {
@@ -45,14 +45,14 @@ namespace IceInternal
         //
         // Marshal the endpoint
         //
-        public override void streamWrite(Ice.OutputStream s)
+        public override void StreamWrite(Ice.OutputStream s)
         {
             s.StartEndpointEncapsulation(_rawEncoding);
             s.WriteBlob(_rawBytes);
             s.EndEndpointEncapsulation();
         }
 
-        public override void streamWriteImpl(Ice.OutputStream s)
+        public override void StreamWriteImpl(Ice.OutputStream s)
         {
             Debug.Assert(false);
         }
@@ -63,7 +63,7 @@ namespace IceInternal
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(_rawBytes);
-            return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
+            return "opaque -t " + _type + " -e " + Ice.Util.EncodingVersionToString(_rawEncoding) + " -v " + val;
         }
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo
@@ -74,17 +74,17 @@ namespace IceInternal
                 _type = type;
             }
 
-            public override short type()
+            public override short Type()
             {
                 return _type;
             }
 
-            public override bool datagram()
+            public override bool Datagram()
             {
                 return false;
             }
 
-            public override bool secure()
+            public override bool Secure()
             {
                 return false;
             }
@@ -95,7 +95,7 @@ namespace IceInternal
         //
         // Return the endpoint information.
         //
-        public override Ice.EndpointInfo getInfo()
+        public override Ice.EndpointInfo GetInfo()
         {
             return new InfoI(_type, _rawEncoding, _rawBytes);
         }
@@ -103,7 +103,7 @@ namespace IceInternal
         //
         // Return the endpoint type
         //
-        public override short type()
+        public override short Type()
         {
             return _type;
         }
@@ -111,7 +111,7 @@ namespace IceInternal
         //
         // Return the protocol name;
         //
-        public override string protocol()
+        public override string Protocol()
         {
             return "opaque";
         }
@@ -120,7 +120,7 @@ namespace IceInternal
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
-        public override int timeout()
+        public override int Timeout()
         {
             return -1;
         }
@@ -130,12 +130,12 @@ namespace IceInternal
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public override Endpoint timeout(int t)
+        public override Endpoint Timeout(int t)
         {
             return this;
         }
 
-        public override string connectionId()
+        public override string ConnectionId()
         {
             return "";
         }
@@ -143,7 +143,7 @@ namespace IceInternal
         //
         // Return a new endpoint with a different connection id.
         //
-        public override Endpoint connectionId(string id)
+        public override Endpoint ConnectionId(string id)
         {
             return this;
         }
@@ -152,7 +152,7 @@ namespace IceInternal
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
         //
-        public override bool compress()
+        public override bool Compress()
         {
             return false;
         }
@@ -162,7 +162,7 @@ namespace IceInternal
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        public override Endpoint compress(bool compress)
+        public override Endpoint Compress(bool compress)
         {
             return this;
         }
@@ -170,7 +170,7 @@ namespace IceInternal
         //
         // Return true if the endpoint is datagram-based.
         //
-        public override bool datagram()
+        public override bool Datagram()
         {
             return false;
         }
@@ -178,7 +178,7 @@ namespace IceInternal
         //
         // Return true if the endpoint is secure.
         //
-        public override bool secure()
+        public override bool Secure()
         {
             return false;
         }
@@ -195,7 +195,7 @@ namespace IceInternal
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override ITransceiver? transceiver()
+        public override ITransceiver? Transceiver()
         {
             return null;
         }
@@ -206,14 +206,14 @@ namespace IceInternal
         //
         public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback)
         {
-            callback.connectors(new List<IConnector>());
+            callback.Connectors(new List<IConnector>());
         }
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override IAcceptor? acceptor(string adapterName)
+        public override IAcceptor? Acceptor(string adapterName)
         {
             return null;
         }
@@ -223,12 +223,12 @@ namespace IceInternal
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public override List<Endpoint> expandIfWildcard()
+        public override List<Endpoint> ExpandIfWildcard()
         {
             return new List<Endpoint> { this };
         }
 
-        public override List<Endpoint> expandHost(out Endpoint? publishedEndpoint)
+        public override List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
             publishedEndpoint = null;
             return new List<Endpoint>() { this };
@@ -237,7 +237,7 @@ namespace IceInternal
         //
         // Check whether the endpoint is equivalent to another one.
         //
-        public override bool equivalent(Endpoint endpoint)
+        public override bool Equivalent(Endpoint endpoint)
         {
             return false;
         }
@@ -247,14 +247,14 @@ namespace IceInternal
             return _hashCode;
         }
 
-        public override string options()
+        public override string Options()
         {
             string s = "";
             if (_type > -1)
             {
                 s += " -t " + _type;
             }
-            s += " -e " + Ice.Util.encodingVersionToString(_rawEncoding);
+            s += " -e " + Ice.Util.EncodingVersionToString(_rawEncoding);
             if (_rawBytes.Length > 0)
             {
                 s += " -v " + System.Convert.ToBase64String(_rawBytes);
@@ -269,7 +269,7 @@ namespace IceInternal
         {
             if (!(obj is OpaqueEndpointI))
             {
-                return type() < obj.type() ? -1 : 1;
+                return Type() < obj.Type() ? -1 : 1;
             }
 
             OpaqueEndpointI p = (OpaqueEndpointI)obj;
@@ -328,7 +328,7 @@ namespace IceInternal
             return 0;
         }
 
-        protected override bool checkOption(string option, string? argument, string endpoint)
+        protected override bool CheckOption(string option, string? argument, string endpoint)
         {
             switch (option[1])
             {
@@ -395,7 +395,7 @@ namespace IceInternal
 
                         try
                         {
-                            _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
+                            _rawEncoding = Ice.Util.StringToEncodingVersion(argument);
                         }
                         catch (FormatException ex)
                         {
@@ -414,9 +414,9 @@ namespace IceInternal
         private void calcHashValue()
         {
             int h = 5381;
-            HashUtil.hashAdd(ref h, _type);
-            HashUtil.hashAdd(ref h, _rawEncoding);
-            HashUtil.hashAdd(ref h, _rawBytes);
+            HashUtil.HashAdd(ref h, _type);
+            HashUtil.HashAdd(ref h, _rawEncoding);
+            HashUtil.HashAdd(ref h, _rawBytes);
             _hashCode = h;
         }
 

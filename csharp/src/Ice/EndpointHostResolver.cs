@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
-using IceInternal;
 
 namespace Ice
 {
@@ -16,8 +16,8 @@ namespace Ice
         {
             public string Name => _thread.Name;
 
-            private Communicator _communicator;
-            private Thread _thread;
+            private readonly Communicator _communicator;
+            private readonly Thread _thread;
 
             internal HelperThread(Communicator communicator)
             {
@@ -44,7 +44,7 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    _communicator.Logger.error($"exception in endpoint host resolver thread {_thread.Name}:\n{ex}");
+                    _communicator.Logger.Error($"exception in endpoint host resolver thread {_thread.Name}:\n{ex}");
                 }
             }
 
@@ -57,27 +57,27 @@ namespace Ice
 
         private class ResolveEntry
         {
-            internal IEndpointConnectors callback;
-            internal IPEndpoint endpoint;
-            internal string host;
-            internal Instrumentation.IObserver? observer;
-            internal int port;
-            internal EndpointSelectionType selType;
+            internal IEndpointConnectors Callback;
+            internal IPEndpoint Endpoint;
+            internal string Host;
+            internal Instrumentation.IObserver? Observer;
+            internal int Port;
+            internal EndpointSelectionType SelType;
 
             internal ResolveEntry(string host, int port, EndpointSelectionType selType, IPEndpoint endpoint, IEndpointConnectors callback)
             {
-                this.host = host;
-                this.port = port;
-                this.selType = selType;
-                this.endpoint = endpoint;
-                this.callback = callback;
+                Host = host;
+                Port = port;
+                SelType = selType;
+                Endpoint = endpoint;
+                Callback = callback;
             }
         }
 
         private bool _endpointHostResolverDestroyed;
-        private LinkedList<ResolveEntry> _enpointHostResolverQueue = new LinkedList<ResolveEntry>();
+        private readonly LinkedList<ResolveEntry> _enpointHostResolverQueue = new LinkedList<ResolveEntry>();
         private Instrumentation.IThreadObserver? _endpointHostResolverObserver;
-        private HelperThread _endpointHostResolverThread;
+        private readonly HelperThread _endpointHostResolverThread;
 
         public void Resolve(string host, int port, EndpointSelectionType selType, IPEndpoint endpoint,
             IEndpointConnectors callback)
@@ -91,16 +91,16 @@ namespace Ice
             {
                 try
                 {
-                    List<EndPoint> addrs = Network.getAddresses(host, port, ProtocolSupport, selType, PreferIPv6, false);
+                    List<EndPoint> addrs = Network.GetAddresses(host, port, ProtocolSupport, selType, PreferIPv6, false);
                     if (addrs.Count > 0)
                     {
-                        callback.connectors(endpoint.connectors(addrs, null));
+                        callback.Connectors(endpoint.Connectors(addrs, null));
                         return;
                     }
                 }
                 catch (LocalException ex)
                 {
-                    callback.exception(ex);
+                    callback.Exception(ex);
                     return;
                 }
             }
@@ -109,15 +109,15 @@ namespace Ice
             {
                 Debug.Assert(!_endpointHostResolverDestroyed);
 
-                ResolveEntry entry = new ResolveEntry(host, port, selType, endpoint, callback);
+                var entry = new ResolveEntry(host, port, selType, endpoint, callback);
 
                 Instrumentation.ICommunicatorObserver? obsv = Observer;
                 if (obsv != null)
                 {
-                    entry.observer = obsv.getEndpointLookupObserver(endpoint);
-                    if (entry.observer != null)
+                    entry.Observer = obsv.GetEndpointLookupObserver(endpoint);
+                    if (entry.Observer != null)
                     {
-                        entry.observer.attach();
+                        entry.Observer.Attach();
                     }
                 }
 
@@ -152,7 +152,7 @@ namespace Ice
 
                 if (threadObserver != null)
                 {
-                    threadObserver.stateChanged(Instrumentation.ThreadState.ThreadStateIdle,
+                    threadObserver.StateChanged(Instrumentation.ThreadState.ThreadStateIdle,
                                                 Instrumentation.ThreadState.ThreadStateInUseForOther);
                 }
 
@@ -163,36 +163,36 @@ namespace Ice
                     int protocol = ProtocolSupport;
                     if (networkProxy != null)
                     {
-                        networkProxy = networkProxy.resolveHost(protocol);
+                        networkProxy = networkProxy.ResolveHost(protocol);
                         if (networkProxy != null)
                         {
-                            protocol = networkProxy.getProtocolSupport();
+                            protocol = networkProxy.GetProtocolSupport();
                         }
                     }
 
-                    List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, r.selType, PreferIPv6, true);
-                    if (r.observer != null)
+                    List<EndPoint> addrs = Network.GetAddresses(r.Host, r.Port, protocol, r.SelType, PreferIPv6, true);
+                    if (r.Observer != null)
                     {
-                        r.observer.detach();
-                        r.observer = null;
+                        r.Observer.Detach();
+                        r.Observer = null;
                     }
 
-                    r.callback.connectors(r.endpoint.connectors(addrs, networkProxy));
+                    r.Callback.Connectors(r.Endpoint.Connectors(addrs, networkProxy));
                 }
                 catch (LocalException ex)
                 {
-                    if (r.observer != null)
+                    if (r.Observer != null)
                     {
-                        r.observer.failed(ex.ice_id());
-                        r.observer.detach();
+                        r.Observer.Failed(ex.ice_id());
+                        r.Observer.Detach();
                     }
-                    r.callback.exception(ex);
+                    r.Callback.Exception(ex);
                 }
                 finally
                 {
                     if (threadObserver != null)
                     {
-                        threadObserver.stateChanged(Instrumentation.ThreadState.ThreadStateInUseForOther,
+                        threadObserver.StateChanged(Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                     Instrumentation.ThreadState.ThreadStateIdle);
                     }
                 }
@@ -200,19 +200,19 @@ namespace Ice
 
             foreach (ResolveEntry entry in _enpointHostResolverQueue)
             {
-                CommunicatorDestroyedException ex = new CommunicatorDestroyedException();
-                if (entry.observer != null)
+                var ex = new CommunicatorDestroyedException();
+                if (entry.Observer != null)
                 {
-                    entry.observer.failed(ex.ice_id());
-                    entry.observer.detach();
+                    entry.Observer.Failed(ex.ice_id());
+                    entry.Observer.Detach();
                 }
-                entry.callback.exception(ex);
+                entry.Callback.Exception(ex);
             }
             _enpointHostResolverQueue.Clear();
 
             if (_endpointHostResolverObserver != null)
             {
-                _endpointHostResolverObserver.detach();
+                _endpointHostResolverObserver.Detach();
             }
         }
 
@@ -224,13 +224,13 @@ namespace Ice
                 Instrumentation.ICommunicatorObserver? obsv = Observer;
                 if (obsv != null)
                 {
-                    _endpointHostResolverObserver = obsv.getThreadObserver("Communicator",
+                    _endpointHostResolverObserver = obsv.GetThreadObserver("Communicator",
                                                        _endpointHostResolverThread.Name,
                                                        Instrumentation.ThreadState.ThreadStateIdle,
                                                        _endpointHostResolverObserver);
                     if (_endpointHostResolverObserver != null)
                     {
-                        _endpointHostResolverObserver.attach();
+                        _endpointHostResolverObserver.Attach();
                     }
                 }
             }

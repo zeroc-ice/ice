@@ -37,32 +37,32 @@ namespace IceInternal
         {
             public Info(IPEndpoint e) => _endpoint = e;
 
-            public override short type() => _endpoint.type();
+            public override short Type() => _endpoint.Type();
 
-            public override bool datagram() => _endpoint.datagram();
+            public override bool Datagram() => _endpoint.Datagram();
 
-            public override bool secure() => _endpoint.secure();
+            public override bool Secure() => _endpoint.Secure();
 
-            private IPEndpoint _endpoint;
+            private readonly IPEndpoint _endpoint;
         }
 
-        public override void streamWriteImpl(Ice.OutputStream s)
+        public override void StreamWriteImpl(Ice.OutputStream s)
         {
-            base.streamWriteImpl(s);
+            base.StreamWriteImpl(s);
             s.WriteInt(_timeout);
             s.WriteBool(_compress);
         }
 
-        public override Ice.EndpointInfo getInfo()
+        public override Ice.EndpointInfo GetInfo()
         {
-            Info info = new Info(this);
-            fillEndpointInfo(info);
+            var info = new Info(this);
+            FillEndpointInfo(info);
             return info;
         }
 
-        public override int timeout() => _timeout;
+        public override int Timeout() => _timeout;
 
-        public override Endpoint timeout(int timeout)
+        public override Endpoint Timeout(int timeout)
         {
             if (timeout == _timeout)
             {
@@ -70,13 +70,13 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpoint(instance_, host_!, port_, sourceAddr_, timeout, connectionId_, _compress);
+                return new TcpEndpoint(Instance, Host!, Port, SourceAddr, timeout, ConnectionId_, _compress);
             }
         }
 
-        public override bool compress() => _compress;
+        public override bool Compress() => _compress;
 
-        public override Endpoint compress(bool compress)
+        public override Endpoint Compress(bool compress)
         {
             if (compress == _compress)
             {
@@ -84,30 +84,30 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpoint(instance_, host_!, port_, sourceAddr_, _timeout, connectionId_, compress);
+                return new TcpEndpoint(Instance, Host!, Port, SourceAddr, _timeout, ConnectionId_, compress);
             }
         }
 
-        public override bool datagram() => false;
+        public override bool Datagram() => false;
 
-        public override ITransceiver? transceiver() => null;
+        public override ITransceiver? Transceiver() => null;
 
-        public override IAcceptor acceptor(string adapterName) => new TcpAcceptor(this, instance_, host_!, port_);
+        public override IAcceptor Acceptor(string adapterName) => new TcpAcceptor(this, Instance, Host!, Port);
 
-        public TcpEndpoint endpoint(TcpAcceptor acceptor)
+        public TcpEndpoint Endpoint(TcpAcceptor acceptor)
         {
-            int port = acceptor.effectivePort();
-            if (port == port_)
+            int port = acceptor.EffectivePort();
+            if (port == Port)
             {
                 return this;
             }
             else
             {
-                return new TcpEndpoint(instance_, host_!, port, sourceAddr_, _timeout, connectionId_, _compress);
+                return new TcpEndpoint(Instance, Host!, port, SourceAddr, _timeout, ConnectionId_, _compress);
             }
         }
 
-        public override string options()
+        public override string Options()
         {
             //
             // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -116,7 +116,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = base.options();
+            string s = base.Options();
 
             if (_timeout == -1)
             {
@@ -139,10 +139,10 @@ namespace IceInternal
         {
             if (!(obj is TcpEndpoint))
             {
-                return type() < obj.type() ? -1 : 1;
+                return Type() < obj.Type() ? -1 : 1;
             }
 
-            TcpEndpoint p = (TcpEndpoint)obj;
+            var p = (TcpEndpoint)obj;
             if (this == p)
             {
                 return 0;
@@ -169,23 +169,23 @@ namespace IceInternal
             return base.CompareTo(p);
         }
 
-        public override void hashInit(ref int h)
+        public override void HashInit(ref int h)
         {
-            base.hashInit(ref h);
-            HashUtil.hashAdd(ref h, _timeout);
-            HashUtil.hashAdd(ref h, _compress);
+            base.HashInit(ref h);
+            HashUtil.HashAdd(ref h, _timeout);
+            HashUtil.HashAdd(ref h, _compress);
         }
 
-        public override void fillEndpointInfo(Ice.IPEndpointInfo info)
+        public override void FillEndpointInfo(Ice.IPEndpointInfo info)
         {
-            base.fillEndpointInfo(info);
-            info.timeout = _timeout;
-            info.compress = _compress;
+            base.FillEndpointInfo(info);
+            info.Timeout = _timeout;
+            info.Compress = _compress;
         }
 
-        protected override bool checkOption(string option, string argument, string endpoint)
+        protected override bool CheckOption(string option, string argument, string endpoint)
         {
-            if (base.checkOption(option, argument, endpoint))
+            if (base.CheckOption(option, argument, endpoint))
             {
                 return true;
             }
@@ -243,10 +243,10 @@ namespace IceInternal
         }
 
         protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
+            new TcpConnector(Instance, addr, proxy, SourceAddr, _timeout, ConnectionId_);
 
         protected override IPEndpoint CreateEndpoint(string? host, int port, string connectionId) =>
-            new TcpEndpoint(instance_, host!, port, sourceAddr_, _timeout, connectionId, _compress);
+            new TcpEndpoint(Instance, host!, port, SourceAddr, _timeout, connectionId, _compress);
 
         private int _timeout;
         private bool _compress;
@@ -256,26 +256,26 @@ namespace IceInternal
     {
         internal TcpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
-        public void initialize()
+        public void Initialize()
         {
         }
 
-        public short type() => _instance!.Type;
+        public short Type() => _instance!.Type;
 
-        public string protocol() => _instance!.Protocol;
+        public string Protocol() => _instance!.Protocol;
 
-        public Endpoint create(List<string> args, bool oaEndpoint)
+        public Endpoint Create(List<string> args, bool oaEndpoint)
         {
             IPEndpoint endpt = new TcpEndpoint(_instance!);
-            endpt.initWithOptions(args, oaEndpoint);
+            endpt.InitWithOptions(args, oaEndpoint);
             return endpt;
         }
 
-        public Endpoint read(Ice.InputStream s) => new TcpEndpoint(_instance!, s);
+        public Endpoint Read(Ice.InputStream s) => new TcpEndpoint(_instance!, s);
 
-        public void destroy() => _instance = null;
+        public void Destroy() => _instance = null;
 
-        public IEndpointFactory clone(ProtocolInstance instance) => new TcpEndpointFactory(instance);
+        public IEndpointFactory Clone(ProtocolInstance instance) => new TcpEndpointFactory(instance);
 
         private ProtocolInstance? _instance;
     }

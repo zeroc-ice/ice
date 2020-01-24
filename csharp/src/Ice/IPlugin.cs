@@ -8,11 +8,11 @@ namespace Ice
         /// <summary>
         /// Perform any necessary initialization steps.
         /// </summary>
-        void initialize();
+        void Initialize();
 
         /// <summary>
         /// Called when the communicator is being destroyed.
         /// </summary>
-        void destroy();
+        void Destroy();
     }
 }

@@ -14,7 +14,7 @@ public class PluginThreeFactory : Ice.IPluginFactory
         {
         }
 
-        public override void initialize()
+        public override void Initialize()
         {
             BasePlugin? other = (BasePlugin?)_communicator.GetPlugin("PluginTwo");
             Debug.Assert(other != null);
@@ -23,7 +23,7 @@ public class PluginThreeFactory : Ice.IPluginFactory
             _initialized = true;
         }
 
-        public override void destroy()
+        public override void Destroy()
         {
             _destroyed = true;
             test(!_other.isDestroyed());

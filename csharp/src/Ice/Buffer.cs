@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+
 namespace IceInternal
 {
-    using System.Diagnostics;
-
     //
     // An instance of ByteBuffer cannot grow beyond its initial capacity.
     // This class wraps a ByteBuffer and supports reallocation.
@@ -18,7 +18,7 @@ namespace IceInternal
 
         public Buffer(ByteBuffer.ByteOrder order)
         {
-            b = _emptyBuffer;
+            B = _emptyBuffer;
             _size = 0;
             _capacity = 0;
             _order = order;
@@ -30,8 +30,8 @@ namespace IceInternal
 
         public Buffer(byte[] data, ByteBuffer.ByteOrder order)
         {
-            b = ByteBuffer.wrap(data);
-            b.order(order);
+            B = ByteBuffer.Wrap(data);
+            B.Order(order);
             _size = data.Length;
             _capacity = 0;
             _order = order;
@@ -43,16 +43,16 @@ namespace IceInternal
 
         public Buffer(ByteBuffer data, ByteBuffer.ByteOrder order)
         {
-            b = data;
-            b.order(order);
-            _size = data.remaining();
+            B = data;
+            B.Order(order);
+            _size = data.Remaining();
             _capacity = 0;
             _order = order;
         }
 
         public Buffer(Buffer buf, bool adopt)
         {
-            b = buf.b;
+            B = buf.B;
             _size = buf._size;
             _capacity = buf._capacity;
             _shrinkCounter = buf._shrinkCounter;
@@ -60,23 +60,17 @@ namespace IceInternal
 
             if (adopt)
             {
-                buf.clear();
+                buf.Clear();
             }
         }
 
-        public int size()
-        {
-            return _size;
-        }
+        public int Size() => _size;
 
-        public bool empty()
-        {
-            return _size == 0;
-        }
+        public bool Empty() => _size == 0;
 
-        public void clear()
+        public void Clear()
         {
-            b = _emptyBuffer;
+            B = _emptyBuffer;
             _size = 0;
             _capacity = 0;
             _shrinkCounter = 0;
@@ -88,26 +82,26 @@ namespace IceInternal
         // expand the buffer if the caller is writing to a location that is
         // already in the buffer.
         //
-        public void expand(int n)
+        public void Expand(int n)
         {
-            int sz = (b == _emptyBuffer) ? n : b.position() + n;
+            int sz = (B == _emptyBuffer) ? n : B.Position() + n;
             if (sz > _size)
             {
-                resize(sz, false);
+                Resize(sz, false);
             }
         }
 
-        public void resize(int n, bool reading)
+        public void Resize(int n, bool reading)
         {
-            Debug.Assert(b == _emptyBuffer || _capacity > 0);
+            Debug.Assert(B == _emptyBuffer || _capacity > 0);
 
             if (n == 0)
             {
-                clear();
+                Clear();
             }
             else if (n > _capacity)
             {
-                reserve(n);
+                Reserve(n);
             }
             _size = n;
 
@@ -116,11 +110,11 @@ namespace IceInternal
             //
             if (reading)
             {
-                b.limit(_size);
+                B.Limit(_size);
             }
         }
 
-        public void reset()
+        public void Reset()
         {
             if (_size > 0 && _size * 2 < _capacity)
             {
@@ -132,7 +126,7 @@ namespace IceInternal
                 //
                 if (++_shrinkCounter > 2)
                 {
-                    reserve(_size);
+                    Reserve(_size);
                     _shrinkCounter = 0;
                 }
             }
@@ -141,16 +135,16 @@ namespace IceInternal
                 _shrinkCounter = 0;
             }
             _size = 0;
-            if (b != _emptyBuffer)
+            if (B != _emptyBuffer)
             {
-                b.limit(b.capacity());
-                b.position(0);
+                B.Limit(B.Capacity());
+                B.Position(0);
             }
         }
 
-        private void reserve(int n)
+        private void Reserve(int n)
         {
-            Debug.Assert(_capacity == b.capacity());
+            Debug.Assert(_capacity == B.Capacity());
 
             if (n > _capacity)
             {
@@ -168,51 +162,50 @@ namespace IceInternal
 
             try
             {
-                ByteBuffer buf = ByteBuffer.allocate(_capacity);
+                var buf = ByteBuffer.Allocate(_capacity);
 
-                if (b == _emptyBuffer)
+                if (B == _emptyBuffer)
                 {
-                    b = buf;
+                    B = buf;
                 }
                 else
                 {
-                    int pos = b.position();
-                    b.position(0);
-                    b.limit(System.Math.Min(_capacity, b.capacity()));
-                    buf.put(b);
-                    b = buf;
-                    b.limit(b.capacity());
-                    b.position(pos);
+                    int pos = B.Position();
+                    B.Position(0);
+                    B.Limit(System.Math.Min(_capacity, B.Capacity()));
+                    buf.Put(B);
+                    B = buf;
+                    B.Limit(B.Capacity());
+                    B.Position(pos);
                 }
 
-                b.order(_order);
+                B.Order(_order);
             }
             catch (System.OutOfMemoryException)
             {
-                _capacity = b.capacity(); // Restore the previous capacity
+                _capacity = B.Capacity(); // Restore the previous capacity
                 throw;
             }
             catch (System.Exception ex)
             {
-                _capacity = b.capacity(); // Restore the previous capacity.
-                Ice.MarshalException e = new Ice.MarshalException(ex);
-                e.reason = "unexpected exception while trying to allocate a ByteBuffer:\n" + ex;
-                throw e;
+                _capacity = B.Capacity(); // Restore the previous capacity.
+                throw new Ice.MarshalException(
+                    $"unexpected exception while trying to allocate a ByteBuffer:\n{ex}", ex);
             }
             finally
             {
-                Debug.Assert(_capacity == b.capacity());
+                Debug.Assert(_capacity == B.Capacity());
             }
         }
 
-        public ByteBuffer b;
+        public ByteBuffer B;
         // Sentinel used for null buffer.
-        private static ByteBuffer _emptyBuffer = new ByteBuffer();
+        private static readonly ByteBuffer _emptyBuffer = new ByteBuffer();
 
         private int _size;
         private int _capacity; // Cache capacity to avoid excessive method calls.
         private int _shrinkCounter;
-        private ByteBuffer.ByteOrder _order;
+        private readonly ByteBuffer.ByteOrder _order;
     }
 
 }

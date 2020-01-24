@@ -29,7 +29,7 @@ namespace Ice.servantLocator.AMD
             }
         }
 
-        public Disp locate(Current current, out object cookie)
+        public Disp Locate(Current current, out object cookie)
         {
             lock (this)
             {
@@ -53,7 +53,7 @@ namespace Ice.servantLocator.AMD
             test(current.Id.Name.Equals("locate") || current.Id.Name.Equals("finished"));
             if (current.Id.Name.Equals("locate"))
             {
-                exception(current);
+                Exception(current);
             }
 
             //
@@ -69,7 +69,7 @@ namespace Ice.servantLocator.AMD
             return (current, incoming) => testT.Dispatch(testI, current, incoming);
         }
 
-        public void finished(Current current, Disp servant, object cookie)
+        public void Finished(Current current, Disp servant, object cookie)
         {
             lock (this)
             {
@@ -87,14 +87,14 @@ namespace Ice.servantLocator.AMD
 
             if (current.Id.Name.Equals("finished"))
             {
-                exception(current);
+                Exception(current);
             }
 
             var co = (Cookie)cookie;
             test(co.message().Equals("blahblah"));
         }
 
-        public void deactivate(string category)
+        public void Deactivate(string category)
         {
             lock (this)
             {
@@ -104,7 +104,7 @@ namespace Ice.servantLocator.AMD
             }
         }
 
-        private void exception(Current current)
+        private void Exception(Current current)
         {
             if (current.Operation.Equals("ice_ids"))
             {
@@ -117,19 +117,19 @@ namespace Ice.servantLocator.AMD
             else if (current.Operation.Equals("unknownUserException"))
             {
                 var ex = new UnknownUserException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("unknownLocalException"))
             {
                 var ex = new UnknownLocalException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("unknownException"))
             {
                 var ex = new UnknownException();
-                ex.unknown = "reason";
+                ex.Unknown = "reason";
                 throw ex;
             }
             else if (current.Operation.Equals("userException"))
@@ -139,7 +139,7 @@ namespace Ice.servantLocator.AMD
             else if (current.Operation.Equals("localException"))
             {
                 var ex = new Ice.SocketException();
-                ex.error = 0;
+                ex.Error = 0;
                 throw ex;
             }
             else if (current.Operation.Equals("csException"))

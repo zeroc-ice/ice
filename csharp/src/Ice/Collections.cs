@@ -21,8 +21,8 @@ namespace Ice
                 return false;
             }
 
-            var comparer = EqualityComparer<AnyClass>.Default;
-            foreach (var entry in lhs)
+            EqualityComparer<AnyClass> comparer = EqualityComparer<AnyClass>.Default;
+            foreach (KeyValuePair<Key, AnyClass> entry in lhs)
             {
                 if (!rhs.TryGetValue(entry.Key, out AnyClass value) || !comparer.Equals(entry.Value, value))
                 {
@@ -44,8 +44,8 @@ namespace Ice
                 return false;
             }
 
-            var comparer = EqualityComparer<T>.Default;
-            for (var i = 0; i < arr1.Length; ++i)
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            for (int i = 0; i < arr1.Length; ++i)
             {
                 if (!comparer.Equals(arr1[i], arr2[i]))
                 {
@@ -67,9 +67,9 @@ namespace Ice
                 return false;
             }
 
-            var comparer = EqualityComparer<T>.Default;
-            var i = lhs.GetEnumerator();
-            var j = rhs.GetEnumerator();
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            IEnumerator<T> i = lhs.GetEnumerator();
+            IEnumerator<T> j = rhs.GetEnumerator();
             while (i.MoveNext())
             {
                 if (!j.MoveNext() || !comparer.Equals(i.Current, j.Current))
@@ -92,9 +92,9 @@ namespace Ice
                 return false;
             }
 
-            var comparer = EqualityComparer<T>.Default;
-            var i = lhs.GetEnumerator();
-            var j = rhs.GetEnumerator();
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            IEnumerator<T> i = lhs.GetEnumerator();
+            IEnumerator<T> j = rhs.GetEnumerator();
             while (i.MoveNext())
             {
                 if (!j.MoveNext() || !comparer.Equals(i.Current, j.Current))
@@ -108,10 +108,10 @@ namespace Ice
         public static int GetHashCode<Key, AnyClass>(Dictionary<Key, AnyClass> d)
         {
             int h = 5381;
-            foreach (var e in d)
+            foreach (KeyValuePair<Key, AnyClass> e in d)
             {
-                IceInternal.HashUtil.hashAdd(ref h, e.Key);
-                IceInternal.HashUtil.hashAdd(ref h, e.Value);
+                IceInternal.HashUtil.HashAdd(ref h, e.Key);
+                IceInternal.HashUtil.HashAdd(ref h, e.Value);
             }
             return h;
         }
@@ -123,7 +123,7 @@ namespace Ice
             {
                 for (int i = 0; i < arr.Length; i++)
                 {
-                    IceInternal.HashUtil.hashAdd(ref h, arr[i]);
+                    IceInternal.HashUtil.HashAdd(ref h, arr[i]);
                 }
             }
             return h;
@@ -135,7 +135,7 @@ namespace Ice
             IEnumerator e = seq.GetEnumerator();
             while (e.MoveNext())
             {
-                IceInternal.HashUtil.hashAdd(ref h, e.Current);
+                IceInternal.HashUtil.HashAdd(ref h, e.Current);
             }
             return h;
         }

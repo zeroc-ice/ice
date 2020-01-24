@@ -29,7 +29,7 @@ namespace Ice
         /// Returns the current size of the stream.
         /// </summary>
         /// <value>The size of the stream.</value>
-        public int Size => _buf.size();
+        public int Size => _buf.Size();
 
         /// <summary>
         /// The communicator associated with this stream.
@@ -46,12 +46,12 @@ namespace Ice
         // The position (offset) in the underlying buffer.
         internal int Pos
         {
-            get => _buf.b.position();
-            set => _buf.b.position(value);
+            get => _buf.B.Position();
+            set => _buf.B.Position(value);
         }
 
         // True if the internal buffer has no data, false otherwise.
-        internal bool IsEmpty => _buf.empty();
+        internal bool IsEmpty => _buf.Empty();
 
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
@@ -71,7 +71,7 @@ namespace Ice
         }
 
         // Number of bytes remaining in the underlying buffer.
-        private int Remaining => _limit - Pos ?? _buf.b.remaining();
+        private int Remaining => _limit - Pos ?? _buf.B.Remaining();
 
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
@@ -145,7 +145,7 @@ namespace Ice
         /// </summary>
         public void Reset()
         {
-            _buf.reset();
+            _buf.Reset();
             _minTotalSeqSize = 0;
             Clear();
         }
@@ -153,10 +153,7 @@ namespace Ice
         /// <summary>
         /// Releases any data retained by encapsulations.
         /// </summary>
-        public void Clear()
-        {
-            ResetEncapsulation();
-        }
+        public void Clear() => ResetEncapsulation();
 
         /// <summary>
         /// Reads the start of an encapsulation.
@@ -165,7 +162,7 @@ namespace Ice
         public EncodingVersion StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            var encapsHeader = ReadEncapsulationHeader();
+            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             // TODO: is this check necessary / correct?
             Protocol.checkSupportedEncoding(encapsHeader.Encoding);
@@ -198,7 +195,7 @@ namespace Ice
         /// <returns>The encapsulation's encoding version.</returns>
         public EncodingVersion SkipEmptyEncapsulation()
         {
-            var encapsHeader = ReadEncapsulationHeader();
+            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             if (encapsHeader.Encoding.Equals(Util.Encoding_1_0))
             {
                 if (encapsHeader.Size != 6)
@@ -210,7 +207,7 @@ namespace Ice
             {
                 // Skip the optional content of the encapsulation if we are expecting an
                 // empty encapsulation.
-                _buf.b.position(_buf.b.position() + encapsHeader.Size - 6);
+                _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
             }
             return encapsHeader.Encoding;
         }
@@ -223,14 +220,14 @@ namespace Ice
         /// <returns>The encoded encapsulation.</returns>
         public byte[] ReadEncapsulation(out EncodingVersion encoding)
         {
-            var encapsHeader = ReadEncapsulationHeader();
-            _buf.b.position(_buf.b.position() - 6);
+            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            _buf.B.Position(_buf.B.Position() - 6);
             encoding = encapsHeader.Encoding;
 
             byte[] v = new byte[encapsHeader.Size];
             try
             {
-                _buf.b.get(v);
+                _buf.B.Get(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -256,10 +253,10 @@ namespace Ice
         /// <returns>The encoding version of the skipped encapsulation.</returns>
         public EncodingVersion SkipEncapsulation()
         {
-            var encapsHeader = ReadEncapsulationHeader();
+            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             try
             {
-                _buf.b.position(_buf.b.position() + encapsHeader.Size - 6);
+                _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -343,10 +340,10 @@ namespace Ice
         {
             try
             {
-                byte b = _buf.b.get();
+                byte b = _buf.B.Get();
                 if (b == 255)
                 {
-                    int v = _buf.b.getInt();
+                    int v = _buf.B.GetInt();
                     if (v < 0)
                     {
                         throw new UnmarshalOutOfBoundsException();
@@ -386,7 +383,7 @@ namespace Ice
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
-            if (_buf.b.position() + minSize > _buf.size() || _minTotalSeqSize > _buf.size())
+            if (_buf.B.Position() + minSize > _buf.Size() || _minTotalSeqSize > _buf.Size())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -401,7 +398,7 @@ namespace Ice
         {
             try
             {
-                _buf.b.get(v);
+                _buf.B.Get(v);
             }
             catch (InvalidOperationException ex)
             {
@@ -423,7 +420,7 @@ namespace Ice
             byte[] v = new byte[sz];
             try
             {
-                _buf.b.get(v);
+                _buf.B.Get(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -461,11 +458,11 @@ namespace Ice
                 int v = ReadByte();
                 if (v == Protocol.OPTIONAL_END_MARKER)
                 {
-                    _buf.b.position(_buf.b.position() - 1); // Rewind.
+                    _buf.B.Position(_buf.B.Position() - 1); // Rewind.
                     return false;
                 }
 
-                OptionalFormat format = (OptionalFormat)(v & 0x07); // First 3 bits.
+                var format = (OptionalFormat)(v & 0x07); // First 3 bits.
                 tag = v >> 3;
                 if (tag == 30)
                 {
@@ -475,7 +472,7 @@ namespace Ice
                 if (tag > requestedTag)
                 {
                     int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
-                    _buf.b.position(_buf.b.position() - offset);
+                    _buf.B.Position(_buf.B.Position() - offset);
                     return false; // No tagged member with the requested tag.
                 }
                 else if (tag < requestedTag)
@@ -501,7 +498,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.get();
+                return _buf.B.Get();
             }
             catch (InvalidOperationException ex)
             {
@@ -536,7 +533,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(1);
                 byte[] v = new byte[sz];
-                _buf.b.get(v);
+                _buf.B.Get(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -649,7 +646,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.get() == 1;
+                return _buf.B.Get() == 1;
             }
             catch (InvalidOperationException ex)
             {
@@ -684,7 +681,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(1);
                 bool[] v = new bool[sz];
-                _buf.b.getBoolSeq(v);
+                _buf.B.GetBoolSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -775,7 +772,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.getShort();
+                return _buf.B.GetShort();
             }
             catch (InvalidOperationException ex)
             {
@@ -810,7 +807,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(2);
                 short[] v = new short[sz];
-                _buf.b.getShortSeq(v);
+                _buf.B.GetShortSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -902,7 +899,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.getInt();
+                return _buf.B.GetInt();
             }
             catch (InvalidOperationException ex)
             {
@@ -937,7 +934,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(4);
                 int[] v = new int[sz];
-                _buf.b.getIntSeq(v);
+                _buf.B.GetIntSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -972,7 +969,7 @@ namespace Ice
                 l = new LinkedList<int>();
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.b.getInt());
+                    l.AddLast(_buf.B.GetInt());
                 }
             }
             catch (InvalidOperationException ex)
@@ -999,7 +996,7 @@ namespace Ice
                 l = new Queue<int>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.b.getInt());
+                    l.Enqueue(_buf.B.GetInt());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1049,7 +1046,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.getLong();
+                return _buf.B.GetLong();
             }
             catch (InvalidOperationException ex)
             {
@@ -1084,7 +1081,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(8);
                 long[] v = new long[sz];
-                _buf.b.getLongSeq(v);
+                _buf.B.GetLongSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -1119,7 +1116,7 @@ namespace Ice
                 l = new LinkedList<long>();
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.b.getLong());
+                    l.AddLast(_buf.B.GetLong());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1146,7 +1143,7 @@ namespace Ice
                 l = new Queue<long>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.b.getLong());
+                    l.Enqueue(_buf.B.GetLong());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1196,7 +1193,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.getFloat();
+                return _buf.B.GetFloat();
             }
             catch (InvalidOperationException ex)
             {
@@ -1231,7 +1228,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(4);
                 float[] v = new float[sz];
-                _buf.b.getFloatSeq(v);
+                _buf.B.GetFloatSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -1266,7 +1263,7 @@ namespace Ice
                 l = new LinkedList<float>();
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.b.getFloat());
+                    l.AddLast(_buf.B.GetFloat());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1293,7 +1290,7 @@ namespace Ice
                 l = new Queue<float>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.b.getFloat());
+                    l.Enqueue(_buf.B.GetFloat());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1343,7 +1340,7 @@ namespace Ice
         {
             try
             {
-                return _buf.b.getDouble();
+                return _buf.B.GetDouble();
             }
             catch (InvalidOperationException ex)
             {
@@ -1378,7 +1375,7 @@ namespace Ice
             {
                 int sz = ReadAndCheckSeqSize(8);
                 double[] v = new double[sz];
-                _buf.b.getDoubleSeq(v);
+                _buf.B.GetDoubleSeq(v);
                 return v;
             }
             catch (InvalidOperationException ex)
@@ -1413,7 +1410,7 @@ namespace Ice
                 l = new LinkedList<double>();
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.b.getDouble());
+                    l.AddLast(_buf.B.GetDouble());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1440,7 +1437,7 @@ namespace Ice
                 l = new Queue<double>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.b.getDouble());
+                    l.Enqueue(_buf.B.GetDouble());
                 }
             }
             catch (InvalidOperationException ex)
@@ -1482,7 +1479,7 @@ namespace Ice
             }
         }
 
-        private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+        private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
         /// <summary>
         /// Extracts a string from the stream.
@@ -1515,8 +1512,8 @@ namespace Ice
                 {
                     _stringBytes = new byte[len];
                 }
-                _buf.b.get(_stringBytes, 0, len);
-                return utf8.GetString(_stringBytes, 0, len);
+                _buf.B.Get(_stringBytes, 0, len);
+                return _utf8.GetString(_stringBytes, 0, len);
             }
             catch (InvalidOperationException ex)
             {
@@ -1656,7 +1653,7 @@ namespace Ice
         /// <returns>The extracted proxy.</returns>
         public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            Identity ident = new Identity(this);
+            var ident = new Identity(this);
             if (ident.Name.Length == 0)
             {
                 return null;
@@ -1720,7 +1717,7 @@ namespace Ice
         /// <returns>The class instance, or null.</returns>
         public T? ReadClass<T>() where T : AnyClass
         {
-            var obj = ReadAnyClass();
+            AnyClass? obj = ReadAnyClass();
             if (obj == null)
             {
                 return null;
@@ -1731,7 +1728,7 @@ namespace Ice
             }
             else
             {
-                IceInternal.Ex.throwUOE(typeof(T), obj);
+                IceInternal.Ex.ThrowUOE(typeof(T), obj);
                 return null;
             }
         }
@@ -1743,7 +1740,7 @@ namespace Ice
         /// <returns>The class instance, or null.</returns>
         public T? ReadClass<T>(int tag) where T : AnyClass
         {
-            var obj = ReadAnyClass(tag);
+            AnyClass? obj = ReadAnyClass(tag);
             if (obj == null)
             {
                 return null;
@@ -1754,7 +1751,7 @@ namespace Ice
             }
             else
             {
-                IceInternal.Ex.throwUOE(typeof(T), obj);
+                IceInternal.Ex.ThrowUOE(typeof(T), obj);
                 return null;
             }
         }
@@ -1769,7 +1766,7 @@ namespace Ice
 
             // Read the first slice header, and exception's type ID cannot be null.
             string typeId = ReadSliceHeaderIntoCurrent()!;
-            var mostDerivedId = typeId;
+            string mostDerivedId = typeId;
             ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately
 
             while (true)
@@ -1781,7 +1778,7 @@ namespace Ice
                     Type? type = Communicator.ResolveClass(typeId);
                     if (type != null)
                     {
-                        userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(type);
+                        userEx = (UserException?)IceInternal.AssemblyUtil.CreateInstance(type);
                     }
                 }
                 catch (Exception ex)
@@ -1828,7 +1825,7 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            _buf.b.position(_buf.b.position() + size);
+            _buf.B.Position(_buf.B.Position() + size);
         }
 
         /// <summary>
@@ -1850,7 +1847,7 @@ namespace Ice
         internal EncodingVersion StartEndpointEncapsulation()
         {
             Debug.Assert(_endpointEncaps == null);
-            var encapsHeader = ReadEncapsulationHeader();
+            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             // TODO: is this check necessary / correct?
             Protocol.checkSupportedEncoding(encapsHeader.Encoding);
@@ -1900,19 +1897,16 @@ namespace Ice
         // Resizes the stream to a new size.
         internal void Resize(int sz)
         {
-            _buf.resize(sz, true);
-            _buf.b.position(sz);
+            _buf.Resize(sz, true);
+            _buf.B.Position(sz);
         }
 
-        internal IceInternal.Buffer GetBuffer()
-        {
-            return _buf;
-        }
+        internal IceInternal.Buffer GetBuffer() => _buf;
 
         // Helper constructor used by the other constructors.
         private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
         {
-            Encoding = encoding ?? communicator.DefaultsAndOverrides.defaultEncoding;
+            Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
             Communicator = communicator;
             _buf = buf;
         }
@@ -2011,7 +2005,7 @@ namespace Ice
                     return true;
                 }
 
-                OptionalFormat format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
+                var format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
                 if ((v >> 3) == 30)
                 {
                     SkipSize();
@@ -2054,8 +2048,7 @@ namespace Ice
 
         private Type? ResolveClass(string typeId)
         {
-            Type? cls = null;
-            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out cls))
+            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out Type cls))
             {
                 // Not found in typeIdCache
                 try
@@ -2230,11 +2223,11 @@ namespace Ice
                 string slicingCat = Communicator.TraceLevels.slicingCat;
                 if (_current.InstanceType == InstanceType.Exception)
                 {
-                    IceInternal.TraceUtil.traceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);
+                    IceInternal.TraceUtil.TraceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);
                 }
                 else
                 {
-                    IceInternal.TraceUtil.traceSlicing("object", _current.SliceTypeId ?? "", slicingCat, logger);
+                    IceInternal.TraceUtil.TraceSlicing("object", _current.SliceTypeId ?? "", slicingCat, logger);
                 }
             }
 
@@ -2268,8 +2261,8 @@ namespace Ice
 
             // Preserve this slice.
             bool hasOptionalMembers = (_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-            IceInternal.ByteBuffer b = GetBuffer().b;
-            int end = b.position();
+            IceInternal.ByteBuffer b = GetBuffer().B;
+            int end = b.Position();
             int dataEnd = end;
             if (hasOptionalMembers)
             {
@@ -2278,9 +2271,9 @@ namespace Ice
                 --dataEnd;
             }
             byte[] bytes = new byte[dataEnd - start];
-            b.position(start);
-            b.get(bytes);
-            b.position(end);
+            b.Position(start);
+            b.Get(bytes);
+            b.Position(end);
 
             int startOfIndirectionTable = 0;
 
@@ -2326,10 +2319,10 @@ namespace Ice
             // We use ReadSize and not ReadAndCheckSeqSize here because we don't allocate memory for this
             // sequence, and since we are skipping this sequence to read it later, we don't want to double-count
             // its contribution to _minTotalSeqSize.
-            var tableSize = ReadSize();
+            int tableSize = ReadSize();
             for (int i = 0; i < tableSize; ++i)
             {
-                var index = ReadSize();
+                int index = ReadSize();
                 if (index <= 0)
                 {
                     throw new MarshalException($"read invalid index {index} in indirection table");
@@ -2342,7 +2335,7 @@ namespace Ice
                     }
 
                     // Read/skip this instance
-                    byte sliceFlags = 0;
+                    byte sliceFlags;
                     do
                     {
                         sliceFlags = ReadByte();
@@ -2387,7 +2380,7 @@ namespace Ice
 
         private AnyClass[] ReadIndirectionTable()
         {
-            var size = ReadAndCheckSeqSize(1);
+            int size = ReadAndCheckSeqSize(1);
             if (size == 0)
             {
                 throw new MarshalException("invalid empty indirection table");
@@ -2418,12 +2411,12 @@ namespace Ice
                 throw new MarshalException($"could not find index {index} in {nameof(_instanceMap)}");
             }
 
-            var previousCurrent = Push(InstanceType.Class);
+            InstanceData? previousCurrent = Push(InstanceType.Class);
             Debug.Assert(_current != null);
 
             // Read the first slice header.
             string? mostDerivedId = ReadSliceHeaderIntoCurrent();
-            var typeId = mostDerivedId;
+            string? typeId = mostDerivedId;
             // We cannot read the indirection table at this point as it may reference the new instance that is not
             // created yet.
 
@@ -2448,7 +2441,7 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass?)IceInternal.AssemblyUtil.createInstance(cls);
+                        v = (AnyClass?)IceInternal.AssemblyUtil.CreateInstance(cls);
                     }
                     catch (Exception ex)
                     {
@@ -2520,7 +2513,7 @@ namespace Ice
         {
             // Can't have a current instance already if we are reading an exception
             Debug.Assert(instanceType == InstanceType.Class || _current == null);
-            var oldInstance = _current;
+            InstanceData? oldInstance = _current;
             _current = new InstanceData(instanceType);
             return oldInstance;
         }
@@ -2536,10 +2529,7 @@ namespace Ice
 
         private sealed class InstanceData
         {
-            internal InstanceData(InstanceType instanceType)
-            {
-                InstanceType = instanceType;
-            }
+            internal InstanceData(InstanceType instanceType) => InstanceType = instanceType;
 
             // Instance attributes
             internal readonly InstanceType InstanceType;

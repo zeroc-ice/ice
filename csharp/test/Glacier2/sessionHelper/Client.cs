@@ -59,7 +59,7 @@ public class Client : Test.TestHelper
         public void
         createdCommunicator(Glacier2.SessionHelper session)
         {
-            test(session.communicator() != null);
+            test(session.Communicator() != null);
         }
 
         private Client _app;
@@ -97,7 +97,7 @@ public class Client : Test.TestHelper
         public void
         createdCommunicator(Glacier2.SessionHelper session)
         {
-            test(session.communicator() != null);
+            test(session.Communicator() != null);
         }
 
         private Client _app;
@@ -147,7 +147,7 @@ public class Client : Test.TestHelper
         public void
         createdCommunicator(Glacier2.SessionHelper session)
         {
-            test(session.communicator() != null);
+            test(session.Communicator() != null);
         }
 
         private Client _app;
@@ -197,7 +197,7 @@ public class Client : Test.TestHelper
         public void
         createdCommunicator(Glacier2.SessionHelper session)
         {
-            test(session.communicator() != null);
+            test(session.Communicator() != null);
         }
 
         private Client _app;
@@ -245,7 +245,7 @@ public class Client : Test.TestHelper
                 {
                 }
             }
-            test(!session.isConnected());
+            test(!session.IsConnected());
         }
 
         properties.Remove("Ice.Default.Router");
@@ -260,7 +260,7 @@ public class Client : Test.TestHelper
             session = factory.connect("userid", "abc123");
 
             Thread.Sleep(100);
-            session.destroy();
+            session.Destroy();
 
             while (true)
             {
@@ -276,7 +276,7 @@ public class Client : Test.TestHelper
                 {
                 }
             }
-            test(!session.isConnected());
+            test(!session.IsConnected());
         }
 
         factory = new Glacier2.SessionFactoryHelper(new SessionCallback2(this), properties, dispatcher: dispatcher);
@@ -305,14 +305,14 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing SessionHelper isConnected after connect... ");
             Console.Out.Flush();
-            test(session.isConnected());
+            test(session.IsConnected());
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing SessionHelper categoryForClient after connect... ");
             Console.Out.Flush();
             try
             {
-                test(!session.categoryForClient().Equals(""));
+                test(!session.CategoryForClient().Equals(""));
             }
             catch (Glacier2.SessionNotExistException)
             {
@@ -320,11 +320,11 @@ public class Client : Test.TestHelper
             }
             Console.Out.WriteLine("ok");
 
-            test(session.session() == null);
+            test(session.Session() == null);
 
             Console.Out.Write("testing stringToProxy for server object... ");
             Console.Out.Flush();
-            var @base = IObjectPrx.Parse($"callback:{getTestEndpoint(0)}", session.communicator());
+            var @base = IObjectPrx.Parse($"callback:{getTestEndpoint(0)}", session.Communicator());
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("pinging server after session creation... ");
@@ -334,7 +334,7 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing checked cast for server object... ");
             Console.Out.Flush();
-            ICallbackPrx twoway = ICallbackPrx.CheckedCast(@base);
+            var twoway = ICallbackPrx.CheckedCast(@base);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing server shutdown... ");
@@ -342,10 +342,10 @@ public class Client : Test.TestHelper
             twoway.shutdown();
             Console.Out.WriteLine("ok");
 
-            test(session.communicator() != null);
+            test(session.Communicator() != null);
             Console.Out.Write("testing SessionHelper destroy... ");
             Console.Out.Flush();
-            session.destroy();
+            session.Destroy();
             while (true)
             {
                 try
@@ -363,14 +363,14 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing SessionHelper isConnected after destroy... ");
             Console.Out.Flush();
-            test(session.isConnected() == false);
+            test(session.IsConnected() == false);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing SessionHelper categoryForClient after destroy... ");
             Console.Out.Flush();
             try
             {
-                test(!session.categoryForClient().Equals(""));
+                test(!session.CategoryForClient().Equals(""));
                 test(false);
             }
             catch (Glacier2.SessionNotExistException)
@@ -379,15 +379,15 @@ public class Client : Test.TestHelper
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing SessionHelper session after destroy... ");
-            test(session.session() == null);
+            test(session.Session() == null);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing SessionHelper communicator after destroy... ");
             Console.Out.Flush();
             try
             {
-                test(session.communicator() != null);
-                IObjectPrx.Parse("dummy", session.communicator());
+                test(session.Communicator() != null);
+                IObjectPrx.Parse("dummy", session.Communicator());
                 test(false);
             }
             catch (CommunicatorDestroyedException)
@@ -455,15 +455,15 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing SessionHelper isConnect after connect failure... ");
             Console.Out.Flush();
-            test(session.isConnected() == false);
+            test(session.IsConnected() == false);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing SessionHelper communicator after connect failure... ");
             Console.Out.Flush();
             try
             {
-                test(session.communicator() != null);
-                IObjectPrx.Parse("dummy", session.communicator());
+                test(session.Communicator() != null);
+                IObjectPrx.Parse("dummy", session.Communicator());
                 test(false);
             }
             catch (CommunicatorDestroyedException)
@@ -473,7 +473,7 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing SessionHelper destroy after connect failure... ");
             Console.Out.Flush();
-            session.destroy();
+            session.Destroy();
             Console.Out.WriteLine("ok");
         }
     }

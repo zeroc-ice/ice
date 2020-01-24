@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     public delegate void ThreadPoolWorkItem();
     public delegate void AsyncCallback(object state);
 
@@ -19,10 +19,7 @@ namespace IceInternal
     //
     internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     {
-        public ThreadPoolSynchronizationContext(ThreadPool threadPool)
-        {
-            _threadPool = threadPool;
-        }
+        public ThreadPoolSynchronizationContext(ThreadPool threadPool) => _threadPool = threadPool;
 
         public override void Post(SendOrPostCallback d, object state)
         {
@@ -38,7 +35,7 @@ namespace IceInternal
             var ctx = Current as ThreadPoolSynchronizationContext;
             if (ctx != this)
             {
-                _threadPool.dispatch(() => { d(state); }, null, false);
+                _threadPool.Dispatch(() => d(state), null, false);
             }
             else
             {
@@ -46,12 +43,10 @@ namespace IceInternal
             }
         }
 
-        public override void Send(SendOrPostCallback d, object state)
-        {
+        public override void Send(SendOrPostCallback d, object state) =>
             throw new System.NotSupportedException("the thread pool doesn't support synchronous calls");
-        }
 
-        private ThreadPool _threadPool;
+        private readonly ThreadPool _threadPool;
     }
 
     internal struct ThreadPoolMessage
@@ -63,25 +58,25 @@ namespace IceInternal
             _finishWithIO = false;
         }
 
-        public bool startIOScope(ref ThreadPoolCurrent current)
+        public bool StartIOScope(ref ThreadPoolCurrent current)
         {
             // This must be called with the handler locked.
-            _finishWithIO = current.startMessage();
+            _finishWithIO = current.StartMessage();
             return _finishWithIO;
         }
 
-        public void finishIOScope(ref ThreadPoolCurrent current)
+        public void FinishIOScope(ref ThreadPoolCurrent current)
         {
             if (_finishWithIO)
             {
                 lock (_mutex)
                 {
-                    current.finishMessage(true);
+                    current.FinishMessage(true);
                 }
             }
         }
 
-        public void completed(ref ThreadPoolCurrent current)
+        public void Completed(ref ThreadPoolCurrent current)
         {
             //
             // Call finishMessage once IO is completed only if serialization is not enabled.
@@ -89,14 +84,14 @@ namespace IceInternal
             // the message (it will be called from destroy below).
             //
             Debug.Assert(_finishWithIO);
-            if (current.ioCompleted())
+            if (current.IoCompleted())
             {
                 _finishWithIO = false;
                 _finish = true;
             }
         }
 
-        public void destroy(ref ThreadPoolCurrent current)
+        public void Destroy(ref ThreadPoolCurrent current)
         {
             if (_finish)
             {
@@ -107,13 +102,13 @@ namespace IceInternal
                 //
                 lock (_mutex)
                 {
-                    current.finishMessage(false);
-                    Debug.Assert(!current.completedSynchronously);
+                    current.FinishMessage(false);
+                    Debug.Assert(!current.CompletedSynchronously);
                 }
             }
         }
 
-        private object _mutex;
+        private readonly object _mutex;
         private bool _finish;
         private bool _finishWithIO;
     }
@@ -122,35 +117,26 @@ namespace IceInternal
     {
         public ThreadPoolCurrent(ThreadPool threadPool, EventHandler handler, int op)
         {
-            _threadPool = threadPool;
-            _handler = handler;
-            operation = op;
-            completedSynchronously = false;
+            ThreadPool = threadPool;
+            Handler = handler;
+            Operation = op;
+            CompletedSynchronously = false;
         }
 
-        public readonly int operation;
-        public bool completedSynchronously;
+        public readonly int Operation;
+        public bool CompletedSynchronously;
 
-        public bool ioCompleted()
-        {
-            return _threadPool.serialize();
-        }
+        public bool IoCompleted() => ThreadPool.Serialize();
 
-        public bool startMessage()
-        {
-            return _threadPool.startMessage(ref this);
-        }
+        public bool StartMessage() => ThreadPool.StartMessage(ref this);
 
-        public void finishMessage(bool fromIOThread)
-        {
-            _threadPool.finishMessage(ref this, fromIOThread);
-        }
+        public void FinishMessage(bool fromIOThread) => ThreadPool.FinishMessage(ref this, fromIOThread);
 
-        internal readonly ThreadPool _threadPool;
-        internal readonly EventHandler _handler;
+        internal readonly ThreadPool ThreadPool;
+        internal readonly EventHandler Handler;
     }
 
-    public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
+    public sealed class ThreadPool : TaskScheduler
     {
         public ThreadPool(Ice.Communicator communicator, string prefix, int timeout)
         {
@@ -182,27 +168,27 @@ namespace IceInternal
             if (size < 1)
             {
                 string s = _prefix + ".Size < 1; Size adjusted to 1";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.Warning(s);
                 size = 1;
             }
 
             int sizeMax = _communicator.GetPropertyAsInt($"{_prefix}.SizeMax") ?? size;
             if (sizeMax < size)
             {
-                _communicator.Logger.warning($"{_prefix}.SizeMax < {_prefix}.Size; SizeMax adjusted to Size ({size})");
+                _communicator.Logger.Warning($"{_prefix}.SizeMax < {_prefix}.Size; SizeMax adjusted to Size ({size})");
                 sizeMax = size;
             }
 
             int sizeWarn = _communicator.GetPropertyAsInt($"{_prefix}.SizeWarn") ?? 0;
             if (sizeWarn != 0 && sizeWarn < size)
             {
-                _communicator.Logger.warning(
+                _communicator.Logger.Warning(
                     $"{_prefix}.SizeWarn < {_prefix}.Size; adjusted SizeWarn to Size ({size})");
                 sizeWarn = size;
             }
             else if (sizeWarn > sizeMax)
             {
-                _communicator.Logger.warning(
+                _communicator.Logger.Warning(
                     "${_prefix}.SizeWarn > {_prefix}.SizeMax; adjusted SizeWarn to SizeMax ({sizeMax})");
                 sizeWarn = sizeMax;
             }
@@ -210,7 +196,7 @@ namespace IceInternal
             int threadIdleTime = _communicator.GetPropertyAsInt($"{_prefix}.ThreadIdleTime") ?? 60;
             if (threadIdleTime < 0)
             {
-                _communicator.Logger.warning($"{_prefix}.ThreadIdleTime < 0; ThreadIdleTime adjusted to 0");
+                _communicator.Logger.Warning($"{_prefix}.ThreadIdleTime < 0; ThreadIdleTime adjusted to 0");
                 threadIdleTime = 0;
             }
 
@@ -222,17 +208,17 @@ namespace IceInternal
             int stackSize = communicator.GetPropertyAsInt($"{_prefix }.StackSize") ?? 0;
             if (stackSize < 0)
             {
-                _communicator.Logger.warning($"{_prefix}.StackSize < 0; Size adjusted to OS default");
+                _communicator.Logger.Warning($"{_prefix}.StackSize < 0; Size adjusted to OS default");
                 stackSize = 0;
             }
             _stackSize = stackSize;
 
-            _priority = Util.stringToThreadPriority(_communicator.GetProperty($"{_prefix}.ThreadPriority") ??
+            _priority = Util.StringToThreadPriority(_communicator.GetProperty($"{_prefix}.ThreadPriority") ??
                                                     _communicator.GetProperty("Ice.ThreadPriority"));
 
             if (_communicator.TraceLevels.threadPool >= 1)
             {
-                _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
                     $"creating {_prefix}: Size = {_size}, SizeMax = {_sizeMax}, SizeWarn = {_sizeWarn}");
             }
 
@@ -243,23 +229,23 @@ namespace IceInternal
                 _threads = new List<WorkerThread>();
                 for (int i = 0; i < _size; ++i)
                 {
-                    WorkerThread thread = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
-                    thread.start(_priority);
+                    var thread = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
+                    thread.Start(_priority);
                     _threads.Add(thread);
                 }
             }
             catch (System.Exception ex)
             {
                 string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-                _communicator.Logger.error(s);
+                _communicator.Logger.Error(s);
 
-                destroy();
-                joinWithAllThreads();
+                Destroy();
+                JoinWithAllThreads();
                 throw;
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             lock (this)
             {
@@ -272,33 +258,30 @@ namespace IceInternal
             }
         }
 
-        public void updateObservers()
+        public void UpdateObservers()
         {
             lock (this)
             {
                 foreach (WorkerThread t in _threads)
                 {
-                    t.updateObserver();
+                    t.UpdateObserver();
                 }
             }
         }
 
-        public void initialize(EventHandler handler)
+        public void Initialize(EventHandler handler)
         {
-            handler._ready = 0;
-            handler._pending = 0;
-            handler._started = 0;
-            handler._finish = false;
-            handler._hasMoreData = false;
-            handler._registered = 0;
+            handler.Ready = 0;
+            handler.Pending = 0;
+            handler.Started = 0;
+            handler.Finish = false;
+            handler.HasMoreData = false;
+            handler.Registered = 0;
         }
 
-        public void register(EventHandler handler, int op)
-        {
-            update(handler, SocketOperation.None, op);
-        }
+        public void Register(EventHandler handler, int op) => Update(handler, SocketOperation.None, op);
 
-        public void update(EventHandler handler, int remove, int add)
+        public void Update(EventHandler handler, int remove, int add)
         {
             lock (this)
             {
@@ -308,67 +291,58 @@ namespace IceInternal
                 remove &= ~add;
 
                 // Don't remove/add if already un-registered or registered
-                remove &= handler._registered;
-                add &= ~handler._registered;
+                remove &= handler.Registered;
+                add &= ~handler.Registered;
                 if (remove == add)
                 {
                     return;
                 }
 
-                handler._registered &= ~remove;
-                handler._registered |= add;
+                handler.Registered &= ~remove;
+                handler.Registered |= add;
 
-                if ((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
+                if ((add & SocketOperation.Read) != 0 && (handler.Pending & SocketOperation.Read) == 0)
                 {
-                    handler._pending |= SocketOperation.Read;
-                    executeNonBlocking(() =>
-                        {
-                            messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Read));
-                        });
+                    handler.Pending |= SocketOperation.Read;
+                    ExecuteNonBlocking(() => MessageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Read)));
                 }
-                else if ((add & SocketOperation.Write) != 0 && (handler._pending & SocketOperation.Write) == 0)
+                else if ((add & SocketOperation.Write) != 0 && (handler.Pending & SocketOperation.Write) == 0)
                 {
-                    handler._pending |= SocketOperation.Write;
-                    executeNonBlocking(() =>
-                        {
-                            messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Write));
-                        });
+                    handler.Pending |= SocketOperation.Write;
+                    ExecuteNonBlocking(() => MessageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Write)));
                 }
             }
         }
 
-        public void unregister(EventHandler handler, int op)
-        {
-            update(handler, op, SocketOperation.None);
-        }
+        public void Unregister(EventHandler handler, int op) => Update(handler, op, SocketOperation.None);
 
-        public void finish(EventHandler handler)
+        public void Finish(EventHandler handler)
         {
             lock (this)
             {
                 Debug.Assert(!_destroyed);
 
-                handler._registered = SocketOperation.None;
+                handler.Registered = SocketOperation.None;
 
                 //
                 // If there are no pending asynchronous operations, we can call finish on the handler now.
                 //
-                if (handler._pending == 0)
+                if (handler.Pending == 0)
                 {
-                    executeNonBlocking(() =>
+                    ExecuteNonBlocking(() =>
                        {
-                           ThreadPoolCurrent current = new ThreadPoolCurrent(this, handler, SocketOperation.None);
+                           var current = new ThreadPoolCurrent(this, handler, SocketOperation.None);
                            handler.Finished(ref current);
                        });
                 }
                 else
                 {
-                    handler._finish = true;
+                    handler.Finish = true;
                 }
             }
         }
 
-        public void dispatchFromThisThread(System.Action call, Ice.Connection? con)
+        public void DispatchFromThisThread(System.Action call, Ice.Connection? con)
         {
             if (_dispatcher != null)
             {
@@ -380,7 +354,7 @@ namespace IceInternal
                 {
                     if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 1)
                     {
-                        _communicator.Logger.warning("dispatch exception:\n" + ex);
+                        _communicator.Logger.Warning("dispatch exception:\n" + ex);
                     }
                 }
             }
@@ -390,7 +364,7 @@ namespace IceInternal
             }
         }
 
-        public void dispatch(System.Action call, Ice.Connection? con, bool useDispatcher = true)
+        public void Dispatch(System.Action call, Ice.Connection? con, bool useDispatcher = true)
         {
             lock (this)
             {
@@ -401,11 +375,11 @@ namespace IceInternal
 
                 if (useDispatcher)
                 {
-                    _workItems.Enqueue(() => { dispatchFromThisThread(call, con); });
+                    _workItems.Enqueue(() => DispatchFromThisThread(call, con));
                 }
                 else
                 {
-                    _workItems.Enqueue(() => { call(); });
+                    _workItems.Enqueue(() => call());
                 }
                 Monitor.Pulse(this);
 
@@ -420,34 +394,34 @@ namespace IceInternal
                 {
                     if (_communicator.TraceLevels.threadPool >= 1)
                     {
-                        _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
                             $"growing {_prefix}: Size = {_threads.Count + 1}");
                     }
 
                     try
                     {
-                        WorkerThread t = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
-                        t.start(_priority);
+                        var t = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
+                        t.Start(_priority);
                         _threads.Add(t);
                     }
                     catch (System.Exception ex)
                     {
-                        _communicator.Logger.error($"cannot create thread for `{_prefix}':\n{ex}");
+                        _communicator.Logger.Error($"cannot create thread for `{_prefix}':\n{ex}");
                     }
                 }
             }
         }
 
-        public void executeNonBlocking(ThreadPoolWorkItem workItem)
+        public void ExecuteNonBlocking(ThreadPoolWorkItem workItem)
         {
             lock (this)
             {
                 Debug.Assert(!_destroyed);
-                _communicator.AsyncIOThread().queue(workItem);
+                _communicator.AsyncIOThread().Queue(workItem);
             }
         }
 
-        public void joinWithAllThreads()
+        public void JoinWithAllThreads()
         {
             //
             // _threads is immutable after destroy() has been called,
@@ -458,46 +432,31 @@ namespace IceInternal
             Debug.Assert(_destroyed);
             foreach (WorkerThread thread in _threads)
             {
-                thread.join();
+                thread.Join();
             }
         }
 
-        public string prefix()
-        {
-            return _prefix;
-        }
+        public string Prefix() => _prefix;
 
-        public bool serialize()
-        {
-            return _serialize;
-        }
+        public bool Serialize() => _serialize;
 
-        protected sealed override void QueueTask(Task task)
-        {
-            dispatch(() => { TryExecuteTask(task); }, null, _dispatcher != null);
-        }
+        protected sealed override void QueueTask(Task task) => Dispatch(() => TryExecuteTask(task), null, _dispatcher != null);
 
         protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
         {
             if (!taskWasPreviouslyQueued)
             {
-                dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
+                DispatchFromThisThread(() => TryExecuteTask(task), null);
                 return true;
             }
             return false;
         }
 
-        protected sealed override bool TryDequeue(Task task)
-        {
-            return false;
-        }
+        protected sealed override bool TryDequeue(Task task) => false;
 
-        protected sealed override IEnumerable<Task> GetScheduledTasks()
-        {
-            return System.Array.Empty<Task>();
-        }
+        protected sealed override IEnumerable<Task> GetScheduledTasks() => System.Array.Empty<Task>();
 
-        private void run(WorkerThread thread)
+        private void Run(WorkerThread thread)
         {
             ThreadPoolWorkItem? workItem = null;
             while (true)
@@ -510,7 +469,7 @@ namespace IceInternal
                         --_inUse;
                         if (_workItems.Count == 0)
                         {
-                            thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                            thread.SetState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         }
                     }
 
@@ -542,15 +501,12 @@ namespace IceInternal
                                     //
                                     if (_communicator.TraceLevels.threadPool >= 1)
                                     {
-                                        _communicator.Logger.trace(_communicator.TraceLevels.threadPoolCat,
+                                        _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
                                             $"shrinking {_prefix}: Size={_threads.Count - 1}");
                                     }
 
                                     _threads.Remove(thread);
-                                    _communicator.AsyncIOThread().queue(() =>
-                                        {
-                                            thread.join();
-                                        });
+                                    _communicator.AsyncIOThread().Queue(() => thread.Join());
                                     return;
                                 }
                                 else
@@ -588,13 +544,13 @@ namespace IceInternal
                     Debug.Assert(_inUse >= 0);
                     ++_inUse;
 
-                    thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
+                    thread.SetState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
 
                     if (_sizeMax > 1 && _inUse == _sizeWarn)
                     {
                         string s = "thread pool `" + _prefix + "' is running low on threads\n"
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
-                        _communicator.Logger.warning(s);
+                        _communicator.Logger.Warning(s);
                     }
                 }
 
@@ -605,160 +561,153 @@ namespace IceInternal
                 catch (System.Exception ex)
                 {
                     string s = "exception in `" + _prefix + "' while calling on work item:\n" + ex + '\n';
-                    _communicator.Logger.error(s);
+                    _communicator.Logger.Error(s);
                 }
             }
         }
 
-        public bool startMessage(ref ThreadPoolCurrent current)
+        public bool StartMessage(ref ThreadPoolCurrent current)
         {
-            Debug.Assert((current._handler._pending & current.operation) != 0);
+            Debug.Assert((current.Handler.Pending & current.Operation) != 0);
 
-            if ((current._handler._started & current.operation) != 0)
+            if ((current.Handler.Started & current.Operation) != 0)
             {
-                Debug.Assert((current._handler._ready & current.operation) == 0);
-                current._handler._ready |= current.operation;
-                current._handler._started &= ~current.operation;
-                if (!current._handler.FinishAsync(current.operation)) // Returns false if the handler is finished.
+                Debug.Assert((current.Handler.Ready & current.Operation) == 0);
+                current.Handler.Ready |= current.Operation;
+                current.Handler.Started &= ~current.Operation;
+                if (!current.Handler.FinishAsync(current.Operation)) // Returns false if the handler is finished.
                 {
-                    current._handler._pending &= ~current.operation;
-                    if (current._handler._pending == 0 && current._handler._finish)
+                    current.Handler.Pending &= ~current.Operation;
+                    if (current.Handler.Pending == 0 && current.Handler.Finish)
                     {
-                        finish(current._handler);
+                        Finish(current.Handler);
                     }
                     return false;
                 }
             }
-            else if ((current._handler._ready & current.operation) == 0 &&
-                    (current._handler._registered & current.operation) != 0)
+            else if ((current.Handler.Ready & current.Operation) == 0 &&
+                    (current.Handler.Registered & current.Operation) != 0)
             {
-                Debug.Assert((current._handler._started & current.operation) == 0);
+                Debug.Assert((current.Handler.Started & current.Operation) == 0);
                 bool completed = false;
-                if (!current._handler.StartAsync(current.operation, getCallback(current.operation), ref completed))
+                if (!current.Handler.StartAsync(current.Operation, GetCallback(current.Operation), ref completed))
                 {
-                    current._handler._pending &= ~current.operation;
-                    if (current._handler._pending == 0 && current._handler._finish)
+                    current.Handler.Pending &= ~current.Operation;
+                    if (current.Handler.Pending == 0 && current.Handler.Finish)
                     {
-                        finish(current._handler);
+                        Finish(current.Handler);
                     }
                     return false;
                 }
                 else
                 {
-                    current.completedSynchronously = completed;
-                    current._handler._started |= current.operation;
+                    current.CompletedSynchronously = completed;
+                    current.Handler.Started |= current.Operation;
                     return false;
                 }
             }
 
-            if ((current._handler._registered & current.operation) != 0)
+            if ((current.Handler.Registered & current.Operation) != 0)
             {
-                Debug.Assert((current._handler._ready & current.operation) != 0);
-                current._handler._ready &= ~current.operation;
+                Debug.Assert((current.Handler.Ready & current.Operation) != 0);
+                current.Handler.Ready &= ~current.Operation;
                 return true;
             }
             else
             {
-                current._handler._pending &= ~current.operation;
-                if (current._handler._pending == 0 && current._handler._finish)
+                current.Handler.Pending &= ~current.Operation;
+                if (current.Handler.Pending == 0 && current.Handler.Finish)
                 {
-                    finish(current._handler);
+                    Finish(current.Handler);
                 }
                 return false;
             }
         }
 
-        public void finishMessage(ref ThreadPoolCurrent current, bool fromIOThread)
+        public void FinishMessage(ref ThreadPoolCurrent current, bool fromIOThread)
         {
-            if ((current._handler._registered & current.operation) != 0)
+            if ((current.Handler.Registered & current.Operation) != 0)
             {
                 if (fromIOThread)
                 {
-                    Debug.Assert((current._handler._ready & current.operation) == 0);
+                    Debug.Assert((current.Handler.Ready & current.Operation) == 0);
                     bool completed = false;
-                    if (!current._handler.StartAsync(current.operation, getCallback(current.operation), ref completed))
+                    if (!current.Handler.StartAsync(current.Operation, GetCallback(current.Operation), ref completed))
                     {
-                        current._handler._pending &= ~current.operation;
+                        current.Handler.Pending &= ~current.Operation;
                     }
                     else
                     {
-                        Debug.Assert((current._handler._pending & current.operation) != 0);
-                        current.completedSynchronously = completed;
-                        current._handler._started |= current.operation;
+                        Debug.Assert((current.Handler.Pending & current.Operation) != 0);
+                        current.CompletedSynchronously = completed;
+                        current.Handler.Started |= current.Operation;
                     }
                 }
                 else
                 {
                     ThreadPoolCurrent c = current;
-                    executeNonBlocking(() =>
-                       {
-                           messageCallback(c);
-                       });
+                    ExecuteNonBlocking(() => MessageCallback(c));
                 }
             }
             else
             {
-                current._handler._pending &= ~current.operation;
+                current.Handler.Pending &= ~current.Operation;
             }
 
-            if (current._handler._pending == 0 && current._handler._finish)
+            if (current.Handler.Pending == 0 && current.Handler.Finish)
             {
                 // There are no more pending async operations, it's time to call finish.
-                finish(current._handler);
+                Finish(current.Handler);
             }
         }
 
-        public void asyncReadCallback(object state)
-        {
-            messageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Read));
-        }
+        public void AsyncReadCallback(object state) =>
+            MessageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Read));
 
-        public void asyncWriteCallback(object state)
-        {
-            messageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Write));
-        }
+        public void AsyncWriteCallback(object state) =>
+            MessageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Write));
 
-        public void messageCallback(ThreadPoolCurrent current)
+        public void MessageCallback(ThreadPoolCurrent current)
         {
             try
             {
                 do
                 {
-                    current.completedSynchronously = false;
-                    current._handler.Message(ref current);
+                    current.CompletedSynchronously = false;
+                    current.Handler.Message(ref current);
                 }
-                while (current.completedSynchronously);
+                while (current.CompletedSynchronously);
             }
             catch (System.Exception ex)
             {
-                string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current._handler.ToString();
-                _communicator.Logger.error(s);
+                string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current.Handler.ToString();
+                _communicator.Logger.Error(s);
             }
         }
 
-        private AsyncCallback getCallback(int operation)
+        private AsyncCallback GetCallback(int operation)
         {
             switch (operation)
             {
                 case SocketOperation.Read:
-                    return asyncReadCallback;
+                    return AsyncReadCallback;
                 case SocketOperation.Write:
-                    return asyncWriteCallback;
+                    return AsyncWriteCallback;
                 default:
                     Debug.Assert(false);
                     return null;
             }
         }
 
-        private Ice.Communicator _communicator;
-        private System.Action<System.Action, Ice.Connection?>? _dispatcher;
+        private readonly Ice.Communicator _communicator;
+        private readonly System.Action<System.Action, Ice.Connection?>? _dispatcher;
         private bool _destroyed;
         private readonly string _prefix;
         private readonly string _threadPrefix;
 
         private sealed class WorkerThread
         {
-            private ThreadPool _threadPool;
+            private readonly ThreadPool _threadPool;
             private Ice.Instrumentation.IThreadObserver? _observer;
             private Ice.Instrumentation.ThreadState _state;
 
@@ -767,49 +716,49 @@ namespace IceInternal
                 _threadPool = threadPool;
                 _name = name;
                 _state = Ice.Instrumentation.ThreadState.ThreadStateIdle;
-                updateObserver();
+                UpdateObserver();
             }
 
-            public void updateObserver()
+            public void UpdateObserver()
             {
                 // Must be called with the thread pool mutex locked
                 Ice.Instrumentation.ICommunicatorObserver? obsv = _threadPool._communicator.Observer;
                 if (obsv != null)
                 {
-                    _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
+                    _observer = obsv.GetThreadObserver(_threadPool._prefix, _name, _state, _observer);
                     if (_observer != null)
                     {
-                        _observer.attach();
+                        _observer.Attach();
                     }
                 }
             }
 
-            public void setState(Ice.Instrumentation.ThreadState s)
+            public void SetState(Ice.Instrumentation.ThreadState s)
             {
                 // Must be called with the thread pool mutex locked
                 if (_observer != null)
                 {
                     if (_state != s)
                     {
-                        _observer.stateChanged(_state, s);
+                        _observer.StateChanged(_state, s);
                     }
                 }
                 _state = s;
             }
 
-            public Thread getThread()
+            public Thread GetThread()
             {
                 Debug.Assert(_thread != null);
                 return _thread;
             }
 
-            public void join()
+            public void Join()
             {
                 Debug.Assert(_thread != null);
                 _thread.Join();
             }
 
-            public void start(ThreadPriority priority)
+            public void Start(ThreadPriority priority)
             {
                 if (_threadPool._stackSize == 0)
                 {
@@ -835,7 +784,7 @@ namespace IceInternal
                 //
                 SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
 
-                var threadStart = _threadPool._communicator.ThreadStart;
+                System.Action? threadStart = _threadPool._communicator.ThreadStart;
                 if (threadStart != null)
                 {
                     try
@@ -846,26 +795,26 @@ namespace IceInternal
                     {
                         string s = "thread hook start() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                        _threadPool._communicator.Logger.error(s);
+                        _threadPool._communicator.Logger.Error(s);
                     }
                 }
 
                 try
                 {
-                    _threadPool.run(this);
+                    _threadPool.Run(this);
                 }
                 catch (System.Exception ex)
                 {
                     string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                    _threadPool._communicator.Logger.error(s);
+                    _threadPool._communicator.Logger.Error(s);
                 }
 
                 if (_observer != null)
                 {
-                    _observer.detach();
+                    _observer.Detach();
                 }
 
-                var threadStop = _threadPool._communicator.ThreadStop;
+                System.Action? threadStop = _threadPool._communicator.ThreadStop;
                 if (threadStop != null)
                 {
                     try
@@ -876,7 +825,7 @@ namespace IceInternal
                     {
                         string s = "thread hook stop() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                        _threadPool._communicator.Logger.error(s);
+                        _threadPool._communicator.Logger.Error(s);
                     }
                 }
             }
@@ -894,10 +843,10 @@ namespace IceInternal
         private readonly int _threadIdleTime;
         private readonly int _stackSize;
 
-        private List<WorkerThread> _threads; // All threads, running or not.
+        private readonly List<WorkerThread> _threads; // All threads, running or not.
         private int _threadIndex; // For assigning thread names.
         private int _inUse; // Number of threads that are currently in use.
 
-        private Queue<ThreadPoolWorkItem> _workItems;
+        private readonly Queue<ThreadPoolWorkItem> _workItems;
     }
 }

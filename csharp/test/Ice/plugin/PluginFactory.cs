@@ -12,7 +12,7 @@ public class PluginFactory : Ice.IPluginFactory
     {
         public Plugin(string[] args) => _args = args;
 
-        public void initialize()
+        public void Initialize()
         {
             _initialized = true;
             test(_args.Length == 3);
@@ -21,7 +21,7 @@ public class PluginFactory : Ice.IPluginFactory
             test(_args[2] == "C:\\Program Files\\Application\\db");
         }
 
-        public void destroy() => _destroyed = true;
+        public void Destroy() => _destroyed = true;
 
         ~Plugin()
         {

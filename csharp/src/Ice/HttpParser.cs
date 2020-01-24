@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
-
     public sealed class WebSocketException : System.Exception
     {
         internal WebSocketException() :
@@ -49,9 +49,9 @@ namespace IceInternal
             Response
         };
 
-        internal int isCompleteMessage(ByteBuffer buf, int begin, int end)
+        internal int IsCompleteMessage(ByteBuffer buf, int begin, int end)
         {
-            byte[] raw = buf.rawBytes();
+            byte[] raw = buf.RawBytes();
             int p = begin;
 
             //
@@ -94,9 +94,9 @@ namespace IceInternal
             return -1;
         }
 
-        internal bool parse(ByteBuffer buf, int begin, int end)
+        internal bool Parse(ByteBuffer buf, int begin, int end)
         {
-            byte[] raw = buf.rawBytes();
+            byte[] raw = buf.RawBytes();
             int p = begin;
             int start = 0;
             const char CR = '\r';
@@ -276,7 +276,7 @@ namespace IceInternal
                                     }
                                     Debug.Assert(_headers.ContainsKey(_headerName));
                                     string s = _headers[_headerName];
-                                    StringBuilder newValue = new StringBuilder(s);
+                                    var newValue = new StringBuilder(s);
                                     newValue.Append(' ');
                                     for (int i = start; i < p; ++i)
                                     {
@@ -321,7 +321,7 @@ namespace IceInternal
                         {
                             if (_headerName.Length == 0)
                             {
-                                StringBuilder str = new StringBuilder();
+                                var str = new StringBuilder();
                                 for (int i = start; i < p; ++i)
                                 {
                                     str.Append((char)raw[i]);
@@ -388,13 +388,13 @@ namespace IceInternal
                             Debug.Assert(c == CR || c == LF);
                             if (p > start)
                             {
-                                StringBuilder str = new StringBuilder();
+                                var str = new StringBuilder();
                                 for (int i = start; i < p; ++i)
                                 {
                                     str.Append((char)raw[i]);
                                 }
-                                string s;
-                                if (!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
+
+                                if (!_headers.TryGetValue(_headerName, out string s) || s.Length == 0)
                                 {
                                     _headers[_headerName] = str.ToString();
                                 }
@@ -538,7 +538,7 @@ namespace IceInternal
                                 _versionMinor = 0;
                             }
                             _versionMinor *= 10;
-                            _versionMinor += (c - '0');
+                            _versionMinor += c - '0';
                             break;
                         }
                     case State.Response:
@@ -596,7 +596,7 @@ namespace IceInternal
                                 _status = 0;
                             }
                             _status *= 10;
-                            _status += (c - '0');
+                            _status += c - '0';
                             break;
                         }
                     case State.ResponseReasonStart:
@@ -619,7 +619,7 @@ namespace IceInternal
                             {
                                 if (p > start)
                                 {
-                                    StringBuilder str = new StringBuilder();
+                                    var str = new StringBuilder();
                                     for (int i = start; i < p; ++i)
                                     {
                                         str.Append((char)raw[i]);
@@ -653,36 +653,35 @@ namespace IceInternal
             return _state == State.Complete;
         }
 
-        internal Type type() => _type;
+        internal new Type GetType() => _type;
 
-        internal string method()
+        internal string Method()
         {
             Debug.Assert(_type == Type.Request);
             return _method.ToString();
         }
 
-        internal string uri()
+        internal string Uri()
         {
             Debug.Assert(_type == Type.Request);
             return _uri.ToString();
         }
 
-        internal int versionMajor() => _versionMajor;
+        internal int VersionMajor() => _versionMajor;
 
-        internal int versionMinor() => _versionMinor;
+        internal int VersionMinor() => _versionMinor;
 
-        internal int status() => _status;
+        internal int Status() => _status;
 
-        internal string reason()
+        internal string Reason()
         {
             Debug.Assert(_reason != null);
             return _reason;
         }
 
-        internal string? getHeader(string name, bool toLower)
+        internal string? GetHeader(string name, bool toLower)
         {
-            string s;
-            if (_headers.TryGetValue(name.ToLower(), out s))
+            if (_headers.TryGetValue(name.ToLower(), out string s))
             {
                 return toLower ? s.Trim().ToLower() : s.Trim();
             }
@@ -690,9 +689,9 @@ namespace IceInternal
             return null;
         }
 
-        internal Dictionary<string, string> getHeaders()
+        internal Dictionary<string, string> GetHeaders()
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
+            var dict = new Dictionary<string, string>();
             foreach (KeyValuePair<string, string> e in _headers)
             {
                 dict[_headerNames[e.Key]] = e.Value.Trim();
@@ -705,8 +704,8 @@ namespace IceInternal
         private StringBuilder _method = new StringBuilder();
         private StringBuilder _uri = new StringBuilder();
 
-        private Dictionary<string, string> _headers = new Dictionary<string, string>();
-        private Dictionary<string, string> _headerNames = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _headers = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _headerNames = new Dictionary<string, string>();
         private string _headerName = "";
 
         private int _versionMajor;

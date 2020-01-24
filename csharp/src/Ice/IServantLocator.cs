@@ -45,7 +45,7 @@ namespace Ice
         /// and the run time will marshal it as the result of the invocation.
         ///
         /// </exception>
-        Disp locate(Current curr, out object cookie);
+        Disp Locate(Current curr, out object cookie);
 
         /// <summary>
         /// Called by the object adapter after a request has been
@@ -78,7 +78,7 @@ namespace Ice
         /// and the run time will marshal it as the result of the invocation.
         ///
         /// </exception>
-        void finished(Current curr, Disp servant, object? cookie);
+        void Finished(Current curr, Disp servant, object? cookie);
 
         /// <summary>
         /// Called when the object adapter in which this servant locator is
@@ -88,6 +88,6 @@ namespace Ice
         /// is being deactivated.
         ///
         /// </param>
-        void deactivate(string category);
+        void Deactivate(string category);
     }
 }

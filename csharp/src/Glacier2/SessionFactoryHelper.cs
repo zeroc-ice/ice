@@ -274,7 +274,7 @@ namespace Glacier2
                     _threadStart,
                     _threadStop,
                     _typeIdNamespaces);
-                session.connect(_context);
+                session.Connect(_context);
                 return session;
             }
         }
@@ -305,7 +305,7 @@ namespace Glacier2
                     _threadStart,
                     _threadStop,
                     _typeIdNamespaces);
-                session.connect(username, password, _context);
+                session.Connect(username, password, _context);
                 return session;
             }
         }

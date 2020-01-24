@@ -68,14 +68,14 @@ namespace IceBox
             try
             {
                 Debug.Assert(info.Service != null);
-                Communicator? communicator = info.Communicator == null ? _sharedCommunicator : info.Communicator;
+                Communicator? communicator = info.Communicator ?? _sharedCommunicator;
                 Debug.Assert(communicator != null);
                 info.Service.start(info.Name, communicator, info.Args);
                 started = true;
             }
             catch (System.Exception ex)
             {
-                _logger.warning($"ServiceManager: exception while starting service {info.Name}:\n{ex}");
+                _logger.Warning($"ServiceManager: exception while starting service {info.Name}:\n{ex}");
             }
 
             lock (this)
@@ -83,7 +83,7 @@ namespace IceBox
                 if (started)
                 {
                     info.Status = ServiceStatus.Started;
-                    servicesStarted(new List<string>() { name }, _observers.Keys);
+                    ServicesStarted(new List<string>() { name }, _observers.Keys);
                 }
                 else
                 {
@@ -125,7 +125,7 @@ namespace IceBox
             }
             catch (System.Exception ex)
             {
-                _logger.warning($"ServiceManager: exception while stopping service {info.Name}\n{ex}");
+                _logger.Warning($"ServiceManager: exception while stopping service {info.Name}\n{ex}");
             }
 
             lock (this)
@@ -133,7 +133,7 @@ namespace IceBox
                 if (stopped)
                 {
                     info.Status = ServiceStatus.Stopped;
-                    servicesStopped(new List<string>() { name }, _observers.Keys);
+                    ServicesStopped(new List<string>() { name }, _observers.Keys);
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace IceBox
 
         public void AddObserver(IServiceObserverPrx observer, Ice.Current current)
         {
-            List<string> activeServices = new List<string>();
+            var activeServices = new List<string>();
 
             //
             // Null observers and duplicate registrations are ignored
@@ -166,7 +166,7 @@ namespace IceBox
 
                     if (_traceServiceObserver >= 1)
                     {
-                        _logger.trace("IceBox.ServiceObserver", $"Added service observer {observer}");
+                        _logger.Trace("IceBox.ServiceObserver", $"Added service observer {observer}");
                     }
 
                     foreach (ServiceInfo info in _services)
@@ -181,14 +181,14 @@ namespace IceBox
 
             if (activeServices.Count > 0)
             {
-                observer!.ServicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t),
+                observer!.ServicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => ObserverCompleted(observer, t),
                     TaskScheduler.Current);
             }
         }
 
         public void Shutdown(Current current) => _communicator.Shutdown();
 
-        public int run()
+        public int Run()
         {
             try
             {
@@ -224,12 +224,11 @@ namespace IceBox
 
                 string[] loadOrder = (_communicator.GetPropertyAsList("IceBox.LoadOrder") ?? Array.Empty<string>()).Where(
                     s => s.Length > 0).ToArray();
-                List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
-                foreach (var name in loadOrder)
+                var servicesInfo = new List<StartServiceInfo>();
+                foreach (string name in loadOrder)
                 {
                     string key = prefix + name;
-                    string? value;
-                    if (!services.TryGetValue(key, out value))
+                    if (!services.TryGetValue(key, out string? value))
                     {
                         throw new InvalidOperationException($"ServiceManager: no service definition for `{name}'");
                     }
@@ -237,7 +236,7 @@ namespace IceBox
                     services.Remove(key);
                 }
 
-                foreach (var entry in services)
+                foreach (KeyValuePair<string, string> entry in services)
                 {
                     servicesInfo.Add(new StartServiceInfo(entry.Key.Substring(prefix.Length), entry.Value, _argv));
                 }
@@ -280,7 +279,7 @@ namespace IceBox
                         // Add all facets created on shared communicator to the IceBox communicator
                         // but renamed <prefix>.<facet-name>, except for the Process facet which is
                         // never added.
-                        foreach (var p in _sharedCommunicator.FindAllAdminFacets())
+                        foreach (KeyValuePair<string, (object servant, Disp disp)> p in _sharedCommunicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
@@ -334,7 +333,7 @@ namespace IceBox
             }
             catch (System.Exception ex)
             {
-                _logger.error("ServiceManager: caught exception:\n" + ex.ToString());
+                _logger.Error("ServiceManager: caught exception:\n" + ex.ToString());
                 return 1;
             }
             finally
@@ -342,7 +341,7 @@ namespace IceBox
                 //
                 // Invoke stop() on the services.
                 //
-                stopAll();
+                StopAll();
             }
 
             return 0;
@@ -422,7 +421,7 @@ namespace IceBox
                         $"ServiceManager: unable to load service '{entryPoint}': cannot find the service class `{className}'", ex);
                 }
 
-                ServiceInfo info = new ServiceInfo(service, ServiceStatus.Stopped, args);
+                var info = new ServiceInfo(service, ServiceStatus.Stopped, args);
 
                 ILogger? logger = null;
                 //
@@ -464,10 +463,9 @@ namespace IceBox
                     // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
                     // don't set any logger.
                     //
-                    string? logFile;
-                    if (properties.TryGetValue("Ice.LogFile", out logFile))
+                    if (properties.TryGetValue("Ice.LogFile", out string? logFile))
                     {
-                        logger = _logger.cloneWithPrefix(properties.GetValueOrDefault("Ice.ProgramName") ?? "");
+                        logger = _logger.CloneWithPrefix(properties.GetValueOrDefault("Ice.ProgramName") ?? "");
                     }
 
                     //
@@ -490,7 +488,7 @@ namespace IceBox
                         // Add all facets created on the service communicator to the IceBox communicator
                         // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
                         // which is never added
-                        foreach (var p in communicator.FindAllAdminFacets())
+                        foreach (KeyValuePair<string, (object servant, Disp disp)> p in communicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
@@ -512,7 +510,7 @@ namespace IceBox
                         // If the service class provides a constructor that accepts an Ice.Communicator argument,
                         // use that in preference to the default constructor.
                         //
-                        Type[] parameterTypes = new Type[1];
+                        var parameterTypes = new Type[1];
                         parameterTypes[0] = typeof(Communicator);
                         System.Reflection.ConstructorInfo? ci = c.GetConstructor(parameterTypes);
                         if (ci != null)
@@ -526,7 +524,7 @@ namespace IceBox
                             //
                             // Fall back to the default constructor.
                             //
-                            s = (IService?)IceInternal.AssemblyUtil.createInstance(c);
+                            s = (IService?)IceInternal.AssemblyUtil.CreateInstance(c);
                         }
                     }
                     catch (System.Exception ex)
@@ -534,13 +532,9 @@ namespace IceBox
                         throw new InvalidOperationException($"ServiceManager: unable to load service '{entryPoint}", ex);
                     }
 
-                    if (s == null)
-                    {
-                        throw new InvalidOperationException(
+                    info.Service = s ?? throw new InvalidOperationException(
                             $"ServiceManager: unable to load service '{entryPoint}': " +
                             $"no default constructor for `{className}'");
-                    }
-                    info.Service = s;
 
                     try
                     {
@@ -558,7 +552,7 @@ namespace IceBox
                 {
                     if (info.Communicator != null)
                     {
-                        destroyServiceCommunicator(service, info.Communicator);
+                        DestroyServiceCommunicator(service, info.Communicator);
                     }
 
                     throw;
@@ -567,7 +561,7 @@ namespace IceBox
             }
         }
 
-        private void stopAll()
+        private void StopAll()
         {
             lock (this)
             {
@@ -584,7 +578,7 @@ namespace IceBox
                 // the disk. Services are stopped in the reverse order of the order they were started.
                 //
                 _services.Reverse();
-                List<string> stoppedServices = new List<string>();
+                var stoppedServices = new List<string>();
                 foreach (ServiceInfo info in _services)
                 {
                     if (info.Status == ServiceStatus.Started)
@@ -597,19 +591,19 @@ namespace IceBox
                         }
                         catch (System.Exception ex)
                         {
-                            _logger.warning($"IceBox.ServiceManager: exception while stopping service {info.Name}:\n{ex}");
+                            _logger.Warning($"IceBox.ServiceManager: exception while stopping service {info.Name}:\n{ex}");
                         }
                     }
 
                     if (info.Communicator != null)
                     {
-                        destroyServiceCommunicator(info.Name, info.Communicator);
+                        DestroyServiceCommunicator(info.Name, info.Communicator);
                     }
                 }
 
                 if (_sharedCommunicator != null)
                 {
-                    removeAdminFacets("IceBox.SharedCommunicator.");
+                    RemoveAdminFacets("IceBox.SharedCommunicator.");
 
                     try
                     {
@@ -617,17 +611,17 @@ namespace IceBox
                     }
                     catch (System.Exception ex)
                     {
-                        _logger.warning($"ServiceManager: exception while destroying shared communicator:\n{ex}");
+                        _logger.Warning($"ServiceManager: exception while destroying shared communicator:\n{ex}");
                     }
                     _sharedCommunicator = null;
                 }
 
                 _services.Clear();
-                servicesStopped(stoppedServices, _observers.Keys);
+                ServicesStopped(stoppedServices, _observers.Keys);
             }
         }
 
-        private void servicesStarted(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
+        private void ServicesStarted(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
         {
             //
             // Must be called with 'this' unlocked
@@ -639,13 +633,13 @@ namespace IceBox
 
                 foreach (IServiceObserverPrx observer in observers)
                 {
-                    observer.ServicesStartedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
+                    observer.ServicesStartedAsync(servicesArray).ContinueWith((t) => ObserverCompleted(observer, t),
                         TaskScheduler.Current);
                 }
             }
         }
 
-        private void servicesStopped(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
+        private void ServicesStopped(List<string> services, Dictionary<IServiceObserverPrx, bool>.KeyCollection observers)
         {
             //
             // Must be called with 'this' unlocked
@@ -657,14 +651,14 @@ namespace IceBox
 
                 foreach (IServiceObserverPrx observer in observers)
                 {
-                    observer.ServicesStoppedAsync(servicesArray).ContinueWith((t) => observerCompleted(observer, t),
+                    observer.ServicesStoppedAsync(servicesArray).ContinueWith((t) => ObserverCompleted(observer, t),
                         TaskScheduler.Current);
                 }
             }
         }
 
         private void
-        observerCompleted(IServiceObserverPrx observer, Task t)
+        ObserverCompleted(IServiceObserverPrx observer, Task t)
         {
             try
             {
@@ -676,13 +670,13 @@ namespace IceBox
                 {
                     if (_observers.Remove(observer))
                     {
-                        observerRemoved(observer, ae.InnerException);
+                        ObserverRemoved(observer, ae.InnerException);
                     }
                 }
             }
         }
 
-        private void observerRemoved(IServiceObserverPrx observer, System.Exception ex)
+        private void ObserverRemoved(IServiceObserverPrx observer, System.Exception ex)
         {
             if (_traceServiceObserver >= 1)
             {
@@ -693,7 +687,7 @@ namespace IceBox
                 //
                 if (!(ex is CommunicatorDestroyedException))
                 {
-                    _logger.trace("IceBox.ServiceObserver",
+                    _logger.Trace("IceBox.ServiceObserver",
                                   $"Removed service observer {observer}\nafter catching {ex}");
                 }
             }
@@ -770,7 +764,7 @@ namespace IceBox
             return properties;
         }
 
-        private void destroyServiceCommunicator(string service, Communicator communicator)
+        private void DestroyServiceCommunicator(string service, Communicator communicator)
         {
             if (communicator != null)
             {
@@ -788,10 +782,10 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    _logger.warning($"ServiceManager: exception while shutting down communicator for service {service}\n{ex}");
+                    _logger.Warning($"ServiceManager: exception while shutting down communicator for service {service}\n{ex}");
                 }
 
-                removeAdminFacets("IceBox.Service." + service + ".");
+                RemoveAdminFacets("IceBox.Service." + service + ".");
                 communicator.Destroy();
             }
         }
@@ -800,7 +794,7 @@ namespace IceBox
         {
             if (_adminEnabled && !properties.ContainsKey("Ice.Admin.Enabled"))
             {
-                List<string> facetNames = new List<string>();
+                var facetNames = new List<string>();
                 Debug.Assert(_adminFacetFilter != null);
                 foreach (string p in _adminFacetFilter)
                 {
@@ -825,7 +819,7 @@ namespace IceBox
             return false;
         }
 
-        private void removeAdminFacets(string prefix)
+        private void RemoveAdminFacets(string prefix)
         {
             try
             {
@@ -847,16 +841,16 @@ namespace IceBox
             }
         }
 
-        private Communicator _communicator;
-        private bool _adminEnabled = false;
-        private HashSet<string>? _adminFacetFilter = null;
+        private readonly Communicator _communicator;
+        private readonly bool _adminEnabled = false;
+        private readonly HashSet<string>? _adminFacetFilter = null;
         private Communicator? _sharedCommunicator = null;
-        private ILogger _logger;
-        private string[] _argv; // Filtered server argument vector
-        private List<ServiceInfo> _services = new List<ServiceInfo>();
+        private readonly ILogger _logger;
+        private readonly string[] _argv; // Filtered server argument vector
+        private readonly List<ServiceInfo> _services = new List<ServiceInfo>();
         private bool _pendingStatusChanges = false;
-        private Dictionary<IServiceObserverPrx, bool> _observers = new Dictionary<IServiceObserverPrx, bool>();
-        private int _traceServiceObserver = 0;
+        private readonly Dictionary<IServiceObserverPrx, bool> _observers = new Dictionary<IServiceObserverPrx, bool>();
+        private readonly int _traceServiceObserver = 0;
     }
 
 }

@@ -11,60 +11,55 @@ namespace IceInternal
     public class CollocatedRequestHandler : IRequestHandler, IResponseHandler
     {
         private void
-        fillInValue(Ice.OutputStream os, int pos, int value)
-        {
-            os.RewriteInt(value, pos);
-        }
+        FillInValue(Ice.OutputStream os, int pos, int value) => os.RewriteInt(value, pos);
 
         public
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
-            _dispatcher = _reference.getCommunicator().Dispatcher != null;
-            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
+            _dispatcher = _reference.GetCommunicator().Dispatcher != null;
+            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _adapter = adapter;
 
-            _logger = _reference.getCommunicator().Logger; // Cached for better performance.
-            _traceLevels = _reference.getCommunicator().TraceLevels; // Cached for better performance.
+            _logger = _reference.GetCommunicator().Logger; // Cached for better performance.
+            _traceLevels = _reference.GetCommunicator().TraceLevels; // Cached for better performance.
             _requestId = 0;
         }
 
-        public IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler) =>
+        public IRequestHandler? Update(IRequestHandler previousHandler, IRequestHandler? newHandler) =>
             previousHandler == this ? newHandler : this;
 
-        public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.invokeCollocated(this);
+        public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.InvokeCollocated(this);
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             lock (this)
             {
-                int requestId;
-                if (_sendAsyncRequests.TryGetValue(outAsync, out requestId))
+                if (_sendAsyncRequests.TryGetValue(outAsync, out int requestId))
                 {
                     if (requestId > 0)
                     {
                         _asyncRequests.Remove(requestId);
                     }
                     _sendAsyncRequests.Remove(outAsync);
-                    if (outAsync.exception(ex))
+                    if (outAsync.Exception(ex))
                     {
-                        outAsync.invokeExceptionAsync();
+                        outAsync.InvokeExceptionAsync();
                     }
                     _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
                 }
-                if (outAsync is OutgoingAsync)
+                if (outAsync is OutgoingAsync o)
                 {
-                    OutgoingAsync o = (OutgoingAsync)outAsync;
                     Debug.Assert(o != null);
                     foreach (KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
                     {
                         if (e.Value == o)
                         {
                             _asyncRequests.Remove(e.Key);
-                            if (outAsync.exception(ex))
+                            if (outAsync.Exception(ex))
                             {
-                                outAsync.invokeExceptionAsync();
+                                outAsync.InvokeExceptionAsync();
                             }
                             return;
                         }
@@ -82,23 +77,24 @@ namespace IceInternal
 
                 if (_traceLevels.protocol >= 1)
                 {
-                    fillInValue(os, 10, os.Size);
+
+                    FillInValue(os, 10, os.Size);
                 }
 
                 // Adopt the OutputStream's buffer.
-                Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
+                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
 
                 iss.Pos = Protocol.replyHdr.Length + 4;
 
                 if (_traceLevels.protocol >= 1)
                 {
-                    TraceUtil.traceRecv(iss, _logger, _traceLevels);
+                    TraceUtil.TraceRecv(iss, _logger, _traceLevels);
                 }
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    outAsync.getIs().Swap(iss);
-                    if (!outAsync.response())
+                    outAsync.GetIs().Swap(iss);
+                    if (!outAsync.Response())
                     {
                         outAsync = null;
                     }
@@ -110,11 +106,11 @@ namespace IceInternal
             {
                 if (amd)
                 {
-                    outAsync.invokeResponseAsync();
+                    outAsync.InvokeResponseAsync();
                 }
                 else
                 {
-                    outAsync.invokeResponse();
+                    outAsync.InvokeResponse();
                 }
             }
             _adapter.decDirectCount();
@@ -125,7 +121,7 @@ namespace IceInternal
         public bool
         SystemException(int requestId, Ice.SystemException ex, bool amd)
         {
-            handleException(requestId, ex, amd);
+            HandleException(requestId, ex, amd);
             _adapter.decDirectCount();
             return true;
         }
@@ -133,15 +129,15 @@ namespace IceInternal
         public void
         InvokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
         {
-            handleException(requestId, ex, amd);
+            HandleException(requestId, ex, amd);
             _adapter.decDirectCount();
         }
 
-        public Reference getReference() => _reference;
+        public Reference GetReference() => _reference;
 
-        public Ice.Connection? getConnection() => null;
+        public Ice.Connection? GetConnection() => null;
 
-        public int invokeAsyncRequest(OutgoingAsyncBase outAsync, bool synchronous)
+        public int InvokeAsyncRequest(OutgoingAsyncBase outAsync, bool synchronous)
         {
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
@@ -154,7 +150,7 @@ namespace IceInternal
             {
                 lock (this)
                 {
-                    outAsync.cancelable(this); // This will throw if the request is canceled
+                    outAsync.Cancelable(this); // This will throw if the request is canceled
 
                     if (_response)
                     {
@@ -171,41 +167,41 @@ namespace IceInternal
                 throw;
             }
 
-            outAsync.attachCollocatedObserver(_adapter, requestId);
-            if (!synchronous || !_response || _reference.getInvocationTimeout() > 0)
+            outAsync.AttachCollocatedObserver(_adapter, requestId);
+            if (!synchronous || !_response || _reference.GetInvocationTimeout() > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
-                _adapter.getThreadPool().dispatch(
+                _adapter.getThreadPool().Dispatch(
                     () =>
                     {
-                        if (sentAsync(outAsync))
+                        if (SentAsync(outAsync))
                         {
-                            invokeAll(outAsync.getOs(), requestId);
+                            InvokeAll(outAsync.GetOs(), requestId);
                         }
                     }, null);
             }
             else if (_dispatcher)
             {
-                _adapter.getThreadPool().dispatchFromThisThread(
+                _adapter.getThreadPool().DispatchFromThisThread(
                     () =>
                     {
-                        if (sentAsync(outAsync))
+                        if (SentAsync(outAsync))
                         {
-                            invokeAll(outAsync.getOs(), requestId);
+                            InvokeAll(outAsync.GetOs(), requestId);
                         }
                     }, null);
             }
             else // Optimization: directly call invokeAll if there's no dispatcher.
             {
-                if (sentAsync(outAsync))
+                if (SentAsync(outAsync))
                 {
-                    invokeAll(outAsync.getOs(), requestId);
+                    InvokeAll(outAsync.GetOs(), requestId);
                 }
             }
             return OutgoingAsyncBase.AsyncStatusQueued;
         }
 
-        private bool sentAsync(OutgoingAsyncBase outAsync)
+        private bool SentAsync(OutgoingAsyncBase outAsync)
         {
             lock (this)
             {
@@ -214,29 +210,28 @@ namespace IceInternal
                     return false; // The request timed-out.
                 }
 
-                if (!outAsync.sent())
+                if (!outAsync.Sent())
                 {
                     return true;
                 }
             }
-            outAsync.invokeSent();
+            outAsync.InvokeSent();
             return true;
         }
 
-        private void invokeAll(Ice.OutputStream os, int requestId)
+        private void InvokeAll(Ice.OutputStream os, int requestId)
         {
             if (_traceLevels.protocol >= 1)
             {
-                fillInValue(os, 10, os.Size);
+                FillInValue(os, 10, os.Size);
                 if (requestId > 0)
                 {
-                    fillInValue(os, Protocol.headerSize, requestId);
+                    FillInValue(os, Protocol.headerSize, requestId);
                 }
-                TraceUtil.traceSend(os, _logger, _traceLevels);
+                TraceUtil.TraceSend(os, _logger, _traceLevels);
             }
 
-            Ice.InputStream iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
-
+            var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
             iss.Pos = Protocol.requestHdr.Length;
 
             int invokeNum = 1;
@@ -257,13 +252,12 @@ namespace IceInternal
                     }
                     catch (Ice.ObjectAdapterDeactivatedException ex)
                     {
-                        handleException(requestId, ex, false);
+                        HandleException(requestId, ex, false);
                         break;
                     }
 
-                    Incoming inS = new Incoming(_reference.getCommunicator(), this, null, _adapter, _response, 0,
-                                                requestId);
-                    inS.invoke(servantManager, iss);
+                    var inS = new Incoming(_reference.GetCommunicator(), this, null, _adapter, _response, 0, requestId);
+                    inS.Invoke(servantManager, iss);
                     --invokeNum;
                 }
             }
@@ -276,7 +270,7 @@ namespace IceInternal
         }
 
         private void
-        handleException(int requestId, Ice.Exception ex, bool amd)
+        HandleException(int requestId, Ice.Exception ex, bool amd)
         {
             if (requestId == 0)
             {
@@ -288,7 +282,7 @@ namespace IceInternal
             {
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if (!outAsync.exception(ex))
+                    if (!outAsync.Exception(ex))
                     {
                         outAsync = null;
                     }
@@ -305,11 +299,11 @@ namespace IceInternal
                 //
                 if (amd)
                 {
-                    outAsync.invokeExceptionAsync();
+                    outAsync.InvokeExceptionAsync();
                 }
                 else
                 {
-                    outAsync.invokeException();
+                    outAsync.InvokeException();
                 }
             }
         }
@@ -323,7 +317,7 @@ namespace IceInternal
 
         private int _requestId;
 
-        private Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
-        private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
+        private readonly Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
+        private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
     }
 }

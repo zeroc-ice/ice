@@ -8,12 +8,10 @@ namespace IceInternal
 {
     internal sealed class TcpConnector : IConnector
     {
-        public ITransceiver connect()
-        {
-            return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
-        }
+        public ITransceiver Connect() =>
+            new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
 
-        public short type() => _instance.Type;
+        public short Type() => _instance.Type;
 
         //
         // Only for use by TcpEndpoint
@@ -29,13 +27,13 @@ namespace IceInternal
             _connectionId = connectionId;
 
             _hashCode = 5381;
-            HashUtil.hashAdd(ref _hashCode, _addr);
+            HashUtil.HashAdd(ref _hashCode, _addr);
             if (_sourceAddr != null)
             {
-                HashUtil.hashAdd(ref _hashCode, _sourceAddr);
+                HashUtil.HashAdd(ref _hashCode, _sourceAddr);
             }
-            HashUtil.hashAdd(ref _hashCode, _timeout);
-            HashUtil.hashAdd(ref _hashCode, _connectionId);
+            HashUtil.HashAdd(ref _hashCode, _timeout);
+            HashUtil.HashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)
@@ -50,7 +48,7 @@ namespace IceInternal
                 return true;
             }
 
-            TcpConnector p = (TcpConnector)obj;
+            var p = (TcpConnector)obj;
             if (_timeout != p._timeout)
             {
                 return false;
@@ -69,16 +67,16 @@ namespace IceInternal
             return _addr.Equals(p._addr);
         }
 
-        public override string ToString() => Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
+        public override string ToString() => Network.AddrToString(_proxy == null ? _addr : _proxy.GetAddress());
 
         public override int GetHashCode() => _hashCode;
 
-        private ProtocolInstance _instance;
-        private EndPoint _addr;
-        private INetworkProxy? _proxy;
-        private EndPoint? _sourceAddr;
-        private int _timeout;
-        private string _connectionId;
-        private int _hashCode;
+        private readonly ProtocolInstance _instance;
+        private readonly EndPoint _addr;
+        private readonly INetworkProxy? _proxy;
+        private readonly EndPoint? _sourceAddr;
+        private readonly int _timeout;
+        private readonly string _connectionId;
+        private readonly int _hashCode;
     }
 }

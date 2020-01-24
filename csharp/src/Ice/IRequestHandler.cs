@@ -11,12 +11,12 @@ namespace IceInternal
 
     public interface IRequestHandler : ICancellationHandler
     {
-        IRequestHandler? update(IRequestHandler previousHandler, IRequestHandler? newHandler);
+        IRequestHandler? Update(IRequestHandler previousHandler, IRequestHandler? newHandler);
 
-        int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
+        int SendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
-        Reference getReference();
+        Reference GetReference();
 
-        Ice.Connection? getConnection();
+        Ice.Connection? GetConnection();
     }
 }

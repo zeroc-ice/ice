@@ -9,32 +9,16 @@ namespace Ice
     /// </summary>
     public class InitializationException : LocalException
     {
-        public string reason;
+        public string Reason;
 
-        public InitializationException()
-        {
-            this.reason = "";
-        }
+        public InitializationException() => Reason = "";
 
-        public InitializationException(global::System.Exception ex) : base(ex)
-        {
-            this.reason = "";
-        }
+        public InitializationException(System.Exception ex) : base(ex) => Reason = "";
+        public InitializationException(string reason) => Reason = reason;
 
-        public InitializationException(string reason)
-        {
-            this.reason = reason;
-        }
+        public InitializationException(string reason, System.Exception ex) : base(ex) => Reason = reason;
 
-        public InitializationException(string reason, global::System.Exception ex) : base(ex)
-        {
-            this.reason = reason;
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::InitializationException";
-        }
+        public override string ice_id() => "::Ice::InitializationException";
     }
 
     /// <summary>
@@ -50,36 +34,33 @@ namespace Ice
     /// </summary>
     public class NotRegisteredException : LocalException
     {
-        public string kindOfObject;
-        public string id;
+        public string KindOfObject;
+        public string Id;
         public NotRegisteredException()
         {
-            this.kindOfObject = "";
-            this.id = "";
+            KindOfObject = "";
+            Id = "";
         }
 
-        public NotRegisteredException(global::System.Exception ex) : base(ex)
+        public NotRegisteredException(System.Exception ex) : base(ex)
         {
-            this.kindOfObject = "";
-            this.id = "";
+            KindOfObject = "";
+            Id = "";
         }
 
         public NotRegisteredException(string kindOfObject, string id)
         {
-            this.kindOfObject = kindOfObject;
-            this.id = id;
+            KindOfObject = kindOfObject;
+            Id = id;
         }
 
-        public NotRegisteredException(string kindOfObject, string id, global::System.Exception ex) : base(ex)
+        public NotRegisteredException(string kindOfObject, string id, System.Exception ex) : base(ex)
         {
-            this.kindOfObject = kindOfObject;
-            this.id = id;
+            KindOfObject = kindOfObject;
+            Id = id;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::NotRegisteredException";
-        }
+        public override string ice_id() => "::Ice::NotRegisteredException";
     }
 
     /// <summary>
@@ -90,32 +71,17 @@ namespace Ice
     /// </summary>
     public class TwowayOnlyException : LocalException
     {
-        public string operation;
+        public string Operation;
 
-        public TwowayOnlyException()
-        {
-            this.operation = "";
-        }
+        public TwowayOnlyException() => Operation = "";
 
-        public TwowayOnlyException(global::System.Exception ex) : base(ex)
-        {
-            this.operation = "";
-        }
+        public TwowayOnlyException(System.Exception ex) : base(ex) => Operation = "";
 
-        public TwowayOnlyException(string operation)
-        {
-            this.operation = operation;
-        }
+        public TwowayOnlyException(string operation) => Operation = operation;
 
-        public TwowayOnlyException(string operation, global::System.Exception ex) : base(ex)
-        {
-            this.operation = operation;
-        }
+        public TwowayOnlyException(string operation, System.Exception ex) : base(ex) => Operation = operation;
 
-        public override string ice_id()
-        {
-            return "::Ice::TwowayOnlyException";
-        }
+        public override string ice_id() => "::Ice::TwowayOnlyException";
     }
 
     /// <summary>
@@ -128,32 +94,17 @@ namespace Ice
     /// </summary>
     public class UnknownException : LocalException
     {
-        public string unknown;
+        public string Unknown;
 
-        public UnknownException()
-        {
-            this.unknown = "";
-        }
+        public UnknownException() => Unknown = "";
 
-        public UnknownException(global::System.Exception ex) : base(ex)
-        {
-            this.unknown = "";
-        }
+        public UnknownException(System.Exception ex) : base(ex) => Unknown = "";
 
-        public UnknownException(string unknown)
-        {
-            this.unknown = unknown;
-        }
+        public UnknownException(string unknown) => Unknown = unknown;
 
-        public UnknownException(string unknown, global::System.Exception ex) : base(ex)
-        {
-            this.unknown = unknown;
-        }
+        public UnknownException(string unknown, System.Exception ex) : base(ex) => Unknown = unknown;
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownException";
-        }
+        public override string ice_id() => "::Ice::UnknownException";
     }
 
     /// <summary>
@@ -173,7 +124,7 @@ namespace Ice
         {
         }
 
-        public UnknownLocalException(global::System.Exception ex) : base(ex)
+        public UnknownLocalException(System.Exception ex) : base(ex)
         {
         }
 
@@ -181,14 +132,11 @@ namespace Ice
         {
         }
 
-        public UnknownLocalException(string unknown, global::System.Exception ex) : base(unknown, ex)
+        public UnknownLocalException(string unknown, System.Exception ex) : base(unknown, ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownLocalException";
-        }
+        public override string ice_id() => "::Ice::UnknownLocalException";
     }
 
     /// <summary>
@@ -209,7 +157,7 @@ namespace Ice
         {
         }
 
-        public UnknownUserException(global::System.Exception ex) : base(ex)
+        public UnknownUserException(System.Exception ex) : base(ex)
         {
         }
 
@@ -217,14 +165,11 @@ namespace Ice
         {
         }
 
-        public UnknownUserException(string unknown, global::System.Exception ex) : base(unknown, ex)
+        public UnknownUserException(string unknown, System.Exception ex) : base(unknown, ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownUserException";
-        }
+        public override string ice_id() => "::Ice::UnknownUserException";
     }
 
     /// <summary>
@@ -236,14 +181,11 @@ namespace Ice
         {
         }
 
-        public CommunicatorDestroyedException(global::System.Exception ex) : base(ex)
+        public CommunicatorDestroyedException(System.Exception ex) : base(ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::CommunicatorDestroyedException";
-        }
+        public override string ice_id() => "::Ice::CommunicatorDestroyedException";
     }
 
     /// <summary>
@@ -252,32 +194,17 @@ namespace Ice
     /// </summary>
     public class ObjectAdapterDeactivatedException : LocalException
     {
-        public string name;
+        public string Name;
 
-        public ObjectAdapterDeactivatedException()
-        {
-            this.name = "";
-        }
+        public ObjectAdapterDeactivatedException() => Name = "";
 
-        public ObjectAdapterDeactivatedException(global::System.Exception ex) : base(ex)
-        {
-            this.name = "";
-        }
+        public ObjectAdapterDeactivatedException(System.Exception ex) : base(ex) => Name = "";
 
-        public ObjectAdapterDeactivatedException(string name)
-        {
-            this.name = name;
-        }
+        public ObjectAdapterDeactivatedException(string name) => Name = name;
 
-        public ObjectAdapterDeactivatedException(string name, global::System.Exception ex) : base(ex)
-        {
-            this.name = name;
-        }
+        public ObjectAdapterDeactivatedException(string name, System.Exception ex) : base(ex) => Name = name;
 
-        public override string ice_id()
-        {
-            return "::Ice::ObjectAdapterDeactivatedException";
-        }
+        public override string ice_id() => "::Ice::ObjectAdapterDeactivatedException";
     }
 
     /// <summary>
@@ -287,32 +214,17 @@ namespace Ice
     /// </summary>
     public class ObjectAdapterIdInUseException : LocalException
     {
-        public string id;
+        public string Id;
 
-        public ObjectAdapterIdInUseException()
-        {
-            this.id = "";
-        }
+        public ObjectAdapterIdInUseException() => Id = "";
 
-        public ObjectAdapterIdInUseException(global::System.Exception ex) : base(ex)
-        {
-            this.id = "";
-        }
+        public ObjectAdapterIdInUseException(System.Exception ex) : base(ex) => Id = "";
 
-        public ObjectAdapterIdInUseException(string id)
-        {
-            this.id = id;
-        }
+        public ObjectAdapterIdInUseException(string id) => Id = id;
 
-        public ObjectAdapterIdInUseException(string id, global::System.Exception ex) : base(ex)
-        {
-            this.id = id;
-        }
+        public ObjectAdapterIdInUseException(string id, System.Exception ex) : base(ex) => Id = id;
 
-        public override string ice_id()
-        {
-            return "::Ice::ObjectAdapterIdInUseException";
-        }
+        public override string ice_id() => "::Ice::ObjectAdapterIdInUseException";
     }
 
     /// <summary>
@@ -320,32 +232,17 @@ namespace Ice
     /// </summary>
     public class NoEndpointException : LocalException
     {
-        public string proxy;
+        public string Proxy;
 
-        public NoEndpointException()
-        {
-            this.proxy = "";
-        }
+        public NoEndpointException() => Proxy = "";
 
-        public NoEndpointException(global::System.Exception ex) : base(ex)
-        {
-            this.proxy = "";
-        }
+        public NoEndpointException(System.Exception ex) : base(ex) => Proxy = "";
 
-        public NoEndpointException(string proxy)
-        {
-            this.proxy = proxy;
-        }
+        public NoEndpointException(string proxy) => Proxy = proxy;
 
-        public NoEndpointException(string proxy, global::System.Exception ex) : base(ex)
-        {
-            this.proxy = proxy;
-        }
+        public NoEndpointException(string proxy, System.Exception ex) : base(ex) => Proxy = proxy;
 
-        public override string ice_id()
-        {
-            return "::Ice::NoEndpointException";
-        }
+        public override string ice_id() => "::Ice::NoEndpointException";
     }
 
     /// <summary>
@@ -357,42 +254,39 @@ namespace Ice
     /// </summary>
     public class RequestFailedException : LocalException
     {
-        public Identity id;
-        public string facet;
-        public string operation;
+        public Identity Id;
+        public string Facet;
+        public string Operation;
 
         public RequestFailedException()
         {
-            this.id = new Identity();
-            this.facet = "";
-            this.operation = "";
+            Id = new Identity();
+            Facet = "";
+            Operation = "";
         }
 
-        public RequestFailedException(global::System.Exception ex) : base(ex)
+        public RequestFailedException(System.Exception ex) : base(ex)
         {
-            this.id = new Identity();
-            this.facet = "";
-            this.operation = "";
+            Id = new Identity();
+            Facet = "";
+            Operation = "";
         }
 
         public RequestFailedException(Identity id, string facet, string operation)
         {
-            this.id = id;
-            this.facet = facet;
-            this.operation = operation;
+            Id = id;
+            Facet = facet;
+            Operation = operation;
         }
 
         public RequestFailedException(Identity id, string facet, string operation, System.Exception ex) : base(ex)
         {
-            this.id = id;
-            this.facet = facet;
-            this.operation = operation;
+            Id = id;
+            Facet = facet;
+            Operation = operation;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::RequestFailedException";
-        }
+        public override string ice_id() => "::Ice::RequestFailedException";
     }
 
     /// <summary>
@@ -405,7 +299,7 @@ namespace Ice
         {
         }
 
-        public ObjectNotExistException(global::System.Exception ex) : base(ex)
+        public ObjectNotExistException(System.Exception ex) : base(ex)
         {
         }
 
@@ -418,10 +312,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ObjectNotExistException";
-        }
+        public override string ice_id() => "::Ice::ObjectNotExistException";
     }
 
     /// <summary>
@@ -434,7 +325,7 @@ namespace Ice
         {
         }
 
-        public FacetNotExistException(global::System.Exception ex) : base(ex)
+        public FacetNotExistException(System.Exception ex) : base(ex)
         {
         }
 
@@ -447,10 +338,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::FacetNotExistException";
-        }
+        public override string ice_id() => "::Ice::FacetNotExistException";
     }
 
     /// <summary>
@@ -465,7 +353,7 @@ namespace Ice
         {
         }
 
-        public OperationNotExistException(global::System.Exception ex) : base(ex)
+        public OperationNotExistException(System.Exception ex) : base(ex)
         {
         }
 
@@ -478,10 +366,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::OperationNotExistException";
-        }
+        public override string ice_id() => "::Ice::OperationNotExistException";
     }
 
     /// <summary>
@@ -493,32 +378,17 @@ namespace Ice
     /// </summary>
     public class SyscallException : LocalException
     {
-        public int error;
+        public int Error;
 
-        public SyscallException()
-        {
-            this.error = 0;
-        }
+        public SyscallException() => Error = 0;
 
-        public SyscallException(global::System.Exception ex) : base(ex)
-        {
-            this.error = 0;
-        }
+        public SyscallException(System.Exception ex) : base(ex) => Error = 0;
 
-        public SyscallException(int error)
-        {
-            this.error = error;
-        }
+        public SyscallException(int error) => Error = error;
 
-        public SyscallException(int error, global::System.Exception ex) : base(ex)
-        {
-            this.error = error;
-        }
+        public SyscallException(int error, System.Exception ex) : base(ex) => Error = error;
 
-        public override string ice_id()
-        {
-            return "::Ice::SyscallException";
-        }
+        public override string ice_id() => "::Ice::SyscallException";
     }
 
     /// <summary>
@@ -530,7 +400,7 @@ namespace Ice
         {
         }
 
-        public SocketException(global::System.Exception ex) : base(ex)
+        public SocketException(System.Exception ex) : base(ex)
         {
         }
 
@@ -538,14 +408,11 @@ namespace Ice
         {
         }
 
-        public SocketException(int error, global::System.Exception ex) : base(error, ex)
+        public SocketException(int error, System.Exception ex) : base(error, ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::SocketException";
-        }
+        public override string ice_id() => "::Ice::SocketException";
     }
 
     /// <summary>
@@ -553,32 +420,17 @@ namespace Ice
     /// </summary>
     public class FileException : SyscallException
     {
-        public string path;
+        public string Path;
 
-        public FileException()
-        {
-            this.path = "";
-        }
+        public FileException() => Path = "";
 
-        public FileException(global::System.Exception ex) : base(ex)
-        {
-            this.path = "";
-        }
+        public FileException(System.Exception ex) : base(ex) => Path = "";
 
-        public FileException(int error, string path) : base(error)
-        {
-            this.path = path;
-        }
+        public FileException(int error, string path) : base(error) => Path = path;
 
-        public FileException(int error, string path, System.Exception ex) : base(error, ex)
-        {
-            this.path = path;
-        }
+        public FileException(int error, string path, System.Exception ex) : base(error, ex) => Path = path;
 
-        public override string ice_id()
-        {
-            return "::Ice::FileException";
-        }
+        public override string ice_id() => "::Ice::FileException";
     }
 
     /// <summary>
@@ -590,7 +442,7 @@ namespace Ice
         {
         }
 
-        public ConnectFailedException(global::System.Exception ex) : base(ex)
+        public ConnectFailedException(System.Exception ex) : base(ex)
         {
         }
 
@@ -602,10 +454,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectFailedException";
-        }
+        public override string ice_id() => "::Ice::ConnectFailedException";
     }
 
     /// <summary>
@@ -618,7 +467,7 @@ namespace Ice
         {
         }
 
-        public ConnectionRefusedException(global::System.Exception ex) : base(ex)
+        public ConnectionRefusedException(System.Exception ex) : base(ex)
         {
         }
 
@@ -626,14 +475,11 @@ namespace Ice
         {
         }
 
-        public ConnectionRefusedException(int error, global::System.Exception ex) : base(error, ex)
+        public ConnectionRefusedException(int error, System.Exception ex) : base(error, ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectionRefusedException";
-        }
+        public override string ice_id() => "::Ice::ConnectionRefusedException";
     }
 
     /// <summary>
@@ -645,7 +491,7 @@ namespace Ice
         {
         }
 
-        public ConnectionLostException(global::System.Exception ex) : base(ex)
+        public ConnectionLostException(System.Exception ex) : base(ex)
         {
         }
 
@@ -653,14 +499,11 @@ namespace Ice
         {
         }
 
-        public ConnectionLostException(int error, global::System.Exception ex) : base(error, ex)
+        public ConnectionLostException(int error, System.Exception ex) : base(error, ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectionLostException";
-        }
+        public override string ice_id() => "::Ice::ConnectionLostException";
     }
 
     /// <summary>
@@ -670,37 +513,34 @@ namespace Ice
     /// </summary>
     public class DNSException : LocalException
     {
-        public int error;
-        public string host;
+        public int Error;
+        public string Host;
 
         public DNSException()
         {
-            this.error = 0;
-            this.host = "";
+            Error = 0;
+            Host = "";
         }
 
         public DNSException(System.Exception ex) : base(ex)
         {
-            this.error = 0;
-            this.host = "";
+            Error = 0;
+            Host = "";
         }
 
         public DNSException(int error, string host)
         {
-            this.error = error;
-            this.host = host;
+            Error = error;
+            Host = host;
         }
 
         public DNSException(int error, string host, System.Exception ex) : base(ex)
         {
-            this.error = error;
-            this.host = host;
+            Error = error;
+            Host = host;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::DNSException";
-        }
+        public override string ice_id() => "::Ice::DNSException";
     }
 
     /// <summary>
@@ -712,14 +552,11 @@ namespace Ice
         {
         }
 
-        public TimeoutException(global::System.Exception ex) : base(ex)
+        public TimeoutException(System.Exception ex) : base(ex)
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::TimeoutException";
-        }
+        public override string ice_id() => "::Ice::TimeoutException";
     }
 
     /// <summary>
@@ -736,10 +573,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectTimeoutException";
-        }
+        public override string ice_id() => "::Ice::ConnectTimeoutException";
     }
 
     /// <summary>
@@ -756,10 +590,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::CloseTimeoutException";
-        }
+        public override string ice_id() => "::Ice::CloseTimeoutException";
     }
 
     /// <summary>
@@ -777,10 +608,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectionTimeoutException";
-        }
+        public override string ice_id() => "::Ice::ConnectionTimeoutException";
     }
 
     /// <summary>
@@ -797,10 +625,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::InvocationTimeoutException";
-        }
+        public override string ice_id() => "::Ice::InvocationTimeoutException";
     }
 
     /// <summary>
@@ -817,10 +642,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::InvocationCanceledException";
-        }
+        public override string ice_id() => "::Ice::InvocationCanceledException";
     }
 
     /// <summary>
@@ -829,32 +651,17 @@ namespace Ice
     /// </summary>
     public class ProtocolException : LocalException
     {
-        public string reason;
+        public string Reason;
 
-        public ProtocolException()
-        {
-            reason = "";
-        }
+        public ProtocolException() => Reason = "";
 
-        public ProtocolException(System.Exception ex) : base(ex)
-        {
-            reason = "";
-        }
+        public ProtocolException(System.Exception ex) : base(ex) => Reason = "";
 
-        public ProtocolException(string reason)
-        {
-            this.reason = reason;
-        }
+        public ProtocolException(string reason) => Reason = reason;
 
-        public ProtocolException(string reason, System.Exception ex) : base(ex)
-        {
-            this.reason = reason;
-        }
+        public ProtocolException(string reason, System.Exception ex) : base(ex) => Reason = reason;
 
-        public override string ice_id()
-        {
-            return "::Ice::ProtocolException";
-        }
+        public override string ice_id() => "::Ice::ProtocolException";
     }
 
     /// <summary>
@@ -863,32 +670,17 @@ namespace Ice
     /// </summary>
     public class BadMagicException : ProtocolException
     {
-        public byte[] badMagic;
+        public byte[] BadMagic;
 
-        public BadMagicException()
-        {
-            badMagic = System.Array.Empty<byte>();
-        }
+        public BadMagicException() => BadMagic = System.Array.Empty<byte>();
 
-        public BadMagicException(System.Exception ex) : base(ex)
-        {
-            badMagic = System.Array.Empty<byte>();
-        }
+        public BadMagicException(System.Exception ex) : base(ex) => BadMagic = System.Array.Empty<byte>();
 
-        public BadMagicException(string reason, byte[] badMagic) : base(reason)
-        {
-            this.badMagic = badMagic;
-        }
+        public BadMagicException(string reason, byte[] badMagic) : base(reason) => BadMagic = badMagic;
 
-        public BadMagicException(string reason, byte[] badMagic, System.Exception ex) : base(reason, ex)
-        {
-            this.badMagic = badMagic;
-        }
+        public BadMagicException(string reason, byte[] badMagic, System.Exception ex) : base(reason, ex) => BadMagic = badMagic;
 
-        public override string ice_id()
-        {
-            return "::Ice::BadMagicException";
-        }
+        public override string ice_id() => "::Ice::BadMagicException";
     }
 
     /// <summary>
@@ -897,37 +689,34 @@ namespace Ice
     public class UnsupportedProtocolException : ProtocolException
     {
 
-        public ProtocolVersion bad;
-        public ProtocolVersion supported;
+        public ProtocolVersion Bad;
+        public ProtocolVersion Supported;
 
         public UnsupportedProtocolException()
         {
-            this.bad = new ProtocolVersion();
-            this.supported = new ProtocolVersion();
+            Bad = new ProtocolVersion();
+            Supported = new ProtocolVersion();
         }
 
         public UnsupportedProtocolException(System.Exception ex) : base(ex)
         {
-            this.bad = new ProtocolVersion();
-            this.supported = new ProtocolVersion();
+            Bad = new ProtocolVersion();
+            Supported = new ProtocolVersion();
         }
 
         public UnsupportedProtocolException(string reason, ProtocolVersion bad, ProtocolVersion supported) : base(reason)
         {
-            this.bad = bad;
-            this.supported = supported;
+            Bad = bad;
+            Supported = supported;
         }
 
         public UnsupportedProtocolException(string reason, ProtocolVersion bad, ProtocolVersion supported, System.Exception ex) : base(reason, ex)
         {
-            this.bad = bad;
-            this.supported = supported;
+            Bad = bad;
+            Supported = supported;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnsupportedProtocolException";
-        }
+        public override string ice_id() => "::Ice::UnsupportedProtocolException";
     }
 
     /// <summary>
@@ -935,37 +724,34 @@ namespace Ice
     /// </summary>
     public class UnsupportedEncodingException : ProtocolException
     {
-        public EncodingVersion bad;
-        public EncodingVersion supported;
+        public EncodingVersion Bad;
+        public EncodingVersion Supported;
 
         public UnsupportedEncodingException()
         {
-            this.bad = new EncodingVersion();
-            this.supported = new EncodingVersion();
+            Bad = new EncodingVersion();
+            Supported = new EncodingVersion();
         }
 
         public UnsupportedEncodingException(System.Exception ex) : base(ex)
         {
-            this.bad = new EncodingVersion();
-            this.supported = new EncodingVersion();
+            Bad = new EncodingVersion();
+            Supported = new EncodingVersion();
         }
 
         public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported) : base(reason)
         {
-            this.bad = bad;
-            this.supported = supported;
+            Bad = bad;
+            Supported = supported;
         }
 
         public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported, System.Exception ex) : base(reason, ex)
         {
-            this.bad = bad;
-            this.supported = supported;
+            Bad = bad;
+            Supported = supported;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnsupportedEncodingException";
-        }
+        public override string ice_id() => "::Ice::UnsupportedEncodingException";
     }
 
     /// <summary>
@@ -989,10 +775,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownMessageException";
-        }
+        public override string ice_id() => "::Ice::UnknownMessageException";
     }
 
     /// <summary>
@@ -1017,10 +800,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectionNotValidatedException";
-        }
+        public override string ice_id() => "::Ice::ConnectionNotValidatedException";
     }
 
     /// <summary>
@@ -1045,10 +825,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownRequestIdException";
-        }
+        public override string ice_id() => "::Ice::UnknownRequestIdException";
     }
 
     /// <summary>
@@ -1072,10 +849,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnknownReplyStatusException";
-        }
+        public override string ice_id() => "::Ice::UnknownReplyStatusException";
     }
 
     /// <summary>
@@ -1107,10 +881,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::CloseConnectionException";
-        }
+        public override string ice_id() => "::Ice::CloseConnectionException";
     }
 
     /// <summary>
@@ -1119,7 +890,7 @@ namespace Ice
     /// </summary>
     public class ConnectionManuallyClosedException : LocalException
     {
-        public bool graceful;
+        public bool Graceful;
 
         public ConnectionManuallyClosedException()
         {
@@ -1129,20 +900,11 @@ namespace Ice
         {
         }
 
-        public ConnectionManuallyClosedException(bool graceful)
-        {
-            this.graceful = graceful;
-        }
+        public ConnectionManuallyClosedException(bool graceful) => Graceful = graceful;
 
-        public ConnectionManuallyClosedException(bool graceful, System.Exception ex) : base(ex)
-        {
-            this.graceful = graceful;
-        }
+        public ConnectionManuallyClosedException(bool graceful, System.Exception ex) : base(ex) => Graceful = graceful;
 
-        public override string ice_id()
-        {
-            return "::Ice::ConnectionManuallyClosedException";
-        }
+        public override string ice_id() => "::Ice::ConnectionManuallyClosedException";
     }
 
     /// <summary>
@@ -1167,10 +929,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::IllegalMessageSizeException";
-        }
+        public override string ice_id() => "::Ice::IllegalMessageSizeException";
     }
 
     /// <summary>
@@ -1194,10 +953,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::CompressionException";
-        }
+        public override string ice_id() => "::Ice::CompressionException";
     }
 
     /// <summary>
@@ -1223,10 +979,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::DatagramLimitException";
-        }
+        public override string ice_id() => "::Ice::DatagramLimitException";
     }
 
     /// <summary>
@@ -1250,10 +1003,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::MarshalException";
-        }
+        public override string ice_id() => "::Ice::MarshalException";
     }
 
     /// <summary>
@@ -1277,10 +1027,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::ProxyUnmarshalException";
-        }
+        public override string ice_id() => "::Ice::ProxyUnmarshalException";
     }
 
     /// <summary>
@@ -1304,10 +1051,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnmarshalOutOfBoundsException";
-        }
+        public override string ice_id() => "::Ice::UnmarshalOutOfBoundsException";
     }
 
     /// <summary>
@@ -1316,32 +1060,17 @@ namespace Ice
     /// </summary>
     public class NoClassFactoryException : MarshalException
     {
-        public string type;
+        public string Type;
 
-        public NoClassFactoryException()
-        {
-            type = "";
-        }
+        public NoClassFactoryException() => Type = "";
 
-        public NoClassFactoryException(System.Exception ex) : base(ex)
-        {
-            type = "";
-        }
+        public NoClassFactoryException(System.Exception ex) : base(ex) => Type = "";
 
-        public NoClassFactoryException(string reason, string type) : base(reason)
-        {
-            this.type = type;
-        }
+        public NoClassFactoryException(string reason, string type) : base(reason) => Type = type;
 
-        public NoClassFactoryException(string reason, string type, System.Exception ex) : base(reason, ex)
-        {
-            this.type = type;
-        }
+        public NoClassFactoryException(string reason, string type, System.Exception ex) : base(reason, ex) => Type = type;
 
-        public override string ice_id()
-        {
-            return "::Ice::NoClassFactoryException";
-        }
+        public override string ice_id() => "::Ice::NoClassFactoryException";
     }
 
     /// <summary>
@@ -1355,37 +1084,34 @@ namespace Ice
     /// </summary>
     public class UnexpectedObjectException : MarshalException
     {
-        public string type;
-        public string expectedType;
+        public string Type;
+        public string ExpectedType;
 
         public UnexpectedObjectException()
         {
-            type = "";
-            expectedType = "";
+            Type = "";
+            ExpectedType = "";
         }
 
         public UnexpectedObjectException(System.Exception ex) : base(ex)
         {
-            type = "";
-            expectedType = "";
+            Type = "";
+            ExpectedType = "";
         }
 
         public UnexpectedObjectException(string reason, string type, string expectedType) : base(reason)
         {
-            this.type = type;
-            this.expectedType = expectedType;
+            Type = type;
+            ExpectedType = expectedType;
         }
 
         public UnexpectedObjectException(string reason, string type, string expectedType, System.Exception ex) : base(reason, ex)
         {
-            this.type = type;
-            this.expectedType = expectedType;
+            Type = type;
+            ExpectedType = expectedType;
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::UnexpectedObjectException";
-        }
+        public override string ice_id() => "::Ice::UnexpectedObjectException";
     }
 
     /// <summary>
@@ -1411,10 +1137,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::MemoryLimitException";
-        }
+        public override string ice_id() => "::Ice::MemoryLimitException";
     }
 
     /// <summary>
@@ -1439,10 +1162,7 @@ namespace Ice
         {
         }
 
-        public override string ice_id()
-        {
-            return "::Ice::EncapsulationException";
-        }
+        public override string ice_id() => "::Ice::EncapsulationException";
     }
 
     /// <summary>
@@ -1453,32 +1173,18 @@ namespace Ice
     /// </summary>
     public class FeatureNotSupportedException : LocalException
     {
-        public string unsupportedFeature;
+        public string UnsupportedFeature;
 
-        public FeatureNotSupportedException()
-        {
-            unsupportedFeature = "";
-        }
+        public FeatureNotSupportedException() => UnsupportedFeature = "";
 
-        public FeatureNotSupportedException(System.Exception ex) : base(ex)
-        {
-            unsupportedFeature = "";
-        }
+        public FeatureNotSupportedException(System.Exception ex) : base(ex) => UnsupportedFeature = "";
 
-        public FeatureNotSupportedException(string unsupportedFeature)
-        {
-            this.unsupportedFeature = unsupportedFeature;
-        }
+        public FeatureNotSupportedException(string unsupportedFeature) => UnsupportedFeature = unsupportedFeature;
 
-        public FeatureNotSupportedException(string unsupportedFeature, System.Exception ex) : base(ex)
-        {
-            this.unsupportedFeature = unsupportedFeature;
-        }
+        public FeatureNotSupportedException(string unsupportedFeature, System.Exception ex) : base(ex) =>
+            UnsupportedFeature = unsupportedFeature;
 
-        public override string ice_id()
-        {
-            return "::Ice::FeatureNotSupportedException";
-        }
+        public override string ice_id() => "::Ice::FeatureNotSupportedException";
     }
 
     /// <summary>
@@ -1487,31 +1193,16 @@ namespace Ice
     /// </summary>
     public class SecurityException : LocalException
     {
-        public string reason;
+        public string Reason;
 
-        public SecurityException()
-        {
-            this.reason = "";
-        }
+        public SecurityException() => Reason = "";
 
-        public SecurityException(System.Exception ex) : base(ex)
-        {
-            this.reason = "";
-        }
+        public SecurityException(System.Exception ex) : base(ex) => Reason = "";
 
-        public SecurityException(string reason)
-        {
-            this.reason = reason;
-        }
+        public SecurityException(string reason) => Reason = reason;
 
-        public SecurityException(string reason, System.Exception ex) : base(ex)
-        {
-            this.reason = reason;
-        }
+        public SecurityException(string reason, System.Exception ex) : base(ex) => Reason = reason;
 
-        public override string ice_id()
-        {
-            return "::Ice::SecurityException";
-        }
+        public override string ice_id() => "::Ice::SecurityException";
     }
 }

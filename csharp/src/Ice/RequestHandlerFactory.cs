@@ -11,7 +11,7 @@ namespace Ice
     {
         internal IRequestHandler GetRequestHandler(RoutableReference rf, IObjectPrx proxy)
         {
-            if (rf.getCollocationOptimized())
+            if (rf.GetCollocationOptimized())
             {
                 ObjectAdapter? adapter = FindObjectAdapter(proxy);
                 if (adapter != null)
@@ -22,7 +22,7 @@ namespace Ice
 
             bool connect = false;
             ConnectRequestHandler handler;
-            if (rf.getCacheConnection())
+            if (rf.GetCacheConnection())
             {
                 lock (_handlers)
                 {
@@ -42,14 +42,14 @@ namespace Ice
 
             if (connect)
             {
-                rf.getConnection(handler);
+                rf.GetConnection(handler);
             }
-            return proxy.IceSetRequestHandler(handler.connect(proxy));
+            return proxy.IceSetRequestHandler(handler.Connect(proxy));
         }
 
         internal void RemoveRequestHandler(Reference rf, IRequestHandler handler)
         {
-            if (rf.getCacheConnection())
+            if (rf.GetCacheConnection())
             {
                 lock (_handlers)
                 {

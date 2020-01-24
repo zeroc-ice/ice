@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+
 namespace Ice
 {
-    using System.Collections.Generic;
-
     public class Current
     {
         public ObjectAdapter Adapter { get; private set; }

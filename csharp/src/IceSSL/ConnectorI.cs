@@ -6,23 +6,20 @@ namespace IceSSL
 {
     internal sealed class ConnectorI : IceInternal.IConnector
     {
-        public IceInternal.ITransceiver connect()
+        public IceInternal.ITransceiver Connect()
         {
             //
             // The plug-in may not be fully initialized.
             //
-            if (!_instance.initialized())
+            if (!_instance.Initialized())
             {
                 throw new Ice.InitializationException("IceSSL: plug-in is not initialized");
             }
 
-            return new Transceiver(_instance, _delegate.connect(), _host, false);
+            return new Transceiver(_instance, _delegate.Connect(), _host, false);
         }
 
-        public short type()
-        {
-            return _delegate.type();
-        }
+        public short Type() => _delegate.Type();
 
         //
         // Only for use by EndpointI.
@@ -46,22 +43,16 @@ namespace IceSSL
                 return true;
             }
 
-            ConnectorI p = (ConnectorI)obj;
+            var p = (ConnectorI)obj;
             return _delegate.Equals(p._delegate);
         }
 
-        public override string ToString()
-        {
-            return _delegate.ToString();
-        }
+        public override string ToString() => _delegate.ToString();
 
-        public override int GetHashCode()
-        {
-            return _delegate.GetHashCode();
-        }
+        public override int GetHashCode() => _delegate.GetHashCode();
 
-        private Instance _instance;
-        private IceInternal.IConnector _delegate;
-        private string _host;
+        private readonly Instance _instance;
+        private readonly IceInternal.IConnector _delegate;
+        private readonly string _host;
     }
 }
