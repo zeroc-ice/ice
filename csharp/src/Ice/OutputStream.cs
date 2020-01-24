@@ -146,13 +146,14 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
 
-            // Size includes size and version.
-            int startPos = _mainEncaps.Value.StartPos;
-            int sz = _buf.size() - startPos;
-            _buf.b.putInt(startPos, sz);
+            Encaps encaps = _mainEncaps.Value;
 
-            Encoding = _mainEncaps.Value.OldEncoding;
-            _format = _mainEncaps.Value.OldFormat;
+            // Size includes size and version.
+            int sz = _buf.size() - encaps.StartPos;
+            _buf.b.putInt(encaps.StartPos, sz);
+
+            Encoding = encaps.OldEncoding;
+            _format = encaps.OldFormat;
             ResetEncapsulation();
         }
 
@@ -271,7 +272,7 @@ namespace Ice
                     WriteInstance(v);
                 }
                 _current.IndirectionTable.Clear();
-                _current.IndirectionMap?.Clear();
+                _current.IndirectionMap?.Clear(); // IndirectionMap is null when writing SlicedData.
             }
 
             // Update SliceFlags in case they were updated.
@@ -1529,9 +1530,6 @@ namespace Ice
             }
             else if (_current != null && _format == FormatType.SlicedFormat)
             {
-                _current.IndirectionTable ??= new List<AnyClass>();
-                _current.IndirectionMap ??= new Dictionary<AnyClass, int>();
-
                 // If writing an instance within a slice and using the sliced format, write an index of that slice's
                 // indirection table.
                 int index = 0;
