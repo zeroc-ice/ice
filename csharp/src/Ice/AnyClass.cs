@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Ice
@@ -24,12 +23,11 @@ namespace Ice
         }
         internal SlicedData? SlicedData => IceSlicedData;
 
-        // Read all the fields of this instance from the stream. See InputStream.
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        // See OutputStream.
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
 

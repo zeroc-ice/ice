@@ -174,10 +174,11 @@ namespace Ice
             return false;
         }
 
-        // Read all the fields of this exception from the stream.
+        // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
 
+        // See OuputStream
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }

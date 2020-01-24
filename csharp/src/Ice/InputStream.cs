@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -267,12 +268,11 @@ namespace Ice
             return encapsHeader.Encoding;
         }
 
-        /// <summary>
-        /// Start reading a slice of a class or exception instance.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="typeId">The expected type ID of this slice.</param>
-        /// <param name="firstSlice">True when reading the first (most derived) slice of an instance.</param>
+        // Start reading a slice of a class or exception instance.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // typeId is the expected type ID of this slice.
+        // firstSlice is true when reading the first (most derived) slice of an instance.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartSlice(string typeId, bool firstSlice)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -297,12 +297,11 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Start reading the first slice of an instance and get the unknown slices for this instances that were
-        /// previously saved (if any).
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="typeId">The expected typeId of this slice.</param>
+        // Start reading the first slice of an instance and get the unknown slices for this instances that were
+        // previously saved (if any).
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // typeId is the expected typeId of this slice.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public SlicedData? IceStartSliceAndGetSlicedData(string typeId)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -316,10 +315,9 @@ namespace Ice
             return SlicedData;
         }
 
-        /// <summary>
-        /// Tells the InputStream the end of a class or exception slice was reached.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
+        // Tells the InputStream the end of a class or exception slice was reached.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceEndSlice()
         {
             // Note that IceEndSlice is not called when we call SkipSlice.

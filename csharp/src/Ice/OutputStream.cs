@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -157,15 +158,13 @@ namespace Ice
             ResetEncapsulation();
         }
 
-        /// <summary>
-        /// Start writing a slice of a class or exception instance.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="typeId">The type ID of this slice.</param>
-        /// <param name="firstSlice">True when writing the first (most derived) slice of an instance.</param>
-        /// <param name="slicedData">Preserved sliced-off slices, if any. Can only be provided when firstSlice is true.
-        /// </param>
-        /// <param name="compactId">The compact type ID of this slice, if specified."</param>
+        // Start writing a slice of a class or exception instance.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // typeId is the type ID of this slice.
+        // firstSlice is true when writing the first (most derived) slice of an instance.
+        // slicedData is the preserved sliced-off slices, if any. Can only be provided when firstSlice is true.
+        // compactId is the compact type ID of this slice, if specified.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartSlice(string typeId, bool firstSlice, SlicedData? slicedData = null, int? compactId = null)
         {
             Debug.Assert(_mainEncaps != null && _current != null);
@@ -233,11 +232,10 @@ namespace Ice
             _current.SliceFirstMemberPos = Pos;
         }
 
-        /// <summary>
-        /// Marks the end of a slice for a class instance or user exception.
-        /// This is an Ice-internal method marked public because it's called by the generated code.
-        /// </summary>
-        /// <param name="lastSlice">True when it's the last (least derived) slice of the instance.</param>
+        // Marks the end of a slice for a class instance or user exception.
+        // This is an Ice-internal method marked public because it's called by the generated code.
+        // lastSlice is true when it's the last (least derived) slice of the instance.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceEndSlice(bool lastSlice)
         {
             Debug.Assert(_mainEncaps != null && _current != null);
