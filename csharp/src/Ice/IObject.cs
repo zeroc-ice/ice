@@ -199,25 +199,22 @@ namespace Ice
 
     public interface IInterfaceTraits<T>
     {
-        string Id { get; }
-        string[] Ids { get; }
         Task<OutputStream?>? Dispatch(T servant, Incoming incoming, Current current);
     }
-
-    public class Object<T, Traits> : IObject where Traits : struct, IInterfaceTraits<T>
+    public class Object<T> : IObject
     {
-        public string IceId(Current current) => _traits.Id;
+        private static readonly string _typeId = TypeIdAttribute.GetTypeId(typeof(T))!;
+        private static readonly string[] _allTypeIds = TypeIdAttribute.GetAllTypeIds(typeof(T));
 
-        public virtual bool IceIsA(string s, Current current) =>
-            Array.BinarySearch(_traits.Ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;
+        public virtual string IceId(Current current) => _typeId;
+        public virtual string[] IceIds(Current current) => _allTypeIds;
+
+        public virtual bool IceIsA(string s, Current current)
+            => Array.BinarySearch(_allTypeIds, s, StringComparer.Ordinal) >= 0;
 
         public virtual void IcePing(Current current)
         {
             // Nothing to do
         }
-
-        public virtual string[] IceIds(Current current) => _traits.Ids;
-
-        private static readonly Traits _traits = default;
     }
 }

@@ -4,7 +4,7 @@
 
 namespace Ice.defaultServant
 {
-    public sealed class MyObject : Object<Test.IMyObject, Test.MyObjectTraits>, Test.IMyObject
+    public sealed class MyObject : Object<Test.IMyObject>, Test.IMyObject
     {
         public override void
         IcePing(Current current)

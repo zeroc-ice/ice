@@ -25,8 +25,7 @@ namespace Ice.operations
         public bool IceIsA(string id, Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids.Contains(id);
+            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass)).Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -34,15 +33,13 @@ namespace Ice.operations
         public string[] IceIds(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids;
+            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass));
         }
 
         public string IceId(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Id;
+            return Ice.TypeIdAttribute.GetTypeId(typeof(Test.IMyDerivedClass))!;
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

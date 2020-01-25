@@ -50,8 +50,7 @@ namespace Ice.operations.AMD
         public bool ice_isA(string id, Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids.Contains(id);
+            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass)).Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -59,15 +58,13 @@ namespace Ice.operations.AMD
         public string[] ice_ids(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids;
+            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass));
         }
 
         public string ice_id(Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Id;
+            return Ice.TypeIdAttribute.GetTypeId(typeof(Test.IMyDerivedClass));
         }
 
         public Task shutdownAsync(Current current)

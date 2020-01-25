@@ -8,40 +8,29 @@ using System.Runtime.Serialization;
 
 namespace IceInternal
 {
-    public class Ex
+    internal class Ex
     {
-        public static void ThrowUOE(Type expectedType, Ice.AnyClass v)
+        // UOE = UnknownObjectException as in unknow class. TODO: fix/remove.
+        internal static void ThrowUOE(Type expectedType, Ice.AnyClass v)
         {
-            //
             // If the object is an unknown sliced object, we didn't find an
             // class factory, in this case raise a NoClassFactoryException
             // instead.
-            //
             if (v is Ice.UnknownSlicedClass usv)
             {
-                throw new Ice.NoClassFactoryException("", usv.ice_id());
+                throw new Ice.NoClassFactoryException("", usv.TypeId ?? "");
             }
 
-            string type = v.ice_id();
-            string expected;
-            try
-            {
-                expected = (string)expectedType.GetMethod("ice_staticId").Invoke(null, null);
-            }
-            catch (Exception)
-            {
-                expected = "";
-                Debug.Assert(false);
-            }
-
-            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received `" +
-                                                    type + "'", type, expected);
+            string typeId = Ice.TypeIdAttribute.GetTypeId(v.GetType())!;
+            string expectedTypeId = Ice.TypeIdAttribute.GetTypeId(expectedType)!;
+            throw new Ice.UnexpectedObjectException(
+                $"expected element of type `{expectedTypeId}' but received `{typeId}'", typeId, expectedTypeId);
         }
 
-        public static void ThrowMemoryLimitException(int requested, int maximum)
+        internal static void ThrowMemoryLimitException(int requested, int maximum)
         {
-            throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
-                                               " bytes (see Ice.MessageSizeMax)");
+            throw new Ice.MemoryLimitException(
+                $"requested {requested} bytes, maximum allowed is {maximum} bytes (see Ice.MessageSizeMax)");
         }
     }
 }
@@ -66,18 +55,15 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public Exception(System.Exception ex) : base("", ex) { }
 
+        // TODO: temporary, should be removed:
+        public abstract string ice_id();
+
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-        /// <summary>
-        /// Returns the type id of this exception.
-        /// </summary>
-        /// <returns>The type id of this exception.</returns>
-        public abstract string ice_id();
     }
 
     /// <summary>
@@ -104,6 +90,7 @@ namespace Ice
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
     }
 
     /// <summary>
@@ -139,6 +126,14 @@ namespace Ice
     [Serializable]
     public abstract class UserException : Exception
     {
+        protected virtual SlicedData? IceSlicedData
+        {
+            get => null;
+            set => Debug.Assert(false);
+        }
+
+        internal SlicedData? SlicedData => IceSlicedData;
+
         /// <summary>
         /// Creates a default-initialized user exception.
         /// </summary>
@@ -157,16 +152,13 @@ namespace Ice
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-        protected virtual SlicedData? IceSlicedData
-        {
-            get => null;
-            set => Debug.Assert(false);
-        }
-
-        internal SlicedData? SlicedData => IceSlicedData;
-
         public virtual bool IceUsesClasses() => false;
+
+        // TODO: remove during exception refactoring
+        public override string ice_id()
+        {
+            return TypeIdAttribute.GetTypeId(GetType())!;
+        }
 
         // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);
@@ -190,11 +182,11 @@ namespace Ice
 
 namespace IceInternal
 {
-    public class RetryException : Exception
+    internal class RetryException : Exception
     {
-        public RetryException(Ice.LocalException ex) => _ex = ex;
+        internal RetryException(Ice.LocalException ex) => _ex = ex;
 
-        public Ice.LocalException Get() => _ex;
+        internal Ice.LocalException Get() => _ex;
 
         private readonly Ice.LocalException _ex;
     }
