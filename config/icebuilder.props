@@ -6,6 +6,5 @@
     <IceIntVersion>40000</IceIntVersion>
     <IceVersionMM>4.0</IceVersionMM>
     <IceSoVersion>40a0</IceSoVersion>
-    <IceJSONVersion>4.0.0-alpha0</IceJSONVersion>
   </PropertyGroup>
 </Project>
