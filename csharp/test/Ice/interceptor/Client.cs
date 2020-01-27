@@ -16,7 +16,7 @@ namespace Ice.interceptor
 
     public class Client : TestHelper
     {
-        private void runTest(Test.IMyObjectPrx prx, Interceptor<IMyObject, MyObjectTraits> interceptor)
+        private void runTest(Test.IMyObjectPrx prx, Interceptor<IMyObject> interceptor)
         {
             var output = getWriter();
             output.Write("testing simple interceptor... ");
@@ -101,7 +101,7 @@ namespace Ice.interceptor
             output.WriteLine("ok");
         }
 
-        private void runAmdTest(IMyObjectPrx prx, Interceptor<IMyObject, MyObjectTraits> interceptor)
+        private void runAmdTest(IMyObjectPrx prx, Interceptor<IMyObject> interceptor)
         {
             var output = getWriter();
             output.Write("testing simple interceptor... ");
@@ -202,9 +202,9 @@ namespace Ice.interceptor
 
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
 
-            var interceptor = new Interceptor<IMyObject, MyObjectTraits>(new MyObject());
+            var interceptor = new Interceptor<IMyObject>(new MyObject(), IMyObject.Dispatch);
 
-            var prx = IMyObjectPrx.UncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
+            var prx = oa.Add(interceptor.Dispatch, IMyObjectPrx.Factory);
 
             var output = getWriter();
 

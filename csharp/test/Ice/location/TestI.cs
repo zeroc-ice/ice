@@ -19,22 +19,20 @@ namespace Ice.location
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
 
-        public IHelloPrx getHello(Current current) =>
-            IHelloPrx.UncheckedCast(_adapter1.CreateIndirectProxy("hello"));
+        public IHelloPrx getHello(Current current) => _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
-        public IHelloPrx getReplicatedHello(Current current) =>
-            IHelloPrx.UncheckedCast(_adapter1.CreateProxy("hello"));
+        public IHelloPrx getReplicatedHello(Current current) => _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
         public void migrateHello(Current current)
         {
             var id = Identity.Parse("hello");
             try
             {
-                _registry.addObject(_adapter2.Add(_adapter1.Remove(id), id), current);
+                _registry.addObject(_adapter2.Add(_adapter1.Remove(id), IObjectPrx.Factory, id), current);
             }
             catch (NotRegisteredException)
             {
-                _registry.addObject(_adapter1.Add(_adapter2.Remove(id), id), current);
+                _registry.addObject(_adapter1.Add(_adapter2.Remove(id), IObjectPrx.Factory, id), current);
             }
         }
 

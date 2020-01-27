@@ -85,11 +85,11 @@ namespace IceDiscovery
             var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
             _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
-            LookupReplyTraits lookupT = default;
             var lookupReply = new LookupReply(lookup);
             _replyAdapter.AddDefaultServant(
-                (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
-            lookup.SetLookupReply(ILookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
+                (current, incoming) => ILookupReply.Dispatch(lookupReply, current, incoming), "");
+            lookup.SetLookupReply(_replyAdapter.CreateProxy("dummy", ILookupReplyPrx.Factory)
+                .Clone(invocationMode: InvocationMode.Datagram));
 
             //
             // Setup locator on the communicator.

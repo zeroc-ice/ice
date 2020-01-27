@@ -11,7 +11,15 @@ using IceInternal;
 
 namespace Ice
 {
+    // TODO: rename Disp to Dispatcher and fix the Dispatcher signature
+    /// <summary>When an ObjectAdapter receives a request, it finds the dispatcher associated with the target object
+    /// and then forwards the request to that dispatcher. This dispatcher then executes the request and returns
+    /// the response.</summary>
     public delegate Task<OutputStream?>? Disp(Incoming inS, Current current);
+
+    /// <summary>A ServantDispatch represents the Dispatch method of a generated servant interface.
+    /// See CreateDispatcher.</summary>
+    public delegate Task<OutputStream?>? ServantDispatch<T>(T servant, Incoming inS, Current current);
 
     public sealed class ObjectAdapter
     {
@@ -93,7 +101,7 @@ namespace Ice
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (LocalException)
             {
@@ -398,66 +406,86 @@ namespace Ice
             }
         }
 
+        /// <summary>Combine a servant and servant dispatch to form a Dispatcher.</summary>
+        /// <param name="servant">The servant.</param>
+        /// <param name="servantDispatch">The servant's static Dispatch method.</param>
+        /// <returns>A dispatcher.</returns>
+        public static Disp CreateDispatcher<T>(T servant, ServantDispatch<T> servantDispatch)
+            => (incoming, current) => servantDispatch(servant, incoming, current);
+
         /// <summary>
-        /// Add a servant to this object adapter's Active Servant Map.
-        /// Note
-        /// that one servant can implement several Ice objects by registering
-        /// the servant with multiple identities. Adding a servant with an
-        /// identity that is in the map already throws AlreadyRegisteredException.
-        ///
-        /// </summary>
-        /// <param name="disp">The dispatcher object to add.
-        ///
-        /// </param>
-        /// <param name="id">The identity of the Ice object that is implemented by
-        /// the servant.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default facet.
-        ///
-        /// </param>
-        /// <returns>A proxy that matches the given identity and this object
-        /// adapter.
-        ///
-        /// </returns>
-        public IObjectPrx Add(Disp disp, string id, string facet = "")
+        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
+        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
+        /// identities. Adding a dispatcher with an identity that is already in the map already throws
+        /// AlreadyRegisteredException.</summary>
+        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
+        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
+        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
+        /// <param name="facet">The facet. An empty facet means the default facet.</param>
+        /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
+        public T Add<T>(Disp dispatcher, ProxyFactory<T> proxyFactory, string identity, string facet = "")
+            where T : class, IObjectPrx
         {
-            return Add(disp, Identity.Parse(id), facet);
+            return Add(dispatcher, proxyFactory, Identity.Parse(identity), facet);
         }
 
         /// <summary>
-        /// Add a servant to this object adapter's Active Servant Map.
-        /// Note
-        /// that one servant can implement several Ice objects by registering
-        /// the servant with multiple identities. Adding a servant with an
-        /// identity that is in the map already throws AlreadyRegisteredException.
-        ///
-        /// </summary>
-        /// <param name="disp">The dispatcher object to add.
-        ///
-        /// </param>
-        /// <param name="id">The identity of the Ice object that is implemented by
-        /// the servant.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default facet.
-        ///
-        /// </param>
-        /// <returns>A proxy that matches the given identity and this object
-        /// adapter.
-        ///
-        /// </returns>
-        public IObjectPrx Add(Disp disp, Identity? id = null, string facet = "")
+        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
+        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
+        /// identities. Adding a dispatcher with an identity that is already in the map already throws
+        /// AlreadyRegisteredException.</summary>
+        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
+        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
+        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher. When null, the
+        /// ObjectAdapter creates a new unique identity with a UUID name and empty category.</param>
+        /// <param name="facet">The facet. An empty facet means the default facet.</param>
+        /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
+        public T Add<T>(Disp dispatcher, ProxyFactory<T> proxyFactory, Identity? identity = null, string facet = "")
+            where T : class, IObjectPrx
         {
             lock (this)
             {
-                id = id ?? new Identity(Guid.NewGuid().ToString(), "");
+                identity = identity ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
-                checkIdentity(id.Value);
+                checkIdentity(identity.Value);
 
-                _servantManager.AddServant(disp, id.Value, facet);
+                _servantManager.AddServant(dispatcher, identity.Value, facet);
 
-                return newProxy(id.Value, facet);
+                return newProxy(identity.Value, proxyFactory, facet);
+            }
+        }
+
+        /// <summary>
+        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
+        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
+        /// identities. Adding a dispatcher with an identity that is already in the map already throws
+        /// AlreadyRegisteredException.</summary>
+        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
+        /// <param name="facet">The facet. An empty facet means the default facet.</param>
+        public void Add(Disp dispatcher, string identity, string facet = "")
+        {
+            Add(dispatcher, Identity.Parse(identity), facet);
+        }
+
+         /// <summary>
+        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
+        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
+        /// identities. Adding a dispatcher with an identity that is already in the map already throws
+        /// AlreadyRegisteredException.</summary>
+        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
+        /// <param name="facet">The facet. An empty facet means the default facet.</param>
+        public void Add(Disp dispatcher, Identity identity, string facet = "")
+        {
+            lock (this)
+            {
+                checkForDeactivation();
+                checkIdentity(identity);
+
+                _servantManager.AddServant(dispatcher, identity, facet);
             }
         }
 
@@ -512,25 +540,25 @@ namespace Ice
         /// Remove a servant (that is, the default facet) from the object
         /// adapter's Active Servant Map.
         /// </summary>
-        /// <param name="id">The identity of the Ice object that is implemented by
+        /// <param name="identity">The identity of the Ice object that is implemented by
         /// the servant. If the servant implements multiple Ice objects,
         /// remove has to be called for all those Ice objects.
         /// Removing an identity that is not in the map throws
         /// NotRegisteredException.</param>
         /// <returns>The removed servant.</returns>
-        public Disp Remove(string id, string facet = "")
+        public Disp Remove(string identity, string facet = "")
         {
-            return Remove(Identity.Parse(id), facet);
+            return Remove(Identity.Parse(identity), facet);
         }
 
-        public Disp Remove(Identity ident, string facet = "")
+        public Disp Remove(Identity identity, string facet = "")
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(identity);
 
-                return _servantManager.RemoveServant(ident, facet);
+                return _servantManager.RemoveServant(identity, facet);
             }
         }
 
@@ -542,26 +570,26 @@ namespace Ice
         /// is not in the map throws NotRegisteredException.
         ///
         /// </summary>
-        /// <param name="id">The identity of the Ice object to be removed.
+        /// <param name="identity">The identity of the Ice object to be removed.
         ///
         /// </param>
         /// <returns>A collection containing all the facet names and
         /// servants of the removed Ice object.
         ///
         /// </returns>
-        public Dictionary<string, Disp> RemoveAllFacets(string id)
+        public Dictionary<string, Disp> RemoveAllFacets(string identity)
         {
-            return RemoveAllFacets(Identity.Parse(id));
+            return RemoveAllFacets(Identity.Parse(identity));
         }
 
-        public Dictionary<string, Disp> RemoveAllFacets(Identity ident)
+        public Dictionary<string, Disp> RemoveAllFacets(Identity identity)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(identity);
 
-                return _servantManager.RemoveAllFacets(ident);
+                return _servantManager.RemoveAllFacets(identity);
             }
         }
 
@@ -596,20 +624,20 @@ namespace Ice
         /// by using any installed ServantLocator.
         ///
         /// </summary>
-        /// <param name="ident">The identity of the Ice object for which the servant should be returned.</param>
+        /// <param name="identity">The identity of the Ice object for which the servant should be returned.</param>
         /// <param name="facet">Optinoal facet of the Ice object.</param>
         /// <returns>The dispatcher associated with the
         /// given identity, or null if no such servant has been found.
         ///
         /// </returns>
-        public Disp Find(Identity ident, string facet = "")
+        public Disp Find(Identity identity, string facet = "")
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(identity);
 
-                return _servantManager.FindServant(ident, facet);
+                return _servantManager.FindServant(identity, facet);
             }
         }
 
@@ -617,7 +645,7 @@ namespace Ice
         /// Find all facets with the given identity in the Active Servant
         /// Map.
         /// </summary>
-        /// <param name="id">The identity of the Ice object for which the facets
+        /// <param name="identity">The identity of the Ice object for which the facets
         /// should be returned.
         ///
         /// </param>
@@ -626,16 +654,16 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        public Dictionary<string, Disp> FindAllFacets(string id)
+        public Dictionary<string, Disp> FindAllFacets(string identity)
         {
-            return FindAllFacets(Identity.Parse(id));
+            return FindAllFacets(Identity.Parse(identity));
         }
 
         /// <summary>
         /// Find all facets with the given identity in the Active Servant
         /// Map.
         /// </summary>
-        /// <param name="id">The identity of the Ice object for which the facets
+        /// <param name="identity">The identity of the Ice object for which the facets
         /// should be returned.
         ///
         /// </param>
@@ -644,14 +672,14 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        public Dictionary<string, Disp> FindAllFacets(Identity id)
+        public Dictionary<string, Disp> FindAllFacets(Identity identity)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(id);
+                checkIdentity(identity);
 
-                return _servantManager.FindAllFacets(id);
+                return _servantManager.FindAllFacets(identity);
             }
         }
 
@@ -783,15 +811,15 @@ namespace Ice
         /// proxy containing this object adapter's published endpoints.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateProxy(string id)
+        public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            return CreateProxy(Identity.Parse(id));
+            return CreateProxy(Identity.Parse(identity), factory);
         }
 
         /// <summary>
@@ -805,20 +833,20 @@ namespace Ice
         /// proxy containing this object adapter's published endpoints.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateProxy(Identity id)
+        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(id);
+                checkIdentity(identity);
 
-                return newProxy(id, "");
+                return newProxy(identity, factory, "");
             }
         }
 
@@ -828,15 +856,15 @@ namespace Ice
         /// endpoints.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateDirectProxy(string id)
+        public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            return CreateDirectProxy(Identity.Parse(id));
+            return CreateDirectProxy(Identity.Parse(identity), factory);
         }
 
         /// <summary>
@@ -845,20 +873,20 @@ namespace Ice
         /// endpoints.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateDirectProxy(Identity id)
+        public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(id);
+                checkIdentity(identity);
 
-                return newDirectProxy(id, "");
+                return newDirectProxy(identity, factory, "");
             }
         }
 
@@ -869,15 +897,15 @@ namespace Ice
         /// value contains only the object identity.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateIndirectProxy(string id)
+        public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            return CreateIndirectProxy(Identity.Parse(id));
+            return CreateIndirectProxy(Identity.Parse(identity), factory);
         }
 
         /// <summary>
@@ -887,20 +915,20 @@ namespace Ice
         /// value contains only the object identity.
         ///
         /// </summary>
-        /// <param name="id">The object's identity.
+        /// <param name="identity">The object's identity.
         ///
         /// </param>
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateIndirectProxy(Identity id)
+        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(id);
+                checkIdentity(identity);
 
-                return newIndirectProxy(id, "", _id);
+                return newIndirectProxy(identity, factory, "", _id);
             }
         }
 
@@ -1005,7 +1033,7 @@ namespace Ice
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (LocalException)
             {
@@ -1063,7 +1091,7 @@ namespace Ice
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (LocalException)
             {
@@ -1416,34 +1444,36 @@ namespace Ice
             }
         }
 
-        private IObjectPrx newProxy(Identity ident, string facet)
+        private T newProxy<T>(Identity identity, ProxyFactory<T> factory, string facet) where T : class, IObjectPrx
         {
             if (_id.Length == 0)
             {
-                return newDirectProxy(ident, facet);
+                return newDirectProxy(identity, factory, facet);
             }
             else if (_replicaGroupId.Length == 0)
             {
-                return newIndirectProxy(ident, facet, _id);
+                return newIndirectProxy(identity, factory, facet, _id);
             }
             else
             {
-                return newIndirectProxy(ident, facet, _replicaGroupId);
+                return newIndirectProxy(identity, factory, facet, _replicaGroupId);
             }
         }
 
         //
         // Create a reference and return a proxy for this reference.
         //
-        private IObjectPrx newDirectProxy(Identity ident, string facet) =>
-            new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference!, _publishedEndpoints));
+        private T newDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
+            where T : class, IObjectPrx
+            => factory(_communicator!.CreateReference(identity, facet, _reference!, _publishedEndpoints));
 
         //
         // Create a reference with the adapter id and return a
         // proxy for the reference.
         //
-        private IObjectPrx newIndirectProxy(Identity ident, string facet, string id) =>
-            new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference!, id));
+        private T newIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
+            where T : class, IObjectPrx
+            => factory(_communicator!.CreateReference(identity, facet, _reference!, id));
 
         private void checkForDeactivation()
         {

@@ -22,7 +22,7 @@ public class Server : TestHelper
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         BlobjectI blob = new BlobjectI();
-        adapter.AddDefaultServant((incoming, current) => blob.Dispatch(incoming, current), "");
+        adapter.AddDefaultServant(blob.Dispatch, "");
         adapter.Add(new Echo(), "__echo");
         adapter.Activate();
         communicator.WaitForShutdown();

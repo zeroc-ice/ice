@@ -579,11 +579,11 @@ namespace Ice.location
             test(helloPrx.GetConnection() == null);
 
             // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id));
+            helloPrx = IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id, IObjectPrx.Factory));
             test(helloPrx != null && helloPrx.GetConnection() == null);
 
             // Ensure that calls on the direct proxy is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id));
+            helloPrx = IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id, IObjectPrx.Factory));
             test(helloPrx != null && helloPrx.GetConnection() == null);
 
             output.WriteLine("ok");

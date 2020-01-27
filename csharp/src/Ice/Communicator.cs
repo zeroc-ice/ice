@@ -462,9 +462,8 @@ namespace Ice
                     string processFacetName = "Process";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
-                        ProcessTraits traits = default;
                         IProcess process = new IceInternal.Process(this);
-                        Disp disp = (current, incoming) => traits.Dispatch(process, current, incoming);
+                        Disp disp = (current, incoming) => IProcess.Dispatch(process, current, incoming);
                         _adminFacets.Add(processFacetName, (process, disp));
                     }
 
@@ -476,9 +475,8 @@ namespace Ice
                     {
                         ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, Logger);
                         Logger = loggerAdminLogger;
-                        LoggerAdminTraits traits = default;
                         ILoggerAdmin servant = loggerAdminLogger.GetFacet();
-                        Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
+                        Disp disp = (incoming, current) => ILoggerAdmin.Dispatch(servant, incoming, current);
                         _adminFacets.Add(loggerFacetName, (servant, disp));
                     }
 
@@ -490,8 +488,7 @@ namespace Ice
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                     {
                         propsAdmin = new PropertiesAdmin(this);
-                        PropertiesAdminTraits traits = default;
-                        Disp disp = (current, incoming) => traits.Dispatch(propsAdmin, current, incoming);
+                        Disp disp = (current, incoming) => IPropertiesAdmin.Dispatch(propsAdmin, current, incoming);
                         _adminFacets.Add(propertiesFacetName, (propsAdmin, disp));
                     }
 
@@ -503,9 +500,9 @@ namespace Ice
                     {
                         var communicatorObserver = new CommunicatorObserverI(this, Logger);
                         Observer = communicatorObserver;
-                        IceMX.MetricsAdminTraits traits = default;
                         MetricsAdminI metricsAdmin = communicatorObserver.GetFacet();
-                        Disp disp = (current, incoming) => traits.Dispatch(metricsAdmin, current, incoming);
+                        Disp disp = (current, incoming) =>
+                                        IceMX.IMetricsAdmin.Dispatch(metricsAdmin, current, incoming);
                         _adminFacets.Add(metricsFacetName, (metricsAdmin, disp));
 
                         //
@@ -629,11 +626,9 @@ namespace Ice
         /// <param name="servant">The servant that implements the new Admin facet.
         /// </param>
         /// <param name="facet">The name of the new Admin facet.</param>
-        public void AddAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, IInterfaceTraits<T>
+        public void AddAdminFacet<T>(T servant, string facet, ServantDispatch<T> servantDispatch)
         {
-            Traits traits = default;
-            Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
-            Debug.Assert(servant != null);
+            Disp disp = (incoming, current) => servantDispatch(servant, incoming, current);
             AddAdminFacet(servant, disp, facet);
         }
 
@@ -658,7 +653,8 @@ namespace Ice
                 _adminFacets.Add(facet, (servant, disp));
                 if (_adminAdapter != null)
                 {
-                    _adminAdapter.Add(disp, _adminIdentity, facet);
+                    Debug.Assert(_adminIdentity != null); // TODO: check
+                    _adminAdapter.Add(disp, _adminIdentity.Value, facet);
                 }
             }
         }
@@ -742,7 +738,7 @@ namespace Ice
                 }
             }
             SetServerProcessProxy(_adminAdapter, adminIdentity);
-            return _adminAdapter.CreateProxy(adminIdentity);
+            return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
         /// <summary>
@@ -1548,7 +1544,7 @@ namespace Ice
                 if (_adminAdapter != null)
                 {
                     Debug.Assert(_adminIdentity != null);
-                    return _adminAdapter.CreateProxy(_adminIdentity.Value);
+                    return _adminAdapter.CreateProxy(_adminIdentity.Value, IObjectPrx.Factory);
                 }
                 else if (_adminEnabled)
                 {
@@ -1595,7 +1591,7 @@ namespace Ice
             }
 
             SetServerProcessProxy(adminAdapter, adminIdentity);
-            return adminAdapter.CreateProxy(adminIdentity);
+            return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
         /// <summary>
@@ -2166,7 +2162,7 @@ namespace Ice
 
         internal void SetServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
-            IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity);
+            IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
             ILocatorPrx? locator = adminAdapter.GetLocator();
             string? serverId = GetProperty("Ice.Admin.ServerId");
 
@@ -2308,7 +2304,8 @@ namespace Ice
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
-                        _adminAdapter.Add(entry.Value.disp, _adminIdentity, entry.Key);
+                        Debug.Assert(_adminIdentity != null); // TODO: check
+                        _adminAdapter.Add(entry.Value.disp, _adminIdentity.Value, entry.Key);
                     }
                 }
             }

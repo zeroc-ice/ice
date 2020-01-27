@@ -696,8 +696,7 @@ namespace IceLocatorDiscovery
 
             _defaultLocator = _communicator.GetDefaultLocator();
             _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
-            _locatorPrx = ILocatorPrx.UncheckedCast(
-                _locatorAdapter.Add((current, incoming) => _locator.Dispatch(current, incoming)));
+            _locatorPrx = _locatorAdapter.Add(_locator.Dispatch, ILocatorPrx.Factory);
             _communicator.SetDefaultLocator(_locatorPrx);
 
             ILookupReply lookupReplyI = new LookupReplyI(_locator);

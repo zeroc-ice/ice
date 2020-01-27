@@ -62,8 +62,7 @@ namespace Ice.adapterDeactivation
             if (current.Id.Name.Equals("router"))
             {
                 cookie = null;
-                RouterTraits routerT = default;
-                return (incoming, current) => routerT.Dispatch(_router, incoming, current);
+                return (incoming, current) => IRouter.Dispatch(_router, incoming, current);
             }
 
             test(current.Id.Category.Length == 0);
@@ -71,9 +70,8 @@ namespace Ice.adapterDeactivation
 
             cookie = new Cookie();
 
-            var testT = default(Test.TestIntfTraits);
             var testI = new TestIntf();
-            return (incoming, current) => testT.Dispatch(testI, incoming, current);
+            return (incoming, current) => Test.ITestIntf.Dispatch(testI, incoming, current);
         }
 
         public void Finished(Current current, Disp servant, object cookie)

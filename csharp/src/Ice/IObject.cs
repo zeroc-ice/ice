@@ -197,10 +197,6 @@ namespace Ice
         }
     }
 
-    public interface IInterfaceTraits<T>
-    {
-        Task<OutputStream?>? Dispatch(T servant, Incoming incoming, Current current);
-    }
     public class Object<T> : IObject
     {
         private static readonly string _typeId = typeof(T).GetIceTypeId()!;

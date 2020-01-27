@@ -16,8 +16,7 @@ namespace Ice.defaultServant
             oa.Activate();
 
             var servantI = new MyObject();
-            var servantT = default(MyObjectTraits);
-            Disp servantD = (incoming, current) => servantT.Dispatch(servantI, incoming, current);
+            Disp servantD = (incoming, current) => IMyObject.Dispatch(servantI, incoming, current);
 
             //
             // Register default servant with category "foo"
@@ -44,13 +43,13 @@ namespace Ice.defaultServant
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
                 test(prx.getName() == names[idx]);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
-            prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -72,7 +71,7 @@ namespace Ice.defaultServant
             }
 
             identity = new Identity("FacetNotExist", identity.Category);
-            prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -97,7 +96,7 @@ namespace Ice.defaultServant
             for (int idx = 0; idx < 5; idx++)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = Test.IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
 
                 try
                 {
@@ -122,7 +121,7 @@ namespace Ice.defaultServant
 
             oa.RemoveDefaultServant("foo");
             identity =  new Identity(identity.Name, "foo");
-            prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -148,7 +147,7 @@ namespace Ice.defaultServant
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = IMyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
                 test(prx.getName() == names[idx]);
             }
