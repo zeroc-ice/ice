@@ -15,8 +15,6 @@
 #define ICE_COPYRIGHT "\251 ZeroC, Inc.\0"
 #define ICE_PRODUCT_NAME "Ice\0"
 
-#define ICE_PRERELEASE_VERSION 0
-
 #ifdef ICE_CPP11_MAPPING
 #  if defined(_DEBUG)
 #      define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D"
