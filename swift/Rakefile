@@ -2,7 +2,7 @@
 
 require 'xcodeproj'
 
-$projectVersion = "3.7.3"
+$projectVersion = "4.0.0-alpha.0"
 $macOSDeploymentTarget = "10.14"
 $iOSDeploymentTarget = "11.3"
 

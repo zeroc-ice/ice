@@ -102,9 +102,9 @@ supported-languages     ?= $(strip cpp cpp98 java python \
                                    $(if $(filter Darwin,$(os)), swift))
 supported-configs       ?= shared
 
-version                 = 3.7.3
-mmversion               = 3.7
-soversion               = 37
+version                 = 4.0.0-alpha.0
+mmversion               = 4.0
+soversion               = 40a0
 
 #
 # The compatversion is the lowest patch release with the same API.

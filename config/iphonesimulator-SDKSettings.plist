@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CanonicalName</key>
-	<string>ice3.7-iphonesimulator</string>
+	<string>ice4.0-iphonesimulator</string>
 	<key>DefaultProperties</key>
 	<dict>
 		<key>PLATFORM_NAME</key>
@@ -14,10 +14,10 @@
 		</array>
 	</dict>
 	<key>DisplayName</key>
-	<string>Ice 3.7 for iOS Simulator</string>
+	<string>Ice 4.0 for iOS Simulator</string>
 	<key>IsBaseSDK</key>
 	<string>NO</string>
 	<key>Version</key>
-	<string>3.7.3</string>
+	<string>4.0.0-alpha.0</string>
 </dict>
 </plist>
