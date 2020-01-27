@@ -219,8 +219,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, CppMapping(), component)
     elif m == "java" or re.match("java-.*", m):
         Mapping.add(m, JavaMapping(), component)
-    elif m == "python" or re.match("python-.*", m):
-        Mapping.add(m, PythonMapping(), component)
+#    TODO temporarily disabled testing of Python mapping.
+#    elif m == "python" or re.match("python-.*", m):
+#        Mapping.add(m, PythonMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
@@ -232,8 +233,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
-    if platform.getCompiler() not in ["v141"]:
-        Mapping.disable("python")
+#    TODO temporarily disabled testing of Python mapping.
+#    if platform.getCompiler() not in ["v141"]:
+#        Mapping.disable("python")
     if platform.getCompiler() not in ["v142"]:
         Mapping.disable("csharp")
 #
