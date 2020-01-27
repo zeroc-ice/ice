@@ -149,9 +149,9 @@ Client::run(int argc, char** argv)
 
     try
     {
-        std::string version = std::string(ICE_SO_VERSION) + ":createPlugin";
+        std::string plugin = "TestPlugin," + std::string(ICE_SO_VERSION) + ":createPlugin";
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-        properties->setProperty("Ice.Plugin.Test", version);
+        properties->setProperty("Ice.Plugin.Test", plugin);
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
     catch(const Ice::Exception& ex)
