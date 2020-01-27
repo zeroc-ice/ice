@@ -709,14 +709,5 @@ namespace IceUtilInternal
 
             return true;
         }
-
-        private class OrdinalStringComparerImpl : IComparer<string>
-        {
-            public int Compare(string l, string r)
-            {
-                return string.CompareOrdinal(l, r);
-            }
-        }
-        public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();
     }
 }

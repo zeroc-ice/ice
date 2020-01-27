@@ -816,7 +816,7 @@ public class AllTests : Test.AllTests
                 test(ex.b.Equals("base"));
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
-                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                test(ex.p1.GetType().GetIceTypeId().Equals(typeof(PreservedClass).GetIceTypeId()));
                 PreservedClass pc = ex.p1 as PreservedClass;
                 test(pc.bc.Equals("bc"));
                 test(pc.pc.Equals("pc"));
@@ -840,7 +840,7 @@ public class AllTests : Test.AllTests
                 test(ex.b.Equals("base"));
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
-                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                test(ex.p1.GetType().GetIceTypeId().Equals(typeof(PreservedClass).GetIceTypeId()));
                 PreservedClass pc = ex.p1 as PreservedClass;
                 test(pc.bc.Equals("bc"));
                 test(pc.pc.Equals("pc"));

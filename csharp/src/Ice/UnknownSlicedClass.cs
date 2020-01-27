@@ -13,22 +13,22 @@ namespace Ice
     /// </summary>
     public sealed class UnknownSlicedClass : AnyClass
     {
-        private SlicedData? _slicedData;
-
         /// <summary>
-        /// Returns the Slice type ID associated with this object.
+        /// Returns the Slice type ID associated with this sliced class instance.
         /// </summary>
-        /// <returns>The type ID.</returns>
-        // TODO: rename this method
-        public override string ice_id()
+        /// <value>The type ID.</value>
+        public string? TypeId
         {
-            // Can only be called after IceRead filled this instance. TypeId can be null for a slice with an
-            // unresolved compact ID.
-            Debug.Assert(_slicedData.HasValue && _slicedData.Value.Slices.Count > 0);
-            return _slicedData.Value.Slices[0].TypeId ?? "";
+            get
+            {
+                // Can only be called after IceRead filled this instance. TypeId can be null for a slice with an
+                // unresolved compact ID.
+                Debug.Assert(_slicedData.HasValue && _slicedData.Value.Slices.Count > 0);
+                return _slicedData.Value.Slices[0].TypeId;
+            }
         }
-
         protected override SlicedData? IceSlicedData => _slicedData;
+        private SlicedData? _slicedData;
         protected override void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
@@ -43,7 +43,7 @@ namespace Ice
             {
                 // Could be for example attempting to marshal this instance into a compact-format encapsulation.
                 throw new MarshalException(
-                    $"Failed to marshal an {nameof(UnknownSlicedClass)} with type ID {ice_id()}");
+                    $"Failed to marshal an {nameof(UnknownSlicedClass)} with type ID {TypeId}");
             }
         }
         internal UnknownSlicedClass()
