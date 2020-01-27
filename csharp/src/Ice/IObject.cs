@@ -203,8 +203,8 @@ namespace Ice
     }
     public class Object<T> : IObject
     {
-        private static readonly string _typeId = TypeIdAttribute.GetTypeId(typeof(T))!;
-        private static readonly string[] _allTypeIds = TypeIdAttribute.GetAllTypeIds(typeof(T));
+        private static readonly string _typeId = typeof(T).GetIceTypeId()!;
+        private static readonly string[] _allTypeIds = typeof(T).GetAllIceTypeIds();
 
         public virtual string IceId(Current current) => _typeId;
         public virtual string[] IceIds(Current current) => _allTypeIds;

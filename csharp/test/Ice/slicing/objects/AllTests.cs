@@ -54,7 +54,7 @@ public class AllTests : Test.AllTests
             {
                 o = testPrx.SBaseAsObject();
                 test(o != null);
-                test(Ice.TypeIdAttribute.GetTypeId(o.GetType()).Equals("::Test::SBase"));
+                test(Ice.TypeExtensions.GetIceTypeId(o.GetType()).Equals("::Test::SBase"));
                 sb = (SBase)o;
             }
             catch (System.Exception ex)
@@ -72,7 +72,7 @@ public class AllTests : Test.AllTests
         {
             Ice.AnyClass o = testPrx.SBaseAsObjectAsync().Result;
             test(o != null);
-            test(Ice.TypeIdAttribute.GetTypeId(o.GetType()).Equals("::Test::SBase"));
+            test(o.GetType().GetIceTypeId().Equals("::Test::SBase"));
             SBase sb = (SBase)o;
             test(sb != null);
             test(sb.sb.Equals("SBase.sb"));
@@ -273,7 +273,7 @@ public class AllTests : Test.AllTests
             {
                 B b = testPrx.oneElementCycle();
                 test(b != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b.GetType()).Equals("::Test::B"));
+                test(b.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(b.sb.Equals("B1.sb"));
                 test(b.pb == b);
             }
@@ -290,7 +290,7 @@ public class AllTests : Test.AllTests
         {
             var b = testPrx.oneElementCycleAsync().Result;
             test(b != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b.GetType()).Equals("::Test::B"));
+            test(b.GetType().GetIceTypeId().Equals("::Test::B"));
             test(b.sb.Equals("B1.sb"));
             test(b.pb == b);
         }
@@ -303,12 +303,12 @@ public class AllTests : Test.AllTests
             {
                 B b1 = testPrx.twoElementCycle();
                 test(b1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::B"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(b1.sb.Equals("B1.sb"));
 
                 B b2 = b1.pb;
                 test(b2 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(b2.sb.Equals("B2.sb"));
                 test(b2.pb == b1);
             }
@@ -325,12 +325,12 @@ public class AllTests : Test.AllTests
         {
             B b1 = testPrx.twoElementCycleAsync().Result;
             test(b1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::B"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::B"));
             test(b1.sb.Equals("B1.sb"));
 
             B b2 = b1.pb;
             test(b2 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
             test(b2.sb.Equals("B2.sb"));
             test(b2.pb == b1);
         }
@@ -344,7 +344,7 @@ public class AllTests : Test.AllTests
                 B b1;
                 b1 = testPrx.D1AsB();
                 test(b1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb != null);
                 test(b1.pb != b1);
@@ -359,7 +359,7 @@ public class AllTests : Test.AllTests
                 test(b2 != null);
                 test(b2.pb == b1);
                 test(b2.sb.Equals("D2.sb"));
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
             }
             catch (System.Exception ex)
             {
@@ -374,7 +374,7 @@ public class AllTests : Test.AllTests
         {
             B b1 = testPrx.D1AsBAsync().Result;
             test(b1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(b1.sb.Equals("D1.sb"));
             test(b1.pb != null);
             test(b1.pb != b1);
@@ -389,7 +389,7 @@ public class AllTests : Test.AllTests
             test(b2 != null);
             test(b2.pb == b1);
             test(b2.sb.Equals("D2.sb"));
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
         }
         output.WriteLine("ok");
 
@@ -401,14 +401,14 @@ public class AllTests : Test.AllTests
                 D1 d1;
                 d1 = testPrx.D1AsD1();
                 test(d1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(d1.GetType()).Equals("::Test::D1"));
+                test(d1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(d1.sb.Equals("D1.sb"));
                 test(d1.pb != null);
                 test(d1.pb != d1);
 
                 B b2 = d1.pb;
                 test(b2 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == d1);
             }
@@ -425,14 +425,14 @@ public class AllTests : Test.AllTests
         {
             D1 d1 = testPrx.D1AsD1Async().Result;
             test(d1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(d1.GetType()).Equals("::Test::D1"));
+            test(d1.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(d1.sb.Equals("D1.sb"));
             test(d1.pb != null);
             test(d1.pb != d1);
 
             B b2 = d1.pb;
             test(b2 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
             test(b2.sb.Equals("D2.sb"));
             test(b2.pb == d1);
         }
@@ -446,14 +446,14 @@ public class AllTests : Test.AllTests
                 B b2;
                 b2 = testPrx.D2AsB();
                 test(b2 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb != null);
                 test(b2.pb != b2);
 
                 B b1 = b2.pb;
                 test(b1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1)b1;
@@ -474,14 +474,14 @@ public class AllTests : Test.AllTests
         {
             B b2 = testPrx.D2AsBAsync().Result;
             test(b2 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B"));
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B"));
             test(b2.sb.Equals("D2.sb"));
             test(b2.pb != null);
             test(b2.pb != b2);
 
             B b1 = b2.pb;
             test(b1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(b1.sb.Equals("D1.sb"));
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
@@ -501,7 +501,7 @@ public class AllTests : Test.AllTests
                 (b1, b2) = testPrx.paramTest1();
 
                 test(b1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1)b1;
@@ -510,7 +510,7 @@ public class AllTests : Test.AllTests
                 test(d1.pd1 == b2);
 
                 test(b2 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // No factory, must be sliced
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // No factory, must be sliced
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
@@ -530,7 +530,7 @@ public class AllTests : Test.AllTests
             B b2 = result.p2;
 
             test(b1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(b1.sb.Equals("D1.sb"));
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
@@ -539,7 +539,7 @@ public class AllTests : Test.AllTests
             test(d1.pd1 == b2);
 
             test(b2 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // No factory, must be sliced
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // No factory, must be sliced
             test(b2.sb.Equals("D2.sb"));
             test(b2.pb == b1);
         }
@@ -555,7 +555,7 @@ public class AllTests : Test.AllTests
                 (b2, b1) = testPrx.paramTest2();
 
                 test(b1 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1)b1;
@@ -564,7 +564,7 @@ public class AllTests : Test.AllTests
                 test(d1.pd1 == b2);
 
                 test(b2 != null);
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // No factory, must be sliced
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // No factory, must be sliced
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
@@ -583,7 +583,7 @@ public class AllTests : Test.AllTests
             B b2 = result.p2;
             B b1 = result.p1;
             test(b1 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(b1.sb.Equals("D1.sb"));
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
@@ -592,7 +592,7 @@ public class AllTests : Test.AllTests
             test(d1.pd1 == b2);
 
             test(b2 != null);
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // No factory, must be sliced
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // No factory, must be sliced
             test(b2.sb.Equals("D2.sb"));
             test(b2.pb == b1);
         }
@@ -666,7 +666,7 @@ public class AllTests : Test.AllTests
 
                 test(b1 != null);
                 test(b1.sb.Equals("D1.sb"));
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+                test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
                 D1 p1 = (D1)b1;
                 test(p1 != null);
                 test(p1.sd1.Equals("D1.sd1"));
@@ -675,7 +675,7 @@ public class AllTests : Test.AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.sb.Equals("D3.sb"));
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // Sliced by server
+                test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // Sliced by server
                 test(b2.pb == b1);
                 try
                 {
@@ -718,7 +718,7 @@ public class AllTests : Test.AllTests
 
             test(b1 != null);
             test(b1.sb.Equals("D1.sb"));
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::D1"));
+            test(b1.GetType().GetIceTypeId().Equals("::Test::D1"));
             D1 p1 = (D1)b1;
             test(p1 != null);
             test(p1.sd1.Equals("D1.sd1"));
@@ -727,7 +727,7 @@ public class AllTests : Test.AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb.Equals("D3.sb"));
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::B")); // Sliced by server
+            test(b2.GetType().GetIceTypeId().Equals("::Test::B")); // Sliced by server
             test(b2.pb == b1);
             try
             {
@@ -767,7 +767,7 @@ public class AllTests : Test.AllTests
 
                 test(b1 != null);
                 test(b1.sb.Equals("D3.sb"));
-                test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::B")); // Sliced by server
+                test(b1.GetType().GetIceTypeId().Equals("::Test::B")); // Sliced by server
 
                 try
                 {
@@ -782,7 +782,7 @@ public class AllTests : Test.AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.sb.Equals("D1.sb"));
-                test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::D1"));
+                test(b2.GetType().GetIceTypeId().Equals("::Test::D1"));
                 test(b2.pb == b1);
                 D1 p3 = (D1)b2;
                 test(p3 != null);
@@ -820,7 +820,7 @@ public class AllTests : Test.AllTests
 
             test(b1 != null);
             test(b1.sb.Equals("D3.sb"));
-            test(Ice.TypeIdAttribute.GetTypeId(b1.GetType()).Equals("::Test::B")); // Sliced by server
+            test(b1.GetType().GetIceTypeId().Equals("::Test::B")); // Sliced by server
 
             try
             {
@@ -836,7 +836,7 @@ public class AllTests : Test.AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb.Equals("D1.sb"));
-            test(Ice.TypeIdAttribute.GetTypeId(b2.GetType()).Equals("::Test::D1"));
+            test(b2.GetType().GetIceTypeId().Equals("::Test::D1"));
             test(b2.pb == b1);
             D1 p3 = (D1)b2;
             test(p3 != null);
@@ -860,17 +860,17 @@ public class AllTests : Test.AllTests
                 test(p1 != null);
                 test(p1.sb.Equals("D2.sb (p1 1)"));
                 test(p1.pb == null);
-                test(Ice.TypeIdAttribute.GetTypeId(p1.GetType()).Equals("::Test::B"));
+                test(p1.GetType().GetIceTypeId().Equals("::Test::B"));
 
                 test(p2 != null);
                 test(p2.sb.Equals("D2.sb (p2 1)"));
                 test(p2.pb == null);
-                test(Ice.TypeIdAttribute.GetTypeId(p2.GetType()).Equals("::Test::B"));
+                test(p2.GetType().GetIceTypeId().Equals("::Test::B"));
 
                 test(ret != null);
                 test(ret.sb.Equals("D1.sb (p2 2)"));
                 test(ret.pb == null);
-                test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::D1"));
+                test(ret.GetType().GetIceTypeId().Equals("::Test::D1"));
             }
             catch (System.Exception ex)
             {
@@ -891,17 +891,17 @@ public class AllTests : Test.AllTests
             test(p1 != null);
             test(p1.sb.Equals("D2.sb (p1 1)"));
             test(p1.pb == null);
-            test(Ice.TypeIdAttribute.GetTypeId(p1.GetType()).Equals("::Test::B"));
+            test(p1.GetType().GetIceTypeId().Equals("::Test::B"));
 
             test(p2 != null);
             test(p2.sb.Equals("D2.sb (p2 1)"));
             test(p2.pb == null);
-            test(Ice.TypeIdAttribute.GetTypeId(p2.GetType()).Equals("::Test::B"));
+            test(p2.GetType().GetIceTypeId().Equals("::Test::B"));
 
             test(ret != null);
             test(ret.sb.Equals("D1.sb (p2 2)"));
             test(ret.pb == null);
-            test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::D1"));
+            test(ret.GetType().GetIceTypeId().Equals("::Test::D1"));
         }
         output.WriteLine("ok");
 
@@ -915,12 +915,12 @@ public class AllTests : Test.AllTests
                 test(b != null);
                 test(b.sb.Equals("D4.sb (1)"));
                 test(b.pb == null);
-                test(Ice.TypeIdAttribute.GetTypeId(b.GetType()).Equals("::Test::B"));
+                test(b.GetType().GetIceTypeId().Equals("::Test::B"));
 
                 test(ret != null);
                 test(ret.sb.Equals("B.sb (2)"));
                 test(ret.pb == null);
-                test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::B"));
+                test(ret.GetType().GetIceTypeId().Equals("::Test::B"));
             }
             catch (System.Exception ex)
             {
@@ -940,12 +940,12 @@ public class AllTests : Test.AllTests
             test(b != null);
             test(b.sb.Equals("D4.sb (1)"));
             test(b.pb == null);
-            test(Ice.TypeIdAttribute.GetTypeId(b.GetType()).Equals("::Test::B"));
+            test(b.GetType().GetIceTypeId().Equals("::Test::B"));
 
             test(ret != null);
             test(ret.sb.Equals("B.sb (2)"));
             test(ret.pb == null);
-            test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::B"));
+            test(ret.GetType().GetIceTypeId().Equals("::Test::B"));
         }
         output.WriteLine("ok");
 
@@ -971,7 +971,7 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest3(d3, b2);
 
                 test(ret != null);
-                test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::B"));
+                test(ret.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
@@ -1003,7 +1003,7 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, b2).Result;
 
             test(rv != null);
-            test(Ice.TypeIdAttribute.GetTypeId(rv.GetType()).Equals("::Test::B"));
+            test(rv.GetType().GetIceTypeId().Equals("::Test::B"));
             test(rv.sb.Equals("D3.sb"));
             test(rv.pb == rv);
         }
@@ -1033,7 +1033,7 @@ public class AllTests : Test.AllTests
 
                 B ret = testPrx.returnTest3(d3, d12);
                 test(ret != null);
-                test(Ice.TypeIdAttribute.GetTypeId(ret.GetType()).Equals("::Test::B"));
+                test(ret.GetType().GetIceTypeId().Equals("::Test::B"));
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
@@ -1068,7 +1068,7 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, d12).Result;
 
             test(rv != null);
-            test(Ice.TypeIdAttribute.GetTypeId(rv.GetType()).Equals("::Test::B"));
+            test(rv.GetType().GetIceTypeId().Equals("::Test::B"));
             test(rv.sb.Equals("D3.sb"));
             test(rv.pb == rv);
         }
@@ -1149,13 +1149,13 @@ public class AllTests : Test.AllTests
                 test(ss2d2.pb == ss2b2);
                 test(ss2d4.pb == ss2b2);
 
-                test(Ice.TypeIdAttribute.GetTypeId(ss1b2.GetType()).Equals("::Test::B"));
-                test(Ice.TypeIdAttribute.GetTypeId(ss1d2.GetType()).Equals("::Test::D1"));
-                test(Ice.TypeIdAttribute.GetTypeId(ss1d4.GetType()).Equals("::Test::B"));
+                test(ss1b2.GetType().GetIceTypeId().Equals("::Test::B"));
+                test(ss1d2.GetType().GetIceTypeId().Equals("::Test::D1"));
+                test(ss1d4.GetType().GetIceTypeId().Equals("::Test::B"));
 
-                test(Ice.TypeIdAttribute.GetTypeId(ss2b2.GetType()).Equals("::Test::B"));
-                test(Ice.TypeIdAttribute.GetTypeId(ss2d2.GetType()).Equals("::Test::D1"));
-                test(Ice.TypeIdAttribute.GetTypeId(ss2d4.GetType()).Equals("::Test::B"));
+                test(ss2b2.GetType().GetIceTypeId().Equals("::Test::B"));
+                test(ss2d2.GetType().GetIceTypeId().Equals("::Test::D1"));
+                test(ss2d4.GetType().GetIceTypeId().Equals("::Test::B"));
             }
             catch (System.Exception ex)
             {
@@ -1237,13 +1237,13 @@ public class AllTests : Test.AllTests
             test(ss2d6.pb == ss2b3);
             test(ss2d6.pb == ss2b3);
 
-            test(Ice.TypeIdAttribute.GetTypeId(ss1b3.GetType()).Equals("::Test::B"));
-            test(Ice.TypeIdAttribute.GetTypeId(ss1d5.GetType()).Equals("::Test::D1"));
-            test(Ice.TypeIdAttribute.GetTypeId(ss1d6.GetType()).Equals("::Test::B"));
+            test(ss1b3.GetType().GetIceTypeId().Equals("::Test::B"));
+            test(ss1d5.GetType().GetIceTypeId().Equals("::Test::D1"));
+            test(ss1d6.GetType().GetIceTypeId().Equals("::Test::B"));
 
-            test(Ice.TypeIdAttribute.GetTypeId(ss2b3.GetType()).Equals("::Test::B"));
-            test(Ice.TypeIdAttribute.GetTypeId(ss2d5.GetType()).Equals("::Test::D1"));
-            test(Ice.TypeIdAttribute.GetTypeId(ss2d6.GetType()).Equals("::Test::B"));
+            test(ss2b3.GetType().GetIceTypeId().Equals("::Test::B"));
+            test(ss2d5.GetType().GetIceTypeId().Equals("::Test::D1"));
+            test(ss2d6.GetType().GetIceTypeId().Equals("::Test::B"));
         }
         output.WriteLine("ok");
 

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -50,7 +51,7 @@ namespace Ice.operations.AMD
         public bool ice_isA(string id, Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass)).Contains(id);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -58,13 +59,13 @@ namespace Ice.operations.AMD
         public string[] ice_ids(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass));
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string ice_id(Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetTypeId(typeof(Test.IMyDerivedClass));
+            return typeof(Test.IMyDerivedClass).GetIceTypeId();
         }
 
         public Task shutdownAsync(Current current)

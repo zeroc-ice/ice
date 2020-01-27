@@ -1378,7 +1378,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "private readonly string _iceTypeId = global::Ice.TypeIdAttribute.GetTypeId(typeof("
+    _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
          << fixId(p->name()) << "));";
 
     _out << sp << nl << "partial void IceInitialize();";
@@ -1514,7 +1514,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     const bool hasDataMemberInitializers = requiresDataMemberInitializers(dataMembers);
 
     emitGeneratedCodeAttribute();
-    _out << nl << "private readonly string _iceTypeId = global::Ice.TypeIdAttribute.GetTypeId(typeof("
+    _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
          << name << "));";
 
     _out << sp;
@@ -2182,7 +2182,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
     _out << sb;
 
-    _out << nl << "if(prx.IceIsA(global::Ice.TypeIdAttribute.GetTypeId(typeof(" << interfaceName(p)
+    _out << nl << "if(prx.IceIsA(global::Ice.TypeExtensions.GetIceTypeId(typeof(" << interfaceName(p)
          << "Prx))!, context))";
     _out << sb;
     _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";

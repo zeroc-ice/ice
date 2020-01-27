@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace Ice.operations
         public bool IceIsA(string id, Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass)).Contains(id);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -33,13 +34,13 @@ namespace Ice.operations
         public string[] IceIds(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass));
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            return Ice.TypeIdAttribute.GetTypeId(typeof(Test.IMyDerivedClass))!;
+            return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

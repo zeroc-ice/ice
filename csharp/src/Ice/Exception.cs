@@ -21,8 +21,8 @@ namespace IceInternal
                 throw new Ice.NoClassFactoryException("", usv.TypeId ?? "");
             }
 
-            string typeId = Ice.TypeIdAttribute.GetTypeId(v.GetType())!;
-            string expectedTypeId = Ice.TypeIdAttribute.GetTypeId(expectedType)!;
+            string typeId = Ice.TypeExtensions.GetIceTypeId(v.GetType())!;
+            string expectedTypeId = Ice.TypeExtensions.GetIceTypeId(expectedType)!;
             throw new Ice.UnexpectedObjectException(
                 $"expected element of type `{expectedTypeId}' but received `{typeId}'", typeId, expectedTypeId);
         }
@@ -157,7 +157,7 @@ namespace Ice
         // TODO: remove during exception refactoring
         public override string ice_id()
         {
-            return TypeIdAttribute.GetTypeId(GetType())!;
+            return GetType().GetIceTypeId()!;
         }
 
         // See InputStream.

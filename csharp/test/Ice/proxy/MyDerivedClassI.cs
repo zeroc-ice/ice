@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +20,7 @@ namespace Ice.proxy
         public override bool IceIsA(string s, Current current)
         {
             _ctx = current.Context;
-            return Ice.TypeIdAttribute.GetAllTypeIds(typeof(Test.IMyDerivedClass)).Contains(s);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(s);
         }
 
         private Dictionary<string, string> _ctx;
