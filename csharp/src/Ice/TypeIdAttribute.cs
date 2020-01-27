@@ -67,20 +67,17 @@ namespace Ice
             else if (type.IsClass)
             {
                 var result = new List<string>();
-                Type? p = type;
-                do
+                for (Type? p = type; p != null; p = p.BaseType)
                 {
-                    var typeId = GetIceTypeId(p!);
-                    if (typeId != null)
+                    if (GetIceTypeId(p) is string typeId)
                     {
                         result.Add(typeId);
-                        p = p.BaseType;
                     }
                     else
                     {
-                        p = null;
+                        break; // for
                     }
-                } while (p != null);
+                }
                 return result.ToArray();
             }
             else
