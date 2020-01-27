@@ -277,7 +277,7 @@ class ServerDescriptor extends CommunicatorDescriptor
      * backward compatibility with servers using old Ice versions is
      * needed (otherwise the registry will assume the server is using
      * the same Ice version).
-     * For example "3.1.1", "3.2", "3.3.0".
+     * For example "3.1.1", "3.2", "3.3.0-alpha.0".
      *
      **/
     string iceVersion;
