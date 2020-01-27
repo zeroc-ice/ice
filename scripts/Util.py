@@ -3280,10 +3280,6 @@ class CppMapping(Mapping):
         return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), appName)
 
 
-class Cpp98Mapping(CppMapping):
-    pass
-
-
 class JavaMapping(Mapping):
 
     class Config(Mapping.Config):
