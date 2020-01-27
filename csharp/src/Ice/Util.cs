@@ -49,7 +49,7 @@ namespace Ice
         /// patch level.
         /// </summary>
         /// <returns>The Ice version.</returns>
-        public static string StringVersion() => "3.7.3"; // "A.B.C", with A=major, B=minor, C=patch
+        public static string StringVersion() => "4.0.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 
         /// <summary>
         /// Returns the Ice version as an integer in the form A.BB.CC, where A
@@ -57,7 +57,7 @@ namespace Ice
         /// indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
         /// </summary>
         /// <returns>The Ice version.</returns>
-        public static int IntVersion() => 30703; // AABBCC, with AA=major, BB=minor, CC=patch
+        public static int IntVersion() => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
 
         /// <summary>
         /// Converts a string to a protocol version.
