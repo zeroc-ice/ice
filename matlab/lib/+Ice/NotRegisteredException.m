@@ -16,7 +16,6 @@
 %   id - The ID (or name) of the object that could not be removed.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef NotRegisteredException < Ice.LocalException
     properties

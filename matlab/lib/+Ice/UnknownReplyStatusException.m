@@ -3,7 +3,6 @@
 % This exception indicates that an unknown reply status has been received.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef UnknownReplyStatusException < Ice.ProtocolException
     methods

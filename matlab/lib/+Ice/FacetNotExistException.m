@@ -4,7 +4,6 @@
 % but at least one facet with the given identity exists.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef FacetNotExistException < Ice.RequestFailedException
     methods

@@ -3,7 +3,6 @@
 % This exception indicates a lost connection.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef ConnectionLostException < Ice.SocketException
     methods
