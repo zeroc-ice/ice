@@ -29,8 +29,8 @@
     <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v141'">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
-  </ItemGroup>
 -->
+  </ItemGroup>
 
   <Target Name="Build">
     <MSBuild Projects="@(Projects)"

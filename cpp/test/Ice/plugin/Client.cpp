@@ -149,7 +149,7 @@ Client::run(int argc, char** argv)
 
     try
     {
-        std::string version = ICE_SO_VERSION + ":createPlugin";
+        auto version = std::string(ICE_SO_VERSION) + ":createPlugin";
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
         properties->setProperty("Ice.Plugin.Test", version);
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
