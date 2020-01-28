@@ -3,6 +3,7 @@
 //
 
 using IceInternal;
+using IceMX; // for generated extensions
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -463,7 +464,7 @@ namespace Ice
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
                         IProcess process = new IceInternal.Process(this);
-                        Disp disp = (current, incoming) => IProcess.Dispatch(process, current, incoming);
+                        Disp disp = process.Dispatch;
                         _adminFacets.Add(processFacetName, (process, disp));
                     }
 
@@ -476,7 +477,7 @@ namespace Ice
                         ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, Logger);
                         Logger = loggerAdminLogger;
                         ILoggerAdmin servant = loggerAdminLogger.GetFacet();
-                        Disp disp = (incoming, current) => ILoggerAdmin.Dispatch(servant, incoming, current);
+                        Disp disp = servant.Dispatch;
                         _adminFacets.Add(loggerFacetName, (servant, disp));
                     }
 
@@ -488,7 +489,7 @@ namespace Ice
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                     {
                         propsAdmin = new PropertiesAdmin(this);
-                        Disp disp = (current, incoming) => IPropertiesAdmin.Dispatch(propsAdmin, current, incoming);
+                        Disp disp = propsAdmin.Dispatch;
                         _adminFacets.Add(propertiesFacetName, (propsAdmin, disp));
                     }
 
@@ -501,8 +502,7 @@ namespace Ice
                         var communicatorObserver = new CommunicatorObserverI(this, Logger);
                         Observer = communicatorObserver;
                         MetricsAdminI metricsAdmin = communicatorObserver.GetFacet();
-                        Disp disp = (current, incoming) =>
-                                        IceMX.IMetricsAdmin.Dispatch(metricsAdmin, current, incoming);
+                        Disp disp = metricsAdmin.Dispatch;
                         _adminFacets.Add(metricsFacetName, (metricsAdmin, disp));
 
                         //
@@ -615,21 +615,6 @@ namespace Ice
                 Destroy();
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Add a new facet to the Admin object.
-        /// Adding a servant with a facet that is already registered
-        /// throws AlreadyRegisteredException.
-        ///
-        /// </summary>
-        /// <param name="servant">The servant that implements the new Admin facet.
-        /// </param>
-        /// <param name="facet">The name of the new Admin facet.</param>
-        public void AddAdminFacet<T>(T servant, string facet, ServantDispatch<T> servantDispatch)
-        {
-            Disp disp = (incoming, current) => servantDispatch(servant, incoming, current);
-            AddAdminFacet(servant, disp, facet);
         }
 
         public void AddAdminFacet(object servant, Disp disp, string facet)

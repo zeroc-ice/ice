@@ -3,6 +3,7 @@
 //
 
 using System.Text;
+using Ice.adapterDeactivation.Test; // for extension methods
 
 namespace Ice.adapterDeactivation
 {
@@ -62,7 +63,7 @@ namespace Ice.adapterDeactivation
             if (current.Id.Name.Equals("router"))
             {
                 cookie = null;
-                return (incoming, current) => IRouter.Dispatch(_router, incoming, current);
+                return _router.Dispatch;
             }
 
             test(current.Id.Category.Length == 0);
@@ -71,7 +72,7 @@ namespace Ice.adapterDeactivation
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            return (incoming, current) => Test.ITestIntf.Dispatch(testI, incoming, current);
+            return testI.Dispatch;
         }
 
         public void Finished(Current current, Disp servant, object cookie)

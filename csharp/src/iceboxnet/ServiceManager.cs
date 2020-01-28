@@ -297,7 +297,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.AddAdminFacet(this, "IceBox.ServiceManager", IServiceManager.Dispatch);
+                _communicator.AddAdminFacet(this, this.Dispatch, "IceBox.ServiceManager");
                 _communicator.GetAdmin();
                 if (adapter != null)
                 {

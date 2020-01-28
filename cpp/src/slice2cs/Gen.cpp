@@ -2640,51 +2640,6 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeMethodDeclaration(op);
     }
 
-    _out << sp;
-    _out << nl << "public static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? Dispatch("
-         << fixId(name) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
-    _out << sb;
-
-    _out << nl << "incoming.StartOver();";
-    _out << nl << "switch(current.Operation)";
-    _out << sb;
-
-    StringList allOpNames;
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-
-    for(const auto& opName : allOpNames)
-    {
-        _out << nl << "case \"" << opName << "\":";
-        _out << sb;
-        _out << nl << "return " << getUnqualified("Ice.IObject", ns) << ".IceD_"
-             << opName << "(servant as " << getUnqualified("Ice.IObject", ns)
-             << " ?? _defaultObject, incoming, current);";
-        _out << eb;
-    }
-
-    for(const auto& op : p->allOperations())
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        _out << nl << "case \"" << op->name() << "\":";
-        _out << sb;
-        _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
-             << ".IceD_" << operationName(op)
-             << "(servant, incoming, current);";
-        _out << eb;
-    }
-
-    _out << nl << "default:";
-    _out << sb;
-    _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-            << "(current.Id, current.Facet, current.Operation);";
-    _out << eb;
-
-    _out << eb; // switch
-    _out << eb; // method
-
     return true;
 }
 
@@ -2949,30 +2904,80 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 void
 Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    _out << eb; // interface
-
     const string ns = getNamespace(p);
     const string name = interfaceName(p);
+
+    _out << sp;
+    _out << nl << "internal static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? IceDispatch("
+         << fixId(name) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
+    _out << sb;
+
+    _out << nl << "incoming.StartOver();";
+    _out << nl << "switch(current.Operation)";
+    _out << sb;
+
+    StringList allOpNames;
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+
+    for(const auto& opName : allOpNames)
+    {
+        _out << nl << "case \"" << opName << "\":";
+        _out << sb;
+        _out << nl << "return " << getUnqualified("Ice.IObject", ns) << ".IceD_"
+             << opName << "(servant as " << getUnqualified("Ice.IObject", ns)
+             << " ?? _defaultObject, incoming, current);";
+        _out << eb;
+    }
+
+    for(const auto& op : p->allOperations())
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+        _out << nl << "case \"" << op->name() << "\":";
+        _out << sb;
+        _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
+             << ".IceD_" << operationName(op)
+             << "(servant, incoming, current);";
+        _out << eb;
+    }
+
+    _out << nl << "default:";
+    _out << sb;
+    _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
+            << "(current.Id, current.Facet, current.Operation);";
+    _out << eb;
+
+    _out << eb; // switch
+    _out << eb; // method
+    _out << eb; // interface
+
+    _out << sp;
+    _out << nl << "public static class " << p->name() << "Extensions";
+    _out << sb;
+
+    _out << nl << "public static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? Dispatch(this "
+        << fixId(name) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
+    _out.inc();
+    _out << nl << "=> " << fixId(name) << ".IceDispatch(servant, incoming, current);";
+    _out.dec();
 
     // ObjectAdapter extension methods to Add a servant dispatcher
     string oa = getUnqualified("Ice.ObjectAdapter", ns);
 
     _out << sp;
-    _out << nl << "public static class ObjectAdapter" << p->name() << "Extensions";
-    _out << sb;
-
     _out << nl << "public static " << name << "Prx Add(this " << oa << " adapter, " << fixId(name)
         << " servant, string identity, string facet = \"\")";
     _out.inc();
-    _out << nl << "=> adapter.Add(" << oa << ".CreateDispatcher(servant, " << fixId(name) << ".Dispatch), " << name
-        << "Prx.Factory, identity, facet);";
+    _out << nl << "=> adapter.Add(servant.Dispatch, " << name << "Prx.Factory, identity, facet);";
     _out.dec();
 
+     _out << sp;
     _out << nl << "public static " << name << "Prx Add(this " << oa << " adapter, " << fixId(name) << " servant, "
         << getUnqualified("Ice.Identity", ns) << "? identity = null, string facet = \"\")";
     _out.inc();
-    _out << nl << "=> adapter.Add(" << oa << ".CreateDispatcher(servant, " << fixId(name) << ".Dispatch), " << name
-        << "Prx.Factory, identity, facet);";
+    _out << nl << "=> adapter.Add(servant.Dispatch, " << name << "Prx.Factory, identity, facet);";
     _out.dec();
     _out << eb;
 }

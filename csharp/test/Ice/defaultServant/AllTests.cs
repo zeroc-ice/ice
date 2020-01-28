@@ -16,7 +16,7 @@ namespace Ice.defaultServant
             oa.Activate();
 
             var servantI = new MyObject();
-            Disp servantD = (incoming, current) => IMyObject.Dispatch(servantI, incoming, current);
+            Disp servantD = servantI.Dispatch;
 
             //
             // Register default servant with category "foo"

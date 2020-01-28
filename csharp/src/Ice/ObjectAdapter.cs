@@ -17,10 +17,6 @@ namespace Ice
     /// the response.</summary>
     public delegate Task<OutputStream?>? Disp(Incoming inS, Current current);
 
-    /// <summary>A ServantDispatch represents the Dispatch method of a generated servant interface.
-    /// See CreateDispatcher.</summary>
-    public delegate Task<OutputStream?>? ServantDispatch<T>(T servant, Incoming inS, Current current);
-
     public sealed class ObjectAdapter
     {
         /// <summary>
@@ -406,43 +402,19 @@ namespace Ice
             }
         }
 
-        /// <summary>Combine a servant and servant dispatch to form a Dispatcher.</summary>
-        /// <param name="servant">The servant.</param>
-        /// <param name="servantDispatch">The servant's static Dispatch method.</param>
-        /// <returns>A dispatcher.</returns>
-        public static Disp CreateDispatcher<T>(T servant, ServantDispatch<T> servantDispatch)
-            => (incoming, current) => servantDispatch(servant, incoming, current);
-
         /// <summary>
         /// Add a dispatcher to this object adapter's Active Dispatcher Map.
         /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
         /// identities. Adding a dispatcher with an identity that is already in the map already throws
         /// AlreadyRegisteredException.</summary>
-        /// <param name="dispatcher">The dispatcher to add.</param>
-        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
-        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
-        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
-        /// <param name="facet">The facet. An empty facet means the default facet.</param>
-        /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(Disp dispatcher, ProxyFactory<T> proxyFactory, string identity, string facet = "")
-            where T : class, IObjectPrx
-        {
-            return Add(dispatcher, proxyFactory, Identity.Parse(identity), facet);
-        }
-
-        /// <summary>
-        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
-        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
-        /// identities. Adding a dispatcher with an identity that is already in the map already throws
-        /// AlreadyRegisteredException.</summary>
-        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="servant">The dispatcher to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
         /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
         /// <param name="identity">The identity of the Ice object that is handled by the dispatcher. When null, the
         /// ObjectAdapter creates a new unique identity with a UUID name and empty category.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(Disp dispatcher, ProxyFactory<T> proxyFactory, Identity? identity = null, string facet = "")
+        public T Add<T>(Disp servant, ProxyFactory<T> proxyFactory, Identity? identity = null, string facet = "")
             where T : class, IObjectPrx
         {
             lock (this)
@@ -451,7 +423,7 @@ namespace Ice
                 checkForDeactivation();
                 checkIdentity(identity.Value);
 
-                _servantManager.AddServant(dispatcher, identity.Value, facet);
+                _servantManager.AddServant(servant, identity.Value, facet);
 
                 return newProxy(identity.Value, proxyFactory, facet);
             }
@@ -462,31 +434,48 @@ namespace Ice
         /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
         /// identities. Adding a dispatcher with an identity that is already in the map already throws
         /// AlreadyRegisteredException.</summary>
-        /// <param name="dispatcher">The dispatcher to add.</param>
-        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
+        /// <param name="servant">The dispatcher to add.</param>
+        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
+        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
+        /// <param name="identity">The stringified identity of the Ice object that is handled by the dispatcher.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
-        public void Add(Disp dispatcher, string identity, string facet = "")
+        /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
+        public T Add<T>(Disp servant, ProxyFactory<T> proxyFactory, string identity, string facet = "")
+            where T : class, IObjectPrx
         {
-            Add(dispatcher, Identity.Parse(identity), facet);
+            return Add(servant, proxyFactory, Identity.Parse(identity), facet);
         }
 
-         /// <summary>
+        /// <summary>
         /// Add a dispatcher to this object adapter's Active Dispatcher Map.
         /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
         /// identities. Adding a dispatcher with an identity that is already in the map already throws
         /// AlreadyRegisteredException.</summary>
-        /// <param name="dispatcher">The dispatcher to add.</param>
+        /// <param name="servant">The dispatcher to add.</param>
         /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
-        public void Add(Disp dispatcher, Identity identity, string facet = "")
+        public void Add(Disp servant, Identity identity, string facet = "")
         {
             lock (this)
             {
                 checkForDeactivation();
                 checkIdentity(identity);
 
-                _servantManager.AddServant(dispatcher, identity, facet);
+                _servantManager.AddServant(servant, identity, facet);
             }
+        }
+
+        /// <summary>
+        /// Add a dispatcher to this object adapter's Active Dispatcher Map.
+        /// Note that a single dispatcher can handle several Ice objects by registering the dispatcher with multiple
+        /// identities. Adding a dispatcher with an identity that is already in the map already throws
+        /// AlreadyRegisteredException.</summary>
+        /// <param name="servant">The dispatcher to add.</param>
+        /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
+        /// <param name="facet">The facet. An empty facet means the default facet.</param>
+        public void Add(Disp servant, string identity, string facet = "")
+        {
+            Add(servant, Identity.Parse(identity), facet);
         }
 
         /// <summary>

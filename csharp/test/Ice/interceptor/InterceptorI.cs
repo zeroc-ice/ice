@@ -8,7 +8,7 @@ namespace Ice.interceptor
 {
     internal sealed class Interceptor<T>
     {
-        internal Interceptor(T servant, Ice.ServantDispatch<T> servantDisp)
+        internal Interceptor(T servant, Disp servantDisp)
         {
             _servant = servant;
             _servantDisp = servantDisp;
@@ -54,7 +54,7 @@ namespace Ice.interceptor
                     {
                         try
                         {
-                            var t = _servantDisp(_servant, incoming, current);
+                            var t = _servantDisp(incoming, current);
                             if (t != null && t.IsFaulted)
                             {
                                 throw t.Exception.InnerException;
@@ -80,11 +80,11 @@ namespace Ice.interceptor
                     // Retry the dispatch to ensure that abandoning the result of the dispatch
                     // works fine and is thread-safe
                     //
-                    _servantDisp(_servant, incoming, current);
-                    _servantDisp(_servant, incoming, current);
+                    _servantDisp(incoming, current);
+                    _servantDisp(incoming, current);
                 }
 
-                var task = _servantDisp(_servant, incoming, current);
+                var task = _servantDisp(incoming, current);
                 _lastStatus = task != null;
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
@@ -132,7 +132,7 @@ namespace Ice.interceptor
         }
 
         private readonly T _servant;
-        private readonly Ice.ServantDispatch<T> _servantDisp;
+        private readonly Disp _servantDisp;
         private string _lastOperation;
         private bool _lastStatus = false;
     }
