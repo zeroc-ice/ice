@@ -2963,7 +2963,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "=> " << fixId(name) << ".IceDispatch(servant, incoming, current);";
     _out.dec();
 
-    // ObjectAdapter extension methods to Add a servant dispatcher
+    // ObjectAdapter extension methods to Add a servant
     string oa = getUnqualified("Ice.ObjectAdapter", ns);
 
     _out << sp;
