@@ -414,7 +414,7 @@ public class AllTests : Test.AllTests
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).AddUpdateCallback(update.updated);
+        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties")).AddUpdateCallback(update.updated);
 
         output.WriteLine("ok");
 

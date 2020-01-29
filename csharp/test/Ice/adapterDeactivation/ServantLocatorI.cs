@@ -63,7 +63,7 @@ namespace Ice.adapterDeactivation
             if (current.Id.Name.Equals("router"))
             {
                 cookie = null;
-                return _router.Dispatch;
+                return (_router as IObject).Dispatch;
             }
 
             test(current.Id.Category.Length == 0);
@@ -72,7 +72,7 @@ namespace Ice.adapterDeactivation
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            return testI.Dispatch;
+            return (testI as IObject).Dispatch;
         }
 
         public void Finished(Current current, Disp servant, object cookie)

@@ -16,10 +16,10 @@ namespace Ice.admin
         {
             if (builtInFacets && !filtered)
             {
-                test(com.FindAdminFacet("Properties").servant != null);
-                test(com.FindAdminFacet("Process").servant != null);
-                test(com.FindAdminFacet("Logger").servant != null);
-                test(com.FindAdminFacet("Metrics").servant != null);
+                test(com.FindAdminFacet("Properties") != null);
+                test(com.FindAdminFacet("Process") != null);
+                test(com.FindAdminFacet("Logger") != null);
+                test(com.FindAdminFacet("Metrics") != null);
             }
 
             var f1 = new TestFacet();
@@ -28,15 +28,15 @@ namespace Ice.admin
 
             if (!filtered)
             {
-                com.AddAdminFacet(f1, f1.Dispatch, "Facet1");
-                com.AddAdminFacet(f2, f2.Dispatch, "Facet2");
-                com.AddAdminFacet(f3, f3.Dispatch, "Facet3");
+                com.AddAdminFacet(f1, "Facet1");
+                com.AddAdminFacet(f2, "Facet2");
+                com.AddAdminFacet(f3, "Facet3");
             }
             else
             {
                 try
                 {
-                    com.AddAdminFacet(f1, f1.Dispatch, "Facet1");
+                    com.AddAdminFacet(f1, "Facet1");
                     test(false);
                 }
                 catch (ArgumentException)
@@ -45,7 +45,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f2, f2.Dispatch, "Facet2");
+                    com.AddAdminFacet(f2, "Facet2");
                     test(false);
                 }
                 catch (ArgumentException)
@@ -54,7 +54,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f3, f3.Dispatch, "Facet3");
+                    com.AddAdminFacet(f3, "Facet3");
                     test(false);
                 }
                 catch (ArgumentException)
@@ -64,19 +64,19 @@ namespace Ice.admin
 
             if (!filtered)
             {
-                test(com.FindAdminFacet("Facet1").servant == f1);
-                test(com.FindAdminFacet("Facet2").servant == f2);
-                test(com.FindAdminFacet("Facet3").servant == f3);
+                test(com.FindAdminFacet("Facet1") == f1);
+                test(com.FindAdminFacet("Facet2") == f2);
+                test(com.FindAdminFacet("Facet3") == f3);
             }
             else
             {
-                test(com.FindAdminFacet("Facet1").servant == null);
-                test(com.FindAdminFacet("Facet2").servant == null);
-                test(com.FindAdminFacet("Facet3").servant == null);
+                test(com.FindAdminFacet("Facet1") == null);
+                test(com.FindAdminFacet("Facet2") == null);
+                test(com.FindAdminFacet("Facet3") == null);
             }
-            test(com.FindAdminFacet("Bogus").servant == null);
+            test(com.FindAdminFacet("Bogus") == null);
 
-            Dictionary<string, (object servant, Disp disp)> facetMap = com.FindAllAdminFacets();
+            Dictionary<string, IObject> facetMap = com.FindAllAdminFacets();
             if (builtInFacets)
             {
                 test(facetMap.Count == 7);
@@ -99,7 +99,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f1, f1.Dispatch, "Facet1");
+                    com.AddAdminFacet(f1, "Facet1");
                     test(false);
                 }
                 catch (ArgumentException)
@@ -390,7 +390,7 @@ namespace Ice.admin
 
                 var remoteLogger = new RemoteLogger();
 
-                IRemoteLoggerPrx myProxy = adapter.Add(remoteLogger);
+                IRemoteLoggerPrx myProxy = adapter.Add(remoteLogger, IRemoteLoggerPrx.Factory);
 
                 adapter.Activate();
 

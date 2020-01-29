@@ -25,7 +25,7 @@ namespace Ice.binding
 
                     communicator.SetProperty(name + ".ThreadPool.Size", "1");
                     ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
-                    return current.Adapter.Add(new RemoteObjectAdapter(adapter));
+                    return current.Adapter.Add(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
                 catch (SocketException)
                 {

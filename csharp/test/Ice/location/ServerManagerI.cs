@@ -65,8 +65,8 @@ namespace Ice.location
                     adapter2.SetLocator(locator);
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
-                    _registry.addObject(adapter.Add(testI, "test"));
-                    _registry.addObject(adapter.Add(testI, "test2"));
+                    _registry.addObject(adapter.Add(testI, Ice.IObjectPrx.Factory, "test"));
+                    _registry.addObject(adapter.Add(testI, Ice.IObjectPrx.Factory, "test2"));
                     adapter.Add(testI, "test3");
 
                     adapter.Activate();

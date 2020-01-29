@@ -689,7 +689,7 @@ namespace IceLocatorDiscovery
             // No colloc optimization or router for the multicast proxy!
             lookupPrx = lookupPrx.Clone(clearRouter: false, collocationOptimized: false);
 
-            ILocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI());
+            ILocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI(), ILocatorPrx.Factory);
 
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
@@ -700,7 +700,8 @@ namespace IceLocatorDiscovery
             _communicator.SetDefaultLocator(_locatorPrx);
 
             ILookupReply lookupReplyI = new LookupReplyI(_locator);
-            _locator.SetLookupReply(_replyAdapter.Add(lookupReplyI).Clone(invocationMode: InvocationMode.Datagram));
+            _locator.SetLookupReply(_replyAdapter.Add(lookupReplyI, ILookupReplyPrx.Factory)
+                .Clone(invocationMode: InvocationMode.Datagram));
 
             _replyAdapter.Activate();
             _locatorAdapter.Activate();

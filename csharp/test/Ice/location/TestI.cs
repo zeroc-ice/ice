@@ -14,7 +14,7 @@ namespace Ice.location
             _adapter2 = adapter2;
             _registry = registry;
 
-            _registry.addObject(_adapter1.Add(new Hello(), "hello"));
+            _registry.addObject(_adapter1.Add(new Hello(), IObjectPrx.Factory, "hello"));
         }
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();

@@ -14,13 +14,13 @@ public class TestService : IService
         //
         // Install a custom admin facet.
         //
-        serviceManagerCommunicator.AddAdminFacet(facet, facet.Dispatch, "TestFacet");
+        serviceManagerCommunicator.AddAdminFacet(facet, "TestFacet");
 
         //
         // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
         // Set the callback on the admin facet.
         //
-        object propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties").servant;
+        Ice.IObject? propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties");
         if (propFacet != null)
         {
             var admin = (Ice.INativePropertiesAdmin)propFacet;

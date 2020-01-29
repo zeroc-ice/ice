@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Ice.interceptor
 {
-    internal sealed class Interceptor<T>
+    internal sealed class Interceptor : Ice.IObject
     {
-        internal Interceptor(T servant, Disp servantDisp)
+        internal Interceptor(IObject servant)
         {
             _servant = servant;
-            _servantDisp = servantDisp;
         }
 
         private static void
@@ -23,7 +22,7 @@ namespace Ice.interceptor
             }
         }
 
-        internal  Task<Ice.OutputStream>
+        public  Task<Ice.OutputStream?>?
         Dispatch(IceInternal.Incoming incoming, Current current)
         {
             try
@@ -54,7 +53,7 @@ namespace Ice.interceptor
                     {
                         try
                         {
-                            var t = _servantDisp(incoming, current);
+                            var t = _servant.Dispatch(incoming, current);
                             if (t != null && t.IsFaulted)
                             {
                                 throw t.Exception.InnerException;
@@ -80,11 +79,11 @@ namespace Ice.interceptor
                     // Retry the dispatch to ensure that abandoning the result of the dispatch
                     // works fine and is thread-safe
                     //
-                    _servantDisp(incoming, current);
-                    _servantDisp(incoming, current);
+                    _servant.Dispatch(incoming, current);
+                    _servant.Dispatch(incoming, current);
                 }
 
-                var task = _servantDisp(incoming, current);
+                var task = _servant.Dispatch(incoming, current);
                 _lastStatus = task != null;
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
@@ -131,8 +130,7 @@ namespace Ice.interceptor
             _lastStatus = false;
         }
 
-        private readonly T _servant;
-        private readonly Disp _servantDisp;
+        private readonly IObject _servant;
         private string _lastOperation;
         private bool _lastStatus = false;
     }

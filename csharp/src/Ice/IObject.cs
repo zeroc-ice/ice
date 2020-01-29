@@ -21,10 +21,61 @@ namespace Ice
         Current? GetCurrent();
     }
 
-    /// <summary>
-    /// the base interface for servants.
-    /// </summary>
+    ///<summary>The base interface for all servants.</summary>
     public interface IObject
+    {
+        // See Dispatcher.
+        public Task<OutputStream?>? Dispatch(Incoming inS, Current current)
+        {
+            // TODO: should we implement a real dispatch with an ObjectOperations<IObject>?
+            return null;
+        }
+
+        protected static void IceCheckMode(OperationMode expected, OperationMode received)
+        {
+            if (expected != received)
+            {
+                if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
+                {
+                    //
+                    // Fine: typically an old client still using the
+                    // deprecated nonmutating keyword
+                    //
+                }
+                else
+                {
+                    throw new MarshalException(
+                        $"unexpected operation mode. expected = {OperationModeToString(expected)} " +
+                        $"received = {OperationModeToString(received)}");
+
+                }
+            }
+        }
+
+        private static string OperationModeToString(OperationMode mode)
+        {
+            if (mode == OperationMode.Normal)
+            {
+                return "::Ice::Normal";
+            }
+            if (mode == OperationMode.Nonmutating)
+            {
+                return "::Ice::Nonmutating";
+            }
+
+            if (mode == OperationMode.Idempotent)
+            {
+                return "::Ice::Idempotent";
+            }
+
+            return "???";
+        }
+    }
+
+    /// <summary>
+    /// Provides the 4 built-in operations that all Ice objects implement.
+    /// </summary>
+    public interface IObjectOperations
     {
 
         /// <summary>
@@ -59,12 +110,12 @@ namespace Ice
         public string IceId(Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.StartReadParams();
             string id = istr.ReadString();
             inS.EndReadParams();
-            bool ret = obj.IceIsA(id, current);
+            bool ret = IceIsA(id, current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteBool(ret);
             inS.EndWriteParams(ostr);
@@ -72,19 +123,19 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            obj.IcePing(current);
+            IcePing(current);
             inS.SetResult(inS.WriteEmptyParams());
             return null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            string[] ret = obj.IceIds(current);
+            string[] ret = IceIds(current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteStringSeq(ret);
             inS.EndWriteParams(ostr);
@@ -93,55 +144,15 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_id(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            string ret = obj.IceId(current);
+            string ret = IceId(current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteString(ret);
             inS.EndWriteParams(ostr);
             inS.SetResult(ostr);
             return null;
-        }
-
-        private static string OperationModeToString(OperationMode mode)
-        {
-            if (mode == OperationMode.Normal)
-            {
-                return "::Ice::Normal";
-            }
-            if (mode == OperationMode.Nonmutating)
-            {
-                return "::Ice::Nonmutating";
-            }
-
-            if (mode == OperationMode.Idempotent)
-            {
-                return "::Ice::Idempotent";
-            }
-
-            return "???";
-        }
-
-        public static void IceCheckMode(OperationMode expected, OperationMode received)
-        {
-            if (expected != received)
-            {
-                if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
-                {
-                    //
-                    // Fine: typically an old client still using the
-                    // deprecated nonmutating keyword
-                    //
-                }
-                else
-                {
-                    throw new MarshalException(
-                        $"unexpected operation mode. expected = {OperationModeToString(expected)} " +
-                        $"received = {OperationModeToString(received)}");
-
-                }
-            }
         }
     }
 
@@ -150,7 +161,7 @@ namespace Ice
     /// derives a concrete servant class from Blobject that
     /// implements the Blobject.ice_invoke method.
     /// </summary>
-    public abstract class Blobject
+    public abstract class Blobject : IObject
     {
         /// <summary>
         /// Dispatch an incoming request.
@@ -177,7 +188,7 @@ namespace Ice
         }
     }
 
-    public abstract class BlobjectAsync
+    public abstract class BlobjectAsync : IObject
     {
         public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
 
@@ -197,7 +208,7 @@ namespace Ice
         }
     }
 
-    public class Object<T> : IObject
+    public class ObjectOperations<T> : IObjectOperations
     {
         private static readonly string _typeId = typeof(T).GetIceTypeId()!;
         private static readonly string[] _allTypeIds = typeof(T).GetAllIceTypeIds();

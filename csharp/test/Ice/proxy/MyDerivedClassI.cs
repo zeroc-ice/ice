@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ice.proxy
 {
-    public sealed class MyDerivedClass : Object<Test.IMyDerivedClass>, Test.IMyDerivedClass
+    public sealed class MyDerivedClass : ObjectOperations<Test.IMyDerivedClass>, Test.IMyDerivedClass
     {
 
         public IObjectPrx echo(IObjectPrx obj, Current c) => obj;

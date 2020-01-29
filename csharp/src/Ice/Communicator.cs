@@ -101,8 +101,7 @@ namespace Ice
         private ObjectAdapter? _adminAdapter;
         private readonly bool _adminEnabled = false;
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
-        private readonly Dictionary<string, (object servant, Disp disp)> _adminFacets =
-            new Dictionary<string, (object servant, Disp disp)>();
+        private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
         private Identity? _adminIdentity;
         private AsyncIOThread? _asyncIOThread;
         private readonly IceInternal.ThreadPool _clientThreadPool;
@@ -463,9 +462,7 @@ namespace Ice
                     string processFacetName = "Process";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
-                        IProcess process = new IceInternal.Process(this);
-                        Disp disp = process.Dispatch;
-                        _adminFacets.Add(processFacetName, (process, disp));
+                        _adminFacets.Add(processFacetName, new IceInternal.Process(this));
                     }
 
                     //
@@ -476,9 +473,7 @@ namespace Ice
                     {
                         ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, Logger);
                         Logger = loggerAdminLogger;
-                        ILoggerAdmin servant = loggerAdminLogger.GetFacet();
-                        Disp disp = servant.Dispatch;
-                        _adminFacets.Add(loggerFacetName, (servant, disp));
+                        _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
                     }
 
                     //
@@ -488,9 +483,7 @@ namespace Ice
                     PropertiesAdmin? propsAdmin = null;
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                     {
-                        propsAdmin = new PropertiesAdmin(this);
-                        Disp disp = propsAdmin.Dispatch;
-                        _adminFacets.Add(propertiesFacetName, (propsAdmin, disp));
+                        _adminFacets.Add(propertiesFacetName, new PropertiesAdmin(this));
                     }
 
                     //
@@ -501,9 +494,7 @@ namespace Ice
                     {
                         var communicatorObserver = new CommunicatorObserverI(this, Logger);
                         Observer = communicatorObserver;
-                        MetricsAdminI metricsAdmin = communicatorObserver.GetFacet();
-                        Disp disp = metricsAdmin.Dispatch;
-                        _adminFacets.Add(metricsFacetName, (metricsAdmin, disp));
+                        _adminFacets.Add(metricsFacetName, communicatorObserver.GetFacet());
 
                         //
                         // Make sure the admin plugin receives property updates.
@@ -617,7 +608,7 @@ namespace Ice
             }
         }
 
-        public void AddAdminFacet(object servant, Disp disp, string facet)
+        public void AddAdminFacet(IObject servant, string facet)
         {
             lock (this)
             {
@@ -635,11 +626,11 @@ namespace Ice
                 {
                     throw new ArgumentException($"A facet `{facet}' is already registered", nameof(facet));
                 }
-                _adminFacets.Add(facet, (servant, disp));
+                _adminFacets.Add(facet, servant);
                 if (_adminAdapter != null)
                 {
-                    Debug.Assert(_adminIdentity != null); // TODO: check
-                    _adminAdapter.Add(disp, _adminIdentity.Value, facet);
+                    Debug.Assert(_adminIdentity != null); // TODO: check it's true
+                    _adminAdapter.Add(servant, _adminIdentity.Value, facet);
                 }
             }
         }
@@ -1465,7 +1456,7 @@ namespace Ice
         /// </param>
         /// <returns>The servant associated with this Admin facet, or
         /// null if no facet is registered with the given name.</returns>
-        public (object servant, Disp disp) FindAdminFacet(string facet)
+        public IObject? FindAdminFacet(string facet)
         {
             lock (this)
             {
@@ -1474,9 +1465,9 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out (object servant, Disp disp) result))
+                if (!_adminFacets.TryGetValue(facet, out var result))
                 {
-                    return default;
+                    return null;
                 }
                 return result;
             }
@@ -1489,7 +1480,7 @@ namespace Ice
         /// servants of the Admin object.
         ///
         /// </returns>
-        public Dictionary<string, (object servant, Disp disp)> FindAllAdminFacets()
+        public Dictionary<string, IObject> FindAllAdminFacets()
         {
             lock (this)
             {
@@ -1497,7 +1488,7 @@ namespace Ice
                 {
                     throw new CommunicatorDestroyedException();
                 }
-                return new Dictionary<string, (object servant, Disp disp)>(_adminFacets);
+                return new Dictionary<string, IObject>(_adminFacets); // TODO, return a read-only collection
             }
         }
 
@@ -1641,7 +1632,7 @@ namespace Ice
         /// <param name="facet">The name of the Admin facet.
         /// </param>
         /// <returns>The servant associated with this Admin facet.</returns>
-        public (object servant, Disp disp) RemoveAdminFacet(string facet)
+        public IObject? RemoveAdminFacet(string facet)
         {
             lock (this)
             {
@@ -1650,7 +1641,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out (object servant, Disp disp) result))
+                if (!_adminFacets.TryGetValue(facet, out var result))
                 {
                     throw new NotRegisteredException("facet", facet);
                 }
@@ -2285,12 +2276,12 @@ namespace Ice
             lock (this)
             {
                 Debug.Assert(_adminAdapter != null);
-                foreach (KeyValuePair<string, (object servant, Disp disp)> entry in _adminFacets)
+                foreach (KeyValuePair<string, IObject> entry in _adminFacets)
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
                         Debug.Assert(_adminIdentity != null); // TODO: check
-                        _adminAdapter.Add(entry.Value.disp, _adminIdentity.Value, entry.Key);
+                        _adminAdapter.Add(entry.Value, _adminIdentity.Value, entry.Key);
                     }
                 }
             }

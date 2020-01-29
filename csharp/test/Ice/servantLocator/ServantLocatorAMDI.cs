@@ -67,7 +67,7 @@ namespace Ice.servantLocator.AMD
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            return testI.Dispatch;
+            return (testI as IObject).Dispatch;
         }
 
         public void Finished(Current current, Disp servant, object cookie)
