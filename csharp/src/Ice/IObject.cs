@@ -5,6 +5,7 @@
 using IceInternal;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Ice
@@ -27,7 +28,8 @@ namespace Ice
         // See Dispatcher.
         public Task<OutputStream?>? Dispatch(Incoming inS, Current current)
         {
-            // TODO: should we implement a real dispatch with an ObjectOperations<IObject>?
+            // TODO: switch to abstract method
+            Debug.Assert(false);
             return null;
         }
 

@@ -483,7 +483,8 @@ namespace Ice
                     PropertiesAdmin? propsAdmin = null;
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                     {
-                        _adminFacets.Add(propertiesFacetName, new PropertiesAdmin(this));
+                        propsAdmin = new PropertiesAdmin(this);
+                        _adminFacets.Add(propertiesFacetName, propsAdmin);
                     }
 
                     //
