@@ -193,7 +193,7 @@ namespace Ice
         public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream> Dispatch(Incoming incoming, Current current)
+        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
         {
             incoming.StartOver();
             byte[] inEncaps = incoming.ReadParamEncaps();
