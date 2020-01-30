@@ -3,7 +3,6 @@
 //
 
 using IceInternal;
-using IceMX; // for generated extensions
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -1466,7 +1465,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out var result))
+                if (!_adminFacets.TryGetValue(facet, out IObject result))
                 {
                     return null;
                 }
@@ -1642,7 +1641,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out var result))
+                if (!_adminFacets.TryGetValue(facet, out IObject result))
                 {
                     throw new NotRegisteredException("facet", facet);
                 }

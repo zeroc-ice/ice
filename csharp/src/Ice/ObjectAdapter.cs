@@ -406,7 +406,7 @@ namespace Ice
         /// AlreadyRegisteredException.</summary>
         /// <param name="dispatcher">The dispatcher to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
-        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
+        /// pass INamePrx.Factory for this parameter. See <see cref="CreateProxy"/>.</param>
         /// <param name="identity">The identity of the Ice object that is handled by the dispatcher. When null, the
         /// ObjectAdapter creates a new unique identity with a UUID name and empty category.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
@@ -437,7 +437,7 @@ namespace Ice
         /// AlreadyRegisteredException.</summary>
         /// <param name="dispatcher">The dispatcher to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. You should in general
-        /// pass INamePrx.Factory for this parameter. See CreateProxy.</param>
+        /// pass INamePrx.Factory for this parameter. See <see cref="CreateProxy"/>.</param>
         /// <param name="identity">The stringified identity of the Ice object that is handled by the dispatcher.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
@@ -480,9 +480,7 @@ namespace Ice
         /// <param name="identity">The identity of the Ice object that is handled by the dispatcher.</param>
         /// <param name="facet">The facet. An empty facet means the default facet.</param>
         public void Add(Disp dispatcher, string identity, string facet = "")
-        {
-            Add(dispatcher, Identity.Parse(identity), facet);
-        }
+            => Add(dispatcher, Identity.Parse(identity), facet);
 
         public void Add(IObject servant, string identity, string facet = "")
             => Add(servant.Dispatch, identity, facet);
@@ -547,10 +545,7 @@ namespace Ice
         /// Removing an identity that is not in the map throws
         /// NotRegisteredException.</param>
         /// <returns>The removed dispatcher.</returns>
-        public Disp Remove(string identity, string facet = "")
-        {
-            return Remove(Identity.Parse(identity), facet);
-        }
+        public Disp Remove(string identity, string facet = "") => Remove(Identity.Parse(identity), facet);
 
         public Disp Remove(Identity identity, string facet = "")
         {
@@ -578,10 +573,7 @@ namespace Ice
         /// dispatchers of the removed Ice object.
         ///
         /// </returns>
-        public Dictionary<string, Disp> RemoveAllFacets(string identity)
-        {
-            return RemoveAllFacets(Identity.Parse(identity));
-        }
+        public Dictionary<string, Disp> RemoveAllFacets(string identity) => RemoveAllFacets(Identity.Parse(identity));
 
         public Dictionary<string, Disp> RemoveAllFacets(Identity identity)
         {
@@ -656,9 +648,7 @@ namespace Ice
         ///
         /// </returns>
         public Dictionary<string, Disp> FindAllFacets(string identity)
-        {
-            return FindAllFacets(Identity.Parse(identity));
-        }
+            => FindAllFacets(Identity.Parse(identity));
 
         /// <summary>
         /// Find all facets with the given identity in the Active Servant
@@ -819,9 +809,7 @@ namespace Ice
         ///
         /// </returns>
         public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-        {
-            return CreateProxy(Identity.Parse(identity), factory);
-        }
+            => CreateProxy(Identity.Parse(identity), factory);
 
         /// <summary>
         /// Create a proxy for the object with the given identity.
@@ -864,9 +852,7 @@ namespace Ice
         ///
         /// </returns>
         public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-        {
-            return CreateDirectProxy(Identity.Parse(identity), factory);
-        }
+            => CreateDirectProxy(Identity.Parse(identity), factory);
 
         /// <summary>
         /// Create a direct proxy for the object with the given identity.
@@ -905,9 +891,7 @@ namespace Ice
         ///
         /// </returns>
         public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-        {
-            return CreateIndirectProxy(Identity.Parse(identity), factory);
-        }
+            => CreateIndirectProxy(Identity.Parse(identity), factory);
 
         /// <summary>
         /// Create an indirect proxy for the object with the given identity.

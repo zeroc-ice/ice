@@ -2680,7 +2680,6 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     for(const auto& op : p->allOperations())
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
         _out << nl << "case \"" << op->name() << "\":";
         _out << sb;
         _out << nl << "return servant.IceD_" << op->name() << "(incoming, current);";

@@ -3,7 +3,6 @@
 //
 
 using System.Text;
-using Ice.adapterDeactivation.Test; // for extension methods
 
 namespace Ice.adapterDeactivation
 {
