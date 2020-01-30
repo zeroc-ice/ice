@@ -2654,6 +2654,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
+    _out << nl << "// This protected static Dispatch allows a derived class to override the instance Dispatch";
+    _out << nl << "// and reuse the generated implementation.";
     _out << nl << "protected static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
         << "Dispatch(" << fixId(name) << " servant, "
         << "global::IceInternal.Incoming incoming, global::Ice.Current current)";
@@ -2681,9 +2683,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
         _out << nl << "case \"" << op->name() << "\":";
         _out << sb;
-        _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
-             << ".IceD_" << operationName(op)
-             << "(servant, incoming, current);";
+        _out << nl << "return servant.IceD_" << op->name() << "(incoming, current);";
         _out << eb;
     }
 
@@ -2853,7 +2853,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string ns = getNamespace(cl);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
-    string internalName = "IceD_" + opName;
+    string internalName = "IceD_" + operation->name();
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
@@ -2869,15 +2869,13 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     _out << sp;
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
-    _out << nl << "protected static global::System.Threading.Tasks.Task<"
+    _out << nl << "protected global::System.Threading.Tasks.Task<"
          << getUnqualified("Ice.OutputStream", ns) << "?>?";
-    _out << nl << internalName << "(" << interfaceName(cl) << " obj, "
-         << "global::IceInternal.Incoming inS, "
-         << getUnqualified("Ice.Current", ns) << " current)";
+    _out << nl << internalName << "(global::IceInternal.Incoming inS, "
+        << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
 
-    _out << nl << getUnqualified("Ice.IObject", ns) << ".IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns)
-         << ", current.Mode);";
+    _out << nl << "IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns) << ", current.Mode);";
     if(inParams.empty())
     {
         _out << nl << "inS.ReadEmptyParams();";
@@ -2894,15 +2892,16 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "inS.SetFormat(" << opFormatTypeToString(operation, ns) << ");";
     }
 
+    // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
     if(operation->hasMarshaledResult())
     {
         _out << nl << "return inS." << (amd ? "SetMarshaledResultTask" : "SetMarshaledResult");
-        _out << "(obj." << opName << (amd ? "Async" : "") << spar << getNames(inParams) << "current" << epar << ");";
+        _out << "(this." << name << spar << getNames(inParams) << "current" << epar << ");";
         _out << eb;
     }
     else if(amd)
     {
-        _out << nl << "return inS.SetResultTask" << "(obj." << opName << "Async" << spar
+        _out << nl << "return inS.SetResultTask" << "(this." << opName << "Async" << spar
              << getNames(inParams) << "current" << epar;
         if(outParams.size() > 0)
         {
@@ -2940,7 +2939,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             _out << "var " << outParams.front().name << " = ";
         }
 
-        _out << "obj." << name << spar << getNames(inParams) << "current" << epar << ";";
+        _out << "this." << name << spar << getNames(inParams) << "current" << epar << ";";
 
         if(outParams.size() == 0)
         {
