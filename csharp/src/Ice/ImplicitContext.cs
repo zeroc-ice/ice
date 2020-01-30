@@ -153,7 +153,7 @@ namespace Ice
             {
                 lock (this)
                 {
-                    ContextHelper.Write(os, _context);
+                    ContextHelper.OutputStreamWriter(os, _context);
                 }
             }
             else
@@ -163,7 +163,7 @@ namespace Ice
                 {
                     ctx = _context.Count == 0 ? prxContext : Combine(prxContext);
                 }
-                ContextHelper.Write(os, ctx);
+                ContextHelper.OutputStreamWriter(os, ctx);
             }
         }
 
@@ -341,11 +341,11 @@ namespace Ice
 
             if (threadContext == null || threadContext.Count == 0)
             {
-                ContextHelper.Write(os, prxContext);
+                ContextHelper.OutputStreamWriter(os, prxContext);
             }
             else if (prxContext.Count == 0)
             {
-                ContextHelper.Write(os, threadContext);
+                ContextHelper.OutputStreamWriter(os, threadContext);
             }
             else
             {
@@ -361,7 +361,7 @@ namespace Ice
                         // Ignore.
                     }
                 }
-                ContextHelper.Write(os, combined);
+                ContextHelper.OutputStreamWriter(os, combined);
             }
         }
 

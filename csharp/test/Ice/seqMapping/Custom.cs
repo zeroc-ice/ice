@@ -7,9 +7,17 @@ using System.Collections.Generic;
 
 namespace Ice.seqMapping
 {
-    public class Custom<T> : IEnumerable<T>
+    public class Custom<T> : IReadOnlyCollection<T>
     {
         public Custom(List<T> list) => _list = list;
+
+        public Custom(IEnumerable<T> enumerable)
+        { 
+            foreach(T v in enumerable)
+            {
+                Add(v);
+            }
+        }
 
         public Custom()
         {

@@ -5,6 +5,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Ice.stream
 {
@@ -173,10 +174,10 @@ namespace Ice.stream
 
             {
                 outS = new OutputStream(communicator);
-                Test.MyEnumHelper.Write(outS, Test.MyEnum.enum3);
+                Test.MyEnumHelper.OutputStreamWriter(outS, Test.MyEnum.enum3);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var e = Test.MyEnumHelper.Read(inS);
+                var e = Test.MyEnumHelper.InputStreamReader(inS);
                 test(e == Test.MyEnum.enum3);
             }
 
@@ -224,36 +225,36 @@ namespace Ice.stream
             {
                 bool[] arr = { true, false, true, false };
                 outS = new OutputStream(communicator);
-                BoolSeqHelper.Write(outS, arr);
+                outS.WriteBoolSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = BoolSeqHelper.Read(inS);
+                var arr2 = inS.ReadBoolArray();
                 test(Compare(arr2, arr));
 
                 bool[][] arrS = { arr, new bool[0], arr };
                 outS = new OutputStream(communicator);
-                Test.BoolSSHelper.Write(outS, arrS);
+                Test.BoolSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.BoolSSHelper.Read(inS);
+                var arr2S = Test.BoolSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
             {
                 byte[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
-                ByteSeqHelper.Write(outS, arr);
+                outS.WriteByteSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = ByteSeqHelper.Read(inS);
+                var arr2 = inS.ReadByteArray();
                 test(Compare(arr2, arr));
 
                 byte[][] arrS = { arr, new byte[0], arr };
                 outS = new OutputStream(communicator);
-                Test.ByteSSHelper.Write(outS, arrS);
+                Test.ByteSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.ByteSSHelper.Read(inS);
+                var arr2S = Test.ByteSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
@@ -271,72 +272,72 @@ namespace Ice.stream
             {
                 short[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
-                ShortSeqHelper.Write(outS, arr);
+                outS.WriteShortSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = ShortSeqHelper.Read(inS);
+                var arr2 = inS.ReadShortArray();
                 test(Compare(arr2, arr));
 
                 short[][] arrS = { arr, new short[0], arr };
                 outS = new OutputStream(communicator);
-                Test.ShortSSHelper.Write(outS, arrS);
+                Test.ShortSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.ShortSSHelper.Read(inS);
+                var arr2S = Test.ShortSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
             {
                 int[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
-                IntSeqHelper.Write(outS, arr);
+                outS.WriteIntSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = IntSeqHelper.Read(inS);
+                var arr2 = inS.ReadIntArray();
                 test(Compare(arr2, arr));
 
                 int[][] arrS = { arr, new int[0], arr };
                 outS = new OutputStream(communicator);
-                Test.IntSSHelper.Write(outS, arrS);
+                Test.IntSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.IntSSHelper.Read(inS);
+                var arr2S = Test.IntSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
             {
                 long[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
-                LongSeqHelper.Write(outS, arr);
+                outS.WriteLongSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = LongSeqHelper.Read(inS);
+                var arr2 = inS.ReadLongArray();
                 test(Compare(arr2, arr));
 
                 long[][] arrS = { arr, new long[0], arr };
                 outS = new OutputStream(communicator);
-                Test.LongSSHelper.Write(outS, arrS);
+                Test.LongSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.LongSSHelper.Read(inS);
+                var arr2S = Test.LongSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
             {
                 float[] arr = { 1, 2, 3, 4 };
                 outS = new OutputStream(communicator);
-                FloatSeqHelper.Write(outS, arr);
+                outS.WriteFloatSeq(arr);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                float[] arr2 = FloatSeqHelper.Read(inS);
+                float[] arr2 = inS.ReadFloatArray();
                 test(Compare(arr2, arr));
 
                 float[][] arrS = { arr, new float[0], arr };
                 outS = new OutputStream(communicator);
-                Test.FloatSSHelper.Write(outS, arrS);
+                Test.FloatSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.FloatSSHelper.Read(inS);
+                var arr2S = Test.FloatSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
@@ -349,36 +350,36 @@ namespace Ice.stream
                         4
                     };
                 outS = new OutputStream(communicator);
-                DoubleSeqHelper.Write(outS, arr);
+                outS.WriteDoubleSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = DoubleSeqHelper.Read(inS);
+                var arr2 = inS.ReadDoubleArray();
                 test(Compare(arr2, arr));
 
                 double[][] arrS = { arr, new double[0], arr };
                 outS = new OutputStream(communicator);
-                Test.DoubleSSHelper.Write(outS, arrS);
+                Test.DoubleSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.DoubleSSHelper.Read(inS);
+                var arr2S = Test.DoubleSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
             {
                 string[] arr = { "string1", "string2", "string3", "string4" };
                 outS = new OutputStream(communicator);
-                StringSeqHelper.Write(outS, arr);
+                outS.WriteStringSeq(arr);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = StringSeqHelper.Read(inS);
+                var arr2 = inS.ReadStringArray();
                 test(Compare(arr2, arr));
 
                 string[][] arrS = { arr, new string[0], arr };
                 outS = new OutputStream(communicator);
-                Test.StringSSHelper.Write(outS, arrS);
+                Test.StringSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.StringSSHelper.Read(inS);
+                var arr2S = Test.StringSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
@@ -390,18 +391,18 @@ namespace Ice.stream
                         Test.MyEnum.enum2
                     };
                 outS = new OutputStream(communicator);
-                Test.MyEnumSHelper.Write(outS, arr);
+                outS.WriteEnumSeq(arr, Test.MyEnumHelper.OutputStreamWriter);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2 = Test.MyEnumSHelper.Read(inS);
+                var arr2 = inS.ReaEnumArray(Test.MyEnumHelper.InputStreamReader);
                 test(Compare(arr2, arr));
 
                 Test.MyEnum[][] arrS = { arr, new Test.MyEnum[0], arr };
                 outS = new OutputStream(communicator);
-                Test.MyEnumSSHelper.Write(outS, arrS);
+                Test.MyEnumSSHelper.OutputStreamWriter(outS, arrS);
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var arr2S = Test.MyEnumSSHelper.Read(inS);
+                var arr2S = Test.MyEnumSSHelper.InputStreamReader(inS);
                 test(Compare(arr2S, arrS));
             }
 
@@ -446,12 +447,12 @@ namespace Ice.stream
             {
                 outS = new OutputStream(communicator);
                 outS.StartEncapsulation();
-                Test.MyClassSHelper.Write(outS, myClassArray);
+                outS.WriteClassSeq(myClassArray);
                 outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
-                var arr2 = Test.MyClassSHelper.Read(inS);
+                var arr2 = inS.ReadClassArray<Test.MyClass>();
                 inS.EndEncapsulation();
                 test(arr2.Length == myClassArray.Length);
                 for (int i = 0; i < arr2.Length; ++i)
@@ -475,12 +476,12 @@ namespace Ice.stream
                 Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
                 outS = new OutputStream(communicator);
                 outS.StartEncapsulation();
-                Test.MyClassSSHelper.Write(outS, arrS);
+                Test.MyClassSSHelper.OutputStreamWriter(outS, arrS);
                 outS.EndEncapsulation();
                 data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
-                var arr2S = Test.MyClassSSHelper.Read(inS);
+                var arr2S = Test.MyClassSSHelper.InputStreamReader(inS);
                 inS.EndEncapsulation();
                 test(arr2S.Length == arrS.Length);
                 test(arr2S[0].Length == arrS[0].Length);
@@ -586,10 +587,10 @@ namespace Ice.stream
                 dict.Add(4, true);
                 dict.Add(1, false);
                 outS = new OutputStream(communicator);
-                Test.ByteBoolDHelper.Write(outS, dict);
+                Test.ByteBoolDHelper.OutputStreamWriter(outS, dict);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var dict2 = Test.ByteBoolDHelper.Read(inS);
+                var dict2 = Test.ByteBoolDHelper.InputStreamReader(inS);
                 test(Collections.Equals(dict2, dict));
             }
 
@@ -598,10 +599,10 @@ namespace Ice.stream
                 dict.Add(1, 9);
                 dict.Add(4, 8);
                 outS = new OutputStream(communicator);
-                Test.ShortIntDHelper.Write(outS, dict);
+                Test.ShortIntDHelper.OutputStreamWriter(outS, dict);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var dict2 = Test.ShortIntDHelper.Read(inS);
+                var dict2 = Test.ShortIntDHelper.InputStreamReader(inS);
                 test(Collections.Equals(dict2, dict));
             }
 
@@ -610,10 +611,10 @@ namespace Ice.stream
                 dict.Add(123809828, 0.51f);
                 dict.Add(123809829, 0.56f);
                 outS = new OutputStream(communicator);
-                Test.LongFloatDHelper.Write(outS, dict);
+                Test.LongFloatDHelper.OutputStreamWriter(outS, dict);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var dict2 = Test.LongFloatDHelper.Read(inS);
+                var dict2 = Test.LongFloatDHelper.InputStreamReader(inS);
                 test(Collections.Equals(dict2, dict));
             }
 
@@ -622,10 +623,10 @@ namespace Ice.stream
                 dict.Add("key1", "value1");
                 dict.Add("key2", "value2");
                 outS = new OutputStream(communicator);
-                Test.StringStringDHelper.Write(outS, dict);
+                Test.StringStringDHelper.OutputStreamWriter(outS, dict);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var dict2 = Test.StringStringDHelper.Read(inS);
+                var dict2 = Test.StringStringDHelper.InputStreamReader(inS);
                 test(Collections.Equals(dict2, dict));
             }
 
@@ -641,12 +642,12 @@ namespace Ice.stream
                 dict.Add("key2", c);
                 outS = new OutputStream(communicator);
                 outS.StartEncapsulation();
-                Test.StringMyClassDHelper.Write(outS, dict);
+                Test.StringMyClassDHelper.OutputStreamWriter(outS, dict);
                 outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
-                var dict2 = Test.StringMyClassDHelper.Read(inS);
+                var dict2 = Test.StringMyClassDHelper.InputStreamReader(inS);
                 inS.EndEncapsulation();
                 test(dict2.Count == dict.Count);
                 test(dict2["key1"].s.e == Test.MyEnum.enum2);
@@ -658,12 +659,12 @@ namespace Ice.stream
                 outS = new OutputStream(communicator);
                 var l = new List<bool>(arr);
                 outS.StartEncapsulation();
-                Test.BoolListHelper.Write(outS, l);
+                outS.WriteBoolSeq(l);
                 outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
-                var l2 = Test.BoolListHelper.Read(inS);
+                var l2 = new List<bool>(inS.ReadBoolArray());
                 inS.EndEncapsulation();
                 test(Compare(l, l2));
             }
@@ -672,10 +673,10 @@ namespace Ice.stream
                 byte[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
                 var l = new List<byte>(arr);
-                Test.ByteListHelper.Write(outS, l);
+                outS.WriteByteSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.ByteListHelper.Read(inS);
+                var l2 = new List<byte>(inS.ReadByteArray());
                 test(Compare(l2, l));
             }
 
@@ -683,20 +684,20 @@ namespace Ice.stream
                 Test.MyEnum[] arr = { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1, Test.MyEnum.enum2 };
                 outS = new OutputStream(communicator);
                 var l = new List<Test.MyEnum>(arr);
-                Test.MyEnumListHelper.Write(outS, l);
+                outS.WriteEnumSeq(l, Test.MyEnumHelper.OutputStreamWriter);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.MyEnumListHelper.Read(inS);
+                var l2 = inS.ReadEnumList(Test.MyEnumHelper.InputStreamReader);
                 test(Compare(l2, l));
             }
 
             {
                 outS = new OutputStream(communicator);
                 var l = new List<Test.SmallStruct>(smallStructArray);
-                Test.SmallStructListHelper.Write(outS, l);
+                outS.WriteStructSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.SmallStructListHelper.Read(inS);
+                var l2 = inS.ReadList(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize);
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
                 {
@@ -708,12 +709,12 @@ namespace Ice.stream
                 outS = new OutputStream(communicator);
                 outS.StartEncapsulation();
                 var l = new List<Test.MyClass>(myClassArray);
-                Test.MyClassListHelper.Write(outS, l);
+                outS.WriteClassSeq(l);
                 outS.EndEncapsulation();
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
                 inS.StartEncapsulation();
-                var l2 = Test.MyClassListHelper.Read(inS);
+                var l2 = inS.ReadClassList<Test.MyClass>();
                 inS.EndEncapsulation();
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
@@ -741,10 +742,10 @@ namespace Ice.stream
                 arr[1] = IObjectPrx.Parse("one", communicator);
                 outS = new OutputStream(communicator);
                 var l = new List<IObjectPrx>(arr);
-                Test.MyClassProxyListHelper.Write(outS, l);
+                outS.WriteProxySeq(l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.MyClassProxyListHelper.Read(inS);
+                var l2 = inS.ReadProxyList(IObjectPrx.Factory);
                 test(Compare(l2, l));
             }
 
@@ -754,10 +755,10 @@ namespace Ice.stream
                 arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
                 outS = new OutputStream(communicator);
                 var l = new List<Test.IMyInterfacePrx>(arr);
-                Test.MyInterfaceProxyListHelper.Write(outS, l);
+                outS.WriteProxySeq(l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.MyInterfaceProxyListHelper.Read(inS);
+                var l2 = inS.ReadProxyList(Test.IMyInterfacePrx.Factory);
                 test(Compare(l2, l));
             }
 
@@ -765,42 +766,42 @@ namespace Ice.stream
                 short[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
                 var l = new LinkedList<short>(arr);
-                Test.ShortLinkedListHelper.Write(outS, l);
+                outS.WriteShortSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.ShortLinkedListHelper.Read(inS);
+                var l2 = new LinkedList<short>(inS.ReadShortArray());
                 test(Compare(l2, l));
             }
 
             {
                 int[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
-                LinkedList<int> l = new LinkedList<int>(arr);
-                Test.IntLinkedListHelper.Write(outS, l);
+                var l = new LinkedList<int>(arr);
+                outS.WriteIntSeq(l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                LinkedList<int> l2 = Test.IntLinkedListHelper.Read(inS);
+                var l2 = new LinkedList<int>(inS.ReadIntArray());
                 test(Compare(l2, l));
             }
 
             {
                 Test.MyEnum[] arr = { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1, Test.MyEnum.enum2 };
                 outS = new OutputStream(communicator);
-                LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
-                Test.MyEnumLinkedListHelper.Write(outS, l);
+                var l = new LinkedList<Test.MyEnum>(arr);
+                outS.WriteEnumSeq(l, Test.MyEnumHelper.OutputStreamWriter);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                LinkedList<Test.MyEnum> l2 = Test.MyEnumLinkedListHelper.Read(inS);
+                var l2 = new LinkedList<Test.MyEnum>(inS.ReadEnumCollection(Test.MyEnumHelper.InputStreamReader));
                 test(Compare(l2, l));
             }
 
             {
                 outS = new OutputStream(communicator);
                 var l = new LinkedList<Test.SmallStruct>(smallStructArray);
-                Test.SmallStructLinkedListHelper.Write(outS, l);
+                outS.WriteStructSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.SmallStructLinkedListHelper.Read(inS);
+                var l2 = new LinkedList<Test.SmallStruct>(inS.ReadCollection(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize));
                 test(l2.Count == l.Count);
                 var e = l.GetEnumerator();
                 var e2 = l2.GetEnumerator();
@@ -814,10 +815,10 @@ namespace Ice.stream
                 long[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 outS = new OutputStream(communicator);
                 var l = new Stack<long>(arr);
-                Test.LongStackHelper.Write(outS, l);
+                outS.WriteLongSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.LongStackHelper.Read(inS);
+                var l2 = new Stack<long>(inS.ReadLongArray().Reverse());
                 test(Compare(l2, l));
             }
 
@@ -825,20 +826,21 @@ namespace Ice.stream
                 float[] arr = { 1, 2, 3, 4 };
                 outS = new OutputStream(communicator);
                 var l = new Stack<float>(arr);
-                Test.FloatStackHelper.Write(outS, l);
+                outS.WriteFloatSeq(l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.FloatStackHelper.Read(inS);
+                var l2 = new Stack<float>(inS.ReadFloatArray().Reverse());
                 test(Compare(l2, l));
             }
 
             {
                 outS = new OutputStream(communicator);
                 var l = new Stack<Test.SmallStruct>(smallStructArray);
-                Test.SmallStructStackHelper.Write(outS, l);
+                outS.WriteStructSeq(l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.SmallStructStackHelper.Read(inS);
+                var l2 = new Stack<Test.SmallStruct>(inS.ReadCollection(
+                    Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize).Reverse());
                 test(l2.Count == l.Count);
                 var e = l.GetEnumerator();
                 var e2 = l2.GetEnumerator();
@@ -854,10 +856,10 @@ namespace Ice.stream
                 arr[1] = IObjectPrx.Parse("one", communicator);
                 outS = new OutputStream(communicator);
                 var l = new Stack<IObjectPrx>(arr);
-                Test.MyClassProxyStackHelper.Write(outS, l);
+                outS.WriteProxySeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.MyClassProxyStackHelper.Read(inS);
+                var l2 = new Stack<IObjectPrx>(inS.ReadProxyCollection(IObjectPrx.Factory).Reverse());
                 test(Compare(l2, l));
             }
 
@@ -867,10 +869,10 @@ namespace Ice.stream
                 arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
                 outS = new OutputStream(communicator);
                 var l = new Stack<Test.IMyInterfacePrx>(arr);
-                Test.MyInterfaceProxyStackHelper.Write(outS, l);
+                outS.WriteProxySeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.MyInterfaceProxyStackHelper.Read(inS);
+                var l2 = new Stack<Test.IMyInterfacePrx>(inS.ReadProxyCollection(Test.IMyInterfacePrx.Factory).Reverse());
                 test(Compare(l2, l));
             }
 
@@ -878,10 +880,10 @@ namespace Ice.stream
                 double[] arr = { 1, 2, 3, 4 };
                 outS = new OutputStream(communicator);
                 var l = new Queue<double>(arr);
-                Test.DoubleQueueHelper.Write(outS, l);
+                outS.WriteDoubleSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.DoubleQueueHelper.Read(inS);
+                var l2 = new Queue<double>(inS.ReadDoubleArray());
                 test(Compare(l2, l));
             }
 
@@ -889,20 +891,20 @@ namespace Ice.stream
                 string[] arr = { "string1", "string2", "string3", "string4" };
                 outS = new OutputStream(communicator);
                 var l = new Queue<string>(arr);
-                Test.StringQueueHelper.Write(outS, l);
+                outS.WriteStringSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.StringQueueHelper.Read(inS);
+                var l2 = new Queue<string>(inS.ReadStringCollection());
                 test(Compare(l2, l));
             }
 
             {
                 outS = new OutputStream(communicator);
                 var l = new Queue<Test.SmallStruct>(smallStructArray);
-                Test.SmallStructQueueHelper.Write(outS, l);
+                outS.WriteStructSeq(l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.SmallStructQueueHelper.Read(inS);
+                var l2 = new Queue<Test.SmallStruct>(inS.ReadCollection(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize));
                 test(l2.Count == l.Count);
                 var e = l.GetEnumerator();
                 var e2 = l2.GetEnumerator();
@@ -917,10 +919,10 @@ namespace Ice.stream
                 string[][] arrS = { arr, new string[0], arr };
                 outS = new OutputStream(communicator);
                 var l = new List<string[]>(arrS);
-                Test.StringSListHelper.Write(outS, l);
+                Test.StringSListHelper.OutputStreamWriter(outS, l);
                 byte[] data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.StringSListHelper.Read(inS);
+                var l2 = Test.StringSListHelper.InputStreamReader(inS);
                 test(Compare(l2, l));
             }
 
@@ -929,10 +931,10 @@ namespace Ice.stream
                 string[][] arrS = { arr, new string[0], arr };
                 outS = new OutputStream(communicator);
                 var l = new Stack<string[]>(arrS);
-                Test.StringSStackHelper.Write(outS, l);
+                Test.StringSStackHelper.OutputStreamWriter(outS, l);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var l2 = Test.StringSStackHelper.Read(inS);
+                var l2 = Test.StringSStackHelper.InputStreamReader(inS);
                 test(Compare(l2, l));
             }
 
@@ -941,10 +943,10 @@ namespace Ice.stream
                 dict.Add("key1", "value1");
                 dict.Add("key2", "value2");
                 outS = new OutputStream(communicator);
-                Test.SortedStringStringDHelper.Write(outS, dict);
+                Test.SortedStringStringDHelper.OutputStreamWriter(outS, dict);
                 var data = outS.Finished();
                 inS = new InputStream(communicator, data);
-                var dict2 = Test.SortedStringStringDHelper.Read(inS);
+                var dict2 = Test.SortedStringStringDHelper.InputStreamReader(inS);
                 test(Collections.Equals(dict2, dict));
             }
 

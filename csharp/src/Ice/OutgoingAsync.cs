@@ -687,7 +687,7 @@ namespace IceInternal
                 //
                 // Explicit context
                 //
-                Ice.ContextHelper.Write(Os, context);
+                Ice.ContextHelper.OutputStreamWriter(Os, context);
             }
             else
             {
@@ -699,7 +699,7 @@ namespace IceInternal
 
                 if (implicitContext == null)
                 {
-                    Ice.ContextHelper.Write(Os, prxContext);
+                    Ice.ContextHelper.OutputStreamWriter(Os, prxContext);
                 }
                 else
                 {
@@ -755,7 +755,7 @@ namespace IceInternal
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = Is.ReadStringSeq();
+                            string[] facetPath = Is.ReadStringArray();
                             string facet;
                             if (facetPath.Length > 0)
                             {

@@ -202,7 +202,7 @@ namespace Ice
 
         private string Format(string category, string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder(FormattedPrefix);
+            var s = new System.Text.StringBuilder(FormattedPrefix);
             s.Append(category);
             s.Append(": ");
             s.Append(message);
@@ -210,7 +210,7 @@ namespace Ice
             return s.ToString();
         }
 
-        private bool _console;
-        private static ConsoleListener _consoleListener = new ConsoleListener();
+        private readonly bool _console;
+        private static readonly ConsoleListener _consoleListener = new ConsoleListener();
     }
 }

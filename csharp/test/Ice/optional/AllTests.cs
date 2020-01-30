@@ -1191,9 +1191,9 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadByteSeq(), p1));
+                test(Collections.Equals(@in.ReadByteArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadByteSeq(), p1));
+                test(Collections.Equals(@in.ReadByteArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1231,9 +1231,9 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadBoolSeq(), p1));
+                test(Collections.Equals(@in.ReadBoolArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadBoolSeq(), p1));
+                test(Collections.Equals(@in.ReadBoolArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1274,10 +1274,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadShortSeq(), p1));
+                test(Collections.Equals(@in.ReadShortArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadShortSeq(), p1));
+                test(Collections.Equals(@in.ReadShortArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1317,10 +1317,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadIntSeq(), p1));
+                test(Collections.Equals(@in.ReadIntArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadIntSeq(), p1));
+                test(Collections.Equals(@in.ReadIntArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1360,10 +1360,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadLongSeq(), p1));
+                test(Collections.Equals(@in.ReadLongArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadLongSeq(), p1));
+                test(Collections.Equals(@in.ReadLongArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1403,10 +1403,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadFloatSeq(), p1));
+                test(Collections.Equals(@in.ReadFloatArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadFloatSeq(), p1));
+                test(Collections.Equals(@in.ReadFloatArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1446,10 +1446,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadDoubleSeq(), p1));
+                test(Collections.Equals(@in.ReadDoubleArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                test(Collections.Equals(@in.ReadDoubleSeq(), p1));
+                test(Collections.Equals(@in.ReadDoubleArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1490,10 +1490,10 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
                 @in.Skip(4);
-                test(Collections.Equals(@in.ReadStringSeq(), p1));
+                test(Collections.Equals(@in.ReadStringArray(), p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
                 @in.Skip(4);
-                test(Collections.Equals(@in.ReadStringSeq(), p1));
+                test(Collections.Equals(@in.ReadStringArray(), p1));
                 @in.EndEncapsulation();
 
                 @in = new InputStream(communicator, outEncaps);
@@ -1525,7 +1525,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                Test.SmallStructSeqHelper.Write(os, p1);
+                os.WriteStructSeq(p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1533,11 +1533,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                Test.SmallStruct[] arr = Test.SmallStructSeqHelper.Read(@in);
+                Test.SmallStruct[] arr = @in.ReadArray(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                arr = Test.SmallStructSeqHelper.Read(@in);
+                arr = @in.ReadArray(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
 
@@ -1574,7 +1574,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
-                Test.SmallStructListHelper.Write(os, p1);
+                os.WriteStructSeq(p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1582,11 +1582,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                List<Test.SmallStruct> arr = Test.SmallStructListHelper.Read(@in);
+                List<Test.SmallStruct> arr = @in.ReadList(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                arr = Test.SmallStructListHelper.Read(@in);
+                arr = @in.ReadList(Test.SmallStruct.IceInputStreamReader, Test.SmallStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
 
@@ -1619,7 +1619,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                Test.FixedStructSeqHelper.Write(os, p1);
+                os.WriteStructSeq(p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1627,11 +1627,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                Test.FixedStruct[] arr = Test.FixedStructSeqHelper.Read(@in);
+                Test.FixedStruct[] arr = @in.ReadArray(Test.FixedStruct.IceInputStreamReader, Test.FixedStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                arr = Test.FixedStructSeqHelper.Read(@in);
+                arr = @in.ReadArray(Test.FixedStruct.IceInputStreamReader, Test.FixedStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
 
@@ -1668,7 +1668,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
-                Test.FixedStructListHelper.Write(os, p1);
+                os.WriteStructSeq(p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1676,11 +1676,13 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.Read(@in);
+                var arr = new LinkedList<Test.FixedStruct>(
+                    @in.ReadCollection(Test.FixedStruct.IceInputStreamReader, Test.FixedStruct.IceMinWireSize));
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                arr = Test.FixedStructListHelper.Read(@in);
+                arr = new LinkedList<Test.FixedStruct>(
+                    @in.ReadCollection(Test.FixedStruct.IceInputStreamReader, Test.FixedStruct.IceMinWireSize));
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
 
@@ -1713,7 +1715,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.FSize);
                 int pos = os.StartSize();
-                Test.VarStructSeqHelper.Write(os, p1);
+                os.WriteStructSeq(p1);
                 os.EndSize(pos);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
@@ -1722,11 +1724,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
                 @in.Skip(4);
-                Test.VarStruct[] arr = Test.VarStructSeqHelper.Read(@in);
+                Test.VarStruct[] arr = @in.ReadArray(Test.VarStruct.IceInputStreamReader, Test.VarStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
                 @in.Skip(4);
-                arr = Test.VarStructSeqHelper.Read(@in);
+                arr = @in.ReadArray(Test.VarStruct.IceInputStreamReader, Test.VarStruct.IceMinWireSize);
                 test(Collections.Equals(arr, p1));
                 @in.EndEncapsulation();
 
@@ -1766,10 +1768,10 @@ namespace Ice.optional
                 var @in = new InputStream(communicator, outEncaps);
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
-                Test.SerializableClass sc = Test.SerializableHelper.Read(@in);
+                var sc = (Test.SerializableClass) @in.ReadSerializable();
                 test(sc.Equals(p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
-                sc = Test.SerializableHelper.Read(@in);
+                sc = (Test.SerializableClass)@in.ReadSerializable();
                 test(sc.Equals(p1));
                 @in.EndEncapsulation();
 
@@ -1804,7 +1806,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.VSize);
                 os.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
-                Test.IntIntDictHelper.Write(os, p1);
+                Test.IntIntDictHelper.OutputStreamWriter(os, p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1812,11 +1814,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.VSize));
                 @in.SkipSize();
-                Dictionary<int, int> m = Test.IntIntDictHelper.Read(@in);
+                Dictionary<int, int> m = Test.IntIntDictHelper.InputStreamReader(@in);
                 test(Collections.Equals(m, p1));
                 test(@in.ReadOptional(3, OptionalFormat.VSize));
                 @in.SkipSize();
-                m = Test.IntIntDictHelper.Read(@in);
+                m = Test.IntIntDictHelper.InputStreamReader(@in);
                 test(Collections.Equals(m, p1));
                 @in.EndEncapsulation();
 
@@ -1851,7 +1853,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.FSize);
                 int pos = os.StartSize();
-                Test.StringIntDictHelper.Write(os, p1);
+                Test.StringIntDictHelper.OutputStreamWriter(os, p1);
                 os.EndSize(pos);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
@@ -1860,11 +1862,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
                 @in.Skip(4);
-                Dictionary<string, int> m = Test.StringIntDictHelper.Read(@in);
+                Dictionary<string, int> m = Test.StringIntDictHelper.InputStreamReader(@in);
                 test(Collections.Equals(m, p1));
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
                 @in.Skip(4);
-                m = Test.StringIntDictHelper.Read(@in);
+                m = Test.StringIntDictHelper.InputStreamReader(@in);
                 test(Collections.Equals(m, p1));
                 @in.EndEncapsulation();
 
@@ -1920,7 +1922,7 @@ namespace Ice.optional
                 os.StartEncapsulation();
                 os.WriteOptional(2, OptionalFormat.FSize);
                 int pos = os.StartSize();
-                Test.IntOneOptionalDictHelper.Write(os, p1);
+                Test.IntOneOptionalDictHelper.OutputStreamWriter(os, p1);
                 os.EndSize(pos);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
@@ -1929,11 +1931,11 @@ namespace Ice.optional
                 @in.StartEncapsulation();
                 test(@in.ReadOptional(1, OptionalFormat.FSize));
                 @in.Skip(4);
-                Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.Read(@in);
+                Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.InputStreamReader(@in);
                 test(m[1].a == 58);
                 test(@in.ReadOptional(3, OptionalFormat.FSize));
                 @in.Skip(4);
-                m = Test.IntOneOptionalDictHelper.Read(@in);
+                m = Test.IntOneOptionalDictHelper.InputStreamReader(@in);
                 test(m[1].a == 58);
                 @in.EndEncapsulation();
 

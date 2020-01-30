@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,6 +12,13 @@ using Protocol = IceInternal.Protocol;
 
 namespace Ice
 {
+    public interface IStreamableValue<T> where T : struct // value with the value-type semantics
+    {
+        public void IceWrite(OutputStream ostr);
+    }
+
+    public delegate void OutputStreamWriter<T>(OutputStream os, T value);
+
     /// <summary>
     /// Interface for output streams used to write Slice types to a sequence of bytes.
     /// </summary>
@@ -414,62 +422,8 @@ namespace Ice
         /// <summary>
         /// Writes a byte sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteByteSeq(int count, IEnumerable<byte> v)
-        {
-            if (count == 0)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<byte> value)
-                {
-                    WriteByteSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<byte> value)
-                {
-                    WriteSize(count);
-                    Expand(count);
-                    IEnumerator<byte> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.Put(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<byte> value)
-                {
-                    WriteByteSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<byte> value)
-                {
-                    WriteByteSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count);
-            foreach (byte b in v)
-            {
-                _buf.B.Put(b);
-            }
-        }
-
+        public void WriteByteSeq(IReadOnlyCollection<byte> v) => WriteByteSeq(v.ToArray());
         /// <summary>
         /// Writes an optional byte sequence to the stream.
         /// </summary>
@@ -487,13 +441,12 @@ namespace Ice
         /// Writes an optional byte sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the byte sequence.</param>
-        public void WriteByteSeq(int tag, int count, IEnumerable<byte> v)
+        public void WriteByteSeq(int tag, IReadOnlyCollection<byte> v)
         {
             if (WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteByteSeq(count, v);
+                WriteByteSeq(v);
             }
         }
 
@@ -566,61 +519,8 @@ namespace Ice
         /// <summary>
         /// Writes a boolean sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteBoolSeq(int count, IEnumerable<bool> v)
-        {
-            if (count == 0)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<bool> value)
-                {
-                    WriteBoolSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<bool> value)
-                {
-                    WriteSize(count);
-                    Expand(count);
-                    IEnumerator<bool> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutBool(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<bool> value)
-                {
-                    WriteBoolSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<bool> value)
-                {
-                    WriteBoolSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count);
-            foreach (bool b in v)
-            {
-                _buf.B.PutBool(b);
-            }
-        }
+        public void WriteBoolSeq(IReadOnlyCollection<bool> v) => WriteBoolSeq(v.ToArray());
 
         /// <summary>
         /// Writes an optional boolean sequence to the stream.
@@ -639,13 +539,12 @@ namespace Ice
         /// Writes an optional boolean sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional boolean sequence.</param>
-        public void WriteBoolSeq<T>(int tag, int count, T? v) where T : class, IEnumerable<bool>
+        public void WriteBoolSeq(int tag, IReadOnlyCollection<bool>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
-                WriteBoolSeq(count, v);
+                WriteBoolSeq(v);
             }
         }
 
@@ -694,61 +593,8 @@ namespace Ice
         /// <summary>
         /// Writes a short sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteShortSeq(int count, IEnumerable<short> v)
-        {
-            if (count == 0)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<short> value)
-                {
-                    WriteShortSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<short> value)
-                {
-                    WriteSize(count);
-                    Expand(count * 2);
-                    IEnumerator<short> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutShort(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<short> value)
-                {
-                    WriteShortSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<short> value)
-                {
-                    WriteShortSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count * 2);
-            foreach (short s in v)
-            {
-                _buf.B.PutShort(s);
-            }
-        }
+        public void WriteShortSeq(IReadOnlyCollection<short> v) => WriteShortSeq(v.ToArray());
 
         /// <summary>
         /// Writes an optional short sequence to the stream.
@@ -768,14 +614,14 @@ namespace Ice
         /// Writes an optional short sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the short sequence.</param>
-        public void WriteShortSeq(int tag, int count, IEnumerable<short>? v)
+        public void WriteShortSeq(int tag, IReadOnlyCollection<short>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
+                int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 2) + (count > 254 ? 5 : 1));
-                WriteShortSeq(count, v);
+                WriteShortSeq(v);
             }
         }
 
@@ -831,59 +677,20 @@ namespace Ice
         /// <summary>
         /// Writes an int sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteIntSeq(int count, IEnumerable<int> v)
+        public void WriteIntSeq(IReadOnlyCollection<int> v)
         {
-            if (count == 0)
+            if (v == null)
             {
                 WriteSize(0);
-                return;
             }
-
+            else
             {
-                if (v is List<int> value)
+                WriteSize(v.Count);
+                foreach (var i in v)
                 {
-                    WriteIntSeq(value.ToArray());
-                    return;
+                    WriteInt(i);
                 }
-            }
-
-            {
-                if (v is LinkedList<int> value)
-                {
-                    WriteSize(count);
-                    Expand(count * 4);
-                    IEnumerator<int> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutInt(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<int> value)
-                {
-                    WriteIntSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<int> value)
-                {
-                    WriteIntSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count * 4);
-            foreach (int i in v)
-            {
-                _buf.B.PutInt(i);
             }
         }
 
@@ -905,12 +712,12 @@ namespace Ice
         /// Writes an optional int sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the int sequence.</param>
-        public void WriteIntSeq(int tag, int count, IEnumerable<int>? v)
+        public void WriteIntSeq(int tag, IReadOnlyCollection<int>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
+                int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
                 WriteIntSeq(count, v);
             }
@@ -961,61 +768,8 @@ namespace Ice
         /// <summary>
         /// Writes a long sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteLongSeq(int count, IEnumerable<long> v)
-        {
-            if (count == 0 || v == null)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<long> value)
-                {
-                    WriteLongSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<long> value)
-                {
-                    WriteSize(count);
-                    Expand(count * 8);
-                    IEnumerator<long> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutLong(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<long> value)
-                {
-                    WriteLongSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<long> value)
-                {
-                    WriteLongSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count * 8);
-            foreach (long l in v)
-            {
-                _buf.B.PutLong(l);
-            }
-        }
+        public void WriteLongSeq(IReadOnlyCollection<long> v) => WriteLongSeq(v.ToArray());
 
         /// <summary>
         /// Writes an optional long sequence to the stream.
@@ -1035,12 +789,12 @@ namespace Ice
         /// Writes an optional long sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the long sequence.</param>
-        public void WriteLongSeq(int tag, int count, IEnumerable<long>? v)
+        public void WriteLongSeq(int tag, IReadOnlyCollection<long>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
+                int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
                 WriteLongSeq(count, v);
             }
@@ -1091,61 +845,8 @@ namespace Ice
         /// <summary>
         /// Writes a float sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteFloatSeq(int count, IEnumerable<float> v)
-        {
-            if (count == 0)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<float> value)
-                {
-                    WriteFloatSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<float> value)
-                {
-                    WriteSize(count);
-                    Expand(count * 4);
-                    IEnumerator<float> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutFloat(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<float> value)
-                {
-                    WriteFloatSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<float> value)
-                {
-                    WriteFloatSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count * 4);
-            foreach (float f in v)
-            {
-                _buf.B.PutFloat(f);
-            }
-        }
+        public void WriteFloatSeq(IReadOnlyCollection<float> v) => WriteFloatSeq(v.ToArray());
 
         /// <summary>
         /// Writes an optional float sequence to the stream.
@@ -1165,12 +866,12 @@ namespace Ice
         /// Writes an optional float sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the float sequence.</param>
-        public void WriteFloatSeq(int tag, int count, IEnumerable<float>? v)
+        public void WriteFloatSeq(int tag, IReadOnlyCollection<float>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
+                int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
                 WriteFloatSeq(count, v);
             }
@@ -1221,61 +922,8 @@ namespace Ice
         /// <summary>
         /// Writes a double sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteDoubleSeq(int count, IEnumerable<double> v)
-        {
-            if (count == 0)
-            {
-                WriteSize(0);
-                return;
-            }
-
-            {
-                if (v is List<double> value)
-                {
-                    WriteDoubleSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is LinkedList<double> value)
-                {
-                    WriteSize(count);
-                    Expand(count * 8);
-                    IEnumerator<double> i = v.GetEnumerator();
-                    while (i.MoveNext())
-                    {
-                        _buf.B.PutDouble(i.Current);
-                    }
-                    return;
-                }
-            }
-
-            {
-                if (v is Queue<double> value)
-                {
-                    WriteDoubleSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            {
-                if (v is Stack<double> value)
-                {
-                    WriteDoubleSeq(value.ToArray());
-                    return;
-                }
-            }
-
-            WriteSize(count);
-            Expand(count * 8);
-            foreach (double d in v)
-            {
-                _buf.B.PutDouble(d);
-            }
-        }
+        public void WriteDoubleSeq(IReadOnlyCollection<double> v) => WriteDoubleSeq(v.ToArray());
 
         /// <summary>
         /// Writes an optional double sequence to the stream.
@@ -1295,12 +943,12 @@ namespace Ice
         /// Writes an optional double sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the double sequence.</param>
-        public void WriteDoubleSeq(int tag, int count, IEnumerable<double>? v)
+        public void WriteDoubleSeq(int tag, IReadOnlyCollection<double>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
+                int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
                 WriteDoubleSeq(count, v);
             }
@@ -1363,11 +1011,10 @@ namespace Ice
         /// <summary>
         /// Writes a string sequence to the stream.
         /// </summary>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteStringSeq(int count, IEnumerable<string> v)
+        public void WriteStringSeq(IReadOnlyCollection<string> v)
         {
-            WriteSize(count);
+            WriteSize(v.Count);
             foreach (string s in v)
             {
                 WriteString(s);
@@ -1393,14 +1040,13 @@ namespace Ice
         /// Writes an optional string sequence to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
-        /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the string sequence.</param>
-        public void WriteStringSeq(int tag, int count, IEnumerable<string>? v)
+        public void WriteStringSeq(int tag, IReadOnlyCollection<string>? v)
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
                 int pos = StartSize();
-                WriteStringSeq(count, v);
+                WriteStringSeq(v);
                 EndSize(pos);
             }
         }
@@ -1433,6 +1079,76 @@ namespace Ice
                 int pos = StartSize();
                 WriteProxy(v);
                 EndSize(pos);
+            }
+        }
+
+        public void WriteProxySeq<T>(T[]? v) where T : IObjectPrx
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Length);
+                foreach (T prx in v)
+                {
+                    WriteProxy(prx);
+                }
+            }
+        }
+
+        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : IObjectPrx
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Count);
+                foreach (T prx in v)
+                {
+                    WriteProxy(prx);
+                }
+            }
+        }
+
+        public void WriteProxySeq<T>(int tag, T[]? v) where T : IObjectPrx
+        {
+            if (v != null && WriteOptional(tag, OptionalFormat.FSize))
+            {
+                int pos = StartSize();
+                WriteProxySeq(v);
+                EndSize(pos);
+            }
+        }
+
+        public void WriteProxySeq<T>(int tag, IReadOnlyCollection<T>? v) where T : IObjectPrx
+        {
+            if (v != null && WriteOptional(tag, OptionalFormat.FSize))
+            {
+                int pos = StartSize();
+                WriteProxySeq(v);
+                EndSize(pos);
+            }
+        }
+
+        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableValue<T>
+        {
+            WriteSize(v.Length);
+            for (int i = 0; i < v.Length; i++)
+            {
+                v[i].IceWrite(this);
+            }
+        }
+
+        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableValue<T>
+        {
+            WriteSize(v.Count);
+            foreach (T item in v)
+            {
+                item.IceWrite(this);
             }
         }
 
@@ -1478,6 +1194,39 @@ namespace Ice
             }
         }
 
+        public void WriteEnumSeq<T>(T[]? v,  OutputStreamWriter<T> writer) where T : System.Enum
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Length);
+                foreach (T e in v)
+                {
+                    writer(this, e);
+                }
+            }
+        }
+
+        public void WriteEnumSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> writer) where T : System.Enum
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Count);
+                foreach (T e in v)
+                {
+                    writer(this, e);
+                }
+            }
+        }
+
+
         /// <summary>
         /// Writes a class instance to the stream.
         /// </summary>
@@ -1515,6 +1264,38 @@ namespace Ice
             }
         }
 
+        public void WriteClassSeq<T>(T[]? v) where T : AnyClass
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Length);
+                foreach (T c in v)
+                {
+                    WriteClass(c);
+                }
+            }
+        }
+
+        public void WriteClassSeq<T>(IReadOnlyCollection<T>? v) where T : AnyClass
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Count);
+                foreach (T c in v)
+                {
+                    WriteClass(c);
+                }
+            }
+        }
+
         /// <summary>
         /// Writes an optional class instance to the stream.
         /// </summary>
@@ -1525,6 +1306,56 @@ namespace Ice
             if (v != null && WriteOptional(tag, OptionalFormat.Class))
             {
                 WriteClass(v);
+            }
+        }
+
+        public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> write)
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Length);
+                foreach (T item in v)
+                {
+                    write(this, item);
+                }
+            }
+        }
+
+        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> elementWriter)
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Count);
+                foreach (T item in v)
+                {
+                    elementWriter(this, item);
+                }
+            }
+        }
+
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+        {
+            if (dict == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(dict.Count);
+                foreach (KeyValuePair<TKey, TValue> pair in dict)
+                {
+                    keyWriter(this, pair.Key);
+                    valueWriter(this, pair.Value);
+                }
             }
         }
 

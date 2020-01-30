@@ -203,7 +203,7 @@ namespace Ice
                                                          null,
                                                          context,
                                                          synchronous,
-                                                         read: (InputStream iss) => iss.ReadStringSeq());
+                                                         read: (InputStream iss) => iss.ReadStringArray());
         }
 
         /// <summary>

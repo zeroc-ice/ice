@@ -1221,7 +1221,7 @@ namespace Ice
             //
             // For compatibility with the old FacetPath.
             //
-            string[] facetPath = s.ReadStringSeq();
+            string[] facetPath = s.ReadStringArray();
             string facet;
             if (facetPath.Length > 0)
             {
