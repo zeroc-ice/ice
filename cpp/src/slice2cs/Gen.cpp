@@ -2649,12 +2649,18 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
         << getUnqualified("Ice.IObject", ns)
         << ".Dispatch(global::IceInternal.Incoming incoming, global::Ice.Current current)";
-    _out << sb;
+    _out.inc();
+    _out << nl << " => Dispatch(this, incoming, current);";
+    _out.dec();
 
+    _out << sp;
+    _out << nl << "protected static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
+        << "Dispatch(" << fixId(name) << " servant, "
+        << "global::IceInternal.Incoming incoming, global::Ice.Current current)";
+    _out << sb;
     _out << nl << "incoming.StartOver();";
     _out << nl << "switch(current.Operation)";
     _out << sb;
-
     StringList allOpNames;
     allOpNames.push_back("ice_id");
     allOpNames.push_back("ice_ids");
@@ -2665,7 +2671,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return (this as " << getUnqualified("Ice.IObjectOperations", ns)
+        _out << nl << "return (servant as " << getUnqualified("Ice.IObjectOperations", ns)
              << " ?? _defaultObjectOperations).IceD_" << opName << "(incoming, current);";
         _out << eb;
     }
@@ -2677,7 +2683,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "return " << getUnqualified(getNamespace(cl) + "." + interfaceName(cl), ns)
              << ".IceD_" << operationName(op)
-             << "(this, incoming, current);";
+             << "(servant, incoming, current);";
         _out << eb;
     }
 
