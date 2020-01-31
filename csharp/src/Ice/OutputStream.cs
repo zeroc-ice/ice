@@ -422,8 +422,9 @@ namespace Ice
         /// <summary>
         /// Writes a byte sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteByteSeq(IReadOnlyCollection<byte> v) => WriteByteSeq(v.ToArray());
+        /// <param name="v">The byte sequence to write to the stream.</param>
+        public void WriteByteSeq(IReadOnlyCollection<byte> v) => WriteSeq(v, (ostr, value) => ostr.WriteByte(value));
+
         /// <summary>
         /// Writes an optional byte sequence to the stream.
         /// </summary>
@@ -519,8 +520,8 @@ namespace Ice
         /// <summary>
         /// Writes a boolean sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteBoolSeq(IReadOnlyCollection<bool> v) => WriteBoolSeq(v.ToArray());
+        /// <param name="v">The boolean sequence to write to the stream.</param>
+        public void WriteBoolSeq(IReadOnlyCollection<bool> v) => WriteSeq(v, (ostr, value) => ostr.WriteBool(value));
 
         /// <summary>
         /// Writes an optional boolean sequence to the stream.
@@ -593,8 +594,8 @@ namespace Ice
         /// <summary>
         /// Writes a short sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteShortSeq(IReadOnlyCollection<short> v) => WriteShortSeq(v.ToArray());
+        /// <param name="v">The short sequence to write to the stream.</param>
+        public void WriteShortSeq(IReadOnlyCollection<short> v) => WriteSeq(v, (ostr, value) => ostr.WriteShort(value));
 
         /// <summary>
         /// Writes an optional short sequence to the stream.
@@ -677,22 +678,8 @@ namespace Ice
         /// <summary>
         /// Writes an int sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteIntSeq(IReadOnlyCollection<int> v)
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (var i in v)
-                {
-                    WriteInt(i);
-                }
-            }
-        }
+        /// <param name="v">The int sequence to write to the stream.</param>
+        public void WriteIntSeq(IReadOnlyCollection<int> v) => WriteSeq(v, (ostr, value) => ostr.WriteInt(value));
 
         /// <summary>
         /// Writes an optional int sequence to the stream.
@@ -768,8 +755,8 @@ namespace Ice
         /// <summary>
         /// Writes a long sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteLongSeq(IReadOnlyCollection<long> v) => WriteLongSeq(v.ToArray());
+        /// <param name="v">The long sequence to write to the stream.</param>
+        public void WriteLongSeq(IReadOnlyCollection<long> v) => WriteSeq(v, (ostr, value) => ostr.WriteLong(value));
 
         /// <summary>
         /// Writes an optional long sequence to the stream.
@@ -845,8 +832,8 @@ namespace Ice
         /// <summary>
         /// Writes a float sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteFloatSeq(IReadOnlyCollection<float> v) => WriteFloatSeq(v.ToArray());
+        /// <param name="v">The float sequence to write to the stream.</param>
+        public void WriteFloatSeq(IReadOnlyCollection<float> v) => WriteSeq(v, (ostr, value) => ostr.WriteFloat(value));
 
         /// <summary>
         /// Writes an optional float sequence to the stream.
@@ -922,8 +909,9 @@ namespace Ice
         /// <summary>
         /// Writes a double sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteDoubleSeq(IReadOnlyCollection<double> v) => WriteDoubleSeq(v.ToArray());
+        /// <param name="v">The double sequence to write to the stream.</param>
+        public void WriteDoubleSeq(IReadOnlyCollection<double> v) =>
+            WriteSeq(v, (ostr, value) => ostr.WriteDouble(value));
 
         /// <summary>
         /// Writes an optional double sequence to the stream.
@@ -1011,15 +999,9 @@ namespace Ice
         /// <summary>
         /// Writes a string sequence to the stream.
         /// </summary>
-        /// <param name="v">An enumerator for the container holding the sequence.</param>
-        public void WriteStringSeq(IReadOnlyCollection<string> v)
-        {
-            WriteSize(v.Count);
-            foreach (string s in v)
-            {
-                WriteString(s);
-            }
-        }
+        /// <param name="v">The string sequence to write to the stream.</param>
+        public void WriteStringSeq(IReadOnlyCollection<string> v) =>
+            WriteSeq(v, (ostr, value) => ostr.WriteString(value));
 
         /// <summary>
         /// Writes an optional string sequence to the stream.
@@ -1225,7 +1207,6 @@ namespace Ice
                 }
             }
         }
-
 
         /// <summary>
         /// Writes a class instance to the stream.
