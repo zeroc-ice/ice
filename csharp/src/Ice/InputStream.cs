@@ -31,6 +31,9 @@ namespace Ice
             Count = ins.ReadAndCheckSeqSize(minSize);
         }
 
+        // TODO: Ideally this should use a InputStream view and cache the input stream start
+        // position, so that succesivelly enumerators yield same valid results. In practice
+        // GetEnuerator should only be called once when the collection is unmarshal.
         public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);

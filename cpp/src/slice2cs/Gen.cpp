@@ -1058,7 +1058,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     _out << nl << "#nullable enable";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
-    _out << nl << "using global::System.Linq;";
     if(impl)
     {
         IceUtilInternal::structstat st;
@@ -1990,13 +1989,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
     _out << sp;
-    _out << nl << "public static Ice.OutputStreamWriter<" << name << "> OutputStreamWriter => "
-         << "(ostr, value) => ostr.WriteEnum((int)value, " << p->maxValue() << ");";
+    _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, " << name << " value) => "
+         << "ostr.WriteEnum((int)value, " << p->maxValue() << ");";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static Ice.InputStreamReader<" << name << "> InputStreamReader => "
-         << "(istr) => (" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
+    _out << nl << "public static " << name << " InputStreamReader(Ice.InputStream istr) => "
+         << "(" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
 
     _out << eb;
 }
