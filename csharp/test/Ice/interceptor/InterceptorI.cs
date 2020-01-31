@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace Ice.interceptor
 {
-    class Interceptor<T, Traits> where Traits : struct, IInterfaceTraits<T>
+    internal sealed class Interceptor : Ice.IObject
     {
-        internal Interceptor(T servant)
+        internal Interceptor(IObject servant)
         {
-            servant_ = servant;
-            traits_ = default;
+            _servant = servant;
         }
 
-        protected static void
+        private static void
         test(bool b)
         {
             if (!b)
@@ -23,7 +22,7 @@ namespace Ice.interceptor
             }
         }
 
-        public Task<Ice.OutputStream>
+        public  Task<Ice.OutputStream?>?
         Dispatch(IceInternal.Incoming incoming, Current current)
         {
             try
@@ -46,15 +45,15 @@ namespace Ice.interceptor
                     }
                 }
 
-                lastOperation_ = current.Operation;
+                _lastOperation = current.Operation;
 
-                if (lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
+                if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
                 {
                     for (int i = 0; i < 10; ++i)
                     {
                         try
                         {
-                            var t = traits_.Dispatch(servant_, incoming, current);
+                            var t = _servant.Dispatch(incoming, current);
                             if (t != null && t.IsFaulted)
                             {
                                 throw t.Exception.InnerException;
@@ -80,12 +79,12 @@ namespace Ice.interceptor
                     // Retry the dispatch to ensure that abandoning the result of the dispatch
                     // works fine and is thread-safe
                     //
-                    traits_.Dispatch(servant_, incoming, current);
-                    traits_.Dispatch(servant_, incoming, current);
+                    _servant.Dispatch(incoming, current);
+                    _servant.Dispatch(incoming, current);
                 }
 
-                var task = traits_.Dispatch(servant_, incoming, current);
-                lastStatus_ = task != null;
+                var task = _servant.Dispatch(incoming, current);
+                _lastStatus = task != null;
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
                 {
@@ -120,20 +119,19 @@ namespace Ice.interceptor
             }
         }
 
-        internal bool getLastStatus() => lastStatus_;
+        internal bool getLastStatus() => _lastStatus;
 
-        internal string getLastOperation() => lastOperation_;
+        internal string getLastOperation() => _lastOperation;
 
-        internal virtual void
+        internal void
         clear()
         {
-            lastOperation_ = null;
-            lastStatus_ = false;
+            _lastOperation = null;
+            _lastStatus = false;
         }
 
-        protected readonly T servant_;
-        protected readonly Traits traits_;
-        protected string lastOperation_;
-        protected bool lastStatus_ = false;
+        private readonly IObject _servant;
+        private string _lastOperation;
+        private bool _lastStatus = false;
     }
 }

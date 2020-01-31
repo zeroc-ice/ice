@@ -41,6 +41,7 @@ protected:
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
     void emitGeneratedCodeAttribute();
+    void emitTypeIdAttribute(const std::string&);
     void emitPartialTypeAttributes();
 
     std::string writeValue(const TypePtr&, const std::string&);

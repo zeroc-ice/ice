@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -50,8 +51,7 @@ namespace Ice.operations.AMD
         public bool ice_isA(string id, Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids.Contains(id);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -59,15 +59,13 @@ namespace Ice.operations.AMD
         public string[] ice_ids(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids;
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string ice_id(Current current)
         {
             test(current.Mode == Ice.OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Id;
+            return typeof(Test.IMyDerivedClass).GetIceTypeId();
         }
 
         public Task shutdownAsync(Current current)
@@ -254,9 +252,9 @@ namespace Ice.operations.AMD
         opMyClassAsync(Test.IMyClassPrx p1, Current current)
         {
             var p2 = p1;
-            var p3 = Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
+            var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
             return Task.FromResult(new Test.IMyClass.OpMyClassReturnValue(
-                Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
+                current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory), p2, p3));
         }
 
         public Task<Test.IMyClass.OpMyEnumReturnValue>

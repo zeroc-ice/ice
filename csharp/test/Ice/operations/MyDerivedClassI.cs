@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -25,8 +26,7 @@ namespace Ice.operations
         public bool IceIsA(string id, Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids.Contains(id);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
@@ -34,15 +34,13 @@ namespace Ice.operations
         public string[] IceIds(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Ids;
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            Test.MyDerivedClassTraits myDerivedClassT = default;
-            return myDerivedClassT.Id;
+            return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
@@ -190,9 +188,9 @@ namespace Ice.operations
 
         public Test.IMyClass.OpMyClassReturnValue opMyClass(Test.IMyClassPrx p1, Current current) =>
             new Test.IMyClass.OpMyClassReturnValue(
-                Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)),
+                current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory),
                 p1,
-                Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity")));
+                current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
 
         public Test.IMyClass.OpMyEnumReturnValue
         opMyEnum(Test.MyEnum p1, Current current)

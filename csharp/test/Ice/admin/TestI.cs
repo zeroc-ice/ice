@@ -82,7 +82,8 @@ namespace Ice.admin
             //
             try
             {
-                communicator.AddAdminFacet<ITestFacet, TestFacetTraits>(new TestFacet(), "TestFacet");
+                var testFacet = new TestFacet();
+                communicator.AddAdminFacet(testFacet, "TestFacet");
             }
             catch (System.ArgumentException)
             {
@@ -93,7 +94,7 @@ namespace Ice.admin
             // Set the callback on the admin facet.
             //
             var servant = new RemoteCommunicator(communicator);
-            var propFacet = communicator.FindAdminFacet("Properties").servant;
+            var propFacet = communicator.FindAdminFacet("Properties");
 
             if (propFacet != null)
             {
@@ -102,7 +103,7 @@ namespace Ice.admin
                 admin.AddUpdateCallback(servant.updated);
             }
 
-            return current.Adapter.Add(servant);
+            return current.Adapter.Add(servant, IRemoteCommunicatorPrx.Factory);
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

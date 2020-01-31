@@ -1642,7 +1642,7 @@ namespace Ice
 
         private Type? ResolveClass(string typeId)
         {
-            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out Type cls))
+            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out Type? cls))
             {
                 // Not found in typeIdCache
                 try

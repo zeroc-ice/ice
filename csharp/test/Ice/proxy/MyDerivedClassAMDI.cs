@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ice.proxy.AMD
 {
-    public sealed class MyDerivedClass : Object<Test.IMyDerivedClass, Test.MyDerivedClassTraits>, Test.IMyDerivedClass
+    public sealed class MyDerivedClass : ObjectOperations<Test.IMyDerivedClass>, Test.IMyDerivedClass
     {
         public Task<IObjectPrx> echoAsync(IObjectPrx obj, Current c) => Task.FromResult(obj);
 

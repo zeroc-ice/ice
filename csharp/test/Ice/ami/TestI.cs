@@ -98,7 +98,7 @@ namespace Ice.ami
         }
 
         Test.ITestIntfPrx self(Current current) =>
-            Test.ITestIntfPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id));
+            current.Adapter.CreateProxy(current.Id, Test.ITestIntfPrx.Factory);
 
         public Task
         startDispatchAsync(Ice.Current current)

@@ -10,11 +10,6 @@ namespace Ice
     [Serializable]
     public abstract class AnyClass : ICloneable
     {
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by this object.
-        /// </summary>
-        public abstract string ice_id();
-
         protected virtual SlicedData? IceSlicedData
         {
             get => null;
