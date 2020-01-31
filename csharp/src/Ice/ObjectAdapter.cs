@@ -11,7 +11,7 @@ using IceInternal;
 
 namespace Ice
 {
-    // TODO: rename Disp to Dispatcher or Servant and fix its signature
+    // TODO: rename Disp to Dispatcher and fix its signature
     public delegate Task<OutputStream?>? Disp(Incoming inS, Current current);
 
     public sealed class ObjectAdapter
