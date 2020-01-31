@@ -813,10 +813,7 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::marshalCode(const TypePtr& type,
-                                const string& scope,
-                                const string& param,
-                                const string& stream)
+Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const string& param, const string& stream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -839,6 +836,25 @@ Slice::CsGenerator::marshalCode(const TypePtr& type,
     else
     {
         out << helperName(type, scope) << ".OutputStreamWriter(" << stream << ", " << param << ")";
+    }
+    return out.str();
+}
+
+string
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, const string& param)
+{
+    ostringstream out;
+    if(BuiltinPtr::dynamicCast(type) || isProxyType(type) || isClassType(type) || StructPtr::dynamicCast(type))
+    {
+        out << "(ostr, " << param << ") => " << marshalCode(type, scope, param, "ostr");
+    }
+    else if(SequencePtr::dynamicCast(type))
+    {
+        out << sequenceOutputStreamWriter(SequencePtr::dynamicCast(type), scope, param);
+    }
+    else
+    {
+        out << helperName(type, scope) << ".OutputStreamWriter";
     }
     return out.str();
 }
@@ -1093,6 +1109,21 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     else
     {
         out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".OutputStreamWriter)";
+    }
+    return out.str();
+}
+
+string
+Slice::CsGenerator::sequenceOutputStreamWriter(const SequencePtr& seq, const string& scope, const string& param)
+{
+    ostringstream out;
+    if(!SequencePtr::dynamicCast(seq->type()) || seq->hasMetaDataWithPrefix("cs:serializable:"))
+    {
+        out << "(ostr, " << param << ") => " << sequenceMarshalCode(seq, scope, param, "ostr");
+    }
+    else
+    {
+        out << helperName(seq, scope) << ".OutputStreamWriter";
     }
     return out.str();
 }

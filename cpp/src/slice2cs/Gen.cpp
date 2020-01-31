@@ -2469,14 +2469,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         _out << sb;
         _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, " << seqS << " sequence) => ";
         _out.inc();
-        _out << nl << "ostr.WriteSeq(sequence, (ostr, value) => "
-             << sequenceMarshalCode(type, scope, "value", "ostr") << ");";
+        _out << nl << "ostr.WriteSeq(sequence, " << outputStreamWriter(type, scope, "value") << ");";
         _out.dec();
 
         _out << sp;
         _out << nl << "public static " << seqS << " InputStreamReader(Ice.InputStream istr) => ";
         _out.inc();
-        _out << sequenceUnmarshalCode(p, scope, "istr") << ";";
+        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
         _out.dec();
 
         _out << eb;
@@ -2499,8 +2498,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << "(ostr, key) => " << marshalCode(key, ns, "key", "ostr") << ", "
-         << "(ostr, value) => " << marshalCode(value, ns, "value", "ostr") << ");";
+         << outputStreamWriter(key, ns, "key") << ", "
+         << outputStreamWriter(value, ns, "value") << ");";
     _out.dec();
 
     _out << sp;
