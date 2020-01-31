@@ -2462,34 +2462,21 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         string scope = getNamespace(p);
         string seqS = typeToString(p, scope);
         SequencePtr type = SequencePtr::dynamicCast(p->type());
-        string typeS = typeToString(type, scope);
-        string generic = p->findMetaDataWithPrefix("cs:generic:");
-        if(generic == "LinkedList" || generic == "Queue" || generic == "Stack" || generic == "List")
-        {
-            generic = "System.Collections.Generic." + generic;
-        }
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static class " << p->name() << "Helper";
+        _out << nl << "public static class " << helperName(p, scope);
         _out << sb;
         _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, " << seqS << " sequence) => ";
         _out.inc();
-        _out << nl << "ostr.WriteSeq(sequence, (ostr, value) => " << sequenceMarshalCode(type, scope, "value", "ostr")
-             << ");";
+        _out << nl << "ostr.WriteSeq(sequence, (ostr, value) => "
+             << sequenceMarshalCode(type, scope, "value", "ostr") << ");";
         _out.dec();
 
         _out << sp;
         _out << nl << "public static " << seqS << " InputStreamReader(Ice.InputStream istr) => ";
         _out.inc();
-        if(generic.empty())
-        {
-            _out << nl << "istr.ReadArray(" << inputStreamReader(type, scope) << ", 1);";
-        }
-        else
-        {
-            _out << nl << "new " << seqS << "(istr.ReadCollection(" << inputStreamReader(type, scope) << ", 1));";
-        }
+        _out << sequenceUnmarshalCode(p, scope, "istr") << ";";
         _out.dec();
 
         _out << eb;
@@ -2507,7 +2494,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static class " << p->name() << "Helper";
+    _out << nl << "public static class " << helperName(p, ns);
     _out << sb;
     _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();

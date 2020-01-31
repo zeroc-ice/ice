@@ -55,6 +55,8 @@ std::string interfaceName(const ClassDefPtr&);
 std::string dataMemberName(const ParamInfo&);
 std::string dataMemberName(const DataMemberPtr&);
 
+std::string helperName(const TypePtr&, const std::string&);
+
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);

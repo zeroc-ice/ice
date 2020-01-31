@@ -70,6 +70,14 @@ Slice::dataMemberName(const DataMemberPtr& p)
     return normalizeCase(p) ? pascalCase(p->name()) : p->name();
 }
 
+std::string
+Slice::helperName(const TypePtr& type, const string& scope)
+{
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    assert(contained);
+    return getUnqualified(contained, scope, "", "Helper");
+}
+
 bool
 Slice::isNullable(const TypePtr& type)
 {
@@ -830,10 +838,7 @@ Slice::CsGenerator::marshalCode(const TypePtr& type,
     }
     else
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-        assert(constructed);
-        out << getUnqualified(constructed, scope, "", "Helper") << ".OutputStreamWriter(" << stream << ", " << param
-            << ")";
+        out << helperName(type, scope) << ".OutputStreamWriter(" << stream << ", " << param << ")";
     }
     return out.str();
 }
@@ -851,37 +856,18 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 string
 Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-
     ostringstream out;
-
-    if(isClassType(type))
+    if(isClassType(type) || isProxyType(type) || BuiltinPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
     {
-        out << "(istr) => istr.ReadClass<" << typeToString(type, scope) << ">()";
+        out << "(istr) => " << unmarshalCode(type, scope, "istr");
     }
-    else if(isProxyType(type))
+    else if(SequencePtr::dynamicCast(type))
     {
-        out << "(istr) => istr.ReadProxy(" << typeToString(type, scope) << ".Factory)";
-    }
-    else if(builtin)
-    {
-        out << "(istr) => istr.Read" << builtinTableSuffix[builtin->kind()] << "()";
-    }
-    else if(st)
-    {
-        out << "(istr) => new " << getUnqualified(st, scope) << "(istr)";
-    }
-    else if(seq)
-    {
-        out << sequenceInputStreamReader(seq, scope);
+        out << sequenceInputStreamReader(SequencePtr::dynamicCast(type), scope);
     }
     else
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-        assert(constructed);
-        out << getUnqualified(constructed, scope, "", "Helper") << ".InputStreamReader";
+        out << helperName(type, scope) << ".InputStreamReader";
     }
     return out.str();
 }
@@ -917,9 +903,7 @@ Slice::CsGenerator::unmarshalCode(const TypePtr& type, const string& scope, cons
     }
     else
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-        assert(constructed);
-        out << getUnqualified(constructed, scope, "", "Helper") << ".InputStreamReader(" << stream << ")";
+        out << helperName(type, scope) << ".InputStreamReader(" << stream << ")";
     }
     return out.str();
 }
@@ -1104,14 +1088,11 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else if(SequencePtr::dynamicCast(type))
     {
-        out << getUnqualified(seq, scope, "", "Helper") << ".OutputStreamWriter(" << stream  << ", " << param << ")";
+        out << helperName(seq, scope) << ".OutputStreamWriter(" << stream  << ", " << param << ")";
     }
     else
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-        assert(constructed);
-        out << stream << ".WriteSeq(" << param << ", " << getUnqualified(constructed, scope, "", "Helper")
-            << ".OutputStreamWriter)";
+        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".OutputStreamWriter)";
     }
     return out.str();
 }
@@ -1189,7 +1170,7 @@ Slice::CsGenerator::sequenceInputStreamReader(const SequencePtr& seq, const stri
     ostringstream out;
     if(SequencePtr::dynamicCast(seq->type()))
     {
-        out << getUnqualified(seq, scope, "", "Helper") << ".InputStreamReader";
+        out << helperName(seq, scope) << ".InputStreamReader";
     }
     else
     {
