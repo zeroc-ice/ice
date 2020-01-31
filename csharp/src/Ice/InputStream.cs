@@ -15,14 +15,14 @@ namespace Ice
 {
     public delegate T InputStreamReader<T>(InputStream ins);
 
-    public class Collection<T> : ICollection<T>, IEnumerable<T>
+    public class Collection<T> : ICollection<T>
     {
         private InputStream _ins;
         private InputStreamReader<T> _read;
 
         public int Count { get; }
 
-        public bool IsReadOnly => throw new NotSupportedException();
+        public bool IsReadOnly => true;
 
         public Collection(InputStream ins, InputStreamReader<T> read, int minSize)
         {

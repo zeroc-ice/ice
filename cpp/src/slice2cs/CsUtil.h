@@ -94,11 +94,6 @@ public:
     virtual ~CsGenerator() {};
 
     //
-    // Convert a dimension-less array declaration to one with a dimension.
-    //
-    static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
-
-    //
     // Validate all metadata in the unit with a "cs:" prefix.
     //
     static void validateMetaData(const UnitPtr&);

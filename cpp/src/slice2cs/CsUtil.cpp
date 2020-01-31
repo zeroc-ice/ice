@@ -1468,23 +1468,6 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
     }
 }
 
-string
-Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
-{
-    int count = 0;
-    string::size_type pos = decl.size();
-    while(pos > 1 && decl.substr(pos - 2, 2) == "[]")
-    {
-        ++count;
-        pos -= 2;
-    }
-    assert(count > 0);
-
-    ostringstream o;
-    o << decl.substr(0, pos) << '[' << sz << ']' << decl.substr(pos + 2);
-    return o.str();
-}
-
 void
 Slice::CsGenerator::validateMetaData(const UnitPtr& u)
 {
@@ -1674,15 +1657,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 if(s.find(csGenericPrefix) == 0)
                 {
                     string type = s.substr(csGenericPrefix.size());
-                    if(type == "LinkedList" || type == "Queue" || type == "Stack")
-                    {
-                        if(!isClassType(seq->type()))
-                        {
-                            newLocalMetaData.push_back(s);
-                            continue;
-                        }
-                    }
-                    else if(!type.empty())
+                    if(!type.empty())
                     {
                         newLocalMetaData.push_back(s);
                         continue; // Custom type or List<T>
@@ -1709,11 +1684,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
             else if(StructPtr::dynamicCast(cont))
             {
-                if(s.substr(csPrefix.size()) == "class")
-                {
-                    newLocalMetaData.push_back(s);
-                    continue;
-                }
                 if(s.substr(csPrefix.size()) == "property")
                 {
                     newLocalMetaData.push_back(s);
@@ -1757,13 +1727,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
 
             static const string csAttributePrefix = csPrefix + "attribute:";
-            static const string csTie = csPrefix + "tie";
             if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-            {
-                newLocalMetaData.push_back(s);
-                continue;
-            }
-            else if(s.find(csTie) == 0 && s.size() == csTie.size())
             {
                 newLocalMetaData.push_back(s);
                 continue;
