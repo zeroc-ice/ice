@@ -252,9 +252,9 @@ namespace Ice.operations.AMD
         opMyClassAsync(Test.IMyClassPrx p1, Current current)
         {
             var p2 = p1;
-            var p3 = Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
+            var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
             return Task.FromResult(new Test.IMyClass.OpMyClassReturnValue(
-                Test.IMyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
+                current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory), p2, p3));
         }
 
         public Task<Test.IMyClass.OpMyEnumReturnValue>

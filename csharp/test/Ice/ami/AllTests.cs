@@ -898,7 +898,7 @@ namespace Ice.ami
                 {
                     ObjectAdapter adapter = communicator.CreateObjectAdapter("");
                     PingReplyI replyI = new PingReplyI();
-                    var reply = adapter.Add(replyI);
+                    var reply = adapter.Add(replyI, IPingReplyPrx.Factory);
                     adapter.Activate();
 
                     p.GetConnection().SetAdapter(adapter);

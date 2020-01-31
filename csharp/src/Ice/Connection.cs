@@ -955,14 +955,15 @@ namespace Ice
         /// from the client.
         ///
         /// </summary>
-        /// <param name="id">The identity for which a proxy is to be created.
+        /// <param name="identity">The identity for which a proxy is to be created.
         ///
         /// </param>
         /// <returns>A proxy that matches the given identity and uses this
         /// connection.
         ///
         /// </returns>
-        public IObjectPrx CreateProxy(Identity id) => new ObjectPrx(_communicator.CreateReference(id, this));
+        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => factory(_communicator.CreateReference(identity, this));
 
         public void SetAdapterAndServantManager(ObjectAdapter adapter, ServantManager servantManager)
         {

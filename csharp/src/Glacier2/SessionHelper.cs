@@ -147,7 +147,8 @@ namespace Glacier2
                     throw new SessionNotExistException();
                 }
                 Debug.Assert(_category != null);
-                return InternalObjectAdapter().Add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
+                return InternalObjectAdapter().Add(servant, IObjectPrx.Factory,
+                    new Ice.Identity(Guid.NewGuid().ToString(), _category));
             }
         }
 

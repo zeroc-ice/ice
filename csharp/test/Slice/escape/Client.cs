@@ -111,16 +111,16 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            var p = IdecimalPrx.UncheckedCast(adapter.CreateProxy("test"));
+            var p = adapter.CreateProxy("test", IdecimalPrx.Factory);
             p.@default();
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.ITestPrx t1 = @abstract.System.ITestPrx.UncheckedCast(adapter.CreateProxy("test1"));
+            @abstract.System.ITestPrx t1 = adapter.CreateProxy("test1", @abstract.System.ITestPrx.Factory);
             t1.op();
 
-            System.ITestPrx t2 = System.ITestPrx.UncheckedCast(adapter.CreateProxy("test2"));
+            System.ITestPrx t2 = adapter.CreateProxy("test2", System.ITestPrx.Factory);
 
             t2.op();
             Console.Out.WriteLine("ok");

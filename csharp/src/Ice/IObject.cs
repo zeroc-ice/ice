@@ -5,6 +5,7 @@
 using IceInternal;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Ice
@@ -21,12 +22,93 @@ namespace Ice
         Current? GetCurrent();
     }
 
-    /// <summary>
-    /// the base interface for servants.
-    /// </summary>
+    ///<summary>The base interface for all servants.</summary>
     public interface IObject
     {
+        // See Dispatcher.
+        public Task<OutputStream?>? Dispatch(Incoming inS, Current current)
+        {
+            // TODO: switch to abstract method
+            Debug.Assert(false);
+            return null;
+        }
 
+        protected static void IceCheckMode(OperationMode expected, OperationMode received)
+        {
+            if (expected != received)
+            {
+                if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
+                {
+                    // Fine: typically an old client still using the deprecated nonmutating keyword or metadata.
+                }
+                else
+                {
+                    var expectedString = expected.ToString("G");
+                    var receivedString = received.ToString("G");
+                    throw new MarshalException(
+                        $"unexpected operation mode. expected = {expectedString} received = {receivedString}");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Base class for dynamic dispatch servants. A server application
+    /// derives a concrete servant class from Blobject that
+    /// implements the Blobject.ice_invoke method.
+    /// </summary>
+    public abstract class Blobject : IObject
+    {
+        /// <summary>
+        /// Dispatch an incoming request.
+        /// </summary>
+        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="outParams">The encoded out-paramaters and return value
+        /// for the operation. The return value follows any out-parameters.</param>
+        /// <param name="current">The Current object to pass to the operation.</param>
+        /// <returns>If the operation completed successfully, the return value
+        /// is true. If the operation raises a user exception,
+        /// the return value is false; in this case, outParams
+        /// must contain the encoded user exception. If the operation raises an
+        /// Ice run-time exception, it must throw it directly.</returns>
+        public abstract bool IceInvoke(byte[] inParams, out byte[] outParams, Current current);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
+        {
+            incoming.StartOver();
+            byte[] inEncaps = incoming.ReadParamEncaps();
+            bool ok = IceInvoke(inEncaps, out byte[] outEncaps, current);
+            incoming.SetResult(incoming.WriteParamEncaps(incoming.GetAndClearCachedOutputStream(), outEncaps, ok));
+            return null;
+        }
+    }
+
+    public abstract class BlobjectAsync : IObject
+    {
+        public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
+        {
+            incoming.StartOver();
+            byte[] inEncaps = incoming.ReadParamEncaps();
+            Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
+            OutputStream? cached = incoming.GetAndClearCachedOutputStream();
+            return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
+                {
+                    Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
+                    return Task.FromResult(incoming.WriteParamEncaps(cached, ret.OutEncaps, ret.ReturnValue));
+                },
+                TaskScheduler.Current).Unwrap();
+        }
+    }
+
+    /// <summary>
+    /// Provides the 4 built-in operations that all Ice objects implement.
+    /// </summary>
+    public interface IObjectOperations
+    {
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
@@ -59,12 +141,12 @@ namespace Ice
         public string IceId(Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.StartReadParams();
             string id = istr.ReadString();
             inS.EndReadParams();
-            bool ret = obj.IceIsA(id, current);
+            bool ret = IceIsA(id, current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteBool(ret);
             inS.EndWriteParams(ostr);
@@ -72,19 +154,19 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_ping(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            obj.IcePing(current);
+            IcePing(current);
             inS.SetResult(inS.WriteEmptyParams());
             return null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_ids(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            string[] ret = obj.IceIds(current);
+            string[] ret = IceIds(current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteStringSeq(ret);
             inS.EndWriteParams(ostr);
@@ -93,115 +175,19 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<OutputStream?>? IceD_ice_id(IObject obj, IceInternal.Incoming inS, Current current)
+        public Task<OutputStream?>? IceD_ice_id(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
-            string ret = obj.IceId(current);
+            string ret = IceId(current);
             OutputStream ostr = inS.StartWriteParams();
             ostr.WriteString(ret);
             inS.EndWriteParams(ostr);
             inS.SetResult(ostr);
             return null;
         }
-
-        private static string OperationModeToString(OperationMode mode)
-        {
-            if (mode == OperationMode.Normal)
-            {
-                return "::Ice::Normal";
-            }
-            if (mode == OperationMode.Nonmutating)
-            {
-                return "::Ice::Nonmutating";
-            }
-
-            if (mode == OperationMode.Idempotent)
-            {
-                return "::Ice::Idempotent";
-            }
-
-            return "???";
-        }
-
-        public static void IceCheckMode(OperationMode expected, OperationMode received)
-        {
-            if (expected != received)
-            {
-                if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
-                {
-                    //
-                    // Fine: typically an old client still using the
-                    // deprecated nonmutating keyword
-                    //
-                }
-                else
-                {
-                    throw new MarshalException(
-                        $"unexpected operation mode. expected = {OperationModeToString(expected)} " +
-                        $"received = {OperationModeToString(received)}");
-
-                }
-            }
-        }
     }
 
-    /// <summary>
-    /// Base class for dynamic dispatch servants. A server application
-    /// derives a concrete servant class from Blobject that
-    /// implements the Blobject.ice_invoke method.
-    /// </summary>
-    public abstract class Blobject
-    {
-        /// <summary>
-        /// Dispatch an incoming request.
-        /// </summary>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
-        /// for the operation. The return value follows any out-parameters.</param>
-        /// <param name="current">The Current object to pass to the operation.</param>
-        /// <returns>If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// must contain the encoded user exception. If the operation raises an
-        /// Ice run-time exception, it must throw it directly.</returns>
-        public abstract bool IceInvoke(byte[] inParams, out byte[] outParams, Current current);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
-        {
-            incoming.StartOver();
-            byte[] inEncaps = incoming.ReadParamEncaps();
-            bool ok = IceInvoke(inEncaps, out byte[] outEncaps, current);
-            incoming.SetResult(incoming.WriteParamEncaps(incoming.GetAndClearCachedOutputStream(), outEncaps, ok));
-            return null;
-        }
-    }
-
-    public abstract class BlobjectAsync
-    {
-        public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream> Dispatch(Incoming incoming, Current current)
-        {
-            incoming.StartOver();
-            byte[] inEncaps = incoming.ReadParamEncaps();
-            Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
-            OutputStream? cached = incoming.GetAndClearCachedOutputStream();
-            return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
-                {
-                    Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.WriteParamEncaps(cached, ret.OutEncaps, ret.ReturnValue));
-                },
-                TaskScheduler.Current).Unwrap();
-        }
-    }
-
-    public interface IInterfaceTraits<T>
-    {
-        Task<OutputStream?>? Dispatch(T servant, Incoming incoming, Current current);
-    }
-    public class Object<T> : IObject
+    public class ObjectOperations<T> : IObjectOperations
     {
         private static readonly string _typeId = typeof(T).GetIceTypeId()!;
         private static readonly string[] _allTypeIds = typeof(T).GetAllIceTypeIds();

@@ -392,7 +392,7 @@ namespace Ice.proxy
 
             if (b1.GetConnection() != null) // not colloc-optimized target
             {
-                b2 = b1.GetConnection().CreateProxy(Identity.Parse("fixed"));
+                b2 = b1.GetConnection().CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 string str = b2.ToString();
                 test(b2.ToString() == str);
                 string str2 = b1.Clone(b2.Identity).Clone(secure: b2.IsSecure).ToString();

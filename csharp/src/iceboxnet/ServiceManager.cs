@@ -279,11 +279,11 @@ namespace IceBox
                         // Add all facets created on shared communicator to the IceBox communicator
                         // but renamed <prefix>.<facet-name>, except for the Process facet which is
                         // never added.
-                        foreach (KeyValuePair<string, (object servant, Disp disp)> p in _sharedCommunicator.FindAllAdminFacets())
+                        foreach (KeyValuePair<string, IObject> p in _sharedCommunicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.AddAdminFacet(p.Value.servant, p.Value.disp, facetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(p.Value, facetNamePrefix + p.Key);
                             }
                         }
                     }
@@ -297,7 +297,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.AddAdminFacet<IServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
+                _communicator.AddAdminFacet(this, "IceBox.ServiceManager");
                 _communicator.GetAdmin();
                 if (adapter != null)
                 {
@@ -488,11 +488,11 @@ namespace IceBox
                         // Add all facets created on the service communicator to the IceBox communicator
                         // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
                         // which is never added
-                        foreach (KeyValuePair<string, (object servant, Disp disp)> p in communicator.FindAllAdminFacets())
+                        foreach (KeyValuePair<string, IObject> p in communicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.AddAdminFacet(p.Value.servant, p.Value.disp, serviceFacetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
                             }
                         }
                     }

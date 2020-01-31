@@ -67,8 +67,7 @@ namespace Ice.servantLocator
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            TestIntfTraits testT = default;
-            return (current, incoming) => testT.Dispatch(testI, current, incoming);
+            return (testI as IObject).Dispatch;
         }
 
         public void Finished(Current current, Disp servant, object cookie)

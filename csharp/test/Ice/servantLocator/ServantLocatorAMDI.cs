@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.servantLocator.AMD.Test; // for extension methods
+
 namespace Ice.servantLocator.AMD
 {
     public sealed class ServantLocator : IServantLocator
@@ -65,8 +67,7 @@ namespace Ice.servantLocator.AMD
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            Test.TestIntfTraits testT = default;
-            return (current, incoming) => testT.Dispatch(testI, current, incoming);
+            return (testI as IObject).Dispatch;
         }
 
         public void Finished(Current current, Disp servant, object cookie)

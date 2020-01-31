@@ -19,14 +19,14 @@ public class Server : TestHelper
         FindAdapterByIdAsync(string adapter, Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.Adapter.CreateDirectProxy("dummy"));
+            return Task.FromResult(current.Adapter.CreateDirectProxy("dummy", IObjectPrx.Factory));
         }
 
         public Task<IObjectPrx>
         FindObjectByIdAsync(Identity id, Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.Adapter.CreateDirectProxy(id));
+            return Task.FromResult(current.Adapter.CreateDirectProxy(id, IObjectPrx.Factory));
         }
 
         public ILocatorRegistryPrx GetRegistry(Current current) => null;

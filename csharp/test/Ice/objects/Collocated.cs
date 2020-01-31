@@ -19,7 +19,7 @@ namespace Ice.objects
             adapter.Add(new Initial(adapter), "initial");
             adapter.Add(new F2(), "F21");
             var uoet = new UnexpectedObjectExceptionTest();
-            adapter.Add((incoming, current) => uoet.Dispatch(incoming, current), "uoet");
+            adapter.Add(uoet.Dispatch, "uoet");
             Test.AllTests.allTests(this);
         }
 

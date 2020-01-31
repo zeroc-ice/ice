@@ -874,7 +874,7 @@ namespace Ice.binding
                         continue; // IP version not supported.
                     }
 
-                    var prx = oa.CreateProxy("dummy");
+                    var prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
                     {
                         prx.Clone(collocationOptimized: false).IcePing();
