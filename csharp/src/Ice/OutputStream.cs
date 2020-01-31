@@ -12,7 +12,8 @@ using Protocol = IceInternal.Protocol;
 
 namespace Ice
 {
-    public interface IStreamableValue<T> where T : struct // value with the value-type semantics
+    // TODO: rename to IStreamableStruct if we use it only for structs?
+    public interface IStreamableValue // value with the value-type semantics
     {
         public void IceWrite(OutputStream ostr);
     }
@@ -1116,7 +1117,7 @@ namespace Ice
             }
         }
 
-        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableValue<T>
+        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableValue
         {
             WriteSize(v.Length);
             for (int i = 0; i < v.Length; i++)
@@ -1125,7 +1126,7 @@ namespace Ice
             }
         }
 
-        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableValue<T>
+        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableValue
         {
             WriteSize(v.Count);
             foreach (T item in v)

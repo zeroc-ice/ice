@@ -1809,7 +1809,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << "readonly ";
     }
     _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, "
-         << getUnqualified("Ice.IStreamableValue", ns) << "<" << name << ">";
+         << getUnqualified("Ice.IStreamableValue", ns);
     _out << sb;
 
     _out << sp;
