@@ -11,15 +11,15 @@ namespace Ice.invoke
     {
         public ServantLocator() => _blobject = new BlobjectI();
 
-        public Disp
+        public IObject
         Locate(Current current, out object cookie)
         {
             cookie = null;
-            return (current, incoming) => _blobject.Dispatch(current, incoming);
+            return _blobject;
         }
 
         public void
-        Finished(Current current, Disp servant, object cookie)
+        Finished(Current current, IObject servant, object cookie)
         {
         }
 
@@ -35,15 +35,15 @@ namespace Ice.invoke
     {
         public ServantLocatorAsync() => _blobject = new BlobjectAsyncI();
 
-        public Disp
+        public IObject
         Locate(Current current, out object cookie)
         {
             cookie = null;
-            return (current, incoming) => _blobject.Dispatch(current, incoming);
+            return _blobject;
         }
 
         public void
-        Finished(Current current, Disp servant, object cookie)
+        Finished(Current current, IObject servant, object cookie)
         {
         }
 

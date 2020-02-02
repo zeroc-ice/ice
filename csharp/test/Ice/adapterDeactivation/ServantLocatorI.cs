@@ -52,7 +52,7 @@ namespace Ice.adapterDeactivation
             }
         }
 
-        public Disp Locate(Current current, out object cookie)
+        public IObject Locate(Current current, out object cookie)
         {
             lock (this)
             {
@@ -62,7 +62,7 @@ namespace Ice.adapterDeactivation
             if (current.Id.Name.Equals("router"))
             {
                 cookie = null;
-                return (_router as IObject).Dispatch;
+                return _router;
             }
 
             test(current.Id.Category.Length == 0);
@@ -71,10 +71,10 @@ namespace Ice.adapterDeactivation
             cookie = new Cookie();
 
             var testI = new TestIntf();
-            return (testI as IObject).Dispatch;
+            return testI;
         }
 
-        public void Finished(Current current, Disp servant, object cookie)
+        public void Finished(Current current, IObject servant, object cookie)
         {
             lock (this)
             {

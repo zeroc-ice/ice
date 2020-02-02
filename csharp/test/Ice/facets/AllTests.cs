@@ -73,7 +73,7 @@ namespace Ice.facets
             adapter.Add(obj1, "id2", "f1");
             adapter.Add(obj2, "id2", "f2");
             adapter.Add(obj3, "id2", "");
-            Dictionary<string, Disp> fm = adapter.RemoveAllFacets("id1");
+            Dictionary<string, IObject> fm = adapter.RemoveAllFacets("id1");
             test(fm.Count == 2);
             test(fm.ContainsKey("f1"));
             test(fm.ContainsKey("f2"));

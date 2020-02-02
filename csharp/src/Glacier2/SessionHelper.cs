@@ -138,7 +138,7 @@ namespace Glacier2
         /// <returns>The proxy for the servant. Throws SessionNotExistException
         /// if no session exists.</returns>
         public IObjectPrx
-        AddWithUUID(Disp servant)
+        AddWithUUID(IObject servant)
         {
             lock (_mutex)
             {

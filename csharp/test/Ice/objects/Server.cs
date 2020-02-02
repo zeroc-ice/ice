@@ -19,7 +19,7 @@ namespace Ice.objects
             adapter.Add(new Initial(adapter), "initial");
             adapter.Add(new F2(), "F21");
             var uoet = new UnexpectedObjectExceptionTest();
-            adapter.Add(uoet.Dispatch, "uoet");
+            adapter.Add(uoet, "uoet");
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

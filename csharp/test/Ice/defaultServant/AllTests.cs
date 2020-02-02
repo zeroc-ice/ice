@@ -16,12 +16,11 @@ namespace Ice.defaultServant
             oa.Activate();
 
             var servantI = new MyObject();
-            Disp servantD = (servantI as IObject).Dispatch;
 
             //
             // Register default servant with category "foo"
             //
-            oa.AddDefaultServant(servantD, "foo");
+            oa.AddDefaultServant(servantI, "foo");
 
             //
             // Start test
@@ -29,8 +28,8 @@ namespace Ice.defaultServant
             output.Write("testing single category... ");
             output.Flush();
 
-            Disp r = oa.FindDefaultServant("foo");
-            test(r == servantD);
+            IObject r = oa.FindDefaultServant("foo");
+            test(r == servantI);
 
             r = oa.FindDefaultServant("bar");
             test(r == null);
@@ -136,13 +135,13 @@ namespace Ice.defaultServant
             output.Write("testing default category... ");
             output.Flush();
 
-            oa.AddDefaultServant(servantD, "");
+            oa.AddDefaultServant(servantI, "");
 
             r = oa.FindDefaultServant("bar");
             test(r == null);
 
             r = oa.FindDefaultServant("");
-            test(r == servantD);
+            test(r == servantI);
 
             for (int idx = 0; idx < 5; ++idx)
             {
