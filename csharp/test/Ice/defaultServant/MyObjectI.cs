@@ -4,10 +4,9 @@
 
 namespace Ice.defaultServant
 {
-    public sealed class MyObject : ObjectOperations<Test.IMyObject>, Test.IMyObject
+    public sealed class MyObject : Test.IMyObject
     {
-        public override void
-        IcePing(Current current)
+        public void IcePing(Current current)
         {
             string name = current.Id.Name;
 
@@ -21,8 +20,7 @@ namespace Ice.defaultServant
             }
         }
 
-        public string
-        getName(Current current)
+        public string getName(Current current)
         {
             string name = current.Id.Name;
 

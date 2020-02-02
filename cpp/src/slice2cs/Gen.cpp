@@ -2635,15 +2635,22 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sb;
 
-    string defaultObjectOperationsType = getUnqualified("Ice.ObjectOperations", ns) + "<" + fixId(name) + ">";
-    _out << nl << "private static " << defaultObjectOperationsType << " _defaultObjectOperations = new "
-        << defaultObjectOperationsType << "();";
+    // The _ice prefix is in case the user "extends" the partial generated interface.
+    _out << nl << "private static readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
+        << name << "));";
+    _out << nl
+        << "private static readonly string[] _iceAllTypeIds = global::Ice.TypeExtensions.GetAllIceTypeIds(typeof("
+        << name << "));";
 
     for(const auto& op : p->operations())
     {
         writeReturnValueStruct(op);
         writeMethodDeclaration(op);
     }
+
+    _out << sp;
+    _out << nl << "string global::Ice.IObject.IceId(global::Ice.Current current) => _iceTypeId;";
+    _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
@@ -2664,6 +2671,10 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "switch(current.Operation)";
     _out << sb;
     StringList allOpNames;
+    for(const auto& op : p->allOperations())
+    {
+        allOpNames.push_back(op->name());
+    }
     allOpNames.push_back("ice_id");
     allOpNames.push_back("ice_ids");
     allOpNames.push_back("ice_isA");
@@ -2673,16 +2684,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return (servant as " << getUnqualified("Ice.IObjectOperations", ns)
-             << " ?? _defaultObjectOperations).IceD_" << opName << "(incoming, current);";
-        _out << eb;
-    }
-
-    for(const auto& op : p->allOperations())
-    {
-        _out << nl << "case \"" << op->name() << "\":";
-        _out << sb;
-        _out << nl << "return servant.IceD_" << op->name() << "(incoming, current);";
+        _out << nl << "return servant.IceD_" << opName << "(incoming, current);";
         _out << eb;
     }
 

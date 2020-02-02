@@ -33,6 +33,34 @@ namespace Ice
             return null;
         }
 
+        // The following are helper methods for generated servants.
+
+        /// <summary>
+        /// Tests whether this object can be reached.
+        /// </summary>
+        /// <param name="current">The Current object for the dispatch.</param>
+        public void IcePing(Current current)
+        {
+            // Does nothing
+        }
+
+        /// <summary>Tests whether this object supports the specified Slice interface.</summary>
+        /// <param name="typeId">The type ID of the Slice interface to test against.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <returns>True if this object implements the interface specified by typeId.</returns>
+        public bool IceIsA(string typeId, Current current)
+            => Array.BinarySearch(IceIds(current), typeId, StringComparer.Ordinal) >= 0;
+
+        /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
+        public string[] IceIds(Current current) => new string[]{ "::Ice::Object" };
+
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <returns>The Slice type ID of the most-derived interface.</returns>
+        public string IceId(Current current) => "::Ice::Object";
+
         protected static void IceCheckMode(OperationMode expected, OperationMode received)
         {
             if (expected != received)
@@ -49,6 +77,48 @@ namespace Ice
                         $"unexpected operation mode. expected = {expectedString} received = {receivedString}");
                 }
             }
+        }
+
+        protected Task<OutputStream?>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
+        {
+            inS.ReadEmptyParams();
+            IcePing(current);
+            inS.SetResult(inS.WriteEmptyParams());
+            return null;
+        }
+
+        protected Task<OutputStream?>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
+        {
+            InputStream istr = inS.StartReadParams();
+            string id = istr.ReadString();
+            inS.EndReadParams();
+            bool ret = IceIsA(id, current);
+            OutputStream ostr = inS.StartWriteParams();
+            ostr.WriteBool(ret);
+            inS.EndWriteParams(ostr);
+            return inS.SetResult(ostr)!;
+        }
+
+        protected Task<OutputStream?>? IceD_ice_id(IceInternal.Incoming inS, Current current)
+        {
+            inS.ReadEmptyParams();
+            string ret = IceId(current);
+            OutputStream ostr = inS.StartWriteParams();
+            ostr.WriteString(ret);
+            inS.EndWriteParams(ostr);
+            inS.SetResult(ostr);
+            return null;
+        }
+
+        protected Task<OutputStream?>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
+        {
+            inS.ReadEmptyParams();
+            string[] ret = IceIds(current);
+            OutputStream ostr = inS.StartWriteParams();
+            ostr.WriteStringSeq(ret);
+            inS.EndWriteParams(ostr);
+            inS.SetResult(ostr);
+            return null;
         }
     }
 
@@ -101,106 +171,6 @@ namespace Ice
                     return Task.FromResult(incoming.WriteParamEncaps(cached, ret.OutEncaps, ret.ReturnValue));
                 },
                 TaskScheduler.Current).Unwrap();
-        }
-    }
-
-    /// <summary>
-    /// Provides the 4 built-in operations that all Ice objects implement.
-    /// </summary>
-    public interface IObjectOperations
-    {
-        /// <summary>
-        /// Tests whether this object supports a specific Slice interface.
-        /// </summary>
-        ///
-        /// <param name="s">The type ID of the Slice interface to test against.</param>
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <returns>True if this object has the interface
-        /// specified by s or derives from the interface specified by s.</returns>
-        public bool IceIsA(string s, Current current);
-
-        /// <summary>
-        /// Tests whether this object can be reached.
-        /// </summary>
-        /// <param name="current">The Current object for the dispatch.</param>
-        public void IcePing(Current current);
-
-        /// <summary>
-        /// Returns the Slice type IDs of the interfaces supported by this object.
-        /// </summary>
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by this object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(Current current);
-
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by this object.
-        /// </summary>
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(Current current);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
-        {
-            InputStream istr = inS.StartReadParams();
-            string id = istr.ReadString();
-            inS.EndReadParams();
-            bool ret = IceIsA(id, current);
-            OutputStream ostr = inS.StartWriteParams();
-            ostr.WriteBool(ret);
-            inS.EndWriteParams(ostr);
-            return inS.SetResult(ostr)!;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
-        {
-            inS.ReadEmptyParams();
-            IcePing(current);
-            inS.SetResult(inS.WriteEmptyParams());
-            return null;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
-        {
-            inS.ReadEmptyParams();
-            string[] ret = IceIds(current);
-            OutputStream ostr = inS.StartWriteParams();
-            ostr.WriteStringSeq(ret);
-            inS.EndWriteParams(ostr);
-            inS.SetResult(ostr);
-            return null;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? IceD_ice_id(IceInternal.Incoming inS, Current current)
-        {
-            inS.ReadEmptyParams();
-            string ret = IceId(current);
-            OutputStream ostr = inS.StartWriteParams();
-            ostr.WriteString(ret);
-            inS.EndWriteParams(ostr);
-            inS.SetResult(ostr);
-            return null;
-        }
-    }
-
-    public class ObjectOperations<T> : IObjectOperations
-    {
-        private static readonly string _typeId = typeof(T).GetIceTypeId()!;
-        private static readonly string[] _allTypeIds = typeof(T).GetAllIceTypeIds();
-
-        public virtual string IceId(Current current) => _typeId;
-        public virtual string[] IceIds(Current current) => _allTypeIds;
-
-        public virtual bool IceIsA(string s, Current current)
-            => Array.BinarySearch(_allTypeIds, s, StringComparer.Ordinal) >= 0;
-
-        public virtual void IcePing(Current current)
-        {
-            // Nothing to do
         }
     }
 }
