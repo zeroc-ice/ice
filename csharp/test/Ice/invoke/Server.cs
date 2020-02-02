@@ -7,54 +7,6 @@ using Test;
 
 namespace Ice.invoke
 {
-    public class ServantLocator : IServantLocator
-    {
-        public ServantLocator() => _blobject = new BlobjectI();
-
-        public IObject
-        Locate(Current current, out object cookie)
-        {
-            cookie = null;
-            return _blobject;
-        }
-
-        public void
-        Finished(Current current, IObject servant, object cookie)
-        {
-        }
-
-        public void
-        Deactivate(string category)
-        {
-        }
-
-        private Blobject _blobject;
-    }
-
-    public class ServantLocatorAsync : IServantLocator
-    {
-        public ServantLocatorAsync() => _blobject = new BlobjectAsyncI();
-
-        public IObject
-        Locate(Current current, out object cookie)
-        {
-            cookie = null;
-            return _blobject;
-        }
-
-        public void
-        Finished(Current current, IObject servant, object cookie)
-        {
-        }
-
-        public void
-        Deactivate(string category)
-        {
-        }
-
-        private BlobjectAsyncI _blobject;
-    }
-
     public class Server : TestHelper
     {
         public override void run(string[] args)
@@ -65,11 +17,11 @@ namespace Ice.invoke
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             if (async)
             {
-                adapter.AddServantLocator(new ServantLocatorAsync(), "");
+                adapter.AddDefaultServant(new BlobjectAsyncI(), "");
             }
             else
             {
-                adapter.AddServantLocator(new ServantLocator(), "");
+                adapter.AddDefaultServant(new BlobjectI(), "");
             }
             adapter.Activate();
             serverReady();

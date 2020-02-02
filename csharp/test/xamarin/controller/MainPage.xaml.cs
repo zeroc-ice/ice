@@ -311,23 +311,6 @@ namespace controller
                 return new Ice.serialize.Client();
             }
 
-            else if (type.Equals("Ice.servantLocator.Client"))
-            {
-                return new Ice.servantLocator.Client();
-            }
-            else if (type.Equals("Ice.servantLocator.Collocated"))
-            {
-                return new Ice.servantLocator.Collocated();
-            }
-            else if (type.Equals("Ice.servantLocator.Server"))
-            {
-                return new Ice.servantLocator.Server();
-            }
-            else if (type.Equals("Ice.servantLocator.Serveramd"))
-            {
-                return new Ice.servantLocator.AMD.Server();
-            }
-
             else if (type.Equals("Ice.stream.Client"))
             {
                 return new Ice.stream.Client();

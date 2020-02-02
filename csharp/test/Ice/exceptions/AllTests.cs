@@ -93,25 +93,6 @@ namespace Ice.exceptions
                 output.WriteLine("ok");
             }
 
-            {
-                output.Write("testing servant locator registration exceptions... ");
-                communicator.SetProperty("TestAdapter2.Endpoints", "tcp -h *");
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter2");
-                var loc = new ServantLocator();
-                adapter.AddServantLocator(loc, "x");
-                try
-                {
-                    adapter.AddServantLocator(loc, "x");
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-
-                adapter.Deactivate();
-                output.WriteLine("ok");
-            }
-
             output.Write("testing stringToProxy... ");
             output.Flush();
             string @ref = "thrower:" + helper.getTestEndpoint(0);

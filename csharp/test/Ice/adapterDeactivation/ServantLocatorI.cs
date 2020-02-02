@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ice.adapterDeactivation
 {
-    public class Cookie
-    {
-        public string message() => "blahblah";
-    }
-
-    public class Router : IRouter
+    public sealed class Router : IRouter
     {
         public IRouter.GetClientProxyReturnValue GetClientProxy(Current current) =>
             new IRouter.GetClientProxyReturnValue(null, false);
@@ -32,16 +30,24 @@ namespace Ice.adapterDeactivation
         private int _nextPort = 23456;
     }
 
-    public sealed class ServantLocator : IServantLocator
+    public sealed class Servant : IObject
     {
-        public ServantLocator() => _deactivated = false;
+        private IRouter _router = new Router();
 
-        ~ServantLocator()
+        public Task<OutputStream?>? Dispatch(IceInternal.Incoming inS, Current current)
         {
-            lock (this)
+            IObject? servant = null;
+            if (current.Id.Name.Equals("router"))
             {
-                test(_deactivated);
+                servant = _router;
             }
+            else
+            {
+                test(current.Id.Category.Length == 0);
+                test(current.Id.Name.Equals("test"));
+                servant = new TestIntf();
+            }
+            return servant.Dispatch(inS, current);
         }
 
         private static void test(bool b)
@@ -51,55 +57,5 @@ namespace Ice.adapterDeactivation
                 throw new System.Exception();
             }
         }
-
-        public IObject Locate(Current current, out object cookie)
-        {
-            lock (this)
-            {
-                test(!_deactivated);
-            }
-
-            if (current.Id.Name.Equals("router"))
-            {
-                cookie = null;
-                return _router;
-            }
-
-            test(current.Id.Category.Length == 0);
-            test(current.Id.Name.Equals("test"));
-
-            cookie = new Cookie();
-
-            var testI = new TestIntf();
-            return testI;
-        }
-
-        public void Finished(Current current, IObject servant, object cookie)
-        {
-            lock (this)
-            {
-                test(!_deactivated);
-            }
-
-            if (current.Id.Name.Equals("router"))
-            {
-                return;
-            }
-
-            var co = (Cookie)cookie;
-            test(co.message().Equals("blahblah"));
-        }
-
-        public void Deactivate(string category)
-        {
-            lock (this)
-            {
-                test(!_deactivated);
-                _deactivated = true;
-            }
-        }
-
-        private bool _deactivated;
-        private Router _router = new Router();
     }
 }
