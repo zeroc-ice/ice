@@ -12,8 +12,7 @@ using Protocol = IceInternal.Protocol;
 
 namespace Ice
 {
-    // TODO: rename to IStreamableStruct if we use it only for structs?
-    public interface IStreamableValue // value with the value-type semantics
+    public interface IStreamableStruct // value with the value-type semantics
     {
         public void IceWrite(OutputStream ostr);
     }
@@ -1117,7 +1116,7 @@ namespace Ice
             }
         }
 
-        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableValue
+        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableStruct
         {
             WriteSize(v.Length);
             for (int i = 0; i < v.Length; i++)
@@ -1126,7 +1125,7 @@ namespace Ice
             }
         }
 
-        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableValue
+        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableStruct
         {
             WriteSize(v.Count);
             foreach (T item in v)
@@ -1140,40 +1139,18 @@ namespace Ice
         /// </summary>
         /// <param name="v">The enumerator.</param>
         /// <param name="maxValue">The maximum enumerator value in the definition.</param>
-        public void WriteEnum(int v, int maxValue)
-        {
-            if (Encoding.Equals(Util.Encoding_1_0))
-            {
-                if (maxValue < 127)
-                {
-                    WriteByte((byte)v);
-                }
-                else if (maxValue < 32767)
-                {
-                    WriteShort((short)v);
-                }
-                else
-                {
-                    WriteInt(v);
-                }
-            }
-            else
-            {
-                WriteSize(v);
-            }
-        }
+        public void WriteEnum(int v) => WriteSize(v);
 
         /// <summary>
         /// Writes an optional enumerator to the stream.
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The enumerator.</param>
-        /// <param name="maxValue">The maximum enumerator value in the definition.</param>
-        public void WriteEnum(int tag, int? v, int maxValue)
+        public void WriteEnum(int tag, int? v)
         {
             if (v is int value && WriteOptional(tag, OptionalFormat.Size))
             {
-                WriteEnum(value, maxValue);
+                WriteEnum(value);
             }
         }
 

@@ -923,7 +923,7 @@ namespace Ice.optional
 
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
-                os.WriteEnum(2, (int?)p1, 0);
+                os.WriteEnum(2, (int?)p1);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 initial.Invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);

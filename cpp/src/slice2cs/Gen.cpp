@@ -1809,13 +1809,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << "readonly ";
     }
     _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, "
-         << getUnqualified("Ice.IStreamableValue", ns);
+         << getUnqualified("Ice.IStreamableStruct", ns);
     _out << sb;
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static Ice.InputStreamReader<" << name
-         << "> IceRead => (Ice.InputStream istr) => new " << name << "(istr);";
+    _out << nl << "public static " << name << " IceRead(Ice.InputStream istr) => new " << name << "(istr);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1944,7 +1943,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public void IceWrite(" << getUnqualified("Ice.OutputStream", ns) << " iceP_ostr)";
+    _out << nl << "public readonly void IceWrite(" << getUnqualified("Ice.OutputStream", ns) << " iceP_ostr)";
     _out << sb;
     for(auto m : dataMembers)
     {
@@ -1988,14 +1987,45 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
+    if(explicitValue)
+    {
+        _out << sp;
+        _out << nl << "public static readonly global::System.Collections.Generic.HashSet<int> EnumeratorValues = ";
+        _out.inc();
+        _out << nl << "new global::System.Collections.Generic.HashSet<int>()";
+        _out.spar('{');
+        for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+        {
+            _out << (*en)->value();
+        }
+        _out.epar('}');
+        _out << ";";
+        _out.dec();
+    }
+
     _out << sp;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name << " value) => "
-         << "ostr.WriteEnum((int)value, " << p->maxValue() << ");";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name
+         << " value) => ostr.WriteSize((int)value);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " Read(Ice.InputStream istr) => "
-         << "(" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
+    _out << nl << "public static " << name << " Read(Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << "int value = istr.ReadSize();";
+    if(explicitValue)
+    {
+        _out << nl << "if(!EnumeratorValues.Contains(value))";
+    }
+    else
+    {
+        _out << nl << "if(value < 0 || value > " << p->maxValue() << ")";
+    }
+    _out << sb;
+    _out << nl << "throw new Ice.MarshalException($\"invalid enumerator value `{value}' for " << fixId(p->scoped())
+         << "\");";
+    _out << eb;
+    _out << nl << "return (" << name << ") value;";
+    _out << eb;
 
     _out << eb;
 }

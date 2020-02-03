@@ -976,8 +976,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     {
         out << nl << "if(" << param << " is " << typeToString(en, scope) << ")";
         out << sb;
-        out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value, " << en->enumerators().size()
-            << ");";
+        out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value);";
         out << eb;
     }
     else if(seq)
