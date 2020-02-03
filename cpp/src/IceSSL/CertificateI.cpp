@@ -221,14 +221,14 @@ CertificateI::operator!=(const IceSSL::Certificate& other) const
 vector<X509ExtensionPtr>
 CertificateI::getX509Extensions() const
 {
-    loadX509Extensions(); // Lazzy initialize the extensions
+    loadX509Extensions(); // Lazy initialize the extensions
     return _extensions;
 }
 
 X509ExtensionPtr
 CertificateI::getX509Extension(const string& oid) const
 {
-    loadX509Extensions(); // Lazzy initialize the extensions
+    loadX509Extensions(); // Lazy initialize the extensions
     X509ExtensionPtr ext;
     for(vector<X509ExtensionPtr>::const_iterator i = _extensions.begin(); i != _extensions.end(); ++i)
     {

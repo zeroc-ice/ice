@@ -3,7 +3,6 @@
 % This exception indicates a problem with compressing or uncompressing data.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef CompressionException < Ice.ProtocolException
     methods

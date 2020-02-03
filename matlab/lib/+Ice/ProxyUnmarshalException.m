@@ -3,7 +3,6 @@
 % This exception is raised if inconsistent data is received while unmarshaling a proxy.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef ProxyUnmarshalException < Ice.MarshalException
     methods

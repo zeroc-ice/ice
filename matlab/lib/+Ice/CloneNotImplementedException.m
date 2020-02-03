@@ -9,7 +9,6 @@
 % provide an implementation of the ice_clone operation (C++ only).
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef CloneNotImplementedException < Ice.LocalException
     methods

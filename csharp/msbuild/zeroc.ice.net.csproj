@@ -10,14 +10,14 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.3</PackageVersion>
+        <PackageVersion>4.0.0-alpha.0</PackageVersion>
         <Authors>ZeroC</Authors>
         <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
         <PackageIcon>logo.png</PackageIcon>
         <Copyright>Copyright (c) ZeroC, Inc. All rights reserved</Copyright>
         <Description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</Description>
-        <PackageReleaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.3+Release+Notes</PackageReleaseNotes>
+        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-4-0/ice-4-0-0-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
     </PropertyGroup>

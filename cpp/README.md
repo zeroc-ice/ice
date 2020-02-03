@@ -66,7 +66,7 @@ bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux Application
 ZeroC provide RPM packages for expat, LDMB and mcpp. You can install these packages
 as shown below:
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo.3.7.aix7.2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/4.0/aix7.2/ice-repo.4.0.aix7.2.noarch.rpm
 sudo yum install expat-devel lmdb-devel mcpp-devel
 ```
 
@@ -82,23 +82,23 @@ that do not include them. You can install these packages as shown below:
 
 ##### Amazon Linux 2
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/amzn2/ice-repo.3.7.amzn2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/4.0/amzn2/ice-repo.4.0.amzn2.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 8
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/el8/ice-repo.3.7.el8.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/4.0/el8/ice-repo.4.0.el8.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 7
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/el7/ice-repo.3.7.el7.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/4.0/el7/ice-repo.4.0.el7.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### SLES 12
 ```
-wget https://zeroc.com/download/ice/3.7/suse/zeroc-ice3.7.repo
-sudo zypper addrepo zeroc-ice3.7.repo
+wget https://zeroc.com/download/ice/4.0/suse/zeroc-ice4.0.repo
+sudo zypper addrepo zeroc-ice4.0.repo
 sudo sudo rpm --import https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo zypper install mcpp-devel
 ```
@@ -541,7 +541,7 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
+[2]: https://doc.zeroc.com/ice/4.0/release-notes/supported-platforms-for-ice-4-0-0
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/

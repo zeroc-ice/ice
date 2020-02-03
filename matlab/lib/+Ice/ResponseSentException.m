@@ -4,7 +4,6 @@
 % re-dispatching such a request is not possible.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef ResponseSentException < Ice.LocalException
     methods

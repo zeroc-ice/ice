@@ -96,15 +96,15 @@ nodejs := $(shell command -v node 2> /dev/null)
 #
 # Languages, platforms and configurations to build
 #
-supported-languages     ?= $(strip cpp cpp98 java python \
+supported-languages     ?= $(strip cpp java \
                                    $(if $(filter %/node,$(nodejs)),js) \
                                    $(if $(filter %/dotnet,$(dotnet)),csharp) \
                                    $(if $(filter Darwin,$(os)), swift))
 supported-configs       ?= shared
 
-version                 = 3.7.3
-mmversion               = 3.7
-soversion               = 37
+version                 = 4.0.0-alpha.0
+mmversion               = 4.0
+soversion               = 40a0
 
 #
 # The compatversion is the lowest patch release with the same API.
@@ -147,8 +147,7 @@ use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),\
 bindir                  = $(if $(use-bin-dist),$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
 libdir                  = $(if $(use-bin-dist),$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
 includedir              = $(if $(use-bin-dist),$(ice_includedir),$(call mappingdir,$(or $1,$(currentdir)),include))
-## TODO WORKAROUND to use Slice files from cpp98/slice
-slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(if $(filter %/cpp98,$(lang_srcdir)),$(top_srcdir)/cpp98/slice,$(top_srcdir)/slice))
+slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(top_srcdir)/slice)
 sdkdir                  = $(if $(use-bin-dist),$(ice_home)/sdk,$(top_srcdir)/sdk)
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 

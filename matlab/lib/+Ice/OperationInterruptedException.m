@@ -3,7 +3,6 @@
 % This exception indicates a request was interrupted.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef OperationInterruptedException < Ice.LocalException
     methods

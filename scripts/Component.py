@@ -201,16 +201,7 @@ class Ice(Component):
 
     def getSoVersion(self):
         with open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r") as config:
-            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
-            majorVersion = int(intVersion / 10000)
-            minorVersion = int(intVersion / 100) - 100 * majorVersion
-            patchVersion = intVersion % 100
-            if patchVersion < 50:
-                return '%d' % (majorVersion * 10 + minorVersion)
-            elif patchVersion < 60:
-                return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-            else:
-                return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+            return re.search("ICE_SO_VERSION \"([0-9ab]+)\"", config.read()).group(1)
 
 component = Ice()
 
@@ -226,12 +217,11 @@ from IceStormUtil import *
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping(), component)
-    elif m == "cpp98" or re.match("cpp98-.*", m):
-        Mapping.add(m, Cpp98Mapping(), component)
     elif m == "java" or re.match("java-.*", m):
         Mapping.add(m, JavaMapping(), component)
-    elif m == "python" or re.match("python-.*", m):
-        Mapping.add(m, PythonMapping(), component)
+#    TODO temporarily disabled testing of Python mapping.
+#    elif m == "python" or re.match("python-.*", m):
+#        Mapping.add(m, PythonMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
@@ -243,8 +233,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
-    if platform.getCompiler() not in ["v141"]:
-        Mapping.disable("python")
+#    TODO temporarily disabled testing of Python mapping.
+#    if platform.getCompiler() not in ["v141"]:
+#        Mapping.disable("python")
     if platform.getCompiler() not in ["v142"]:
         Mapping.disable("csharp")
 #

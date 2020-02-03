@@ -6,7 +6,6 @@
 %   proxy - The stringified proxy for which no suitable endpoint is available.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef NoEndpointException < Ice.LocalException
     properties

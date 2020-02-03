@@ -47,11 +47,7 @@ interface Router
      * @return The router's client proxy.
      *
      **/
-#ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping
-    ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
-#else
     ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
-#endif
 
     /**
      *

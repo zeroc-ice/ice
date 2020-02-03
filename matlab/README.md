@@ -127,12 +127,12 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 ##### Running the Automated Tests
 
-Assuming you've installed Ice for Python, run `allTests.py`:
+Assuming you've built Ice for Java, run `allTests.py`:
 ```
 python allTests.py
 ```
 
-This script automatically starts a Python server for each MATLAB client.
+This script automatically starts a Java server for each MATLAB client.
 MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
 

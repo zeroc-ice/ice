@@ -4,7 +4,6 @@
 % the server host actively refuses a connection.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef ConnectionRefusedException < Ice.ConnectFailedException
     methods

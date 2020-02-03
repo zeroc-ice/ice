@@ -2,10 +2,9 @@
 <!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <IceVersion>3.7.3</IceVersion>
-    <IceIntVersion>30703</IceIntVersion>
-    <IceVersionMM>3.7</IceVersionMM>
-    <IceSoVersion>37</IceSoVersion>
-    <IceJSONVersion>3.7.3</IceJSONVersion>
+    <IceVersion>4.0.0-alpha.0</IceVersion>
+    <IceIntVersion>40000</IceIntVersion>
+    <IceVersionMM>4.0</IceVersionMM>
+    <IceSoVersion>40a0</IceSoVersion>
   </PropertyGroup>
 </Project>
