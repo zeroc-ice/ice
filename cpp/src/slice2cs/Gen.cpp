@@ -1815,7 +1815,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public static Ice.InputStreamReader<" << name
-         << "> IceInputStreamReader => (Ice.InputStream istr) => new " << name << "(istr);";
+         << "> IceRead => (Ice.InputStream istr) => new " << name << "(istr);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1989,12 +1989,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
     _out << sp;
-    _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, " << name << " value) => "
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name << " value) => "
          << "ostr.WriteEnum((int)value, " << p->maxValue() << ");";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " InputStreamReader(Ice.InputStream istr) => "
+    _out << nl << "public static " << name << " Read(Ice.InputStream istr) => "
          << "(" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
 
     _out << eb;
@@ -2467,13 +2467,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public static class " << helperName(p, scope);
         _out << sb;
-        _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, " << seqS << " sequence) => ";
+        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
         _out.inc();
         _out << nl << "ostr.WriteSeq(sequence, " << outputStreamWriter(type, scope, "value") << ");";
         _out.dec();
 
         _out << sp;
-        _out << nl << "public static " << seqS << " InputStreamReader(Ice.InputStream istr) => ";
+        _out << nl << "public static " << seqS << " Read(Ice.InputStream istr) => ";
         _out.inc();
         _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
         _out.dec();
@@ -2495,7 +2495,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << helperName(p, ns);
     _out << sb;
-    _out << nl << "public static void OutputStreamWriter(Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
          << outputStreamWriter(key, ns, "key") << ", "
@@ -2503,7 +2503,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static " << dictS << " InputStreamReader(Ice.InputStream istr) => ";
+    _out << nl << "public static " << dictS << " Read(Ice.InputStream istr) => ";
     _out.inc();
     if(generic == "SortedDictionary")
     {

@@ -687,7 +687,7 @@ namespace IceInternal
                 //
                 // Explicit context
                 //
-                Ice.ContextHelper.OutputStreamWriter(Os, context);
+                Ice.ContextHelper.Write(Os, context);
             }
             else
             {
@@ -699,7 +699,7 @@ namespace IceInternal
 
                 if (implicitContext == null)
                 {
-                    Ice.ContextHelper.OutputStreamWriter(Os, prxContext);
+                    Ice.ContextHelper.Write(Os, prxContext);
                 }
                 else
                 {

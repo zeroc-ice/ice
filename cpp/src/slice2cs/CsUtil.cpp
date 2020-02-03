@@ -835,7 +835,7 @@ Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const 
     }
     else
     {
-        out << helperName(type, scope) << ".OutputStreamWriter(" << stream << ", " << param << ")";
+        out << helperName(type, scope) << ".Write(" << stream << ", " << param << ")";
     }
     return out.str();
 }
@@ -854,7 +854,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     }
     else
     {
-        out << helperName(type, scope) << ".OutputStreamWriter";
+        out << helperName(type, scope) << ".Write";
     }
     return out.str();
 }
@@ -883,7 +883,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     }
     else
     {
-        out << helperName(type, scope) << ".InputStreamReader";
+        out << helperName(type, scope) << ".Read";
     }
     return out.str();
 }
@@ -919,7 +919,7 @@ Slice::CsGenerator::unmarshalCode(const TypePtr& type, const string& scope, cons
     }
     else
     {
-        out << helperName(type, scope) << ".InputStreamReader(" << stream << ")";
+        out << helperName(type, scope) << ".Read(" << stream << ")";
     }
     return out.str();
 }
@@ -1104,11 +1104,11 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else if(SequencePtr::dynamicCast(type))
     {
-        out << helperName(seq, scope) << ".OutputStreamWriter(" << stream  << ", " << param << ")";
+        out << helperName(seq, scope) << ".Write(" << stream  << ", " << param << ")";
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".OutputStreamWriter)";
+        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".Write)";
     }
     return out.str();
 }
@@ -1123,7 +1123,7 @@ Slice::CsGenerator::sequenceOutputStreamWriter(const SequencePtr& seq, const str
     }
     else
     {
-        out << helperName(seq, scope) << ".OutputStreamWriter";
+        out << helperName(seq, scope) << ".Write";
     }
     return out.str();
 }
@@ -1201,7 +1201,7 @@ Slice::CsGenerator::sequenceInputStreamReader(const SequencePtr& seq, const stri
     ostringstream out;
     if(SequencePtr::dynamicCast(seq->type()))
     {
-        out << helperName(seq, scope) << ".InputStreamReader";
+        out << helperName(seq, scope) << ".Read";
     }
     else
     {
