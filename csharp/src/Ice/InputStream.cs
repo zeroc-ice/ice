@@ -17,8 +17,8 @@ namespace Ice
 
     public class Collection<T> : ICollection<T>
     {
-        private InputStream _ins;
-        private InputStreamReader<T> _read;
+        private readonly InputStream _ins;
+        private readonly InputStreamReader<T> _read;
 
         public int Count { get; }
 
@@ -55,10 +55,10 @@ namespace Ice
         public T Current { get; private set; }
         object IEnumerator.Current => Current!;
 
-        private InputStream _ins;
-        private InputStreamReader<T> _read;
+        private readonly InputStream _ins;
+        private readonly InputStreamReader<T> _read;
         private int _pos;
-        private int _size;
+        private readonly int _size;
 
         public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
         {
