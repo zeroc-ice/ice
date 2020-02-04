@@ -482,20 +482,6 @@ namespace Ice
 
         public IObject? Remove(string identity, string facet = "") => Remove(Identity.Parse(identity), facet);
 
-        public Dictionary<string, IObject> RemoveAllFacets(Identity identity)
-        {
-            lock (this)
-            {
-                checkForDeactivation();
-                checkIdentity(identity);
-
-                return _servantManager.RemoveAllFacets(identity);
-            }
-        }
-
-        public Dictionary<string, IObject> RemoveAllFacets(string identity)
-            => RemoveAllFacets(Identity.Parse(identity));
-
         public IObject? Find(Identity identity, string facet = "")
         {
             lock (this)
@@ -508,19 +494,6 @@ namespace Ice
         }
 
         public IObject? Find(string identity, string facet = "") => Find(Identity.Parse(identity), facet);
-
-        public Dictionary<string, IObject> FindAllFacets(Identity identity)
-        {
-            lock (this)
-            {
-                checkForDeactivation();
-                checkIdentity(identity);
-
-                return _servantManager.FindAllFacets(identity);
-            }
-        }
-
-        public Dictionary<string, IObject> FindAllFacets(string identity) => FindAllFacets(Identity.Parse(identity));
 
         public void AddDefaultForCategory(string category, IObject servant, string facet = "")
         {

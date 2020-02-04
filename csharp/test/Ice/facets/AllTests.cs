@@ -63,35 +63,6 @@ namespace Ice.facets
             }
             output.WriteLine("ok");
 
-            output.Write("testing removeAllFacets... ");
-            var obj1 = new Empty();
-            var obj2 = new Empty();
-            var obj3 = new Empty();
-
-            adapter.Add(obj1, "id1", "f1");
-            adapter.Add(obj2, "id1", "f2");
-            adapter.Add(obj1, "id2", "f1");
-            adapter.Add(obj2, "id2", "f2");
-            adapter.Add(obj3, "id2", "");
-            Dictionary<string, IObject> fm = adapter.RemoveAllFacets("id1");
-            test(fm.Count == 2);
-            test(fm.ContainsKey("f1"));
-            test(fm.ContainsKey("f2"));
-            try
-            {
-                adapter.RemoveAllFacets("id1");
-                test(false);
-            }
-            catch (NotRegisteredException)
-            {
-            }
-            fm = adapter.RemoveAllFacets("id2");
-            test(fm.Count == 3);
-            test(fm.ContainsKey("f1"));
-            test(fm.ContainsKey("f2"));
-            test(fm.ContainsKey(""));
-            output.WriteLine("ok");
-
             adapter.Deactivate();
 
             var prx = IObjectPrx.Parse($"d:{helper.getTestEndpoint(0)}", communicator);
