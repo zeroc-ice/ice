@@ -3652,7 +3652,7 @@ class PythonMapping(Cpp98BasedMapping):
             "collocated" : "Collocated.py",
         }[processType]
 
-class CppBasedClientMapping(Cpp98BasedMapping):
+class CppBasedClientMapping(CppBasedMapping):
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
