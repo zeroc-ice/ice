@@ -31,8 +31,6 @@ namespace IceInternal
             _adapter = adapter;
             _connection = connection;
             _requestId = requestId;
-
-            _cookie = null;
         }
 
         //
@@ -54,8 +52,6 @@ namespace IceInternal
             _connection = connection;
             _requestId = requestId;
 
-            Debug.Assert(_cookie == null);
-
             _inParamPos = -1;
         }
 
@@ -68,8 +64,6 @@ namespace IceInternal
 
             _current = null;
             _servant = null;
-            _locator = null;
-            _cookie = null;
 
             //_observer = null;
             Debug.Assert(_observer == null);
@@ -153,29 +147,6 @@ namespace IceInternal
             if (servantManager != null)
             {
                 _servant = servantManager.FindServant(_current.Id, _current.Facet);
-                if (_servant == null)
-                {
-                    _locator = servantManager.FindServantLocator(_current.Id.Category);
-                    if (_locator == null && _current.Id.Category.Length > 0)
-                    {
-                        _locator = servantManager.FindServantLocator("");
-                    }
-
-                    if (_locator != null)
-                    {
-                        Debug.Assert(_locator != null);
-                        try
-                        {
-                            _servant = _locator.Locate(_current, out _cookie);
-                        }
-                        catch (Exception ex)
-                        {
-                            SkipReadParams(); // Required for batch requests.
-                            HandleException(ex, false);
-                            return;
-                        }
-                    }
-                }
             }
 
             if (_servant == null)
@@ -344,20 +315,6 @@ namespace IceInternal
             Debug.Assert(_current != null, "null current");
             try
             {
-                if (_locator != null)
-                {
-                    Debug.Assert(_servant != null, "null servant");
-                    try
-                    {
-                        _locator.Finished(_current, _servant, _cookie);
-                    }
-                    catch (Exception ex)
-                    {
-                        HandleException(ex, amd);
-                        return;
-                    }
-                }
-
                 if (exc != null)
                 {
                     HandleException(exc, amd);
@@ -905,8 +862,7 @@ namespace IceInternal
         private Ice.Communicator _communicator;
         private Ice.Current? _current;
         private Ice.IObject? _servant;
-        private Ice.IServantLocator? _locator;
-        private object? _cookie;
+
         private Ice.Instrumentation.IDispatchObserver? _observer;
         private IResponseHandler? _responseHandler;
 

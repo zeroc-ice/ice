@@ -207,58 +207,6 @@ namespace IceInternal
             }
         }
 
-        public void AddServantLocator(Ice.IServantLocator locator, string category)
-        {
-            lock (this)
-            {
-                Debug.Assert(_communicator != null); // Must not be called after destruction.
-
-                if (_locatorMap.ContainsKey(category))
-                {
-                    throw new ArgumentException($"A servant locator for category {category} is already registered", nameof(category));
-                }
-
-                _locatorMap[category] = locator;
-            }
-        }
-
-        public Ice.IServantLocator RemoveServantLocator(string category)
-        {
-            lock (this)
-            {
-                Debug.Assert(_communicator != null); // Must not be called after destruction.
-
-                _locatorMap.TryGetValue(category, out Ice.IServantLocator l);
-                if (l == null)
-                {
-                    var ex = new Ice.NotRegisteredException();
-                    ex.Id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
-                    ex.KindOfObject = "servant locator";
-                    throw ex;
-                }
-                _locatorMap.Remove(category);
-                return l;
-            }
-        }
-
-        public Ice.IServantLocator FindServantLocator(string category)
-        {
-            lock (this)
-            {
-                //
-                // This assert is not valid if the adapter dispatch incoming
-                // requests from bidir connections. This method might be called if
-                // requests are received over the bidir connection after the
-                // adapter was deactivated.
-                //
-                //
-                //Debug.Assert(_instance != null); // Must not be called after destruction.
-
-                _locatorMap.TryGetValue(category, out Ice.IServantLocator result);
-                return result;
-            }
-        }
-
         //
         // Only for use by Ice.ObjectAdapterI.
         //
@@ -273,7 +221,6 @@ namespace IceInternal
         //
         public void Destroy()
         {
-            Dictionary<string, Ice.IServantLocator> locatorMap;
             Ice.ILogger logger;
             lock (this)
             {
@@ -291,25 +238,7 @@ namespace IceInternal
 
                 _defaultServantMap.Clear();
 
-                locatorMap = new Dictionary<string, Ice.IServantLocator>(_locatorMap);
-                _locatorMap.Clear();
-
                 _communicator = null;
-            }
-
-            foreach (KeyValuePair<string, Ice.IServantLocator> p in locatorMap)
-            {
-                Ice.IServantLocator locator = p.Value;
-                try
-                {
-                    locator.Deactivate(p.Key);
-                }
-                catch (System.Exception ex)
-                {
-                    string s = "exception during locator deactivation:\n" + "object adapter: `"
-                                + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
-                    logger.Error(s);
-                }
             }
         }
 
@@ -318,7 +247,6 @@ namespace IceInternal
         private readonly Dictionary<Ice.Identity, Dictionary<string, Ice.IObject>> _servantMapMap
                 = new Dictionary<Ice.Identity, Dictionary<string, Ice.IObject>>();
         private readonly Dictionary<string, Ice.IObject> _defaultServantMap = new Dictionary<string, Ice.IObject>();
-        private readonly Dictionary<string, Ice.IServantLocator> _locatorMap = new Dictionary<string, Ice.IServantLocator>();
     }
 
 }
