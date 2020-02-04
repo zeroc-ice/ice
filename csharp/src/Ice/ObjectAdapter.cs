@@ -399,6 +399,19 @@ namespace Ice
             }
         }
 
+        public IObject? Find(Identity identity, string facet = "")
+        {
+            lock (this)
+            {
+                checkForDeactivation();
+                checkIdentity(identity);
+
+                return _servantManager.FindServant(identity, facet);
+            }
+        }
+
+        public IObject? Find(string identity, string facet = "") => Find(Identity.Parse(identity), facet);
+
         /// <summary>
         /// Add a servant to this object adapter's Active Servant Map (ASM).
         /// You can incarnate several Ice objects with the same servant by adding this servant with multiple identities
@@ -481,19 +494,6 @@ namespace Ice
         }
 
         public IObject? Remove(string identity, string facet = "") => Remove(Identity.Parse(identity), facet);
-
-        public IObject? Find(Identity identity, string facet = "")
-        {
-            lock (this)
-            {
-                checkForDeactivation();
-                checkIdentity(identity);
-
-                return _servantManager.FindServant(identity, facet);
-            }
-        }
-
-        public IObject? Find(string identity, string facet = "") => Find(Identity.Parse(identity), facet);
 
         public void AddDefaultForCategory(string category, IObject servant, string facet = "")
         {

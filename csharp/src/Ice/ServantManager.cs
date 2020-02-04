@@ -105,26 +105,6 @@ namespace IceInternal
             }
         }
 
-        public Dictionary<string, Ice.IObject> RemoveAllFacets(Ice.Identity ident)
-        {
-            lock (this)
-            {
-                Debug.Assert(_communicator != null);
-
-                _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.IObject> m);
-                if (m == null)
-                {
-                    var ex = new Ice.NotRegisteredException();
-                    ex.Id = ident.ToString(_communicator.ToStringMode);
-                    ex.KindOfObject = "servant";
-                    throw ex;
-                }
-                _servantMapMap.Remove(ident);
-
-                return m;
-            }
-        }
-
         public Ice.IObject? FindServant(Ice.Identity ident, string facet)
         {
             lock (this)
@@ -169,15 +149,6 @@ namespace IceInternal
 
                 _defaultServantMap.TryGetValue(category, out Ice.IObject obj);
                 return obj;
-            }
-        }
-
-        public Dictionary<string, Ice.IObject> FindAllFacets(Ice.Identity ident)
-        {
-            lock (this)
-            {
-                Debug.Assert(_communicator != null); // Must not be called after destruction.
-                return new Dictionary<string, Ice.IObject>(_servantMapMap[ident]);
             }
         }
 
