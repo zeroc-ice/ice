@@ -7,7 +7,6 @@
 % See also Ice.ValueFactory
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from ValueFactory.ice by slice2matlab version 3.7.3
 
 classdef (Abstract) ValueFactoryManager < handle
     methods(Abstract)
