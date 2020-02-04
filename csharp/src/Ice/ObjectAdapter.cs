@@ -522,13 +522,7 @@ namespace Ice
 
         public Dictionary<string, IObject> FindAllFacets(string identity) => FindAllFacets(Identity.Parse(identity));
 
-        // TODO: more complete description
-        /// <summary>
-        /// Add a default servant for a category. Adding a default servant already registered for a given category
-        /// throws AlreadyRegisteredException.</summary>
-        /// <param name="servant">The default servant.</param>
-        /// <param name="category">The category.</param>
-        public void AddDefaultServant(IObject servant, string category)
+        public void AddDefaultForCategory(string category, IObject servant, string facet = "")
         {
             lock (this)
             {
@@ -537,7 +531,7 @@ namespace Ice
             }
         }
 
-        public IObject RemoveDefaultServant(string category)
+        public IObject? RemoveDefaultForCategory(string category, string facet = "")
         {
             lock (this)
             {
@@ -546,12 +540,21 @@ namespace Ice
             }
         }
 
-        public IObject? FindDefaultServant(string category)
+        public void AddDefault(IObject servant, string facet = "")
         {
             lock (this)
             {
                 checkForDeactivation();
-                return _servantManager.FindDefaultServant(category);
+                _servantManager.AddDefaultServant(servant, "");
+            }
+        }
+
+        public IObject? RemoveDefault(string facet = "")
+        {
+            lock (this)
+            {
+                checkForDeactivation();
+                return _servantManager.RemoveDefaultServant("");
             }
         }
 

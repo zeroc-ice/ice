@@ -14,7 +14,7 @@ namespace Ice.adapterDeactivation
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.AddDefaultServant(new Servant(), "");
+                adapter.AddDefault(new Servant());
                 adapter.Activate();
                 serverReady();
                 adapter.WaitForDeactivate();

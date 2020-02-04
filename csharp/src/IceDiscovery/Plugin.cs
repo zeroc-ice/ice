@@ -86,7 +86,7 @@ namespace IceDiscovery
             _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
             var lookupReply = new LookupReply(lookup);
-            _replyAdapter.AddDefaultServant(lookupReply, "");
+            _replyAdapter.AddDefault(lookupReply);
             lookup.SetLookupReply(_replyAdapter.CreateProxy("dummy", ILookupReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram));
 

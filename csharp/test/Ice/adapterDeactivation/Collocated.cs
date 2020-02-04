@@ -22,7 +22,7 @@ namespace Ice
                     communicator.SetProperty("TestAdapter.ThreadPool.Size", "2");
 
                     var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                    adapter.AddDefaultServant(new Servant(), "");
+                    adapter.AddDefault(new Servant());
 
                     AllTests.allTests(this);
 

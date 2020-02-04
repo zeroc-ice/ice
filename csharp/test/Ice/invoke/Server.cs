@@ -17,11 +17,11 @@ namespace Ice.invoke
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             if (async)
             {
-                adapter.AddDefaultServant(new BlobjectAsyncI(), "");
+                adapter.AddDefault(new BlobjectAsyncI());
             }
             else
             {
-                adapter.AddDefaultServant(new BlobjectI(), "");
+                adapter.AddDefault(new BlobjectI());
             }
             adapter.Activate();
             serverReady();
