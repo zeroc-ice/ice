@@ -194,9 +194,9 @@ following command:
 npm pack
 ```
 
-This will generate the file `ice-4.0.0.tgz`, which can be installed by running:
+This will generate the file `ice-4.0.0-alpha.0.tgz`, which can be installed by running:
 ```
-npm install ice-4.0.0.tgz
+npm install ice-4.0.0-alpha.0.tgz
 ```
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
