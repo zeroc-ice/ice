@@ -32,7 +32,7 @@ namespace Ice.acm
             }
             communicator.SetProperty($"{name}.ThreadPool.Size", "2");
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{protocol} -h \"{host}\"");
-            return current.Adapter.Add(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
+            return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
         public void
@@ -45,7 +45,7 @@ namespace Ice.acm
         public RemoteObjectAdapter(ObjectAdapter adapter)
         {
             _adapter = adapter;
-            _testIntf = _adapter.Add(new TestIntf(), ITestIntfPrx.Factory, "test");
+            _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
             _adapter.Activate();
         }
 

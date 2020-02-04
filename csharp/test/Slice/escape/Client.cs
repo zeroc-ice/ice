@@ -104,9 +104,9 @@ public class Client : Test.TestHelper
         {
             communicator.SetProperty("TestAdapter.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new decimalI(), "test");
-            adapter.Add(new Test1I(), "test1");
-            adapter.Add(new Test2I(), "test2");
+            adapter.Add("test", new decimalI());
+            adapter.Add("test1", new Test1I());
+            adapter.Add("test2", new Test2I());
             adapter.Activate();
 
             Console.Out.Write("testing operation name... ");

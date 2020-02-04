@@ -42,11 +42,11 @@ namespace Ice.facets
 
             var obj = new Empty();
 
-            adapter.Add(obj, "d");
-            adapter.Add(obj, "d", "facetABCD");
+            adapter.Add("d", obj);
+            adapter.Add("d", "facetABCD", obj);
             try
             {
-                adapter.Add(obj, "d", "facetABCD");
+                adapter.Add("d", "facetABCD", obj);
                 test(false);
             }
             catch (System.ArgumentException)

@@ -35,10 +35,10 @@ namespace Ice.ami
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             var adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
-            adapter.Add(new TestIntf(), "test");
-            adapter.Add(new TestIntf2(), "test2");
+            adapter.Add("test", new TestIntf());
+            adapter.Add("test2", new TestIntf2());
             //adapter.activate(); // Collocated test doesn't need to activate the OA
-            adapter2.Add(new TestControllerIntf(adapter), "testController");
+            adapter2.Add("testController", new TestControllerIntf(adapter));
             //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
             AllTests.allTests(this, true);

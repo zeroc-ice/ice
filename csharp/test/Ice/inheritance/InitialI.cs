@@ -12,10 +12,10 @@ namespace Ice.inheritance
     {
         public InitialI(Ice.ObjectAdapter adapter)
         {
-            _ia = adapter.Add(new IA(),IIAPrx.Factory);
-            _ib1 = adapter.Add(new IB1(), IIB1Prx.Factory);
-            _ib2 = adapter.Add(new IB2(), IIB2Prx.Factory);
-            _ic = adapter.Add(new IC(), IICPrx.Factory);
+            _ia = adapter.AddWithUUID(new IA(),IIAPrx.Factory);
+            _ib1 = adapter.AddWithUUID(new IB1(), IIB1Prx.Factory);
+            _ib2 = adapter.AddWithUUID(new IB2(), IIB2Prx.Factory);
+            _ic = adapter.AddWithUUID(new IC(), IICPrx.Factory);
         }
 
         public IIAPrx iaop(Current current) => _ia;

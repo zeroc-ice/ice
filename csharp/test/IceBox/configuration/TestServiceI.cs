@@ -11,7 +11,7 @@ class TestService : IService
     start(string name, Ice.Communicator communicator, string[] args)
     {
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
-        adapter.Add(new TestIntf(args), "test");
+        adapter.Add("test", new TestIntf(args));
         adapter.Activate();
     }
 

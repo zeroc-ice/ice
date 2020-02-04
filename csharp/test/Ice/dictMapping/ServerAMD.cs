@@ -15,7 +15,7 @@ namespace Ice.dictMapping.AMD
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add(new MyClass(), "test");
+                adapter.Add("test", new MyClass());
                 adapter.Activate();
                 serverReady();
                 communicator.WaitForShutdown();

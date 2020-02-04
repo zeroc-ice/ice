@@ -16,7 +16,7 @@ namespace Ice.binding
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new RemoteCommunicator(), "communicator");
+            adapter.Add("communicator", new RemoteCommunicator());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

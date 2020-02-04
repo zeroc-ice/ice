@@ -201,8 +201,8 @@ namespace IceBox
                 if (_communicator.GetProperty("IceBox.ServiceManager.Endpoints") != null)
                 {
                     adapter = _communicator.CreateObjectAdapter("IceBox.ServiceManager");
-                    adapter.Add(this, new Identity("ServiceManager",
-                        _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox"));
+                    string instanceName = _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox";
+                    adapter.Add(new Identity("ServiceManager", instanceName), this);
                 }
 
                 //

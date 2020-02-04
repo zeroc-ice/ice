@@ -560,7 +560,7 @@ namespace controller
             Array.Copy(args, 0, newArgs, 1, args.Length);
             var helper = new ControllerHelperI(test, newArgs, _mainPage, _mainPage.platformAdapter);
             helper.run();
-            return current.adapter.Add(new ProccessI(helper));
+            return current.adapter.AddWithUUID(new ProccessI(helper));
         }
 
         public string getHost(string protocol, bool ipv6, Current current)
@@ -604,8 +604,8 @@ namespace controller
             _communicator = Util.initialize(initData);
 
             _adapter = _communicator.createObjectAdapter("ControllerAdapter");
-            _processController = _adapter.Add(new ProcessControllerI(mainPage),
-                mainPage.platformAdapter.processControllerIdentity());
+            _processController = _adapter.Add(mainPage.platformAdapter.processControllerIdentity(),
+                new ProcessControllerI(mainPage));
             _adapter.Activate();
 
             registerProcessController();

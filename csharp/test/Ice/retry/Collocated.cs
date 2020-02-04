@@ -27,8 +27,8 @@ namespace Ice.retry
             //
             properties["Ice.RetryIntervals"] = "0 1 10000";
             using var communicator2 = initialize(properties, observer: observer);
-            communicator.CreateObjectAdapter("").Add(new Retry(), "retry");
-            communicator2.CreateObjectAdapter("").Add(new Retry(), "retry");
+            communicator.CreateObjectAdapter("").Add("retry", new Retry());
+            communicator2.CreateObjectAdapter("").Add("retry", new Retry());
             AllTests.allTests(this, communicator, communicator2, "retry").shutdown();
         }
         public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);

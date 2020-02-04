@@ -25,12 +25,12 @@ public class Server : TestHelper
         using var communicator = initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add(new Metrics(), "metrics");
+        adapter.Add("metrics", new Metrics());
         adapter.Activate();
 
         communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-        controllerAdapter.Add(new Controller(adapter), "controller");
+        controllerAdapter.Add("controller", new Controller(adapter));
         controllerAdapter.Activate();
 
         communicator.WaitForShutdown();

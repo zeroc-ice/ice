@@ -29,7 +29,7 @@ public class Server : TestHelper
         communicator.SetProperty("ControlAdapter.ThreadPool.Size", "1");
 
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
-        adapter.Add(new Controller(), $"controller{num}");
+        adapter.Add($"controller{num}", new Controller());
         adapter.Activate();
 
         communicator.WaitForShutdown();

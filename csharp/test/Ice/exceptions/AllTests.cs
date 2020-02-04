@@ -61,10 +61,10 @@ namespace Ice.exceptions
                 communicator.SetProperty("TestAdapter1.Endpoints", "tcp -h *");
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
                 var obj = new Empty();
-                adapter.Add(obj, "x");
+                adapter.Add("x", obj);
                 try
                 {
-                    adapter.Add(obj, "x");
+                    adapter.Add("x", obj);
                     test(false);
                 }
                 catch (ArgumentException)
@@ -73,7 +73,7 @@ namespace Ice.exceptions
 
                 try
                 {
-                    adapter.Add(obj, "");
+                    adapter.Add("", obj);
                     test(false);
                 }
                 catch (FormatException)

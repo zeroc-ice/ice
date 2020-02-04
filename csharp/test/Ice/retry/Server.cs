@@ -17,7 +17,7 @@ namespace Ice.retry
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new Retry(), "retry");
+            adapter.Add("retry", new Retry());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

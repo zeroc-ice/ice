@@ -15,7 +15,7 @@ namespace Ice.optional.AMD
                 typeIdNamespaces: new string[] { "Ice.optional.AMD.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new Initial(), "initial");
+            adapter.Add("initial", new Initial());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

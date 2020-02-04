@@ -19,7 +19,7 @@ namespace Ice.operations
             using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new MyDerivedClass(), "test");
+            adapter.Add("test", new MyDerivedClass());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

@@ -19,7 +19,7 @@ namespace Ice.operations
             communicator.SetProperty("TestAdapter.AdapterId", "test");
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            var prx = adapter.Add(new MyDerivedClass(), IMyDerivedClassPrx.Factory, "test");
+            var prx = adapter.Add("test", new MyDerivedClass(), IMyDerivedClassPrx.Factory);
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             if (prx.GetConnection() != null)

@@ -412,6 +412,8 @@ namespace Ice
 
         public IObject? Find(string identity, string facet = "") => Find(Identity.Parse(identity), facet);
 
+        // The first 2 Add overloads are the only ones that are not for-convenience overloads
+
         /// <summary>
         /// Add a servant to this object adapter's Active Servant Map (ASM).
         /// You can incarnate several Ice objects with the same servant by adding this servant with multiple identities
@@ -424,17 +426,16 @@ namespace Ice
         /// ObjectAdapter creates a new unique identity with a UUID name and empty category.</param>
         /// <param name="facet">The facet of the Ice object. An empty facet means the default facet.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(IObject servant, ProxyFactory<T> proxyFactory, Identity? identity = null, string facet = "")
+        public T Add<T>(Identity identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
         {
             lock (this)
             {
-                identity = identity ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
-                checkIdentity(identity.Value);
+                checkIdentity(identity);
 
-                _servantManager.AddServant(servant, identity.Value, facet);
-                return newProxy(identity.Value, proxyFactory, facet);
+                _servantManager.AddServant(servant, identity, facet);
+                return newProxy(identity, proxyFactory, facet);
             }
         }
 
@@ -444,23 +445,9 @@ namespace Ice
         /// in the ASM. Adding a servant with an identity that is already in the ASM throws AlreadyRegisteredException.
         /// </summary>
         /// <param name="servant">The servant to add.</param>
-        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object. An empty facet means the default facet.</param>
-        /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(IObject servant, ProxyFactory<T> proxyFactory, string identity, string facet = "")
-            where T : class, IObjectPrx => Add(servant, proxyFactory, Identity.Parse(identity), facet);
-
-        /// <summary>
-        /// Add a servant to this object adapter's Active Servant Map (ASM).
-        /// You can incarnate several Ice objects with the same servant by adding this servant with multiple identities
-        /// in the ASM. Adding a servant with an identity that is already in the ASM throws AlreadyRegisteredException.
-        /// </summary>
-        /// <param name="servant">The servant to add.</param>
         /// <param name="identity">The identity of the Ice object incarnated by this servant.</param>
         /// <param name="facet">The facet of the Ice object. An empty facet means the default facet.</param>
-        public void Add(IObject servant, Identity identity, string facet = "")
+        public void Add(Identity identity, string facet, IObject servant)
         {
             lock (this)
             {
@@ -471,16 +458,32 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Add a servant to this object adapter's Active Servant Map (ASM).
-        /// You can incarnate several Ice objects with the same servant by adding this servant with multiple identities
-        /// in the ASM. Adding a servant with an identity that is already in the ASM throws AlreadyRegisteredException.
-        /// </summary>
-        /// <param name="servant">The servant to add.</param>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object. An empty facet means the default facet.</param>
-        public void Add(IObject servant, string identity, string facet = "")
-            => Add(servant, Identity.Parse(identity), facet);
+        // 2 Add overloads for stringified identity
+        public T Add<T>(string identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
+            where T : class, IObjectPrx
+            => Add(Identity.Parse(identity), facet, servant, proxyFactory);
+
+        public void Add(string identity, string facet, IObject servant)
+            => Add(Identity.Parse(identity), facet, servant);
+
+        // 5 Add overloads with default ("") facet
+        public T Add<T>(Identity identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
+            => Add(identity, "", servant, proxyFactory);
+
+        public void Add(Identity identity, IObject servant) => Add(identity, "", servant);
+
+        public T Add<T>(string identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
+            => Add(identity, "", servant, proxyFactory);
+
+        public void Add(string identity, IObject servant) => Add(identity, "", servant);
+
+        // AddWithUUID
+        public T AddWithUUID<T>(string facet, IObject servant, ProxyFactory<T> proxyFactory)
+            where T : class, IObjectPrx
+            => Add(new Identity(Guid.NewGuid().ToString(), ""), facet, servant, proxyFactory);
+
+        public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
+            => AddWithUUID("", servant, proxyFactory);
 
         public IObject? Remove(Identity identity, string facet = "")
         {

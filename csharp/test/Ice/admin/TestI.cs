@@ -103,7 +103,7 @@ namespace Ice.admin
                 admin.AddUpdateCallback(servant.updated);
             }
 
-            return current.Adapter.Add(servant, IRemoteCommunicatorPrx.Factory);
+            return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

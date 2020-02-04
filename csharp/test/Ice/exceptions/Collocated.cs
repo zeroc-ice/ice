@@ -19,7 +19,7 @@ namespace Ice.exceptions
             using var communicator = initialize(properties, typeIdNamespaces: typeIdNamespaces);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new Thrower(), "thrower");
+            adapter.Add("thrower", new Thrower());
             AllTests.allTests(this);
         }
 

@@ -14,7 +14,7 @@ namespace Ice.location
             _adapter2 = adapter2;
             _registry = registry;
 
-            _registry.addObject(_adapter1.Add(new Hello(), IObjectPrx.Factory, "hello"));
+            _registry.addObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
@@ -28,11 +28,11 @@ namespace Ice.location
             var id = Identity.Parse("hello");
             try
             {
-                _registry.addObject(_adapter2.Add(_adapter1.Remove(id), IObjectPrx.Factory, id), current);
+                _registry.addObject(_adapter2.Add(id, _adapter1.Remove(id), IObjectPrx.Factory), current);
             }
             catch (NotRegisteredException)
             {
-                _registry.addObject(_adapter1.Add(_adapter2.Remove(id), IObjectPrx.Factory, id), current);
+                _registry.addObject(_adapter1.Add(id, _adapter2.Remove(id), IObjectPrx.Factory), current);
             }
         }
 

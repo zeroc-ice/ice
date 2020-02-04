@@ -123,10 +123,10 @@ namespace Ice.scope
                 typeIdNamespaces: new string[] { "Ice.scope.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new I1(), "i1");
-            adapter.Add(new I2(), "i2");
-            adapter.Add(new I3(), "i3");
-            adapter.Add(new I4(), "i4");
+            adapter.Add("i1", new I1());
+            adapter.Add("i2", new I2());
+            adapter.Add("i3", new I3());
+            adapter.Add("i4", new I4());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

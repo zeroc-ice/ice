@@ -390,7 +390,7 @@ namespace Ice.admin
 
                 var remoteLogger = new RemoteLogger();
 
-                IRemoteLoggerPrx myProxy = adapter.Add(remoteLogger, IRemoteLoggerPrx.Factory);
+                IRemoteLoggerPrx myProxy = adapter.AddWithUUID(remoteLogger, IRemoteLoggerPrx.Factory);
 
                 adapter.Activate();
 
