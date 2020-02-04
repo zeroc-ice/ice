@@ -298,12 +298,17 @@ IceGrid::setupThreadPool(const PropertiesPtr& properties, const string& name, in
 int
 IceGrid::getMMVersion(const string& o)
 {
-    //
     // Strip the version
-    //
     string::size_type beg = o.find_first_not_of(' ');
     string::size_type end = o.find_last_not_of(' ');
     string version = o.substr(beg == string::npos ? 0 : beg, end == string::npos ? o.length() - 1 : end - beg + 1);
+
+    // Remove any pre-release information from the version string.
+    string::size_type dashPos = version.find('-');
+    if(dashPos != string::npos)
+    {
+        version = version.substr(0, dashPos);
+    }
 
     string::size_type minorPos = version.find('.');
     string::size_type patchPos = version.find('.', minorPos + 1);

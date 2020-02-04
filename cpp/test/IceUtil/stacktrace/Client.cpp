@@ -71,7 +71,7 @@ splitLines(const string& str)
     {
 #ifdef __APPLE__
         //
-        // Remove patch number from stack trace
+        // Remove patch number and pre-release information from stack trace
         //
         string v1 = ICE_STRING_VERSION;
         size_t pos = line.find(v1);
