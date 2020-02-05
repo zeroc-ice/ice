@@ -448,7 +448,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
-                ostr.WriteClassSeq(myClassArray);
+                ostr.Write(myClassArray);
                 ostr.EndEncapsulation();
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
@@ -710,7 +710,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 var l = new List<MyClass>(myClassArray);
-                ostr.WriteClassSeq(l);
+                ostr.Write(l);
                 ostr.EndEncapsulation();
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);

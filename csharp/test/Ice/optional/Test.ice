@@ -55,7 +55,6 @@ sequence<FixedStruct> FixedStructSeq;
 ["clr:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
-sequence<OneOptional*> OneOptionalPrxSeq;
 
 ["clr:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
@@ -91,7 +90,6 @@ class MultiOptional
     tag(20) FixedStructSeq fss;
     tag(21) VarStructSeq vss;
     tag(22) OneOptionalSeq oos;
-    tag(23) OneOptionalPrxSeq oops;
 
     tag(24) IntEnumDict ied;
     tag(25) IntFixedStructDict ifsd;

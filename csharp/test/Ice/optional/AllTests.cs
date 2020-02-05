@@ -59,7 +59,6 @@ namespace Ice.optional
             mo1.fss = new Test.FixedStruct[] { fs };
             mo1.vss = new Test.VarStruct[] { vs };
             mo1.oos = new Test.OneOptional[] { oo1 };
-            mo1.oops = new IObjectPrx[] { IObjectPrx.Parse("test", communicator) };
 
             mo1.ied = new Dictionary<int, Test.MyEnum>();
             mo1.ied.Add(4, Test.MyEnum.MyEnumMember);
@@ -95,7 +94,6 @@ namespace Ice.optional
             test(mo1.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo1.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo1.oos[0] == oo1);
-            test(mo1.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo1.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
@@ -139,7 +137,6 @@ namespace Ice.optional
             test(mo4.fss == null);
             test(mo4.vss == null);
             test(mo4.oos == null);
-            test(mo4.oops == null);
 
             test(mo4.ied == null);
             test(mo4.ifsd == null);
@@ -178,7 +175,6 @@ namespace Ice.optional
             test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo5.oos[0].a == 15);
-            test(mo5.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo5.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
@@ -230,7 +226,6 @@ namespace Ice.optional
             test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo7.vss == null);
             test(mo7.oos[0].a == 15);
-            test(mo7.oops == null);
 
             test(mo7.ied == null);
             test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
@@ -254,7 +249,6 @@ namespace Ice.optional
 
             mo8.es = mo5.es;
             mo8.vss = mo5.vss;
-            mo8.oops = mo5.oops;
 
             mo8.ied = mo5.ied;
             mo8.ivsd = mo5.ivsd;
@@ -286,7 +280,6 @@ namespace Ice.optional
             test(mo9.fss == null);
             test(mo9.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo9.oos == null);
-            test(mo9.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo9.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo9.ifsd == null);
