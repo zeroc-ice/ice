@@ -106,6 +106,17 @@ namespace Ice
     /// </summary>
     public sealed class InputStream
     {
+        public static readonly InputStreamReader<bool> IceReaderIntoBool = (istr) => istr.ReadBool();
+        public static readonly InputStreamReader<byte> IceReaderIntoByte = (istr) => istr.ReadByte();
+        public static readonly InputStreamReader<short> IceReaderIntoShort = (istr) => istr.ReadShort();
+        public static readonly InputStreamReader<int> IceReaderIntoInt = (istr) => istr.ReadInt();
+        public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
+        public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
+        public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
+        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoProxy = (istr) => istr.ReadProxy(IObjectPrx.Factory);
+        public static readonly InputStreamReader<AnyClass?> IceReaderIntoClass = (istr) => istr.ReadClass<AnyClass>();
+
         /// <summary>
         /// Returns the current size of the stream.
         /// </summary>
@@ -1144,7 +1155,7 @@ namespace Ice
             }
         }
 
-        public T[] ReadArray<T>(InputStreamReader<T> reader, int minSize)
+        public T[] ReadArray<T>(InputStreamReader<T> reader, int minSize = 1)
         {
             var enumerable = new Collection<T>(this, reader, minSize);
             var arr = new T[enumerable.Count];
@@ -1156,19 +1167,11 @@ namespace Ice
             return arr;
         }
 
-        public List<T> ReadList<T>(InputStreamReader<T> reader, int minSize)
-        {
-            var enumerable = new Collection<T>(this, reader, minSize);
-            var list = new List<T>(enumerable.Count);
-            list.AddRange(enumerable);
-            return list;
-        }
-
-        public IEnumerable<T> ReadCollection<T>(InputStreamReader<T> reader, int minSize) =>
+        public IEnumerable<T> ReadCollection<T>(InputStreamReader<T> reader, int minSize = 1) =>
             new Collection<T>(this, reader, minSize);
 
         public Dictionary<TKey, TValue> ReadDict<TKey, TValue>(InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader, int minWireSize)
+            InputStreamReader<TValue> valueReader, int minWireSize = 1)
         {
             int sz = ReadAndCheckSeqSize(minWireSize);
             var dict = new Dictionary<TKey, TValue>(sz);
@@ -1200,7 +1203,6 @@ namespace Ice
         /// </summary>
         /// <returns>The extracted string sequence.</returns>
         public string[] ReadStringArray() => ReadArray((ins) => ReadString(), 1);
-        public List<string> ReadStringList() => ReadList((ins) => ReadString(), 1);
         public IEnumerable<string> ReadStringCollection() => ReadCollection((ins) => ReadString(), 1);
 
         /// <summary>
@@ -1260,9 +1262,6 @@ namespace Ice
         public T?[] ReadProxyArray<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
             ReadArray((ins) => ins.ReadProxy(factory), 2);
 
-        public List<T?> ReadProxyList<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            ReadList((ins) => ins.ReadProxy(factory), 2);
-
         public IEnumerable<T?> ReadProxyCollection<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
             ReadCollection((ins) => ins.ReadProxy(factory), 2);
 
@@ -1293,13 +1292,6 @@ namespace Ice
                 return ReadSize();
             }
         }
-
-        public T[] ReaEnumArray<T>(InputStreamReader<T> reader) where T : Enum => ReadArray(reader, 1);
-
-        public List<T> ReadEnumList<T>(InputStreamReader<T> reader) where T : Enum => ReadList(reader, 1);
-
-        public IEnumerable<T> ReadEnumCollection<T>(InputStreamReader<T> reader) where T : Enum =>
-            ReadCollection(reader, 1);
 
         /// <summary>
         /// Read an instance of class T.
@@ -1347,8 +1339,6 @@ namespace Ice
         }
 
         public T?[] ReadClassArray<T>() where T : AnyClass => ReadArray((ins) => ins.ReadClass<T>(), 1);
-
-        public List<T?> ReadClassList<T>() where T : AnyClass => ReadList((ins) => ins.ReadClass<T>(), 1);
 
         public IEnumerable<T?> ReadClassCollection<T>() where T : AnyClass =>
             ReadCollection((ins) => ins.ReadClass<T>(), 1);

@@ -426,7 +426,9 @@ namespace Ice
             return lhs.IceReference.Equals(rhs.IceReference);
         }
 
-        public static ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
+        public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
+        public static readonly InputStreamReader<IObjectPrx?> IceReader =
+            (istr) => istr.ReadProxy(Factory);
 
         public static IObjectPrx Parse(string s, Communicator communicator) =>
             new ObjectPrx(communicator.CreateReference(s));

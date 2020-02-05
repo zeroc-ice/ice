@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.enums.Test;
+
 namespace Ice.enums
 {
     public class AllTests : global::Test.AllTests
@@ -70,22 +72,22 @@ namespace Ice.enums
             byte[] bytes;
 
             ostr = new OutputStream(communicator);
-            ostr.WriteEnum((int)Test.ByteEnum.benum11);
+            ostr.Write(ByteEnum.benum11);
             bytes = ostr.Finished();
             test(bytes.Length == 1); // ByteEnum should require one byte
 
             ostr = new OutputStream(communicator);
-            ostr.WriteEnum((int)Test.ShortEnum.senum11);
+            ostr.Write(ShortEnum.senum11);
             bytes = ostr.Finished();
             test(bytes.Length == 5);
 
             ostr = new OutputStream(communicator);
-            ostr.WriteEnum((int)Test.IntEnum.ienum11);
+            ostr.Write(IntEnum.ienum11);
             bytes = ostr.Finished();
             test(bytes.Length == 5);
 
             ostr = new OutputStream(communicator);
-            ostr.WriteEnum((int)Test.SimpleEnum.blue);
+            ostr.Write(SimpleEnum.blue);
             bytes = ostr.Finished();
             test(bytes.Length == 1); // SimpleEnum should require one byte
 

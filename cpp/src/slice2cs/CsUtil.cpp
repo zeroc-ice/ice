@@ -771,7 +771,8 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
 }
 
 void
-Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams, const string& prefix)
+Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams,
+                    const string& prefix)
 {
     requiredParams.clear();
     taggedParams.clear();
@@ -813,6 +814,26 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    ostringstream out;
+    if(builtin)
+    {
+        out << "Ice.OutputStream.IceWriterFrom" << builtinTableSuffix[builtin->kind()];
+    }
+    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
+    {
+        out << helperName(type, scope) << ".IceWriter";
+    }
+    else
+    {
+        out << typeToString(type, scope) << ".IceWriter";
+    }
+    return out.str();
+}
+
+string
 Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const string& param, const string& stream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -840,25 +861,6 @@ Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const 
     return out.str();
 }
 
-string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, const string& param)
-{
-    ostringstream out;
-    if(BuiltinPtr::dynamicCast(type) || isProxyType(type) || isClassType(type) || StructPtr::dynamicCast(type))
-    {
-        out << "(ostr, " << param << ") => " << marshalCode(type, scope, param, "ostr");
-    }
-    else if(SequencePtr::dynamicCast(type))
-    {
-        out << sequenceOutputStreamWriter(SequencePtr::dynamicCast(type), scope, param);
-    }
-    else
-    {
-        out << helperName(type, scope) << ".Write";
-    }
-    return out.str();
-}
-
 void
 Slice::CsGenerator::writeMarshalCode(Output& out,
                                      const TypePtr& type,
@@ -872,18 +874,19 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 string
 Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(isClassType(type) || isProxyType(type) || BuiltinPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
+    if(builtin)
     {
-        out << "(istr) => " << unmarshalCode(type, scope, "istr");
+        out << "Ice.InputStream.IceReaderInto" << builtinTableSuffix[builtin->kind()];
     }
-    else if(SequencePtr::dynamicCast(type))
+    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
-        out << sequenceInputStreamReader(SequencePtr::dynamicCast(type), scope);
+        out << helperName(type, scope) << ".IceReader";
     }
     else
     {
-        out << helperName(type, scope) << ".Read";
+        out << typeToString(type, scope) << ".IceReader";
     }
     return out.str();
 }
@@ -913,13 +916,11 @@ Slice::CsGenerator::unmarshalCode(const TypePtr& type, const string& scope, cons
     {
         out << "new " << getUnqualified(st, scope) << "(" << stream << ")";
     }
-    else if(seq)
-    {
-        out << sequenceUnmarshalCode(seq, scope, stream);
-    }
     else
     {
-        out << helperName(type, scope) << ".Read(" << stream << ")";
+        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+        assert(constructed);
+        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ")";
     }
     return out.str();
 }
@@ -1086,6 +1087,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
                                         const string& stream)
 {
     TypePtr type = seq->type();
+    StructPtr st = StructPtr::dynamicCast(type);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(seq->hasMetaDataWithPrefix("cs:serializable:"))
@@ -1097,9 +1099,9 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
         int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
         out << stream << ".Write" << builtinTableSuffix[kind] << "Seq(" << param << ")";
     }
-    else if(StructPtr::dynamicCast(type))
+    else if(st)
     {
-        out << stream << ".WriteStructSeq(" << param << ")";
+        out << stream << ".WriteSeq(" << param << ", " << getUnqualified(st, scope) << ".IceWriter)";
     }
     else if(SequencePtr::dynamicCast(type))
     {
@@ -1107,22 +1109,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".Write)";
-    }
-    return out.str();
-}
-
-string
-Slice::CsGenerator::sequenceOutputStreamWriter(const SequencePtr& seq, const string& scope, const string& param)
-{
-    ostringstream out;
-    if(!SequencePtr::dynamicCast(seq->type()) || seq->hasMetaDataWithPrefix("cs:serializable:"))
-    {
-        out << "(ostr, " << param << ") => " << sequenceMarshalCode(seq, scope, param, "ostr");
-    }
-    else
-    {
-        out << helperName(seq, scope) << ".Write";
+        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".IceWriter)";
     }
     return out.str();
 }
@@ -1190,21 +1177,6 @@ Slice::CsGenerator::readArray(const SequencePtr& seq, const string& scope, const
     else
     {
         out << stream << ".ReadArray(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
-    }
-    return out.str();
-}
-
-string
-Slice::CsGenerator::sequenceInputStreamReader(const SequencePtr& seq, const string& scope)
-{
-    ostringstream out;
-    if(SequencePtr::dynamicCast(seq->type()))
-    {
-        out << helperName(seq, scope) << ".Read";
-    }
-    else
-    {
-        out << "(istr) => " << sequenceUnmarshalCode(seq, scope, "istr");
     }
     return out.str();
 }

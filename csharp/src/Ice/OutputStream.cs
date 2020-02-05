@@ -17,12 +17,24 @@ namespace Ice
     }
 
     public delegate void OutputStreamWriter<T>(OutputStream os, T value);
+    public delegate void OutputStreamStructWriter<T>(OutputStream ostr, in T value) where T : struct;
 
     /// <summary>
     /// Interface for output streams used to write Slice types to a sequence of bytes.
     /// </summary>
     public class OutputStream
     {
+        public static readonly OutputStreamWriter<bool> IceWriterFromBool = (ostr, value) => ostr.WriteBool(value);
+        public static readonly OutputStreamWriter<byte> IceWriterFromByte = (ostr, value) => ostr.WriteByte(value);
+        public static readonly OutputStreamWriter<short> IceWriterFromShort = (ostr, value) => ostr.WriteShort(value);
+        public static readonly OutputStreamWriter<int> IceWriterFromInt = (ostr, value) => ostr.WriteInt(value);
+        public static readonly OutputStreamWriter<long> IceWriterFromLong = (ostr, value) => ostr.WriteLong(value);
+        public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
+        public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
+        public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
+        public static readonly OutputStreamWriter<IObjectPrx> IceWriterFromProxy = (ostr, value) => ostr.WriteProxy(value);
+        public static readonly OutputStreamWriter<AnyClass> IceWriterFromClass = (ostr, value) => ostr.WriteClass(value);
+
         /// <summary>
         /// The communicator associated with this stream.
         /// </summary>
@@ -520,7 +532,7 @@ namespace Ice
         /// Writes a boolean sequence to the stream.
         /// </summary>
         /// <param name="v">The boolean sequence to write to the stream.</param>
-        public void WriteBoolSeq(IReadOnlyCollection<bool> v) => WriteSeq(v, (ostr, value) => ostr.WriteBool(value));
+        public void WriteBoolSeq(IReadOnlyCollection<bool> v) => WriteSeq(v, IceWriterFromBool);
 
         /// <summary>
         /// Writes an optional boolean sequence to the stream.
@@ -594,7 +606,7 @@ namespace Ice
         /// Writes a short sequence to the stream.
         /// </summary>
         /// <param name="v">The short sequence to write to the stream.</param>
-        public void WriteShortSeq(IReadOnlyCollection<short> v) => WriteSeq(v, (ostr, value) => ostr.WriteShort(value));
+        public void WriteShortSeq(IReadOnlyCollection<short> v) => WriteSeq(v, IceWriterFromShort);
 
         /// <summary>
         /// Writes an optional short sequence to the stream.
@@ -678,7 +690,7 @@ namespace Ice
         /// Writes an int sequence to the stream.
         /// </summary>
         /// <param name="v">The int sequence to write to the stream.</param>
-        public void WriteIntSeq(IReadOnlyCollection<int> v) => WriteSeq(v, (ostr, value) => ostr.WriteInt(value));
+        public void WriteIntSeq(IReadOnlyCollection<int> v) => WriteSeq(v, IceWriterFromInt);
 
         /// <summary>
         /// Writes an optional int sequence to the stream.
@@ -755,7 +767,7 @@ namespace Ice
         /// Writes a long sequence to the stream.
         /// </summary>
         /// <param name="v">The long sequence to write to the stream.</param>
-        public void WriteLongSeq(IReadOnlyCollection<long> v) => WriteSeq(v, (ostr, value) => ostr.WriteLong(value));
+        public void WriteLongSeq(IReadOnlyCollection<long> v) => WriteSeq(v, IceWriterFromLong);
 
         /// <summary>
         /// Writes an optional long sequence to the stream.
@@ -832,7 +844,7 @@ namespace Ice
         /// Writes a float sequence to the stream.
         /// </summary>
         /// <param name="v">The float sequence to write to the stream.</param>
-        public void WriteFloatSeq(IReadOnlyCollection<float> v) => WriteSeq(v, (ostr, value) => ostr.WriteFloat(value));
+        public void WriteFloatSeq(IReadOnlyCollection<float> v) => WriteSeq(v, IceWriterFromFloat);
 
         /// <summary>
         /// Writes an optional float sequence to the stream.
@@ -909,8 +921,7 @@ namespace Ice
         /// Writes a double sequence to the stream.
         /// </summary>
         /// <param name="v">The double sequence to write to the stream.</param>
-        public void WriteDoubleSeq(IReadOnlyCollection<double> v) =>
-            WriteSeq(v, (ostr, value) => ostr.WriteDouble(value));
+        public void WriteDoubleSeq(IReadOnlyCollection<double> v) => WriteSeq(v, IceWriterFromDouble);
 
         /// <summary>
         /// Writes an optional double sequence to the stream.
@@ -948,7 +959,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The string to write to the stream. Passing null causes
         /// an empty string to be written to the stream.</param>
-        public void WriteString(string? v)
+        public void WriteString(in string? v)
         {
             if (v == null || v.Length == 0)
             {
@@ -979,28 +990,13 @@ namespace Ice
         /// </summary>
         /// <param name="v">The string sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteStringSeq(string[]? v)
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                for (int i = 0; i < v.Length; i++)
-                {
-                    WriteString(v[i]);
-                }
-            }
-        }
+        public void WriteStringSeq(string[]? v) => WriteSeq(v, IceWriterFromString);
 
         /// <summary>
         /// Writes a string sequence to the stream.
         /// </summary>
         /// <param name="v">The string sequence to write to the stream.</param>
-        public void WriteStringSeq(IReadOnlyCollection<string> v) =>
-            WriteSeq(v, (ostr, value) => ostr.WriteString(value));
+        public void WriteStringSeq(in IReadOnlyCollection<string> v) => WriteSeq(v, IceWriterFromString);
 
         /// <summary>
         /// Writes an optional string sequence to the stream.
@@ -1036,7 +1032,7 @@ namespace Ice
         /// Writes a proxy to the stream.
         /// </summary>
         /// <param name="v">The proxy to write.</param>
-        public void WriteProxy(IObjectPrx? v)
+        public void WriteProxy<T>(T? v) where T : class, IObjectPrx
         {
             if (v != null)
             {
@@ -1063,39 +1059,11 @@ namespace Ice
             }
         }
 
-        public void WriteProxySeq<T>(T[]? v) where T : IObjectPrx
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                foreach (T prx in v)
-                {
-                    WriteProxy(prx);
-                }
-            }
-        }
+        public void WriteProxySeq<T>(T[]? v) where T : class, IObjectPrx => WriteSeq(v, IceWriterFromProxy);
 
-        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : IObjectPrx
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (T prx in v)
-                {
-                    WriteProxy(prx);
-                }
-            }
-        }
+        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : class, IObjectPrx => WriteSeq(v, IceWriterFromProxy);
 
-        public void WriteProxySeq<T>(int tag, T[]? v) where T : IObjectPrx
+        public void WriteProxySeq<T>(int tag, T[]? v) where T : class, IObjectPrx
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
@@ -1105,7 +1073,7 @@ namespace Ice
             }
         }
 
-        public void WriteProxySeq<T>(int tag, IReadOnlyCollection<T>? v) where T : IObjectPrx
+        public void WriteProxySeq<T>(int tag, IReadOnlyCollection<T>? v) where T : class, IObjectPrx
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
@@ -1114,31 +1082,6 @@ namespace Ice
                 EndSize(pos);
             }
         }
-
-        public void WriteStructSeq<T>(T[] v) where T : struct, IStreamableStruct
-        {
-            WriteSize(v.Length);
-            for (int i = 0; i < v.Length; i++)
-            {
-                v[i].IceWrite(this);
-            }
-        }
-
-        public void WriteStructSeq<T>(IReadOnlyCollection<T> v) where T : struct, IStreamableStruct
-        {
-            WriteSize(v.Count);
-            foreach (T item in v)
-            {
-                item.IceWrite(this);
-            }
-        }
-
-        /// <summary>
-        /// Writes an enumerated value.
-        /// </summary>
-        /// <param name="v">The enumerator.</param>
-        /// <param name="maxValue">The maximum enumerator value in the definition.</param>
-        public void WriteEnum(int v) => WriteSize(v);
 
         /// <summary>
         /// Writes an optional enumerator to the stream.
@@ -1149,39 +1092,7 @@ namespace Ice
         {
             if (v is int value && WriteOptional(tag, OptionalFormat.Size))
             {
-                WriteEnum(value);
-            }
-        }
-
-        public void WriteEnumSeq<T>(T[]? v,  OutputStreamWriter<T> writer) where T : System.Enum
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                foreach (T e in v)
-                {
-                    writer(this, e);
-                }
-            }
-        }
-
-        public void WriteEnumSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> writer) where T : System.Enum
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (T e in v)
-                {
-                    writer(this, e);
-                }
+                WriteSize(value);
             }
         }
 
@@ -1222,37 +1133,9 @@ namespace Ice
             }
         }
 
-        public void WriteClassSeq<T>(T[]? v) where T : AnyClass
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                foreach (T c in v)
-                {
-                    WriteClass(c);
-                }
-            }
-        }
+        public void WriteClassSeq<T>(T[]? v) where T : AnyClass => WriteSeq(v, IceWriterFromClass);
 
-        public void WriteClassSeq<T>(IReadOnlyCollection<T>? v) where T : AnyClass
-        {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (T c in v)
-                {
-                    WriteClass(c);
-                }
-            }
-        }
+        public void WriteClassSeq<T>(IReadOnlyCollection<T>? v) where T : AnyClass => WriteSeq(v, IceWriterFromClass);
 
         /// <summary>
         /// Writes an optional class instance to the stream.
@@ -1266,6 +1149,8 @@ namespace Ice
                 WriteClass(v);
             }
         }
+
+        public void WriteStruct<T>(T value) where T : struct, IStreamableStruct => value.IceWrite(this);
 
         public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> write)
         {
@@ -1309,10 +1194,10 @@ namespace Ice
             else
             {
                 WriteSize(dict.Count);
-                foreach (KeyValuePair<TKey, TValue> pair in dict)
+                foreach ((TKey key, TValue value) in dict)
                 {
-                    keyWriter(this, pair.Key);
-                    valueWriter(this, pair.Value);
+                    keyWriter(this, key);
+                    valueWriter(this, value);
                 }
             }
         }

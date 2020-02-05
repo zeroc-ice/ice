@@ -1361,7 +1361,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "public partial class " << fixId(name) << " : "
          << (bases.empty() ? getUnqualified("Ice.AnyClass", ns) : getUnqualified(bases.front(), ns))
          << sb;
-
     return true;
 }
 
@@ -1374,6 +1373,18 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader =";
+    _out.dec();
+    _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
+    _out.inc();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out.inc();
+    _out << nl << "(ostr, value) => ostr.WriteClass(value);";
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1814,7 +1825,17 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " IceRead(Ice.InputStream istr) => new " << name << "(istr);";
+    _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader => ";
+    _out.inc();
+    _out << nl << "(istr) => new " << name << "(istr);";
+    _out.dec();
+
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public static Ice.OutputStreamWriter<" << name << "> IceWriter => ";
+    _out.inc();
+    _out << nl << "(istr, value) => value.IceWrite(istr);";
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1952,6 +1973,19 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << eb;
+
+    _out << sp;
+    _out << nl << "public static class " << p->name() << "Helper";
+    _out << sb;
+
+    _out << sp;
+    _out << nl << "public static Ice.OutputStreamWriter<" << name
+         << "> IceWriter = (ostr, value) => ostr.WriteStruct(value);";
+
+    _out << sp;
+    _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader = (istr) => new " << name << "(istr);";
+
+    _out << eb;
 }
 
 void
@@ -2008,8 +2042,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
          << " value) => ostr.WriteSize((int)value);";
 
     _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " Read(Ice.InputStream istr)";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << name << " Read" << p->name() << "(this Ice.InputStream istr)";
     _out << sb;
     _out << nl << "int value = istr.ReadSize();";
     if(explicitValue)
@@ -2026,6 +2062,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
     _out << nl << "return (" << name << ") value;";
     _out << eb;
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name() << ";";
 
     _out << eb;
 }
@@ -2168,8 +2207,22 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Proxy static methods
     //
     _out << sp;
-    _out << nl << "public static new " << getUnqualified("Ice.ProxyFactory", ns) << "<" << name
-         << "> Factory = (reference) => new _" << p->name() << "Prx(reference);";
+    _out << nl << "public static readonly new Ice.ProxyFactory<" << name << "> Factory =";
+    _out.inc();
+    _out << nl << "(reference) => new _" << p->name() << "Prx(reference);";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
+    _out.inc();
+    _out << nl << "(istr) => istr.ReadProxy(Factory);";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out.inc();
+    _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
+    _out.dec();
 
     _out << sp;
     _out << nl << "public static new " << name << " Parse("
@@ -2449,24 +2502,10 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
 {
 }
 
-bool useSequenceHelper(const ContainerPtr& container)
-{
-    SequenceList sequences = container->sequences();
-    for(SequencePtr seq : sequences)
-    {
-        if(SequencePtr::dynamicCast(seq->type()))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!useSequenceHelper(p) && !p->hasDictionaries())
+    if(!p->hasSequences() && !p->hasDictionaries())
     {
         return false;
     }
@@ -2487,35 +2526,42 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    if(SequencePtr::dynamicCast(p->type()))
-    {
-        string scope = getNamespace(p);
-        string seqS = typeToString(p, scope);
-        SequencePtr type = SequencePtr::dynamicCast(p->type());
+    string name = p->name();
+    string scope = getNamespace(p);
+    string seqS = typeToString(p, scope);
+    TypePtr type = p->type();
 
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public static class " << helperName(p, scope);
-        _out << sb;
-        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
-        _out.inc();
-        _out << nl << "ostr.WriteSeq(sequence, " << outputStreamWriter(type, scope, "value") << ");";
-        _out.dec();
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public static class " << name << "Helper";
+    _out << sb;
 
-        _out << sp;
-        _out << nl << "public static " << seqS << " Read(Ice.InputStream istr) => ";
-        _out.inc();
-        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
-        _out.dec();
+    _out << sp;
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
+    _out.inc();
+    _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
+    _out.dec();
 
-        _out << eb;
-    }
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
+    _out.inc();
+    _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+
+    _out << eb;
 }
 
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string ns = getNamespace(p);
+    string name = p->name();
     string dictS = typeToString(p, ns);
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
@@ -2523,17 +2569,20 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static class " << helperName(p, ns);
+    _out << nl << "public static class " << name << "Helper";
     _out << sb;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns, "key") << ", "
-         << outputStreamWriter(value, ns, "value") << ");";
+         << outputStreamWriter(key, ns) << ", "
+         << outputStreamWriter(value, ns) << ");";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static " << dictS << " Read(Ice.InputStream istr) => ";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) => ";
     _out.inc();
     if(generic == "SortedDictionary")
     {
@@ -2549,6 +2598,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
              << (key->minWireSize() + value->minWireSize()) << ");";
     }
     _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
 
     _out << eb;
 }
