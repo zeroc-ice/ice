@@ -1152,7 +1152,7 @@ namespace Ice
 
         public void WriteStruct<T>(T value) where T : struct, IStreamableStruct => value.IceWrite(this);
 
-        public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> write)
+        public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> writer)
         {
             if (v == null)
             {
@@ -1163,12 +1163,28 @@ namespace Ice
                 WriteSize(v.Length);
                 foreach (T item in v)
                 {
-                    write(this, item);
+                    writer(this, item);
                 }
             }
         }
 
-        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> elementWriter)
+        public void WriteSeq<T>(T[]? v, OutputStreamStructWriter<T> writer) where T : struct
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Length);
+                foreach (T item in v)
+                {
+                    writer(this, item);
+                }
+            }
+        }
+
+        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> writer)
         {
             if (v == null)
             {
@@ -1179,13 +1195,84 @@ namespace Ice
                 WriteSize(v.Count);
                 foreach (T item in v)
                 {
-                    elementWriter(this, item);
+                    writer(this, item);
+                }
+            }
+        }
+
+        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamStructWriter<T> writer) where T : struct
+        {
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(v.Count);
+                foreach (T item in v)
+                {
+                    writer(this, item);
                 }
             }
         }
 
         public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
             OutputStreamWriter<TValue> valueWriter)
+        {
+            if (dict == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(dict.Count);
+                foreach ((TKey key, TValue value) in dict)
+                {
+                    keyWriter(this, key);
+                    valueWriter(this, value);
+                }
+            }
+        }
+
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter) where TKey : struct
+        {
+            if (dict == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(dict.Count);
+                foreach ((TKey key, TValue value) in dict)
+                {
+                    keyWriter(this, key);
+                    valueWriter(this, value);
+                }
+            }
+        }
+
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+            OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
+        {
+            if (dict == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteSize(dict.Count);
+                foreach ((TKey key, TValue value) in dict)
+                {
+                    keyWriter(this, key);
+                    valueWriter(this, value);
+                }
+            }
+        }
+
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
+            OutputStreamStructWriter<TValue> valueWriter) where TKey : struct
+                                                          where TValue : struct
         {
             if (dict == null)
             {

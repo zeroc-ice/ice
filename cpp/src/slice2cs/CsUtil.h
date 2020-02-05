@@ -128,15 +128,7 @@ protected:
                                     int, const std::string& = "istr");
 
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
-    void writeSequenceMarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                  const std::string&, const std::string& = "ostr");
-
-    std::string readCollection(const SequencePtr&, const std::string&, const std::string&, const std::string&);
-    std::string readArray(const SequencePtr&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
-
-    void writeSequenceUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                    const std::string&, const std::string&);
 
     void writeTaggedSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                                  const std::string&, int, bool, const std::string& = "");

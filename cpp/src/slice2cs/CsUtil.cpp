@@ -846,10 +846,6 @@ Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const 
         int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
         out << stream << ".Write" << builtinTableSuffix[kind] << "(" << param << ")";
     }
-    else if(seq)
-    {
-        out << sequenceMarshalCode(seq, scope, param, stream);
-    }
     else if(st)
     {
         out << param << ".IceWrite(" << stream << ")";
@@ -1099,67 +1095,9 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
         int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
         out << stream << ".Write" << builtinTableSuffix[kind] << "Seq(" << param << ")";
     }
-    else if(st)
-    {
-        out << stream << ".WriteSeq(" << param << ", " << getUnqualified(st, scope) << ".IceWriter)";
-    }
-    else if(SequencePtr::dynamicCast(type))
-    {
-        out << helperName(seq, scope) << ".Write(" << stream  << ", " << param << ")";
-    }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << helperName(type, scope) << ".IceWriter)";
-    }
-    return out.str();
-}
-
-void
-Slice::CsGenerator::writeSequenceMarshalCode(Output& out,
-                                             const SequencePtr& seq,
-                                             const string& scope,
-                                             const string& param,
-                                             const string& stream)
-{
-    out << nl << sequenceMarshalCode(seq, scope, param, stream) << ";";
-}
-
-string
-Slice::CsGenerator::readCollection(const SequencePtr& seq, const string& scope, const string& generic,
-                                   const string& stream)
-{
-    TypePtr type = seq->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-
-    ostringstream out;
-    if(builtin && !isProxyType(type) && !isClassType(type))
-    {
-        out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
-    }
-    else
-    {
-        out << stream << ".ReadCollection(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
-    }
-
-    string reader = generic == "Stack" ? ("System.Linq.Enumerable.Reverse(" + out.str() + ")") : out.str();
-    out = ostringstream();
-    out << "new " << typeToString(seq, scope) << "(" << reader << ")";
-    return out.str();
-}
-
-string
-Slice::CsGenerator::readArray(const SequencePtr& seq, const string& scope, const string& stream)
-{
-    TypePtr type = seq->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ostringstream out;
-    if(builtin && !isProxyType(type) && !isClassType(type))
-    {
-        out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
-    }
-    else
-    {
-        out << stream << ".ReadArray(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope) << ")";
     }
     return out.str();
 }
@@ -1170,6 +1108,9 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     string generic = seq->findMetaDataWithPrefix("cs:generic:");
     string serializable = seq->findMetaDataWithPrefix("cs:serializable:");
 
+    TypePtr type = seq->type();
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+
     ostringstream out;
     if(!serializable.empty())
     {
@@ -1177,23 +1118,31 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else if(generic.empty())
     {
-        out << readArray(seq, scope, stream);
+        if(builtin && !isProxyType(type) && !isClassType(type))
+        {
+            out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
+        }
+        else
+        {
+            out << stream << ".ReadArray(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
+        }
     }
     else
     {
-        out << readCollection(seq, scope, generic, stream);
+        if(builtin && !isProxyType(type) && !isClassType(type))
+        {
+            out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
+        }
+        else
+        {
+            out << stream << ".ReadCollection(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
+        }
+
+        string reader = generic == "Stack" ? ("System.Linq.Enumerable.Reverse(" + out.str() + ")") : out.str();
+        out = ostringstream();
+        out << "new " << typeToString(seq, scope) << "(" << reader << ")";
     }
     return out.str();
-}
-
-void
-Slice::CsGenerator::writeSequenceUnmarshalCode(Output& out,
-                                               const SequencePtr& seq,
-                                               const string& scope,
-                                               const string& param,
-                                               const string& stream)
-{
-    out << nl << param << " = " << sequenceUnmarshalCode(seq, scope, stream) << ";";
 }
 
 void
@@ -1277,7 +1226,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 }
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
-                writeSequenceUnmarshalCode(out, seq, scope, tmp, stream);
+                writeUnmarshalCode(out, seq, scope, tmp, stream);
                 if(isArray)
                 {
                     out << nl << param << " = " << tmp << ";";
@@ -1305,7 +1254,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                     << getTagFormat(seq, scope) << "))";
                 out << sb;
                 out << nl << "int pos = " << stream << ".StartSize();";
-                writeSequenceMarshalCode(out, seq, scope, param, stream);
+                writeMarshalCode(out, seq, scope, param, stream);
                 out << nl << stream << ".EndSize(pos);";
                 out << eb;
             }
@@ -1316,7 +1265,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << stream << ".Skip(4);";
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
-                writeSequenceUnmarshalCode(out, seq, scope, tmp, stream);
+                writeUnmarshalCode(out, seq, scope, tmp, stream);
                 if(isArray)
                 {
                     out << nl << param << " = " << tmp << ";";
@@ -1358,7 +1307,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << length << " * "
                     << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
             }
-            writeSequenceMarshalCode(out, seq, scope, param, stream);
+            writeMarshalCode(out, seq, scope, param, stream);
             if(st->isVariableLength())
             {
                 out << nl << stream << ".EndSize(pos);";
@@ -1379,7 +1328,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
             }
             string tmp = "tmpVal";
             out << nl << seqS << ' ' << tmp << ';';
-            writeSequenceUnmarshalCode(out, seq, scope, tmp, stream);
+            writeUnmarshalCode(out, seq, scope, tmp, stream);
             if(isArray)
             {
                 out << nl << param << " = " << tmp << ";";
@@ -1406,7 +1355,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
             << getTagFormat(seq, scope) << "))";
         out << sb;
         out << nl << "int pos = " << stream << ".StartSize();";
-        writeSequenceMarshalCode(out, seq, scope, param, stream);
+        writeMarshalCode(out, seq, scope, param, stream);
         out << nl << stream << ".EndSize(pos);";
         out << eb;
     }
@@ -1417,7 +1366,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
         out << nl << stream << ".Skip(4);";
         string tmp = "tmpVal";
         out << nl << seqS << ' ' << tmp << ';';
-        writeSequenceUnmarshalCode(out, seq, scope, tmp, stream);
+        writeUnmarshalCode(out, seq, scope, tmp, stream);
         if(isArray)
         {
             out << nl << param << " = " << tmp << ";";

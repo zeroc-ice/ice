@@ -743,10 +743,10 @@ namespace Ice.stream
                 arr[1] = IObjectPrx.Parse("one", communicator);
                 ostr = new OutputStream(communicator);
                 var l = new List<IObjectPrx>(arr);
-                ostr.WriteProxySeq(l);
+                ostr.Write(arr);
                 byte[] data = ostr.Finished();
                 istr = new InputStream(communicator, data);
-                var l2 = istr.ReadObjectProxySeq();
+                var l2 = new List<IObjectPrx>(istr.ReadObjectProxySeq());
                 test(Compare(l2, l));
             }
 

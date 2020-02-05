@@ -1832,9 +1832,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static Ice.OutputStreamWriter<" << name << "> IceWriter => ";
+    _out << nl << "public static Ice.OutputStreamStructWriter<" << name << "> IceWriter => ";
     _out.inc();
-    _out << nl << "(istr, value) => value.IceWrite(istr);";
+    _out << nl << "(Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
 
     _out << sp;
