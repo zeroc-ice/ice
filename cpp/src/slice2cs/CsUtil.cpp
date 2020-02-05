@@ -1074,10 +1074,9 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     {
         out << stream << ".WriteSerializable(" << param << ")";
     }
-    else if(builtin || isProxyType(type) || isClassType(type))
+    else if(builtin && !isProxyType(type) && !isClassType(type))
     {
-        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
-        out << stream << ".Write" << builtinTableSuffix[kind] << "Seq(" << param << ")";
+        out << stream << ".Write" << builtinTableSuffix[builtin->kind()] << "Seq(" << param << ")";
     }
     else
     {

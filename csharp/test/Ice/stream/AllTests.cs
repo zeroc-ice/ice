@@ -195,7 +195,7 @@ namespace Ice.stream
                 s.str = "7";
                 s.e = MyEnum.enum2;
                 s.p = IMyInterfacePrx.Parse("test:default", communicator);
-                s.IceWrite(ostr);
+                ostr.WriteStruct(s);
                 var data = ostr.Finished();
                 var s2 = new SmallStruct(new InputStream(communicator, data));
                 test(s2.Equals(s));

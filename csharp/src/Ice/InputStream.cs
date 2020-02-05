@@ -1155,7 +1155,7 @@ namespace Ice
             }
         }
 
-        public T[] ReadArray<T>(InputStreamReader<T> reader, int minSize = 1)
+        public T[] ReadArray<T>(InputStreamReader<T> reader, int minSize)
         {
             var enumerable = new Collection<T>(this, reader, minSize);
             var arr = new T[enumerable.Count];
@@ -1167,7 +1167,7 @@ namespace Ice
             return arr;
         }
 
-        public IEnumerable<T> ReadCollection<T>(InputStreamReader<T> reader, int minSize = 1) =>
+        public IEnumerable<T> ReadCollection<T>(InputStreamReader<T> reader, int minSize) =>
             new Collection<T>(this, reader, minSize);
 
         public Dictionary<TKey, TValue> ReadDict<TKey, TValue>(InputStreamReader<TKey> keyReader,

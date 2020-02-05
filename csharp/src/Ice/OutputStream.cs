@@ -959,7 +959,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The string to write to the stream. Passing null causes
         /// an empty string to be written to the stream.</param>
-        public void WriteString(in string? v)
+        public void WriteString(string? v)
         {
             if (v == null || v.Length == 0)
             {
@@ -996,7 +996,7 @@ namespace Ice
         /// Writes a string sequence to the stream.
         /// </summary>
         /// <param name="v">The string sequence to write to the stream.</param>
-        public void WriteStringSeq(in IReadOnlyCollection<string> v) => WriteSeq(v, IceWriterFromString);
+        public void WriteStringSeq(IReadOnlyCollection<string> v) => WriteSeq(v, IceWriterFromString);
 
         /// <summary>
         /// Writes an optional string sequence to the stream.
@@ -1132,10 +1132,6 @@ namespace Ice
                 WriteInstance(v); // Write the instance or a reference if already marshaled.
             }
         }
-
-        public void WriteClassSeq<T>(T[]? v) where T : AnyClass => WriteSeq(v, IceWriterFromClass);
-
-        public void WriteClassSeq<T>(IReadOnlyCollection<T>? v) where T : AnyClass => WriteSeq(v, IceWriterFromClass);
 
         /// <summary>
         /// Writes an optional class instance to the stream.

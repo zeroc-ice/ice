@@ -1841,8 +1841,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         _out << "readonly ";
     }
-    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, "
-         << getUnqualified("Ice.IStreamableStruct", ns);
+    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, Ice.IStreamableStruct";
     _out << sb;
 
     _out << sp;
@@ -1997,7 +1996,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public readonly void IceWrite(" << getUnqualified("Ice.OutputStream", ns) << " iceP_ostr)";
+    _out << nl << "public readonly void IceWrite(Ice.OutputStream iceP_ostr)";
     _out << sb;
     for(auto m : dataMembers)
     {
