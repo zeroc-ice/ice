@@ -139,6 +139,15 @@ getEscapedParamName(const DataMemberList& params, const string& name)
     return name;
 }
 
+bool
+hasDataMemberWithName(const DataMemberList& dataMembers, const string& name)
+{
+    return find_if(dataMembers.begin(), dataMembers.end(), [name](const auto& m)
+                                                           {
+                                                               return m->name() == name;
+                                                           }) != dataMembers.end();
+}
+
 }
 
 Slice::CsVisitor::CsVisitor(Output& out) :
@@ -1391,15 +1400,23 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
          << fixId(p->name()) << "));";
 
-    _out << sp << nl << "partial void IceInitialize();";
+    bool partialInitialize = !hasDataMemberWithName(allDataMembers, "Initialize");
+    if(partialInitialize)
+    {
+        _out << sp << nl << "partial void Initialize();";
+    }
+
     if(allDataMembers.empty())
     {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << epar;
-        _out << sb;
-        _out << nl << "IceInitialize();";
-        _out << eb;
+        if(partialInitialize)
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public " << name << spar << epar;
+            _out << sb;
+            _out << nl << "Initialize();";
+            _out << eb;
+        }
     }
     else
     {
@@ -1410,7 +1427,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << nl << "public " << name << spar << epar;
         _out << sb;
         writeDataMemberInitializers(dataMembers, ns, propertyMapping);
-        _out << nl << "IceInitialize();";
+        if(partialInitialize)
+        {
+            _out << nl << "Initialize();";
+        }
         _out << eb;
 
         _out << sp;
@@ -1439,7 +1459,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << nl << "this." << fixId(dataMemberName(d), Slice::ObjectType) << " = "
                  << fixId(d->name(), Slice::ObjectType) << ";";
         }
-        _out << nl << "IceInitialize();";
+        if(partialInitialize)
+        {
+            _out << nl << "Initialize();";
+        }
         _out << eb;
     }
 
@@ -1850,7 +1873,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     DataMemberList dataMembers = p->dataMembers();
 
-    _out << sp << nl << "partial void IceInitialize();";
+    bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
+
+    if(partialInitialize)
+    {
+        _out << sp << nl << "partial void Initialize();";
+    }
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1869,7 +1897,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         string memberName = fixId(dataMemberName(i), Slice::ObjectType);
         _out << nl << (paramName == memberName ? "this." : "") << memberName  << " = " << paramName  << ";";
     }
-    _out << nl << "IceInitialize();";
+    if(partialInitialize)
+    {
+        _out << nl << "Initialize();";
+    }
     _out << eb;
 
     _out << sp;
@@ -1880,7 +1911,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns, "iceP_istr");
     }
-    _out << nl << "IceInitialize();";
+
+    if(partialInitialize)
+    {
+        _out << nl << "Initialize();";
+    }
+
     _out << eb;
 
     _out << sp;
