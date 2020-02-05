@@ -1376,9 +1376,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader =";
-    _out.dec();
-    _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
     _out.inc();
+    _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
+    _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
