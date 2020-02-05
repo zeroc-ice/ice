@@ -833,30 +833,6 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
     return out.str();
 }
 
-string
-Slice::CsGenerator::marshalCode(const TypePtr& type, const string& scope, const string& param, const string& stream)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
-
-    ostringstream out;
-    if(builtin || isProxyType(type) || isClassType(type))
-    {
-        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
-        out << stream << ".Write" << builtinTableSuffix[kind] << "(" << param << ")";
-    }
-    else if(st)
-    {
-        out << param << ".IceWrite(" << stream << ")";
-    }
-    else
-    {
-        out << helperName(type, scope) << ".Write(" << stream << ", " << param << ")";
-    }
-    return out.str();
-}
-
 void
 Slice::CsGenerator::writeMarshalCode(Output& out,
                                      const TypePtr& type,
@@ -864,7 +840,23 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
                                      const string& param,
                                      const string& stream)
 {
-    out << nl << marshalCode(type, scope, param, stream) << ";";
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    StructPtr st = StructPtr::dynamicCast(type);
+
+    if(builtin || isProxyType(type) || isClassType(type))
+    {
+        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinTableSuffix[kind] << "(" << param << ");";
+    }
+    else if(st)
+    {
+        out << nl << param << ".IceWrite(" << stream << ");";
+    }
+    else
+    {
+        out << nl << helperName(type, scope) << ".Write(" << stream << ", " << param << ");";
+    }
 }
 
 string
@@ -887,40 +879,6 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     return out.str();
 }
 
-string
-Slice::CsGenerator::unmarshalCode(const TypePtr& type, const string& scope, const string& stream)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-
-    ostringstream out;
-
-    if(isClassType(type))
-    {
-        out << stream << ".ReadClass<" << typeToString(type, scope) << ">()";
-    }
-    else if(isProxyType(type))
-    {
-        out << stream << ".ReadProxy(" << typeToString(type, scope) << ".Factory)";
-    }
-    else if(builtin)
-    {
-        out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "()";
-    }
-    else if(st)
-    {
-        out << "new " << getUnqualified(st, scope) << "(" << stream << ")";
-    }
-    else
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-        assert(constructed);
-        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ")";
-    }
-    return out.str();
-}
-
 void
 Slice::CsGenerator::writeUnmarshalCode(Output &out,
                                        const TypePtr& type,
@@ -928,7 +886,33 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
                                        const string& param,
                                        const string& stream)
 {
-    out << nl << param << " = " << unmarshalCode(type, scope, stream) << ";";
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    StructPtr st = StructPtr::dynamicCast(type);
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+
+    out << nl << param << " = ";
+    if(isClassType(type))
+    {
+        out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
+    }
+    else if(isProxyType(type))
+    {
+        out << stream << ".ReadProxy(" << typeToString(type, scope) << ".Factory);";
+    }
+    else if(builtin)
+    {
+        out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "();";
+    }
+    else if(st)
+    {
+        out << "new " << getUnqualified(st, scope) << "(" << stream << ");";
+    }
+    else
+    {
+        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+        assert(constructed);
+        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ");";
+    }
 }
 
 void

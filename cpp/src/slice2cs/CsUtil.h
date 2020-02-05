@@ -111,14 +111,11 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    std::string marshalCode(const TypePtr&, const std::string&, const std::string&, const std::string&);
     std::string outputStreamWriter(const TypePtr&, const std::string&);
     void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                           const std::string& = "ostr");
 
     std::string inputStreamReader(const TypePtr&, const std::string&);
-    std::string unmarshalCode(const TypePtr&, const std::string&, const std::string&);
-
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
