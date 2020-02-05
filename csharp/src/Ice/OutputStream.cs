@@ -1151,6 +1151,7 @@ namespace Ice
         }
 
         public void WriteStruct<T>(T value) where T : struct, IStreamableStruct => value.IceWrite(this);
+        public void WriteStruct<T>(in T value) where T : struct, IStreamableStruct => value.IceWrite(this);
 
         public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> writer)
         {
