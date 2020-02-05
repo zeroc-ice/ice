@@ -173,7 +173,7 @@ namespace IceInternal
                 var identity = new Ice.Identity(str);
                 s.Write("\nidentity = " + identity.ToString(toStringMode));
 
-                string[] facet = str.ReadStringSeq();
+                string[] facet = str.ReadStringArray();
                 s.Write("\nfacet = ");
                 if (facet.Length > 0)
                 {

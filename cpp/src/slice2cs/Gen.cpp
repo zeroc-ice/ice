@@ -1058,7 +1058,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     _out << nl << "#nullable enable";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
-    _out << nl << "using global::System.Linq;";
     if(impl)
     {
         IceUtilInternal::structstat st;
@@ -1362,7 +1361,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "public partial class " << fixId(name) << " : "
          << (bases.empty() ? getUnqualified("Ice.AnyClass", ns) : getUnqualified(bases.front(), ns))
          << sb;
-
     return true;
 }
 
@@ -1375,6 +1373,18 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader =";
+    _out.inc();
+    _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out.inc();
+    _out << nl << "(ostr, value) => ostr.WriteClass(value);";
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1809,8 +1819,26 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         _out << "readonly ";
     }
-    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">";
+    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, Ice.IStreamableStruct";
     _out << sb;
+
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader => ";
+    _out.inc();
+    _out << nl << "(istr) => new " << name << "(istr);";
+    _out.dec();
+
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public static Ice.OutputStreamStructWriter<" << name << "> IceWriter => ";
+    _out.inc();
+    _out << nl << "(Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
+    _out.dec();
+
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public const int IceMinWireSize = " << p->minWireSize() << ";";
     return true;
 }
 
@@ -1935,13 +1963,26 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public void IceWrite(" << getUnqualified("Ice.OutputStream", ns) << " iceP_ostr)";
+    _out << nl << "public readonly void IceWrite(Ice.OutputStream iceP_ostr)";
     _out << sb;
     for(auto m : dataMembers)
     {
         writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
     }
     _out << eb;
+
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static class " << p->name() << "Helper";
+    _out << sb;
+
+    _out << sp;
+    _out << nl << "public static Ice.OutputStreamWriter<" << name
+         << "> IceWriter = (ostr, value) => value.IceWrite(ostr);";
+
+    _out << sp;
+    _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader = (istr) => new " << name << "(istr);";
 
     _out << eb;
 }
@@ -1979,19 +2020,50 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
+    if(explicitValue)
+    {
+        _out << sp;
+        _out << nl << "public static readonly global::System.Collections.Generic.HashSet<int> EnumeratorValues = ";
+        _out.inc();
+        _out << nl << "new global::System.Collections.Generic.HashSet<int>()";
+        _out.spar('{');
+        for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+        {
+            _out << (*en)->value();
+        }
+        _out.epar('}');
+        _out << ";";
+        _out.dec();
+    }
+
     _out << sp;
-    _out << nl << "public static void Write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
-         << " v)";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name
+         << " value) => ostr.WriteSize((int)value);";
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << name << " Read" << p->name() << "(this Ice.InputStream istr)";
     _out << sb;
-    _out << nl << "ostr.WriteEnum((int)v, " << p->maxValue() << ");";
+    _out << nl << "int value = istr.ReadSize();";
+    if(explicitValue)
+    {
+        _out << nl << "if(!EnumeratorValues.Contains(value))";
+    }
+    else
+    {
+        _out << nl << "if(value < 0 || value > " << p->maxValue() << ")";
+    }
+    _out << sb;
+    _out << nl << "throw new Ice.MarshalException($\"invalid enumerator value `{value}' for " << fixId(p->scoped())
+         << "\");";
+    _out << eb;
+    _out << nl << "return (" << name << ") value;";
     _out << eb;
 
     _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " Read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    _out << nl << "return (" << name << ") istr.ReadEnum(" << p->maxValue() << ");";
-    _out << eb;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name() << ";";
 
     _out << eb;
 }
@@ -2134,8 +2206,22 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Proxy static methods
     //
     _out << sp;
-    _out << nl << "public static new " << getUnqualified("Ice.ProxyFactory", ns) << "<" << name
-         << "> Factory = (reference) => new _" << p->name() << "Prx(reference);";
+    _out << nl << "public static readonly new Ice.ProxyFactory<" << name << "> Factory =";
+    _out.inc();
+    _out << nl << "(reference) => new _" << p->name() << "Prx(reference);";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
+    _out.inc();
+    _out << nl << "(istr) => istr.ReadProxy(Factory);";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out.inc();
+    _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
+    _out.dec();
 
     _out << sp;
     _out << nl << "public static new " << name << " Parse("
@@ -2439,135 +2525,81 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    string ns = getNamespace(p);
-    string typeS = typeToString(p, ns);
+    string name = p->name();
+    string scope = getNamespace(p);
+    string seqS = typeToString(p, scope);
+    TypePtr type = p->type();
+
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static class " << p->name() << "Helper";
+    _out << nl << "public static class " << name << "Helper";
     _out << sb;
 
-    _out << sp << nl << "public static void Write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << typeS
-         << "? v)";
-    _out << sb;
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
+    _out << sp;
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
+    _out.inc();
+    _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
+    _out.inc();
+    _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+
     _out << eb;
-
-    _out << sp << nl << "public static " << typeS << " Read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    _out << nl << typeS << " v;";
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
-    _out << nl << "return v;";
-    _out << eb;
-    _out << eb;
-
-    string prefix = "cs:generic:";
-    string meta;
-    if(p->findMetaData(prefix, meta))
-    {
-        string type = meta.substr(prefix.size());
-        if(type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
-        {
-            return;
-        }
-
-        if(!isClassType(p->type()))
-        {
-            return;
-        }
-
-        //
-        // The sequence is a custom sequence with elements of class type.
-        // Emit a dummy class that causes a compile-time error if the
-        // custom sequence type does not implement an indexer.
-        //
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public class " << p->name() << "_Tester";
-        _out << sb;
-        _out << nl << p->name() << "_Tester()";
-        _out << sb;
-        _out << nl << typeS << " test = new " << typeS << "();";
-        _out << nl << "test[0] = null;";
-        _out << eb;
-        _out << eb;
-    }
 }
 
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    string ns = getNamespace(p);
+    string name = p->name();
+    string dictS = typeToString(p, ns);
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
-
-    string meta;
-
-    string prefix = "cs:generic:";
-    string genericType;
-    if(!p->findMetaData(prefix, meta))
-    {
-        genericType = "Dictionary";
-    }
-    else
-    {
-        genericType = meta.substr(prefix.size());
-    }
-
-    string ns = getNamespace(p);
-    string keyS = typeToString(key, ns);
-    string valueS = typeToString(value, ns);
-    string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
+    string generic = p->findMetaDataWithPrefix("cs:generic:");
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static class " << p->name() << "Helper";
+    _out << nl << "public static class " << name << "Helper";
     _out << sb;
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
+    _out.inc();
+    _out << nl << "ostr.WriteDict(dictionary, "
+         << outputStreamWriter(key, ns) << ", "
+         << outputStreamWriter(value, ns) << ");";
+    _out.dec();
 
-    _out << sp << nl << "public static void Write(";
-    _out.useCurrentPosAsIndent();
-    _out << getUnqualified("Ice.OutputStream", ns) << " ostr,";
-    _out << nl << name << " v)";
-    _out.restoreIndent();
-    _out << sb;
-    _out << nl << "if(v == null)";
-    _out << sb;
-    _out << nl << "ostr.WriteSize(0);";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    _out << nl << "ostr.WriteSize(v.Count);";
-    _out << nl << "foreach (var e in v)";
-    _out << sb;
-    writeMarshalCode(_out, key, ns, "e.Key");
-    writeMarshalCode(_out, value, ns, "e.Value");
-    _out << eb;
-    _out << eb;
-    _out << eb;
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriter = Write;";
 
-    _out << sp << nl << "public static " << name << " Read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    _out << nl << "int sz = istr.ReadSize();";
-    _out << nl << "var r = new " << name << "();";
-    _out << nl << "for (int i = 0; i < sz; ++i)";
-    _out << sb;
-    _out << nl << keyS << " k";
-    if(StructPtr::dynamicCast(key))
+    _out << sp;
+    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) => ";
+    _out.inc();
+    if(generic == "SortedDictionary")
     {
-        _out << " = default";
+        _out << nl << "istr.ReadSortedDict("
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ");";
     }
-    _out << ";";
-    writeUnmarshalCode(_out, key, ns, "k");
-
-    _out << nl << valueS << " v";
-    if(StructPtr::dynamicCast(value))
+    else
     {
-        _out << " = default";
+        _out << nl << "istr.ReadDict("
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ", "
+             << (key->minWireSize() + value->minWireSize()) << ");";
     }
-    _out << ";";
-    writeUnmarshalCode(_out, value, ns, "v");
-    _out << nl << "r[k] = v;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
 
     _out << eb;
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Ice;
 
 namespace IceInternal
 {
@@ -755,7 +756,7 @@ namespace IceInternal
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = Is.ReadStringSeq();
+                            string[] facetPath = Is.ReadStringArray();
                             string facet;
                             if (facetPath.Length > 0)
                             {

@@ -31,6 +31,10 @@ namespace Ice
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
         public Reference IceReference { get; }
+
+        public static readonly InputStreamReader<IObjectPrx?> IceReader = (istr) => istr.ReadProxy(Factory);
+        public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
+
         public IRequestHandler? RequestHandler { get; set; }
         public LinkedList<StreamCacheEntry>? StreamCache { get; set; }
 
@@ -202,7 +206,7 @@ namespace Ice
                                                          null,
                                                          context,
                                                          synchronous,
-                                                         read: (InputStream iss) => iss.ReadStringSeq());
+                                                         read: (InputStream iss) => iss.ReadStringArray());
         }
 
         /// <summary>
@@ -426,7 +430,7 @@ namespace Ice
             return lhs.IceReference.Equals(rhs.IceReference);
         }
 
-        public static ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
+        public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
         public static IObjectPrx Parse(string s, Communicator communicator) =>
             new ObjectPrx(communicator.CreateReference(s));

@@ -147,13 +147,13 @@ namespace Ice
             }
         }
 
-        public override void Write(Dictionary<string, string> prxContext, OutputStream os)
+        public override void Write(Dictionary<string, string> prxContext, OutputStream ostr)
         {
             if (prxContext.Count == 0)
             {
                 lock (this)
                 {
-                    ContextHelper.Write(os, _context);
+                    ContextHelper.Write(ostr, _context);
                 }
             }
             else
@@ -163,7 +163,7 @@ namespace Ice
                 {
                     ctx = _context.Count == 0 ? prxContext : Combine(prxContext);
                 }
-                ContextHelper.Write(os, ctx);
+                ContextHelper.Write(ostr, ctx);
             }
         }
 
@@ -331,7 +331,7 @@ namespace Ice
             return val;
         }
 
-        public override void Write(Dictionary<string, string> prxContext, OutputStream os)
+        public override void Write(Dictionary<string, string> prxContext, OutputStream ostr)
         {
             Dictionary<string, string> threadContext;
             lock (this)
@@ -341,11 +341,11 @@ namespace Ice
 
             if (threadContext == null || threadContext.Count == 0)
             {
-                ContextHelper.Write(os, prxContext);
+                ContextHelper.Write(ostr, prxContext);
             }
             else if (prxContext.Count == 0)
             {
-                ContextHelper.Write(os, threadContext);
+                ContextHelper.Write(ostr, threadContext);
             }
             else
             {
@@ -361,7 +361,7 @@ namespace Ice
                         // Ignore.
                     }
                 }
-                ContextHelper.Write(os, combined);
+                ContextHelper.Write(ostr, combined);
             }
         }
 

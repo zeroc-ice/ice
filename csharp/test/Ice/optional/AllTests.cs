@@ -4,6 +4,7 @@
 
 using System.Linq;
 using System.Collections.Generic;
+using Ice.optional.Test;
 
 namespace Ice.optional
 {
@@ -21,7 +22,7 @@ namespace Ice.optional
             output.Write("testing optional data members... ");
             output.Flush();
 
-            Test.OneOptional oo1 = new Test.OneOptional();
+            var oo1 = new Test.OneOptional();
             test(!oo1.a.HasValue);
             oo1.a = 15;
             test(oo1.a.HasValue && oo1.a == 15);
@@ -39,7 +40,6 @@ namespace Ice.optional
             mo1.g = 1.0;
             mo1.h = "test";
             mo1.i = Test.MyEnum.MyEnumMember;
-            mo1.j = IObjectPrx.Parse("test", communicator);
             mo1.k = mo1;
             mo1.bs = new byte[] { 5 };
             mo1.ss = new string[] { "test", "test2" };
@@ -59,7 +59,6 @@ namespace Ice.optional
             mo1.fss = new Test.FixedStruct[] { fs };
             mo1.vss = new Test.VarStruct[] { vs };
             mo1.oos = new Test.OneOptional[] { oo1 };
-            mo1.oops = new IObjectPrx[] { IObjectPrx.Parse("test", communicator) };
 
             mo1.ied = new Dictionary<int, Test.MyEnum>();
             mo1.ied.Add(4, Test.MyEnum.MyEnumMember);
@@ -69,8 +68,6 @@ namespace Ice.optional
             mo1.ivsd.Add(5, vs);
             mo1.iood = new Dictionary<int, Test.OneOptional>();
             mo1.iood.Add(5, new Test.OneOptional(15));
-            mo1.ioopd = new Dictionary<int, IObjectPrx>();
-            mo1.ioopd.Add(5, IObjectPrx.Parse("test", communicator));
 
             mo1.bos = new bool[] { false, true, false };
             mo1.ser = new Test.SerializableClass(56);
@@ -84,7 +81,6 @@ namespace Ice.optional
             test(mo1.g == 1.0);
             test(mo1.h.Equals("test"));
             test(mo1.i == Test.MyEnum.MyEnumMember);
-            test(mo1.j.Equals(IObjectPrx.Parse("test", communicator)));
             test(mo1.k == mo1);
             test(Collections.Equals(mo1.bs, new byte[] { 5 }));
             test(Collections.Equals(mo1.ss, new string[] { "test", "test2" }));
@@ -98,13 +94,11 @@ namespace Ice.optional
             test(mo1.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo1.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo1.oos[0] == oo1);
-            test(mo1.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo1.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
             test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
             test(mo1.iood[5].a == 15);
-            test(mo1.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(Collections.Equals(mo1.bos, new bool[] { false, true, false }));
             test(mo1.ser.Equals(new Test.SerializableClass(56)));
@@ -130,7 +124,6 @@ namespace Ice.optional
             test(mo4.g == null);
             test(mo4.h == null);
             test(mo4.i == null);
-            test(mo4.j == null);
             test(mo4.k == null);
             test(mo4.bs == null);
             test(mo4.ss == null);
@@ -144,13 +137,11 @@ namespace Ice.optional
             test(mo4.fss == null);
             test(mo4.vss == null);
             test(mo4.oos == null);
-            test(mo4.oops == null);
 
             test(mo4.ied == null);
             test(mo4.ifsd == null);
             test(mo4.ivsd == null);
             test(mo4.iood == null);
-            test(mo4.ioopd == null);
 
             test(mo4.bos == null);
 
@@ -172,7 +163,6 @@ namespace Ice.optional
             test(mo5.g == mo1.g);
             test(mo5.h.Equals(mo1.h));
             test(mo5.i == mo1.i);
-            test(mo5.j.Equals(mo1.j));
             test(mo5.k == mo5);
             test(Collections.Equals(mo5.bs, mo1.bs));
             test(Collections.Equals(mo5.ss, mo1.ss));
@@ -185,13 +175,11 @@ namespace Ice.optional
             test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo5.oos[0].a == 15);
-            test(mo5.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo5.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
             test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
             test(mo5.iood[5].a == 15);
-            test(mo5.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(Collections.Equals(mo5.bos, new bool[] { false, true, false }));
             if (supportsCsharpSerializable)
@@ -205,7 +193,6 @@ namespace Ice.optional
             mo6.d = mo5.d;
             mo6.f = mo5.f;
             mo6.h = mo5.h;
-            mo6.j = mo5.j;
             mo6.bs = mo5.bs;
             mo6.iid = mo5.iid;
             mo6.fs = mo5.fs;
@@ -226,7 +213,6 @@ namespace Ice.optional
             test(mo7.g == null);
             test(mo7.h.Equals(mo1.h));
             test(mo7.i == null);
-            test(mo7.j.Equals(mo1.j));
             test(mo7.k == null);
             test(Collections.Equals(mo7.bs, mo1.bs));
             test(mo7.ss == null);
@@ -240,13 +226,11 @@ namespace Ice.optional
             test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo7.vss == null);
             test(mo7.oos[0].a == 15);
-            test(mo7.oops == null);
 
             test(mo7.ied == null);
             test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
             test(mo7.ivsd == null);
             test(mo7.iood[5].a == 15);
-            test(mo7.ioopd == null);
 
             test(Collections.Equals(mo7.bos, new bool[] { false, true, false }));
             test(mo7.ser == null);
@@ -265,11 +249,9 @@ namespace Ice.optional
 
             mo8.es = mo5.es;
             mo8.vss = mo5.vss;
-            mo8.oops = mo5.oops;
 
             mo8.ied = mo5.ied;
             mo8.ivsd = mo5.ivsd;
-            mo8.ioopd = mo5.ioopd;
             if (supportsCsharpSerializable)
             {
                 mo8.ser = new Test.SerializableClass(56);
@@ -285,7 +267,6 @@ namespace Ice.optional
             test(mo9.g.Equals(mo1.g));
             test(mo9.h == null);
             test(mo9.i.Equals(mo1.i));
-            test(mo9.j == null);
             test(mo9.k == mo9);
             test(mo9.bs == null);
             test(Collections.Equals(mo9.ss, mo1.ss));
@@ -299,13 +280,11 @@ namespace Ice.optional
             test(mo9.fss == null);
             test(mo9.vss[0].Equals(new Test.VarStruct("hello")));
             test(mo9.oos == null);
-            test(mo9.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo9.ied[4] == Test.MyEnum.MyEnumMember);
             test(mo9.ifsd == null);
             test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
             test(mo9.iood == null);
-            test(mo9.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
             test(mo9.bos == null);
             if (supportsCsharpSerializable)
@@ -341,11 +320,11 @@ namespace Ice.optional
             byte[] inEncaps = os.Finished();
             byte[] outEncaps;
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-            InputStream @in = new InputStream(communicator, outEncaps);
-            @in.StartEncapsulation();
+            InputStream istr = new InputStream(communicator, outEncaps);
+            istr.StartEncapsulation();
             ReadClassCallbackI cb = new ReadClassCallbackI();
-            @in.ReadClass(cb.invoke);
-            @in.EndEncapsulation();
+            istr.ReadClass(cb.invoke);
+            istr.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
 
             os = new OutputStream(communicator);
@@ -354,10 +333,10 @@ namespace Ice.optional
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-            @in = new InputStream(communicator, outEncaps);
-            @in.StartEncapsulation();
-            @in.ReadClass(cb.invoke);
-            @in.EndEncapsulation();
+            istr = new InputStream(communicator, outEncaps);
+            istr.StartEncapsulation();
+            istr.ReadClass(cb.invoke);
+            istr.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
             */
@@ -396,14 +375,14 @@ namespace Ice.optional
 
             initial.opVoid();
 
-            var os = new OutputStream(communicator);
-            os.StartEncapsulation();
-            os.WriteOptional(1, OptionalFormat.F4);
-            os.WriteInt(15);
-            os.WriteOptional(1, OptionalFormat.VSize);
-            os.WriteString("test");
-            os.EndEncapsulation();
-            var inEncaps = os.Finished();
+            var ostr = new OutputStream(communicator);
+            ostr.StartEncapsulation();
+            ostr.WriteOptional(1, OptionalFormat.F4);
+            ostr.WriteInt(15);
+            ostr.WriteOptional(1, OptionalFormat.VSize);
+            ostr.WriteString("test");
+            ostr.EndEncapsulation();
+            var inEncaps = ostr.Finished();
             test(initial.Invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
 
             output.WriteLine("ok");
@@ -441,10 +420,10 @@ namespace Ice.optional
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-            @in = new InputStream(communicator, outEncaps);
-            @in.StartEncapsulation();
-            @in.ReadClass(cb.invoke);
-            @in.EndEncapsulation();
+            istr = new InputStream(communicator, outEncaps);
+            istr.StartEncapsulation();
+            istr.ReadClass(cb.invoke);
+            istr.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
             */
@@ -479,10 +458,10 @@ namespace Ice.optional
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.ReadClass(cb.invoke);
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.ReadClass(cb.invoke);
+                istr.EndEncapsulation();
                 test(cb.obj != null);
                 factory.setEnabled(false);
                 */
@@ -508,11 +487,11 @@ namespace Ice.optional
                 os.WriteClass(f);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
-                @in = new InputStream(communicator, inEncaps);
-                @in.StartEncapsulation();
+                istr = new InputStream(communicator, inEncaps);
+                istr.StartEncapsulation();
                 ReadClassCallbackI rocb = new ReadClassCallbackI();
-                @in.ReadClass(rocb.invoke);
-                @in.EndEncapsulation();
+                istr.ReadClass(rocb.invoke);
+                istr.EndEncapsulation();
                 factory.setEnabled(false);
                 rf = ((FClassReader)rocb.obj).getF();
                 test(rf.ae != null && !rf.af.HasValue);
@@ -542,19 +521,19 @@ namespace Ice.optional
                     Test.C c = new Test.C();
                     c.ss = "test";
                     c.ms = "testms";
-                    os = new OutputStream(communicator);
-                    os.StartEncapsulation();
-                    os.WriteClass(c);
-                    os.EndEncapsulation();
-                    inEncaps = os.Finished();
+                    ostr = new OutputStream(communicator);
+                    ostr.StartEncapsulation();
+                    ostr.WriteClass(c);
+                    ostr.EndEncapsulation();
+                    inEncaps = ostr.Finished();
 
                     /*
                     factory.setEnabled(true);
                     test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.StartEncapsulation();
-                    @in.ReadClass(cb.invoke);
-                    @in.EndEncapsulation();
+                    istr = new InputStream(communicator, outEncaps);
+                    istr.StartEncapsulation();
+                    istr.ReadClass(cb.invoke);
+                    istr.EndEncapsulation();
                     test(cb.obj is CClassReader);
                     factory.setEnabled(false);
 
@@ -566,10 +545,10 @@ namespace Ice.optional
                     os.EndEncapsulation();
                     inEncaps = os.Finished();
                     test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.StartEncapsulation();
-                    @in.ReadClass(cb.invoke);
-                    @in.EndEncapsulation();
+                    istr = new InputStream(communicator, outEncaps);
+                    istr.StartEncapsulation();
+                    istr.ReadClass(cb.invoke);
+                    istr.EndEncapsulation();
                     test(cb.obj != null && cb.obj is DClassReader);
                     ((DClassReader)cb.obj).check();
                     factory.setEnabled(false);
@@ -593,9 +572,9 @@ namespace Ice.optional
                     test(initial.Invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
                                             out outEncaps));
 
-                    var @in = new InputStream(communicator, outEncaps);
-                    @in.StartEncapsulation();
-                    @in.EndEncapsulation();
+                    var istr = new InputStream(communicator, outEncaps);
+                    istr.StartEncapsulation();
+                    istr.EndEncapsulation();
                 }
                 output.WriteLine("ok");
                 */
@@ -623,21 +602,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opByte(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteByte(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteByte(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadByte(1) == 56);
-                test(@in.ReadByte(3) == 56);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadByte(1) == 56);
+                test(istr.ReadByte(3) == 56);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -660,21 +639,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opBool(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteBool(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteBool(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadBool(1) == true);
-                test(@in.ReadBool(3) == true);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadBool(1) == true);
+                test(istr.ReadBool(3) == true);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -697,21 +676,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opShort(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteShort(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteShort(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadShort(1) == 56);
-                test(@in.ReadShort(3) == 56);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadShort(1) == 56);
+                test(istr.ReadShort(3) == 56);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -734,21 +713,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opInt(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteInt(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteInt(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadInt(1) == 56);
-                test(@in.ReadInt(3) == 56);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadInt(1) == 56);
+                test(istr.ReadInt(3) == 56);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -771,21 +750,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opLong(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteLong(1, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteLong(1, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadLong(2) == 56);
-                test(@in.ReadLong(3) == 56);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadLong(2) == 56);
+                test(istr.ReadLong(3) == 56);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -808,21 +787,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloat(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteFloat(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteFloat(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadFloat(1) == 1.0f);
-                test(@in.ReadFloat(3) == 1.0f);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadFloat(1) == 1.0f);
+                test(istr.ReadFloat(3) == 1.0f);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -845,21 +824,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opDouble(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteDouble(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteDouble(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadDouble(1) == 1.0);
-                test(@in.ReadDouble(3) == 1.0);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadDouble(1) == 1.0);
+                test(istr.ReadDouble(3) == 1.0);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -884,21 +863,21 @@ namespace Ice.optional
                 (p2, p3) = initial.opString(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteString(2, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteString(2, p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadString(1) == "test");
-                test(@in.ReadString(3) == "test");
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadString(1) == "test");
+                test(istr.ReadString(3) == "test");
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -921,23 +900,23 @@ namespace Ice.optional
                 (p2, p3) = initial.opMyEnum(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteEnum(2, (int?)p1, 0);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteEnum(2, (int?)p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.Size));
-                test((Test.MyEnum)@in.ReadEnum(1) == Test.MyEnum.MyEnumMember);
-                test(@in.ReadOptional(3, OptionalFormat.Size));
-                test((Test.MyEnum)@in.ReadEnum(1) == Test.MyEnum.MyEnumMember);
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.Size));
+                test((Test.MyEnum)istr.ReadEnum(1) == Test.MyEnum.MyEnumMember);
+                test(istr.ReadOptional(3, OptionalFormat.Size));
+                test((Test.MyEnum)istr.ReadEnum(1) == Test.MyEnum.MyEnumMember);
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -960,29 +939,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(1);
-                p1.Value.IceWrite(os);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(1);
+                p1.Value.IceWrite(ostr);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                Test.SmallStruct f = new Test.SmallStruct(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                Test.SmallStruct f = new Test.SmallStruct(istr);
                 test(f.m == 56);
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                f = new Test.SmallStruct(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                f = new Test.SmallStruct(istr);
                 test(f.m == 56);
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1005,29 +984,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(4);
-                p1.Value.IceWrite(os);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(4);
+                p1.Value.IceWrite(ostr);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                Test.FixedStruct f = new Test.FixedStruct(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                Test.FixedStruct f = new Test.FixedStruct(istr);
                 test(f.m == 56);
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                f = new Test.FixedStruct(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                f = new Test.FixedStruct(istr);
                 test(f.m == 56);
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1055,30 +1034,30 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                p1.Value.IceWrite(os);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                p1.Value.IceWrite(ostr);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.Skip(4);
-                Test.VarStruct v = new Test.VarStruct(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.Skip(4);
+                Test.VarStruct v = new Test.VarStruct(istr);
                 test(v.m.Equals("test"));
-                test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.Skip(4);
-                v = new Test.VarStruct(@in);
+                test(istr.ReadOptional(3, OptionalFormat.FSize));
+                istr.Skip(4);
+                v = new Test.VarStruct(istr);
                 test(v.m.Equals("test"));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1101,25 +1080,25 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptional(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.Class);
-                os.WriteClass(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.Class);
+                ostr.WriteClass(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.Class));
-                var p2c = @in.ReadClass<Test.OneOptional>();
-                test(@in.ReadOptional(3, OptionalFormat.Class));
-                var p3c = @in.ReadClass<Test.OneOptional>();
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.Class));
+                var p2c = istr.ReadClass<Test.OneOptional>();
+                test(istr.ReadOptional(3, OptionalFormat.Class));
+                var p3c = istr.ReadClass<Test.OneOptional>();
+                istr.EndEncapsulation();
                 test(p2c.a == 58 && p3c.a == 58);
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1141,24 +1120,24 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptionalProxy(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                os.WriteProxy(p1);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                ostr.WriteProxy(p1);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(IObjectPrx.Equals(@in.ReadProxy(1, IObjectPrx.Factory), p1));
-                test(IObjectPrx.Equals(@in.ReadProxy(3, IObjectPrx.Factory), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(IObjectPrx.Equals(istr.ReadProxy(1, IObjectPrx.Factory), p1));
+                test(IObjectPrx.Equals(istr.ReadProxy(3, IObjectPrx.Factory), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1181,24 +1160,24 @@ namespace Ice.optional
                 (p2, p3) = initial.opByteSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteByteSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteByteSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadByteSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadByteSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                test(Collections.Equals(istr.ReadByteArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                test(Collections.Equals(istr.ReadByteArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1221,24 +1200,24 @@ namespace Ice.optional
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteBoolSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteBoolSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadBoolSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(@in.ReadBoolSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                test(Collections.Equals(istr.ReadBoolArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                test(Collections.Equals(istr.ReadBoolArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1262,27 +1241,27 @@ namespace Ice.optional
                 (p2, p3) = initial.opShortSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
-                os.WriteShortSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
+                ostr.WriteShortSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadShortSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadShortSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadShortArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadShortArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1305,27 +1284,27 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                os.WriteIntSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                ostr.WriteIntSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadIntSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadIntSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadIntArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadIntArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1348,27 +1327,27 @@ namespace Ice.optional
                 (p2, p3) = initial.opLongSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
-                os.WriteLongSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                ostr.WriteLongSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadLongSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadLongSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadLongArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadLongArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1391,27 +1370,27 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloatSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                os.WriteFloatSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                ostr.WriteFloatSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadFloatSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadFloatSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadFloatArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadFloatArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1434,27 +1413,27 @@ namespace Ice.optional
                 (p2, p3) = initial.opDoubleSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
-                os.WriteDoubleSeq(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                ostr.WriteDoubleSeq(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadDoubleSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                test(Collections.Equals(@in.ReadDoubleSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadDoubleArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                test(Collections.Equals(istr.ReadDoubleArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1477,28 +1456,28 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                os.WriteStringSeq(p1);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                ostr.WriteStringSeq(p1);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.Skip(4);
-                test(Collections.Equals(@in.ReadStringSeq(), p1));
-                test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.Skip(4);
-                test(Collections.Equals(@in.ReadStringSeq(), p1));
-                @in.EndEncapsulation();
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.Skip(4);
+                test(Collections.Equals(istr.ReadStringArray(), p1));
+                test(istr.ReadOptional(3, OptionalFormat.FSize));
+                istr.Skip(4);
+                test(Collections.Equals(istr.ReadStringArray(), p1));
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1521,42 +1500,42 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                Test.SmallStructSeqHelper.Write(os, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
+                ostr.Write(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                Test.SmallStruct[] arr = Test.SmallStructSeqHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                SmallStruct[] arr = istr.ReadSmallStructSeq();
                 test(Collections.Equals(arr, p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                arr = Test.SmallStructSeqHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                arr = istr.ReadSmallStructSeq();
                 test(Collections.Equals(arr, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
-                List<Test.SmallStruct>? p1 = null;
+                List<SmallStruct>? p1 = null;
                 var (p2, p3) = initial.opSmallStructList(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null);
 
-                p1 = new List<Test.SmallStruct>();
+                p1 = new List<SmallStruct>();
                 for (int i = 0; i < 10; ++i)
                 {
-                    p1.Add(new Test.SmallStruct());
+                    p1.Add(new SmallStruct());
                 }
                 (p2, p3) = initial.opSmallStructList(p1);
                 test(Collections.Equals(p2, p1));
@@ -1570,29 +1549,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
-                Test.SmallStructListHelper.Write(os, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
+                ostr.Write(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                List<Test.SmallStruct> arr = Test.SmallStructListHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                List<SmallStruct> arr = istr.ReadSmallStructList();
                 test(Collections.Equals(arr, p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                arr = Test.SmallStructListHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                arr = istr.ReadSmallStructList();
                 test(Collections.Equals(arr, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1615,29 +1594,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                Test.FixedStructSeqHelper.Write(os, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                ostr.Write(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                Test.FixedStruct[] arr = Test.FixedStructSeqHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                Test.FixedStruct[] arr = istr.ReadFixedStructSeq();
                 test(Collections.Equals(arr, p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                arr = Test.FixedStructSeqHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                arr = istr.ReadFixedStructSeq();
                 test(Collections.Equals(arr, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1664,29 +1643,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
-                Test.FixedStructListHelper.Write(os, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
+                ostr.Write(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                var arr = istr.ReadFixedStructList();
                 test(Collections.Equals(arr, p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                arr = Test.FixedStructListHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                arr = istr.ReadFixedStructList();
                 test(Collections.Equals(arr, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1709,30 +1688,30 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                Test.VarStructSeqHelper.Write(os, p1);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                ostr.Write(p1);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.Skip(4);
-                Test.VarStruct[] arr = Test.VarStructSeqHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.Skip(4);
+                VarStruct[] arr = istr.ReadVarStructSeq();
                 test(Collections.Equals(arr, p1));
-                test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.Skip(4);
-                arr = Test.VarStructSeqHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.FSize));
+                istr.Skip(4);
+                arr = istr.ReadVarStructSeq();
                 test(Collections.Equals(arr, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             if (supportsCsharpSerializable)
@@ -1756,26 +1735,26 @@ namespace Ice.optional
                 (p2, p3) = initial.opSerializable(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSerializable(p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSerializable(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                Test.SerializableClass sc = Test.SerializableHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                var sc = (Test.SerializableClass) istr.ReadSerializable();
                 test(sc.Equals(p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                sc = Test.SerializableHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                sc = (Test.SerializableClass)istr.ReadSerializable();
                 test(sc.Equals(p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1800,29 +1779,29 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.VSize);
-                os.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
-                Test.IntIntDictHelper.Write(os, p1);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.VSize);
+                ostr.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
+                ostr.Write(p1);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.VSize));
-                @in.SkipSize();
-                Dictionary<int, int> m = Test.IntIntDictHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.VSize));
+                istr.SkipSize();
+                Dictionary<int, int> m = istr.ReadIntIntDict();
                 test(Collections.Equals(m, p1));
-                test(@in.ReadOptional(3, OptionalFormat.VSize));
-                @in.SkipSize();
-                m = Test.IntIntDictHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.VSize));
+                istr.SkipSize();
+                m = istr.ReadIntIntDict();
                 test(Collections.Equals(m, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
 
             {
@@ -1847,50 +1826,50 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                Test.StringIntDictHelper.Write(os, p1);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                ostr.Write(p1);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.Skip(4);
-                Dictionary<string, int> m = Test.StringIntDictHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.Skip(4);
+                Dictionary<string, int> m = istr.ReadStringIntDict();
                 test(Collections.Equals(m, p1));
-                test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.Skip(4);
-                m = Test.StringIntDictHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.FSize));
+                istr.Skip(4);
+                m = istr.ReadStringIntDict();
                 test(Collections.Equals(m, p1));
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
 
                 Test.F f = new Test.F();
                 f.af = new Test.A();
                 f.af.requiredA = 56;
                 f.ae = f.af;
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(1, OptionalFormat.Class);
-                os.WriteClass(f);
-                os.WriteOptional(2, OptionalFormat.Class);
-                os.WriteClass(f.ae);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(1, OptionalFormat.Class);
+                ostr.WriteClass(f);
+                ostr.WriteOptional(2, OptionalFormat.Class);
+                ostr.WriteClass(f.ae);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
 
-                @in = new InputStream(communicator, inEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(2, OptionalFormat.Class));
-                var a = @in.ReadClass<Test.A>();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, inEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(2, OptionalFormat.Class));
+                var a = istr.ReadClass<Test.A>();
+                istr.EndEncapsulation();
                 test(a != null && a.requiredA == 56);
             }
 
@@ -1916,30 +1895,30 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntOneOptionalDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteOptional(2, OptionalFormat.FSize);
-                int pos = os.StartSize();
-                Test.IntOneOptionalDictHelper.Write(os, p1);
-                os.EndSize(pos);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
+                ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(2, OptionalFormat.FSize);
+                int pos = ostr.StartSize();
+                ostr.Write(p1);
+                ostr.EndSize(pos);
+                ostr.EndEncapsulation();
+                inEncaps = ostr.Finished();
                 initial.Invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
-                var @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.Skip(4);
-                Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.Read(@in);
+                var istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.Skip(4);
+                Dictionary<int, OneOptional> m = istr.ReadIntOneOptionalDict();
                 test(m[1].a == 58);
-                test(@in.ReadOptional(3, OptionalFormat.FSize));
-                @in.Skip(4);
-                m = Test.IntOneOptionalDictHelper.Read(@in);
+                test(istr.ReadOptional(3, OptionalFormat.FSize));
+                istr.Skip(4);
+                m = istr.ReadIntOneOptionalDict();
                 test(m[1].a == 58);
-                @in.EndEncapsulation();
+                istr.EndEncapsulation();
 
-                @in = new InputStream(communicator, outEncaps);
-                @in.StartEncapsulation();
-                @in.EndEncapsulation();
+                istr = new InputStream(communicator, outEncaps);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
             output.WriteLine("ok");
 
@@ -2133,30 +2112,30 @@ namespace Ice.optional
 
         private class DClassReader : ClassReader
         {
-            public override void read(InputStream @in)
+            public override void read(InputStream istr)
             {
-                @in.startClass();
+                istr.startClass();
                 // ::Test::D
-                @in.startSlice();
-                string s = @in.ReadString();
+                istr.startSlice();
+                string s = istr.ReadString();
                 test(s.Equals("test"));
-                test(@in.ReadOptional(1, OptionalFormat.FSize));
-                @in.skip(4);
-                string[] o = @in.ReadStringSeq();
+                test(istr.ReadOptional(1, OptionalFormat.FSize));
+                istr.skip(4);
+                string[] o = istr.ReadStringSeq();
                 test(o.Length == 4 &&
                         o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
-                test(@in.ReadOptional(1000, OptionalFormat.Class));
-                @in.ReadClass(a.invoke);
-                @in.endSlice();
+                test(istr.ReadOptional(1000, OptionalFormat.Class));
+                istr.ReadClass(a.invoke);
+                istr.endSlice();
                 // ::Test::B
-                @in.startSlice();
-                @in.ReadInt();
-                @in.endSlice();
+                istr.startSlice();
+                istr.ReadInt();
+                istr.endSlice();
                 // ::Test::A
-                @in.startSlice();
-                @in.ReadInt();
-                @in.endSlice();
-                @in.endClass(false);
+                istr.startSlice();
+                istr.ReadInt();
+                istr.endSlice();
+                istr.endClass(false);
             }
 
             internal void check()
@@ -2169,19 +2148,19 @@ namespace Ice.optional
 
         private class FClassReader : ClassReader
         {
-            public override void read(InputStream @in)
+            public override void read(InputStream istr)
             {
                 _f = new Test.F();
-                @in.startClass();
-                @in.startSlice();
+                istr.startClass();
+                istr.startSlice();
                 // Don't read af on purpose
                 //in.Read(1, _f.af);
-                @in.endSlice();
-                @in.startSlice();
+                istr.endSlice();
+                istr.startSlice();
                 ReadClassCallbackI rocb = new ReadClassCallbackI();
-                @in.ReadClass(rocb.invoke);
-                @in.endSlice();
-                @in.endClass(false);
+                istr.ReadClass(rocb.invoke);
+                istr.endSlice();
+                istr.endClass(false);
                 _f.ae = (Test.A)rocb.obj;
             }
 

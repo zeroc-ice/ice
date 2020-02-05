@@ -55,7 +55,6 @@ sequence<FixedStruct> FixedStructSeq;
 ["clr:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
-sequence<OneOptional*> OneOptionalPrxSeq;
 
 ["clr:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
@@ -66,7 +65,6 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
-dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
 class MultiOptional
 {
@@ -79,7 +77,6 @@ class MultiOptional
     tag(7) double g;
     tag(8) string h;
     tag(9) MyEnum i;
-    tag(10) MultiOptional* j;
     tag(11) MultiOptional k;
     tag(12) ByteSeq bs;
     tag(13) StringSeq ss;
@@ -93,13 +90,11 @@ class MultiOptional
     tag(20) FixedStructSeq fss;
     tag(21) VarStructSeq vss;
     tag(22) OneOptionalSeq oos;
-    tag(23) OneOptionalPrxSeq oops;
 
     tag(24) IntEnumDict ied;
     tag(25) IntFixedStructDict ifsd;
     tag(26) IntVarStructDict ivsd;
     tag(27) IntOneOptionalDict iood;
-    tag(28) IntOneOptionalPrxDict ioopd;
 
     tag(29) BoolSeq bos;
 

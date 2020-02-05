@@ -100,11 +100,10 @@ namespace IceInternal
             // Read the current.
             //
             var id = new Ice.Identity(_is);
-
             //
             // For compatibility with the old FacetPath.
             //
-            string[] facetPath = _is.ReadStringSeq();
+            string[] facetPath = _is.ReadStringArray();
             string facet;
             if (facetPath.Length > 0)
             {
