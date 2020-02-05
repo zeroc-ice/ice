@@ -818,7 +818,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin)
+    if(builtin && !isProxyType(type) && !isClassType(type))
     {
         out << "Ice.OutputStream.IceWriterFrom" << builtinTableSuffix[builtin->kind()];
     }
@@ -864,7 +864,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin)
+    if(builtin && !isProxyType(type) && !isClassType(type))
     {
         out << "Ice.InputStream.IceReaderInto" << builtinTableSuffix[builtin->kind()];
     }

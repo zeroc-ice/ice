@@ -10,6 +10,9 @@ namespace Ice
     [Serializable]
     public abstract class AnyClass : ICloneable
     {
+        public static readonly InputStreamReader<AnyClass?> IceReader = (istr) => istr.ReadClass<AnyClass>();
+        public static readonly OutputStreamWriter<AnyClass> IceWriter = (ostr, value) => ostr.WriteClass(value);
+
         protected virtual SlicedData? IceSlicedData
         {
             get => null;

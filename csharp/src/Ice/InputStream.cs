@@ -15,84 +15,6 @@ namespace Ice
 {
     public delegate T InputStreamReader<T>(InputStream ins);
 
-    public class Collection<T> : ICollection<T>
-    {
-        private readonly InputStream _ins;
-        private readonly InputStreamReader<T> _read;
-
-        public int Count { get; }
-
-        public bool IsReadOnly => true;
-
-        public Collection(InputStream ins, InputStreamReader<T> read, int minSize)
-        {
-            _ins = ins;
-            _read = read;
-            Count = ins.ReadAndCheckSeqSize(minSize);
-        }
-
-        // TODO: Ideally this should use a InputStream view and cache the input stream start
-        // position, so that succesivelly enumerators yield same valid results. In practice
-        // GetEnuerator should only be called once when the collection is unmarshal.
-        public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
-
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
-        public void Add(T item) => throw new NotSupportedException();
-        public void Clear() => throw new NotSupportedException();
-        public bool Contains(T item) => throw new NotSupportedException();
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            foreach (T value in this)
-            {
-                array[arrayIndex++] = value;
-            }
-        }
-        public bool Remove(T item) => throw new NotSupportedException();
-    }
-
-    public class Enumerator<T> : IEnumerator<T>
-    {
-        public T Current { get; private set; }
-        object IEnumerator.Current => Current!;
-
-        private readonly InputStream _ins;
-        private readonly InputStreamReader<T> _read;
-        private int _pos;
-        private readonly int _size;
-
-        public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
-        {
-            _ins = ins;
-            _read = read;
-            _size = size;
-            _pos = 0;
-        }
-
-        public bool MoveNext()
-        {
-            if (_pos >= _size)
-            {
-                return false;
-            }
-            else
-            {
-                Current = _read(_ins);
-                _pos++;
-                return true;
-            }
-        }
-
-        public void Reset() => throw new NotSupportedException();
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-        }
-    }
     /// <summary>
     /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
     /// If the implementation does not throw an exception, the Ice run time will fall back
@@ -114,8 +36,6 @@ namespace Ice
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
-        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoProxy = (istr) => istr.ReadProxy(IObjectPrx.Factory);
-        public static readonly InputStreamReader<AnyClass?> IceReaderIntoClass = (istr) => istr.ReadClass<AnyClass>();
 
         /// <summary>
         /// Returns the current size of the stream.
@@ -2138,6 +2058,79 @@ namespace Ice
                 OldLimit = oldLimit;
                 OldEncoding = oldEncoding;
                 Size = size;
+            }
+        }
+
+        private sealed class Collection<T> : ICollection<T>
+        {
+            private readonly InputStream _ins;
+            private readonly InputStreamReader<T> _read;
+
+            public int Count { get; }
+
+            public bool IsReadOnly => true;
+
+            public Collection(InputStream ins, InputStreamReader<T> read, int minSize)
+            {
+                _ins = ins;
+                _read = read;
+                Count = ins.ReadAndCheckSeqSize(minSize);
+            }
+
+            // TODO: Ideally this should use a InputStream view and cache the input stream start
+            // position, so that succesivelly enumerators yield same valid results. In practice
+            // GetEnuerator should only be called once when the collection is unmarshal.
+            public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
+
+            IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
+            public void Add(T item) => throw new NotSupportedException();
+            public void Clear() => throw new NotSupportedException();
+            public bool Contains(T item) => throw new NotSupportedException();
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                foreach (T value in this)
+                {
+                    array[arrayIndex++] = value;
+                }
+            }
+            public bool Remove(T item) => throw new NotSupportedException();
+        }
+
+        private sealed class Enumerator<T> : IEnumerator<T>
+        {
+            public T Current { get; private set; }
+            object IEnumerator.Current => Current!;
+
+            private readonly InputStream _ins;
+            private readonly InputStreamReader<T> _read;
+            private int _pos;
+            private readonly int _size;
+
+            public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
+            {
+                _ins = ins;
+                _read = read;
+                _size = size;
+                _pos = 0;
+            }
+
+            public bool MoveNext()
+            {
+                if (_pos >= _size)
+                {
+                    return false;
+                }
+                else
+                {
+                    Current = _read(_ins);
+                    _pos++;
+                    return true;
+                }
+            }
+
+            public void Reset() => throw new NotSupportedException();
+            public void Dispose()
+            {
             }
         }
     }

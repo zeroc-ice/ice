@@ -32,8 +32,6 @@ namespace Ice
         public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
         public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
-        public static readonly OutputStreamWriter<IObjectPrx> IceWriterFromProxy = (ostr, value) => ostr.WriteProxy(value);
-        public static readonly OutputStreamWriter<AnyClass> IceWriterFromClass = (ostr, value) => ostr.WriteClass(value);
 
         /// <summary>
         /// The communicator associated with this stream.
@@ -1059,9 +1057,9 @@ namespace Ice
             }
         }
 
-        public void WriteProxySeq<T>(T[]? v) where T : class, IObjectPrx => WriteSeq(v, IceWriterFromProxy);
+        public void WriteProxySeq<T>(T[]? v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
 
-        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : class, IObjectPrx => WriteSeq(v, IceWriterFromProxy);
+        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
 
         public void WriteProxySeq<T>(int tag, T[]? v) where T : class, IObjectPrx
         {
@@ -1146,7 +1144,6 @@ namespace Ice
             }
         }
 
-        public void WriteStruct<T>(T value) where T : struct, IStreamableStruct => value.IceWrite(this);
         public void WriteStruct<T>(in T value) where T : struct, IStreamableStruct => value.IceWrite(this);
 
         public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> writer)
