@@ -55,12 +55,10 @@ namespace Ice
         /// <returns>The property set.</returns>
         public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
 
-        /// <summary>
-        /// Tests whether the target object implements a specific Slice interface.
-        /// </summary>
+        /// <summary>Tests whether the target object implements a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns>True if the target object implements the Slice interface identified by id</return>.
+        /// <returns>True if the target object implements the Slice interface identified by id</returns>.
         public bool IceIsA(string id, Dictionary<string, string>? context = null)
         {
             try

@@ -944,23 +944,14 @@ namespace Ice
         /// <returns>The endpoint from which the connection was created.</returns>
         public IEndpoint Endpoint => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
-        /// <summary>
-        /// Create a special proxy that always uses this connection.
-        /// This
-        /// can be used for callbacks from a server to a client if the
-        /// server cannot directly establish a connection to the client,
-        /// for example because of firewalls. In this case, the server
-        /// would create a proxy using an already established connection
-        /// from the client.
-        ///
-        /// </summary>
-        /// <param name="identity">The identity for which a proxy is to be created.
-        ///
+        /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
+        /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
+        /// for example because of firewalls. In this case, the server would create a proxy using an already
+        /// established connection from the client.</summary>
+        /// <param name="identity">The identity for which a proxy is to be created.</param>
+        /// <param name="factory">The proxy facetory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
-        /// <returns>A proxy that matches the given identity and uses this
-        /// connection.
-        ///
-        /// </returns>
+        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => factory(_communicator.CreateReference(identity, this));
 

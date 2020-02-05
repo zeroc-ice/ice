@@ -24,7 +24,7 @@ namespace Ice
 
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
 
-        private readonly object _mutex = new System.Object();
+        private readonly object _mutex = new object();
 
         private const int StateUninitialized = 0; // Just constructed.
         private const int StateHeld = 1;
@@ -446,7 +446,7 @@ namespace Ice
                 IObject? servant = null;
                 if (!_identityServantMap.TryGetValue(new IdentityPlusFacet(identity, facet), out servant))
                 {
-                    if(!_categoryServantMap.TryGetValue(new CategoryPlusFacet(identity.Category, facet), out servant))
+                    if (!_categoryServantMap.TryGetValue(new CategoryPlusFacet(identity.Category, facet), out servant))
                     {
                         _defaultServantMap.TryGetValue(facet, out servant);
                     }
@@ -470,7 +470,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T Add<T>(Identity identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -507,7 +507,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T Add<T>(string identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -528,7 +528,7 @@ namespace Ice
         /// be empty.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
         public T Add<T>(Identity identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
             => Add(identity, "", servant, proxyFactory);
@@ -545,7 +545,7 @@ namespace Ice
         /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
         public T Add<T>(string identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
             => Add(identity, "", servant, proxyFactory);
@@ -562,7 +562,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T AddWithUUID<T>(string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -573,7 +573,7 @@ namespace Ice
         /// category.</summary>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
         public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
             => AddWithUUID("", servant, proxyFactory);
@@ -675,43 +675,14 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Create a proxy for the object with the given identity.
-        /// If this
-        /// object adapter is configured with an adapter id, the return
-        /// value is an indirect proxy that refers to the adapter id. If
-        /// a replica group id is also defined, the return value is an
-        /// indirect proxy that refers to the replica group id. Otherwise,
-        /// if no adapter id is defined, the return value is a direct
-        /// proxy containing this object adapter's published endpoints.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
-        public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(Identity.Parse(identity), factory);
-
-        /// <summary>
-        /// Create a proxy for the object with the given identity.
-        /// If this
-        /// object adapter is configured with an adapter id, the return
-        /// value is an indirect proxy that refers to the adapter id. If
-        /// a replica group id is also defined, the return value is an
-        /// indirect proxy that refers to the replica group id. Otherwise,
-        /// if no adapter id is defined, the return value is a direct
-        /// proxy containing this object adapter's published endpoints.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
+        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
+        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
+        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is
+        /// defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (_mutex)
@@ -723,33 +694,23 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Create a direct proxy for the object with the given identity.
-        /// The returned proxy contains this object adapter's published
-        /// endpoints.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
-        public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateDirectProxy(Identity.Parse(identity), factory);
+        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
+        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
+        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is
+        /// defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
+        public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateProxy(Identity.Parse(identity), factory);
 
-        /// <summary>
-        /// Create a direct proxy for the object with the given identity.
-        /// The returned proxy contains this object adapter's published
-        /// endpoints.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
+        /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
+        /// object adapter's published endpoints.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (_mutex)
@@ -761,35 +722,18 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Create an indirect proxy for the object with the given identity.
-        /// If this object adapter is configured with an adapter id, the
-        /// return value refers to the adapter id. Otherwise, the return
-        /// value contains only the object identity.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
-        public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateIndirectProxy(Identity.Parse(identity), factory);
+        /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
+        /// object adapter's published endpoints.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateDirectProxy(Identity.Parse(identity), factory);
 
-        /// <summary>
-        /// Create an indirect proxy for the object with the given identity.
-        /// If this object adapter is configured with an adapter id, the
-        /// return value refers to the adapter id. Otherwise, the return
-        /// value contains only the object identity.
-        ///
-        /// </summary>
-        /// <param name="identity">The object's identity.
-        ///
-        /// </param>
-        /// <returns>A proxy for the object with the given identity.
-        ///
-        /// </returns>
+        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
         public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             lock (_mutex)
@@ -800,6 +744,13 @@ namespace Ice
                 return newIndirectProxy(identity, factory, "", _id);
             }
         }
+
+        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateIndirectProxy(Identity.Parse(identity), factory);
 
         /// <summary>
         /// Set an Ice locator for this object adapter.
@@ -1519,7 +1470,7 @@ namespace Ice
             // Call on the locator registry outside the synchronization to
             // blocking other threads that need to lock this OA.
             //
-            ILocatorRegistryPrx locatorRegistry = locatorInfo.GetLocatorRegistry();
+            ILocatorRegistryPrx? locatorRegistry = locatorInfo.GetLocatorRegistry();
             if (locatorRegistry == null)
             {
                 return;
