@@ -434,7 +434,8 @@ namespace Ice
             }
         }
 
-        /// <summary>Finds a servant in the Active Servant Map (ASM), taking into default servants.</summary>
+        /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
+        /// servants currently in the ASM.</summary>
         /// <param name="identity">The identity of the Ice object.</param>
         /// <param name="facet">The facet of the Ice object.</param>
         /// <returns>The corresponding servant in the ASM, or null if the servant was not found.</returns>
@@ -454,7 +455,8 @@ namespace Ice
             }
         }
 
-        /// <summary>Finds a servant in the Active Servant Map (ASM), taking into default servants.</summary>
+        /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
+        /// servants currently in the ASM.</summary>
         /// <param name="identity">The stringified identity of the Ice object.</param>
         /// <param name="facet">The facet of the Ice object.</param>
         /// <returns>The corresponding servant in the ASM, or null if the servant was not found.</returns>
@@ -600,8 +602,8 @@ namespace Ice
         /// <returns>The servant that was just removed from the ASM, or null if the servant was not found.</returns>
         public IObject? Remove(string identity, string facet = "") => Remove(Identity.Parse(identity), facet);
 
-        /// <summary>Adds a default servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// category and facet.</summary>
+        /// <summary>Adds a category-specific default servant to this object adapter's Active Servant Map (ASM), using
+        /// as key the provided category and facet.</summary>
         /// <param name="category">The object identity category.</param>
         /// <param name="facet">The facet.</param>
         /// <param name="servant">The default servant to add.</param>
@@ -613,14 +615,14 @@ namespace Ice
             }
         }
 
-        /// <summary>Adds a default servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// category and the default (empty) facet.</summary>
+        /// <summary>Adds a category-specific default servant to this object adapter's Active Servant Map (ASM), using
+        /// as key the provided category and the default (empty) facet.</summary>
         /// <param name="category">The object identity category.</param>
         /// <param name="servant">The default servant to add.</param>
         public void AddDefaultForCategory(string category, IObject servant)
             => AddDefaultForCategory(category, "", servant);
 
-        /// <summary>Removes a default servant previously added to the Active Servant Map (ASM) using
+        /// <summary>Removes a category-specific default servant previously added to the Active Servant Map (ASM) using
         /// AddDefaultForCategory.</summary>
         /// <param name="category">The category associated with this default servant.</param>
         /// <param name="facet">The facet.</param>
@@ -640,7 +642,7 @@ namespace Ice
         }
 
         /// <summary>Adds a default servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// facet. This default servant is not category-specific.</summary>
+        /// facet.</summary>
         /// <param name="facet">The facet.</param>
         /// <param name="servant">The default servant to add.</param>
         public void AddDefault(string facet, IObject servant)
@@ -652,7 +654,7 @@ namespace Ice
         }
 
         /// <summary>Adds a default servant to this object adapter's Active Servant Map (ASM), using as key the default
-        /// (empty) facet. This default servant is not category-specific.</summary>
+        /// (empty) facet.</summary>
         /// <param name="servant">The default servant to add.</param>
         public void AddDefault(IObject servant) => AddDefault("", servant);
 
@@ -1123,7 +1125,7 @@ namespace Ice
             lock (_mutex)
             {
                 checkForDeactivation();
-                connection.SetAdapter2(this);
+                connection.SetAdapterImpl(this);
             }
         }
 

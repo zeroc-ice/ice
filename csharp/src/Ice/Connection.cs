@@ -901,7 +901,7 @@ namespace Ice
         {
             if (adapter != null)
             {
-                // Go through the adapter to set the adapter and servant manager on this connection
+                // Go through the adapter to set the adapter on this connection
                 // to ensure the object adapter is still active.
                 adapter.setAdapterOnConnection(this);
             }
@@ -964,7 +964,7 @@ namespace Ice
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => factory(_communicator.CreateReference(identity, this));
 
-        public void SetAdapter2(ObjectAdapter adapter)
+        internal void SetAdapterImpl(ObjectAdapter adapter)
         {
             lock (this)
             {
@@ -972,7 +972,6 @@ namespace Ice
                 {
                     return;
                 }
-                Debug.Assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
                 _adapter = adapter;
             }
         }
