@@ -1384,13 +1384,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool hasBaseClass = !bases.empty();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << name << "> IceReader =";
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteClass(value);";
     _out.dec();
@@ -2254,7 +2254,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
     _out.dec();
