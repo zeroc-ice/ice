@@ -78,8 +78,6 @@ sequence<SmallStruct> SmallStructList;
 ["clr:generic:List"]
 sequence<MyClass> MyClassList;
 ["clr:generic:List"]
-sequence<MyClass*> MyClassProxyList;
-["clr:generic:List"]
 sequence<MyInterface*> MyInterfaceProxyList;
 
 ["clr:generic:LinkedList"]
@@ -97,8 +95,6 @@ sequence<long> LongStack;
 sequence<float> FloatStack;
 ["clr:generic:Stack"]
 sequence<SmallStruct> SmallStructStack;
-["clr:generic:Stack"]
-sequence<MyClass*> MyClassProxyStack;
 ["clr:generic:Stack"]
 sequence<MyInterface*> MyInterfaceProxyStack;
 

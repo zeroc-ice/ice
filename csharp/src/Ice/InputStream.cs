@@ -1202,8 +1202,9 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <returns>The extracted string sequence.</returns>
-        public string[] ReadStringArray() => ReadArray((ins) => ReadString(), 1);
-        public IEnumerable<string> ReadStringCollection() => ReadCollection((ins) => ReadString(), 1);
+        public string[] ReadStringArray() => ReadArray(IceReaderIntoString, 1);
+
+        public IEnumerable<string> ReadStringCollection() => ReadCollection(IceReaderIntoString, 1);
 
         /// <summary>
         /// Extracts an optional string sequence from the stream.
@@ -1258,12 +1259,6 @@ namespace Ice
                 return null;
             }
         }
-
-        public T?[] ReadProxyArray<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            ReadArray((ins) => ins.ReadProxy(factory), 2);
-
-        public IEnumerable<T?> ReadProxyCollection<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            ReadCollection((ins) => ins.ReadProxy(factory), 2);
 
         /// <summary>
         /// Read an enumerated value.
@@ -1337,11 +1332,6 @@ namespace Ice
                 return null;
             }
         }
-
-        public T?[] ReadClassArray<T>() where T : AnyClass => ReadArray((ins) => ins.ReadClass<T>(), 1);
-
-        public IEnumerable<T?> ReadClassCollection<T>() where T : AnyClass =>
-            ReadCollection((ins) => ins.ReadClass<T>(), 1);
 
         /// <summary>
         /// Extracts a user exception from the stream and throws it.

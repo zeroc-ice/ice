@@ -453,7 +453,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
-                var arr2 = istr.ReadClassArray<Test.MyClass>();
+                var arr2 = istr.ReadMyClassS();
                 istr.EndEncapsulation();
                 test(arr2.Length == myClassArray.Length);
                 for (int i = 0; i < arr2.Length; ++i)
@@ -715,7 +715,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
-                var l2 = new List<MyClass>(istr.ReadClassCollection<MyClass>());
+                var l2 = istr.ReadMyClassList();
                 istr.EndEncapsulation();
                 test(l2.Count == l.Count);
                 for (int i = 0; i < l2.Count; ++i)
@@ -746,7 +746,7 @@ namespace Ice.stream
                 ostr.WriteProxySeq(l);
                 byte[] data = ostr.Finished();
                 istr = new InputStream(communicator, data);
-                var l2 = new List<IObjectPrx>(istr.ReadProxyCollection(IObjectPrx.Factory));
+                var l2 = istr.ReadObjectProxySeq();
                 test(Compare(l2, l));
             }
 
@@ -759,7 +759,7 @@ namespace Ice.stream
                 ostr.WriteProxySeq(l);
                 byte[] data = ostr.Finished();
                 istr = new InputStream(communicator, data);
-                var l2 = new List<IMyInterfacePrx>(istr.ReadProxyCollection(IMyInterfacePrx.Factory));
+                var l2 = istr.ReadMyInterfaceProxyList();
                 test(Compare(l2, l));
             }
 
@@ -851,19 +851,6 @@ namespace Ice.stream
             }
 
             {
-                var arr = new IObjectPrx[2];
-                arr[0] = IObjectPrx.Parse("zero", communicator);
-                arr[1] = IObjectPrx.Parse("one", communicator);
-                ostr = new OutputStream(communicator);
-                var l = new Stack<IObjectPrx>(arr);
-                ostr.WriteProxySeq(l);
-                var data = ostr.Finished();
-                istr = new InputStream(communicator, data);
-                var l2 = new Stack<IObjectPrx>(istr.ReadProxyCollection(IObjectPrx.Factory).Reverse());
-                test(Compare(l2, l));
-            }
-
-            {
                 var arr = new Test.IMyInterfacePrx[2];
                 arr[0] = Test.IMyInterfacePrx.Parse("zero", communicator);
                 arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
@@ -872,7 +859,7 @@ namespace Ice.stream
                 ostr.WriteProxySeq(l);
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
-                var l2 = new Stack<Test.IMyInterfacePrx>(istr.ReadProxyCollection(Test.IMyInterfacePrx.Factory).Reverse());
+                var l2 = istr.ReadMyInterfaceProxyStack();
                 test(Compare(l2, l));
             }
 

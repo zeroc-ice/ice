@@ -1132,15 +1132,7 @@ Slice::CsGenerator::readCollection(const SequencePtr& seq, const string& scope, 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
 
     ostringstream out;
-    if(isProxyType(type))
-    {
-        out << stream << ".ReadProxyCollection(" << typeToString(type, scope) << ".Factory)";
-    }
-    else if(isClassType(type))
-    {
-        out << stream << ".ReadClassCollection<" << typeToString(type, scope) << ">()";
-    }
-    else if(builtin)
+    if(builtin && !isProxyType(type) && !isClassType(type))
     {
         out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
     }
@@ -1159,18 +1151,9 @@ string
 Slice::CsGenerator::readArray(const SequencePtr& seq, const string& scope, const string& stream)
 {
     TypePtr type = seq->type();
-    string typeS = typeToString(type, scope);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(isProxyType(type))
-    {
-        out << stream << ".ReadProxyArray(" << typeS << ".Factory)";
-    }
-    else if(isClassType(type))
-    {
-        out << stream << ".ReadClassArray<" << typeS << ">()";
-    }
-    else if(builtin)
+    if(builtin && !isProxyType(type) && !isClassType(type))
     {
         out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
     }
