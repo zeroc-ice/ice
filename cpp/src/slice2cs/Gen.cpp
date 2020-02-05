@@ -1379,7 +1379,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
-         << fixId(p->name()) << "));";
+         << fixId(p->name()) << "))!;";
 
     _out << sp << nl << "partial void IceInitialize();";
     if(allDataMembers.empty())
@@ -1515,7 +1515,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     emitGeneratedCodeAttribute();
     _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
-         << name << "));";
+         << name << "))!;";
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2637,7 +2637,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // The _ice prefix is in case the user "extends" the partial generated interface.
     _out << nl << "private static readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
-        << name << "));";
+        << name << "))!;";
     _out << nl
         << "private static readonly string[] _iceAllTypeIds = global::Ice.TypeExtensions.GetAllIceTypeIds(typeof("
         << name << "));";

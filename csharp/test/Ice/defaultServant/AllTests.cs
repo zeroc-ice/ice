@@ -1,52 +1,53 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using Ice.defaultServant.Test;
+using Ice.DefaultServant.Test;
 
-namespace Ice.defaultServant
+namespace Ice.DefaultServant
 {
     public class AllTests : global::Test.AllTests
     {
         public static void
-        allTests(global::Test.TestHelper helper)
+        Run(global::Test.TestHelper helper)
         {
             var output = helper.getWriter();
             Communicator communicator = helper.communicator();
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
             oa.Activate();
 
-            var servantI = new MyObject();
-
-            //
-            // Register default servant with category "foo"
-            //
-            oa.AddDefaultForCategory("foo", servantI);
-
-            //
-            // Start test
-            //
             output.Write("testing single category... ");
             output.Flush();
 
-            /* TODO: update
-            IObject r = oa.FindDefaultServant("foo");
-            test(r == servantI);
+            var servant = new MyObject();
 
-            r = oa.FindDefaultServant("bar");
+            oa.AddDefaultForCategory("foo", servant);
+            try
+            {
+                oa.AddDefaultForCategory("foo", new MyObject());
+                test(false); // duplicate registration not allowed
+            }
+            catch (System.ArgumentException)
+            {
+                // Expected
+            }
+
+            IObject? r = oa.Find("foo");
             test(r == null);
-            */
+            r = oa.Find("foo/someId");
+            test(r == servant);
+            r = oa.Find("bar/someId");
+            test(r == null);
 
             Identity identity = new Identity("", "foo");
-
             string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-            IMyObjectPrx prx = null;
+            IMyObjectPrx? prx = null;
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], identity.Category);
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                test(prx.getName() == names[idx]);
+                test(prx.GetName() == names[idx]);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
@@ -63,32 +64,10 @@ namespace Ice.defaultServant
 
             try
             {
-                prx.getName();
+                prx.GetName();
                 test(false);
             }
             catch (ObjectNotExistException)
-            {
-                // Expected
-            }
-
-            identity = new Identity("FacetNotExist", identity.Category);
-            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
-            try
-            {
-                prx.IcePing();
-                test(false);
-            }
-            catch (Ice.ObjectNotExistException)
-            {
-                // Expected
-            }
-
-            try
-            {
-                prx.getName();
-                test(false);
-            }
-            catch (Ice.ObjectNotExistException)
             {
                 // Expected
             }
@@ -111,7 +90,7 @@ namespace Ice.defaultServant
 
                 try
                 {
-                    prx.getName();
+                    prx.GetName();
                     test(false);
                 }
                 catch (Ice.ObjectNotExistException)
@@ -120,7 +99,10 @@ namespace Ice.defaultServant
                 }
             }
 
-            oa.RemoveDefaultForCategory("foo");
+            IObject? removed = oa.RemoveDefaultForCategory("foo");
+            test(removed == servant);
+            removed = oa.RemoveDefaultForCategory("foo");
+            test(removed == null);
             identity =  new Identity(identity.Name, "foo");
             prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
@@ -134,26 +116,42 @@ namespace Ice.defaultServant
 
             output.WriteLine("ok");
 
-            output.Write("testing default category... ");
+            output.Write("testing default servant... ");
             output.Flush();
 
-            oa.AddDefault(servantI);
+            var defaultServant = new MyObject();
 
-            /* TODO: rework
-            r = oa.FindDefaultServant("bar");
-            test(r == null);
+            oa.AddDefault(defaultServant);
+            try
+            {
+                oa.AddDefault(servant);
+                test(false);
+            }
+            catch (System.ArgumentException)
+            {
+                // Expected
+            }
 
-            r = oa.FindDefaultServant("");
-            test(r == servantI);
-            */
+            oa.AddDefaultForCategory("", servant); // associated with empty category
+
+            r = oa.Find("bar");
+            test(r == servant);
+
+            r = oa.Find("x/y");
+            test(r == defaultServant);
 
             for (int idx = 0; idx < 5; ++idx)
             {
-                identity = new Identity(names[idx], identity.Category);
+                identity = new Identity(names[idx], "");
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                test(prx.getName() == names[idx]);
+                test(prx.GetName() == names[idx]);
             }
+
+            removed = oa.RemoveDefault();
+            test(removed == defaultServant);
+            removed = oa.RemoveDefault();
+            test(removed == null);
 
             output.WriteLine("ok");
         }

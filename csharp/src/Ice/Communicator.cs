@@ -608,7 +608,7 @@ namespace Ice
             }
         }
 
-        public void AddAdminFacet(IObject servant, string facet)
+        public void AddAdminFacet(string facet, IObject servant)
         {
             lock (this)
             {

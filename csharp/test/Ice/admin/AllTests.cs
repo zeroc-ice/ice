@@ -28,15 +28,15 @@ namespace Ice.admin
 
             if (!filtered)
             {
-                com.AddAdminFacet(f1, "Facet1");
-                com.AddAdminFacet(f2, "Facet2");
-                com.AddAdminFacet(f3, "Facet3");
+                com.AddAdminFacet("Facet1", f1);
+                com.AddAdminFacet("Facet2", f2);
+                com.AddAdminFacet("Facet3", f3);
             }
             else
             {
                 try
                 {
-                    com.AddAdminFacet(f1, "Facet1");
+                    com.AddAdminFacet("Facet1", f1);
                     test(false);
                 }
                 catch (ArgumentException)
@@ -45,7 +45,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f2, "Facet2");
+                    com.AddAdminFacet("Facet2", f2);
                     test(false);
                 }
                 catch (ArgumentException)
@@ -54,7 +54,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f3, "Facet3");
+                    com.AddAdminFacet("Facet3", f3);
                     test(false);
                 }
                 catch (ArgumentException)
@@ -99,7 +99,7 @@ namespace Ice.admin
 
                 try
                 {
-                    com.AddAdminFacet(f1, "Facet1");
+                    com.AddAdminFacet("Facet1", f1);
                     test(false);
                 }
                 catch (ArgumentException)

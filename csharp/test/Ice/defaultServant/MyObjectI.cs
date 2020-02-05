@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.defaultServant
+namespace Ice.DefaultServant
 {
     public sealed class MyObject : Test.IMyObject
     {
@@ -14,13 +14,9 @@ namespace Ice.defaultServant
             {
                 throw new ObjectNotExistException();
             }
-            else if (name == "FacetNotExist")
-            {
-                throw new ObjectNotExistException();
-            }
         }
 
-        public string getName(Current current)
+        public string GetName(Current current)
         {
             string name = current.Id.Name;
 
@@ -28,11 +24,6 @@ namespace Ice.defaultServant
             {
                 throw new ObjectNotExistException();
             }
-            else if (name == "FacetNotExist")
-            {
-                throw new ObjectNotExistException();
-            }
-
             return name;
         }
     }

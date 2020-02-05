@@ -83,7 +83,7 @@ namespace Ice.admin
             try
             {
                 var testFacet = new TestFacet();
-                communicator.AddAdminFacet(testFacet, "TestFacet");
+                communicator.AddAdminFacet("TestFacet", testFacet);
             }
             catch (System.ArgumentException)
             {
