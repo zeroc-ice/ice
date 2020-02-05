@@ -1802,28 +1802,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << eb;
 }
 
-size_t
-structSize(const StructPtr& p)
-{
-    size_t size = 0;
-    for(auto dataMember : p->dataMembers())
-    {
-        if(isReferenceType(dataMember->type()))
-        {
-            size += 8;
-        }
-        else if(StructPtr::dynamicCast(dataMember))
-        {
-            size += structSize(StructPtr::dynamicCast(dataMember));
-        }
-        else
-        {
-            size += dataMember->type()->minWireSize();
-        }
-    }
-    return size;
-}
-
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
@@ -1853,21 +1831,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    // If the struct size is bigger than IntPtr.Size pass the struct with in modifier
-    if(structSize(p) > 8)
-    {
-        _out << nl << "public static Ice.OutputStreamStructWriter<" << name << "> IceWriter => ";
-        _out.inc();
-        _out << nl << "(Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
-        _out.dec();
-    }
-    else
-    {
-        _out << nl << "public static Ice.OutputStreamWriter<" << name << "> IceWriter => ";
-        _out.inc();
-        _out << nl << "(ostr, value) => value.IceWrite(ostr);";
-        _out.dec();
-    }
+    _out << nl << "public static Ice.OutputStreamStructWriter<" << name << "> IceWriter => ";
+    _out.inc();
+    _out << nl << "(Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
