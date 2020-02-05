@@ -499,7 +499,7 @@ namespace Ice.admin
                     IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
 
@@ -508,7 +508,7 @@ namespace Ice.admin
                     ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 com.destroy();
@@ -529,7 +529,7 @@ namespace Ice.admin
                     IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
 
@@ -538,7 +538,7 @@ namespace Ice.admin
                     ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 com.destroy();
@@ -559,7 +559,7 @@ namespace Ice.admin
                     IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
 
@@ -568,7 +568,7 @@ namespace Ice.admin
                     IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 com.destroy();
@@ -593,7 +593,7 @@ namespace Ice.admin
                     IProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 com.destroy();
@@ -614,7 +614,7 @@ namespace Ice.admin
                     IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
                     test(false);
                 }
-                catch (FacetNotExistException)
+                catch (ObjectNotExistException)
                 {
                 }
                 var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));

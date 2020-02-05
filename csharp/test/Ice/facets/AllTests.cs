@@ -53,14 +53,7 @@ namespace Ice.facets
             {
             }
             adapter.Remove("d", "facetABCD");
-            try
-            {
-                adapter.Remove("d", "facetABCD");
-                test(false);
-            }
-            catch (NotRegisteredException)
-            {
-            }
+            adapter.Remove("d", "facetABCD"); // multiple Remove are fine as of Ice 4.0
             output.WriteLine("ok");
 
             adapter.Deactivate();

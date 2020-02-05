@@ -16,7 +16,7 @@ namespace Ice.defaultServant
             }
             else if (name == "FacetNotExist")
             {
-                throw new FacetNotExistException();
+                throw new ObjectNotExistException();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Ice.defaultServant
             }
             else if (name == "FacetNotExist")
             {
-                throw new FacetNotExistException();
+                throw new ObjectNotExistException();
             }
 
             return name;

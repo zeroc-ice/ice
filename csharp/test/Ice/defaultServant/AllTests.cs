@@ -78,7 +78,7 @@ namespace Ice.defaultServant
                 prx.IcePing();
                 test(false);
             }
-            catch (FacetNotExistException)
+            catch (Ice.ObjectNotExistException)
             {
                 // Expected
             }
@@ -88,7 +88,7 @@ namespace Ice.defaultServant
                 prx.getName();
                 test(false);
             }
-            catch (FacetNotExistException)
+            catch (Ice.ObjectNotExistException)
             {
                 // Expected
             }

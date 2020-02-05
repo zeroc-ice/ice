@@ -85,7 +85,7 @@ namespace IceInternal
 
         public Ice.Current? GetCurrent() => _current;
 
-        public void Invoke(ServantManager servantManager, Ice.InputStream stream)
+        public void Invoke(Ice.InputStream stream)
         {
             _is = stream;
 
@@ -143,24 +143,13 @@ namespace IceInternal
             // in the code above are considered fatal, and must propagate to
             // the caller of this operation.
             //
-
-            if (servantManager != null)
-            {
-                _servant = servantManager.FindServant(_current.Id, _current.Facet);
-            }
+            _servant = _adapter.Find(_current.Id, _current.Facet);
 
             if (_servant == null)
             {
                 try
                 {
-                    if (servantManager != null && servantManager.HasServant(_current.Id))
-                    {
-                        throw new Ice.FacetNotExistException(_current.Id, _current.Facet, _current.Operation);
-                    }
-                    else
-                    {
-                        throw new Ice.ObjectNotExistException(_current.Id, _current.Facet, _current.Operation);
-                    }
+                    throw new Ice.ObjectNotExistException(_current.Id, _current.Facet, _current.Operation);
                 }
                 catch (Exception ex)
                 {

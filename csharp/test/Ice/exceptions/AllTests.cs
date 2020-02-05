@@ -81,14 +81,7 @@ namespace Ice.exceptions
                 }
 
                 adapter.Remove("x");
-                try
-                {
-                    adapter.Remove("x");
-                    test(false);
-                }
-                catch (NotRegisteredException)
-                {
-                }
+                adapter.Remove("x"); // as of Ice 4.0, can remove multiple times
                 adapter.Deactivate();
                 output.WriteLine("ok");
             }
@@ -405,7 +398,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception... ");
+            output.Write("catching object not exist exception... ");
             output.Flush();
 
             try
@@ -416,7 +409,7 @@ namespace Ice.exceptions
                     thrower2.IcePing();
                     test(false);
                 }
-                catch (FacetNotExistException ex)
+                catch (ObjectNotExistException ex)
                 {
                     test(ex.Facet.Equals("no such facet"));
                 }
@@ -829,7 +822,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception with new AMI mapping... ");
+            output.Write("catching object not exist exception with new AMI mapping... ");
             output.Flush();
 
             {
@@ -845,7 +838,7 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (FacetNotExistException ex)
+                    catch (ObjectNotExistException ex)
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }
@@ -1089,7 +1082,7 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (FacetNotExistException ex)
+                    catch (ObjectNotExistException ex)
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }

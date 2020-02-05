@@ -3,6 +3,7 @@
 //
 
 using Ice.location.Test;
+using System.Diagnostics;
 
 namespace Ice.location
 {
@@ -26,13 +27,17 @@ namespace Ice.location
         public void migrateHello(Current current)
         {
             var id = Identity.Parse("hello");
-            try
+
+            IObject? servant = _adapter1.Remove(id);
+            if (servant != null)
             {
-                _registry.addObject(_adapter2.Add(id, _adapter1.Remove(id), IObjectPrx.Factory), current);
+                _registry.addObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
             }
-            catch (NotRegisteredException)
+            else
             {
-                _registry.addObject(_adapter1.Add(id, _adapter2.Remove(id), IObjectPrx.Factory), current);
+                servant = _adapter2.Remove(id);
+                Debug.Assert(servant != null);
+                _registry.addObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
             }
         }
 
