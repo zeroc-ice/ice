@@ -3280,10 +3280,6 @@ class CppMapping(Mapping):
         return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), appName)
 
 
-class Cpp98Mapping(CppMapping):
-    pass
-
-
 class JavaMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3656,7 +3652,7 @@ class PythonMapping(Cpp98BasedMapping):
             "collocated" : "Collocated.py",
         }[processType]
 
-class CppBasedClientMapping(Cpp98BasedMapping):
+class CppBasedClientMapping(CppBasedMapping):
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
@@ -3680,7 +3676,7 @@ class MatlabMapping(CppBasedClientMapping):
             args)
 
     def getServerMapping(self, testId=None):
-        return Mapping.getByName("python") # Run clients against Python mapping servers
+        return Mapping.getByName("java") # Run clients against Java mapping servers
 
     def _getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]

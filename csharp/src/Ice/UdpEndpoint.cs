@@ -355,7 +355,7 @@ namespace IceInternal
             }
             else if (option.Equals("--interface"))
             {
-                _mcastInterface = argument ?? 
+                _mcastInterface = argument ??
                     throw new FormatException("no argument provided for --interface option in endpoint {endpoint}");
             }
             else

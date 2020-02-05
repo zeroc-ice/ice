@@ -55,6 +55,8 @@ std::string interfaceName(const ClassDefPtr&);
 std::string dataMemberName(const ParamInfo&);
 std::string dataMemberName(const DataMemberPtr&);
 
+std::string helperName(const TypePtr&, const std::string&);
+
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
@@ -94,11 +96,6 @@ public:
     virtual ~CsGenerator() {};
 
     //
-    // Convert a dimension-less array declaration to one with a dimension.
-    //
-    static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
-
-    //
     // Validate all metadata in the unit with a "cs:" prefix.
     //
     static void validateMetaData(const UnitPtr&);
@@ -114,8 +111,11 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
+    std::string outputStreamWriter(const TypePtr&, const std::string&);
     void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                           const std::string& = "ostr");
+
+    std::string inputStreamReader(const TypePtr&, const std::string&);
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
@@ -123,10 +123,12 @@ protected:
                                   int, const std::string& = "ostr");
     void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                                     int, const std::string& = "istr");
-    void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                           const std::string&, bool, bool, const std::string& = "");
+
+    std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
+    std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
+
     void writeTaggedSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                                   const std::string&, int, bool, const std::string& = "");
+                                                 const std::string&, int, bool, const std::string& = "");
 private:
 
     class MetaDataVisitor : public ParserVisitor

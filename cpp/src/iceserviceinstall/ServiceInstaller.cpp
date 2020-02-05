@@ -888,25 +888,7 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
     string imagePathDir = imagePath;
     imagePathDir.erase(imagePathDir.rfind('\\'));
 
-    //
-    // Get current 'DLL' version
-    //
-    int majorVersion = (ICE_INT_VERSION / 10000);
-    int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
-    int patchVersion = ICE_INT_VERSION % 100;
-
-    ostringstream os;
-    os << majorVersion * 10 + minorVersion;
-    if(patchVersion >= 60)
-    {
-        os << 'b' << (patchVersion - 60);
-    }
-    else if(patchVersion >= 50)
-    {
-        os << 'a' << (patchVersion - 50);
-    }
-
-    const string version = os.str();
+    const string version = ICE_SO_VERSION;
 
     string result = imagePathDir + '\\' + "ice" + version + ".dll";
     if(!IceUtilInternal::fileExists(result))

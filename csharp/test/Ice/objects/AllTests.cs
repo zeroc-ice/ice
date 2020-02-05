@@ -12,7 +12,7 @@ namespace Ice
         {
             public partial class IBase
             {
-                partial void IceInitialize()
+                partial void Initialize()
                 {
                     id = "My id";
                 }
@@ -20,7 +20,7 @@ namespace Ice
 
             public partial class IDerived
             {
-                partial void IceInitialize()
+                partial void Initialize()
                 {
                     name = "My name";
                 }
@@ -34,7 +34,7 @@ namespace Ice
                     set;
                 }
 
-                partial void IceInitialize()
+                partial void Initialize()
                 {
                     called = true;
                 }
@@ -42,7 +42,7 @@ namespace Ice
 
             public partial struct S1
             {
-                partial void IceInitialize()
+                partial void Initialize()
                 {
                     id = 1;
                 }

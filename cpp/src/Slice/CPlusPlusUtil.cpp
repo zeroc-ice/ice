@@ -526,33 +526,33 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
-    if(iceVersion % 100 >= 50)
-    {
-        //
-        // Beta version: exact match required
-        //
-        out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION;
-        out << "\n#       error Ice version mismatch: an exact match is required for beta generated code";
-        out << "\n#   endif";
-    }
-    else
-    {
-        out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
-        out << "\n#       error Ice version mismatch!";
-        out << "\n#   endif";
+#if defined(ICE_ALPHA_VERSION)
+    // Exact matches are required for alpha generated code.
+    out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION <<
+            " || !defined(ICE_ALPHA_VERSION) || ICE_ALPHA_VERSION != " << ICE_ALPHA_VERSION;
+    out << "\n#       error Ice version mismatch: an exact match is required for alpha generated code";
+    out << "\n#   endif";
+#elif defined(ICE_BETA_VERSION)
+    // Exact matches are required for beta generated code.
+    out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION <<
+            " || !defined(ICE_BETA_VERSION) || ICE_BETA_VERSION != " << ICE_BETA_VERSION;
+    out << "\n#       error Ice version mismatch: an exact match is required for beta generated code";
+    out << "\n#   endif";
+#else
+    out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
+    out << "\n#       error Ice version mismatch!";
+    out << "\n#   endif";
+    out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+    out << "\n#       error Ice patch level mismatch!";
+    out << "\n#   endif";
+    //
+    // Generated code is release; reject pre-release header files.
+    //
+    out << "\n#   if defined(ICE_ALPHA_VERSION) || defined(ICE_BETA_VERSION)";
+    out << "\n#       error Pre-release header file detected";
+    out << "\n#   endif";
+#endif
 
-        //
-        // Generated code is release; reject beta header
-        //
-        out << "\n#   if ICE_INT_VERSION % 100 >= 50";
-        out << "\n#       error Beta header file detected";
-        out << "\n#   endif";
-
-        out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
-        out << "\n#       error Ice patch level mismatch!";
-        out << "\n#   endif";
-    }
     out << "\n#endif";
 }
 

@@ -9,7 +9,6 @@
 % See also ValueFactory, Communicator.getValueFactoryManager, ValueFactoryManager.add, ValueFactoryManager.find
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef NoValueFactoryException < Ice.MarshalException
     properties

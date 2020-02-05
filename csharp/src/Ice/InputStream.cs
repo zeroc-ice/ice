@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,6 +13,8 @@ using Protocol = IceInternal.Protocol;
 
 namespace Ice
 {
+    public delegate T InputStreamReader<T>(InputStream ins);
+
     /// <summary>
     /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
     /// If the implementation does not throw an exception, the Ice run time will fall back
@@ -25,6 +28,15 @@ namespace Ice
     /// </summary>
     public sealed class InputStream
     {
+        public static readonly InputStreamReader<bool> IceReaderIntoBool = (istr) => istr.ReadBool();
+        public static readonly InputStreamReader<byte> IceReaderIntoByte = (istr) => istr.ReadByte();
+        public static readonly InputStreamReader<short> IceReaderIntoShort = (istr) => istr.ReadShort();
+        public static readonly InputStreamReader<int> IceReaderIntoInt = (istr) => istr.ReadInt();
+        public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
+        public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
+        public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
+        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
+
         /// <summary>
         /// Returns the current size of the stream.
         /// </summary>
@@ -527,7 +539,7 @@ namespace Ice
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <returns>The extracted byte sequence.</returns>
-        public byte[] ReadByteSeq()
+        public byte[] ReadByteArray()
         {
             try
             {
@@ -543,72 +555,15 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of byte values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted byte sequence as a list.</param>
-        public void ReadByteSeq(out List<byte> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<byte>(ReadByteSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of byte values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted byte sequence as a linked list.</param>
-        public void ReadByteSeq(out LinkedList<byte> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new LinkedList<byte>(ReadByteSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of byte values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted byte sequence as a queue.</param>
-        public void ReadByteSeq(out Queue<byte> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue is faster than constructing the queue
-            // and adding to it one element at a time.
-            //
-            l = new Queue<byte>(ReadByteSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of byte values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted byte sequence as a stack.</param>
-        public void ReadByteSeq(out Stack<byte> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            byte[] array = ReadByteSeq();
-            Array.Reverse(array);
-            l = new Stack<byte>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional byte sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public byte[]? ReadByteSeq(int tag)
+        public byte[]? ReadByteArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                return ReadByteSeq();
+                return ReadByteArray();
             }
             else
             {
@@ -675,7 +630,7 @@ namespace Ice
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <returns>The extracted boolean sequence.</returns>
-        public bool[] ReadBoolSeq()
+        public bool[] ReadBoolArray()
         {
             try
             {
@@ -691,72 +646,15 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of boolean values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted boolean sequence as a list.</param>
-        public void ReadBoolSeq(out List<bool> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<bool>(ReadBoolSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of boolean values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted boolean sequence as a linked list.</param>
-        public void ReadBoolSeq(out LinkedList<bool> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new LinkedList<bool>(ReadBoolSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of boolean values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted boolean sequence as a queue.</param>
-        public void ReadBoolSeq(out Queue<bool> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue is faster than constructing the queue
-            // and adding to it one element at a time.
-            //
-            l = new Queue<bool>(ReadBoolSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of boolean values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted boolean sequence as a stack.</param>
-        public void ReadBoolSeq(out Stack<bool> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            bool[] array = ReadBoolSeq();
-            Array.Reverse(array);
-            l = new Stack<bool>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional boolean sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public bool[]? ReadBoolSeq(int tag)
+        public bool[]? ReadBoolArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                return ReadBoolSeq();
+                return ReadBoolArray();
             }
             else
             {
@@ -801,7 +699,7 @@ namespace Ice
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <returns>The extracted short sequence.</returns>
-        public short[] ReadShortSeq()
+        public short[] ReadShortArray()
         {
             try
             {
@@ -817,73 +715,16 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of short values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted short sequence as a list.</param>
-        public void ReadShortSeq(out List<short> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<short>(ReadShortSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of short values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted short sequence as a linked list.</param>
-        public void ReadShortSeq(out LinkedList<short> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new LinkedList<short>(ReadShortSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of short values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted short sequence as a queue.</param>
-        public void ReadShortSeq(out Queue<short> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue is faster than constructing the queue
-            // and adding to it one element at a time.
-            //
-            l = new Queue<short>(ReadShortSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of short values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted short sequence as a stack.</param>
-        public void ReadShortSeq(out Stack<short> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            short[] array = ReadShortSeq();
-            Array.Reverse(array);
-            l = new Stack<short>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional short sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public short[]? ReadShortSeq(int tag)
+        public short[]? ReadShortArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 SkipSize();
-                return ReadShortSeq();
+                return ReadShortArray();
             }
             else
             {
@@ -928,7 +769,7 @@ namespace Ice
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <returns>The extracted int sequence.</returns>
-        public int[] ReadIntSeq()
+        public int[] ReadIntArray()
         {
             try
             {
@@ -944,93 +785,16 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of int values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted int sequence as a list.</param>
-        public void ReadIntSeq(out List<int> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<int>(ReadIntSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of int values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted int sequence as a linked list.</param>
-        public void ReadIntSeq(out LinkedList<int> l)
-        {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new LinkedList<int>();
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.AddLast(_buf.B.GetInt());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of int values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted int sequence as a queue.</param>
-        public void ReadIntSeq(out Queue<int> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue takes the same time as constructing the queue
-            // and adding to it one element at a time, so
-            // we avoid the copy.
-            //
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new Queue<int>(sz);
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.Enqueue(_buf.B.GetInt());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of int values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted int sequence as a stack.</param>
-        public void ReadIntSeq(out Stack<int> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            int[] array = ReadIntSeq();
-            Array.Reverse(array);
-            l = new Stack<int>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional int sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public int[]? ReadIntSeq(int tag)
+        public int[]? ReadIntArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 SkipSize();
-                return ReadIntSeq();
+                return ReadIntArray();
             }
             else
             {
@@ -1075,7 +839,7 @@ namespace Ice
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <returns>The extracted long sequence.</returns>
-        public long[] ReadLongSeq()
+        public long[] ReadLongArray()
         {
             try
             {
@@ -1091,93 +855,16 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of long values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted long sequence as a list.</param>
-        public void ReadLongSeq(out List<long> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<long>(ReadLongSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of long values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted long sequence as a linked list.</param>
-        public void ReadLongSeq(out LinkedList<long> l)
-        {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new LinkedList<long>();
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.AddLast(_buf.B.GetLong());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of long values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted long sequence as a queue.</param>
-        public void ReadLongSeq(out Queue<long> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue takes the same time as constructing the queue
-            // and adding to it one element at a time, so
-            // we avoid the copy.
-            //
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new Queue<long>(sz);
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.Enqueue(_buf.B.GetLong());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of long values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted long sequence as a stack.</param>
-        public void ReadLongSeq(out Stack<long> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            long[] array = ReadLongSeq();
-            Array.Reverse(array);
-            l = new Stack<long>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional long sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public long[]? ReadLongSeq(int tag)
+        public long[]? ReadLongArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 SkipSize();
-                return ReadLongSeq();
+                return ReadLongArray();
             }
             else
             {
@@ -1222,7 +909,7 @@ namespace Ice
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <returns>The extracted float sequence.</returns>
-        public float[] ReadFloatSeq()
+        public float[] ReadFloatArray()
         {
             try
             {
@@ -1238,93 +925,16 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of float values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted float sequence as a list.</param>
-        public void ReadFloatSeq(out List<float> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<float>(ReadFloatSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of float values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted float sequence as a linked list.</param>
-        public void ReadFloatSeq(out LinkedList<float> l)
-        {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new LinkedList<float>();
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.AddLast(_buf.B.GetFloat());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of float values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted float sequence as a queue.</param>
-        public void ReadFloatSeq(out Queue<float> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue takes the same time as constructing the queue
-            // and adding to it one element at a time, so
-            // we avoid the copy.
-            //
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new Queue<float>(sz);
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.Enqueue(_buf.B.GetFloat());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of float values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted float sequence as a stack.</param>
-        public void ReadFloatSeq(out Stack<float> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            float[] array = ReadFloatSeq();
-            Array.Reverse(array);
-            l = new Stack<float>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional float sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public float[]? ReadFloatSeq(int tag)
+        public float[]? ReadFloatArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 SkipSize();
-                return ReadFloatSeq();
+                return ReadFloatArray();
             }
             else
             {
@@ -1369,7 +979,7 @@ namespace Ice
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <returns>The extracted double sequence.</returns>
-        public double[] ReadDoubleSeq()
+        public double[] ReadDoubleArray()
         {
             try
             {
@@ -1385,93 +995,16 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a sequence of double values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted double sequence as a list.</param>
-        public void ReadDoubleSeq(out List<double> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is faster than constructing the list
-            // and adding to it one element at a time.
-            //
-            l = new List<double>(ReadDoubleSeq());
-        }
-
-        /// <summary>
-        /// Extracts a sequence of double values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted double sequence as a linked list.</param>
-        public void ReadDoubleSeq(out LinkedList<double> l)
-        {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new LinkedList<double>();
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.AddLast(_buf.B.GetDouble());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of double values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted double sequence as a queue.</param>
-        public void ReadDoubleSeq(out Queue<double> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue takes the same time as constructing the queue
-            // and adding to it one element at a time, so
-            // we avoid the copy.
-            //
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                l = new Queue<double>(sz);
-                for (int i = 0; i < sz; ++i)
-                {
-                    l.Enqueue(_buf.B.GetDouble());
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of double values from the stream.
-        /// </summary>
-        /// <param name="l">The extracted double sequence as a stack.</param>
-        public void ReadDoubleSeq(out Stack<double> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            double[] array = ReadDoubleSeq();
-            Array.Reverse(array);
-            l = new Stack<double>(array);
-        }
-
-        /// <summary>
         /// Extracts an optional double sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public double[]? ReadDoubleSeq(int tag)
+        public double[]? ReadDoubleArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 SkipSize();
-                return ReadDoubleSeq();
+                return ReadDoubleArray();
             }
             else
             {
@@ -1542,104 +1075,68 @@ namespace Ice
             }
         }
 
+        public T[] ReadArray<T>(InputStreamReader<T> reader, int minSize)
+        {
+            var enumerable = new Collection<T>(this, reader, minSize);
+            var arr = new T[enumerable.Count];
+            int pos = 0;
+            foreach (T item in enumerable)
+            {
+                arr[pos++] = item;
+            }
+            return arr;
+        }
+
+        public IEnumerable<T> ReadCollection<T>(InputStreamReader<T> reader, int minSize) =>
+            new Collection<T>(this, reader, minSize);
+
+        public Dictionary<TKey, TValue> ReadDict<TKey, TValue>(InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader, int minWireSize = 1)
+        {
+            int sz = ReadAndCheckSeqSize(minWireSize);
+            var dict = new Dictionary<TKey, TValue>(sz);
+            for (int i = 0; i < sz; ++i)
+            {
+                TKey key = keyReader(this);
+                TValue value = valueReader(this);
+                dict.Add(key, value);
+            }
+            return dict;
+        }
+
+        public SortedDictionary<TKey, TValue> ReadSortedDict<TKey, TValue>(InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+        {
+            int sz = ReadSize();
+            var dict = new SortedDictionary<TKey, TValue>();
+            for (int i = 0; i < sz; ++i)
+            {
+                TKey key = keyReader(this);
+                TValue value = valueReader(this);
+                dict.Add(key, value);
+            }
+            return dict;
+        }
+
         /// <summary>
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <returns>The extracted string sequence.</returns>
-        public string[] ReadStringSeq()
-        {
-            int sz = ReadAndCheckSeqSize(1);
-            string[] v = new string[sz];
-            for (int i = 0; i < sz; i++)
-            {
-                v[i] = ReadString();
-            }
-            return v;
-        }
+        public string[] ReadStringArray() => ReadArray(IceReaderIntoString, 1);
 
-        /// <summary>
-        /// Extracts a sequence of strings from the stream.
-        /// </summary>
-        /// <param name="l">The extracted string sequence as a list.</param>
-        public void ReadStringSeq(out List<string> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is slower than constructing the list
-            // and adding to it one element at a time.
-            //
-            int sz = ReadAndCheckSeqSize(1);
-            l = new List<string>(sz);
-            for (int i = 0; i < sz; ++i)
-            {
-                l.Add(ReadString());
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of strings from the stream.
-        /// </summary>
-        /// <param name="l">The extracted string sequence as a linked list.</param>
-        public void ReadStringSeq(out LinkedList<string> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // list is slower than constructing the list
-            // and adding to it one element at a time.
-            //
-            int sz = ReadAndCheckSeqSize(1);
-            l = new LinkedList<string>();
-            for (int i = 0; i < sz; ++i)
-            {
-                l.AddLast(ReadString());
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of strings from the stream.
-        /// </summary>
-        /// <param name="l">The extracted string sequence as a queue.</param>
-        public void ReadStringSeq(out Queue<string> l)
-        {
-            //
-            // Reading into an array and copy-constructing the
-            // queue is slower than constructing the queue
-            // and adding to it one element at a time.
-            //
-            int sz = ReadAndCheckSeqSize(1);
-            l = new Queue<string>();
-            for (int i = 0; i < sz; ++i)
-            {
-                l.Enqueue(ReadString());
-            }
-        }
-
-        /// <summary>
-        /// Extracts a sequence of strings from the stream.
-        /// </summary>
-        /// <param name="l">The extracted string sequence as a stack.</param>
-        public void ReadStringSeq(out Stack<string> l)
-        {
-            //
-            // Reverse the contents by copying into an array first
-            // because the stack is marshaled in top-to-bottom order.
-            //
-            string[] array = ReadStringSeq();
-            Array.Reverse(array);
-            l = new Stack<string>(array);
-        }
+        public IEnumerable<string> ReadStringCollection() => ReadCollection(IceReaderIntoString, 1);
 
         /// <summary>
         /// Extracts an optional string sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public string[]? ReadStringSeq(int tag)
+        public string[]? ReadStringArray(int tag)
         {
             if (ReadOptional(tag, OptionalFormat.FSize))
             {
                 Skip(4);
-                return ReadStringSeq();
+                return ReadStringArray();
             }
             else
             {
@@ -2561,6 +2058,79 @@ namespace Ice
                 OldLimit = oldLimit;
                 OldEncoding = oldEncoding;
                 Size = size;
+            }
+        }
+
+        private sealed class Collection<T> : ICollection<T>
+        {
+            private readonly InputStream _ins;
+            private readonly InputStreamReader<T> _read;
+
+            public int Count { get; }
+
+            public bool IsReadOnly => true;
+
+            public Collection(InputStream ins, InputStreamReader<T> read, int minSize)
+            {
+                _ins = ins;
+                _read = read;
+                Count = ins.ReadAndCheckSeqSize(minSize);
+            }
+
+            // TODO: Ideally this should use a InputStream view and cache the input stream start
+            // position, so that succesivelly enumerators yield same valid results. In practice
+            // GetEnuerator should only be called once when the collection is unmarshal.
+            public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
+
+            IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
+            public void Add(T item) => throw new NotSupportedException();
+            public void Clear() => throw new NotSupportedException();
+            public bool Contains(T item) => throw new NotSupportedException();
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                foreach (T value in this)
+                {
+                    array[arrayIndex++] = value;
+                }
+            }
+            public bool Remove(T item) => throw new NotSupportedException();
+        }
+
+        private sealed class Enumerator<T> : IEnumerator<T>
+        {
+            public T Current { get; private set; }
+            object IEnumerator.Current => Current!;
+
+            private readonly InputStream _ins;
+            private readonly InputStreamReader<T> _read;
+            private int _pos;
+            private readonly int _size;
+
+            public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
+            {
+                _ins = ins;
+                _read = read;
+                _size = size;
+                _pos = 0;
+            }
+
+            public bool MoveNext()
+            {
+                if (_pos >= _size)
+                {
+                    return false;
+                }
+                else
+                {
+                    Current = _read(_ins);
+                    _pos++;
+                    return true;
+                }
+            }
+
+            public void Reset() => throw new NotSupportedException();
+            public void Dispose()
+            {
             }
         }
     }

@@ -3179,22 +3179,15 @@ public class Coordinator
     {
         String version = com.zeroc.Ice.Util.stringVersion();
 
-        int pos = version.indexOf('a');
-        if(pos == -1)
-        {
-            pos = version.indexOf('b');
-        }
-
-        if(pos != -1)
-        {
-            // 3.7a3 or 3.7b1 becomes simply 3.7
-            version = version.substring(0, pos);
-        }
-
+        // We only need the major and minor versions for the web link.
         String[] tokens = version.split(".");
         if(tokens.length > 2)
         {
             version = tokens[0] + "." + tokens[1];
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(null, "Illegal version number detected." + version);
         }
 
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;

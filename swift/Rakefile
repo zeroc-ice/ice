@@ -2,7 +2,8 @@
 
 require 'xcodeproj'
 
-$projectVersion = "3.7.3"
+$projectVersion = "4.0.0-alpha.0"
+$dylibVersion = "4.0.0"
 $macOSDeploymentTarget = "10.14"
 $iOSDeploymentTarget = "11.3"
 
@@ -707,7 +708,7 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
         config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
         config.build_settings["CURRENT_PROJECT_VERSION"] = $projectVersion
-        config.build_settings["DYLIB_CURRENT_VERSION"] = $projectVersion
+        config.build_settings["DYLIB_CURRENT_VERSION"] = $dylibVersion
         config.build_settings["DYLIB_COMPATIBILITY_VERSION"] = "0"
 
         if plist then

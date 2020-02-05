@@ -149,23 +149,9 @@ Client::run(int argc, char** argv)
 
     try
     {
-        int majorVersion = (ICE_INT_VERSION / 10000);
-        int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
-        int patchVersion = ICE_INT_VERSION % 100;
-        ostringstream os;
-        os << pluginDir << "TestPlugin,";
-        os << majorVersion * 10 + minorVersion;
-        if(patchVersion >= 60)
-        {
-            os << 'b' << (patchVersion - 60);
-        }
-        else if(patchVersion >= 50)
-        {
-            os << 'a' << (patchVersion - 50);
-        }
-        os << ":createPlugin";
+        std::string plugin = "TestPlugin," + std::string(ICE_SO_VERSION) + ":createPlugin";
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-        properties->setProperty("Ice.Plugin.Test", os.str());
+        properties->setProperty("Ice.Plugin.Test", plugin);
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     }
     catch(const Ice::Exception& ex)

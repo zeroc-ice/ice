@@ -37,7 +37,7 @@
     </Target>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)packages -Version $(IceJSONVersion)"
+        <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)packages -Version $(IceVersion)"
               Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
               Condition="'$(ICE_BIN_DIST)' == ''"/>
@@ -114,7 +114,7 @@
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)toolbox.template.prj"
                                    OutputFile="$(MSBuildThisFileDirectory)toolbox.prj"
                                    Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@"
-                                   Replacements="$(RootDir);$(MatlabHome);3.7.3;$(MatlabVersion)"/>
+                                   Replacements="$(RootDir);$(MatlabHome);4.0.0-alpha.0;$(MatlabVersion)"/>
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)info.template.xml"
                                    OutputFile="$(MSBuildThisFileDirectory)toolbox\info.xml"
                                    Tokens="@MatlabVersion@"
@@ -123,7 +123,7 @@
                  Properties="Configuration=$(Configuration);Platform=x64" />
         <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.3'&quot;"
+        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '4.0.0-alpha.0'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>

@@ -8,7 +8,6 @@
 %   GracefullyWithWait - Wait for all pending invocations to complete before closing the connection.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Connection.ice by slice2matlab version 3.7.3
 
 classdef ConnectionClose < uint8
     enumeration

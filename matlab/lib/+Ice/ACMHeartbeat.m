@@ -9,7 +9,6 @@
 %   HeartbeatAlways - Send a heartbeat at regular intervals until the connection is closed.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Connection.ice by slice2matlab version 3.7.3
 
 classdef ACMHeartbeat < uint8
     enumeration

@@ -981,6 +981,12 @@ Slice::Contained::hasMetaData(const string& meta) const
 }
 
 bool
+Slice::Contained::hasMetaDataWithPrefix(const string& prefix) const
+{
+    return !findMetaDataWithPrefix(prefix).empty();
+}
+
+bool
 Slice::Contained::findMetaData(const string& prefix, string& meta) const
 {
     for(list<string>::const_iterator p = _metaData.begin(); p != _metaData.end(); ++p)
@@ -993,6 +999,17 @@ Slice::Contained::findMetaData(const string& prefix, string& meta) const
     }
 
     return false;
+}
+
+string
+Slice::Contained::findMetaDataWithPrefix(const string& prefix) const
+{
+    string meta;
+    if(findMetaData(prefix, meta))
+    {
+        return meta.substr(prefix.size());
+    }
+    return "";
 }
 
 list<string>

@@ -11,7 +11,6 @@
 %   operation - The operation name of the request.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.3
 
 classdef RequestFailedException < Ice.LocalException
     properties
