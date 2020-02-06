@@ -3,6 +3,7 @@
 //
 
 using Ice.location.Test;
+using System.Diagnostics;
 
 namespace Ice.location
 {
@@ -14,7 +15,7 @@ namespace Ice.location
             _adapter2 = adapter2;
             _registry = registry;
 
-            _registry.addObject(_adapter1.Add(new Hello(), IObjectPrx.Factory, "hello"));
+            _registry.addObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
@@ -26,13 +27,17 @@ namespace Ice.location
         public void migrateHello(Current current)
         {
             var id = Identity.Parse("hello");
-            try
+
+            IObject? servant = _adapter1.Remove(id);
+            if (servant != null)
             {
-                _registry.addObject(_adapter2.Add(_adapter1.Remove(id), IObjectPrx.Factory, id), current);
+                _registry.addObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
             }
-            catch (NotRegisteredException)
+            else
             {
-                _registry.addObject(_adapter1.Add(_adapter2.Remove(id), IObjectPrx.Factory, id), current);
+                servant = _adapter2.Remove(id);
+                Debug.Assert(servant != null);
+                _registry.addObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
             }
         }
 

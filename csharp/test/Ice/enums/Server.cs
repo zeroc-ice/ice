@@ -16,7 +16,7 @@ namespace Ice.enums
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new TestIntf(), "test");
+            adapter.Add("test", new TestIntf());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

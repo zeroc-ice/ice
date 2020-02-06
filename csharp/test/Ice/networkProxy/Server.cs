@@ -21,7 +21,7 @@ public class Server : TestHelper
         using var communicator = initialize(ref args);
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add(new TestIntf(), "test");
+        adapter.Add("test", new TestIntf());
         adapter.Activate();
 
         communicator.WaitForShutdown();

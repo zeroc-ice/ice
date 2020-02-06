@@ -39,14 +39,14 @@ namespace Ice.udp
 
             communicator.SetProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
-            adapter.Add(new TestIntf(), "control");
+            adapter.Add("control", new TestIntf());
             adapter.Activate();
             serverReady();
             if (num == 0)
             {
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                 ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
-                adapter2.Add(new TestIntf(), "test");
+                adapter2.Add("test", new TestIntf());
                 adapter2.Activate();
             }
 
@@ -74,7 +74,7 @@ namespace Ice.udp
             endpoint.Append(getTestPort(properties, 10));
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
             ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
-            mcastAdapter.Add(new TestIntf(), "test");
+            mcastAdapter.Add("test", new TestIntf());
             mcastAdapter.Activate();
 
             communicator.WaitForShutdown();

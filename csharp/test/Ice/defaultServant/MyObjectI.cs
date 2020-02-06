@@ -2,27 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.defaultServant
+namespace Ice.DefaultServant
 {
-    public sealed class MyObject : ObjectOperations<Test.IMyObject>, Test.IMyObject
+    public sealed class MyObject : Test.IMyObject
     {
-        public override void
-        IcePing(Current current)
+        public void IcePing(Current current)
         {
             string name = current.Id.Name;
 
             if (name == "ObjectNotExist")
             {
                 throw new ObjectNotExistException();
-            }
-            else if (name == "FacetNotExist")
-            {
-                throw new FacetNotExistException();
             }
         }
 
-        public string
-        getName(Current current)
+        public string GetName(Current current)
         {
             string name = current.Id.Name;
 
@@ -30,11 +24,6 @@ namespace Ice.defaultServant
             {
                 throw new ObjectNotExistException();
             }
-            else if (name == "FacetNotExist")
-            {
-                throw new FacetNotExistException();
-            }
-
             return name;
         }
     }

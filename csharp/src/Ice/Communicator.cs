@@ -608,7 +608,7 @@ namespace Ice
             }
         }
 
-        public void AddAdminFacet(IObject servant, string facet)
+        public void AddAdminFacet(string facet, IObject servant)
         {
             lock (this)
             {
@@ -630,7 +630,7 @@ namespace Ice
                 if (_adminAdapter != null)
                 {
                     Debug.Assert(_adminIdentity != null); // TODO: check it's true
-                    _adminAdapter.Add(servant, _adminIdentity.Value, facet);
+                    _adminAdapter.Add(_adminIdentity.Value, facet, servant);
                 }
             }
         }
@@ -2281,7 +2281,7 @@ namespace Ice
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
                         Debug.Assert(_adminIdentity != null); // TODO: check
-                        _adminAdapter.Add(entry.Value, _adminIdentity.Value, entry.Key);
+                        _adminAdapter.Add(_adminIdentity.Value, entry.Key, entry.Value);
                     }
                 }
             }

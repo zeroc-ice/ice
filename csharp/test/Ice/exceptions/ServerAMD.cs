@@ -53,9 +53,9 @@ namespace Ice
                     ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
                     ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
                     var obj = new ThrowerI();
-                    adapter.Add(obj, "thrower");
-                    adapter2.Add(obj, "thrower");
-                    adapter3.Add(obj, "thrower");
+                    adapter.Add("thrower", obj);
+                    adapter2.Add("thrower", obj);
+                    adapter3.Add("thrower", obj);
                     adapter.Activate();
                     adapter2.Activate();
                     adapter3.Activate();

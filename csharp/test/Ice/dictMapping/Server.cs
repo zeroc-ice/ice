@@ -14,7 +14,7 @@ namespace Ice.dictMapping
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new MyClass(), "test");
+            adapter.Add("test", new MyClass());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

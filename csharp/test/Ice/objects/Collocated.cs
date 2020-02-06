@@ -16,10 +16,10 @@ namespace Ice.objects
             using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.objects.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new Initial(adapter), "initial");
-            adapter.Add(new F2(), "F21");
+            adapter.Add("initial", new Initial(adapter));
+            adapter.Add("F21", new F2());
             var uoet = new UnexpectedObjectExceptionTest();
-            adapter.Add(uoet.Dispatch, "uoet");
+            adapter.Add("uoet", uoet);
             Test.AllTests.allTests(this);
         }
 

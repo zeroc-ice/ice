@@ -15,7 +15,7 @@ namespace Ice.threadPoolPriority
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new Priority(), "test");
+            adapter.Add("test", new Priority());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

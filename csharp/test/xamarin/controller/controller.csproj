@@ -60,7 +60,6 @@
     <ProjectReference Include="..\tests\Ice\scope\test.csproj" />
     <ProjectReference Include="..\tests\Ice\seqMapping\test.csproj" />
     <ProjectReference Include="..\tests\Ice\serialize\test.csproj" />
-    <ProjectReference Include="..\tests\Ice\servantLocator\test.csproj" />
     <ProjectReference Include="..\tests\Ice\stream\test.csproj" />
     <ProjectReference Include="..\tests\Ice\threadPoolPriority\test.csproj" />
     <ProjectReference Include="..\tests\Ice\timeout\test.csproj" />

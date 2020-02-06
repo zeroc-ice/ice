@@ -22,7 +22,7 @@ public class Server : Test.TestHelper
 
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new Test.MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+            adapter.add(Ice.Util.stringToIdentity("test"), new Test.MyDerivedClassI());
             adapter.activate();
 
             communicator.waitForShutdown();

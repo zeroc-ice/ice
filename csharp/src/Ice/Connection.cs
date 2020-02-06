@@ -901,9 +901,12 @@ namespace Ice
         {
             if (adapter != null)
             {
-                // Go through the adapter to set the adapter and servant manager on this connection
-                // to ensure the object adapter is still active.
-                adapter.setAdapterOnConnection(this);
+                // Make sure the new adapter is still active:
+                adapter.CheckForDeactivation();
+                lock (this)
+                {
+                    _adapter = adapter;
+                }
             }
             else
             {
@@ -914,7 +917,6 @@ namespace Ice
                         return;
                     }
                     _adapter = null;
-                    _servantManager = null;
                 }
             }
 
@@ -945,27 +947,18 @@ namespace Ice
         /// <returns>The endpoint from which the connection was created.</returns>
         public IEndpoint Endpoint => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
-        /// <summary>
-        /// Create a special proxy that always uses this connection.
-        /// This
-        /// can be used for callbacks from a server to a client if the
-        /// server cannot directly establish a connection to the client,
-        /// for example because of firewalls. In this case, the server
-        /// would create a proxy using an already established connection
-        /// from the client.
-        ///
-        /// </summary>
-        /// <param name="identity">The identity for which a proxy is to be created.
-        ///
+        /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
+        /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
+        /// for example because of firewalls. In this case, the server would create a proxy using an already
+        /// established connection from the client.</summary>
+        /// <param name="identity">The identity for which a proxy is to be created.</param>
+        /// <param name="factory">The proxy facetory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
-        /// <returns>A proxy that matches the given identity and uses this
-        /// connection.
-        ///
-        /// </returns>
+        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => factory(_communicator.CreateReference(identity, this));
 
-        public void SetAdapterAndServantManager(ObjectAdapter adapter, ServantManager servantManager)
+        internal void SetAdapterImpl(ObjectAdapter adapter)
         {
             lock (this)
             {
@@ -973,9 +966,7 @@ namespace Ice
                 {
                     return;
                 }
-                Debug.Assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
                 _adapter = adapter;
-                _servantManager = servantManager;
             }
         }
 
@@ -1439,8 +1430,7 @@ namespace Ice
             //
             if (info.InvokeNum > 0)
             {
-                InvokeAll(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.ServantManager,
-                          info.Adapter);
+                InvokeAll(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.Adapter);
 
                 //
                 // Don't increase dispatchedCount, the dispatch count is
@@ -1796,11 +1786,6 @@ namespace Ice
             else if (_compressionLevel > 9)
             {
                 _compressionLevel = 9;
-            }
-
-            if (adapter != null)
-            {
-                _servantManager = adapter.getServantManager();
             }
 
             try
@@ -2531,7 +2516,6 @@ namespace Ice
             public int InvokeNum;
             public int RequestId;
             public byte Compress;
-            public ServantManager? ServantManager;
             public ObjectAdapter? Adapter;
             public OutgoingAsyncBase? OutAsync;
             public HeartbeatCallback HeartbeatCallback;
@@ -2616,7 +2600,6 @@ namespace Ice
                                 TraceUtil.TraceRecv(info.Stream, _logger, _traceLevels);
                                 info.RequestId = info.Stream.ReadInt();
                                 info.InvokeNum = 1;
-                                info.ServantManager = _servantManager;
                                 info.Adapter = _adapter;
                                 ++info.MessageDispatchCount;
                             }
@@ -2640,7 +2623,6 @@ namespace Ice
                                     info.InvokeNum = 0;
                                     throw new UnmarshalOutOfBoundsException();
                                 }
-                                info.ServantManager = _servantManager;
                                 info.Adapter = _adapter;
                                 info.MessageDispatchCount += info.InvokeNum;
                             }
@@ -2718,7 +2700,7 @@ namespace Ice
         }
 
         private void InvokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
-                               ServantManager? servantManager, ObjectAdapter? adapter)
+                               ObjectAdapter? adapter)
         {
             //
             // Note: In contrast to other private or protected methods, this
@@ -2741,7 +2723,7 @@ namespace Ice
                     //
                     // Dispatch the invocation.
                     //
-                    inc.Invoke(servantManager, stream);
+                    inc.Invoke(stream);
 
                     --invokeNum;
 
@@ -3090,7 +3072,6 @@ namespace Ice
         private readonly Endpoint _endpoint;
 
         private ObjectAdapter? _adapter;
-        private ServantManager? _servantManager;
 
         private readonly ILogger _logger;
         private readonly TraceLevels _traceLevels;

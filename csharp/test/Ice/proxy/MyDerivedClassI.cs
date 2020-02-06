@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ice.proxy
 {
-    public sealed class MyDerivedClass : ObjectOperations<Test.IMyDerivedClass>, Test.IMyDerivedClass
+    public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
 
         public IObjectPrx echo(IObjectPrx obj, Current c) => obj;
@@ -17,10 +17,10 @@ namespace Ice.proxy
 
         public Dictionary<string, string> getContext(Current current) => _ctx;
 
-        public override bool IceIsA(string s, Current current)
+        public bool IceIsA(string typeId, Current current)
         {
             _ctx = current.Context;
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(s);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
         private Dictionary<string, string> _ctx;

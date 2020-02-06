@@ -86,7 +86,7 @@ internal sealed class ServerFactory : IServerFactory
         Ice.Communicator communicator = new Ice.Communicator(props);
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         var server = new SSLServer(communicator);
-        var prx = adapter.Add(server, IServerPrx.Factory);
+        var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
         _servers[prx.Identity] = server;
         adapter.Activate();
         return prx;

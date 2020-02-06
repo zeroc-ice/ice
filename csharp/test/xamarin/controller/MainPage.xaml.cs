@@ -311,23 +311,6 @@ namespace controller
                 return new Ice.serialize.Client();
             }
 
-            else if (type.Equals("Ice.servantLocator.Client"))
-            {
-                return new Ice.servantLocator.Client();
-            }
-            else if (type.Equals("Ice.servantLocator.Collocated"))
-            {
-                return new Ice.servantLocator.Collocated();
-            }
-            else if (type.Equals("Ice.servantLocator.Server"))
-            {
-                return new Ice.servantLocator.Server();
-            }
-            else if (type.Equals("Ice.servantLocator.Serveramd"))
-            {
-                return new Ice.servantLocator.AMD.Server();
-            }
-
             else if (type.Equals("Ice.stream.Client"))
             {
                 return new Ice.stream.Client();
@@ -577,7 +560,7 @@ namespace controller
             Array.Copy(args, 0, newArgs, 1, args.Length);
             var helper = new ControllerHelperI(test, newArgs, _mainPage, _mainPage.platformAdapter);
             helper.run();
-            return current.adapter.Add(new ProccessI(helper));
+            return current.adapter.AddWithUUID(new ProccessI(helper));
         }
 
         public string getHost(string protocol, bool ipv6, Current current)
@@ -621,8 +604,8 @@ namespace controller
             _communicator = Util.initialize(initData);
 
             _adapter = _communicator.createObjectAdapter("ControllerAdapter");
-            _processController = _adapter.Add(new ProcessControllerI(mainPage),
-                mainPage.platformAdapter.processControllerIdentity());
+            _processController = _adapter.Add(mainPage.platformAdapter.processControllerIdentity(),
+                new ProcessControllerI(mainPage));
             _adapter.Activate();
 
             registerProcessController();

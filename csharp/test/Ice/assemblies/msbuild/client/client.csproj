@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>client</AssemblyName>
@@ -6,10 +6,10 @@
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../../TestCommon/TestHelper.cs"/>
-    <Compile Include="../../Client.cs"/>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../Client.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../user/user.csproj"/>
+    <ProjectReference Include="../user/user.csproj" />
   </ItemGroup>
 </Project>

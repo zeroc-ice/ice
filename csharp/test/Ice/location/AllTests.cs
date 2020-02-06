@@ -571,7 +571,7 @@ namespace Ice.location
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("Hello", "default");
 
             var id = new Identity(Guid.NewGuid().ToString(), "");
-            adapter.Add(new Hello(), id);
+            adapter.Add(id, new Hello());
             adapter.Activate();
 
             // Ensure that calls on the well-known proxy is collocated.

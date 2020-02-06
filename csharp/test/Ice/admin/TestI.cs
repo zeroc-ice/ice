@@ -83,7 +83,7 @@ namespace Ice.admin
             try
             {
                 var testFacet = new TestFacet();
-                communicator.AddAdminFacet(testFacet, "TestFacet");
+                communicator.AddAdminFacet("TestFacet", testFacet);
             }
             catch (System.ArgumentException)
             {
@@ -103,7 +103,7 @@ namespace Ice.admin
                 admin.AddUpdateCallback(servant.updated);
             }
 
-            return current.Adapter.Add(servant, IRemoteCommunicatorPrx.Factory);
+            return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

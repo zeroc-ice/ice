@@ -8,7 +8,7 @@
     <Compile Include="../../../../Ice/adapterDeactivation/AllTests.cs" />
     <Compile Include="../../../../Ice/adapterDeactivation/Client.cs" />
     <Compile Include="../../../../Ice/adapterDeactivation/Collocated.cs" />
-    <Compile Include="../../../../Ice/adapterDeactivation/ServantLocatorI.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/Servant.cs" />
     <Compile Include="../../../../Ice/adapterDeactivation/TestI.cs" />
     <Compile Include="../../../../Ice/adapterDeactivation/Server.cs" />
     <Compile Include="generated/Test.cs">

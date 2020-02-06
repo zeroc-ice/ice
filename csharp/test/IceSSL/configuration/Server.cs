@@ -22,7 +22,7 @@ public class Server : Test.TestHelper
 
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add(new ServerFactory(args[0] + "/../certs"), "factory");
+        adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
         adapter.Activate();
 
         communicator.WaitForShutdown();

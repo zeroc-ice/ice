@@ -17,7 +17,7 @@ namespace Ice
                 {
                     communicator.SetProperty("TestAdapter.Endpoints", $"{getTestEndpoint(0)} -t 10000");
                     ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                    adapter.Add(new RemoteCommunicatorFactoryI(), "factory");
+                    adapter.Add("factory", new RemoteCommunicatorFactoryI());
                     adapter.Activate();
                     serverReady();
                     communicator.WaitForShutdown();

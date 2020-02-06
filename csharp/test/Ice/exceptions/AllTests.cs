@@ -61,10 +61,10 @@ namespace Ice.exceptions
                 communicator.SetProperty("TestAdapter1.Endpoints", "tcp -h *");
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
                 var obj = new Empty();
-                adapter.Add(obj, "x");
+                adapter.Add("x", obj);
                 try
                 {
-                    adapter.Add(obj, "x");
+                    adapter.Add("x", obj);
                     test(false);
                 }
                 catch (ArgumentException)
@@ -73,7 +73,7 @@ namespace Ice.exceptions
 
                 try
                 {
-                    adapter.Add(obj, "");
+                    adapter.Add("", obj);
                     test(false);
                 }
                 catch (FormatException)
@@ -81,33 +81,7 @@ namespace Ice.exceptions
                 }
 
                 adapter.Remove("x");
-                try
-                {
-                    adapter.Remove("x");
-                    test(false);
-                }
-                catch (NotRegisteredException)
-                {
-                }
-                adapter.Deactivate();
-                output.WriteLine("ok");
-            }
-
-            {
-                output.Write("testing servant locator registration exceptions... ");
-                communicator.SetProperty("TestAdapter2.Endpoints", "tcp -h *");
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter2");
-                var loc = new ServantLocator();
-                adapter.AddServantLocator(loc, "x");
-                try
-                {
-                    adapter.AddServantLocator(loc, "x");
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-
+                adapter.Remove("x"); // as of Ice 4.0, can remove multiple times
                 adapter.Deactivate();
                 output.WriteLine("ok");
             }
@@ -424,7 +398,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception... ");
+            output.Write("catching object not exist exception... ");
             output.Flush();
 
             try
@@ -435,7 +409,7 @@ namespace Ice.exceptions
                     thrower2.IcePing();
                     test(false);
                 }
-                catch (FacetNotExistException ex)
+                catch (ObjectNotExistException ex)
                 {
                     test(ex.Facet.Equals("no such facet"));
                 }
@@ -848,7 +822,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception with new AMI mapping... ");
+            output.Write("catching object not exist exception with new AMI mapping... ");
             output.Flush();
 
             {
@@ -864,7 +838,7 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (FacetNotExistException ex)
+                    catch (ObjectNotExistException ex)
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }
@@ -1108,7 +1082,7 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (FacetNotExistException ex)
+                    catch (ObjectNotExistException ex)
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }
