@@ -76,7 +76,7 @@ namespace Ice
             {
                 lock (_mutex)
                 {
-                    CheckForDeactivation();
+                    CheckForDeactivationNoSync();
                     Debug.Assert(_communicator != null);
                     return _communicator;
                 }
@@ -96,7 +96,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 //
                 // If we've previously been initialized we just need to activate the
@@ -182,7 +182,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 _state = StateHeld;
                 Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -204,7 +204,7 @@ namespace Ice
             List<IncomingConnectionFactory> incomingConnectionFactories;
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
@@ -478,7 +478,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
                 return newProxy(identity, proxyFactory, facet);
             }
@@ -499,7 +499,7 @@ namespace Ice
                 // We check for deactivation here because we don't want to keep this servant when the adapter is being
                 // deactivated or destroyed. In other languages, notably C++, keeping such a servant could lead to
                 // circular references and leaks.
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
             }
         }
@@ -615,7 +615,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 _categoryServantMap.Add(new CategoryPlusFacet(category, facet), servant);
             }
         }
@@ -654,7 +654,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 _defaultServantMap.Add(facet, servant);
             }
         }
@@ -694,7 +694,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 return newProxy(identity, factory, "");
             }
         }
@@ -721,7 +721,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 return newDirectProxy(identity, factory, "");
             }
         }
@@ -743,7 +743,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 return newIndirectProxy(identity, factory, "", _id);
             }
         }
@@ -772,7 +772,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 if (locator != null)
                 {
@@ -797,7 +797,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 if (_locatorInfo == null)
                 {
@@ -846,7 +846,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = ComputePublishedEndpoints();
@@ -900,7 +900,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
                 if (_routerInfo != null)
                 {
                     throw new ArgumentException(
@@ -960,7 +960,7 @@ namespace Ice
 
                 lock (_mutex)
                 {
-                    CheckForDeactivation();
+                    CheckForDeactivationNoSync();
 
                     //
                     // Proxies which have at least one endpoint in common with the
@@ -1023,7 +1023,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                CheckForDeactivationNoSync();
 
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
@@ -1074,12 +1074,11 @@ namespace Ice
             return _acm;
         }
 
-        internal void setAdapterOnConnection(Ice.Connection connection)
+        internal void CheckForDeactivation()
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
-                connection.SetAdapterImpl(this);
+                CheckForDeactivationNoSync();
             }
         }
 
@@ -1289,8 +1288,9 @@ namespace Ice
             where T : class, IObjectPrx
             => factory(_communicator!.CreateReference(identity, facet, _reference!, id));
 
-        private void CheckForDeactivation()
+        private void CheckForDeactivationNoSync()
         {
+            // Must be called with _mutex locked.
             if (_state >= StateDeactivating)
             {
                 throw new ObjectAdapterDeactivatedException(GetName());

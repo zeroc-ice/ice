@@ -901,9 +901,12 @@ namespace Ice
         {
             if (adapter != null)
             {
-                // Go through the adapter to set the adapter on this connection
-                // to ensure the object adapter is still active.
-                adapter.setAdapterOnConnection(this);
+                // Make sure the new adapter is still active:
+                adapter.CheckForDeactivation();
+                lock (this)
+                {
+                    _adapter = adapter;
+                }
             }
             else
             {
