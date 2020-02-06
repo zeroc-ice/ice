@@ -258,16 +258,28 @@ classdef AllTests
             m.v(2).key = StructKey(2, '2');
             m.v(2).value = L('two');
 
+            assert(length(m.v) == 2);
+
             [m1, m2] = initial.opM(m);
 
-            assert(length(m1.v) == 2);
-            assert(length(m2.v) == 2);
+            assert(length(m1.v) == length(m.v));
+            assert(length(m2.v) == length(m.v));
 
-            assert(strcmp(m1.v(1).value.data, 'one'));
-            assert(strcmp(m1.v(2).value.data, 'two'));
+            for i = 1:2
+                if isequal(m1.v(i).key, m.v(1).key)
+                    assert(strcmp(m1.v(i).value.data, m.v(1).value.data));
+                elseif isequal(m1.v(i).key, m.v(2).key)
+                    assert(strcmp(m1.v(i).value.data, m.v(2).value.data));
+                else
+                    assert(false);
 
-            assert(strcmp(m2.v(1).value.data, 'one'));
-            assert(strcmp(m2.v(2).value.data, 'two'));
+            for i = 1:2
+                if isequal(m2.v(i).key, m.v(1).key)
+                    assert(strcmp(m2.v(i).value.data, m.v(1).value.data));
+                elseif isequal(m2.v(i).key, m.v(2).key)
+                    assert(strcmp(m2.v(i).value.data, m.v(2).value.data));
+                else
+                    assert(false);
 
             fprintf('ok\n');
 

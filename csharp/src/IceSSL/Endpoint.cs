@@ -21,7 +21,7 @@ namespace IceSSL
             public InfoI(Endpoint e) => _endpoint = e;
             public override short Type() => _endpoint.Type();
             public override bool Datagram() => _endpoint.Datagram();
-            public override bool Secure() =>  _endpoint.Secure();
+            public override bool Secure() => _endpoint.Secure();
 
             private readonly Endpoint _endpoint;
         }
@@ -35,7 +35,7 @@ namespace IceSSL
             return info;
         }
 
-        public override short Type() =>  _delegate.Type();
+        public override short Type() => _delegate.Type();
 
         public override string Protocol() => _delegate.Protocol();
 
@@ -81,9 +81,9 @@ namespace IceSSL
             }
         }
 
-        public override bool Datagram() =>  _delegate.Datagram();
-        public override bool Secure() =>  _delegate.Secure();
-        public override IceInternal.ITransceiver? Transceiver() =>  null;
+        public override bool Datagram() => _delegate.Datagram();
+        public override bool Secure() => _delegate.Secure();
+        public override IceInternal.ITransceiver? Transceiver() => null;
 
         private sealed class EndpointI_connectorsI : IceInternal.IEndpointConnectors
         {
@@ -175,7 +175,7 @@ namespace IceSSL
             return _delegate.Equivalent(endpointI._delegate);
         }
 
-        public override string Options() =>  _delegate.Options();
+        public override string Options() => _delegate.Options();
 
         //
         // Compare endpoints for sorting purposes
@@ -196,7 +196,7 @@ namespace IceSSL
             return _delegate.CompareTo(p._delegate);
         }
 
-        public override int GetHashCode() =>  _delegate.GetHashCode();
+        public override int GetHashCode() => _delegate.GetHashCode();
 
         protected override bool CheckOption(string option, string? argument, string endpoint) => false;
 
@@ -213,11 +213,11 @@ namespace IceSSL
             new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Protocol), underlying);
 
         protected override IceInternal.Endpoint
-        CreateWithUnderlying(IceInternal.Endpoint underlying, List<string> args, bool oaEndpoint) =>
+        CreateWithUnderlying(IceInternal.Endpoint? underlying, List<string> args, bool oaEndpoint) =>
             new Endpoint(_instance, underlying);
 
         protected override IceInternal.Endpoint
-        ReadWithUnderlying(IceInternal.Endpoint underlying, Ice.InputStream s) =>  new Endpoint(_instance, underlying);
+        ReadWithUnderlying(IceInternal.Endpoint? underlying, Ice.InputStream s) => new Endpoint(_instance, underlying);
 
         private readonly Instance _instance;
     }

@@ -263,7 +263,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            IInvocationObserver GetInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
+            IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given
@@ -281,7 +281,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The dispatch observer to instrument the dispatch.</returns>
-            IDispatchObserver GetDispatchObserver(Current c, int size);
+            IDispatchObserver? GetDispatchObserver(Current c, int size);
 
             /// <summary>
             /// The Ice run-time calls this method when the communicator is

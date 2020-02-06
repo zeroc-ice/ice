@@ -999,7 +999,7 @@ namespace IceInternal
         public Ice.Instrumentation.IConnectionObserver? GetConnectionObserver(ConnectionInfo c,
                                                                              IEndpoint e,
                                                                              Ice.Instrumentation.ConnectionState s,
-                                                                             Ice.Instrumentation.IConnectionObserver obsv)
+                                                                             Ice.Instrumentation.IConnectionObserver? obsv)
         {
             if (_connections.IsEnabled())
             {
@@ -1045,14 +1045,14 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(IObjectPrx prx, string operation,
+        public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
                                                                               Dictionary<string, string> ctx)
         {
             if (_invocations.IsEnabled())
             {
                 try
                 {
-                    Ice.Instrumentation.IInvocationObserver del = null;
+                    Ice.Instrumentation.IInvocationObserver? del = null;
                     if (_delegate != null)
                     {
                         del = _delegate.GetInvocationObserver(prx, operation, ctx);
@@ -1088,7 +1088,7 @@ namespace IceInternal
             return null;
         }
 
-        public void SetObserverUpdater(Ice.Instrumentation.IObserverUpdater updater)
+        public void SetObserverUpdater(Ice.Instrumentation.IObserverUpdater? updater)
         {
             if (updater == null)
             {
