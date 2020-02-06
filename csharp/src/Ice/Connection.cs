@@ -2840,7 +2840,7 @@ namespace Ice
             for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
             {
                 info.ConnectionId = _endpoint.ConnectionId();
-                info.AdapterName = _adapter != null ? _adapter.GetName() : "";
+                info.AdapterName = _adapter != null ? _adapter.Name : "";
                 info.Incoming = _connector == null;
             }
             return _info;

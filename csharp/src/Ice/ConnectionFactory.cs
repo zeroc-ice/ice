@@ -1671,7 +1671,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_acceptorStarted);
-                _acceptor = _endpoint.Acceptor(_adapter!.GetName());
+                _acceptor = _endpoint.Acceptor(_adapter!.Name);
                 Debug.Assert(_acceptor != null);
 
                 if (_communicator.TraceLevels.network >= 2)

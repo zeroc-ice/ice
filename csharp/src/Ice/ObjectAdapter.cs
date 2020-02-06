@@ -16,6 +16,15 @@ namespace Ice
 
     public sealed class ObjectAdapter
     {
+        /// <summary>Returns the communicator that created this object adapter.</summary>
+        /// <value>The communicator.</value>
+        public Communicator Communicator { get; }
+
+        /// <summary>Returns the name of this object adapter. This name is used as prefix for the object adapter's
+        /// configuration properties.</summary>
+        /// <value>The object adapter's name.</value>
+        public string Name { get; }
+
         private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
             new Dictionary<IdentityPlusFacet, IObject>();
 
@@ -36,11 +45,10 @@ namespace Ice
         private const int StateDestroyed = 7;
 
         private int _state = StateUninitialized;
-        private Communicator? _communicator;
+
         private ThreadPool? _threadPool;
         private ACMConfig _acm;
 
-        private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
         private Reference? _reference;
@@ -49,39 +57,8 @@ namespace Ice
         private Endpoint[] _publishedEndpoints;
         private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
-        private bool _noConfig;
+
         private int _messageSizeMax;
-
-        /// <summary>
-        /// Get the name of this object adapter.
-        /// </summary>
-        /// <returns>This object adapter's name.</returns>
-        public string GetName()
-        {
-            //
-            // No mutex lock necessary, _name is immutable.
-            //
-            return _noConfig ? "" : _name;
-        }
-
-        /// <summary>
-        /// Get the communicator this object adapter belongs to.
-        /// </summary>
-        /// <returns>This object adapter's communicator.
-        ///
-        /// </returns>
-        public Communicator Communicator
-        {
-            get
-            {
-                lock (_mutex)
-                {
-                    CheckForDeactivationNoSync();
-                    Debug.Assert(_communicator != null);
-                    return _communicator;
-                }
-            }
-        }
 
         /// <summary>
         /// Activate all endpoints that belong to this object adapter.
@@ -122,9 +99,9 @@ namespace Ice
                 _state = StateActivating;
 
                 locatorInfo = _locatorInfo;
-                if (!_noConfig)
+                if (Name.Length > 0)
                 {
-                    printAdapterReady = _communicator!.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
+                    printAdapterReady = Communicator.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
 
@@ -150,7 +127,7 @@ namespace Ice
 
             if (printAdapterReady)
             {
-                Console.Out.WriteLine($"{_name} ready");
+                Console.Out.WriteLine($"{Name} ready");
             }
 
             lock (_mutex)
@@ -252,7 +229,6 @@ namespace Ice
                     return;
                 }
                 _state = StateDeactivating;
-                Debug.Assert(_communicator != null);
             }
 
             //
@@ -267,7 +243,7 @@ namespace Ice
                     //
                     // Remove entry from the router manager.
                     //
-                    _communicator.EraseRouterInfo(_routerInfo.Router);
+                    Communicator.EraseRouterInfo(_routerInfo.Router);
 
                     //
                     // Clear this object adapter with the router.
@@ -291,7 +267,7 @@ namespace Ice
                 factory.Destroy();
             }
 
-            _communicator.OutgoingConnectionFactory().RemoveAdapter(this);
+            Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
 
             lock (_mutex)
             {
@@ -405,10 +381,7 @@ namespace Ice
                 _threadPool.JoinWithAllThreads();
             }
 
-            if (_communicator != null)
-            {
-                _communicator.RemoveObjectAdapter(this);
-            }
+            Communicator.RemoveObjectAdapter(this);
 
             lock (_mutex)
             {
@@ -422,7 +395,6 @@ namespace Ice
                 //
                 // Remove object references (some of them cyclic).
                 //
-                _communicator = null;
                 _threadPool = null;
                 _routerInfo = null;
                 _publishedEndpoints = Array.Empty<Endpoint>();
@@ -776,7 +748,7 @@ namespace Ice
 
                 if (locator != null)
                 {
-                    _locatorInfo = _communicator!.GetLocatorInfo(locator);
+                    _locatorInfo = Communicator.GetLocatorInfo(locator);
                 }
                 else
                 {
@@ -1035,9 +1007,6 @@ namespace Ice
             lock (_mutex)
             {
                 // Not check for deactivation here!
-
-                Debug.Assert(_communicator != null); // Must not be called after destroy().
-
                 Debug.Assert(_directCount > 0);
                 if (--_directCount == 0)
                 {
@@ -1054,23 +1023,19 @@ namespace Ice
 
             // Not check for deactivation here!
 
-            Debug.Assert(_communicator != null); // Must not be called after destroy().
-
             if (_threadPool != null)
             {
                 return _threadPool;
             }
             else
             {
-                return _communicator.ServerThreadPool();
+                return Communicator.ServerThreadPool();
             }
         }
 
         internal ACMConfig getACM()
         {
             // Not check for deactivation here!
-
-            Debug.Assert(_communicator != null); // Must not be called after destroy().
             return _acm;
         }
 
@@ -1088,25 +1053,23 @@ namespace Ice
             return _messageSizeMax;
         }
 
-        //
-        // Only for use by ObjectAdapterFactory
-        //
-        internal ObjectAdapter(Communicator communicator, string name, IRouterPrx? router, bool noConfig)
+        // Called by Communicator
+        internal ObjectAdapter(Communicator communicator, string name, IRouterPrx? router)
         {
-            _communicator = communicator;
-            _name = name;
+            Communicator = communicator;
+            Name = name;
+
             _incomingConnectionFactories = new List<IncomingConnectionFactory>();
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
             _directCount = 0;
-            _noConfig = noConfig;
 
-            if (_noConfig)
+            if (Name.Length == 0)
             {
                 _id = "";
                 _replicaGroupId = "";
-                _reference = _communicator.CreateReference("dummy -t", "");
-                _acm = _communicator.ServerACM;
+                _reference = Communicator.CreateReference("dummy -t", "");
+                _acm = Communicator.ServerACM;
                 return;
             }
 
@@ -1116,17 +1079,17 @@ namespace Ice
             //
             // Warn about unknown object adapter properties.
             //
-            if (unknownProps.Count != 0 && (_communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
+            if (unknownProps.Count != 0 && (Communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
-                message.Append(_name);
+                message.Append(Name);
                 message.Append("':");
                 foreach (string s in unknownProps)
                 {
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                _communicator.Logger.Warning(message.ToString());
+                Communicator.Logger.Warning(message.ToString());
             }
 
             //
@@ -1138,25 +1101,24 @@ namespace Ice
                 // These need to be set to prevent warnings/asserts in the destructor.
                 //
                 _state = StateDestroyed;
-                _communicator = null;
                 _incomingConnectionFactories = null;
-                throw new InitializationException($"object adapter `{_name}' requires configuration");
+                throw new InitializationException($"object adapter `{Name}' requires configuration");
             }
 
-            _id = _communicator.GetProperty($"{_name}.AdapterId") ?? "";
-            _replicaGroupId = _communicator.GetProperty($"{_name}.ReplicaGroupId") ?? "";
+            _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
+            _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
             //
             // Setup a reference to be used to get the default proxy options
             // when creating new proxies. By default, create twoway proxies.
             //
-            string proxyOptions = _communicator.GetProperty($"{_name}.ProxyOptions") ?? "-t";
-            _reference = _communicator.CreateReference($"dummy {proxyOptions}", "");
+            string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
+            _reference = Communicator.CreateReference($"dummy {proxyOptions}", "");
 
-            _acm = new ACMConfig(communicator, communicator.Logger, $"{_name}.ACM", _communicator.ServerACM);
+            _acm = new ACMConfig(Communicator, Communicator.Logger, $"{Name}.ACM", Communicator.ServerACM);
             {
-                int defaultMessageSizeMax = communicator.MessageSizeMax / 1024;
-                int num = communicator.GetPropertyAsInt($"{_name}.MessageSizeMax") ?? defaultMessageSizeMax;
+                int defaultMessageSizeMax = Communicator.MessageSizeMax / 1024;
+                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultMessageSizeMax;
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
@@ -1169,18 +1131,18 @@ namespace Ice
 
             try
             {
-                int threadPoolSize = communicator.GetPropertyAsInt($"{_name}.ThreadPool.Size") ?? 0;
-                int threadPoolSizeMax = communicator.GetPropertyAsInt($"{_name}.ThreadPool.SizeMax") ?? 0;
+                int threadPoolSize = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.Size") ?? 0;
+                int threadPoolSizeMax = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.SizeMax") ?? 0;
                 if (threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
-                    _threadPool = new ThreadPool(_communicator, _name + ".ThreadPool", 0);
+                    _threadPool = new ThreadPool(Communicator, Name + ".ThreadPool", 0);
                 }
 
-                router ??= communicator.GetPropertyAsProxy($"{_name}.Router", IRouterPrx.Factory);
+                router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
 
                 if (router != null)
                 {
-                    _routerInfo = _communicator.GetRouterInfo(router);
+                    _routerInfo = Communicator.GetRouterInfo(router);
 
                     //
                     // Make sure this router is not already registered with another adapter.
@@ -1188,7 +1150,7 @@ namespace Ice
                     if (_routerInfo.Adapter != null)
                     {
                         throw new ArgumentException(
-                            $"Router `{router.Identity.ToString(_communicator.ToStringMode)}' already registered with an object adater",
+                            $"Router `{router.Identity.ToString(Communicator.ToStringMode)}' already registered with an object adater",
                             nameof(router));
                     }
 
@@ -1204,7 +1166,7 @@ namespace Ice
                     // router's client proxy to use this object adapter for
                     // callbacks.
                     //
-                    _communicator.OutgoingConnectionFactory().SetRouterInfo(_routerInfo);
+                    Communicator.OutgoingConnectionFactory().SetRouterInfo(_routerInfo);
                 }
                 else
                 {
@@ -1212,7 +1174,7 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<Endpoint> endpoints = ParseEndpoints(communicator.GetProperty($"{_name}.Endpoints") ?? "", true);
+                    List<Endpoint> endpoints = ParseEndpoints(Communicator.GetProperty($"{Name}.Endpoints") ?? "", true);
                     foreach (Endpoint endp in endpoints)
                     {
                         Endpoint? publishedEndpoint;
@@ -1227,10 +1189,10 @@ namespace Ice
                     }
                     if (endpoints.Count == 0)
                     {
-                        TraceLevels tl = _communicator.TraceLevels;
+                        TraceLevels tl = Communicator.TraceLevels;
                         if (tl.network >= 2)
                         {
-                            _communicator.Logger.Trace(tl.networkCat, "created adapter `" + _name +
+                            Communicator.Logger.Trace(tl.networkCat, "created adapter `" + Name +
                                                                         "' without endpoints");
                         }
                     }
@@ -1240,14 +1202,14 @@ namespace Ice
                 // Parse published endpoints.
                 //
                 _publishedEndpoints = ComputePublishedEndpoints();
-                ILocatorPrx? locator = communicator.GetPropertyAsProxy($"{_name}.Locator", ILocatorPrx.Factory);
+                ILocatorPrx? locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory);
                 if (locator != null)
                 {
                     SetLocator(locator);
                 }
                 else
                 {
-                    SetLocator(_communicator.GetDefaultLocator());
+                    SetLocator(Communicator.GetDefaultLocator());
                 }
             }
             catch (LocalException)
@@ -1278,7 +1240,7 @@ namespace Ice
         //
         private T newDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
             where T : class, IObjectPrx
-            => factory(_communicator!.CreateReference(identity, facet, _reference!, _publishedEndpoints));
+            => factory(Communicator!.CreateReference(identity, facet, _reference!, _publishedEndpoints));
 
         //
         // Create a reference with the adapter id and return a
@@ -1286,14 +1248,14 @@ namespace Ice
         //
         private T newIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
             where T : class, IObjectPrx
-            => factory(_communicator!.CreateReference(identity, facet, _reference!, id));
+            => factory(Communicator!.CreateReference(identity, facet, _reference!, id));
 
         private void CheckForDeactivationNoSync()
         {
             // Must be called with _mutex locked.
             if (_state >= StateDeactivating)
             {
-                throw new ObjectAdapterDeactivatedException(GetName());
+                throw new ObjectAdapterDeactivatedException(Name);
             }
         }
 
@@ -1307,7 +1269,7 @@ namespace Ice
 
         private List<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
         {
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
             int beg;
             int end = 0;
 
@@ -1375,7 +1337,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                Endpoint? endp = _communicator.CreateEndpoint(s, oaEndpoints);
+                Endpoint? endp = Communicator.CreateEndpoint(s, oaEndpoints);
                 if (endp == null)
                 {
                     throw new FormatException($"invalid object adapter endpoint `{s}'");
@@ -1390,7 +1352,6 @@ namespace Ice
 
         private Endpoint[] ComputePublishedEndpoints()
         {
-            Debug.Assert(_communicator != null);
             List<Endpoint> endpoints;
             if (_routerInfo != null)
             {
@@ -1408,11 +1369,22 @@ namespace Ice
             }
             else
             {
-                //
-                // Parse published endpoints. If set, these are used in proxies
-                // instead of the connection factory endpoints.
-                //
-                endpoints = ParseEndpoints(_communicator.GetProperty($"{_name}.PublishedEndpoints") ?? "", false);
+                // Parse published endpoints. If set, these are used in proxies instead of the connection factory
+                // endpoints.
+                string? publishedEndpoints = null;
+                if (Name.Length > 0)
+                {
+                    publishedEndpoints = Communicator.GetProperty($"{Name}.PublishedEndpoints");
+                }
+                if (publishedEndpoints != null)
+                {
+                    endpoints = ParseEndpoints(publishedEndpoints, false);
+                }
+                else
+                {
+                    endpoints = new List<Endpoint>();
+                }
+
                 if (endpoints.Count == 0)
                 {
                     //
@@ -1439,10 +1411,10 @@ namespace Ice
                 }
             }
 
-            if (_communicator.TraceLevels.network >= 1 && endpoints.Count > 0)
+            if (Communicator.TraceLevels.network >= 1 && endpoints.Count > 0)
             {
                 StringBuilder s = new StringBuilder("published endpoints for object adapter `");
-                s.Append(_name);
+                s.Append(Name);
                 s.Append("':\n");
                 bool first = true;
                 foreach (Endpoint endpoint in endpoints)
@@ -1454,7 +1426,7 @@ namespace Ice
                     s.Append(endpoint.ToString());
                     first = false;
                 }
-                _communicator.Logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.networkCat, s.ToString());
             }
 
             return endpoints.ToArray();
@@ -1476,7 +1448,7 @@ namespace Ice
             {
                 return;
             }
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
 
             try
             {
@@ -1491,12 +1463,12 @@ namespace Ice
             }
             catch (AdapterNotFoundException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (Communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter is not known to the locator registry");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    Communicator.Logger.Trace(Communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1506,12 +1478,12 @@ namespace Ice
             }
             catch (InvalidReplicaGroupIdException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (Communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    Communicator.Logger.Trace(Communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1521,12 +1493,12 @@ namespace Ice
             }
             catch (AdapterAlreadyActiveException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (Communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter endpoints are already set");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    Communicator.Logger.Trace(Communicator.TraceLevels.locationCat, s.ToString());
                 }
 
                 ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
@@ -1543,17 +1515,17 @@ namespace Ice
             }
             catch (LocalException e)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (Communicator.TraceLevels.location >= 1)
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append(e.ToString());
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    Communicator.Logger.Trace(Communicator.TraceLevels.locationCat, s.ToString());
                 }
                 throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
             }
 
-            if (_communicator.TraceLevels.location >= 1)
+            if (Communicator.TraceLevels.location >= 1)
             {
                 StringBuilder s = new StringBuilder();
                 s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
@@ -1570,7 +1542,7 @@ namespace Ice
                         }
                     }
                 }
-                _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.locationCat, s.ToString());
             }
         }
 
@@ -1617,12 +1589,12 @@ namespace Ice
 
         private bool FilterProperties(List<string> unknownProps)
         {
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
             //
             // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
             //
             bool addUnknown = true;
-            string prefix = _name + ".";
+            string prefix = Name + ".";
             foreach (var propertyName in PropertyNames.clPropNames)
             {
                 if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
@@ -1633,7 +1605,7 @@ namespace Ice
             }
 
             bool noProps = true;
-            Dictionary<string, string> props = _communicator.GetProperties(forPrefix: prefix);
+            Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
             foreach (string prop in props.Keys)
             {
                 bool valid = false;

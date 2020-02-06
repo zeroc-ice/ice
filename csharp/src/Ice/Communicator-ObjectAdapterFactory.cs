@@ -21,30 +21,19 @@ namespace Ice
                 {
                     if (_adapterNamesInUse.Contains(name))
                     {
-                        throw new System.ArgumentException($"An object adapter with name `{name}' is already registered",
-                            nameof(name));
+                        throw new System.ArgumentException(
+                            $"An object adapter with name `{name}' is already registered", nameof(name));
                     }
                     _adapterNamesInUse.Add(name);
                 }
             }
 
-            //
-            // Must be called outside the synchronization since initialize can make client invocations
+            // Must be called outside the synchronization since the constructor can make client invocations
             // on the router if it's set.
-            //
             ObjectAdapter? adapter = null;
             try
             {
-                if (name.Length == 0)
-                {
-                    string uuid = System.Guid.NewGuid().ToString();
-                    adapter = new ObjectAdapter(this, uuid, null, true);
-                }
-                else
-                {
-                    adapter = new ObjectAdapter(this, name, router, false);
-                }
-
+                adapter = new ObjectAdapter(this, name, router);
                 lock (this)
                 {
                     if (_isShutdown)
@@ -52,18 +41,16 @@ namespace Ice
                         throw new CommunicatorDestroyedException();
                     }
                     _adapters.Add(adapter);
+                    return adapter;
                 }
             }
-            catch (CommunicatorDestroyedException)
+            catch (System.Exception)
             {
                 if (adapter != null)
                 {
                     adapter.Destroy();
                 }
-                throw;
-            }
-            catch (System.Exception)
-            {
+
                 if (name.Length > 0)
                 {
                     lock (this)
@@ -73,8 +60,6 @@ namespace Ice
                 }
                 throw;
             }
-
-            return adapter;
         }
 
         internal ObjectAdapter? FindObjectAdapter(IObjectPrx proxy)
@@ -118,7 +103,10 @@ namespace Ice
                 }
 
                 _adapters.Remove(adapter);
-                _adapterNamesInUse.Remove(adapter.GetName());
+                if (adapter.Name.Length > 0)
+                {
+                    _adapterNamesInUse.Remove(adapter.Name);
+                }
             }
         }
 

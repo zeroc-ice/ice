@@ -51,5 +51,5 @@ public sealed class TestIntf : ITestIntf
 {
     public string
     getAdapterId(Ice.Current current) =>
-        current.Adapter.Communicator.GetProperty($"{current.Adapter.GetName()}.AdapterId") ?? "";
+        current.Adapter.Communicator.GetProperty($"{current.Adapter.Name}.AdapterId") ?? "";
 }
