@@ -2,12 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Threading.Tasks;
+using Ice;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ice.proxy.AMD
 {
-    public sealed class MyDerivedClass : ObjectOperations<Test.IMyDerivedClass>, Test.IMyDerivedClass
+    public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
         public Task<IObjectPrx> echoAsync(IObjectPrx obj, Current c) => Task.FromResult(obj);
 
@@ -19,10 +21,10 @@ namespace Ice.proxy.AMD
 
         public Task<Dictionary<string, string>> getContextAsync(Current current) => Task.FromResult(_ctx);
 
-        public override bool IceIsA(string s, Current current)
+        public bool IceIsA(string typeId, Current current)
         {
             _ctx = current.Context;
-            return base.IceIsA(s, current);
+            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
         private Dictionary<string, string> _ctx;

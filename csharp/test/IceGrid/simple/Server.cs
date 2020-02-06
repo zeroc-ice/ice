@@ -21,7 +21,7 @@ public class Server : TestHelper
 
         using var communicator = initialize(ref args, properties);
         ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add(new TestIntf(), communicator.GetProperty("Identity") ?? "test");
+        adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
         try
         {
             adapter.Activate();

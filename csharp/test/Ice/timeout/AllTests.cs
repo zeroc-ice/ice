@@ -384,7 +384,7 @@ namespace Ice.timeout
                 var adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
                 adapter.Activate();
 
-                var proxy = adapter.Add(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
+                var proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
                 try
                 {
                     proxy.sleep(500);

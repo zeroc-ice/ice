@@ -15,7 +15,7 @@ namespace Ice.seqMapping.AMD
                 typeIdNamespaces: new string[] { "Ice.seqMapping.AMD.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new MyClass(), "test");
+            adapter.Add("test", new MyClass());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

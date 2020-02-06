@@ -201,8 +201,8 @@ namespace IceBox
                 if (_communicator.GetProperty("IceBox.ServiceManager.Endpoints") != null)
                 {
                     adapter = _communicator.CreateObjectAdapter("IceBox.ServiceManager");
-                    adapter.Add(this, new Identity("ServiceManager",
-                        _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox"));
+                    string instanceName = _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox";
+                    adapter.Add(new Identity("ServiceManager", instanceName), this);
                 }
 
                 //
@@ -283,7 +283,7 @@ namespace IceBox
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.AddAdminFacet(p.Value, facetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(facetNamePrefix + p.Key, p.Value);
                             }
                         }
                     }
@@ -297,7 +297,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.AddAdminFacet(this, "IceBox.ServiceManager");
+                _communicator.AddAdminFacet("IceBox.ServiceManager", this);
                 _communicator.GetAdmin();
                 if (adapter != null)
                 {
@@ -493,7 +493,7 @@ namespace IceBox
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.AddAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(serviceFacetNamePrefix + p.Key, p.Value);
                             }
                         }
                     }

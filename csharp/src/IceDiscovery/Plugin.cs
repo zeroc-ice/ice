@@ -74,7 +74,8 @@ namespace IceDiscovery
             // Setup locatory registry.
             //
             var locatorRegistry = new LocatorRegistry(_communicator);
-            ILocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry, ILocatorRegistryPrx.Factory);
+            ILocatorRegistryPrx locatorRegistryPrx =
+                _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
             ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
                 clearRouter: true, collocationOptimized: false); // No colloc optimization or router for the multicast proxy!
@@ -83,17 +84,17 @@ namespace IceDiscovery
             // Add lookup and lookup reply Ice objects
             //
             var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
-            _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
+            _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
 
             var lookupReply = new LookupReply(lookup);
-            _replyAdapter.AddDefaultServant(lookupReply, "");
+            _replyAdapter.AddDefault(lookupReply);
             lookup.SetLookupReply(_replyAdapter.CreateProxy("dummy", ILookupReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram));
 
             //
             // Setup locator on the communicator.
             //
-            _locator = _locatorAdapter.Add(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
+            _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
             _defaultLocator = _communicator.GetDefaultLocator();
             _communicator.SetDefaultLocator(_locator);
 

@@ -11,7 +11,7 @@ namespace Ice.binding
         public RemoteObjectAdapter(ObjectAdapter adapter)
         {
             _adapter = adapter;
-            _testIntf = _adapter.Add(new TestIntf(), ITestIntfPrx.Factory, "test");
+            _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
             _adapter.Activate();
         }
 

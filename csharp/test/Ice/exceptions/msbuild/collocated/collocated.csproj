@@ -10,7 +10,6 @@
     <Compile Include="../../AllTests.cs" />
     <Compile Include="../../ThrowerI.cs" />
     <Compile Include="../../EmptyI.cs" />
-    <Compile Include="../../ServantLocatorI.cs" />
     <Compile Include="../../Collocated.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

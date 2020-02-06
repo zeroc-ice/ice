@@ -235,7 +235,6 @@ namespace IceInternal
             iss.Pos = Protocol.requestHdr.Length;
 
             int invokeNum = 1;
-            ServantManager servantManager = _adapter.getServantManager();
             try
             {
                 while (invokeNum > 0)
@@ -257,7 +256,7 @@ namespace IceInternal
                     }
 
                     var inS = new Incoming(_reference.GetCommunicator(), this, null, _adapter, _response, 0, requestId);
-                    inS.Invoke(servantManager, iss);
+                    inS.Invoke(iss);
                     --invokeNum;
                 }
             }

@@ -3,14 +3,13 @@
 //
 
 #pragma once
+[["normalize-case"]]
 
-["cs:namespace:Ice.defaultServant"]
+["cs:namespace:Ice.DefaultServant"]
 module Test
 {
-
-interface MyObject
-{
-    string getName();
-}
-
+    interface MyObject
+    {
+        string getName();
+    }
 }

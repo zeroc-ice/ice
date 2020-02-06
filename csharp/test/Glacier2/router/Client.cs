@@ -222,9 +222,9 @@ public class Client : Test.TestHelper
                 callbackReceiverImpl = new CallbackReceiver();
                 callbackReceiver = callbackReceiverImpl;
                 Identity callbackReceiverIdent = new Identity("callbackReceiver", category);
-                twowayR = adapter.Add(callbackReceiver, ICallbackReceiverPrx.Factory, callbackReceiverIdent);
+                twowayR = adapter.Add(callbackReceiverIdent, callbackReceiver, ICallbackReceiverPrx.Factory);
                 Identity fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
-                fakeTwowayR = adapter.Add(callbackReceiver, ICallbackReceiverPrx.Factory, fakeCallbackReceiverIdent);
+                fakeTwowayR = adapter.Add(fakeCallbackReceiverIdent, callbackReceiver, ICallbackReceiverPrx.Factory);
                 Console.Out.WriteLine("ok");
             }
 

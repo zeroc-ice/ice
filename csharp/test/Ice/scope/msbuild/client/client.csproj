@@ -12,6 +12,6 @@
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>
     </Compile>
-    <SliceCompile Include="../../Test.ice"/>
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
 </Project>

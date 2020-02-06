@@ -31,8 +31,6 @@ namespace IceInternal
             _adapter = adapter;
             _connection = connection;
             _requestId = requestId;
-
-            _cookie = null;
         }
 
         //
@@ -54,8 +52,6 @@ namespace IceInternal
             _connection = connection;
             _requestId = requestId;
 
-            Debug.Assert(_cookie == null);
-
             _inParamPos = -1;
         }
 
@@ -68,8 +64,6 @@ namespace IceInternal
 
             _current = null;
             _servant = null;
-            _locator = null;
-            _cookie = null;
 
             //_observer = null;
             Debug.Assert(_observer == null);
@@ -91,7 +85,7 @@ namespace IceInternal
 
         public Ice.Current? GetCurrent() => _current;
 
-        public void Invoke(ServantManager servantManager, Ice.InputStream stream)
+        public void Invoke(Ice.InputStream stream)
         {
             _is = stream;
 
@@ -148,47 +142,13 @@ namespace IceInternal
             // in the code above are considered fatal, and must propagate to
             // the caller of this operation.
             //
-
-            if (servantManager != null)
-            {
-                _servant = servantManager.FindServant(_current.Id, _current.Facet);
-                if (_servant == null)
-                {
-                    _locator = servantManager.FindServantLocator(_current.Id.Category);
-                    if (_locator == null && _current.Id.Category.Length > 0)
-                    {
-                        _locator = servantManager.FindServantLocator("");
-                    }
-
-                    if (_locator != null)
-                    {
-                        Debug.Assert(_locator != null);
-                        try
-                        {
-                            _servant = _locator.Locate(_current, out _cookie);
-                        }
-                        catch (Exception ex)
-                        {
-                            SkipReadParams(); // Required for batch requests.
-                            HandleException(ex, false);
-                            return;
-                        }
-                    }
-                }
-            }
+            _servant = _adapter.Find(_current.Id, _current.Facet);
 
             if (_servant == null)
             {
                 try
                 {
-                    if (servantManager != null && servantManager.HasServant(_current.Id))
-                    {
-                        throw new Ice.FacetNotExistException(_current.Id, _current.Facet, _current.Operation);
-                    }
-                    else
-                    {
-                        throw new Ice.ObjectNotExistException(_current.Id, _current.Facet, _current.Operation);
-                    }
+                    throw new Ice.ObjectNotExistException(_current.Id, _current.Facet, _current.Operation);
                 }
                 catch (Exception ex)
                 {
@@ -200,7 +160,7 @@ namespace IceInternal
 
             try
             {
-                Task<Ice.OutputStream?>? task = _servant(this, _current);
+                Task<Ice.OutputStream?>? task = _servant.Dispatch(this, _current);
                 if (task == null)
                 {
                     Completed(null, false);
@@ -343,20 +303,6 @@ namespace IceInternal
             Debug.Assert(_current != null, "null current");
             try
             {
-                if (_locator != null)
-                {
-                    Debug.Assert(_servant != null, "null servant");
-                    try
-                    {
-                        _locator.Finished(_current, _servant, _cookie);
-                    }
-                    catch (Exception ex)
-                    {
-                        HandleException(ex, amd);
-                        return;
-                    }
-                }
-
                 if (exc != null)
                 {
                     HandleException(exc, amd);
@@ -903,9 +849,8 @@ namespace IceInternal
 
         private Ice.Communicator _communicator;
         private Ice.Current? _current;
-        private Ice.Disp? _servant;
-        private Ice.IServantLocator? _locator;
-        private object? _cookie;
+        private Ice.IObject? _servant;
+
         private Ice.Instrumentation.IDispatchObserver? _observer;
         private IResponseHandler? _responseHandler;
 

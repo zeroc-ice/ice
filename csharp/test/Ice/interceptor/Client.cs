@@ -205,7 +205,7 @@ namespace Ice.interceptor
             var myObject = new MyObject();
             var interceptor = new Interceptor(myObject);
 
-            var prx = oa.Add(interceptor, IMyObjectPrx.Factory);
+            var prx = oa.AddWithUUID(interceptor, IMyObjectPrx.Factory);
 
             var output = getWriter();
 

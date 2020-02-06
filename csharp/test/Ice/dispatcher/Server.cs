@@ -32,9 +32,9 @@ public class Server : TestHelper
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             Ice.ObjectAdapter adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
-            adapter.Add(new TestIntf(), "test");
+            adapter.Add("test", new TestIntf());
             adapter.Activate();
-            adapter2.Add(new TestController(adapter), "testController");
+            adapter2.Add("testController", new TestController(adapter));
             adapter2.Activate();
 
             communicator.WaitForShutdown();

@@ -21,7 +21,7 @@ namespace Ice.proxy
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new MyDerivedClass(), "test");
+            adapter.Add("test", new MyDerivedClass());
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

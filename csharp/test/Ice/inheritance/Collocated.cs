@@ -14,7 +14,7 @@ namespace Ice.inheritance
             using var communicator = initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(new InitialI(adapter), "initial");
+            adapter.Add("initial", new InitialI(adapter));
             AllTests.allTests(this);
         }
 

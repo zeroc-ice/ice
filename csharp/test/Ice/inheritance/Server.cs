@@ -17,7 +17,7 @@ namespace Ice
                 communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
                 var initial = new InitialI(adapter);
-                adapter.Add(initial, "initial");
+                adapter.Add("initial", initial);
                 adapter.Activate();
                 serverReady();
                 communicator.WaitForShutdown();

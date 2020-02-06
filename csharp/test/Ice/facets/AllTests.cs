@@ -42,54 +42,18 @@ namespace Ice.facets
 
             var obj = new Empty();
 
-            adapter.Add(obj, "d");
-            adapter.Add(obj, "d", "facetABCD");
+            adapter.Add("d", obj);
+            adapter.Add("d", "facetABCD", obj);
             try
             {
-                adapter.Add(obj, "d", "facetABCD");
+                adapter.Add("d", "facetABCD", obj);
                 test(false);
             }
             catch (System.ArgumentException)
             {
             }
             adapter.Remove("d", "facetABCD");
-            try
-            {
-                adapter.Remove("d", "facetABCD");
-                test(false);
-            }
-            catch (NotRegisteredException)
-            {
-            }
-            output.WriteLine("ok");
-
-            output.Write("testing removeAllFacets... ");
-            var obj1 = new Empty();
-            var obj2 = new Empty();
-            var obj3 = new Empty();
-
-            adapter.Add(obj1, "id1", "f1");
-            adapter.Add(obj2, "id1", "f2");
-            adapter.Add(obj1, "id2", "f1");
-            adapter.Add(obj2, "id2", "f2");
-            adapter.Add(obj3, "id2", "");
-            Dictionary<string, Disp> fm = adapter.RemoveAllFacets("id1");
-            test(fm.Count == 2);
-            test(fm.ContainsKey("f1"));
-            test(fm.ContainsKey("f2"));
-            try
-            {
-                adapter.RemoveAllFacets("id1");
-                test(false);
-            }
-            catch (NotRegisteredException)
-            {
-            }
-            fm = adapter.RemoveAllFacets("id2");
-            test(fm.Count == 3);
-            test(fm.ContainsKey("f1"));
-            test(fm.ContainsKey("f2"));
-            test(fm.ContainsKey(""));
+            adapter.Remove("d", "facetABCD"); // multiple Remove are fine as of Ice 4.0
             output.WriteLine("ok");
 
             adapter.Deactivate();

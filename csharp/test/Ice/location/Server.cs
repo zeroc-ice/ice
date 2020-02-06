@@ -28,10 +28,10 @@ namespace Ice.location
             //
             var registry = new ServerLocatorRegistry();
             var obj = new ServerManager(registry, this);
-            adapter.Add(obj, "ServerManager");
+            adapter.Add("ServerManager", obj);
             registry.addObject(adapter.CreateProxy("ServerManager", IObjectPrx.Factory));
-            var registryPrx = adapter.Add(registry, ILocatorRegistryPrx.Factory, "registry");
-            adapter.Add(new ServerLocator(registry, registryPrx), "locator");
+            var registryPrx = adapter.Add("registry", registry, ILocatorRegistryPrx.Factory);
+            adapter.Add("locator", new ServerLocator(registry, registryPrx));
 
             adapter.Activate();
             serverReady();

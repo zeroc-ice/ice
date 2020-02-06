@@ -109,16 +109,16 @@ public class Server : TestHelper
 
         var backgroundI = new Background(backgroundController);
 
-        adapter.Add(backgroundI, "background");
+        adapter.Add("background", backgroundI);
 
         Locator locatorI = new Locator(backgroundController);
-        adapter.Add(locatorI, "locator");
+        adapter.Add("locator", locatorI);
 
         RouterI routerI = new RouterI(backgroundController);
-        adapter.Add(routerI, "router");
+        adapter.Add("router", routerI);
         adapter.Activate();
 
-        adapter2.Add(backgroundController, "backgroundController");
+        adapter2.Add("backgroundController", backgroundController);
         adapter2.Activate();
 
         communicator.WaitForShutdown();

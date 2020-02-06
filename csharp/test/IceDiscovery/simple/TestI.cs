@@ -31,7 +31,7 @@ public sealed class Controller : IController
     addObject(string oaName, string id, Ice.Current current)
     {
         Debug.Assert(_adapters.ContainsKey(oaName));
-        _adapters[oaName].Add(new TestIntf(), id);
+        _adapters[oaName].Add(id, new TestIntf());
     }
 
     public void

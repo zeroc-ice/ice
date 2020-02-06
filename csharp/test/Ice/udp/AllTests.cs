@@ -59,7 +59,7 @@ namespace Ice.udp
             communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             PingReplyI replyI = new PingReplyI();
-            IPingReplyPrx reply = adapter.Add(replyI, IPingReplyPrx.Factory)
+            IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram);
             adapter.Activate();
 
@@ -85,7 +85,8 @@ namespace Ice.udp
                 // If the 3 datagrams were not received within the 2 seconds, we try again to
                 // receive 3 new datagrams using a new object. We give up after 5 retries.
                 replyI = new PingReplyI();
-                reply = adapter.Add(replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                reply = adapter.AddWithUUID(
+                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             }
             test(ret == true);
 
@@ -178,7 +179,8 @@ namespace Ice.udp
                     break;
                 }
                 replyI = new PingReplyI();
-                reply = adapter.Add(replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                reply = adapter.AddWithUUID(
+                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             }
             if (!ret)
             {
@@ -206,7 +208,8 @@ namespace Ice.udp
                     break; // Success
                 }
                 replyI = new PingReplyI();
-                reply = adapter.Add(replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                reply = adapter.AddWithUUID(
+                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             }
             test(ret);
             Console.Out.WriteLine("ok");

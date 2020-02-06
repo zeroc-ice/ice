@@ -21,7 +21,7 @@ public class Server : Test.TestHelper
             communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
             var callbackI = new Callback();
-            adapter.Add(callbackI, "callback");
+            adapter.Add("callback", callbackI);
             adapter.Activate();
             communicator.WaitForShutdown();
         }

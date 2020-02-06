@@ -811,7 +811,7 @@ namespace Ice.proxy
                 Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet"));
                 test(false);
             }
-            catch (FacetNotExistException)
+            catch (ObjectNotExistException)
             {
             }
             output.WriteLine("ok");

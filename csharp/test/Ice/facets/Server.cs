@@ -15,12 +15,12 @@ namespace Ice.facets
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
-            adapter.Add(d, "d");
-            adapter.Add(d, "d", "facetABCD");
+            adapter.Add("d", d);
+            adapter.Add("d", "facetABCD", d);
             var f = new F();
-            adapter.Add(f, "d", "facetEF");
+            adapter.Add("d", "facetEF", f);
             var h = new H(communicator);
-            adapter.Add(h, "d", "facetGH");
+            adapter.Add("d", "facetGH", h);
             adapter.Activate();
             serverReady();
             communicator.WaitForShutdown();

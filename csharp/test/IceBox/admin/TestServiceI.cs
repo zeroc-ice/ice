@@ -14,7 +14,7 @@ public class TestService : IService
         //
         // Install a custom admin facet.
         //
-        serviceManagerCommunicator.AddAdminFacet(facet, "TestFacet");
+        serviceManagerCommunicator.AddAdminFacet("TestFacet", facet);
 
         //
         // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
