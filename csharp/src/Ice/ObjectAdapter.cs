@@ -76,7 +76,7 @@ namespace Ice
             {
                 lock (_mutex)
                 {
-                    checkForDeactivation();
+                    CheckForDeactivation();
                     Debug.Assert(_communicator != null);
                     return _communicator;
                 }
@@ -96,7 +96,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 //
                 // If we've previously been initialized we just need to activate the
@@ -182,7 +182,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
                 _state = StateHeld;
                 Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -204,7 +204,7 @@ namespace Ice
             List<IncomingConnectionFactory> incomingConnectionFactories;
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
@@ -475,10 +475,10 @@ namespace Ice
         public T Add<T>(Identity identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
         {
+            CheckIdentity(identity);
             lock (_mutex)
             {
-                checkForDeactivation();
-                checkIdentity(identity);
+                CheckForDeactivation();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
                 return newProxy(identity, proxyFactory, facet);
             }
@@ -493,9 +493,10 @@ namespace Ice
         /// <param name="servant">The servant to add.</param>
         public void Add(Identity identity, string facet, IObject servant)
         {
+            CheckIdentity(identity);
             lock (_mutex)
             {
-                checkIdentity(identity);
+                CheckForDeactivation();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
             }
         }
@@ -611,6 +612,7 @@ namespace Ice
         {
             lock (_mutex)
             {
+                CheckForDeactivation();
                 _categoryServantMap.Add(new CategoryPlusFacet(category, facet), servant);
             }
         }
@@ -649,6 +651,7 @@ namespace Ice
         {
             lock (_mutex)
             {
+                CheckForDeactivation();
                 _defaultServantMap.Add(facet, servant);
             }
         }
@@ -685,11 +688,10 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
+            CheckIdentity(identity);
             lock (_mutex)
             {
-                checkForDeactivation();
-                checkIdentity(identity);
-
+                CheckForDeactivation();
                 return newProxy(identity, factory, "");
             }
         }
@@ -713,11 +715,10 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
+            CheckIdentity(identity);
             lock (_mutex)
             {
-                checkForDeactivation();
-                checkIdentity(identity);
-
+                CheckForDeactivation();
                 return newDirectProxy(identity, factory, "");
             }
         }
@@ -736,11 +737,10 @@ namespace Ice
         /// desired proxy type.</param>
         public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
+            CheckIdentity(identity);
             lock (_mutex)
             {
-                checkForDeactivation();
-                checkIdentity(identity);
-
+                CheckForDeactivation();
                 return newIndirectProxy(identity, factory, "", _id);
             }
         }
@@ -769,7 +769,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 if (locator != null)
                 {
@@ -794,7 +794,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 if (_locatorInfo == null)
                 {
@@ -843,7 +843,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = ComputePublishedEndpoints();
@@ -897,7 +897,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
                 if (_routerInfo != null)
                 {
                     throw new ArgumentException(
@@ -957,7 +957,7 @@ namespace Ice
 
                 lock (_mutex)
                 {
-                    checkForDeactivation();
+                    CheckForDeactivation();
 
                     //
                     // Proxies which have at least one endpoint in common with the
@@ -1020,7 +1020,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
 
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
@@ -1075,7 +1075,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                checkForDeactivation();
+                CheckForDeactivation();
                 connection.SetAdapterImpl(this);
             }
         }
@@ -1286,17 +1286,15 @@ namespace Ice
             where T : class, IObjectPrx
             => factory(_communicator!.CreateReference(identity, facet, _reference!, id));
 
-        private void checkForDeactivation()
+        private void CheckForDeactivation()
         {
             if (_state >= StateDeactivating)
             {
-                ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-                ex.Name = GetName();
-                throw ex;
+                throw new ObjectAdapterDeactivatedException(GetName());
             }
         }
 
-        private static void checkIdentity(Identity ident)
+        private static void CheckIdentity(Identity ident)
         {
             if (ident.Name.Length == 0)
             {

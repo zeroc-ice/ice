@@ -16,16 +16,10 @@ namespace Ice.adapterDeactivation
 
         public IObjectPrx GetServerProxy(Current current)
         {
-            StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
-            s.Append(_nextPort++);
-            s.Append(" -t 30000");
-            return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
+            return IObjectPrx.Parse($"dummy:tcp -h localhost -p {_nextPort++} -t 30000", current.Adapter.Communicator);
         }
 
-        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current)
-        {
-            return null;
-        }
+        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current) => null;
 
         private int _nextPort = 23456;
     }
