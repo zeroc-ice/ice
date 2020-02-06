@@ -272,6 +272,8 @@ classdef AllTests
                     assert(strcmp(m1.v(i).value.data, m.v(2).value.data));
                 else
                     assert(false);
+                end
+            end
 
             for i = 1:2
                 if isequal(m2.v(i).key, m.v(1).key)
@@ -280,6 +282,8 @@ classdef AllTests
                     assert(strcmp(m2.v(i).value.data, m.v(2).value.data));
                 else
                     assert(false);
+                end
+            end
 
             fprintf('ok\n');
 
