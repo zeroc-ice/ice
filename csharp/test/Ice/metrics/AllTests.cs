@@ -175,30 +175,22 @@ public class AllTests : Test.AllTests
     {
         while (true)
         {
-            try
+            Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView(viewName).ReturnValue;
+            test(view.ContainsKey(map));
+            bool ok = true;
+            foreach (IceMX.Metrics m in view[map])
             {
-                Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView(viewName).ReturnValue;
-                test(view.ContainsKey(map));
-                bool ok = true;
-                foreach (IceMX.Metrics m in view[map])
+                if (m.Current != value)
                 {
-                    if (m.Current != value)
-                    {
-                        ok = false;
-                        break;
-                    }
-                }
-                if (ok)
-                {
+                    ok = false;
                     break;
                 }
-                Thread.Sleep(50);
             }
-            catch (System.Exception ex)
+            if (ok)
             {
-                System.Console.WriteLine(ex.ToString());
-                throw;
+                break;
             }
+            Thread.Sleep(50);
         }
     }
 
