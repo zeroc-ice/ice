@@ -219,7 +219,7 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                ConnectImpl((IRouterPrx router) => router.CreateSessionFromSecureConnection(context));
+                ConnectImpl((IRouterPrx router) => router.CreateSessionFromSecureConnection(context)!);
             }
         }
 
@@ -237,7 +237,7 @@ namespace Glacier2
         {
             lock (_mutex)
             {
-                ConnectImpl((IRouterPrx router) => router.CreateSession(username, password, context));
+                ConnectImpl((IRouterPrx router) => router.CreateSession(username, password, context)!);
             }
         }
 

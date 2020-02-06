@@ -116,25 +116,23 @@ namespace IceDiscovery
             }
         }
 
-        internal IObjectPrx FindAdapter(string adapterId, out bool isReplicaGroup)
+        internal IObjectPrx? FindAdapter(string adapterId, out bool isReplicaGroup)
         {
             lock (this)
             {
-                IObjectPrx result = null;
+                IObjectPrx? result;
                 if (_adapters.TryGetValue(adapterId, out result))
                 {
                     isReplicaGroup = false;
                     return result;
                 }
 
-                HashSet<string> adapterIds;
-                if (_replicaGroups.TryGetValue(adapterId, out adapterIds))
+                if (_replicaGroups.TryGetValue(adapterId, out HashSet<string> adapterIds))
                 {
-                    List<IEndpoint> endpoints = new List<IEndpoint>();
+                    var endpoints = new List<IEndpoint>();
                     foreach (string a in adapterIds)
                     {
-                        IObjectPrx proxy;
-                        if (!_adapters.TryGetValue(a, out proxy))
+                        if (!_adapters.TryGetValue(a, out IObjectPrx proxy))
                         {
                             continue; // TODO: Inconsistency
                         }
@@ -160,8 +158,8 @@ namespace IceDiscovery
         }
 
         private readonly IObjectPrx _wellKnownProxy;
-        private Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
-        private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
+        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
+        private readonly Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     };
 
     internal class Locator : ILocator
@@ -175,12 +173,12 @@ namespace IceDiscovery
         public Task<IObjectPrx>
         FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
 
-        public Task<IObjectPrx>
+        public Task<IObjectPrx?>
         FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);
 
         public ILocatorRegistryPrx GetRegistry(Current current) => _registry;
 
-        private Lookup _lookup;
-        private ILocatorRegistryPrx _registry;
+        private readonly Lookup _lookup;
+        private readonly ILocatorRegistryPrx _registry;
     };
 }
