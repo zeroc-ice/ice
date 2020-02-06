@@ -38,10 +38,10 @@ public class Server : TestHelper
 
     internal class RouterI : IRouter
     {
-        public IRouter.GetClientProxyReturnValue GetClientProxy(Current current)
+        public (IObjectPrx?, bool?) GetClientProxy(Current current)
         {
             _controller.checkCallPause(current);
-            return new IRouter.GetClientProxyReturnValue(null, true);
+            return (null, true);
         }
 
         public IObjectPrx GetServerProxy(Current current)

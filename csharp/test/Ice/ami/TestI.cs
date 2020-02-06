@@ -145,8 +145,7 @@ namespace Ice.ami
 
     public class TestIntf2 : Test.Outer.Inner.ITestIntf
     {
-        public Test.Outer.Inner.ITestIntf.OpReturnValue
-        op(int i, Current current) => new Test.Outer.Inner.ITestIntf.OpReturnValue(i, i);
+        public (int, int) op(int i, Current current) => (i, i);
     }
 
     public class TestControllerIntf : Test.ITestIntfController

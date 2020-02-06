@@ -32,8 +32,8 @@ namespace Ice.objects
             _d.theC = null; // Reference to a C.
         }
 
-        public Test.IInitial.GetAllReturnValue
-        getAll(Current current) => new Test.IInitial.GetAllReturnValue(_b1, _b2, _c, _d);
+        public (Test.B, Test.B, Test.C, Test.D)
+        getAll(Current current) => (_b1, _b2, _c, _d);
 
         public Test.B getB1(Current current) => _b1;
 
@@ -45,31 +45,29 @@ namespace Ice.objects
 
         public Test.K getK(Current current) => new Test.K(new Test.L("l"));
 
-        public Test.IInitial.OpClassReturnValue
-        opClass(AnyClass v1, Current current) => new Test.IInitial.OpClassReturnValue(v1, v1);
+        public (AnyClass?, AnyClass?) opClass(AnyClass v1, Current current) => (v1, v1);
 
-        public Test.IInitial.OpClassSeqReturnValue
-        opClassSeq(AnyClass[] v1, Current current) => new Test.IInitial.OpClassSeqReturnValue(v1, v1);
+        public (AnyClass?[], AnyClass?[]) opClassSeq(AnyClass?[] v1, Current current) => (v1, v1);
 
-        public Test.IInitial.OpClassMapReturnValue
-        opClassMap(Dictionary<string, AnyClass> v1, Current current) => new Test.IInitial.OpClassMapReturnValue(v1, v1);
+        public (Dictionary<string, AnyClass?>, Dictionary<string, AnyClass?>)
+        opClassMap(Dictionary<string, AnyClass?> v1, Current current) => (v1, v1);
 
-        public void setRecursive(Test.Recursive r, Current current)
+        public void setRecursive(Test.Recursive? r, Current current)
         {
         }
 
         public bool supportsClassGraphDepthMax(Current current) => true;
 
-        public Test.D1 getD1(Test.D1 d1, Current current) => d1;
+        public Test.D1? getD1(Test.D1? d1, Current current) => d1;
 
         public void throwEDerived(Current current) =>
             throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
 
-        public void setG(Test.G theG, Current current)
+        public void setG(Test.G? theG, Current current)
         {
         }
-        public Test.IInitial.OpBaseSeqReturnValue
-        opBaseSeq(Test.Base[] inS, Current current) => new Test.IInitial.OpBaseSeqReturnValue(inS, inS);
+        public (Test.Base?[], Test.Base?[])
+        opBaseSeq(Test.Base?[] inS, Current current) => (inS, inS);
 
         public Test.Compact getCompact(Current current) => new Test.CompactExt();
 
@@ -92,20 +90,15 @@ namespace Ice.objects
         getAMDMBAsync(Current current) =>
             Task.FromResult(new Test.IInitial.GetAMDMBMarshaledReturnValue(_b1, current));
 
-        public Test.IInitial.OpMReturnValue
-        opM(Test.M v1, Current current) => new Test.IInitial.OpMReturnValue(v1, v1);
+        public (Test.M?, Test.M?) opM(Test.M? v1, Current current) => (v1, v1);
 
-        public Test.IInitial.OpF1ReturnValue
-        opF1(Test.F1 f11, Current current) => new Test.IInitial.OpF1ReturnValue(f11, new Test.F1("F12"));
+        public (Test.F1?, Test.F1?) opF1(Test.F1? f11, Current current) => (f11, new Test.F1("F12"));
 
-        public Test.IInitial.OpF2ReturnValue
-        opF2(Test.IF2Prx f21, Current current) =>
-            new Test.IInitial.OpF2ReturnValue(f21, Test.IF2Prx.Parse("F22", current.Adapter.Communicator));
+        public (Test.IF2Prx?, Test.IF2Prx?) opF2(Test.IF2Prx? f21, Current current) =>
+            (f21, Test.IF2Prx.Parse("F22", current.Adapter.Communicator));
 
-        public Test.IInitial.OpF3ReturnValue
-        opF3(Test.F3 f31, Current current) =>
-            new Test.IInitial.OpF3ReturnValue(f31,
-                new Test.F3(new Test.F1("F12"), Test.IF2Prx.Parse("F22", current.Adapter.Communicator)));
+        public (Test.F3?, Test.F3?) opF3(Test.F3? f31, Current current) =>
+            (f31, new Test.F3(new Test.F1("F12"), Test.IF2Prx.Parse("F22", current.Adapter.Communicator)));
 
         public bool hasF3(Current current) => true;
 

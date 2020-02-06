@@ -132,7 +132,7 @@ namespace IceInternal
             return found;
         }
 
-        public ILoggerAdmin.GetLogReturnValue
+        public (LogMessage[], string)
         GetLog(LogMessageType[] messageTypes, string[] categories, int messageMax, Current current)
         {
             LinkedList<Ice.LogMessage> logMessages;
@@ -155,7 +155,7 @@ namespace IceInternal
                 var filters = new Filters(messageTypes, categories);
                 FilterLogMessages(logMessages, filters.MessageTypes, filters.TraceCategories, messageMax);
             }
-            return new ILoggerAdmin.GetLogReturnValue(logMessages.ToArray(), prefix);
+            return (logMessages.ToArray(), prefix);
         }
 
         internal LoggerAdmin(Communicator communicator, LoggerAdminLogger logger)

@@ -510,7 +510,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             {
                 out << "System.Collections.Generic.";
             }
-            out << customType << "<" << typeToString(seq->type(), package, isReferenceType(seq->type())) << ">";
+            out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
             return out.str();
         }
         else if(!serializableType.empty())
@@ -519,7 +519,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            return typeToString(seq->type(), package, isReferenceType(seq->type())) + "[]";
+            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
         }
     }
 
@@ -539,7 +539,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +
-            typeToString(d->valueType(), package, isReferenceType(d->valueType())) + ">";
+            typeToString(d->valueType(), package, isNullable(d->valueType())) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -565,10 +565,10 @@ Slice::returnValueName(const ParamDeclList& outParams)
 }
 
 string
-Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
+Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
     ClassDefPtr cls = ClassDefPtr::dynamicCast(op->container());
-    list<ParamInfo> outParams = getAllOutParams(op);
+    list<ParamInfo> outParams = getAllOutParams(op, "", true);
     if(outParams.size() == 0)
     {
         return "void";
@@ -576,12 +576,27 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     else if(dispatch && op->hasMarshaledResult())
     {
         string name = getNamespace(cls) + "." + interfaceName(cls);
-        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
+        return getUnqualified(name, scope) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
     {
-        string name = getNamespace(cls) + "." + interfaceName(cls);
-        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "ReturnValue";
+        ostringstream os;
+        os << "(";
+        for(list<ParamInfo>::const_iterator i = outParams.begin(); i != outParams.end();)
+        {
+            os << i->typeStr;
+            if(i->nullable && !i->tagged)
+            {
+                os << "?";
+            }
+            os << " " << i->name;
+            if(++i != outParams.end())
+            {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os.str();
     }
     else
     {

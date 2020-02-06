@@ -2544,8 +2544,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             else
             {
                 outParams = getAllOutParams(operation, "iceP_", true);
-                _out << nl << "return new " << resultType(operation, ns, false) << spar << getNames(outParams) << epar
-                     << ";";
+                _out << nl << "return " << spar << getNames(outParams) << epar << ";";
             }
             _out << eb;
         }
@@ -2850,66 +2849,6 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << "current" << epar << ".GetOutputStream(current);";
         _out << eb;
         _out << nl << "return _ostr;";
-        _out << eb;
-
-        _out << eb;
-    }
-
-    if(outParams.size() > 1)
-    {
-        string deprecateReason = getDeprecateReason(operation, cl, "operation");
-        CommentInfo comment = processComment(operation, deprecateReason);
-
-        _out << sp;
-        _out << nl << "///";
-        _out << nl << "/// This struct is used as the result of <see cref=\"" << interfaceName(cl) << "." << opName
-             << "\"/> operation.";
-        _out << nl << "///";
-        _out << nl << "public struct " << opName << "ReturnValue";
-        _out << sb;
-        for(const auto& p : outParams)
-        {
-            if(p.param == 0)
-            {
-                writeDocCommentLines(_out, comment.returnLines, "summary");
-            }
-            else
-            {
-                auto i = comment.params.find(p.name);
-                if(i != comment.params.end())
-                {
-                    writeDocCommentLines(_out, i->second, "summary");
-                }
-            }
-            _out << nl << "public " << p.typeStr << " " << dataMemberName(p) << ";";
-        }
-
-        _out << sp;
-        _out << nl << "public " << opName << "ReturnValue"
-             << spar << getNames(outParams, [](const auto& p)
-                                            {
-                                                return p.typeStr + " " + paramName(p);
-                                            })
-             << epar;
-        _out << sb;
-        for(const auto& p : outParams)
-        {
-            _out << nl << "this." << dataMemberName(p) << " = " << paramName(p) << ";";
-        }
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public readonly void Deconstruct"
-             << spar << getNames(outParams, [](const auto& p)
-                                            {
-                                                return "out " + p.typeStr + " " + paramName(p);
-                                            })
-             << epar;
-        _out << sb;
-        for(const auto& p : outParams)
-        {
-            _out << nl << paramName(p) << " = this." << dataMemberName(p) << ";";
-        }
         _out << eb;
 
         _out << eb;

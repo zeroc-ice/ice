@@ -39,99 +39,75 @@ namespace Ice.optional
             throw e;
         }
 
-        public Test.IInitial.OpByteReturnValue
-        opByte(byte? p1, Current current) => new Test.IInitial.OpByteReturnValue(p1, p1);
+        public (byte?, byte?) opByte(byte? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpBoolReturnValue
-        opBool(bool? p1, Current current) => new Test.IInitial.OpBoolReturnValue(p1, p1);
+        public (bool?, bool?) opBool(bool? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpShortReturnValue
-        opShort(short? p1, Current current) => new Test.IInitial.OpShortReturnValue(p1, p1);
+        public (short?, short?) opShort(short? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpIntReturnValue
-        opInt(int? p1, Current current) => new Test.IInitial.OpIntReturnValue(p1, p1);
+        public (int?, int?) opInt(int? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpLongReturnValue
-        opLong(long? p1, Current current) => new Test.IInitial.OpLongReturnValue(p1, p1);
+        public (long?, long?) opLong(long? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpFloatReturnValue
-        opFloat(float? p1, Current current) => new Test.IInitial.OpFloatReturnValue(p1, p1);
+        public (float?, float?) opFloat(float? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpDoubleReturnValue
-        opDouble(double? p1, Current current) => new Test.IInitial.OpDoubleReturnValue(p1, p1);
+        public (double?, double?) opDouble(double? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpStringReturnValue
-        opString(string? p1, Current current) => new Test.IInitial.OpStringReturnValue(p1, p1);
+        public (string?, string?) opString(string? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpMyEnumReturnValue
-        opMyEnum(Test.MyEnum? p1, Current current) => new Test.IInitial.OpMyEnumReturnValue(p1, p1);
+        public (Test.MyEnum?, Test.MyEnum?) opMyEnum(Test.MyEnum? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpSmallStructReturnValue
-        opSmallStruct(Test.SmallStruct? p1, Current current) => new Test.IInitial.OpSmallStructReturnValue(p1, p1);
+        public (Test.SmallStruct?, Test.SmallStruct?) opSmallStruct(Test.SmallStruct? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpFixedStructReturnValue
-        opFixedStruct(Test.FixedStruct? p1, Current current) => new Test.IInitial.OpFixedStructReturnValue(p1, p1);
+        public (Test.FixedStruct?, Test.FixedStruct?) opFixedStruct(Test.FixedStruct? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpVarStructReturnValue
-        opVarStruct(Test.VarStruct? p1, Current current) => new Test.IInitial.OpVarStructReturnValue(p1, p1);
+        public (Test.VarStruct?, Test.VarStruct?) opVarStruct(Test.VarStruct? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpOneOptionalReturnValue
-        opOneOptional(Test.OneOptional? p1, Current current) => new Test.IInitial.OpOneOptionalReturnValue(p1, p1);
+        public (Test.OneOptional?, Test.OneOptional?) opOneOptional(Test.OneOptional? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpOneOptionalProxyReturnValue
-        opOneOptionalProxy(IObjectPrx? p1, Current current) => new Test.IInitial.OpOneOptionalProxyReturnValue(p1, p1);
+        public (IObjectPrx?, IObjectPrx?) opOneOptionalProxy(IObjectPrx? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpByteSeqReturnValue
-        opByteSeq(byte[]? p1, Current current) => new Test.IInitial.OpByteSeqReturnValue(p1, p1);
+        public (byte[]?, byte[]?) opByteSeq(byte[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpBoolSeqReturnValue
-        opBoolSeq(bool[]? p1, Current current) => new Test.IInitial.OpBoolSeqReturnValue(p1, p1);
+        public (bool[]?, bool[]?) opBoolSeq(bool[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpShortSeqReturnValue
-        opShortSeq(short[]? p1, Current current) => new Test.IInitial.OpShortSeqReturnValue(p1, p1);
+        public (short[]?, short[]?) opShortSeq(short[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpIntSeqReturnValue
-        opIntSeq(int[]? p1, Current current) => new Test.IInitial.OpIntSeqReturnValue(p1, p1);
+        public (int[]?, int[]?) opIntSeq(int[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpLongSeqReturnValue
-        opLongSeq(long[]? p1, Current current) => new Test.IInitial.OpLongSeqReturnValue(p1, p1);
+        public (long[]?, long[]?) opLongSeq(long[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpFloatSeqReturnValue
-        opFloatSeq(float[]? p1, Current current) => new Test.IInitial.OpFloatSeqReturnValue(p1, p1);
+        public (float[]?, float[]?) opFloatSeq(float[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpDoubleSeqReturnValue
-        opDoubleSeq(double[]? p1, Current current) => new Test.IInitial.OpDoubleSeqReturnValue(p1, p1);
+        public (double[]?, double[]?) opDoubleSeq(double[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpStringSeqReturnValue
-        opStringSeq(string[]? p1, Current current) => new Test.IInitial.OpStringSeqReturnValue(p1, p1);
+        public (string[]?, string[]?) opStringSeq(string[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpSmallStructSeqReturnValue
-        opSmallStructSeq(Test.SmallStruct[]? p1, Current current) => new Test.IInitial.OpSmallStructSeqReturnValue(p1, p1);
+        public (Test.SmallStruct[]?, Test.SmallStruct[]?) opSmallStructSeq(Test.SmallStruct[]? p1, Current current) =>
+            (p1, p1);
 
-        public Test.IInitial.OpSmallStructListReturnValue
-        opSmallStructList(List<Test.SmallStruct>? p1, Current current) => new Test.IInitial.OpSmallStructListReturnValue(p1, p1);
+        public (List<Test.SmallStruct>?, List<Test.SmallStruct>?)
+        opSmallStructList(List<Test.SmallStruct>? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpFixedStructSeqReturnValue
-        opFixedStructSeq(Test.FixedStruct[]? p1, Current current) => new Test.IInitial.OpFixedStructSeqReturnValue(p1, p1);
+        public (Test.FixedStruct[]?, Test.FixedStruct[]?)
+        opFixedStructSeq(Test.FixedStruct[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpFixedStructListReturnValue
-        opFixedStructList(LinkedList<Test.FixedStruct>? p1, Current current) => new Test.IInitial.OpFixedStructListReturnValue(p1, p1);
+        public (LinkedList<Test.FixedStruct>?, LinkedList<Test.FixedStruct>?)
+        opFixedStructList(LinkedList<Test.FixedStruct>? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpVarStructSeqReturnValue
-        opVarStructSeq(Test.VarStruct[]? p1, Current current) => new Test.IInitial.OpVarStructSeqReturnValue(p1, p1);
+        public (Test.VarStruct[]?, Test.VarStruct[]?) opVarStructSeq(Test.VarStruct[]? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpSerializableReturnValue
-        opSerializable(Test.SerializableClass? p1, Current current) => new Test.IInitial.OpSerializableReturnValue(p1, p1);
+        public (Test.SerializableClass?, Test.SerializableClass?)
+        opSerializable(Test.SerializableClass? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpIntIntDictReturnValue
-        opIntIntDict(Dictionary<int, int>? p1, Current current) => new Test.IInitial.OpIntIntDictReturnValue(p1, p1);
+        public (Dictionary<int, int>?, Dictionary<int, int>?)
+        opIntIntDict(Dictionary<int, int>? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpStringIntDictReturnValue
-        opStringIntDict(Dictionary<string, int>? p1, Current current) => new Test.IInitial.OpStringIntDictReturnValue(p1, p1);
+        public (Dictionary<string, int>?, Dictionary<string, int>?)
+        opStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
 
-        public Test.IInitial.OpIntOneOptionalDictReturnValue
-        opIntOneOptionalDict(Dictionary<int, Test.OneOptional>? p1, Current current) =>
-            new Test.IInitial.OpIntOneOptionalDictReturnValue(p1, p1);
+        public (Dictionary<int, Test.OneOptional>?, Dictionary<int, Test.OneOptional>?)
+        opIntOneOptionalDict(Dictionary<int, Test.OneOptional>? p1, Current current) => (p1, p1);
 
         public void opClassAndUnknownOptional(Test.A p, Current current)
         {
