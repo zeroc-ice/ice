@@ -500,30 +500,27 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string prefix = "cs:generic:";
-        string meta;
-        if(seq->findMetaData(prefix, meta))
+        string customType = seq->findMetaDataWithPrefix("cs:generic:");
+        string serializableType = seq->findMetaDataWithPrefix("cs:serializable:");
+        if(!customType.empty())
         {
-            string customType = meta.substr(prefix.size());
+            ostringstream out;
+            out << "global::";
             if(customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                return "global::System.Collections.Generic." + customType + "<" +
-                    typeToString(seq->type(), package, optional) + ">";
+                out << "System.Collections.Generic.";
             }
-            else
-            {
-                return "global::" + customType + "<" + typeToString(seq->type(), package, optional) + ">";
-            }
+            out << customType << "<" << typeToString(seq->type(), package, isReferenceType(seq->type())) << ">";
+            return out.str();
         }
-
-        prefix = "cs:serializable:";
-        if(seq->findMetaData(prefix, meta))
+        else if(!serializableType.empty())
         {
-            string customType = meta.substr(prefix.size());
-            return "global::" + customType;
+            return "global::" + serializableType;
         }
-
-        return typeToString(seq->type(), package, optional) + "[]";
+        else
+        {
+            return typeToString(seq->type(), package, isReferenceType(seq->type())) + "[]";
+        }
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
@@ -541,8 +538,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             typeName = "Dictionary";
         }
         return "global::System.Collections.Generic." + typeName + "<" +
-            typeToString(d->keyType(), package, optional) + ", " +
-            typeToString(d->valueType(), package, optional) + ">";
+            typeToString(d->keyType(), package) + ", " +
+            typeToString(d->valueType(), package, isReferenceType(d->valueType())) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -588,7 +585,12 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     }
     else
     {
-        return outParams.front().typeStr;
+        string t = outParams.front().typeStr;
+        if(outParams.front().nullable && !outParams.front().tagged)
+        {
+            t += "?";
+        }
+        return t;
     }
 }
 
@@ -814,21 +816,21 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool nullable)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(builtin && !isProxyType(type) && !isClassType(type))
     {
-        out << "Ice.OutputStream.IceWriterFrom" << builtinTableSuffix[builtin->kind()];
+        out << "Ice.OutputStream.IceWriterFrom" << (nullable ? "Nullable" : "") << builtinTableSuffix[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
-        out << helperName(type, scope) << ".IceWriter";
+        out << helperName(type, scope) << ".IceWriter" << (nullable ? "FromNullable" : "");
     }
     else
     {
-        out << typeToString(type, scope) << ".IceWriter";
+        out << typeToString(type, scope) << ".IceWriter" << (nullable ? "FromNullable" : "");
     }
     return out.str();
 }
@@ -860,21 +862,21 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 }
 
 string
-Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
+Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope, bool nullable)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(builtin && !isProxyType(type) && !isClassType(type))
     {
-        out << "Ice.InputStream.IceReaderInto" << builtinTableSuffix[builtin->kind()];
+        out << "Ice.InputStream.IceReaderInto" << (nullable ? "Nullable" : "") << builtinTableSuffix[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
-        out << helperName(type, scope) << ".IceReader";
+        out << helperName(type, scope) << ".IceReader" << (nullable ? "IntoNullable" : "");
     }
     else
     {
-        out << typeToString(type, scope) << ".IceReader";
+        out << typeToString(type, scope) << ".IceReader" << (nullable ? "IntoNullable" : "");
     }
     return out.str();
 }
@@ -1080,7 +1082,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope) << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, isReferenceType(type)) << ")";
     }
     return out.str();
 }
@@ -1107,7 +1109,8 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadArray(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
+            out << stream << ".ReadArray(" << inputStreamReader(type, scope, isReferenceType(type))
+                << ", " << type->minWireSize() << ")";
         }
     }
     else
@@ -1118,7 +1121,8 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadCollection(" << inputStreamReader(type, scope) << ", " << type->minWireSize() << ")";
+            out << stream << ".ReadCollection(" << inputStreamReader(type, scope, isReferenceType(type))
+                << ", " << type->minWireSize() << ")";
         }
 
         string reader = generic == "Stack" ? ("System.Linq.Enumerable.Reverse(" + out.str() + ")") : out.str();

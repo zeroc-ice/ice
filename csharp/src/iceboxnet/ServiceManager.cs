@@ -144,7 +144,7 @@ namespace IceBox
             }
         }
 
-        public void AddObserver(IServiceObserverPrx observer, Ice.Current current)
+        public void AddObserver(IServiceObserverPrx? observer, Ice.Current current)
         {
             var activeServices = new List<string>();
 
@@ -420,6 +420,7 @@ namespace IceBox
                     throw new InvalidOperationException(
                         $"ServiceManager: unable to load service '{entryPoint}': cannot find the service class `{className}'", ex);
                 }
+                Debug.Assert(c != null);
 
                 var info = new ServiceInfo(service, ServiceStatus.Stopped, args);
 
@@ -670,6 +671,7 @@ namespace IceBox
                 {
                     if (_observers.Remove(observer))
                     {
+                        Debug.Assert(ae.InnerException != null);
                         ObserverRemoved(observer, ae.InnerException);
                     }
                 }

@@ -30,8 +30,11 @@ namespace Ice
         public static readonly OutputStreamWriter<int> IceWriterFromInt = (ostr, value) => ostr.WriteInt(value);
         public static readonly OutputStreamWriter<long> IceWriterFromLong = (ostr, value) => ostr.WriteLong(value);
         public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
+
         public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
+
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
+        public static readonly OutputStreamWriter<string?> IceWriterFromNullableString = (ostr, value) => ostr.WriteString(value);
 
         /// <summary>
         /// The communicator associated with this stream.
@@ -1210,7 +1213,7 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamWriter<TKey> keyWriter,
             OutputStreamWriter<TValue> valueWriter)
         {
             if (dict == null)
@@ -1228,7 +1231,7 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamStructWriter<TKey> keyWriter,
             OutputStreamWriter<TValue> valueWriter) where TKey : struct
         {
             if (dict == null)
@@ -1246,7 +1249,7 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamWriter<TKey> keyWriter,
             OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
         {
             if (dict == null)
@@ -1264,7 +1267,7 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamStructWriter<TKey> keyWriter,
             OutputStreamStructWriter<TValue> valueWriter) where TKey : struct
                                                           where TValue : struct
         {

@@ -32,8 +32,11 @@ namespace Ice
     {
         public Reference IceReference { get; }
 
-        public static readonly InputStreamReader<IObjectPrx?> IceReader = (istr) => istr.ReadProxy(Factory);
+        public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory)!;
+        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable = (istr) => istr.ReadProxy(Factory);
+
         public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
+        public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable = (ostr, value) => ostr.WriteProxy(value);
 
         public IRequestHandler? RequestHandler { get; set; }
         public LinkedList<StreamCacheEntry>? StreamCache { get; set; }

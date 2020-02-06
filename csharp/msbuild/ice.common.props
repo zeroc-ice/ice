@@ -73,12 +73,12 @@
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
         <DebugType>portable</DebugType>
-        <Optimize>true</Optimize>
+        <Optimize>false</Optimize>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <DebugType>portable</DebugType>
-        <Optimize>false</Optimize>
+        <Optimize>true</Optimize>
     </PropertyGroup>
 </Project>

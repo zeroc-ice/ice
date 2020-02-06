@@ -24,7 +24,7 @@ namespace IceDiscovery
 
         public T GetId() => Id;
 
-        public bool AddCallback(TaskCompletionSource<Ice.IObjectPrx> cb)
+        public bool AddCallback(TaskCompletionSource<IObjectPrx?> cb)
         {
             Callbacks.Add(cb);
             return Callbacks.Count == 1;
@@ -36,7 +36,7 @@ namespace IceDiscovery
         {
             LookupCount = lookups.Count;
             FailureCount = 0;
-            var id = new Ice.Identity(_requestId, "");
+            var id = new Identity(_requestId, "");
             foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> entry in lookups)
             {
                 InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
@@ -76,7 +76,7 @@ namespace IceDiscovery
 
         public override bool Retry() => _proxies.Count == 0 && --RetryCount >= 0;
 
-        public bool Response(IObjectPrx proxy, bool isReplicaGroup)
+        public bool Response(IObjectPrx? proxy, bool isReplicaGroup)
         {
             if (isReplicaGroup)
             {
@@ -166,7 +166,7 @@ namespace IceDiscovery
         {
         }
 
-        public void Response(IObjectPrx proxy) => Finished(proxy);
+        public void Response(IObjectPrx? proxy) => Finished(proxy);
 
         public override void Finished(IObjectPrx? proxy)
         {
@@ -250,14 +250,14 @@ namespace IceDiscovery
             }
         }
 
-        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx reply, Current current)
+        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
                 return; // Ignore
             }
 
-            IObjectPrx proxy = _registry.FindObject(id);
+            IObjectPrx? proxy = _registry.FindObject(id);
             if (proxy != null)
             {
                 //
@@ -265,6 +265,7 @@ namespace IceDiscovery
                 //
                 try
                 {
+                    Debug.Assert(reply != null);
                     reply.FoundObjectByIdAsync(id, proxy);
                 }
                 catch (LocalException)
@@ -274,14 +275,14 @@ namespace IceDiscovery
             }
         }
 
-        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx reply, Current current)
+        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
         {
             if (!domainId.Equals(_domainId))
             {
                 return; // Ignore
             }
 
-            IObjectPrx proxy = _registry.FindAdapter(adapterId, out bool isReplicaGroup);
+            IObjectPrx? proxy = _registry.FindAdapter(adapterId, out bool isReplicaGroup);
             if (proxy != null)
             {
                 //
@@ -289,6 +290,7 @@ namespace IceDiscovery
                 //
                 try
                 {
+                    Debug.Assert(reply != null);
                     reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
                 catch (LocalException)
@@ -298,7 +300,7 @@ namespace IceDiscovery
             }
         }
 
-        internal Task<IObjectPrx> FindObject(Identity id)
+        internal Task<IObjectPrx?> FindObject(Identity id)
         {
             lock (this)
             {
@@ -308,7 +310,7 @@ namespace IceDiscovery
                     _objectRequests.Add(id, request);
                 }
 
-                var task = new TaskCompletionSource<Ice.IObjectPrx>();
+                var task = new TaskCompletionSource<IObjectPrx?>();
                 if (request.AddCallback(task))
                 {
                     try
@@ -326,7 +328,7 @@ namespace IceDiscovery
             }
         }
 
-        internal Task<IObjectPrx> FindAdapter(string adapterId)
+        internal Task<IObjectPrx?> FindAdapter(string adapterId)
         {
             lock (this)
             {
@@ -336,7 +338,7 @@ namespace IceDiscovery
                     _adapterRequests.Add(adapterId, request);
                 }
 
-                var task = new TaskCompletionSource<Ice.IObjectPrx>();
+                var task = new TaskCompletionSource<IObjectPrx?>();
                 if (request.AddCallback(task))
                 {
                     try
@@ -354,7 +356,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void FoundObject(Identity id, string requestId, IObjectPrx proxy)
+        internal void FoundObject(Identity id, string requestId, IObjectPrx? proxy)
         {
             lock (this)
             {
@@ -368,7 +370,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx proxy, bool isReplicaGroup)
+        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx? proxy, bool isReplicaGroup)
         {
             lock (this)
             {
@@ -520,9 +522,9 @@ namespace IceDiscovery
     {
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current c) => _lookup.FoundObject(id, c.Id.Name, proxy);
+        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c) => _lookup.FoundObject(id, c.Id.Name, proxy);
 
-        public void FoundAdapterById(string adapterId, IObjectPrx proxy, bool isReplicaGroup, Current c) =>
+        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current c) =>
             _lookup.FoundAdapter(adapterId, c.Id.Name, proxy, isReplicaGroup);
 
         private readonly Lookup _lookup;
