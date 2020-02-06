@@ -496,6 +496,9 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
+                // We check for deactivation here because we don't want to keep this servant when the adapter is being
+                // deactivated or destroyed. In other languages, notably C++, keeping such a servant could lead to
+                // circular references and leaks.
                 CheckForDeactivation();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
             }
