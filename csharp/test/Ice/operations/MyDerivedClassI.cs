@@ -757,7 +757,8 @@ namespace Ice.operations
         public string[] opWStringLiterals(Current current) => opStringLiterals(current);
 
         public Test.IMyClass.OpMStruct1MarshaledReturnValue opMStruct1(Current current) =>
-            new Test.IMyClass.OpMStruct1MarshaledReturnValue(new Test.Structure(), current);
+            new Test.IMyClass.OpMStruct1MarshaledReturnValue(
+                new Test.Structure(null, Test.MyEnum.enum1, new Test.AnotherStruct("")), current);
 
         public Test.IMyClass.OpMStruct2MarshaledReturnValue opMStruct2(Test.Structure p1, Current current) =>
             new Test.IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);

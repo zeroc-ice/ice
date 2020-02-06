@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 
 namespace Ice
 {
@@ -16,16 +17,15 @@ namespace Ice
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                string @ref = "test:" + helper.getTestEndpoint(0);
-                Ice.IObjectPrx @base = IObjectPrx.Parse(@ref, communicator);
-                test(@base != null);
+                var baseprx = IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                Debug.Assert(baseprx != null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.ITestIntfPrx.CheckedCast(@base);
-                test(obj != null);
-                test(obj.Equals(@base));
+                var obj = Test.ITestIntfPrx.CheckedCast(baseprx);
+                Debug.Assert(obj != null);
+                test(obj.Equals(baseprx));
                 output.WriteLine("ok");
 
                 {
@@ -76,7 +76,8 @@ namespace Ice
                     var adapter = communicator.CreateObjectAdapter("PAdapter");
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
-                    test(endpt.ToString().Equals("tcp -h localhost -p 12345 -t 30000"));
+                    Debug.Assert(endpt != null);
+                    test(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);
                     test(adapter.GetPublishedEndpoints().Length == 2);
@@ -89,7 +90,7 @@ namespace Ice
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 12345 -t 20000"));
+                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
                     adapter.Destroy();
                     test(adapter.GetPublishedEndpoints().Length == 0);
                 }
@@ -118,13 +119,13 @@ namespace Ice
                 output.Flush();
                 {
                     var routerId = new Identity("router", "");
-                    var router = IRouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
+                    var router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId, connectionId: "rc"));
                     var adapter = communicator.CreateObjectAdapterWithRouter("", router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
+                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23457 -t 30000"));
+                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23457 -t 30000"));
                     try
                     {
                         adapter.SetPublishedEndpoints(router.Endpoints);
@@ -139,7 +140,7 @@ namespace Ice
                     try
                     {
                         routerId = new Identity("test", "");
-                        router = IRouterPrx.UncheckedCast(@base.Clone(routerId));
+                        router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId));
                         communicator.CreateObjectAdapterWithRouter("", router);
                         test(false);
                     }

@@ -286,7 +286,9 @@ namespace Ice.operations
                 // Test marshalling of null structs and structs with null members.
                 //
                 si1 = new Test.Structure();
+                si1.s = new Test.AnotherStruct("");
                 si2 = new Test.Structure();
+                si2.s = new Test.AnotherStruct("");
 
                 (rso, so) = p.opStruct(si1, si2);
                 test(rso.p == null);
@@ -1487,10 +1489,10 @@ namespace Ice.operations
                 test(p.opFloat1(1.0f) == 1.0f);
                 test(p.opDouble1(1.0d) == 1.0d);
                 test(p.opString1("opString1").Equals("opString1"));
-                test(p.opStringS1(null).Length == 0);
-                test(p.opByteBoolD1(null).Count == 0);
-                test(p.opStringS2(null).Length == 0);
-                test(p.opByteBoolD2(null).Count == 0);
+                test(p.opStringS1(Array.Empty<string>()).Length == 0);
+                test(p.opByteBoolD1(new Dictionary<byte, bool>()).Count == 0);
+                test(p.opStringS2(Array.Empty<string>()).Length == 0);
+                test(p.opByteBoolD2(new Dictionary<byte, bool>()).Count == 0);
 
                 var d = Test.IMyDerivedClassPrx.UncheckedCast(p);
                 var s = new Test.MyStruct1();

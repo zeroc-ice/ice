@@ -693,7 +693,7 @@ namespace IceInternal
                     //
                     if (ex.Facet == null || ex.Facet.Length == 0)
                     {
-                        _os.WriteStringSeq(null);
+                        _os.WriteStringSeq(Array.Empty<string>());
                     }
                     else
                     {

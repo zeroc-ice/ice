@@ -304,7 +304,7 @@ namespace Ice.admin
             output.Write("testing logger facet... ");
             output.Flush();
             {
-                Dictionary<string, string> props = new Dictionary<string, string>();
+                var props = new Dictionary<string, string>();
                 props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                 props.Add("Ice.Admin.InstanceName", "Test");
                 props.Add("NullLogger", "1");
@@ -316,13 +316,13 @@ namespace Ice.admin
                 com.print("print");
 
                 IObjectPrx obj = com.getAdmin();
-                ILoggerAdminPrx logger = ILoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
+                var logger = ILoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
                 test(logger != null);
 
                 //
                 // Get all
                 //
-                var (logMessages, prefix) = logger.GetLog(null, null, -1);
+                var (logMessages, prefix) = logger.GetLog(Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
 
                 test(logMessages.Length == 4);
                 test(prefix.Equals("NullLogger"));
@@ -341,12 +341,12 @@ namespace Ice.admin
 
                 LogMessageType[] messageTypes = { LogMessageType.ErrorMessage, LogMessageType.WarningMessage };
 
-                (logMessages, prefix) = logger.GetLog(messageTypes, null, -1);
+                (logMessages, prefix) = logger.GetLog(messageTypes, Array.Empty<string>(), -1);
 
                 test(logMessages.Length == 4);
                 test(prefix.Equals("NullLogger"));
 
-                foreach (var msg in logMessages)
+                foreach (LogMessage msg in logMessages)
                 {
                     test(msg.Type == LogMessageType.ErrorMessage || msg.Type == LogMessageType.WarningMessage);
                 }
@@ -397,9 +397,9 @@ namespace Ice.admin
                 //
                 // No filtering
                 //
-                (logMessages, prefix) = logger.GetLog(null, null, -1);
+                (logMessages, prefix) = logger.GetLog(Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
 
-                logger.AttachRemoteLogger(myProxy, null, null, -1);
+                logger.AttachRemoteLogger(myProxy, Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
                 remoteLogger.Wait(1);
 
                 foreach (var m in logMessages)

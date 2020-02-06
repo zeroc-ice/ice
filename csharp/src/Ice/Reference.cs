@@ -131,7 +131,7 @@ namespace IceInternal
             //
             if (_facet.Length == 0)
             {
-                s.WriteStringSeq(null);
+                s.WriteStringSeq(Array.Empty<string>());
             }
             else
             {
@@ -1152,7 +1152,7 @@ namespace IceInternal
             }
             else
             {
-                s.WriteString(_adapterId); // Adapter id.
+                s.WriteString(_adapterId ?? ""); // Adapter id.
             }
         }
 

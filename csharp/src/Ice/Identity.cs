@@ -8,6 +8,7 @@ namespace Ice
 {
     public readonly partial struct Identity
     {
+        public static readonly Identity Empty = new Identity("", "");
         public static Identity Parse(string s)
         {
             //

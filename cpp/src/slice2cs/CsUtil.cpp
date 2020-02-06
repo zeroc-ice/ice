@@ -92,9 +92,7 @@ Slice::isNullable(const TypePtr& type)
         }
     }
     return ClassDeclPtr::dynamicCast(type) ||
-        ProxyPtr::dynamicCast(type) ||
-        SequencePtr::dynamicCast(type) ||
-        DictionaryPtr::dynamicCast(type);
+        ProxyPtr::dynamicCast(type);
 }
 
 namespace
@@ -1082,7 +1080,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, isReferenceType(type)) << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, isNullable(type)) << ")";
     }
     return out.str();
 }
@@ -1109,7 +1107,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadArray(" << inputStreamReader(type, scope, isReferenceType(type))
+            out << stream << ".ReadArray(" << inputStreamReader(type, scope, isNullable(type))
                 << ", " << type->minWireSize() << ")";
         }
     }
@@ -1121,7 +1119,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadCollection(" << inputStreamReader(type, scope, isReferenceType(type))
+            out << stream << ".ReadCollection(" << inputStreamReader(type, scope, isNullable(type))
                 << ", " << type->minWireSize() << ")";
         }
 
