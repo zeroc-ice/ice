@@ -1018,7 +1018,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
                     _out << "</para>";
                 }
             }
-            else // Return type
+            else if(!comment.returnLines.empty()) // Return type
             {
                 _out << nl << "/// <para> " << paramName(paramInfo) << ": ";
                 writeDocCommentLines(_out, comment.returnLines);
