@@ -554,19 +554,19 @@ Slice::returnValueName(const ParamDeclList& outParams)
 {
     for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
     {
-        if((*i)->name() == "returnValue")
+        if((*i)->name() == "ReturnValue")
         {
-            return "returnValue_";
+            return "ReturnValue_";
         }
     }
-    return "returnValue";
+    return "ReturnValue";
 }
 
 string
-Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
+Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
     ClassDefPtr cls = ClassDefPtr::dynamicCast(op->container());
-    list<ParamInfo> outParams = getAllOutParams(op);
+    list<ParamInfo> outParams = getAllOutParams(op, "", true);
     if(outParams.size() == 0)
     {
         return "void";
@@ -574,12 +574,27 @@ Slice::resultType(const OperationPtr& op, const string& ns, bool dispatch)
     else if(dispatch && op->hasMarshaledResult())
     {
         string name = getNamespace(cls) + "." + interfaceName(cls);
-        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
+        return getUnqualified(name, scope) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
     {
-        string name = getNamespace(cls) + "." + interfaceName(cls);
-        return getUnqualified(name, ns) + "." + pascalCase(op->name()) + "ReturnValue";
+        ostringstream os;
+        os << "(";
+        for(list<ParamInfo>::const_iterator i = outParams.begin(); i != outParams.end();)
+        {
+            os << i->typeStr;
+            if(i->nullable && !i->tagged)
+            {
+                os << "?";
+            }
+            os << " " << i->name;
+            if(++i != outParams.end())
+            {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os.str();
     }
     else
     {
@@ -682,7 +697,8 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->operation = pOperation;
     this->name = fixId(pPrefix + pName);
     this->type = pType;
-    this->typeStr = CsGenerator::typeToString(pType, "", pTagged);
+    this->typeStr = CsGenerator::typeToString(pType, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
+                                              pTagged);
     this->nullable = isNullable(pType);
     this->tagged = pTagged;
     this->tag = pTag;
@@ -694,7 +710,8 @@ Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
     this->type = pParam->type();
-    this->typeStr = CsGenerator::typeToString(type, "", pParam->tagged());
+    this->typeStr = CsGenerator::typeToString(type, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
+                                              pParam->tagged());
     this->nullable = isNullable(type);
     this->tagged = pParam->tagged();
     this->tag = pParam->tag();

@@ -82,9 +82,8 @@ namespace Ice
                 {
                     try
                     {
-                        var r = t.Result;
-                        callback.setEndpoints(SetClientEndpoints(r.ReturnValue,
-                            r.HasRoutingTable.HasValue ? r.HasRoutingTable.Value : true));
+                        var (prx, hasRoutingTable) = t.Result;
+                        callback.setEndpoints(SetClientEndpoints(prx, hasRoutingTable ?? true));
                     }
                     catch (System.AggregateException ae)
                     {

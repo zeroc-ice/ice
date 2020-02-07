@@ -1021,43 +1021,43 @@ namespace Ice.operations
             {
                 var ret = p.opByteAsync(0xff, 0x0f).Result;
                 test(ret.p3 == 0xf0);
-                test(ret.returnValue == 0xff);
+                test(ret.ReturnValue == 0xff);
             }
 
             {
                 var cb = new Callback();
                 var ret = p.opBoolAsync(true, false).Result;
-                cb.opBool(ret.returnValue, ret.p3);
+                cb.opBool(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
                 var ret = p.opShortIntLongAsync(10, 11, 12).Result;
-                cb.opShortIntLong(ret.returnValue, ret.p4, ret.p5, ret.p6);
+                cb.opShortIntLong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 var cb = new Callback();
                 var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
-                cb.opFloatDouble(ret.returnValue, ret.p3, ret.p4);
+                cb.opFloatDouble(ret.ReturnValue, ret.p3, ret.p4);
             }
 
             {
                 var cb = new Callback();
                 var ret = p.opStringAsync("hello", "world").Result;
-                cb.opString(ret.returnValue, ret.p3);
+                cb.opString(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
                 var ret = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
-                cb.opMyEnum(ret.returnValue, ret.p2);
+                cb.opMyEnum(ret.ReturnValue, ret.p2);
             }
 
             {
                 var cb = new Callback(communicator);
                 var ret = p.opMyClassAsync(p).Result;
-                cb.opMyClass(ret.returnValue, ret.p2, ret.p3);
+                cb.opMyClass(ret.ReturnValue, ret.p2, ret.p3);
             }
 
             {
@@ -1074,7 +1074,7 @@ namespace Ice.operations
 
                 var cb = new Callback(communicator);
                 var ret = p.opStructAsync(si1, si2).Result;
-                cb.opStruct(ret.returnValue, ret.p3);
+                cb.opStruct(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1083,7 +1083,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opByteSAsync(bsi1, bsi2).Result;
-                cb.opByteS(ret.returnValue, ret.p3);
+                cb.opByteS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1092,7 +1092,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opBoolSAsync(bsi1, bsi2).Result;
-                cb.opBoolS(ret.returnValue, ret.p3);
+                cb.opBoolS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1102,7 +1102,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
-                cb.opShortIntLongS(ret.returnValue, ret.p4, ret.p5, ret.p6);
+                cb.opShortIntLongS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
@@ -1111,7 +1111,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opFloatDoubleSAsync(fsi, dsi).Result;
-                cb.opFloatDoubleS(ret.returnValue, ret.p3, ret.p4);
+                cb.opFloatDoubleS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
             {
@@ -1120,7 +1120,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringSAsync(ssi1, ssi2).Result;
-                cb.opStringS(ret.returnValue, ret.p3);
+                cb.opStringS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1134,7 +1134,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opByteSSAsync(bsi1, bsi2).Result;
-                cb.opByteSS(ret.returnValue, ret.p3);
+                cb.opByteSS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1148,7 +1148,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
-                cb.opBoolSS(ret.returnValue, ret.p3);
+                cb.opBoolSS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1166,7 +1166,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opShortIntLongSSAsync(ssi, isi, lsi).Result;
-                cb.opShortIntLongSS(ret.returnValue, ret.p4, ret.p5, ret.p6);
+                cb.opShortIntLongSS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
@@ -1180,7 +1180,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
-                cb.opFloatDoubleSS(ret.returnValue, ret.p3, ret.p4);
+                cb.opFloatDoubleSS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
             {
@@ -1195,7 +1195,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringSSAsync(ssi1, ssi2).Result;
-                cb.opStringSS(ret.returnValue, ret.p3);
+                cb.opStringSS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1216,7 +1216,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringSSSAsync(sssi1, sssi2).Result;
-                cb.opStringSSS(ret.returnValue, ret.p3);
+                cb.opStringSSS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1230,7 +1230,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opByteBoolDAsync(di1, di2).Result;
-                cb.opByteBoolD(ret.returnValue, ret.p3);
+                cb.opByteBoolD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1244,7 +1244,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opShortIntDAsync(di1, di2).Result;
-                cb.opShortIntD(ret.returnValue, ret.p3);
+                cb.opShortIntD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1258,7 +1258,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opLongFloatDAsync(di1, di2).Result;
-                cb.opLongFloatD(ret.returnValue, ret.p3);
+                cb.opLongFloatD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1272,7 +1272,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringStringDAsync(di1, di2).Result;
-                cb.opStringStringD(ret.returnValue, ret.p3);
+                cb.opStringStringD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1286,7 +1286,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringMyEnumDAsync(di1, di2).Result;
-                cb.opStringMyEnumD(ret.returnValue, ret.p3);
+                cb.opStringMyEnumD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1298,7 +1298,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opMyEnumStringDAsync(di1, di2).Result;
-                cb.opMyEnumStringD(ret.returnValue, ret.p3);
+                cb.opMyEnumStringD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1317,7 +1317,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
-                cb.opMyStructMyEnumD(ret.returnValue, ret.p3);
+                cb.opMyStructMyEnumD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1341,7 +1341,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opByteBoolDSAsync(dsi1, dsi2).Result;
-                cb.opByteBoolDS(ret.returnValue, ret.p3);
+                cb.opByteBoolDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1364,7 +1364,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opLongFloatDSAsync(dsi1, dsi2).Result;
-                cb.opLongFloatDS(ret.returnValue, ret.p3);
+                cb.opLongFloatDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1387,7 +1387,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
-                cb.opStringStringDS(ret.returnValue, ret.p3);
+                cb.opStringStringDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1410,7 +1410,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringMyEnumDSAsync(dsi1, dsi2).Result;
-                cb.opStringMyEnumDS(ret.returnValue, ret.p3);
+                cb.opStringMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1431,7 +1431,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
-                cb.opMyEnumStringDS(ret.returnValue, ret.p3);
+                cb.opMyEnumStringDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1460,7 +1460,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opMyStructMyEnumDSAsync(dsi1, dsi2).Result;
-                cb.opMyStructMyEnumDS(ret.returnValue, ret.p3);
+                cb.opMyStructMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1477,7 +1477,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opByteByteSDAsync(sdi1, sdi2).Result;
-                cb.opByteByteSD(ret.returnValue, ret.p3);
+                cb.opByteByteSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1493,7 +1493,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
-                cb.opBoolBoolSD(ret.returnValue, ret.p3);
+                cb.opBoolBoolSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1510,7 +1510,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opShortShortSDAsync(sdi1, sdi2).Result;
-                cb.opShortShortSD(ret.returnValue, ret.p3);
+                cb.opShortShortSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1527,7 +1527,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
-                cb.opIntIntSD(ret.returnValue, ret.p3);
+                cb.opIntIntSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1544,7 +1544,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opLongLongSDAsync(sdi1, sdi2).Result;
-                cb.opLongLongSD(ret.returnValue, ret.p3);
+                cb.opLongLongSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1561,7 +1561,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
-                cb.opStringFloatSD(ret.returnValue, ret.p3);
+                cb.opStringFloatSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1578,7 +1578,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringDoubleSDAsync(sdi1, sdi2).Result;
-                cb.opStringDoubleSD(ret.returnValue, ret.p3);
+                cb.opStringDoubleSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1595,7 +1595,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
-                cb.opStringStringSD(ret.returnValue, ret.p3);
+                cb.opStringStringSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1612,7 +1612,7 @@ namespace Ice.operations
 
                 var cb = new Callback();
                 var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
-                cb.opMyEnumMyEnumSD(ret.returnValue, ret.p3);
+                cb.opMyEnumMyEnumSD(ret.ReturnValue, ret.p3);
             }
 
             {
@@ -1761,7 +1761,7 @@ namespace Ice.operations
 
                     p1.e = Test.MyEnum.enum3;
                     var r = await p.opMStruct2Async(p1);
-                    test(r.p2.Equals(p1) && r.returnValue.Equals(p1));
+                    test(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
                 }
 
                 {
@@ -1770,7 +1770,7 @@ namespace Ice.operations
                     var p1 = new string[1];
                     p1[0] = "test";
                     var r = await p.opMSeq2Async(p1);
-                    test(Collections.Equals(r.p2, p1) && Collections.Equals(r.returnValue, p1));
+                    test(Collections.Equals(r.p2, p1) && Collections.Equals(r.ReturnValue, p1));
                 }
 
                 {
@@ -1779,7 +1779,7 @@ namespace Ice.operations
                     var p1 = new Dictionary<string, string>();
                     p1["test"] = "test";
                     var r = await p.opMDict2Async(p1);
-                    test(Collections.Equals(r.p2, p1) && Collections.Equals(r.returnValue, p1));
+                    test(Collections.Equals(r.p2, p1) && Collections.Equals(r.ReturnValue, p1));
                 }
             };
         }

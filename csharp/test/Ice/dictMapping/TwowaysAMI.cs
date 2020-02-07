@@ -110,7 +110,7 @@ namespace Ice.dictMapping
 
                 var r = p.opNVAsync(i).Result;
                 test(r.o.DictionaryEquals(i));
-                test(r.returnValue.DictionaryEquals(i));
+                test(r.ReturnValue.DictionaryEquals(i));
             }
 
             {
@@ -120,7 +120,7 @@ namespace Ice.dictMapping
 
                 var r = p.opNRAsync(i).Result;
                 test(r.o.DictionaryEquals(i));
-                test(r.returnValue.DictionaryEquals(i));
+                test(r.ReturnValue.DictionaryEquals(i));
             }
 
             {
@@ -136,7 +136,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.DictionaryEquals(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.DictionaryEquals(rhs);
                     }));
@@ -155,7 +155,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.DictionaryEquals(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.DictionaryEquals(rhs);
                     }));
@@ -172,7 +172,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
@@ -191,7 +191,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
@@ -208,7 +208,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
@@ -227,7 +227,7 @@ namespace Ice.dictMapping
                     {
                         return lhs.SequenceEqual(rhs);
                     }));
-                test(r.returnValue.DictionaryEquals(i, (lhs, rhs) =>
+                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
                     {
                         return lhs.SequenceEqual(rhs);
                     }));

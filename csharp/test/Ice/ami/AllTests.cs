@@ -916,7 +916,7 @@ namespace Ice.ami
                 q.opAsync(1).ContinueWith(t =>
                     {
                         var r = t.Result;
-                        test(r.returnValue == 1);
+                        test(r.ReturnValue == 1);
                         test(r.j == 1);
                     }).Wait();
             }

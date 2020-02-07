@@ -111,13 +111,13 @@ namespace IceLocatorDiscovery
 
     internal class VoidLocatorI : ILocator
     {
-        public Task<Ice.IObjectPrx>
-        FindObjectByIdAsync(Ice.Identity id, Current current) => null;
+        public Task<IObjectPrx?>?
+        FindObjectByIdAsync(Identity id, Current current) => null;
 
-        public Task<IObjectPrx?>
-        FindAdapterByIdAsync(string id, Ice.Current current) => null;
+        public Task<IObjectPrx?>?
+        FindAdapterByIdAsync(string id, Current current) => null;
 
-        public ILocatorRegistryPrx
+        public ILocatorRegistryPrx?
         GetRegistry(Current current) => null;
     }
 
