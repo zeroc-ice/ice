@@ -636,7 +636,7 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
-    for(const auto p : members)
+    for(const auto& p : members)
     {
         TypePtr type = p->type();
 
@@ -1403,25 +1403,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool hasBaseClass = !bases.empty();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
-    _out.inc();
-    _out << nl << "(istr) => istr.ReadClass<" << name << ">()!;";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
     _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
-    _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteClass(value);";
-    _out.dec();
-
-        _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteClass(value);";
     _out.dec();
@@ -2652,8 +2640,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns, false) << ", "
-         << outputStreamWriter(value, ns, isNullable(value)) << ");";
+         << outputStreamWriter(key, ns) << ", "
+         << outputStreamWriter(value, ns) << ");";
     _out.dec();
 
     _out << sp;
@@ -2665,14 +2653,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     if(generic == "SortedDictionary")
     {
         _out << nl << "istr.ReadSortedDict("
-             << inputStreamReader(key, ns, false) << ", "
-             << inputStreamReader(value, ns, isNullable(value)) << ");";
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ");";
     }
     else
     {
         _out << nl << "istr.ReadDict("
-             << inputStreamReader(key, ns, false) << ", "
-             << inputStreamReader(value, ns, isNullable(value)) << ", "
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ", "
              << (key->minWireSize() + value->minWireSize()) << ");";
     }
     _out.dec();
