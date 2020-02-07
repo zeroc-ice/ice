@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 public class PluginOneFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginOne(communicator);
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginOne(communicator);
 
     internal class PluginOne : BasePlugin
     {
