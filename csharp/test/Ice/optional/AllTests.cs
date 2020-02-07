@@ -593,11 +593,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opByte(p1);
                 test(p2 == 56 && p3 == 56);
                 var r = initial.opByteAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.opByte(p1);
                 test(p2 == 56 && p3 == 56);
                 r = initial.opByteAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
 
                 (p2, p3) = initial.opByte(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -630,11 +630,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opBool(p1);
                 test(p2 == true && p3 == true);
                 var r = initial.opBoolAsync(p1).Result;
-                test(r.returnValue == true && r.p3 == true);
+                test(r.ReturnValue == true && r.p3 == true);
                 (p2, p3) = initial.opBool(true);
                 test(p2 == true && p3 == true);
                 r = initial.opBoolAsync(true).Result;
-                test(r.returnValue == true && r.p3 == true);
+                test(r.ReturnValue == true && r.p3 == true);
 
                 (p2, p3) = initial.opBool(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -667,11 +667,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opShort(p1);
                 test(p2 == 56 && p3 == 56);
                 var r = initial.opShortAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.opShort(p1);
                 test(p2 == 56 && p3 == 56);
                 r = initial.opShortAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
 
                 (p2, p3) = initial.opShort(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -704,11 +704,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opInt(p1);
                 test(p2 == 56 && p3 == 56);
                 var r = initial.opIntAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.opInt(p1);
                 test(p2 == 56 && p3 == 56);
                 r = initial.opIntAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
 
                 (p2, p3) = initial.opInt(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -741,11 +741,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opLong(p1);
                 test(p2 == 56 && p3 == 56);
                 var r = initial.opLongAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.opLong(p1);
                 test(p2 == 56 && p3 == 56);
                 r = initial.opLongAsync(p1).Result;
-                test(r.returnValue == 56 && r.p3 == 56);
+                test(r.ReturnValue == 56 && r.p3 == 56);
 
                 (p2, p3) = initial.opLong(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -778,11 +778,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloat(p1);
                 test(p2 == 1.0f && p3 == 1.0f);
                 var r = initial.opFloatAsync(p1).Result;
-                test(r.returnValue == 1.0f && r.p3 == 1.0f);
+                test(r.ReturnValue == 1.0f && r.p3 == 1.0f);
                 (p2, p3) = initial.opFloat(p1);
                 test(p2 == 1.0f && p3 == 1.0f);
                 r = initial.opFloatAsync(p1).Result;
-                test(r.returnValue == 1.0f && r.p3 == 1.0f);
+                test(r.ReturnValue == 1.0f && r.p3 == 1.0f);
 
                 (p2, p3) = initial.opFloat(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -815,11 +815,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opDouble(p1);
                 test(p2 == 1.0 && p3 == 1.0);
                 var r = initial.opDoubleAsync(p1).Result;
-                test(r.returnValue == 1.0 && r.p3 == 1.0);
+                test(r.ReturnValue == 1.0 && r.p3 == 1.0);
                 (p2, p3) = initial.opDouble(p1);
                 test(p2 == 1.0 && p3 == 1.0);
                 r = initial.opDoubleAsync(p1).Result;
-                test(r.returnValue == 1.0 && r.p3 == 1.0);
+                test(r.ReturnValue == 1.0 && r.p3 == 1.0);
 
                 (p2, p3) = initial.opDouble(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -854,11 +854,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opString(p1);
                 test(p2 == "test" && p3 == "test");
                 var r = initial.opStringAsync(p1).Result;
-                test(r.returnValue == "test" && r.p3 == "test");
+                test(r.ReturnValue == "test" && r.p3 == "test");
                 (p2, p3) = initial.opString(p1);
                 test(p2 == "test" && p3 == "test");
                 r = initial.opStringAsync(p1).Result;
-                test(r.returnValue == "test" && r.p3 == "test");
+                test(r.ReturnValue == "test" && r.p3 == "test");
 
                 (p2, p3) = initial.opString(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -891,11 +891,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opMyEnum(p1);
                 test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
                 var r = initial.opMyEnumAsync(p1).Result;
-                test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
+                test(r.ReturnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
                 (p2, p3) = initial.opMyEnum(p1);
                 test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
                 r = initial.opMyEnumAsync(p1).Result;
-                test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
+                test(r.ReturnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
 
                 (p2, p3) = initial.opMyEnum(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -934,7 +934,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStruct(p1);
                 test(p2!.Value.m == 56 && p3!.Value.m == 56);
                 r = initial.opSmallStructAsync(p1).Result;
-                test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
+                test(r.ReturnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
                 (p2, p3) = initial.opSmallStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -975,11 +975,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStruct(p1);
                 test(p2!.Value.m == 56 && p3!.Value.m == 56);
                 var r = initial.opFixedStructAsync(p1).Result;
-                test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
+                test(r.ReturnValue!.Value.m == 56 && r.p3!.Value.m == 56);
                 (p2, p3) = initial.opFixedStruct(p1);
                 test(p2!.Value.m == 56 && p3!.Value.m == 56);
                 r = initial.opFixedStructAsync(p1).Result;
-                test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
+                test(r.ReturnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
                 (p2, p3) = initial.opFixedStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1025,11 +1025,11 @@ namespace Ice.optional
                 test(p2 == null && p3 == null);
 
                 var r = initial.opVarStructAsync(p1).Result;
-                test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
+                test(r.ReturnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
                 (p2, p3) = initial.opVarStruct(p1);
                 test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
                 r = initial.opVarStructAsync(p1).Result;
-                test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
+                test(r.ReturnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
 
                 (p2, p3) = initial.opVarStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1071,11 +1071,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptional(p1);
                 test(p2!.a == 58 && p3!.a == 58);
                 var r = initial.opOneOptionalAsync(p1).Result;
-                test(r.returnValue!.a == 58 && r.p3!.a == 58);
+                test(r.ReturnValue!.a == 58 && r.p3!.a == 58);
                 (p2, p3) = initial.opOneOptional(p1);
                 test(p2!.a == 58 && p3!.a == 58);
                 r = initial.opOneOptionalAsync(p1).Result;
-                test(r.returnValue!.a == 58 && r.p3!.a == 58);
+                test(r.ReturnValue!.a == 58 && r.p3!.a == 58);
 
                 (p2, p3) = initial.opOneOptional(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1151,11 +1151,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opByteSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opByteSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opByteSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opByteSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opByteSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1191,11 +1191,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opBoolSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opBoolSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opBoolSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opBoolSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1232,11 +1232,11 @@ namespace Ice.optional
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opShortSeqAsync(p1).Result;
 
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opShortSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opShortSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opShortSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1275,11 +1275,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opIntSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opIntSeq(p1);
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 r = initial.opIntSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opIntSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1318,11 +1318,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opLongSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opLongSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opLongSeq(p1);
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 r = initial.opLongSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opLongSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1361,11 +1361,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloatSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opFloatSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFloatSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opFloatSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFloatSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1404,11 +1404,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opDoubleSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opDoubleSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opDoubleSeq(p1);
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 r = initial.opDoubleSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opDoubleSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1447,11 +1447,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opStringSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opStringSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opStringSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opStringSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1491,11 +1491,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opSmallStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opSmallStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opSmallStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opSmallStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1544,7 +1544,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructList(p1);
                 test(Collections.Equals(p2, p1));
                 r = initial.opSmallStructListAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1));
+                test(Collections.Equals(r.ReturnValue, p1));
 
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1585,11 +1585,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opFixedStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFixedStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opFixedStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1634,11 +1634,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructList(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opFixedStructListAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFixedStructList(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opFixedStructListAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1679,11 +1679,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opVarStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opVarStructSeq(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opVarStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opVarStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1726,11 +1726,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opSerializable(p1);
                 test(p2.Equals(p1) && p3.Equals(p1));
                 var r = initial.opSerializableAsync(p1).Result;
-                test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
+                test(r.ReturnValue.Equals(p1) && r.p3.Equals(p1));
                 (p2, p3) = initial.opSerializable(p1);
                 test(p2.Equals(p1) && p3.Equals(p1));
                 r = initial.opSerializableAsync(p1).Result;
-                test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
+                test(r.ReturnValue.Equals(p1) && r.p3.Equals(p1));
 
                 (p2, p3) = initial.opSerializable(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1770,11 +1770,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntIntDict(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opIntIntDictAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opIntIntDict(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opIntIntDictAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opIntIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1817,11 +1817,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringIntDict(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 var r = initial.opStringIntDictAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opStringIntDict(p1);
                 test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 r = initial.opStringIntDictAsync(p1).Result;
-                test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opStringIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1886,11 +1886,11 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntOneOptionalDict(p1);
                 test(p2[1].a == 58 && p3[1].a == 58);
                 var r = initial.opIntOneOptionalDictAsync(p1).Result;
-                test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
+                test(r.ReturnValue[1].a == 58 && r.p3[1].a == 58);
                 (p2, p3) = initial.opIntOneOptionalDict(p1);
                 test(p2[1].a == 58 && p3[1].a == 58);
                 r = initial.opIntOneOptionalDictAsync(p1).Result;
-                test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
+                test(r.ReturnValue[1].a == 58 && r.p3[1].a == 58);
 
                 (p2, p3) = initial.opIntOneOptionalDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.

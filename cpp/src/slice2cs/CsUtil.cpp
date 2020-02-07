@@ -554,12 +554,12 @@ Slice::returnValueName(const ParamDeclList& outParams)
 {
     for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
     {
-        if((*i)->name() == "returnValue")
+        if((*i)->name() == "ReturnValue")
         {
-            return "returnValue_";
+            return "ReturnValue_";
         }
     }
-    return "returnValue";
+    return "ReturnValue";
 }
 
 string
