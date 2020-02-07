@@ -699,7 +699,8 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->operation = pOperation;
     this->name = fixId(pPrefix + pName);
     this->type = pType;
-    this->typeStr = CsGenerator::typeToString(pType, "", pTagged);
+    this->typeStr = CsGenerator::typeToString(pType, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
+                                              pTagged);
     this->nullable = isNullable(pType);
     this->tagged = pTagged;
     this->tag = pTag;
@@ -711,7 +712,8 @@ Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
     this->type = pParam->type();
-    this->typeStr = CsGenerator::typeToString(type, "", pParam->tagged());
+    this->typeStr = CsGenerator::typeToString(type, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
+                                              pParam->tagged());
     this->nullable = isNullable(type);
     this->tagged = pParam->tagged();
     this->tag = pParam->tag();
