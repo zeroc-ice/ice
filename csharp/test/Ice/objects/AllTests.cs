@@ -208,7 +208,7 @@ namespace Ice
                         var (retS, outS) = initial.opBaseSeq(inS);
 
                         inS = new Base[1];
-                        inS[0] = new Base(new S(), "");
+                        inS[0] = new Base(new S(""), "");
                         (retS, outS) = initial.opBaseSeq(inS);
                         test(retS.Length == 1 && outS.Length == 1);
                     }

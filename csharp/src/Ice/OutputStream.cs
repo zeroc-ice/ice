@@ -30,11 +30,8 @@ namespace Ice
         public static readonly OutputStreamWriter<int> IceWriterFromInt = (ostr, value) => ostr.WriteInt(value);
         public static readonly OutputStreamWriter<long> IceWriterFromLong = (ostr, value) => ostr.WriteLong(value);
         public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
-
         public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
-
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
-        public static readonly OutputStreamWriter<string?> IceWriterFromNullableString = (ostr, value) => ostr.WriteString(value);
 
         /// <summary>
         /// The communicator associated with this stream.
@@ -417,18 +414,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The byte sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteByteSeq(byte[]? v)
+        public void WriteByteSeq(byte[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length);
-                _buf.B.Put(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length);
+            _buf.B.Put(v);
         }
 
         /// <summary>
@@ -589,18 +579,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The short sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteShortSeq(short[]? v)
+        public void WriteShortSeq(short[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length * 2);
-                _buf.B.PutShortSeq(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length * 2);
+            _buf.B.PutShortSeq(v);
         }
 
         /// <summary>
@@ -673,18 +656,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The int sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteIntSeq(int[]? v)
+        public void WriteIntSeq(int[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length * 4);
-                _buf.B.PutIntSeq(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length * 4);
+            _buf.B.PutIntSeq(v);
         }
 
         /// <summary>
@@ -750,18 +726,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The long sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteLongSeq(long[]? v)
+        public void WriteLongSeq(long[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length * 8);
-                _buf.B.PutLongSeq(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length * 8);
+            _buf.B.PutLongSeq(v);
         }
 
         /// <summary>
@@ -827,18 +796,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The float sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteFloatSeq(float[]? v)
+        public void WriteFloatSeq(float[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length * 4);
-                _buf.B.PutFloatSeq(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length * 4);
+            _buf.B.PutFloatSeq(v);
         }
 
         /// <summary>
@@ -904,18 +866,11 @@ namespace Ice
         /// </summary>
         /// <param name="v">The double sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteDoubleSeq(double[]? v)
+        public void WriteDoubleSeq(double[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length * 8);
-                _buf.B.PutDoubleSeq(v);
-            }
+            WriteSize(v.Length);
+            Expand(v.Length * 8);
+            _buf.B.PutDoubleSeq(v);
         }
 
         /// <summary>
@@ -958,11 +913,10 @@ namespace Ice
         /// <summary>
         /// Writes a string to the stream.
         /// </summary>
-        /// <param name="v">The string to write to the stream. Passing null causes
-        /// an empty string to be written to the stream.</param>
-        public void WriteString(string? v)
+        /// <param name="v">The string to write to the stream.</param>
+        public void WriteString(string v)
         {
-            if (v == null || v.Length == 0)
+            if (v.Length == 0)
             {
                 WriteSize(0);
                 return;
@@ -991,7 +945,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The string sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteStringSeq(string[]? v) => WriteSeq(v, IceWriterFromString);
+        public void WriteStringSeq(string[] v) => WriteSeq(v, IceWriterFromString);
 
         /// <summary>
         /// Writes a string sequence to the stream.
@@ -1041,7 +995,7 @@ namespace Ice
             }
             else
             {
-                new Identity().IceWrite(this);
+                Identity.Empty.IceWrite(this);
             }
         }
 
@@ -1060,9 +1014,9 @@ namespace Ice
             }
         }
 
-        public void WriteProxySeq<T>(T[]? v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
+        public void WriteProxySeq<T>(T[] v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
 
-        public void WriteProxySeq<T>(IReadOnlyCollection<T>? v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
+        public void WriteProxySeq<T>(IReadOnlyCollection<T> v) where T : class, IObjectPrx => WriteSeq(v, IObjectPrx.IceWriter);
 
         public void WriteProxySeq<T>(int tag, T[]? v) where T : class, IObjectPrx
         {
@@ -1149,140 +1103,84 @@ namespace Ice
 
         public void WriteStruct<T>(in T value) where T : struct, IStreamableStruct => value.IceWrite(this);
 
-        public void WriteSeq<T>(T[]? v, OutputStreamWriter<T> writer)
+        public void WriteSeq<T>(T[] v, OutputStreamWriter<T> writer)
         {
-            if (v == null)
+            WriteSize(v.Length);
+            foreach (T item in v)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                foreach (T item in v)
-                {
-                    writer(this, item);
-                }
+                writer(this, item);
             }
         }
 
-        public void WriteSeq<T>(T[]? v, OutputStreamStructWriter<T> writer) where T : struct
+        public void WriteSeq<T>(T[] v, OutputStreamStructWriter<T> writer) where T : struct
         {
-            if (v == null)
+            WriteSize(v.Length);
+            foreach (T item in v)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                foreach (T item in v)
-                {
-                    writer(this, item);
-                }
+                writer(this, item);
             }
         }
 
-        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamWriter<T> writer)
+        public void WriteSeq<T>(IReadOnlyCollection<T> v, OutputStreamWriter<T> writer)
         {
-            if (v == null)
+            WriteSize(v.Count);
+            foreach (T item in v)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (T item in v)
-                {
-                    writer(this, item);
-                }
+                writer(this, item);
             }
         }
 
-        public void WriteSeq<T>(IReadOnlyCollection<T>? v, OutputStreamStructWriter<T> writer) where T : struct
+        public void WriteSeq<T>(IReadOnlyCollection<T> v, OutputStreamStructWriter<T> writer) where T : struct
         {
-            if (v == null)
+            WriteSize(v.Count);
+            foreach (T item in v)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Count);
-                foreach (T item in v)
-                {
-                    writer(this, item);
-                }
+                writer(this, item);
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
             OutputStreamWriter<TValue> valueWriter)
         {
-            if (dict == null)
+            WriteSize(dict.Count);
+            foreach ((TKey key, TValue value) in dict)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(dict.Count);
-                foreach ((TKey key, TValue value) in dict)
-                {
-                    keyWriter(this, key);
-                    valueWriter(this, value);
-                }
+                keyWriter(this, key);
+                valueWriter(this, value);
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamStructWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
             OutputStreamWriter<TValue> valueWriter) where TKey : struct
         {
-            if (dict == null)
+            WriteSize(dict.Count);
+            foreach ((TKey key, TValue value) in dict)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(dict.Count);
-                foreach ((TKey key, TValue value) in dict)
-                {
-                    keyWriter(this, key);
-                    valueWriter(this, value);
-                }
+                keyWriter(this, key);
+                valueWriter(this, value);
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
             OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
         {
-            if (dict == null)
+            WriteSize(dict.Count);
+            foreach ((TKey key, TValue value) in dict)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(dict.Count);
-                foreach ((TKey key, TValue value) in dict)
-                {
-                    keyWriter(this, key);
-                    valueWriter(this, value);
-                }
+                keyWriter(this, key);
+                valueWriter(this, value);
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue>? dict, OutputStreamStructWriter<TKey> keyWriter,
+        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
             OutputStreamStructWriter<TValue> valueWriter) where TKey : struct
                                                           where TValue : struct
         {
-            if (dict == null)
+            WriteSize(dict.Count);
+            foreach ((TKey key, TValue value) in dict)
             {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(dict.Count);
-                foreach ((TKey key, TValue value) in dict)
-                {
-                    keyWriter(this, key);
-                    valueWriter(this, value);
-                }
+                keyWriter(this, key);
+                valueWriter(this, value);
             }
         }
 

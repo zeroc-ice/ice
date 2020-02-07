@@ -875,7 +875,8 @@ namespace Ice.operations.AMD
         opMStruct1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMStruct1MarshaledReturnValue(new Test.Structure(), current);
+            return new Test.IMyClass.OpMStruct1MarshaledReturnValue(
+                new Test.Structure(null, Test.MyEnum.enum1, new Test.AnotherStruct("")), current);
         }
 
         public async Task<Test.IMyClass.OpMStruct2MarshaledReturnValue>

@@ -152,18 +152,18 @@ namespace Ice.defaultValue
                 Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults();
                 test(e.str.Equals(""));
                 test(e.c1 == Test.Color.red);
-                test(e.bs == null);
+                test(e.bs.Length == 0);
                 test(e.st.a == 0);
                 test(e.st2 != null);
-                test(e.dict == null);
+                test(e.dict.Count == 0);
 
                 Test.ClassNoDefaults cl = new Test.ClassNoDefaults();
                 test(cl.str.Equals(""));
                 test(cl.c1 == Test.Color.red);
-                test(cl.bs == null);
+                test(cl.bs.Length == 0);
                 test(cl.st.a == 0);
                 test(cl.st2 != null);
-                test(cl.dict == null);
+                test(cl.dict.Count == 0);
             }
             output.WriteLine("ok");
         }

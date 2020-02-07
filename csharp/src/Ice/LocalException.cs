@@ -260,14 +260,14 @@ namespace Ice
 
         public RequestFailedException()
         {
-            Id = new Identity();
+            Id = Identity.Empty;
             Facet = "";
             Operation = "";
         }
 
         public RequestFailedException(System.Exception ex) : base(ex)
         {
-            Id = new Identity();
+            Id = Identity.Empty;
             Facet = "";
             Operation = "";
         }

@@ -92,9 +92,7 @@ Slice::isNullable(const TypePtr& type)
         }
     }
     return ClassDeclPtr::dynamicCast(type) ||
-        ProxyPtr::dynamicCast(type) ||
-        SequencePtr::dynamicCast(type) ||
-        DictionaryPtr::dynamicCast(type);
+        ProxyPtr::dynamicCast(type);
 }
 
 namespace
@@ -510,7 +508,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             {
                 out << "System.Collections.Generic.";
             }
-            out << customType << "<" << typeToString(seq->type(), package, isReferenceType(seq->type())) << ">";
+            out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
             return out.str();
         }
         else if(!serializableType.empty())
@@ -519,7 +517,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            return typeToString(seq->type(), package, isReferenceType(seq->type())) + "[]";
+            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
         }
     }
 
@@ -539,7 +537,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +
-            typeToString(d->valueType(), package, isReferenceType(d->valueType())) + ">";
+            typeToString(d->valueType(), package, isNullable(d->valueType())) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -816,21 +814,21 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool nullable)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(builtin && !isProxyType(type) && !isClassType(type))
     {
-        out << "Ice.OutputStream.IceWriterFrom" << (nullable ? "Nullable" : "") << builtinTableSuffix[builtin->kind()];
+        out << "Ice.OutputStream.IceWriterFrom" << builtinTableSuffix[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
-        out << helperName(type, scope) << ".IceWriter" << (nullable ? "FromNullable" : "");
+        out << helperName(type, scope) << ".IceWriter";
     }
     else
     {
-        out << typeToString(type, scope) << ".IceWriter" << (nullable ? "FromNullable" : "");
+        out << typeToString(type, scope) << ".IceWriter";
     }
     return out.str();
 }
@@ -862,21 +860,21 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 }
 
 string
-Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope, bool nullable)
+Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(builtin && !isProxyType(type) && !isClassType(type))
     {
-        out << "Ice.InputStream.IceReaderInto" << (nullable ? "Nullable" : "") << builtinTableSuffix[builtin->kind()];
+        out << "Ice.InputStream.IceReaderInto" << builtinTableSuffix[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
-        out << helperName(type, scope) << ".IceReader" << (nullable ? "IntoNullable" : "");
+        out << helperName(type, scope) << ".IceReader";
     }
     else
     {
-        out << typeToString(type, scope) << ".IceReader" << (nullable ? "IntoNullable" : "");
+        out << typeToString(type, scope) << ".IceReader";
     }
     return out.str();
 }
@@ -1082,7 +1080,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, isReferenceType(type)) << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope) << ")";
     }
     return out.str();
 }
@@ -1109,7 +1107,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadArray(" << inputStreamReader(type, scope, isReferenceType(type))
+            out << stream << ".ReadArray(" << inputStreamReader(type, scope)
                 << ", " << type->minWireSize() << ")";
         }
     }
@@ -1121,7 +1119,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadCollection(" << inputStreamReader(type, scope, isReferenceType(type))
+            out << stream << ".ReadCollection(" << inputStreamReader(type, scope)
                 << ", " << type->minWireSize() << ")";
         }
 

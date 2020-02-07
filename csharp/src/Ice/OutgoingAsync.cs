@@ -671,7 +671,7 @@ namespace IceInternal
             string facet = rf.GetFacet();
             if (facet == null || facet.Length == 0)
             {
-                Os.WriteStringSeq(null);
+                Os.WriteStringSeq(System.Array.Empty<string>());
             }
             else
             {
