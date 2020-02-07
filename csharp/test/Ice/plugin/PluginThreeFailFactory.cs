@@ -6,7 +6,7 @@ using System;
 
 public class PluginThreeFailFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
 
     internal class PluginThreeFail : BasePluginFail
     {

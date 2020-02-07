@@ -115,12 +115,12 @@ namespace Ice
         {
             if (string.IsNullOrEmpty(Category))
             {
-                return IceUtilInternal.StringUtil.escapeString(Name, "/", mode);
+                return IceUtilInternal.StringUtil.EscapeString(Name, "/", mode);
             }
             else
             {
-                return IceUtilInternal.StringUtil.escapeString(Category, "/", mode) + '/' +
-                       IceUtilInternal.StringUtil.escapeString(Name, "/", mode);
+                return IceUtilInternal.StringUtil.EscapeString(Category, "/", mode) + '/' +
+                       IceUtilInternal.StringUtil.EscapeString(Name, "/", mode);
             }
         }
     }

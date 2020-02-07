@@ -41,8 +41,7 @@ namespace Ice
                 return true;
             }
 
-            RouterInfo? rhs = obj as RouterInfo;
-            return rhs == null ? false : Router.Equals(rhs.Router);
+            return !(obj is RouterInfo rhs) ? false : Router.Equals(rhs.Router);
         }
 
         public override int GetHashCode() => Router.GetHashCode();
@@ -98,7 +97,7 @@ namespace Ice
 
         public Endpoint[] GetServerEndpoints()
         {
-            IObjectPrx serverProxy = Router.GetServerProxy();
+            IObjectPrx? serverProxy = Router.GetServerProxy();
             if (serverProxy == null)
             {
                 throw new NoEndpointException();
@@ -265,8 +264,8 @@ namespace Ice
 
         private Endpoint[]? _clientEndpoints;
         private ObjectAdapter? _adapter;
-        private HashSet<Identity> _identities = new HashSet<Identity>();
-        private List<Identity> _evictedIdentities = new List<Identity>();
+        private readonly HashSet<Identity> _identities = new HashSet<Identity>();
+        private readonly List<Identity> _evictedIdentities = new List<Identity>();
         private bool _hasRoutingTable;
     }
 
@@ -283,8 +282,7 @@ namespace Ice
 
             lock (_routerInfoTable)
             {
-                RouterInfo info;
-                if (!_routerInfoTable.TryGetValue(router, out info))
+                if (!_routerInfoTable.TryGetValue(router, out RouterInfo info))
                 {
                     info = new RouterInfo(router);
                     _routerInfoTable.Add(router, info);
@@ -318,7 +316,7 @@ namespace Ice
             return info;
         }
 
-        private Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
+        private readonly Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
     }
 
 }

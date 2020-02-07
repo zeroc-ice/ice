@@ -6,7 +6,7 @@ using System;
 
 public class PluginFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new Plugin(args);
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new Plugin(args);
 
     internal class Plugin : Ice.IPlugin
     {

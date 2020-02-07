@@ -806,7 +806,7 @@ namespace IceInternal
                 MetricsViewI? view = GetMetricsView(viewName);
                 return new IceMX.IMetricsAdmin.GetMetricsViewReturnValue(
                     view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.GetMetrics(),
-                    Time.currentMonotonicTimeMillis());
+                    Time.CurrentMonotonicTimeMillis());
             }
         }
 

@@ -8,10 +8,7 @@ namespace IceInternal
     {
         public ITransceiver Connect() => new WSTransceiver(_instance, _delegate.Connect(), _host, _resource);
 
-        public short Type()
-        {
-            return _delegate.Type();
-        }
+        public short Type() => _delegate.Type();
 
         internal WSConnector(ProtocolInstance instance, IConnector del, string host, string resource)
         {
@@ -33,7 +30,7 @@ namespace IceInternal
                 return true;
             }
 
-            WSConnector p = (WSConnector)obj;
+            var p = (WSConnector)obj;
             if (!_delegate.Equals(p._delegate))
             {
                 return false;
@@ -51,9 +48,9 @@ namespace IceInternal
 
         public override int GetHashCode() => _delegate.GetHashCode();
 
-        private ProtocolInstance _instance;
-        private IConnector _delegate;
-        private string _host;
-        private string _resource;
+        private readonly ProtocolInstance _instance;
+        private readonly IConnector _delegate;
+        private readonly string _host;
+        private readonly string _resource;
     }
 }

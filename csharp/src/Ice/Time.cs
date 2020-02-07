@@ -2,22 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+
 namespace IceInternal
 {
-    using System.Diagnostics;
-
     public sealed class Time
     {
-        static Time()
-        {
-            _stopwatch.Start();
-        }
+        static Time() => _stopwatch.Start();
 
-        public static long currentMonotonicTimeMillis()
-        {
-            return _stopwatch.ElapsedMilliseconds;
-        }
+        public static long CurrentMonotonicTimeMillis() => _stopwatch.ElapsedMilliseconds;
 
-        private static Stopwatch _stopwatch = new Stopwatch();
+        private static readonly Stopwatch _stopwatch = new Stopwatch();
     }
 }

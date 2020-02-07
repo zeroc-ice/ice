@@ -232,10 +232,10 @@ namespace Ice.proxy
             test(b1.EncodingVersion.Equals(Util.CurrentEncoding));
 
             b1 = IObjectPrx.Parse("test -e 1.0", communicator);
-            test(b1.EncodingVersion.major == 1 && b1.EncodingVersion.minor == 0);
+            test(b1.EncodingVersion.Major == 1 && b1.EncodingVersion.Minor == 0);
 
             b1 = IObjectPrx.Parse("test -e 6.5", communicator);
-            test(b1.EncodingVersion.major == 6 && b1.EncodingVersion.minor == 5);
+            test(b1.EncodingVersion.Major == 6 && b1.EncodingVersion.Minor == 5);
 
             b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
             test(b1.ToString().Equals("test -t -e 1.0"));
@@ -913,8 +913,8 @@ namespace Ice.proxy
                 os.StartEncapsulation();
                 os.EndEncapsulation();
                 byte[] inEncaps = os.Finished();
-                inEncaps[4] = version.major;
-                inEncaps[5] = version.minor;
+                inEncaps[4] = version.Major;
+                inEncaps[5] = version.Minor;
                 byte[] outEncaps;
                 cl.Invoke("ice_ping", OperationMode.Normal, inEncaps, out outEncaps);
                 test(false);
@@ -933,8 +933,8 @@ namespace Ice.proxy
                 os.StartEncapsulation();
                 os.EndEncapsulation();
                 byte[] inEncaps = os.Finished();
-                inEncaps[4] = version.major;
-                inEncaps[5] = version.minor;
+                inEncaps[4] = version.Major;
+                inEncaps[5] = version.Minor;
                 byte[] outEncaps;
                 cl.Invoke("ice_ping", OperationMode.Normal, inEncaps, out outEncaps);
                 test(false);

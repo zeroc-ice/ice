@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 public class PluginTwoFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginTwo(communicator);
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginTwo(communicator);
 
     internal class PluginTwo : BasePlugin
     {

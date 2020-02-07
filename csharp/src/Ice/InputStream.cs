@@ -1714,10 +1714,10 @@ namespace Ice
         private int SkipSlice()
         {
             Debug.Assert(_current != null);
-            if (Communicator.TraceLevels.slicing > 0)
+            if (Communicator.TraceLevels.Slicing > 0)
             {
                 ILogger logger = Communicator.Logger;
-                string slicingCat = Communicator.TraceLevels.slicingCat;
+                string slicingCat = Communicator.TraceLevels.SlicingCat;
                 if (_current.InstanceType == InstanceType.Exception)
                 {
                     IceInternal.TraceUtil.TraceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);

@@ -26,7 +26,7 @@ namespace IceInternal
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
-        public IAcceptor getDelegate() => _delegate;
+        public IAcceptor GetDelegate() => _delegate;
 
         internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, IAcceptor del)
         {
@@ -37,6 +37,6 @@ namespace IceInternal
 
         private WSEndpoint _endpoint;
         private ProtocolInstance _instance;
-        private IAcceptor _delegate;
+        private readonly IAcceptor _delegate;
     }
 }

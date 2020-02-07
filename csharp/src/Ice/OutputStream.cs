@@ -1371,8 +1371,8 @@ namespace Ice
         private void WriteEncapsulationHeader(int size, EncodingVersion encoding)
         {
             WriteInt(size);
-            WriteByte(encoding.major);
-            WriteByte(encoding.minor);
+            WriteByte(encoding.Major);
+            WriteByte(encoding.Minor);
         }
 
         private void ResetEncapsulation()

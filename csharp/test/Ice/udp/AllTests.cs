@@ -33,10 +33,10 @@ namespace Ice.udp
             {
                 lock (this)
                 {
-                    long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
+                    long end = IceInternal.Time.CurrentMonotonicTimeMillis() + timeout;
                     while (_replies < expectedReplies)
                     {
-                        int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
+                        int delay = (int)(end - IceInternal.Time.CurrentMonotonicTimeMillis());
                         if (delay > 0)
                         {
                             System.Threading.Monitor.Wait(this, delay);

@@ -133,7 +133,7 @@ namespace IceInternal
 
             public void Connectors(List<IConnector> connectors)
             {
-                List<IConnector> l = new List<IConnector>();
+                var l = new List<IConnector>();
                 foreach (IConnector c in connectors)
                 {
                     l.Add(new WSConnector(_instance, c, _host, _resource));
@@ -141,10 +141,7 @@ namespace IceInternal
                 _callback.Connectors(l);
             }
 
-            public void Exception(Ice.LocalException ex)
-            {
-                _callback.Exception(ex);
-            }
+            public void Exception(Ice.LocalException ex) => _callback.Exception(ex);
 
             private readonly ProtocolInstance _instance;
             private readonly string _host;
@@ -168,7 +165,7 @@ namespace IceInternal
 
         public override IAcceptor Acceptor(string adapterName)
         {
-            var acceptor = _delegate.Acceptor(adapterName);
+            IAcceptor? acceptor = _delegate.Acceptor(adapterName);
             Debug.Assert(acceptor != null);
             return new WSAcceptor(this, _instance, acceptor);
         }
@@ -187,7 +184,7 @@ namespace IceInternal
 
         public override List<Endpoint> ExpandIfWildcard()
         {
-            List<Endpoint> l = new List<Endpoint>();
+            var l = new List<Endpoint>();
             foreach (Endpoint e in _delegate.ExpandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
@@ -197,7 +194,7 @@ namespace IceInternal
 
         public override List<Endpoint> ExpandHost(out Endpoint? publish)
         {
-            List<Endpoint> l = new List<Endpoint>();
+            var l = new List<Endpoint>();
             foreach (Endpoint e in _delegate.ExpandHost(out publish))
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
@@ -215,7 +212,7 @@ namespace IceInternal
             {
                 return false;
             }
-            WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
+            var wsEndpointI = (WSEndpoint)endpoint;
             return _delegate.Equivalent(wsEndpointI._delegate);
         }
 
@@ -262,7 +259,7 @@ namespace IceInternal
                 return Type() < obj.Type() ? -1 : 1;
             }
 
-            WSEndpoint p = (WSEndpoint)obj;
+            var p = (WSEndpoint)obj;
             if (this == p)
             {
                 return 0;
@@ -305,10 +302,8 @@ namespace IceInternal
         {
         }
 
-        public override IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short underlying)
-        {
-            return new WSEndpointFactory(instance, underlying);
-        }
+        public override IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short underlying) =>
+            new WSEndpointFactory(instance, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint) =>
             new WSEndpoint(Instance!, underlying, args);
