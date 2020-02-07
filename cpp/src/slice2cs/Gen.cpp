@@ -979,7 +979,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     }
     else if(outParams.size() >= 1)
     {
-        _out << nl << "/// <returns>The struct containing the results of the operation.</returns>";
+        _out << nl << "/// <returns>The tuple containing the results of the operation.</returns>";
     }
 
     for(const auto& e : comment.exceptions)
