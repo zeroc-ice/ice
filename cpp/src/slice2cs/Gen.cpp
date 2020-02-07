@@ -913,19 +913,8 @@ processComment(const ContainedPtr& contained, const string& deprecateReason)
 
 }
 
-void writeDocCommentLines(IceUtilInternal::Output& out,
-                          const vector<string>& lines,
-                          const string& tag,
-                          const string& name = "",
-                          const string& value = "")
+void writeDocCommentLines(IceUtilInternal::Output& out, const vector<string>& lines)
 {
-    out << nl << "/// <" << tag;
-    if(!name.empty())
-    {
-        out << " " << name << "=\"" << value << "\"";
-    }
-    out << ">";
-
     for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
     {
         if(i == lines.begin())
@@ -941,7 +930,21 @@ void writeDocCommentLines(IceUtilInternal::Output& out,
             }
         }
     }
+}
 
+void writeDocCommentLines(IceUtilInternal::Output& out,
+                          const vector<string>& lines,
+                          const string& tag,
+                          const string& name = "",
+                          const string& value = "")
+{
+    out << nl << "/// <" << tag;
+    if(!name.empty())
+    {
+        out << " " << name << "=\"" << value << "\"";
+    }
+    out << ">";
+    writeDocCommentLines(out, lines);
     out << "</" << tag << ">";
 }
 
@@ -988,7 +991,11 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
         }
     }
 
-    if(async)
+    if(dispatch && p->hasMarshaledResult())
+    {
+        _out << nl << "/// <returns>The operation marshaled result.</returns>";
+    }
+    else if(async)
     {
         _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
     }
@@ -998,7 +1005,27 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     }
     else if(outParams.size() >= 1)
     {
-        _out << nl << "/// <returns>The tuple containing the results of the operation.</returns>";
+        _out << nl << "/// <returns>Named tuple " << resultType(p, "", dispatch);
+        for(const auto paramInfo : outParams)
+        {
+            if(paramInfo.param)
+            {
+                auto i = comment.params.find(paramInfo.name);
+                if(i != comment.params.end())
+                {
+                    _out << nl << "/// <para> " << paramName(paramInfo) << ": ";
+                    writeDocCommentLines(_out, i->second);
+                    _out << "</para>";
+                }
+            }
+            else // Return type
+            {
+                _out << nl << "/// <para> " << paramName(paramInfo) << ": ";
+                writeDocCommentLines(_out, comment.returnLines);
+                _out << "</para>";
+            }
+        }
+        _out << nl << "/// </returns>";
     }
 
     for(const auto& e : comment.exceptions)
