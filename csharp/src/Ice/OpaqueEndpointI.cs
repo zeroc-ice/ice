@@ -287,20 +287,20 @@ namespace IceInternal
                 return 1;
             }
 
-            if (_rawEncoding.major < p._rawEncoding.major)
+            if (_rawEncoding.Major < p._rawEncoding.Major)
             {
                 return -1;
             }
-            else if (p._rawEncoding.major < _rawEncoding.major)
+            else if (p._rawEncoding.Major < _rawEncoding.Major)
             {
                 return 1;
             }
 
-            if (_rawEncoding.minor < p._rawEncoding.minor)
+            if (_rawEncoding.Minor < p._rawEncoding.Minor)
             {
                 return -1;
             }
-            else if (p._rawEncoding.minor < _rawEncoding.minor)
+            else if (p._rawEncoding.Minor < _rawEncoding.Minor)
             {
                 return 1;
             }

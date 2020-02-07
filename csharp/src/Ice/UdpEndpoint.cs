@@ -256,10 +256,10 @@ namespace IceInternal
             base.StreamWriteImpl(s);
             if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
-                s.WriteByte(Ice.Util.Protocol_1_0.major);
-                s.WriteByte(Ice.Util.Protocol_1_0.minor);
-                s.WriteByte(Ice.Util.Encoding_1_0.major);
-                s.WriteByte(Ice.Util.Encoding_1_0.minor);
+                s.WriteByte(Ice.Util.Protocol_1_0.Major);
+                s.WriteByte(Ice.Util.Protocol_1_0.Minor);
+                s.WriteByte(Ice.Util.Encoding_1_0.Major);
+                s.WriteByte(Ice.Util.Encoding_1_0.Minor);
             }
             // Not transmitted.
             //s.writeBool(_connect);
@@ -322,7 +322,7 @@ namespace IceInternal
                 try
                 {
                     Ice.EncodingVersion v = Ice.Util.StringToEncodingVersion(argument);
-                    if (v.major != 1 || v.minor != 0)
+                    if (v.Major != 1 || v.Minor != 0)
                     {
                         Instance.Logger.Warning($"deprecated udp endpoint option: {option}");
                     }

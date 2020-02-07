@@ -155,10 +155,7 @@ namespace Ice
         public virtual bool IceUsesClasses() => false;
 
         // TODO: remove during exception refactoring
-        public override string ice_id()
-        {
-            return GetType().GetIceTypeId()!;
-        }
+        public override string ice_id() => GetType().GetIceTypeId()!;
 
         // See InputStream.
         protected abstract void IceRead(InputStream istr, bool firstSlice);

@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 public class PluginOneFailFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) =>
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) =>
         new PluginOneFail(communicator);
 
     internal class PluginOneFail : BasePluginFail

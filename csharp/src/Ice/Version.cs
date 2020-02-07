@@ -5,31 +5,27 @@
 namespace Ice
 {
     [System.Serializable]
-    public struct ProtocolVersion : System.IEquatable<ProtocolVersion>
+    public readonly struct ProtocolVersion : System.IEquatable<ProtocolVersion>
     {
-        public byte major;
-        public byte minor;
+        public readonly byte Major;
+        public readonly byte Minor;
 
         public ProtocolVersion(byte major, byte minor)
         {
-            this.major = major;
-            this.minor = minor;
+            Major = major;
+            Minor = minor;
         }
 
         public override int GetHashCode()
         {
             int h_ = 5381;
             IceInternal.HashUtil.HashAdd(ref h_, "::Ice::ProtocolVersion");
-            IceInternal.HashUtil.HashAdd(ref h_, major);
-            IceInternal.HashUtil.HashAdd(ref h_, minor);
+            IceInternal.HashUtil.HashAdd(ref h_, Major);
+            IceInternal.HashUtil.HashAdd(ref h_, Minor);
             return h_;
         }
 
-        public bool Equals(ProtocolVersion other)
-        {
-            return major.Equals(other.major) &&
-                minor.Equals(other.minor);
-        }
+        public bool Equals(ProtocolVersion other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
 
         public override bool Equals(object? other)
         {
@@ -37,46 +33,40 @@ namespace Ice
             {
                 return true;
             }
-            return other is ProtocolVersion value && this.Equals(value);
+            return other is ProtocolVersion value && Equals(value);
         }
 
-        public static bool operator ==(ProtocolVersion lhs, ProtocolVersion rhs)
-        {
-            return Equals(lhs, rhs);
-        }
+        public static bool operator ==(ProtocolVersion lhs, ProtocolVersion rhs) => Equals(lhs, rhs);
 
-        public static bool operator !=(ProtocolVersion lhs, ProtocolVersion rhs)
-        {
-            return !Equals(lhs, rhs);
-        }
+        public static bool operator !=(ProtocolVersion lhs, ProtocolVersion rhs) => !Equals(lhs, rhs);
 
     }
 
     [System.Serializable]
-    public struct EncodingVersion : System.IEquatable<EncodingVersion>
+    public readonly struct EncodingVersion : System.IEquatable<EncodingVersion>
     {
-        public byte major;
-        public byte minor;
+        public readonly byte Major;
+        public readonly byte Minor;
 
         public EncodingVersion(byte major, byte minor)
         {
-            this.major = major;
-            this.minor = minor;
+            Major = major;
+            Minor = minor;
         }
 
         public override int GetHashCode()
         {
             int h_ = 5381;
             IceInternal.HashUtil.HashAdd(ref h_, "::Ice::EncodingVersion");
-            IceInternal.HashUtil.HashAdd(ref h_, major);
-            IceInternal.HashUtil.HashAdd(ref h_, minor);
+            IceInternal.HashUtil.HashAdd(ref h_, Major);
+            IceInternal.HashUtil.HashAdd(ref h_, Minor);
             return h_;
         }
 
         public bool Equals(EncodingVersion other)
         {
-            return major.Equals(other.major) &&
-                minor.Equals(other.minor);
+            return Major.Equals(other.Major) &&
+                Minor.Equals(other.Minor);
         }
 
         public override bool Equals(object? other)
@@ -85,17 +75,11 @@ namespace Ice
             {
                 return true;
             }
-            return other is EncodingVersion value && this.Equals(value);
+            return other is EncodingVersion value && Equals(value);
         }
 
-        public static bool operator ==(EncodingVersion lhs, EncodingVersion rhs)
-        {
-            return Equals(lhs, rhs);
-        }
+        public static bool operator ==(EncodingVersion lhs, EncodingVersion rhs) => Equals(lhs, rhs);
 
-        public static bool operator !=(EncodingVersion lhs, EncodingVersion rhs)
-        {
-            return !Equals(lhs, rhs);
-        }
+        public static bool operator !=(EncodingVersion lhs, EncodingVersion rhs) => !Equals(lhs, rhs);
     }
 }

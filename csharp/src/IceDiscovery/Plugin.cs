@@ -10,7 +10,7 @@ namespace IceDiscovery
     public sealed class PluginFactory : Ice.IPluginFactory
     {
         public IPlugin
-        create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+        Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 
     public sealed class Plugin : IPlugin

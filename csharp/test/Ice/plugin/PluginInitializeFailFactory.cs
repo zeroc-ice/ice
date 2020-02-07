@@ -4,7 +4,7 @@
 
 public class PluginInitializeFailFactory : Ice.IPluginFactory
 {
-    public Ice.IPlugin create(Ice.Communicator communicator, string name, string[] args) => new PluginInitializeFail();
+    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginInitializeFail();
 
     internal class PluginInitializeFail : Ice.IPlugin
     {

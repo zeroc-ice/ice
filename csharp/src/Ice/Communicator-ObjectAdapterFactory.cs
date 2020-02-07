@@ -79,7 +79,7 @@ namespace Ice
             {
                 try
                 {
-                    if (adapter.isLocal(proxy))
+                    if (adapter.IsLocal(proxy))
                     {
                         return adapter;
                     }

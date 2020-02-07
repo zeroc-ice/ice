@@ -328,7 +328,7 @@ namespace IceInternal
             }
         }
 
-        protected override bool CheckOption(string option, string argument, string endpoint)
+        protected override bool CheckOption(string option, string? argument, string endpoint)
         {
             if (option.Equals("-h"))
             {

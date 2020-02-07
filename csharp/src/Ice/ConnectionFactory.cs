@@ -644,7 +644,7 @@ namespace IceInternal
         private void HandleConnectionException(Ice.LocalException ex, bool hasMore)
         {
             TraceLevels traceLevels = _communicator.TraceLevels;
-            if (traceLevels.network >= 2)
+            if (traceLevels.Network >= 2)
             {
                 var s = new StringBuilder();
                 s.Append("connection to endpoint failed");
@@ -664,7 +664,7 @@ namespace IceInternal
                     }
                 }
                 s.Append(ex);
-                _communicator.Logger.Trace(traceLevels.networkCat, s.ToString());
+                _communicator.Logger.Trace(traceLevels.NetworkCat, s.ToString());
             }
         }
 
@@ -722,7 +722,7 @@ namespace IceInternal
         internal void HandleException(Ice.LocalException ex, bool hasMore)
         {
             TraceLevels traceLevels = _communicator.TraceLevels;
-            if (traceLevels.network >= 2)
+            if (traceLevels.Network >= 2)
             {
                 var s = new StringBuilder();
                 s.Append("couldn't resolve endpoint host");
@@ -742,7 +742,7 @@ namespace IceInternal
                     }
                 }
                 s.Append(ex);
-                _communicator.Logger.Trace(traceLevels.networkCat, s.ToString());
+                _communicator.Logger.Trace(traceLevels.NetworkCat, s.ToString());
             }
         }
 
@@ -971,14 +971,14 @@ namespace IceInternal
                             }
                         }
 
-                        if (_factory._communicator.TraceLevels.network >= 2)
+                        if (_factory._communicator.TraceLevels.Network >= 2)
                         {
                             var s = new StringBuilder("trying to establish ");
                             s.Append(_current.Endpoint.Protocol());
                             s.Append(" connection to ");
                             s.Append(_current.Connector.ToString());
                             _factory._communicator.Logger.Trace(
-                                                _factory._communicator.TraceLevels.networkCat, s.ToString());
+                                                _factory._communicator.TraceLevels.NetworkCat, s.ToString());
                         }
 
                         Ice.Connection connection = _factory.CreateConnection(_current.Connector.Connect(), _current);
@@ -986,7 +986,7 @@ namespace IceInternal
                     }
                     catch (Ice.LocalException ex)
                     {
-                        if (_factory._communicator.TraceLevels.network >= 2)
+                        if (_factory._communicator.TraceLevels.Network >= 2)
                         {
                             Debug.Assert(_current != null);
                             var s = new StringBuilder("failed to establish ");
@@ -996,7 +996,7 @@ namespace IceInternal
                             s.Append("\n");
                             s.Append(ex);
                             _factory._communicator.Logger.Trace(
-                                                _factory._communicator.TraceLevels.networkCat, s.ToString());
+                                                _factory._communicator.TraceLevels.NetworkCat, s.ToString());
                         }
 
                         if (ConnectionStartFailedImpl(ex))
@@ -1301,7 +1301,7 @@ namespace IceInternal
                 if (_acceptorStarted)
                 {
                     _acceptorStarted = false;
-                    _adapter.getThreadPool().Finish(this);
+                    _adapter.GetThreadPool().Finish(this);
                     CloseAcceptor();
                 }
             }
@@ -1357,13 +1357,13 @@ namespace IceInternal
                     {
                         transceiver = _acceptor!.Accept();
 
-                        if (_communicator.TraceLevels.network >= 2)
+                        if (_communicator.TraceLevels.Network >= 2)
                         {
                             var s = new StringBuilder("trying to accept ");
                             s.Append(_endpoint.Protocol());
                             s.Append(" connection\n");
                             s.Append(transceiver.ToString());
-                            _communicator.Logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                         }
                     }
                     catch (Ice.SocketException ex)
@@ -1374,7 +1374,7 @@ namespace IceInternal
                                 $"can't accept more connections:\n{ex}\n{_acceptor}");
                             Debug.Assert(_acceptorStarted);
                             _acceptorStarted = false;
-                            _adapter!.getThreadPool().Finish(this);
+                            _adapter!.GetThreadPool().Finish(this);
                             CloseAcceptor();
                         }
 
@@ -1503,7 +1503,7 @@ namespace IceInternal
             _connections = new HashSet<Ice.Connection>();
             _state = StateHolding;
             _acceptorStarted = false;
-            _monitor = new FactoryACMMonitor(communicator, adapter.getACM());
+            _monitor = new FactoryACMMonitor(communicator, adapter.GetACM());
 
             DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             if (defaultsAndOverrides.OverrideTimeout)
@@ -1521,13 +1521,13 @@ namespace IceInternal
                 _transceiver = _endpoint.Transceiver();
                 if (_transceiver != null)
                 {
-                    if (_communicator.TraceLevels.network >= 2)
+                    if (_communicator.TraceLevels.Network >= 2)
                     {
                         var s = new StringBuilder("attempting to bind to ");
                         s.Append(_endpoint.Protocol());
                         s.Append(" socket\n");
                         s.Append(_transceiver.ToString());
-                        _communicator.Logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                     }
                     _endpoint = _transceiver.Bind();
 
@@ -1594,15 +1594,15 @@ namespace IceInternal
                         }
                         if (_acceptor != null)
                         {
-                            if (_communicator.TraceLevels.network >= 1)
+                            if (_communicator.TraceLevels.Network >= 1)
                             {
                                 var s = new StringBuilder("accepting ");
                                 s.Append(_endpoint.Protocol());
                                 s.Append(" connections at ");
                                 s.Append(_acceptor.ToString());
-                                _communicator.Logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                             }
-                            _adapter!.getThreadPool().Register(this, SocketOperation.Read);
+                            _adapter!.GetThreadPool().Register(this, SocketOperation.Read);
                         }
 
                         foreach (Connection connection in _connections)
@@ -1620,12 +1620,12 @@ namespace IceInternal
                         }
                         if (_acceptor != null)
                         {
-                            if (_communicator.TraceLevels.network >= 1)
+                            if (_communicator.TraceLevels.Network >= 1)
                             {
-                                _communicator.Logger.Trace(_communicator.TraceLevels.networkCat,
+                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
                                                            $"holding {_endpoint.Protocol()} connections at {_acceptor}");
                             }
-                            _adapter!.getThreadPool().Unregister(this, SocketOperation.Read);
+                            _adapter!.GetThreadPool().Unregister(this, SocketOperation.Read);
                         }
 
                         foreach (Connection connection in _connections)
@@ -1640,7 +1640,7 @@ namespace IceInternal
                         if (_acceptorStarted)
                         {
                             _acceptorStarted = false;
-                            _adapter!.getThreadPool().Finish(this);
+                            _adapter!.GetThreadPool().Finish(this);
                             CloseAcceptor();
                         }
                         else
@@ -1674,24 +1674,24 @@ namespace IceInternal
                 _acceptor = _endpoint.Acceptor(_adapter!.Name);
                 Debug.Assert(_acceptor != null);
 
-                if (_communicator.TraceLevels.network >= 2)
+                if (_communicator.TraceLevels.Network >= 2)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.networkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
                         $"attempting to bind to {_endpoint.Protocol()} socket {_acceptor}");
                 }
                 _endpoint = _acceptor.Listen();
 
-                if (_communicator.TraceLevels.network >= 1)
+                if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.networkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
                         $"listening for {_endpoint.Protocol()} connections\n{_acceptor.ToDetailedString()}");
                 }
 
-                _adapter.getThreadPool().Initialize(this);
+                _adapter.GetThreadPool().Initialize(this);
 
                 if (_state == StateActive)
                 {
-                    _adapter.getThreadPool().Register(this, SocketOperation.Read);
+                    _adapter.GetThreadPool().Register(this, SocketOperation.Read);
                 }
 
                 _acceptorStarted = true;
@@ -1710,9 +1710,9 @@ namespace IceInternal
         {
             Debug.Assert(_acceptor != null);
 
-            if (_communicator.TraceLevels.network >= 1)
+            if (_communicator.TraceLevels.Network >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.networkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
                     $"stopping to accept {_endpoint.Protocol()} connections at {_acceptor}");
             }
 

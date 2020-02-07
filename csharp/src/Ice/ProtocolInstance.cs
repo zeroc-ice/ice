@@ -11,8 +11,8 @@ namespace IceInternal
         public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
         {
             Communicator = communicator;
-            TraceLevel = Communicator.TraceLevels.network;
-            TraceCategory = Communicator.TraceLevels.networkCat;
+            TraceLevel = Communicator.TraceLevels.Network;
+            TraceCategory = Communicator.TraceLevels.NetworkCat;
             Logger = Communicator.Logger;
             Type = type;
             Protocol = protocol;

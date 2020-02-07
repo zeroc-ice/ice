@@ -23,7 +23,7 @@ namespace IceSSL
         /// <returns>The new plug-in. null can be returned to indicate
         /// that a general error occurred. Alternatively, create can throw
         /// PluginInitializationException to provide more detailed information.</returns>
-        public IPlugin create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 
     //

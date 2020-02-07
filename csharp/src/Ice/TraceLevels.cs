@@ -8,35 +8,35 @@ namespace IceInternal
     {
         internal TraceLevels(Ice.Communicator communicator)
         {
-            networkCat = "Network";
-            protocolCat = "Protocol";
-            retryCat = "Retry";
-            locationCat = "Locator";
-            slicingCat = "Slicing";
-            threadPoolCat = "ThreadPool";
+            NetworkCat = "Network";
+            ProtocolCat = "Protocol";
+            RetryCat = "Retry";
+            LocationCat = "Locator";
+            SlicingCat = "Slicing";
+            ThreadPoolCat = "ThreadPool";
 
             string keyBase = "Ice.Trace.";
 
-            network = communicator.GetPropertyAsInt(keyBase + networkCat) ?? 0;
-            protocol = communicator.GetPropertyAsInt(keyBase + protocolCat) ?? 0;
-            retry = communicator.GetPropertyAsInt(keyBase + retryCat) ?? 0;
-            location = communicator.GetPropertyAsInt(keyBase + locationCat) ?? 0;
-            slicing = communicator.GetPropertyAsInt(keyBase + slicingCat) ?? 0;
-            threadPool = communicator.GetPropertyAsInt(keyBase + threadPoolCat) ?? 0;
+            Network = communicator.GetPropertyAsInt(keyBase + NetworkCat) ?? 0;
+            Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCat) ?? 0;
+            Retry = communicator.GetPropertyAsInt(keyBase + RetryCat) ?? 0;
+            Location = communicator.GetPropertyAsInt(keyBase + LocationCat) ?? 0;
+            Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCat) ?? 0;
+            ThreadPool = communicator.GetPropertyAsInt(keyBase + ThreadPoolCat) ?? 0;
         }
 
-        public readonly int network;
-        public readonly string networkCat;
-        public readonly int protocol;
-        public readonly string protocolCat;
-        public readonly int retry;
-        public readonly string retryCat;
-        public readonly int location;
-        public readonly string locationCat;
-        public readonly int slicing;
-        public readonly string slicingCat;
-        public readonly int threadPool;
-        public readonly string threadPoolCat;
+        public readonly int Network;
+        public readonly string NetworkCat;
+        public readonly int Protocol;
+        public readonly string ProtocolCat;
+        public readonly int Retry;
+        public readonly string RetryCat;
+        public readonly int Location;
+        public readonly string LocationCat;
+        public readonly int Slicing;
+        public readonly string SlicingCat;
+        public readonly int ThreadPool;
+        public readonly string ThreadPoolCat;
     }
 
 }

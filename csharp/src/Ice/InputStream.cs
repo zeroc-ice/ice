@@ -35,8 +35,7 @@ namespace Ice
         public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
-        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString()!;
-        public static readonly InputStreamReader<string?> IceReaderIntoNullableString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
 
         /// <summary>
         /// Returns the current size of the stream.
@@ -1715,10 +1714,10 @@ namespace Ice
         private int SkipSlice()
         {
             Debug.Assert(_current != null);
-            if (Communicator.TraceLevels.slicing > 0)
+            if (Communicator.TraceLevels.Slicing > 0)
             {
                 ILogger logger = Communicator.Logger;
-                string slicingCat = Communicator.TraceLevels.slicingCat;
+                string slicingCat = Communicator.TraceLevels.SlicingCat;
                 if (_current.InstanceType == InstanceType.Exception)
                 {
                     IceInternal.TraceUtil.TraceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);

@@ -111,7 +111,7 @@ namespace Ice.interceptor
                 // encoding version used by the client to eventually marshal the user exception. It's also needed
                 // if we dispatch a batch oneway request to read the next batch request.
                 //
-                if (current.Encoding == null || (current.Encoding.major == 0 && current.Encoding.minor == 0))
+                if (current.Encoding == null || (current.Encoding.Major == 0 && current.Encoding.Minor == 0))
                 {
                     incoming.SkipReadParams();
                 }

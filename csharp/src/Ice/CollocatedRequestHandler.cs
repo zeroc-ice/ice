@@ -46,7 +46,7 @@ namespace IceInternal
                     {
                         outAsync.InvokeExceptionAsync();
                     }
-                    _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
+                    _adapter.DecDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
                 }
                 if (outAsync is OutgoingAsync o)
@@ -75,7 +75,7 @@ namespace IceInternal
             {
                 Debug.Assert(_response);
 
-                if (_traceLevels.protocol >= 1)
+                if (_traceLevels.Protocol >= 1)
                 {
 
                     FillInValue(os, 10, os.Size);
@@ -86,7 +86,7 @@ namespace IceInternal
 
                 iss.Pos = Protocol.replyHdr.Length + 4;
 
-                if (_traceLevels.protocol >= 1)
+                if (_traceLevels.Protocol >= 1)
                 {
                     TraceUtil.TraceRecv(iss, _logger, _traceLevels);
                 }
@@ -113,16 +113,16 @@ namespace IceInternal
                     outAsync.InvokeResponse();
                 }
             }
-            _adapter.decDirectCount();
+            _adapter.DecDirectCount();
         }
 
-        public void SendNoResponse() => _adapter.decDirectCount();
+        public void SendNoResponse() => _adapter.DecDirectCount();
 
         public bool
         SystemException(int requestId, Ice.SystemException ex, bool amd)
         {
             HandleException(requestId, ex, amd);
-            _adapter.decDirectCount();
+            _adapter.DecDirectCount();
             return true;
         }
 
@@ -130,7 +130,7 @@ namespace IceInternal
         InvokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
         {
             HandleException(requestId, ex, amd);
-            _adapter.decDirectCount();
+            _adapter.DecDirectCount();
         }
 
         public Reference GetReference() => _reference;
@@ -143,7 +143,7 @@ namespace IceInternal
             // Increase the direct count to prevent the thread pool from being destroyed before
             // invokeAll is called. This will also throw if the object adapter has been deactivated.
             //
-            _adapter.incDirectCount();
+            _adapter.IncDirectCount();
 
             int requestId = 0;
             try
@@ -163,7 +163,7 @@ namespace IceInternal
             }
             catch (Exception)
             {
-                _adapter.decDirectCount();
+                _adapter.DecDirectCount();
                 throw;
             }
 
@@ -171,7 +171,7 @@ namespace IceInternal
             if (!synchronous || !_response || _reference.GetInvocationTimeout() > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
-                _adapter.getThreadPool().Dispatch(
+                _adapter.GetThreadPool().Dispatch(
                     () =>
                     {
                         if (SentAsync(outAsync))
@@ -182,7 +182,7 @@ namespace IceInternal
             }
             else if (_dispatcher)
             {
-                _adapter.getThreadPool().DispatchFromThisThread(
+                _adapter.GetThreadPool().DispatchFromThisThread(
                     () =>
                     {
                         if (SentAsync(outAsync))
@@ -221,7 +221,7 @@ namespace IceInternal
 
         private void InvokeAll(Ice.OutputStream os, int requestId)
         {
-            if (_traceLevels.protocol >= 1)
+            if (_traceLevels.Protocol >= 1)
             {
                 FillInValue(os, 10, os.Size);
                 if (requestId > 0)
@@ -247,7 +247,7 @@ namespace IceInternal
                     //
                     try
                     {
-                        _adapter.incDirectCount();
+                        _adapter.IncDirectCount();
                     }
                     catch (Ice.ObjectAdapterDeactivatedException ex)
                     {
@@ -265,7 +265,7 @@ namespace IceInternal
                 InvokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
 
-            _adapter.decDirectCount();
+            _adapter.DecDirectCount();
         }
 
         private void

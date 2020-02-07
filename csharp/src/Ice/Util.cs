@@ -86,14 +86,14 @@ namespace Ice
         /// </summary>
         /// <param name="v">The protocol version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string ProtocolVersionToString(ProtocolVersion v) => MajorMinorToString(v.major, v.minor);
+        public static string ProtocolVersionToString(ProtocolVersion v) => MajorMinorToString(v.Major, v.Minor);
 
         /// <summary>
         /// Converts an encoding version to a string.
         /// </summary>
         /// <param name="v">The encoding version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string EncodingVersionToString(EncodingVersion v) => MajorMinorToString(v.major, v.minor);
+        public static string EncodingVersionToString(EncodingVersion v) => MajorMinorToString(v.Major, v.Minor);
 
         private static void StringToMajorMinor(string str, out byte major, out byte minor)
         {
