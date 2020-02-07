@@ -10,238 +10,163 @@ namespace Ice.seqMapping
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public Test.IMyClass.OpAByteSReturnValue
-        opAByteS(byte[] i, Current current) => new Test.IMyClass.OpAByteSReturnValue(i, i);
+        public (byte[], byte[]) opAByteS(byte[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLByteSReturnValue
-        opLByteS(List<byte> i, Current current) => new Test.IMyClass.OpLByteSReturnValue(i, i);
+        public (List<byte>, List<byte>) opLByteS(List<byte> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKByteSReturnValue
-        opKByteS(LinkedList<byte> i, Current current) => new Test.IMyClass.OpKByteSReturnValue(i, i);
+        public (LinkedList<byte>, LinkedList<byte>) opKByteS(LinkedList<byte> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQByteSReturnValue
-        opQByteS(Queue<byte> i, Current current) => new Test.IMyClass.OpQByteSReturnValue(i, i);
+        public (Queue<byte>, Queue<byte>) opQByteS(Queue<byte> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSByteSReturnValue
-        opSByteS(Stack<byte> i, Current current) => new Test.IMyClass.OpSByteSReturnValue(i, i);
+        public (Stack<byte>, Stack<byte>) opSByteS(Stack<byte> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpABoolSReturnValue
-        opABoolS(bool[] i, Current current) => new Test.IMyClass.OpABoolSReturnValue(i, i);
+        public (bool[], bool[]) opABoolS(bool[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLBoolSReturnValue
-        opLBoolS(List<bool> i, Current current) => new Test.IMyClass.OpLBoolSReturnValue(i, i);
+        public (List<bool>, List<bool>) opLBoolS(List<bool> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKBoolSReturnValue
-        opKBoolS(LinkedList<bool> i, Current current) => new Test.IMyClass.OpKBoolSReturnValue(i, i);
+        public (LinkedList<bool>, LinkedList<bool>) opKBoolS(LinkedList<bool> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQBoolSReturnValue
-        opQBoolS(Queue<bool> i, Current current) => new Test.IMyClass.OpQBoolSReturnValue(i, i);
+        public (Queue<bool>, Queue<bool>) opQBoolS(Queue<bool> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSBoolSReturnValue
-        opSBoolS(Stack<bool> i, Current current) => new Test.IMyClass.OpSBoolSReturnValue(i, i);
+        public (Stack<bool>, Stack<bool>) opSBoolS(Stack<bool> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAShortSReturnValue
-        opAShortS(short[] i, Current current) => new Test.IMyClass.OpAShortSReturnValue(i, i);
+        public (short[], short[]) opAShortS(short[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLShortSReturnValue
-        opLShortS(List<short> i, Current current) => new Test.IMyClass.OpLShortSReturnValue(i, i);
+        public (List<short>, List<short>) opLShortS(List<short> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKShortSReturnValue
-        opKShortS(LinkedList<short> i, Current current) => new Test.IMyClass.OpKShortSReturnValue(i, i);
+        public (LinkedList<short>, LinkedList<short>) opKShortS(LinkedList<short> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQShortSReturnValue
-        opQShortS(Queue<short> i, Current current) => new Test.IMyClass.OpQShortSReturnValue(i, i);
+        public (Queue<short>, Queue<short>) opQShortS(Queue<short> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSShortSReturnValue
-        opSShortS(Stack<short> i, Current current) => new Test.IMyClass.OpSShortSReturnValue(i, i);
+        public (Stack<short>, Stack<short>) opSShortS(Stack<short> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAIntSReturnValue
-        opAIntS(int[] i, Current current) => new Test.IMyClass.OpAIntSReturnValue(i, i);
+        public (int[], int[]) opAIntS(int[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLIntSReturnValue
-        opLIntS(List<int> i, Current current) => new Test.IMyClass.OpLIntSReturnValue(i, i);
+        public (List<int>, List<int>) opLIntS(List<int> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKIntSReturnValue
-        opKIntS(LinkedList<int> i, Current current) => new Test.IMyClass.OpKIntSReturnValue(i, i);
+        public (LinkedList<int>, LinkedList<int>) opKIntS(LinkedList<int> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQIntSReturnValue
-        opQIntS(Queue<int> i, Current current) => new Test.IMyClass.OpQIntSReturnValue(i, i);
+        public (Queue<int>, Queue<int>) opQIntS(Queue<int> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSIntSReturnValue
-        opSIntS(Stack<int> i, Current current) => new Test.IMyClass.OpSIntSReturnValue(i, i);
+        public (Stack<int>, Stack<int>) opSIntS(Stack<int> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpALongSReturnValue
-        opALongS(long[] i, Current current) => new Test.IMyClass.OpALongSReturnValue(i, i);
+        public (long[], long[]) opALongS(long[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLLongSReturnValue
-        opLLongS(List<long> i, Current current) => new Test.IMyClass.OpLLongSReturnValue(i, i);
+        public (List<long>, List<long>) opLLongS(List<long> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKLongSReturnValue
-        opKLongS(LinkedList<long> i, Current current) => new Test.IMyClass.OpKLongSReturnValue(i, i);
+        public (LinkedList<long>, LinkedList<long>) opKLongS(LinkedList<long> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQLongSReturnValue
-        opQLongS(Queue<long> i, Current current) => new Test.IMyClass.OpQLongSReturnValue(i, i);
+        public (Queue<long>, Queue<long>) opQLongS(Queue<long> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSLongSReturnValue
-        opSLongS(Stack<long> i, Current current) => new Test.IMyClass.OpSLongSReturnValue(i, i);
+        public (Stack<long>, Stack<long>) opSLongS(Stack<long> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAFloatSReturnValue
-        opAFloatS(float[] i, Current current) => new Test.IMyClass.OpAFloatSReturnValue(i, i);
+        public (float[], float[]) opAFloatS(float[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLFloatSReturnValue
-        opLFloatS(List<float> i, Current current) => new Test.IMyClass.OpLFloatSReturnValue(i, i);
+        public (List<float>, List<float>) opLFloatS(List<float> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKFloatSReturnValue
-        opKFloatS(LinkedList<float> i, Current current) => new Test.IMyClass.OpKFloatSReturnValue(i, i);
+        public (LinkedList<float>, LinkedList<float>) opKFloatS(LinkedList<float> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQFloatSReturnValue
-        opQFloatS(Queue<float> i, Current current) => new Test.IMyClass.OpQFloatSReturnValue(i, i);
+        public (Queue<float>, Queue<float>) opQFloatS(Queue<float> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSFloatSReturnValue
-        opSFloatS(Stack<float> i, Current current) => new Test.IMyClass.OpSFloatSReturnValue(i, i);
+        public (Stack<float>, Stack<float>) opSFloatS(Stack<float> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpADoubleSReturnValue
-        opADoubleS(double[] i, Current current) => new Test.IMyClass.OpADoubleSReturnValue(i, i);
+        public (double[], double[]) opADoubleS(double[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLDoubleSReturnValue
-        opLDoubleS(List<double> i, Current current) => new Test.IMyClass.OpLDoubleSReturnValue(i, i);
+        public (List<double>, List<double>) opLDoubleS(List<double> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKDoubleSReturnValue
-        opKDoubleS(LinkedList<double> i, Current current) => new Test.IMyClass.OpKDoubleSReturnValue(i, i);
+        public (LinkedList<double>, LinkedList<double>) opKDoubleS(LinkedList<double> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQDoubleSReturnValue
-        opQDoubleS(Queue<double> i, Current current) => new Test.IMyClass.OpQDoubleSReturnValue(i, i);
+        public (Queue<double>, Queue<double>) opQDoubleS(Queue<double> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSDoubleSReturnValue
-        opSDoubleS(Stack<double> i, Current current) => new Test.IMyClass.OpSDoubleSReturnValue(i, i);
+        public (Stack<double>, Stack<double>) opSDoubleS(Stack<double> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAStringSReturnValue
-        opAStringS(string[] i, Current current) => new Test.IMyClass.OpAStringSReturnValue(i, i);
+        public (string[], string[]) opAStringS(string[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLStringSReturnValue
-        opLStringS(List<string> i, Current current) => new Test.IMyClass.OpLStringSReturnValue(i, i);
+        public (List<string>, List<string>) opLStringS(List<string> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKStringSReturnValue
-        opKStringS(LinkedList<string> i, Current current) => new Test.IMyClass.OpKStringSReturnValue(i, i);
+        public (LinkedList<string>, LinkedList<string>) opKStringS(LinkedList<string> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQStringSReturnValue
-        opQStringS(Queue<string> i, Current current) => new Test.IMyClass.OpQStringSReturnValue(i, i);
+        public (Queue<string>, Queue<string>) opQStringS(Queue<string> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSStringSReturnValue
-        opSStringS(Stack<string> i, Current current) => new Test.IMyClass.OpSStringSReturnValue(i, i);
+        public (Stack<string>, Stack<string>) opSStringS(Stack<string> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAObjectSReturnValue
-        opAObjectS(AnyClass[] i, Current current) => new Test.IMyClass.OpAObjectSReturnValue(i, i);
+        public (AnyClass[], AnyClass[]) opAObjectS(AnyClass[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLObjectSReturnValue
-        opLObjectS(List<AnyClass> i, Current current) => new Test.IMyClass.OpLObjectSReturnValue(i, i);
+        public (List<AnyClass>, List<AnyClass>) opLObjectS(List<AnyClass> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAObjectPrxSReturnValue
-        opAObjectPrxS(IObjectPrx[] i, Current current) => new Test.IMyClass.OpAObjectPrxSReturnValue(i, i);
+        public (IObjectPrx[], IObjectPrx[]) opAObjectPrxS(IObjectPrx[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLObjectPrxSReturnValue
-        opLObjectPrxS(List<IObjectPrx> i, Current current) => new Test.IMyClass.OpLObjectPrxSReturnValue(i, i);
+        public (List<IObjectPrx>, List<IObjectPrx>) opLObjectPrxS(List<IObjectPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKObjectPrxSReturnValue
-        opKObjectPrxS(LinkedList<IObjectPrx> i, Current current) => new Test.IMyClass.OpKObjectPrxSReturnValue(i, i);
+        public (LinkedList<IObjectPrx>, LinkedList<IObjectPrx>)
+        opKObjectPrxS(LinkedList<IObjectPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQObjectPrxSReturnValue
-        opQObjectPrxS(Queue<IObjectPrx> i, Current current) => new Test.IMyClass.OpQObjectPrxSReturnValue(i, i);
+        public (Queue<IObjectPrx>, Queue<IObjectPrx>) opQObjectPrxS(Queue<IObjectPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSObjectPrxSReturnValue
-        opSObjectPrxS(Stack<IObjectPrx> i, Current current) => new Test.IMyClass.OpSObjectPrxSReturnValue(i, i);
+        public (Stack<IObjectPrx>, Stack<IObjectPrx>) opSObjectPrxS(Stack<IObjectPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAStructSReturnValue
-        opAStructS(Test.S[] i, Current current) => new Test.IMyClass.OpAStructSReturnValue(i, i);
+        public (Test.S[], Test.S[]) opAStructS(Test.S[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLStructSReturnValue
-        opLStructS(List<Test.S> i, Current current) => new Test.IMyClass.OpLStructSReturnValue(i, i);
+        public (List<Test.S>, List<Test.S>) opLStructS(List<Test.S> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKStructSReturnValue
-        opKStructS(LinkedList<Test.S> i, Current current) => new Test.IMyClass.OpKStructSReturnValue(i, i);
+        public (LinkedList<Test.S>, LinkedList<Test.S>) opKStructS(LinkedList<Test.S> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQStructSReturnValue
-        opQStructS(Queue<Test.S> i, Current current) => new Test.IMyClass.OpQStructSReturnValue(i, i);
+        public (Queue<Test.S>, Queue<Test.S>) opQStructS(Queue<Test.S> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSStructSReturnValue
-        opSStructS(Stack<Test.S> i, Current current) => new Test.IMyClass.OpSStructSReturnValue(i, i);
+        public (Stack<Test.S>, Stack<Test.S>) opSStructS(Stack<Test.S> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAStructSDReturnValue
-        opAStructSD(Test.SD[] i, Current current) => new Test.IMyClass.OpAStructSDReturnValue(i, i);
+        public (Test.SD[], Test.SD[]) opAStructSD(Test.SD[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLStructSDReturnValue
-        opLStructSD(List<Test.SD> i, Current current) => new Test.IMyClass.OpLStructSDReturnValue(i, i);
+        public (List<Test.SD>, List<Test.SD>) opLStructSD(List<Test.SD> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKStructSDReturnValue
-        opKStructSD(LinkedList<Test.SD> i, Current current) => new Test.IMyClass.OpKStructSDReturnValue(i, i);
+        public (LinkedList<Test.SD>, LinkedList<Test.SD>) opKStructSD(LinkedList<Test.SD> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQStructSDReturnValue
-        opQStructSD(Queue<Test.SD> i, Current current) => new Test.IMyClass.OpQStructSDReturnValue(i, i);
+        public (Queue<Test.SD>, Queue<Test.SD>) opQStructSD(Queue<Test.SD> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSStructSDReturnValue
-        opSStructSD(Stack<Test.SD> i, Current current) => new Test.IMyClass.OpSStructSDReturnValue(i, i);
+        public (Stack<Test.SD>, Stack<Test.SD>) opSStructSD(Stack<Test.SD> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpACVSReturnValue
-        opACVS(Test.CV[] i, Current current) => new Test.IMyClass.OpACVSReturnValue(i, i);
+        public (Test.CV[], Test.CV[]) opACVS(Test.CV[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLCVSReturnValue
-        opLCVS(List<Test.CV> i, Current current) => new Test.IMyClass.OpLCVSReturnValue(i, i);
+        public (List<Test.CV>, List<Test.CV>) opLCVS(List<Test.CV> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpACRSReturnValue
-        opACRS(Test.CR[] i, Current current) => new Test.IMyClass.OpACRSReturnValue(i, i);
+        public (Test.CR[], Test.CR[]) opACRS(Test.CR[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLCRSReturnValue
-        opLCRS(List<Test.CR> i, Current current) => new Test.IMyClass.OpLCRSReturnValue(i, i);
+        public (List<Test.CR>, List<Test.CR>) opLCRS(List<Test.CR> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAEnSReturnValue
-        opAEnS(Test.En[] i, Current current) => new Test.IMyClass.OpAEnSReturnValue(i, i);
+        public (Test.En[], Test.En[]) opAEnS(Test.En[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLEnSReturnValue
-        opLEnS(List<Test.En> i, Current current) => new Test.IMyClass.OpLEnSReturnValue(i, i);
+        public (List<Test.En>, List<Test.En>) opLEnS(List<Test.En> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKEnSReturnValue
-        opKEnS(LinkedList<Test.En> i, Current current) => new Test.IMyClass.OpKEnSReturnValue(i, i);
+        public (LinkedList<Test.En>, LinkedList<Test.En>) opKEnS(LinkedList<Test.En> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQEnSReturnValue
-        opQEnS(Queue<Test.En> i, Current current) => new Test.IMyClass.OpQEnSReturnValue(i, i);
+        public (Queue<Test.En>, Queue<Test.En>) opQEnS(Queue<Test.En> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSEnSReturnValue
-        opSEnS(Stack<Test.En> i, Current current) => new Test.IMyClass.OpSEnSReturnValue(i, i);
+        public (Stack<Test.En>, Stack<Test.En>) opSEnS(Stack<Test.En> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpAIPrxSReturnValue
-        opAIPrxS(Test.IIPrx[] i, Current current) => new Test.IMyClass.OpAIPrxSReturnValue(i, i);
+        public (Test.IIPrx[], Test.IIPrx[]) opAIPrxS(Test.IIPrx[] i, Current current) => (i, i);
 
-        public Test.IMyClass.OpLIPrxSReturnValue
-        opLIPrxS(List<Test.IIPrx> i, Current current) => new Test.IMyClass.OpLIPrxSReturnValue(i, i);
+        public (List<Test.IIPrx>, List<Test.IIPrx>) opLIPrxS(List<Test.IIPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpKIPrxSReturnValue
-        opKIPrxS(LinkedList<Test.IIPrx> i, Current current) => new Test.IMyClass.OpKIPrxSReturnValue(i, i);
+        public (LinkedList<Test.IIPrx>, LinkedList<Test.IIPrx>)
+        opKIPrxS(LinkedList<Test.IIPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpQIPrxSReturnValue
-        opQIPrxS(Queue<Test.IIPrx> i, Current current) => new Test.IMyClass.OpQIPrxSReturnValue(i, i);
+        public (Queue<Test.IIPrx>, Queue<Test.IIPrx>) opQIPrxS(Queue<Test.IIPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSIPrxSReturnValue
-        opSIPrxS(Stack<Test.IIPrx> i, Current current) => new Test.IMyClass.OpSIPrxSReturnValue(i, i);
+        public (Stack<Test.IIPrx>, Stack<Test.IIPrx>) opSIPrxS(Stack<Test.IIPrx> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpCustomIntSReturnValue
-        opCustomIntS(Custom<int> i, Current current) => new Test.IMyClass.OpCustomIntSReturnValue(i, i);
+        public (Custom<int>, Custom<int>) opCustomIntS(Custom<int> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpCustomCVSReturnValue
-        opCustomCVS(Custom<Test.CV> i, Current current) => new Test.IMyClass.OpCustomCVSReturnValue(i, i);
+        public (Custom<Test.CV>, Custom<Test.CV>) opCustomCVS(Custom<Test.CV> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpCustomIntSSReturnValue
-        opCustomIntSS(Custom<Custom<int>> i, Current current) => new Test.IMyClass.OpCustomIntSSReturnValue(i, i);
+        public (Custom<Custom<int>>, Custom<Custom<int>>) opCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpCustomCVSSReturnValue
-        opCustomCVSS(Custom<Custom<Test.CV>> i, Current current) => new Test.IMyClass.OpCustomCVSSReturnValue(i, i);
+        public (Custom<Custom<Test.CV>>, Custom<Custom<Test.CV>>)
+        opCustomCVSS(Custom<Custom<Test.CV>> i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSerialSmallCSharpReturnValue
-        opSerialSmallCSharp(Serialize.Small i, Current current) => new Test.IMyClass.OpSerialSmallCSharpReturnValue(i, i);
+        public (Serialize.Small, Serialize.Small) opSerialSmallCSharp(Serialize.Small i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSerialLargeCSharpReturnValue
-        opSerialLargeCSharp(Serialize.Large i, Current current) => new Test.IMyClass.OpSerialLargeCSharpReturnValue(i, i);
+        public (Serialize.Large, Serialize.Large) opSerialLargeCSharp(Serialize.Large i, Current current) => (i, i);
 
-        public Test.IMyClass.OpSerialStructCSharpReturnValue
-        opSerialStructCSharp(Serialize.Struct i, Current current) => new Test.IMyClass.OpSerialStructCSharpReturnValue(i, i);
+        public (Serialize.Struct, Serialize.Struct) opSerialStructCSharp(Serialize.Struct i, Current current) => (i, i);
     }
 }

@@ -618,7 +618,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             var result = testPrx.returnTest1Async().Result;
-            test(result.returnValue == result.p1);
+            test(result.ReturnValue == result.p1);
         }
         output.WriteLine("ok");
 
@@ -642,7 +642,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             var result = testPrx.returnTest2Async().Result;
-            test(result.returnValue == result.p2);
+            test(result.ReturnValue == result.p2);
         }
         output.WriteLine("ok");
 
@@ -885,7 +885,7 @@ public class AllTests : Test.AllTests
         {
             var result = testPrx.paramTest3Async().Result;
 
-            B ret = result.returnValue;
+            B ret = result.ReturnValue;
             B p1 = result.p1;
             B p2 = result.p2;
             test(p1 != null);
@@ -934,7 +934,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             var result = testPrx.paramTest4Async().Result;
-            B ret = result.returnValue;
+            B ret = result.ReturnValue;
             B b = result.p;
 
             test(b != null);
@@ -1321,7 +1321,7 @@ public class AllTests : Test.AllTests
             }
 
             var result = testPrx.dictionaryTestAsync(bin).Result;
-            rv = result.returnValue;
+            rv = result.ReturnValue;
             bout = result.bout;
 
             test(bout.Count == 10);

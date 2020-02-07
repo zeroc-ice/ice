@@ -49,10 +49,9 @@ namespace Ice.operations
 
         public void opVoid(Current current) => test(current.Mode == OperationMode.Normal);
 
-        public Test.IMyClass.OpBoolReturnValue opBool(bool p1, bool p2, Current current) =>
-            new Test.IMyClass.OpBoolReturnValue(p2, p1);
+        public (bool, bool) opBool(bool p1, bool p2, Current current) => (p2, p1);
 
-        public Test.IMyClass.OpBoolSReturnValue opBoolS(bool[] p1, bool[] p2, Current current)
+        public (bool[], bool[]) opBoolS(bool[] p1, bool[] p2, Current current)
         {
             var p3 = new bool[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -63,10 +62,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpBoolSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpBoolSSReturnValue opBoolSS(bool[][] p1, bool[][] p2, Current current)
+        public (bool[][], bool[][]) opBoolSS(bool[][] p1, bool[][] p2, Current current)
         {
             var p3 = new bool[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -77,16 +76,13 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpBoolSSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpByteReturnValue opByte(byte p1, byte p2, Current current)
-        {
-            return new Test.IMyClass.OpByteReturnValue(p1, (byte)(p1 ^ p2));
-        }
+        public (byte, byte) opByte(byte p1, byte p2, Current current) => (p1, (byte)(p1 ^ p2));
 
-        public Test.IMyClass.OpByteBoolDReturnValue opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2,
-            Current current)
+        public (Dictionary<byte, bool>, Dictionary<byte, bool>)
+        opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
         {
             var r = new Dictionary<byte, bool>();
             foreach (KeyValuePair<byte, bool> e in p1)
@@ -97,10 +93,10 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpByteBoolDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpByteSReturnValue opByteS(byte[] p1, byte[] p2, Current current)
+        public (byte[], byte[]) opByteS(byte[] p1, byte[] p2, Current current)
         {
             var p3 = new byte[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -111,10 +107,10 @@ namespace Ice.operations
             byte[] r = new byte[p1.Length + p2.Length];
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
-            return new Test.IMyClass.OpByteSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpByteSSReturnValue opByteSS(byte[][] p1, byte[][] p2, Current current)
+        public (byte[][], byte[][]) opByteSS(byte[][] p1, byte[][] p2, Current current)
         {
             var p3 = new byte[p1.Length][];
             for (int i = 0; i < p1.Length; i++)
@@ -125,14 +121,12 @@ namespace Ice.operations
             byte[][] r = new byte[p1.Length + p2.Length][];
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
-            return new Test.IMyClass.OpByteSSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpFloatDoubleReturnValue
-        opFloatDouble(float p1, double p2, Current current) =>
-            new Test.IMyClass.OpFloatDoubleReturnValue(p2, p1, p2);
+        public (double, float, double) opFloatDouble(float p1, double p2, Current current) => (p2, p1, p2);
 
-        public Test.IMyClass.OpFloatDoubleSReturnValue opFloatDoubleS(float[] p1, double[] p2, Current current)
+        public (double[], float[], double[]) opFloatDoubleS(float[] p1, double[] p2, Current current)
         {
             var p4 = new double[p2.Length];
             for (int i = 0; i < p2.Length; i++)
@@ -146,10 +140,10 @@ namespace Ice.operations
             {
                 r[p2.Length + i] = p1[i];
             }
-            return new Test.IMyClass.OpFloatDoubleSReturnValue(r, p1, p4);
+            return (r, p1, p4);
         }
 
-        public Test.IMyClass.OpFloatDoubleSSReturnValue
+        public (double[][], float[][], double[][])
         opFloatDoubleSS(float[][] p1, double[][] p2, Current current)
         {
             var p4 = new double[p2.Length][];
@@ -168,10 +162,10 @@ namespace Ice.operations
                     r[p2.Length + i][j] = p2[i][j];
                 }
             }
-            return new Test.IMyClass.OpFloatDoubleSSReturnValue(r, p1, p4);
+            return (r, p1, p4);
         }
 
-        public Test.IMyClass.OpLongFloatDReturnValue
+        public (Dictionary<long, float>, Dictionary<long, float>)
         opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
         {
             var r = new Dictionary<long, float>();
@@ -183,25 +177,20 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpLongFloatDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpMyClassReturnValue opMyClass(Test.IMyClassPrx p1, Current current) =>
-            new Test.IMyClass.OpMyClassReturnValue(
-                current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory),
-                p1,
-                current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
+        public (Test.IMyClassPrx, Test.IMyClassPrx, Test.IMyClassPrx)
+        opMyClass(Test.IMyClassPrx p1, Current current) => (current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory),
+             p1,
+             current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
 
-        public Test.IMyClass.OpMyEnumReturnValue
-        opMyEnum(Test.MyEnum p1, Current current)
-        {
-            return new Test.IMyClass.OpMyEnumReturnValue(Test.MyEnum.enum3, p1);
-        }
+        public (Test.MyEnum, Test.MyEnum) opMyEnum(Test.MyEnum p1, Current current) => (Test.MyEnum.enum3, p1);
 
-        public Test.IMyClass.OpShortIntDReturnValue
+        public (Dictionary<short, int>, Dictionary<short, int>)
         opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
         {
-            Dictionary<short, int> r = new Dictionary<short, int>();
+            var r = new Dictionary<short, int>();
             foreach (KeyValuePair<short, int> e in p1)
             {
                 r[e.Key] = e.Value;
@@ -210,16 +199,13 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpShortIntDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpShortIntLongReturnValue
-        opShortIntLong(short p1, int p2, long p3, Current current)
-        {
-            return new Test.IMyClass.OpShortIntLongReturnValue(p3, p1, p2, p3);
-        }
+        public (long, short, int, long)
+        opShortIntLong(short p1, int p2, long p3, Current current) => (p3, p1, p2, p3);
 
-        public Test.IMyClass.OpShortIntLongSReturnValue opShortIntLongS(short[] p1, int[] p2, long[] p3, Current current)
+        public (long[], short[], int[], long[]) opShortIntLongS(short[] p1, int[] p2, long[] p3, Current current)
         {
             var p5 = new int[p2.Length];
             for (int i = 0; i < p2.Length; i++)
@@ -231,10 +217,10 @@ namespace Ice.operations
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
-            return new Test.IMyClass.OpShortIntLongSReturnValue(p3, p1, p5, p6);
+            return (p3, p1, p5, p6);
         }
 
-        public Test.IMyClass.OpShortIntLongSSReturnValue
+        public (long[][], short[][], int[][], long[][])
         opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3, Current current)
         {
             var p5 = new int[p2.Length][];
@@ -247,15 +233,12 @@ namespace Ice.operations
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
-            return new Test.IMyClass.OpShortIntLongSSReturnValue(p3, p1, p5, p6);
+            return (p3, p1, p5, p6);
         }
 
-        public Test.IMyClass.OpStringReturnValue opString(string p1, string p2, Current current)
-        {
-            return new Test.IMyClass.OpStringReturnValue(p1 + " " + p2, p2 + " " + p1);
-        }
+        public (string, string) opString(string p1, string p2, Current current) => (p1 + " " + p2, p2 + " " + p1);
 
-        public Test.IMyClass.OpStringMyEnumDReturnValue
+        public (Dictionary<string, Test.MyEnum>, Dictionary<string, Test.MyEnum>)
         opStringMyEnumD(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
         {
             var r = new Dictionary<string, Test.MyEnum>();
@@ -267,10 +250,10 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpStringMyEnumDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpMyEnumStringDReturnValue
+        public (Dictionary<Test.MyEnum, string>, Dictionary<Test.MyEnum, string>)
         opMyEnumStringD(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
         {
             var r = new Dictionary<Test.MyEnum, string>();
@@ -282,12 +265,11 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpMyEnumStringDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpMyStructMyEnumDReturnValue opMyStructMyEnumD(
-            Dictionary<Test.MyStruct, Test.MyEnum> p1,
-            Dictionary<Test.MyStruct, Test.MyEnum> p2,
+        public (Dictionary<Test.MyStruct, Test.MyEnum>, Dictionary<Test.MyStruct, Test.MyEnum>)
+        opMyStructMyEnumD(Dictionary<Test.MyStruct, Test.MyEnum> p1, Dictionary<Test.MyStruct, Test.MyEnum> p2,
             Current current)
         {
             var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
@@ -299,13 +281,11 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpMyStructMyEnumDReturnValue(r, p1);
+            return (r, p1);
         }
 
-        public Test.IMyClass.OpByteBoolDSReturnValue opByteBoolDS(
-            Dictionary<byte, bool>[] p1,
-            Dictionary<byte, bool>[] p2,
-            Current current)
+        public (Dictionary<byte, bool>[], Dictionary<byte, bool>[]) opByteBoolDS(
+            Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Current current)
         {
             var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -316,10 +296,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpByteBoolDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpShortIntDSReturnValue
+        public (Dictionary<short, int>[], Dictionary<short, int>[])
         opShortIntDS(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
         {
             var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
@@ -331,10 +311,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpShortIntDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpLongFloatDSReturnValue
+        public (Dictionary<long, float>[], Dictionary<long, float>[])
         opLongFloatDS(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
         {
             var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
@@ -346,10 +326,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpLongFloatDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStringStringDSReturnValue
+        public (Dictionary<string, string>[], Dictionary<string, string>[])
         opStringStringDS(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
         {
             var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
@@ -361,10 +341,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpStringStringDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStringMyEnumDSReturnValue
+        public (Dictionary<string, Test.MyEnum>[], Dictionary<string, Test.MyEnum>[])
         opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
         {
             var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
@@ -376,12 +356,12 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpStringMyEnumDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpMyEnumStringDSReturnValue
+        public (Dictionary<Test.MyEnum, string>[], Dictionary<Test.MyEnum, string>[])
         opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
-                            Dictionary<Test.MyEnum, string>[] p2,
+                         Dictionary<Test.MyEnum, string>[] p2,
                             Current current)
         {
             var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
@@ -393,10 +373,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpMyEnumStringDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpMyStructMyEnumDSReturnValue
+        public (Dictionary<Test.MyStruct, Test.MyEnum>[], Dictionary<Test.MyStruct, Test.MyEnum>[])
         opMyStructMyEnumDS(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
             Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
             Current current)
@@ -410,15 +390,15 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpMyStructMyEnumDSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpByteByteSDReturnValue
+        public (Dictionary<byte, byte[]>, Dictionary<byte, byte[]>)
         opByteByteSD(Dictionary<byte, byte[]> p1,
             Dictionary<byte, byte[]> p2,
             Current current)
         {
-            Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
+            var r = new Dictionary<byte, byte[]>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -427,15 +407,13 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpByteByteSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpBoolBoolSDReturnValue
-        opBoolBoolSD(Dictionary<bool, bool[]> p1,
-            Dictionary<bool, bool[]> p2,
-            Current current)
+        public (Dictionary<bool, bool[]>, Dictionary<bool, bool[]>)
+        opBoolBoolSD(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
         {
-            Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
+            var r = new Dictionary<bool, bool[]>();
             foreach (KeyValuePair<bool, bool[]> e in p1)
             {
                 r[e.Key] = e.Value;
@@ -444,15 +422,13 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpBoolBoolSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpShortShortSDReturnValue
-        opShortShortSD(Dictionary<short, short[]> p1,
-            Dictionary<short, short[]> p2,
-            Current current)
+        public (Dictionary<short, short[]>, Dictionary<short, short[]>)
+        opShortShortSD(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
         {
-            Dictionary<short, short[]> r = new Dictionary<short, short[]>();
+            var r = new Dictionary<short, short[]>();
             foreach (KeyValuePair<short, short[]> e in p1)
             {
                 r[e.Key] = e.Value;
@@ -461,15 +437,15 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpShortShortSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpIntIntSDReturnValue
+        public (Dictionary<int, int[]>, Dictionary<int, int[]>)
         opIntIntSD(Dictionary<int, int[]> p1,
             Dictionary<int, int[]> p2,
             Current current)
         {
-            Dictionary<int, int[]> r = new Dictionary<int, int[]>();
+            var r = new Dictionary<int, int[]>();
             foreach (KeyValuePair<int, int[]> e in p1)
             {
                 r[e.Key] = e.Value;
@@ -478,15 +454,13 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpIntIntSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpLongLongSDReturnValue
-        opLongLongSD(Dictionary<long, long[]> p1,
-            Dictionary<long, long[]> p2,
-            Current current)
+        public (Dictionary<long, long[]>, Dictionary<long, long[]>)
+        opLongLongSD(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
         {
-            Dictionary<long, long[]> r = new Dictionary<long, long[]>();
+            var r = new Dictionary<long, long[]>();
             foreach (KeyValuePair<long, long[]> e in p1)
             {
                 r[e.Key] = e.Value;
@@ -495,13 +469,11 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpLongLongSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpStringFloatSDReturnValue
-        opStringFloatSD(Dictionary<string, float[]> p1,
-            Dictionary<string, float[]> p2,
-            Current current)
+        public (Dictionary<string, float[]>, Dictionary<string, float[]>)
+        opStringFloatSD(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
         {
             var r = new Dictionary<string, float[]>();
             foreach (KeyValuePair<string, float[]> e in p1)
@@ -512,13 +484,11 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpStringFloatSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpStringDoubleSDReturnValue
-        opStringDoubleSD(Dictionary<string, double[]> p1,
-            Dictionary<string, double[]> p2,
-            Current current)
+        public (Dictionary<string, double[]>, Dictionary<string, double[]>)
+        opStringDoubleSD(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
         {
             var r = new Dictionary<string, double[]>();
             foreach (KeyValuePair<string, double[]> e in p1)
@@ -529,13 +499,11 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpStringDoubleSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpStringStringSDReturnValue
-        opStringStringSD(Dictionary<string, string[]> p1,
-            Dictionary<string, string[]> p2,
-            Current current)
+        public (Dictionary<string, string[]>, Dictionary<string, string[]>)
+        opStringStringSD(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
         {
             var r = new Dictionary<string, string[]>();
             foreach (KeyValuePair<string, string[]> e in p1)
@@ -546,10 +514,10 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpStringStringSDReturnValue(r, p2);
+            return (r, p2);
         }
 
-        public Test.IMyClass.OpMyEnumMyEnumSDReturnValue opMyEnumMyEnumSD(
+        public (Dictionary<Test.MyEnum, Test.MyEnum[]>, Dictionary<Test.MyEnum, Test.MyEnum[]>) opMyEnumMyEnumSD(
             Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
             Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
             Current ice)
@@ -563,7 +531,7 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpMyEnumMyEnumSDReturnValue(r, p2);
+            return (r, p2);
         }
 
         public int[] opIntS(int[] s, Current current)
@@ -607,7 +575,7 @@ namespace Ice.operations
             }
         }
 
-        public Test.IMyClass.OpStringSReturnValue
+        public (string[], string[])
         opStringS(string[] p1, string[] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length];
@@ -619,10 +587,10 @@ namespace Ice.operations
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpStringSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStringSSReturnValue
+        public (string[][], string[][])
         opStringSS(string[][] p1, string[][] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length][];
@@ -634,10 +602,10 @@ namespace Ice.operations
             {
                 r[i] = p2[p2.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpStringSSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStringSSSReturnValue
+        public (string[][][], string[][][])
         opStringSSS(string[][][] p1, string[][][] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length][][];
@@ -649,10 +617,10 @@ namespace Ice.operations
             {
                 r[i] = p2[p2.Length - (i + 1)];
             }
-            return new Test.IMyClass.OpStringSSSReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStringStringDReturnValue
+        public (Dictionary<string, string>, Dictionary<string, string>)
         opStringStringD(Dictionary<string, string> p1,
             Dictionary<string, string> p2,
             Current current)
@@ -667,15 +635,15 @@ namespace Ice.operations
             {
                 r[e.Key] = e.Value;
             }
-            return new Test.IMyClass.OpStringStringDReturnValue(r, p3);
+            return (r, p3);
         }
 
-        public Test.IMyClass.OpStructReturnValue
+        public (Test.Structure, Test.Structure)
         opStruct(Test.Structure p1, Test.Structure p2, Current current)
         {
             var p3 = p1;
             p3.s.s = "a new string";
-            return new Test.IMyClass.OpStructReturnValue(p2, p3);
+            return (p2, p3);
         }
 
         public void opIdempotent(Current current) => test(current.Mode == OperationMode.Idempotent);

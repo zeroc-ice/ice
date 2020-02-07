@@ -48,129 +48,89 @@ namespace Ice.optional.AMD
             throw e;
         }
 
-        public Task<Test.IInitial.OpByteReturnValue>
-        opByteAsync(byte? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpByteReturnValue(p1, p1));
+        public Task<(byte?, byte?)> opByteAsync(byte? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpBoolReturnValue>
-        opBoolAsync(bool? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpBoolReturnValue(p1, p1));
+        public Task<(bool?, bool?)> opBoolAsync(bool? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpShortReturnValue>
-        opShortAsync(short? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpShortReturnValue(p1, p1));
+        public Task<(short?, short?)> opShortAsync(short? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpIntReturnValue>
-        opIntAsync(int? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpIntReturnValue(p1, p1));
+        public Task<(int?, int?)> opIntAsync(int? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpLongReturnValue>
-        opLongAsync(long? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpLongReturnValue(p1, p1));
+        public Task<(long?, long?)> opLongAsync(long? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpFloatReturnValue>
-        opFloatAsync(float? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpFloatReturnValue(p1, p1));
+        public Task<(float?, float?)> opFloatAsync(float? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpDoubleReturnValue>
-        opDoubleAsync(double? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpDoubleReturnValue(p1, p1));
+        public Task<(double?, double?)> opDoubleAsync(double? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpStringReturnValue>
-        opStringAsync(string? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpStringReturnValue(p1, p1));
+        public Task<(string?, string?)> opStringAsync(string? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpMyEnumReturnValue>
-        opMyEnumAsync(Test.MyEnum? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpMyEnumReturnValue(p1, p1));
+        public Task<(Test.MyEnum?, Test.MyEnum?)> opMyEnumAsync(Test.MyEnum? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpSmallStructReturnValue>
-        opSmallStructAsync(Test.SmallStruct? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpSmallStructReturnValue(p1, p1));
+        public Task<(Test.SmallStruct?, Test.SmallStruct?)> opSmallStructAsync(Test.SmallStruct? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpFixedStructReturnValue>
-        opFixedStructAsync(Test.FixedStruct? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpFixedStructReturnValue(p1, p1));
+        public Task<(Test.FixedStruct?, Test.FixedStruct?)> opFixedStructAsync(Test.FixedStruct? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpVarStructReturnValue>
-        opVarStructAsync(Test.VarStruct? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpVarStructReturnValue(p1, p1));
+        public Task<(Test.VarStruct?, Test.VarStruct?)>
+        opVarStructAsync(Test.VarStruct? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpOneOptionalReturnValue>
-        opOneOptionalAsync(Test.OneOptional? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpOneOptionalReturnValue(p1, p1));
+        public Task<(Test.OneOptional?, Test.OneOptional?)> opOneOptionalAsync(Test.OneOptional? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpOneOptionalProxyReturnValue>
-        opOneOptionalProxyAsync(IObjectPrx? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpOneOptionalProxyReturnValue(p1, p1));
+        public Task<(IObjectPrx?, IObjectPrx?)> opOneOptionalProxyAsync(IObjectPrx? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpByteSeqReturnValue>
-        opByteSeqAsync(byte[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpByteSeqReturnValue(p1, p1));
+        public Task<(byte[]?, byte[]?)>
+        opByteSeqAsync(byte[]? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpBoolSeqReturnValue>
-        opBoolSeqAsync(bool[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpBoolSeqReturnValue(p1, p1));
+        public Task<(bool[]?, bool[]?)> opBoolSeqAsync(bool[]? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpShortSeqReturnValue>
-        opShortSeqAsync(short[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpShortSeqReturnValue(p1, p1));
+        public Task<(short[]?, short[]?)> opShortSeqAsync(short[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpIntSeqReturnValue>
-        opIntSeqAsync(int[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpIntSeqReturnValue(p1, p1));
+        public Task<(int[]?, int[]?)> opIntSeqAsync(int[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpLongSeqReturnValue>
-        opLongSeqAsync(long[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpLongSeqReturnValue(p1, p1));
+        public Task<(long[]?, long[]?)> opLongSeqAsync(long[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpFloatSeqReturnValue>
-        opFloatSeqAsync(float[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpFloatSeqReturnValue(p1, p1));
+        public Task<(float[]?, float[]?)> opFloatSeqAsync(float[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpDoubleSeqReturnValue>
-        opDoubleSeqAsync(double[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpDoubleSeqReturnValue(p1, p1));
+        public Task<(double[]?, double[]?)> opDoubleSeqAsync(double[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpStringSeqReturnValue>
-        opStringSeqAsync(string[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpStringSeqReturnValue(p1, p1));
+        public Task<(string[]?, string[]?)> opStringSeqAsync(string[]? p1, Current current) =>
+            Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpSmallStructSeqReturnValue>
-        opSmallStructSeqAsync(Test.SmallStruct[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpSmallStructSeqReturnValue(p1, p1));
+        public Task<(Test.SmallStruct[]?, Test.SmallStruct[]?)>
+        opSmallStructSeqAsync(Test.SmallStruct[]? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpSmallStructListReturnValue>
-        opSmallStructListAsync(List<Test.SmallStruct>? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpSmallStructListReturnValue(p1, p1));
+        public Task<(List<Test.SmallStruct>?, List<Test.SmallStruct>?)>
+        opSmallStructListAsync(List<Test.SmallStruct>? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpFixedStructSeqReturnValue>
-        opFixedStructSeqAsync(Test.FixedStruct[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpFixedStructSeqReturnValue(p1, p1));
+        public Task<(Test.FixedStruct[]?, Test.FixedStruct[]?)>
+        opFixedStructSeqAsync(Test.FixedStruct[]? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpFixedStructListReturnValue>
-        opFixedStructListAsync(LinkedList<Test.FixedStruct>? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpFixedStructListReturnValue(p1, p1));
+        public Task<(LinkedList<Test.FixedStruct>?, LinkedList<Test.FixedStruct>?)>
+        opFixedStructListAsync(LinkedList<Test.FixedStruct>? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpVarStructSeqReturnValue>
-        opVarStructSeqAsync(Test.VarStruct[]? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpVarStructSeqReturnValue(p1, p1));
+        public Task<(Test.VarStruct[]?, Test.VarStruct[]?)>
+        opVarStructSeqAsync(Test.VarStruct[]? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpSerializableReturnValue>
-        opSerializableAsync(optional.Test.SerializableClass? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpSerializableReturnValue(p1, p1));
+        public Task<(optional.Test.SerializableClass?, optional.Test.SerializableClass?)>
+        opSerializableAsync(optional.Test.SerializableClass? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpIntIntDictReturnValue>
-        opIntIntDictAsync(Dictionary<int, int>? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpIntIntDictReturnValue(p1, p1));
+        public Task<(Dictionary<int, int>?, Dictionary<int, int>?)>
+        opIntIntDictAsync(Dictionary<int, int>? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpStringIntDictReturnValue>
-        opStringIntDictAsync(Dictionary<string, int>? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpStringIntDictReturnValue(p1, p1));
+        public Task<(Dictionary<string, int>?, Dictionary<string, int>?)>
+        opStringIntDictAsync(Dictionary<string, int>? p1, Current current) => Task.FromResult((p1, p1));
 
-        public Task<Test.IInitial.OpIntOneOptionalDictReturnValue>
-        opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional>? p1, Current current) =>
-            Task.FromResult(new Test.IInitial.OpIntOneOptionalDictReturnValue(p1, p1));
+        public Task<(Dictionary<int, Test.OneOptional>?, Dictionary<int, Test.OneOptional>?)>
+        opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional>? p1, Current current) => Task.FromResult((p1, p1));
 
         public Task
         opClassAndUnknownOptionalAsync(Test.A p, Current current) => Task.CompletedTask;

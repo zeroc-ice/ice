@@ -15,28 +15,28 @@ namespace Ice.dictMapping.AMD
             return Task.CompletedTask;
         }
 
-        public Task<Test.IMyClass.OpNVReturnValue>
-        opNVAsync(Dictionary<int, int> i, Current current) => Task.FromResult(new Test.IMyClass.OpNVReturnValue(i, i));
+        public Task<(Dictionary<int, int>, Dictionary<int, int>)>
+        opNVAsync(Dictionary<int, int> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNRReturnValue>
-        opNRAsync(Dictionary<string, string> i, Current current) => Task.FromResult(new Test.IMyClass.OpNRReturnValue(i, i));
+        public Task<(Dictionary<string, string>, Dictionary<string, string>)>
+        opNRAsync(Dictionary<string, string> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDVReturnValue>
-        opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDVReturnValue(i, i));
+        public Task<(Dictionary<string, Dictionary<int, int>>, Dictionary<string, Dictionary<int, int>>)>
+        opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDRReturnValue>
-        opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDRReturnValue(i, i));
+        public Task<(Dictionary<string, Dictionary<string, string>>, Dictionary<string, Dictionary<string, string>>)>
+        opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDAISReturnValue>
-        opNDAISAsync(Dictionary<string, int[]> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDAISReturnValue(i, i));
+        public Task<(Dictionary<string, int[]>, Dictionary<string, int[]>)>
+        opNDAISAsync(Dictionary<string, int[]> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDGISReturnValue>
-        opNDGISAsync(Dictionary<string, List<int>> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDGISReturnValue(i, i));
+        public Task<(Dictionary<string, List<int>>, Dictionary<string, List<int>>)>
+        opNDGISAsync(Dictionary<string, List<int>> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDASSReturnValue>
-        opNDASSAsync(Dictionary<string, string[]> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDASSReturnValue(i, i));
+        public Task<(Dictionary<string, string[]>, Dictionary<string, string[]>)>
+        opNDASSAsync(Dictionary<string, string[]> i, Current current) => Task.FromResult((i, i));
 
-        public Task<Test.IMyClass.OpNDGSSReturnValue>
-        opNDGSSAsync(Dictionary<string, List<string>> i, Current current) => Task.FromResult(new Test.IMyClass.OpNDGSSReturnValue(i, i));
+        public Task<(Dictionary<string, List<string>>, Dictionary<string, List<string>>)>
+        opNDGSSAsync(Dictionary<string, List<string>> i, Current current) => Task.FromResult((i, i));
     }
 }

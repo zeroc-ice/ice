@@ -123,7 +123,7 @@ public sealed class TestIntf : ITestIntf
         return Task.FromResult<B>(d2);
     }
 
-    public Task<ITestIntf.ParamTest1ReturnValue>
+    public Task<(B, B)>
     paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -136,98 +136,98 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new ITestIntf.ParamTest1ReturnValue(d1, d2));
+        return Task.FromResult(((B)d1, (B)d2));
     }
 
-    public Task<ITestIntf.ParamTest2ReturnValue>
+    public Task<(B, B)>
     paramTest2Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new ITestIntf.ParamTest2ReturnValue(d2, d1));
+        return Task.FromResult(((B)d2, (B)d1));
     }
 
-    public Task<ITestIntf.ParamTest3ReturnValue>
+    public Task<(B, B, B)>
     paramTest3Async(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
 
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
         d1.pb = null;
         d1.sd1 = "D1.sd2 (p1 2)";
         d1.pd1 = null;
         d2.pd2 = d1;
 
-        D2 d4 = new D2();
+        var d4 = new D2();
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
 
-        D1 d3 = new D1();
+        var d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
         d3.pb = null;
         d3.sd1 = "D1.sd2 (p2 2)";
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return Task.FromResult(new ITestIntf.ParamTest3ReturnValue(d3, d2, d4));
+        return Task.FromResult(((B)d3, (B)d2, (B)d4));
     }
 
-    public Task<ITestIntf.ParamTest4ReturnValue>
+    public Task<(B, B)>
     paramTest4Async(Ice.Current current)
     {
-        D4 d4 = new D4();
+        var d4 = new D4();
         d4.sb = "D4.sb (1)";
         d4.pb = null;
         d4.p1 = new B();
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        return Task.FromResult(new ITestIntf.ParamTest4ReturnValue(d4.p2, d4));
+        return Task.FromResult(((B)d4.p2, (B)d4));
     }
 
-    public Task<ITestIntf.ReturnTest1ReturnValue>
+    public Task<(B, B, B)>
     returnTest1Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new ITestIntf.ReturnTest1ReturnValue(d2, d2, d1));
+        return Task.FromResult(((B)d2, (B)d2, (B)d1));
     }
 
-    public Task<ITestIntf.ReturnTest2ReturnValue>
+    public Task<(B, B, B)>
     returnTest2Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(new ITestIntf.ReturnTest2ReturnValue(d1, d1, d2));
+        return Task.FromResult(((B)d1, (B)d1, (B)d2));
     }
 
     public Task<B>
@@ -236,7 +236,7 @@ public sealed class TestIntf : ITestIntf
     public Task<SS3>
     sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current) => Task.FromResult(new SS3(p1, p2));
 
-    public Task<ITestIntf.DictionaryTestReturnValue>
+    public Task<(Dictionary<int, B>, Dictionary<int, B>)>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
@@ -262,7 +262,7 @@ public sealed class TestIntf : ITestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return Task.FromResult(new ITestIntf.DictionaryTestReturnValue(r, bout));
+        return Task.FromResult((r, bout));
     }
 
     public Task<PBase>

@@ -768,14 +768,12 @@ namespace IceInternal
             }
         }
 
-        public IceMX.IMetricsAdmin.GetMetricsViewNamesReturnValue
+        public (string[], string[])
         GetMetricsViewNames(Ice.Current current)
         {
             lock (this)
             {
-                return new IceMX.IMetricsAdmin.GetMetricsViewNamesReturnValue(
-                    new List<string>(_views.Keys).ToArray(),
-                    _disabledViews.ToArray());
+                return (new List<string>(_views.Keys).ToArray(), _disabledViews.ToArray());
             }
         }
 
@@ -799,14 +797,14 @@ namespace IceInternal
             UpdateViews();
         }
 
-        public IceMX.IMetricsAdmin.GetMetricsViewReturnValue GetMetricsView(string viewName, Ice.Current current)
+        public (Dictionary<string, IceMX.Metrics[]>, long)
+        GetMetricsView(string viewName, Ice.Current current)
         {
             lock (this)
             {
                 MetricsViewI? view = GetMetricsView(viewName);
-                return new IceMX.IMetricsAdmin.GetMetricsViewReturnValue(
-                    view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.GetMetrics(),
-                    Time.CurrentMonotonicTimeMillis());
+                return (view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.GetMetrics(),
+                        Time.CurrentMonotonicTimeMillis());
             }
         }
 

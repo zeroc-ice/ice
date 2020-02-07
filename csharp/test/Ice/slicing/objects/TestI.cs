@@ -147,7 +147,7 @@ public sealed class TestIntf : ITestIntf
         return d2;
     }
 
-    public ITestIntf.ParamTest1ReturnValue paramTest1(Ice.Current current)
+    public (B, B) paramTest1(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -159,66 +159,66 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return new ITestIntf.ParamTest1ReturnValue(d1, d2);
+        return (d1, d2);
     }
 
-    public ITestIntf.ParamTest2ReturnValue paramTest2(Ice.Current current)
+    public (B, B) paramTest2(Ice.Current current)
     {
-        var r = paramTest1(current);
-        return new ITestIntf.ParamTest2ReturnValue(r.p2, r.p1);
+        var (p1, p2) = paramTest1(current);
+        return (p2, p1);
     }
 
-    public ITestIntf.ParamTest3ReturnValue paramTest3(Ice.Current current)
+    public (B, B, B) paramTest3(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
 
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
         d1.pb = null;
         d1.sd1 = "D1.sd2 (p1 2)";
         d1.pd1 = null;
         d2.pd2 = d1;
 
-        D2 d4 = new D2();
+        var d4 = new D2();
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
 
-        D1 d3 = new D1();
+        var d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
         d3.pb = null;
         d3.sd1 = "D1.sd2 (p2 2)";
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return new ITestIntf.ParamTest3ReturnValue(d3, d2, d4);
+        return (d3, d2, d4);
     }
 
-    public ITestIntf.ParamTest4ReturnValue paramTest4(Ice.Current current)
+    public (B, B) paramTest4(Ice.Current current)
     {
-        D4 d4 = new D4();
+        var d4 = new D4();
         d4.sb = "D4.sb (1)";
         d4.pb = null;
         d4.p1 = new B();
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        return new ITestIntf.ParamTest4ReturnValue(d4.p2, d4);
+        return (d4.p2, d4);
     }
 
-    public ITestIntf.ReturnTest1ReturnValue returnTest1(Ice.Current current)
+    public (B, B, B) returnTest1(Ice.Current current)
     {
-        var r = paramTest1(current);
-        return new ITestIntf.ReturnTest1ReturnValue(r.p1, r.p1, r.p2);
+        var (p1, p2) = paramTest1(current);
+        return (p1, p1, p2);
     }
 
-    public ITestIntf.ReturnTest2ReturnValue returnTest2(Ice.Current current)
+    public (B, B, B) returnTest2(Ice.Current current)
     {
-        var r = paramTest1(current);
-        return new ITestIntf.ReturnTest2ReturnValue(r.p2, r.p2, r.p1);
+        var (p1, p2) = paramTest1(current);
+        return (p2, p2, p1);
     }
 
     public B returnTest3(B p1, B p2, Ice.Current current)
@@ -228,13 +228,14 @@ public sealed class TestIntf : ITestIntf
 
     public SS3 sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
-        SS3 ss = new SS3();
+        var ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
         return ss;
     }
 
-    public ITestIntf.DictionaryTestReturnValue dictionaryTest(Dictionary<int, B> bin, Ice.Current current)
+    public (Dictionary<int, B>, Dictionary<int, B>)
+    dictionaryTest(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
         int i;
@@ -248,7 +249,7 @@ public sealed class TestIntf : ITestIntf
             d2.pd2 = d2;
             bout[i * 10] = d2;
         }
-        Dictionary<int, B> r = new Dictionary<int, B>();
+        var r = new Dictionary<int, B>();
         for (i = 0; i < 10; ++i)
         {
             string s = "D1." + (i * 20).ToString();
@@ -259,7 +260,7 @@ public sealed class TestIntf : ITestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return new ITestIntf.DictionaryTestReturnValue(r, bout);
+        return (r, bout);
     }
 
     public PBase exchangePBase(PBase pb, Ice.Current current)
