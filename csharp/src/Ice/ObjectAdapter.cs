@@ -1240,7 +1240,7 @@ namespace Ice
         //
         private T newDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
             where T : class, IObjectPrx
-            => factory(Communicator!.CreateReference(identity, facet, _reference!, _publishedEndpoints));
+            => factory(Communicator.CreateReference(identity, facet, _reference!, _publishedEndpoints));
 
         //
         // Create a reference with the adapter id and return a
@@ -1248,7 +1248,7 @@ namespace Ice
         //
         private T newIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
             where T : class, IObjectPrx
-            => factory(Communicator!.CreateReference(identity, facet, _reference!, id));
+            => factory(Communicator.CreateReference(identity, facet, _reference!, id));
 
         private void CheckForDeactivationNoSync()
         {
@@ -1269,7 +1269,6 @@ namespace Ice
 
         private List<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
         {
-            Debug.Assert(Communicator != null);
             int beg;
             int end = 0;
 
@@ -1448,7 +1447,6 @@ namespace Ice
             {
                 return;
             }
-            Debug.Assert(Communicator != null);
 
             try
             {
@@ -1589,7 +1587,6 @@ namespace Ice
 
         private bool FilterProperties(List<string> unknownProps)
         {
-            Debug.Assert(Communicator != null);
             //
             // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
             //
