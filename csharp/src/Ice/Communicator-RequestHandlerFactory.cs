@@ -53,8 +53,7 @@ namespace Ice
             {
                 lock (_handlers)
                 {
-                    ConnectRequestHandler h;
-                    if (_handlers.TryGetValue(rf, out h) && h == handler)
+                    if (_handlers.TryGetValue(rf, out ConnectRequestHandler h) && h == handler)
                     {
                         _handlers.Remove(rf);
                     }

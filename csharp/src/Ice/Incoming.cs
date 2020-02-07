@@ -526,7 +526,7 @@ namespace IceInternal
 
             output.Append("dispatch exception:");
             output.Append("\nidentity: ").Append(_current.Id.ToString(_communicator.ToStringMode));
-            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.escapeString(_current.Facet, "", _communicator.ToStringMode));
+            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.EscapeString(_current.Facet, "", _communicator.ToStringMode));
             output.Append("\noperation: ").Append(_current.Operation);
             if (_current.Connection != null)
             {

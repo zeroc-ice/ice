@@ -23,7 +23,7 @@ namespace Ice
         /// <param name="name">The name of the plug-in.</param>
         /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
         /// <returns>The plug-in that was created by this method.</returns>
-        IPlugin create(Communicator communicator, string name, string[] args);
+        IPlugin Create(Communicator communicator, string name, string[] args);
     }
 
     public sealed partial class Communicator
@@ -44,21 +44,19 @@ namespace Ice
         {
             if (_pluginsInitialized)
             {
-                InitializationException ex = new InitializationException();
-                ex.Reason = "plug-ins already initialized";
-                throw ex;
+                throw new InitializationException("plug-ins already initialized");
             }
 
             //
             // Invoke initialize() on the plug-ins, in the order they were loaded.
             //
-            List<IPlugin> initializedPlugins = new List<IPlugin>();
+            var initializedPlugins = new List<IPlugin>();
             try
             {
-                foreach (var p in _plugins)
+                foreach ((string Name, IPlugin Plugin) in _plugins)
                 {
-                    p.Plugin.Initialize();
-                    initializedPlugins.Add(p.Plugin);
+                    Plugin.Initialize();
+                    initializedPlugins.Add(Plugin);
                 }
             }
             catch (System.Exception)
@@ -141,7 +139,7 @@ namespace Ice
             // entryPoint will be ignored but the rest of the plugin
             // specification might be used.
             //
-            foreach (var name in _loadOnInitialization)
+            foreach (string name in _loadOnInitialization)
             {
                 string key = $"Ice.Plugin.{name}.clr";
                 string? r;
@@ -181,7 +179,7 @@ namespace Ice
             //
 
             string[] loadOrder = GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
-            foreach (var name in loadOrder)
+            foreach (string name in loadOrder)
             {
                 if (name.Length == 0)
                 {
@@ -306,10 +304,10 @@ namespace Ice
                 // configuration, then we convert the options from the
                 // application command-line.
                 //
-                Dictionary<string, string> properties = new Dictionary<string, string>();
+                var properties = new Dictionary<string, string>();
                 properties.ParseArgs(ref args, name);
                 properties.ParseArgs(ref cmdArgs, name);
-                foreach (var p in properties)
+                foreach (KeyValuePair<string, string> p in properties)
                 {
                     SetProperty(p.Key, p.Value);
                 }
@@ -412,18 +410,15 @@ namespace Ice
                 }
             }
 
-            _plugins.Add((name, pluginFactory.create(this, name, args)));
+            _plugins.Add((name, pluginFactory.Create(this, name, args)));
         }
 
-        private IPlugin? FindPlugin(string name)
-        {
-            return _plugins.FirstOrDefault(p => p.Name == name).Plugin;
-        }
+        private IPlugin? FindPlugin(string name) => _plugins.FirstOrDefault(p => p.Name == name).Plugin;
 
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
         private bool _pluginsInitialized;
 
-        private static Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
-        private static List<string> _loadOnInitialization = new List<string>();
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
+        private static readonly List<string> _loadOnInitialization = new List<string>();
     }
 }

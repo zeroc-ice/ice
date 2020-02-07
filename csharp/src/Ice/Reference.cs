@@ -145,10 +145,10 @@ namespace IceInternal
 
             if (!s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
-                s.WriteByte(_protocol.major);
-                s.WriteByte(_protocol.minor);
-                s.WriteByte(_encoding.major);
-                s.WriteByte(_encoding.minor);
+                s.WriteByte(_protocol.Major);
+                s.WriteByte(_protocol.Minor);
+                s.WriteByte(_encoding.Major);
+                s.WriteByte(_encoding.Minor);
             }
 
             // Derived class writes the remainder of the reference.
@@ -174,7 +174,7 @@ namespace IceInternal
             // the identity string in quotes.
             //
             string id = _identity.ToString(Communicator.ToStringMode);
-            if (StringUtil.findFirstOf(id, " :@") != -1)
+            if (StringUtil.FindFirstOf(id, " :@") != -1)
             {
                 s.Append('"');
                 s.Append(id);
@@ -193,8 +193,8 @@ namespace IceInternal
                 // the facet string in quotes.
                 //
                 s.Append(" -f ");
-                string fs = StringUtil.escapeString(_facet, "", Communicator.ToStringMode);
-                if (StringUtil.findFirstOf(fs, " :@") != -1)
+                string fs = StringUtil.EscapeString(_facet, "", Communicator.ToStringMode);
+                if (StringUtil.FindFirstOf(fs, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(fs);
@@ -1189,8 +1189,8 @@ namespace IceInternal
                 // the reference parser uses as separators, then we enclose
                 // the adapter id string in quotes.
                 //
-                string a = StringUtil.escapeString(_adapterId, null, Communicator.ToStringMode);
-                if (StringUtil.findFirstOf(a, " :@") != -1)
+                string a = StringUtil.EscapeString(_adapterId, null, Communicator.ToStringMode);
+                if (StringUtil.FindFirstOf(a, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(a);
@@ -1421,9 +1421,9 @@ namespace IceInternal
                     if (_cached)
                     {
                         TraceLevels traceLevels = _ir.Communicator.TraceLevels;
-                        if (traceLevels.retry >= 2)
+                        if (traceLevels.Retry >= 2)
                         {
-                            _ir.Communicator.Logger.Trace(traceLevels.retryCat,
+                            _ir.Communicator.Logger.Trace(traceLevels.RetryCat,
                                 $"connection to cached endpoints failed\nremoving endpoints from cache and trying again\n{ex}");
                         }
                         _ir.GetConnectionNoRouterInfo(_cb); // Retry.

@@ -35,7 +35,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out var pv))
+                if (_properties.TryGetValue(name, out PropertyValue pv))
                 {
                     pv.Used = true;
                     return pv.Val;
@@ -51,7 +51,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out var pv))
+                if (_properties.TryGetValue(name, out PropertyValue pv))
                 {
                     pv.Used = true;
                     return int.Parse(pv.Val, CultureInfo.InvariantCulture);
@@ -73,7 +73,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out var pv))
+                if (_properties.TryGetValue(name, out PropertyValue pv))
                 {
                     pv.Used = true;
                     return IceUtilInternal.StringUtil.splitString(pv.Val, ", \t\r\n");
@@ -142,14 +142,14 @@ namespace Ice
         /// anything from this dictionary.</param>
         public void SetProperties(Dictionary<string, string> updates)
         {
-            foreach (var entry in updates)
+            foreach (KeyValuePair<string, string> entry in updates)
             {
                 ValidatePropertyName(entry.Key);
             }
 
             lock (_properties)
             {
-                foreach (var entry in updates)
+                foreach (KeyValuePair<string, string> entry in updates)
                 {
                     if (!SetPropertyImpl(entry.Key, entry.Value))
                     {
@@ -193,7 +193,7 @@ namespace Ice
             {
                 return _properties.Remove(name);
             }
-            else if (_properties.TryGetValue(name, out var pv))
+            else if (_properties.TryGetValue(name, out PropertyValue pv))
             {
                 if (pv.Val != value)
                 {
@@ -224,7 +224,7 @@ namespace Ice
             if (dotPos != -1)
             {
                 string prefix = name.Substring(0, dotPos);
-                foreach (var validProps in IceInternal.PropertyNames.validProps)
+                foreach (IceInternal.Property[] validProps in IceInternal.PropertyNames.validProps)
                 {
                     string pattern = validProps[0].pattern();
                     dotPos = pattern.IndexOf('.');
@@ -238,9 +238,9 @@ namespace Ice
                     }
 
                     bool found = false;
-                    foreach (var prop in validProps)
+                    foreach (IceInternal.Property prop in validProps)
                     {
-                        Regex r = new Regex(prop.pattern());
+                        var r = new Regex(prop.pattern());
                         Match m = r.Match(name);
                         found = m.Success;
                         if (found)
@@ -290,7 +290,7 @@ namespace Ice
         /// <param name="args">The command-line args.</param>
         public static void ParseIceArgs(this Dictionary<string, string> into, ref string[] args)
         {
-            foreach (var name in IceInternal.PropertyNames.clPropNames)
+            foreach (string name in IceInternal.PropertyNames.clPropNames)
             {
                 into.ParseArgs(ref args, name);
             }
@@ -315,14 +315,14 @@ namespace Ice
 
             var remaining = new List<string>();
             var parsedArgs = new Dictionary<string, string>();
-            foreach (var arg in args)
+            foreach (string arg in args)
             {
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    var r = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    if (r.Name.Length > 0)
+                    (string Name, string Value) = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
+                    if (Name.Length > 0)
                     {
-                        parsedArgs[r.Name] = r.Value;
+                        parsedArgs[Name] = Value;
                         continue;
                     }
                 }
@@ -332,13 +332,13 @@ namespace Ice
             if ((prefix == "--" || prefix == "--Ice.") &&
                     parsedArgs.TryGetValue("Ice.Config", out string configFileList))
             {
-                foreach (var file in configFileList.Split(","))
+                foreach (string file in configFileList.Split(","))
                 {
                     into.LoadIceConfigFile(file);
                 }
             }
 
-            foreach (var p in parsedArgs)
+            foreach (KeyValuePair<string, string> p in parsedArgs)
             {
                 into[p.Key] = p.Value;
             }
@@ -351,14 +351,14 @@ namespace Ice
         /// <param name="configFile">The path to the Ice configuration file to load.</param>
         public static void LoadIceConfigFile(this Dictionary<string, string> into, string configFile)
         {
-            using System.IO.StreamReader input = new System.IO.StreamReader(configFile.Trim());
+            using var input = new System.IO.StreamReader(configFile.Trim());
             string line;
             while ((line = input.ReadLine()) != null)
             {
-                var result = ParseLine(line);
-                if (result.Name.Length > 0)
+                (string Name, string Value) = ParseLine(line);
+                if (Name.Length > 0)
                 {
-                    into[result.Name] = result.Value;
+                    into[Name] = Value;
                 }
             }
         }
@@ -367,13 +367,13 @@ namespace Ice
 
         private static (string Name, string Value) ParseLine(string line)
         {
-            StringBuilder name = new StringBuilder();
-            StringBuilder value = new StringBuilder();
+            var name = new StringBuilder();
+            var value = new StringBuilder();
 
             ParseState state = ParseState.Key;
 
-            StringBuilder whitespace = new StringBuilder();
-            StringBuilder escapedspace = new StringBuilder();
+            var whitespace = new StringBuilder();
+            var escapedspace = new StringBuilder();
             bool finished = false;
             for (int i = 0; i < line.Length; ++i)
             {

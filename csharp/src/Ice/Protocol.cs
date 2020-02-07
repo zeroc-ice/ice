@@ -90,7 +90,7 @@ namespace IceInternal
         internal static void
         checkSupportedProtocol(Ice.ProtocolVersion v)
         {
-            if (v.major != protocolMajor || v.minor > protocolMinor)
+            if (v.Major != protocolMajor || v.Minor > protocolMinor)
             {
                 throw new Ice.UnsupportedProtocolException("", v, Ice.Util.CurrentProtocol);
             }
@@ -99,7 +99,7 @@ namespace IceInternal
         public static void
         checkSupportedProtocolEncoding(Ice.EncodingVersion v)
         {
-            if (v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)
+            if (v.Major != protocolEncodingMajor || v.Minor > protocolEncodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.CurrentProtocolEncoding);
             }
@@ -108,7 +108,7 @@ namespace IceInternal
         internal static void
         checkSupportedEncoding(Ice.EncodingVersion v)
         {
-            if (v.major != encodingMajor || v.minor > encodingMinor)
+            if (v.Major != encodingMajor || v.Minor > encodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.CurrentEncoding);
             }
@@ -121,11 +121,11 @@ namespace IceInternal
         internal static Ice.ProtocolVersion
         getCompatibleProtocol(Ice.ProtocolVersion v)
         {
-            if (v.major != Ice.Util.CurrentProtocol.major)
+            if (v.Major != Ice.Util.CurrentProtocol.Major)
             {
                 return v; // Unsupported protocol, return as is.
             }
-            else if (v.minor < Ice.Util.CurrentProtocol.minor)
+            else if (v.Minor < Ice.Util.CurrentProtocol.Minor)
             {
                 return v; // Supported protocol.
             }
@@ -146,11 +146,11 @@ namespace IceInternal
         internal static Ice.EncodingVersion
         getCompatibleEncoding(Ice.EncodingVersion v)
         {
-            if (v.major != Ice.Util.CurrentEncoding.major)
+            if (v.Major != Ice.Util.CurrentEncoding.Major)
             {
                 return v; // Unsupported encoding, return as is.
             }
-            else if (v.minor < Ice.Util.CurrentEncoding.minor)
+            else if (v.Minor < Ice.Util.CurrentEncoding.Minor)
             {
                 return v; // Supported encoding.
             }
@@ -166,11 +166,11 @@ namespace IceInternal
 
         internal static bool
         isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
-            version.major == supported.major && version.minor <= supported.minor;
+            version.Major == supported.Major && version.Minor <= supported.Minor;
 
         internal static bool
         isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
-            version.major == supported.major && version.minor <= supported.minor;
+            version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 
 }

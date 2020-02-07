@@ -12,7 +12,7 @@ namespace IceInternal
     {
         internal static void TraceSend(Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
-            if (tl.protocol >= 1)
+            if (tl.Protocol >= 1)
             {
                 int p = str.Pos;
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
@@ -22,7 +22,7 @@ namespace IceInternal
                 {
                     byte type = PrintMessage(s, iss);
 
-                    logger.Trace(tl.protocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
+                    logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.Pos = p;
             }
@@ -30,7 +30,7 @@ namespace IceInternal
 
         internal static void TraceRecv(Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
-            if (tl.protocol >= 1)
+            if (tl.Protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
@@ -39,7 +39,7 @@ namespace IceInternal
                 {
                     byte type = PrintMessage(s, str);
 
-                    logger.Trace(tl.protocolCat, "received " + GetMessageTypeAsString(type) + " " + s.ToString());
+                    logger.Trace(tl.ProtocolCat, "received " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.Pos = p;
             }
@@ -47,7 +47,7 @@ namespace IceInternal
 
         internal static void Trace(string heading, Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
         {
-            if (tl.protocol >= 1)
+            if (tl.Protocol >= 1)
             {
                 int p = str.Pos;
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
@@ -58,7 +58,7 @@ namespace IceInternal
                     s.Write(heading);
                     PrintMessage(s, iss);
 
-                    logger.Trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.ProtocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
@@ -66,7 +66,7 @@ namespace IceInternal
 
         internal static void Trace(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
-            if (tl.protocol >= 1)
+            if (tl.Protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
@@ -76,7 +76,7 @@ namespace IceInternal
                     s.Write(heading);
                     PrintMessage(s, str);
 
-                    logger.Trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.ProtocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
@@ -177,7 +177,7 @@ namespace IceInternal
                 s.Write("\nfacet = ");
                 if (facet.Length > 0)
                 {
-                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
+                    s.Write(IceUtilInternal.StringUtil.EscapeString(facet[0], "", toStringMode));
                 }
 
                 string operation = str.ReadString();
@@ -492,7 +492,7 @@ namespace IceInternal
 
         internal static void TraceHeader(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
         {
-            if (tl.protocol >= 1)
+            if (tl.Protocol >= 1)
             {
                 int p = str.Pos;
                 str.Pos = 0;
@@ -502,7 +502,7 @@ namespace IceInternal
                     s.Write(heading);
                     PrintHeader(s, str);
 
-                    logger.Trace(tl.protocolCat, s.ToString());
+                    logger.Trace(tl.ProtocolCat, s.ToString());
                 }
                 str.Pos = p;
             }
