@@ -508,7 +508,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             {
                 out << "System.Collections.Generic.";
             }
-            out << customType << "<" << typeToString(seq->type(), package, isReferenceType(seq->type())) << ">";
+            out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
             return out.str();
         }
         else if(!serializableType.empty())
@@ -517,7 +517,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            return typeToString(seq->type(), package, isReferenceType(seq->type())) + "[]";
+            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
         }
     }
 
@@ -537,7 +537,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +
-            typeToString(d->valueType(), package, isReferenceType(d->valueType())) + ">";
+            typeToString(d->valueType(), package, isNullable(d->valueType())) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);

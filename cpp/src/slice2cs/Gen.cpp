@@ -2267,25 +2267,13 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
-    _out.inc();
-    _out << nl << "(istr) => istr.ReadProxy(Factory)!;";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
     _out << nl << "(istr) => istr.ReadProxy(Factory);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
-    _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
     _out.dec();

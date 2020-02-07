@@ -35,7 +35,7 @@ namespace Ice
         public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
-        public static readonly InputStreamReader<string?> IceReaderIntoString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
 
         /// <summary>
         /// Returns the current size of the stream.
