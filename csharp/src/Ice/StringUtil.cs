@@ -16,23 +16,20 @@ namespace IceUtilInternal
         // appear in match, starting from 0. Returns -1 if none is
         // found.
         //
-        public static int findFirstOf(string str, string match)
-        {
-            return findFirstOf(str, match, 0);
-        }
+        public static int FindFirstOf(string str, string match) => FindFirstOf(str, match, 0);
 
         //
         // Return the index of the first character in str to
         // appear in match, starting from start. Returns -1 if none is
         // found.
         //
-        public static int findFirstOf(string str, string match, int start)
+        public static int FindFirstOf(string str, string match, int start)
         {
             int len = str.Length;
             for (int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if (match.IndexOf((char)ch) != -1)
+                if (match.IndexOf(ch) != -1)
                 {
                     return i;
                 }
@@ -46,17 +43,14 @@ namespace IceUtilInternal
         // not appear in match, starting from 0. Returns -1 if none is
         // found.
         //
-        public static int findFirstNotOf(string str, string match)
-        {
-            return findFirstNotOf(str, match, 0);
-        }
+        public static int FindFirstNotOf(string str, string match) => FindFirstNotOf(str, match, 0);
 
         //
         // Return the index of the first character in str which does
         // not appear in match, starting from start. Returns -1 if none is
         // found.
         //
-        public static int findFirstNotOf(string str, string match, int start)
+        public static int FindFirstNotOf(string str, string match, int start)
         {
             int len = str.Length;
             for (int i = start; i < len; i++)
@@ -72,7 +66,7 @@ namespace IceUtilInternal
         }
 
         private static void
-        encodeChar(char c, StringBuilder sb, string? special, Ice.ToStringMode toStringMode)
+        EncodeChar(char c, StringBuilder sb, string? special, Ice.ToStringMode toStringMode)
         {
             switch (c)
             {
@@ -208,7 +202,7 @@ namespace IceUtilInternal
         //
         // Add escape sequences (such as "\n", or "\007") to the input string
         //
-        public static string escapeString(string s, string? special, Ice.ToStringMode toStringMode)
+        public static string EscapeString(string s, string? special, Ice.ToStringMode toStringMode)
         {
             if (special != null)
             {
@@ -226,13 +220,13 @@ namespace IceUtilInternal
             {
                 // Encode UTF-8 bytes
 
-                UTF8Encoding utf8 = new UTF8Encoding();
+                var utf8 = new UTF8Encoding();
                 byte[] bytes = utf8.GetBytes(s);
 
                 StringBuilder result = new StringBuilder(bytes.Length);
                 for (int i = 0; i < bytes.Length; i++)
                 {
-                    encodeChar((char)bytes[i], result, special, toStringMode);
+                    EncodeChar((char)bytes[i], result, special, toStringMode);
                 }
 
                 return result.ToString();
@@ -246,7 +240,7 @@ namespace IceUtilInternal
                     char c = s[i];
                     if (toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
                     {
-                        encodeChar(c, result, special, toStringMode);
+                        EncodeChar(c, result, special, toStringMode);
                     }
                     else
                     {

@@ -153,7 +153,7 @@ namespace IceInternal
             string str = "`" + Protocol() + " ";
             foreach (string p in args)
             {
-                if (IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+                if (IceUtilInternal.StringUtil.FindFirstOf(p, " \t\n\r") != -1)
                 {
                     str += " \"" + p + "\"";
                 }

@@ -261,7 +261,7 @@ namespace IceInternal
             // Monitor connections outside the thread synchronization, so
             // that connections can be added or removed during monitoring.
             //
-            long now = Time.currentMonotonicTimeMillis();
+            long now = Time.CurrentMonotonicTimeMillis();
             foreach (Ice.Connection connection in _connections)
             {
                 try
@@ -358,7 +358,7 @@ namespace IceInternal
 
             try
             {
-                connection.Monitor(Time.currentMonotonicTimeMillis(), _config);
+                connection.Monitor(Time.CurrentMonotonicTimeMillis(), _config);
             }
             catch (System.Exception ex)
             {

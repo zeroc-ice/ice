@@ -636,27 +636,46 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for(const auto& p : members)
     {
-        if((*p)->defaultValueType())
+        TypePtr type = p->type();
+
+        if(p->defaultValueType())
         {
-            _out << nl << "this." << dataMemberName(*p) << " = ";
-            writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
+            _out << nl << "this." << dataMemberName(p) << " = ";
+            writeConstantValue(type, p->defaultValueType(), p->defaultValue());
             _out << ';';
         }
-        else if(!(*p)->tagged())
+        else if(!p->tagged())
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            StructPtr st = StructPtr::dynamicCast(type);
+            SequencePtr seq = SequencePtr::dynamicCast(type);
+            DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+
             if(builtin && builtin->kind() == Builtin::KindString)
             {
-                _out << nl << "this." << fixId(dataMemberName(*p), baseTypes) << " = \"\";";
+                _out << nl << fixId(dataMemberName(p), baseTypes) << " = \"\";";
             }
-
-            StructPtr st = StructPtr::dynamicCast((*p)->type());
-            if(st)
+            else if(st)
             {
-                _out << nl << "this." << fixId(dataMemberName(*p), baseTypes) << " = new " << typeToString(st, ns, false)
-                     << "();";
+                _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(st, ns) << "();";
+            }
+            else if(seq && !seq->hasMetaDataWithPrefix("cs:serializable:"))
+            {
+                if(seq->hasMetaDataWithPrefix("cs:generic:"))
+                {
+                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(type, ns) << "();";
+                }
+                else
+                {
+                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = global::System.Array.Empty<"
+                         << typeToString(seq->type(), ns, false) << ">();";
+                }
+            }
+            else if(dict)
+            {
+                _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(type, ns) << "();";
             }
         }
     }
@@ -1384,25 +1403,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool hasBaseClass = !bases.empty();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
-    _out.inc();
-    _out << nl << "(istr) => istr.ReadClass<" << name << ">()!;";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
     _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
-    _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteClass(value);";
-    _out.dec();
-
-        _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteClass(value);";
     _out.dec();
@@ -2260,25 +2267,13 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "> IceReader =";
-    _out.inc();
-    _out << nl << "(istr) => istr.ReadProxy(Factory)!;";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
+    _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
     _out << nl << "(istr) => istr.ReadProxy(Factory);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "> IceWriter =";
-    _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
+    _out << nl << "public static readonly new Ice.OutputStreamWriter<" << name << "?> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteProxy(value);";
     _out.dec();
@@ -2595,27 +2590,22 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << "? sequence) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
     _out.inc();
     _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
     _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS << "> IceWriter = Write;";
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS << "?> IceWriterFromNullable = Write;";
 
     _out << sp;
-    _out << nl << "public static " << seqS << "? Read" << name << "(this Ice.InputStream istr) => ";
+    _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
     _out.inc();
     _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = (istr) => "
-         << "Read" << name << "(istr)!;";
-
-    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "?> IceReaderIntoNullable = Read" << name
-         << ";";
+    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
 
     _out << eb;
 }
@@ -2634,41 +2624,36 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << "? dictionary) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns, false) << ", "
-         << outputStreamWriter(value, ns, isReferenceType(value)) << ");";
+         << outputStreamWriter(key, ns) << ", "
+         << outputStreamWriter(value, ns) << ");";
     _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriter = Write;";
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriterFromNullable = Write;";
 
     _out << sp;
-    _out << nl << "public static " << dictS << "? Read" << name << "(this Ice.InputStream istr) => ";
+    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) => ";
     _out.inc();
     if(generic == "SortedDictionary")
     {
         _out << nl << "istr.ReadSortedDict("
-             << inputStreamReader(key, ns, false) << ", "
-             << inputStreamReader(value, ns, isReferenceType(value)) << ");";
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ");";
     }
     else
     {
         _out << nl << "istr.ReadDict("
-             << inputStreamReader(key, ns, false) << ", "
-             << inputStreamReader(value, ns, isReferenceType(value)) << ", "
+             << inputStreamReader(key, ns) << ", "
+             << inputStreamReader(value, ns) << ", "
              << (key->minWireSize() + value->minWireSize()) << ");";
     }
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = (istr) => Read"
-         << name << "(istr)!;";
-
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "?> IceReaderIntoNullable = "
-         << "Read" << name << ";";
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "?> IceReader = Read" << name << ";";
 
     _out << eb;
 }

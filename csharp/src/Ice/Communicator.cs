@@ -601,7 +601,7 @@ namespace Ice
                     GetAdmin();
                 }
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 Destroy();
                 throw;
@@ -814,7 +814,7 @@ namespace Ice
             int beg;
             int end = 0;
 
-            beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+            beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
             if (beg == -1)
             {
                 throw new FormatException($"no non-whitespace characters found in `{s}'");
@@ -832,7 +832,7 @@ namespace Ice
             }
             else if (end == 0)
             {
-                end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
                 if (end == -1)
                 {
                     end = s.Length;
@@ -865,7 +865,7 @@ namespace Ice
 
             while (true)
             {
-                beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
                 if (beg == -1)
                 {
                     break;
@@ -876,7 +876,7 @@ namespace Ice
                     break;
                 }
 
-                end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
                 if (end == -1)
                 {
                     end = s.Length;
@@ -899,7 +899,7 @@ namespace Ice
                 // quotation marks.
                 //
                 string? argument = null;
-                int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+                int argumentBeg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
                 if (argumentBeg != -1)
                 {
                     char ch = s[argumentBeg];
@@ -913,7 +913,7 @@ namespace Ice
                         }
                         else if (end == 0)
                         {
-                            end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+                            end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
                             if (end == -1)
                             {
                                 end = s.Length;
@@ -1136,7 +1136,7 @@ namespace Ice
             }
             else if (s[beg] == '@')
             {
-                beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
+                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, beg + 1);
                 if (beg == -1)
                 {
                     throw new ArgumentException($"missing adapter id in `{s}'");
@@ -1150,7 +1150,7 @@ namespace Ice
                 }
                 else if (end == 0)
                 {
-                    end = IceUtilInternal.StringUtil.findFirstOf(s, delim, beg);
+                    end = IceUtilInternal.StringUtil.FindFirstOf(s, delim, beg);
                     if (end == -1)
                     {
                         end = s.Length;
@@ -1164,7 +1164,7 @@ namespace Ice
                     end++; // Skip trailing quote
                 }
 
-                if (end != s.Length && IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
+                if (end != s.Length && IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end) != -1)
                 {
                     throw new ArgumentException(
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
@@ -1844,10 +1844,10 @@ namespace Ice
 
                     ri.ClearCache(@ref);
 
-                    if (TraceLevels.retry >= 1)
+                    if (TraceLevels.Retry >= 1)
                     {
                         string s = "retrying operation call to add proxy to router\n" + ex;
-                        logger.Trace(TraceLevels.retryCat, s);
+                        logger.Trace(TraceLevels.RetryCat, s);
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
@@ -1921,10 +1921,10 @@ namespace Ice
             }
             else if (cnt > _retryIntervals.Length)
             {
-                if (TraceLevels.retry >= 1)
+                if (TraceLevels.Retry >= 1)
                 {
                     string s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
-                    logger.Trace(TraceLevels.retryCat, s);
+                    logger.Trace(TraceLevels.RetryCat, s);
                 }
                 throw ex;
             }
@@ -1933,7 +1933,7 @@ namespace Ice
                 interval = _retryIntervals[cnt - 1];
             }
 
-            if (TraceLevels.retry >= 1)
+            if (TraceLevels.Retry >= 1)
             {
                 string s = "retrying operation call";
                 if (interval > 0)
@@ -1941,7 +1941,7 @@ namespace Ice
                     s += " in " + interval + "ms";
                 }
                 s += " because of exception\n" + ex;
-                logger.Trace(TraceLevels.retryCat, s);
+                logger.Trace(TraceLevels.RetryCat, s);
             }
 
             return interval;
@@ -2155,32 +2155,32 @@ namespace Ice
                 }
                 catch (ServerNotFoundException)
                 {
-                    if (TraceLevels.location >= 1)
+                    if (TraceLevels.Location >= 1)
                     {
                         var s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                         s.Append("the server is not known to the locator registry");
-                        Logger.Trace(TraceLevels.locationCat, s.ToString());
+                        Logger.Trace(TraceLevels.LocationCat, s.ToString());
                     }
 
                     throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
                 }
                 catch (LocalException ex)
                 {
-                    if (TraceLevels.location >= 1)
+                    if (TraceLevels.Location >= 1)
                     {
                         var s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        Logger.Trace(TraceLevels.locationCat, s.ToString());
+                        Logger.Trace(TraceLevels.LocationCat, s.ToString());
                     }
                     throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
 
-                if (TraceLevels.location >= 1)
+                if (TraceLevels.Location >= 1)
                 {
                     var s = new StringBuilder();
                     s.Append("registered server `" + serverId + "' with the locator registry");
-                    Logger.Trace(TraceLevels.locationCat, s.ToString());
+                    Logger.Trace(TraceLevels.LocationCat, s.ToString());
                 }
             }
         }
@@ -2219,7 +2219,7 @@ namespace Ice
 
                 foreach (ObjectAdapter adapter in adapters)
                 {
-                    adapter.updateConnectionObservers();
+                    adapter.UpdateConnectionObservers();
                 }
             }
             catch (CommunicatorDestroyedException)
@@ -2245,7 +2245,7 @@ namespace Ice
 
                 foreach (ObjectAdapter adapter in adapters)
                 {
-                    adapter.updateThreadObservers();
+                    adapter.UpdateThreadObservers();
                 }
 
                 UpdateEndpointHostResolverObserver();

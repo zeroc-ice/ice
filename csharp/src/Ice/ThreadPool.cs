@@ -216,9 +216,9 @@ namespace IceInternal
             _priority = Util.StringToThreadPriority(_communicator.GetProperty($"{_prefix}.ThreadPriority") ??
                                                     _communicator.GetProperty("Ice.ThreadPriority"));
 
-            if (_communicator.TraceLevels.threadPool >= 1)
+            if (_communicator.TraceLevels.ThreadPool >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.ThreadPoolCat,
                     $"creating {_prefix}: Size = {_size}, SizeMax = {_sizeMax}, SizeWarn = {_sizeWarn}");
             }
 
@@ -392,9 +392,9 @@ namespace IceInternal
                    (_inUse + _workItems.Count) > _threads.Count &&
                    !_destroyed)
                 {
-                    if (_communicator.TraceLevels.threadPool >= 1)
+                    if (_communicator.TraceLevels.ThreadPool >= 1)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.ThreadPoolCat,
                             $"growing {_prefix}: Size = {_threads.Count + 1}");
                     }
 
@@ -499,9 +499,9 @@ namespace IceInternal
                                     // by the .NET thread pool threads. Instead, we'll just spawn a
                                     // new thread when needed (i.e.: when a new work item is queued).
                                     //
-                                    if (_communicator.TraceLevels.threadPool >= 1)
+                                    if (_communicator.TraceLevels.ThreadPool >= 1)
                                     {
-                                        _communicator.Logger.Trace(_communicator.TraceLevels.threadPoolCat,
+                                        _communicator.Logger.Trace(_communicator.TraceLevels.ThreadPoolCat,
                                             $"shrinking {_prefix}: Size={_threads.Count - 1}");
                                     }
 

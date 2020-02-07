@@ -34,9 +34,9 @@ namespace Ice
             Debug.Assert(_outAsync == outAsync);
             if (_communicator.CancelRetryTask(this))
             {
-                if (_communicator.TraceLevels.retry >= 1)
+                if (_communicator.TraceLevels.Retry >= 1)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.retryCat, $"operation retry canceled\n{ex}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.RetryCat, $"operation retry canceled\n{ex}");
                 }
                 if (_outAsync.Exception(ex))
                 {
@@ -45,7 +45,7 @@ namespace Ice
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Ice
             }
         }
 
-        private Communicator _communicator;
+        private readonly Communicator _communicator;
         private ProxyOutgoingAsyncBase _outAsync;
     }
 
@@ -71,7 +71,7 @@ namespace Ice
                 {
                     throw new CommunicatorDestroyedException();
                 }
-                RetryTask task = new RetryTask(this, outAsync);
+                var task = new RetryTask(this, outAsync);
                 outAsync.Cancelable(task); // This will throw if the request is canceled.
                 _timer.Schedule(task, interval);
                 _requests.Add(task, null);
@@ -82,12 +82,12 @@ namespace Ice
         {
             lock (this)
             {
-                Dictionary<RetryTask, object?> keep = new Dictionary<RetryTask, object?>();
+                var keep = new Dictionary<RetryTask, object?>();
                 foreach (RetryTask task in _requests.Keys)
                 {
                     if (_timer.Cancel(task))
                     {
-                        task.destroy();
+                        task.Destroy();
                     }
                     else
                     {

@@ -429,7 +429,7 @@ namespace Ice.stream
                 myClassArray[i] = new Test.MyClass();
                 myClassArray[i].c = myClassArray[i];
                 myClassArray[i].o = myClassArray[i];
-                myClassArray[i].s = new Test.SmallStruct();
+                myClassArray[i].s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
                 myClassArray[i].s.e = Test.MyEnum.enum2;
                 myClassArray[i].seq1 = new bool[] { true, false, true, false };
                 myClassArray[i].seq2 = new byte[] { 1, 2, 3, 4 };
@@ -513,7 +513,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 var obj = new Test.MyClass();
-                obj.s = new Test.SmallStruct();
+                obj.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
                 obj.s.e = Test.MyEnum.enum2;
                 ostr.StartEncapsulation();
                 ostr.WriteClass(obj);
@@ -535,7 +535,7 @@ namespace Ice.stream
                 var c = new Test.MyClass();
                 c.c = c;
                 c.o = c;
-                c.s = new Test.SmallStruct();
+                c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
                 c.s.e = Test.MyEnum.enum2;
                 c.seq1 = new bool[] { true, false, true, false };
                 c.seq2 = new byte[] { 1, 2, 3, 4 };
@@ -634,11 +634,11 @@ namespace Ice.stream
             {
                 var dict = new Dictionary<string, Test.MyClass>();
                 var c = new Test.MyClass();
-                c.s = new Test.SmallStruct();
+                c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
                 c.s.e = Test.MyEnum.enum2;
                 dict.Add("key1", c);
                 c = new Test.MyClass();
-                c.s = new Test.SmallStruct();
+                c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
                 c.s.e = Test.MyEnum.enum3;
                 dict.Add("key2", c);
                 ostr = new OutputStream(communicator);

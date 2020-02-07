@@ -49,7 +49,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                var token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
+                var token = new Token(Time.CurrentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
                 try
                 {
@@ -77,7 +77,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                var token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
+                var token = new Token(Time.CurrentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
                 try
                 {
@@ -167,7 +167,7 @@ namespace IceInternal
                         {
                             if (_tasks.ContainsKey(token.Task))
                             {
-                                token.ScheduledTime = Time.currentMonotonicTimeMillis() + token.Delay;
+                                token.ScheduledTime = Time.CurrentMonotonicTimeMillis() + token.Delay;
                                 _tokens.Add(token, null);
                             }
                         }
@@ -192,7 +192,7 @@ namespace IceInternal
 
                     while (_tokens.Count > 0 && _communicator != null)
                     {
-                        long now = Time.currentMonotonicTimeMillis();
+                        long now = Time.CurrentMonotonicTimeMillis();
 
                         Token? first = null;
                         foreach (Token t in _tokens.Keys)

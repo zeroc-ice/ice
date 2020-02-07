@@ -8,7 +8,6 @@ namespace Ice.adapterDeactivation
     {
         public void transient(Current current)
         {
-
             var adapter = current.Adapter.Communicator.CreateObjectAdapterWithEndpoints(
                 "TransientTestAdapter", "default");
             adapter.Activate();

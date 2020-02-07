@@ -24,8 +24,7 @@ namespace IceInternal
                 DefaultSourceAddress = Network.GetNumericAddress(val);
                 if (DefaultSourceAddress == null)
                 {
-                    throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
-                                                          val + "'");
+                    throw new Ice.InitializationException($"invalid IP address set for Ice.Default.SourceAddress: `{val}'");
                 }
             }
             else

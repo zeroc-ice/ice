@@ -319,7 +319,7 @@ namespace Ice.exceptions
                 output.Flush();
                 try
                 {
-                    thrower.throwMemoryLimitException(null);
+                    thrower.throwMemoryLimitException(Array.Empty<byte>());
                     test(false);
                 }
                 catch (MemoryLimitException)

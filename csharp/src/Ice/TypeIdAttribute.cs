@@ -25,7 +25,7 @@ namespace Ice
         /// <returns>The type ID, or null if type does not carry the Ice.TypeId attribute.</returns>
         public static string? GetIceTypeId(this Type type)
         {
-            var attributes = type.GetCustomAttributes(typeof(TypeIdAttribute), false);
+            object[] attributes = type.GetCustomAttributes(typeof(TypeIdAttribute), false);
             if (attributes.Length == 1 && attributes[0] is TypeIdAttribute typeId)
             {
                 return typeId.Value;
@@ -51,8 +51,8 @@ namespace Ice
                 if (GetIceTypeId(type) is string firstTypeId)
                 {
                     result.Add(firstTypeId);
-                    var interfaces = type.GetInterfaces();
-                    foreach (var p in interfaces)
+                    Type[] interfaces = type.GetInterfaces();
+                    foreach (Type p in interfaces)
                     {
                         if (GetIceTypeId(p) is string typeId)
                         {

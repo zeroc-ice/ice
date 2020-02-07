@@ -1748,10 +1748,10 @@ namespace Ice.operations
                 test(p.opFloat1Async(1.0f).Result == 1.0f);
                 test(p.opDouble1Async(1.0d).Result == 1.0d);
                 test(p.opString1Async("opString1").Result.Equals("opString1"));
-                test(p.opStringS1Async(null).Result.Length == 0);
-                test(p.opByteBoolD1Async(null).Result.Count == 0);
-                test(p.opStringS2Async(null).Result.Length == 0);
-                test(p.opByteBoolD2Async(null).Result.Count == 0);
+                test(p.opStringS1Async(Array.Empty<string>()).Result.Length == 0);
+                test(p.opByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                test(p.opStringS2Async(Array.Empty<string>()).Result.Length == 0);
+                test(p.opByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
             }
 
             Func<Task> task = async () =>

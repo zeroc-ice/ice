@@ -71,10 +71,8 @@ namespace Ice
                 }
                 else
                 {
-                    var expectedString = expected.ToString("G");
-                    var receivedString = received.ToString("G");
                     throw new MarshalException(
-                        $"unexpected operation mode. expected = {expectedString} received = {receivedString}");
+                        $"unexpected operation mode. expected = {expected} received = {received}");
                 }
             }
         }

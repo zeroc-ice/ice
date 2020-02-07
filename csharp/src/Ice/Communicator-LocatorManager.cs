@@ -57,7 +57,7 @@ namespace Ice
                         // by the locator is an indirect proxy. We now need to resolve the endpoints
                         // of this indirect proxy.
                         //
-                        if (_ref.GetCommunicator().TraceLevels.location >= 1)
+                        if (_ref.GetCommunicator().TraceLevels.Location >= 1)
                         {
                             locatorInfo.Trace("retrieved adapter for well-known object from locator, " +
                                               "adding to locator cache", _ref, r);
@@ -67,7 +67,7 @@ namespace Ice
                     }
                 }
 
-                if (_ref.GetCommunicator().TraceLevels.location >= 1)
+                if (_ref.GetCommunicator().TraceLevels.Location >= 1)
                 {
                     locatorInfo.GetEndpointsTrace(_ref, endpoints, false);
                 }
@@ -146,7 +146,7 @@ namespace Ice
                 }
             }
 
-            internal void Response(IObjectPrx proxy)
+            internal void Response(IObjectPrx? proxy)
             {
                 lock (this)
                 {
@@ -190,7 +190,7 @@ namespace Ice
                 try
                 {
                     LocatorInfo.Locator.FindObjectByIdAsync(Ref.GetIdentity()).ContinueWith(
-                        (Task<IObjectPrx> p) =>
+                        (Task<IObjectPrx?> p) =>
                         {
                             try
                             {
@@ -222,7 +222,7 @@ namespace Ice
                 try
                 {
                     LocatorInfo.Locator.FindAdapterByIdAsync(Ref.GetAdapterId()).ContinueWith(
-                        (Task<IObjectPrx> p) =>
+                        (Task<IObjectPrx?> p) =>
                         {
                             try
                             {
@@ -286,7 +286,7 @@ namespace Ice
             //
             // Do not make locator calls from within sync.
             //
-            ILocatorRegistryPrx locatorRegistry = Locator.GetRegistry();
+            ILocatorRegistryPrx? locatorRegistry = Locator.GetRegistry();
             if (locatorRegistry == null)
             {
                 return null;
@@ -352,7 +352,7 @@ namespace Ice
                 }
                 else if (!r.IsWellKnown())
                 {
-                    if (reference.GetCommunicator().TraceLevels.location >= 1)
+                    if (reference.GetCommunicator().TraceLevels.Location >= 1)
                     {
                         Trace("found adapter for well-known object in locator cache", reference, r);
                     }
@@ -362,7 +362,7 @@ namespace Ice
             }
 
             Debug.Assert(endpoints != null);
-            if (reference.GetCommunicator().TraceLevels.location >= 1)
+            if (reference.GetCommunicator().TraceLevels.Location >= 1)
             {
                 GetEndpointsTrace(reference, endpoints, true);
             }
@@ -379,7 +379,7 @@ namespace Ice
             {
                 Endpoint[]? endpoints = _table.RemoveAdapterEndpoints(rf.GetAdapterId());
 
-                if (endpoints != null && rf.GetCommunicator().TraceLevels.location >= 2)
+                if (endpoints != null && rf.GetCommunicator().TraceLevels.Location >= 2)
                 {
                     Trace("removed endpoints for adapter from locator cache", rf, endpoints);
                 }
@@ -391,14 +391,14 @@ namespace Ice
                 {
                     if (!r.IsIndirect())
                     {
-                        if (rf.GetCommunicator().TraceLevels.location >= 2)
+                        if (rf.GetCommunicator().TraceLevels.Location >= 2)
                         {
                             Trace("removed endpoints for well-known object from locator cache", rf, r.GetEndpoints());
                         }
                     }
                     else if (!r.IsWellKnown())
                     {
-                        if (rf.GetCommunicator().TraceLevels.location >= 2)
+                        if (rf.GetCommunicator().TraceLevels.Location >= 2)
                         {
                             Trace("removed adapter for well-known object from locator cache", rf, r);
                         }
@@ -432,7 +432,7 @@ namespace Ice
                 }
             }
 
-            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.locationCat, s.ToString());
+            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.LocationCat, s.ToString());
         }
 
         private void Trace(string msg, Reference r, Reference resolved)
@@ -448,7 +448,7 @@ namespace Ice
             s.Append("adapter = ");
             s.Append(resolved.GetAdapterId());
 
-            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.locationCat, s.ToString());
+            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.LocationCat, s.ToString());
         }
 
         private void GetEndpointsException(Reference reference, System.Exception exc)
@@ -460,12 +460,12 @@ namespace Ice
             catch (AdapterNotFoundException ex)
             {
                 Communicator communicator = reference.GetCommunicator();
-                if (communicator.TraceLevels.location >= 1)
+                if (communicator.TraceLevels.Location >= 1)
                 {
                     var s = new System.Text.StringBuilder();
                     s.Append("adapter not found\n");
                     s.Append("adapter = " + reference.GetAdapterId());
-                    communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
                 throw new NotRegisteredException("object adapter", reference.GetAdapterId(), ex);
@@ -473,12 +473,12 @@ namespace Ice
             catch (ObjectNotFoundException ex)
             {
                 Communicator communicator = reference.GetCommunicator();
-                if (communicator.TraceLevels.location >= 1)
+                if (communicator.TraceLevels.Location >= 1)
                 {
                     var s = new System.Text.StringBuilder();
                     s.Append("object not found\n");
                     s.Append("object = " + reference.GetIdentity().ToString(communicator.ToStringMode));
-                    communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
                 throw new NotRegisteredException("object",
@@ -491,7 +491,7 @@ namespace Ice
             catch (LocalException ex)
             {
                 Communicator communicator = reference.GetCommunicator();
-                if (communicator.TraceLevels.location >= 1)
+                if (communicator.TraceLevels.Location >= 1)
                 {
                     var s = new System.Text.StringBuilder();
                     s.Append("couldn't contact the locator to retrieve endpoints\n");
@@ -504,7 +504,7 @@ namespace Ice
                         s.Append("well-known proxy = " + reference.ToString() + "\n");
                     }
                     s.Append("reason = " + ex);
-                    communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
                 throw;
             }
@@ -558,19 +558,19 @@ namespace Ice
                     s.Append("well-known object\n");
                     s.Append("well-known proxy = " + reference.ToString());
                 }
-                communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
         }
 
         private Request GetAdapterRequest(Reference reference)
         {
-            if (reference.GetCommunicator().TraceLevels.location >= 1)
+            if (reference.GetCommunicator().TraceLevels.Location >= 1)
             {
                 Communicator communicator = reference.GetCommunicator();
                 var s = new System.Text.StringBuilder();
                 s.Append("searching for adapter by id\nadapter = ");
                 s.Append(reference.GetAdapterId());
-                communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
 
             lock (this)
@@ -588,13 +588,13 @@ namespace Ice
 
         private Request GetObjectRequest(Reference reference)
         {
-            if (reference.GetCommunicator().TraceLevels.location >= 1)
+            if (reference.GetCommunicator().TraceLevels.Location >= 1)
             {
                 Communicator communicator = reference.GetCommunicator();
                 var s = new System.Text.StringBuilder();
                 s.Append("searching for well-known object\nwell-known proxy = ");
                 s.Append(reference.ToString());
-                communicator.Logger.Trace(communicator.TraceLevels.locationCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
 
             lock (this)
@@ -780,7 +780,7 @@ namespace Ice
         {
             lock (this)
             {
-                _adapterEndpointsTable[adapter] = (Time.currentMonotonicTimeMillis(), endpoints);
+                _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTimeMillis(), endpoints);
             }
         }
 
@@ -821,7 +821,7 @@ namespace Ice
         {
             lock (this)
             {
-                _objectTable[id] = (Time.currentMonotonicTimeMillis(), reference);
+                _objectTable[id] = (Time.CurrentMonotonicTimeMillis(), reference);
             }
         }
 
@@ -847,7 +847,7 @@ namespace Ice
             }
             else
             {
-                return Time.currentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
+                return Time.CurrentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
             }
         }
 

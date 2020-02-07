@@ -804,7 +804,7 @@ namespace IceInternal
             {
                 MetricsViewI? view = GetMetricsView(viewName);
                 return (view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.GetMetrics(),
-                    Time.currentMonotonicTimeMillis());
+                        Time.CurrentMonotonicTimeMillis());
             }
         }
 

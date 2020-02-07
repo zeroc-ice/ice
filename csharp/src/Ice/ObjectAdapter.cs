@@ -38,19 +38,19 @@ namespace Ice
         private int _state = StateUninitialized;
         private Communicator? _communicator;
         private ThreadPool? _threadPool;
-        private ACMConfig _acm;
+        private readonly ACMConfig _acm;
 
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
         private Reference? _reference;
-        private List<IncomingConnectionFactory>? _incomingConnectionFactories;
+        private readonly List<IncomingConnectionFactory>? _incomingConnectionFactories;
         private RouterInfo? _routerInfo;
         private Endpoint[] _publishedEndpoints;
         private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
-        private bool _noConfig;
-        private int _messageSizeMax;
+        private readonly bool _noConfig;
+        private readonly int _messageSizeMax;
 
         /// <summary>
         /// Get the name of this object adapter.
@@ -443,7 +443,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                IObject? servant = null;
+                IObject? servant;
                 if (!_identityServantMap.TryGetValue(new IdentityPlusFacet(identity, facet), out servant))
                 {
                     if (!_categoryServantMap.TryGetValue(new CategoryPlusFacet(identity.Category, facet), out servant))
@@ -480,7 +480,7 @@ namespace Ice
             {
                 CheckForDeactivationNoSync();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
-                return newProxy(identity, proxyFactory, facet);
+                return NewProxy(identity, proxyFactory, facet);
             }
         }
 
@@ -591,7 +591,7 @@ namespace Ice
             lock (_mutex)
             {
                 var key = new IdentityPlusFacet(identity, facet);
-                IObject? servant = null;
+                IObject? servant;
                 if (_identityServantMap.TryGetValue(key, out servant))
                 {
                     _identityServantMap.Remove(key);
@@ -637,7 +637,7 @@ namespace Ice
             lock (_mutex)
             {
                 var key = new CategoryPlusFacet(category, facet);
-                IObject? servant = null;
+                IObject? servant;
                 if (_categoryServantMap.TryGetValue(key, out servant))
                 {
                     _categoryServantMap.Remove(key);
@@ -672,7 +672,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                IObject? servant = null;
+                IObject? servant;
                 if (_defaultServantMap.TryGetValue(facet, out servant))
                 {
                     _defaultServantMap.Remove(facet);
@@ -695,7 +695,7 @@ namespace Ice
             lock (_mutex)
             {
                 CheckForDeactivationNoSync();
-                return newProxy(identity, factory, "");
+                return NewProxy(identity, factory, "");
             }
         }
 
@@ -722,7 +722,7 @@ namespace Ice
             lock (_mutex)
             {
                 CheckForDeactivationNoSync();
-                return newDirectProxy(identity, factory, "");
+                return NewDirectProxy(identity, factory, "");
             }
         }
 
@@ -744,7 +744,7 @@ namespace Ice
             lock (_mutex)
             {
                 CheckForDeactivationNoSync();
-                return newIndirectProxy(identity, factory, "", _id);
+                return NewIndirectProxy(identity, factory, "", _id);
             }
         }
 
@@ -820,7 +820,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                List<IEndpoint> endpoints = new List<IEndpoint>();
+                var endpoints = new List<IEndpoint>();
                 Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
@@ -929,7 +929,7 @@ namespace Ice
             }
         }
 
-        public bool isLocal(IObjectPrx proxy)
+        public bool IsLocal(IObjectPrx proxy)
         {
             //
             // NOTE: it's important that isLocal() doesn't perform any blocking operations as
@@ -991,7 +991,7 @@ namespace Ice
             }
         }
 
-        public void updateConnectionObservers()
+        public void UpdateConnectionObservers()
         {
             List<IncomingConnectionFactory> f;
             lock (_mutex)
@@ -1005,7 +1005,7 @@ namespace Ice
             }
         }
 
-        public void updateThreadObservers()
+        public void UpdateThreadObservers()
         {
             ThreadPool? threadPool = null;
             lock (_mutex)
@@ -1019,7 +1019,7 @@ namespace Ice
             }
         }
 
-        public void incDirectCount()
+        internal void IncDirectCount()
         {
             lock (_mutex)
             {
@@ -1030,7 +1030,7 @@ namespace Ice
             }
         }
 
-        public void decDirectCount()
+        internal void DecDirectCount()
         {
             lock (_mutex)
             {
@@ -1046,7 +1046,7 @@ namespace Ice
             }
         }
 
-        public ThreadPool getThreadPool()
+        public ThreadPool GetThreadPool()
         {
             // No mutex lock necessary, _threadPool and _instance are
             // immutable after creation until they are removed in
@@ -1066,7 +1066,7 @@ namespace Ice
             }
         }
 
-        internal ACMConfig getACM()
+        internal ACMConfig GetACM()
         {
             // Not check for deactivation here!
 
@@ -1082,11 +1082,7 @@ namespace Ice
             }
         }
 
-        internal int messageSizeMax()
-        {
-            // No mutex lock, immutable.
-            return _messageSizeMax;
-        }
+        internal int MessageSizeMax() => _messageSizeMax; // No mutex lock, immutable.
 
         //
         // Only for use by ObjectAdapterFactory
@@ -1110,7 +1106,7 @@ namespace Ice
                 return;
             }
 
-            List<string> unknownProps = new List<string>();
+            var unknownProps = new List<string>();
             bool noProps = FilterProperties(unknownProps);
 
             //
@@ -1118,7 +1114,7 @@ namespace Ice
             //
             if (unknownProps.Count != 0 && (_communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
             {
-                StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
+                var message = new StringBuilder("found unknown properties for object adapter `");
                 message.Append(_name);
                 message.Append("':");
                 foreach (string s in unknownProps)
@@ -1218,19 +1214,16 @@ namespace Ice
                         Endpoint? publishedEndpoint;
                         foreach (Endpoint expanded in endp.ExpandHost(out publishedEndpoint))
                         {
-                            IncomingConnectionFactory factory = new IncomingConnectionFactory(communicator,
-                                                                                              expanded,
-                                                                                              publishedEndpoint,
-                                                                                              this);
+                            var factory = new IncomingConnectionFactory(communicator, expanded, publishedEndpoint, this);
                             _incomingConnectionFactories.Add(factory);
                         }
                     }
                     if (endpoints.Count == 0)
                     {
                         TraceLevels tl = _communicator.TraceLevels;
-                        if (tl.network >= 2)
+                        if (tl.Network >= 2)
                         {
-                            _communicator.Logger.Trace(tl.networkCat, "created adapter `" + _name +
+                            _communicator.Logger.Trace(tl.NetworkCat, "created adapter `" + _name +
                                                                         "' without endpoints");
                         }
                     }
@@ -1257,26 +1250,26 @@ namespace Ice
             }
         }
 
-        private T newProxy<T>(Identity identity, ProxyFactory<T> factory, string facet) where T : class, IObjectPrx
+        private T NewProxy<T>(Identity identity, ProxyFactory<T> factory, string facet) where T : class, IObjectPrx
         {
             if (_id.Length == 0)
             {
-                return newDirectProxy(identity, factory, facet);
+                return NewDirectProxy(identity, factory, facet);
             }
             else if (_replicaGroupId.Length == 0)
             {
-                return newIndirectProxy(identity, factory, facet, _id);
+                return NewIndirectProxy(identity, factory, facet, _id);
             }
             else
             {
-                return newIndirectProxy(identity, factory, facet, _replicaGroupId);
+                return NewIndirectProxy(identity, factory, facet, _replicaGroupId);
             }
         }
 
         //
         // Create a reference and return a proxy for this reference.
         //
-        private T newDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
+        private T NewDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
             where T : class, IObjectPrx
             => factory(_communicator!.CreateReference(identity, facet, _reference!, _publishedEndpoints));
 
@@ -1284,7 +1277,7 @@ namespace Ice
         // Create a reference with the adapter id and return a
         // proxy for the reference.
         //
-        private T newIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
+        private T NewIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
             where T : class, IObjectPrx
             => factory(_communicator!.CreateReference(identity, facet, _reference!, id));
 
@@ -1313,10 +1306,10 @@ namespace Ice
 
             string delim = " \t\n\r";
 
-            List<Endpoint> endpoints = new List<Endpoint>();
+            var endpoints = new List<Endpoint>();
             while (end < endpts.Length)
             {
-                beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+                beg = IceUtilInternal.StringUtil.FindFirstNotOf(endpts, delim, end);
                 if (beg == -1)
                 {
                     if (endpoints.Count != 0)
@@ -1374,7 +1367,7 @@ namespace Ice
                     throw new FormatException("invalid empty object adapter endpoint");
                 }
 
-                string s = endpts.Substring(beg, (end) - (beg));
+                string s = endpts[beg..end];
                 Endpoint? endp = _communicator.CreateEndpoint(s, oaEndpoints);
                 if (endp == null)
                 {
@@ -1439,9 +1432,9 @@ namespace Ice
                 }
             }
 
-            if (_communicator.TraceLevels.network >= 1 && endpoints.Count > 0)
+            if (_communicator.TraceLevels.Network >= 1 && endpoints.Count > 0)
             {
-                StringBuilder s = new StringBuilder("published endpoints for object adapter `");
+                var s = new StringBuilder("published endpoints for object adapter `");
                 s.Append(_name);
                 s.Append("':\n");
                 bool first = true;
@@ -1454,7 +1447,7 @@ namespace Ice
                     s.Append(endpoint.ToString());
                     first = false;
                 }
-                _communicator.Logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
 
             return endpoints.ToArray();
@@ -1491,47 +1484,39 @@ namespace Ice
             }
             catch (AdapterNotFoundException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (_communicator.TraceLevels.Location >= 1)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter is not known to the locator registry");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    _communicator.Logger.Trace(_communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
-                NotRegisteredException ex1 = new NotRegisteredException();
-                ex1.KindOfObject = "object adapter";
-                ex1.Id = _id;
-                throw ex1;
+                throw new NotRegisteredException("object adapter",_id);
             }
             catch (InvalidReplicaGroupIdException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (_communicator.TraceLevels.Location >= 1)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    _communicator.Logger.Trace(_communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
-                NotRegisteredException ex1 = new NotRegisteredException();
-                ex1.KindOfObject = "replica group";
-                ex1.Id = _replicaGroupId;
-                throw ex1;
+                throw new NotRegisteredException("replica group", _replicaGroupId);
             }
             catch (AdapterAlreadyActiveException)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (_communicator.TraceLevels.Location >= 1)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter endpoints are already set");
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    _communicator.Logger.Trace(_communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
-                ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-                ex1.Id = _id;
-                throw;
+                throw new ObjectAdapterIdInUseException(_id);
             }
             catch (ObjectAdapterDeactivatedException)
             {
@@ -1543,19 +1528,19 @@ namespace Ice
             }
             catch (LocalException e)
             {
-                if (_communicator.TraceLevels.location >= 1)
+                if (_communicator.TraceLevels.Location >= 1)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append(e.ToString());
-                    _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                    _communicator.Logger.Trace(_communicator.TraceLevels.LocationCat, s.ToString());
                 }
                 throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
             }
 
-            if (_communicator.TraceLevels.location >= 1)
+            if (_communicator.TraceLevels.Location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
                 s.Append("endpoints = ");
                 if (proxy != null)
@@ -1570,7 +1555,7 @@ namespace Ice
                         }
                     }
                 }
-                _communicator.Logger.Trace(_communicator.TraceLevels.locationCat, s.ToString());
+                _communicator.Logger.Trace(_communicator.TraceLevels.LocationCat, s.ToString());
             }
         }
 
@@ -1623,7 +1608,7 @@ namespace Ice
             //
             bool addUnknown = true;
             string prefix = _name + ".";
-            foreach (var propertyName in PropertyNames.clPropNames)
+            foreach (string propertyName in PropertyNames.clPropNames)
             {
                 if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
                 {

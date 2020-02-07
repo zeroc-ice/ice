@@ -188,7 +188,7 @@ namespace Ice
 
                 if (_acmLastActivity > -1)
                 {
-                    _acmLastActivity = Time.currentMonotonicTimeMillis();
+                    _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
                 SetState(StateActive);
             }
@@ -585,10 +585,10 @@ namespace Ice
                 {
                     Debug.Assert(Os != null);
                     Os.WriteBlob(Protocol.magic);
-                    Os.WriteByte(Util.CurrentProtocol.major);
-                    Os.WriteByte(Util.CurrentProtocol.minor);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.major);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.minor);
+                    Os.WriteByte(Util.CurrentProtocol.Major);
+                    Os.WriteByte(Util.CurrentProtocol.Minor);
+                    Os.WriteByte(Util.CurrentProtocolEncoding.Major);
+                    Os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                     Os.WriteByte(Protocol.validateConnectionMsg);
                     Os.WriteByte(0);
                     Os.WriteInt(Protocol.headerSize); // Message size.
@@ -674,7 +674,7 @@ namespace Ice
                 }
                 else if (_state == StateActive && _acmLastActivity == -1)
                 {
-                    _acmLastActivity = Time.currentMonotonicTimeMillis();
+                    _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
 
                 if (_state == StateActive)
@@ -1023,7 +1023,7 @@ namespace Ice
                     IceInternal.Buffer buf = _writeStream.GetBuffer();
                     int start = buf.B.Position();
                     _transceiver.FinishWrite(buf);
-                    if (_communicator.TraceLevels.network >= 3 && buf.B.Position() != start)
+                    if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
                     {
                         var s = new StringBuilder("sent ");
                         s.Append(buf.B.Position() - start);
@@ -1036,7 +1036,7 @@ namespace Ice
                         s.Append(_endpoint.Protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                        _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                     }
 
                     if (_observer != null)
@@ -1049,7 +1049,7 @@ namespace Ice
                     IceInternal.Buffer buf = _readStream.GetBuffer();
                     int start = buf.B.Position();
                     _transceiver.FinishRead(buf);
-                    if (_communicator.TraceLevels.network >= 3 && buf.B.Position() != start)
+                    if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
                     {
                         var s = new StringBuilder("received ");
                         if (_endpoint.Datagram())
@@ -1066,7 +1066,7 @@ namespace Ice
                         s.Append(_endpoint.Protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                        _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                     }
 
                     if (_observer != null && !_readHeader)
@@ -1300,7 +1300,7 @@ namespace Ice
 
                         if (_acmLastActivity > -1)
                         {
-                            _acmLastActivity = Time.currentMonotonicTimeMillis();
+                            _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                         }
 
                         if (dispatchCount == 0)
@@ -1508,7 +1508,7 @@ namespace Ice
         {
             if (!_initialized)
             {
-                if (_communicator.TraceLevels.network >= 2)
+                if (_communicator.TraceLevels.Network >= 2)
                 {
                     var s = new StringBuilder("failed to ");
                     s.Append(_connector != null ? "establish" : "accept");
@@ -1518,10 +1518,10 @@ namespace Ice
                     s.Append(ToString());
                     s.Append("\n");
                     s.Append(_exception);
-                    _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                    _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                 }
             }
-            else if (_communicator.TraceLevels.network >= 1)
+            else if (_communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder("closed ");
                 s.Append(_endpoint.Protocol());
@@ -1541,7 +1541,7 @@ namespace Ice
                     s.Append(_exception);
                 }
 
-                _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
 
             if (_startCallback != null)
@@ -1762,14 +1762,14 @@ namespace Ice
             _cacheBuffers = communicator.CacheMessageBuffers > 0;
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {
-                _acmLastActivity = Time.currentMonotonicTimeMillis();
+                _acmLastActivity = Time.CurrentMonotonicTimeMillis();
             }
             else
             {
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : communicator.MessageSizeMax;
+            _messageSizeMax = adapter != null ? adapter.MessageSizeMax() : communicator.MessageSizeMax;
             _readStream = new InputStream(communicator, Util.CurrentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
@@ -1792,7 +1792,7 @@ namespace Ice
             {
                 if (adapter != null)
                 {
-                    ThreadPool = adapter.getThreadPool();
+                    ThreadPool = adapter.GetThreadPool();
                 }
                 else
                 {
@@ -1994,7 +1994,7 @@ namespace Ice
                 {
                     if (_acmLastActivity > -1)
                     {
-                        _acmLastActivity = Time.currentMonotonicTimeMillis();
+                        _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                     }
                     _monitor.Add(this);
                 }
@@ -2068,10 +2068,10 @@ namespace Ice
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteBlob(Protocol.magic);
-                os.WriteByte(Util.CurrentProtocol.major);
-                os.WriteByte(Util.CurrentProtocol.minor);
-                os.WriteByte(Util.CurrentProtocolEncoding.major);
-                os.WriteByte(Util.CurrentProtocolEncoding.minor);
+                os.WriteByte(Util.CurrentProtocol.Major);
+                os.WriteByte(Util.CurrentProtocol.Minor);
+                os.WriteByte(Util.CurrentProtocolEncoding.Major);
+                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                 os.WriteByte(Protocol.closeConnectionMsg);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Protocol.headerSize); // Message size.
@@ -2101,10 +2101,10 @@ namespace Ice
             {
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteBlob(Protocol.magic);
-                os.WriteByte(Util.CurrentProtocol.major);
-                os.WriteByte(Util.CurrentProtocol.minor);
-                os.WriteByte(Util.CurrentProtocolEncoding.major);
-                os.WriteByte(Util.CurrentProtocolEncoding.minor);
+                os.WriteByte(Util.CurrentProtocol.Major);
+                os.WriteByte(Util.CurrentProtocol.Minor);
+                os.WriteByte(Util.CurrentProtocolEncoding.Major);
+                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                 os.WriteByte(Protocol.validateConnectionMsg);
                 os.WriteByte(0);
                 os.WriteInt(Protocol.headerSize); // Message size.
@@ -2149,10 +2149,10 @@ namespace Ice
                     if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteBlob(Protocol.magic);
-                        _writeStream.WriteByte(Util.CurrentProtocol.major);
-                        _writeStream.WriteByte(Util.CurrentProtocol.minor);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.major);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.minor);
+                        _writeStream.WriteByte(Util.CurrentProtocol.Major);
+                        _writeStream.WriteByte(Util.CurrentProtocol.Minor);
+                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
+                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Minor);
                         _writeStream.WriteByte(Protocol.validateConnectionMsg);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Protocol.headerSize); // Message size.
@@ -2255,7 +2255,7 @@ namespace Ice
             _readStream.Pos = 0;
             _readHeader = true;
 
-            if (_communicator.TraceLevels.network >= 1)
+            if (_communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder();
                 if (_endpoint.Datagram())
@@ -2275,7 +2275,7 @@ namespace Ice
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
-                _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
 
             return true;
@@ -2444,7 +2444,7 @@ namespace Ice
 
                 if (_acmLastActivity > -1)
                 {
-                    _acmLastActivity = Time.currentMonotonicTimeMillis();
+                    _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
                 return status;
             }
@@ -2951,7 +2951,7 @@ namespace Ice
         {
             int start = buf.B.Position();
             int op = _transceiver.Read(buf, ref HasMoreData);
-            if (_communicator.TraceLevels.network >= 3 && buf.B.Position() != start)
+            if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
             {
                 var s = new StringBuilder("received ");
                 if (_endpoint.Datagram())
@@ -2968,7 +2968,7 @@ namespace Ice
                 s.Append(_endpoint.Protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
             return op;
         }
@@ -2977,7 +2977,7 @@ namespace Ice
         {
             int start = buf.B.Position();
             int op = _transceiver.Write(buf);
-            if (_communicator.TraceLevels.network >= 3 && buf.B.Position() != start)
+            if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
             {
                 var s = new StringBuilder("sent ");
                 s.Append(buf.B.Position() - start);
@@ -2990,7 +2990,7 @@ namespace Ice
                 s.Append(_endpoint.Protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _logger.Trace(_communicator.TraceLevels.networkCat, s.ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
             return op;
         }

@@ -15,7 +15,7 @@ namespace IceLocatorDiscovery
     public sealed class PluginFactory : Ice.IPluginFactory
     {
         public Ice.IPlugin
-        create(Communicator communicator, string name, string[] args) => new PluginI(name, communicator);
+        Create(Communicator communicator, string name, string[] args) => new PluginI(name, communicator);
     }
 
     public interface IPlugin : Ice.IPlugin
@@ -387,7 +387,7 @@ namespace IceLocatorDiscovery
                 {
                     request.Invoke(_locator);
                 }
-                else if (request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+                else if (request != null && IceInternal.Time.CurrentMonotonicTimeMillis() < _nextRetry)
                 {
                     request.Invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
@@ -589,7 +589,7 @@ namespace IceLocatorDiscovery
                     }
                     _pendingRequests.Clear();
                 }
-                _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
+                _nextRetry = IceInternal.Time.CurrentMonotonicTimeMillis() + _retryDelay;
             }
         }
 
