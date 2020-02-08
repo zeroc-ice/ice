@@ -12,7 +12,7 @@ namespace Ice
     {
         /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
-        /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown">
+        /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown"/>
         /// to wait for the completion of all requests.</summary>
         public void Shutdown()
         {

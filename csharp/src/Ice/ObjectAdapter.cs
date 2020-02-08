@@ -35,16 +35,7 @@ namespace Ice
 
         private readonly object _mutex = new object();
 
-        private const int StateUninitialized = 0; // Just constructed.
-        private const int StateHeld = 1;
-        private const int StateActivating = 2;
-        private const int StateActive = 3;
-        private const int StateDeactivating = 4;
-        private const int StateDeactivated = 5;
-        private const int StateDestroying = 6;
-        private const int StateDestroyed = 7;
-
-        private int _state = StateUninitialized;
+        private State _state = State.Uninitialized;
 
         private ThreadPool? _threadPool;
         private readonly ACMConfig _acm;
@@ -79,7 +70,7 @@ namespace Ice
                 // If we've previously been initialized we just need to activate the
                 // incoming connection factories and we're done.
                 //
-                if (_state != StateUninitialized)
+                if (_state != State.Uninitialized)
                 {
                     Debug.Assert(_incomingConnectionFactories != null);
                     foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
@@ -92,11 +83,11 @@ namespace Ice
                 //
                 // One off initializations of the adapter: update the
                 // locator registry and print the "adapter ready"
-                // message. We set set state to StateActivating to prevent
+                // message. We set set state to State.Activating to prevent
                 // deactivation from other threads while these one off
                 // initializations are done.
                 //
-                _state = StateActivating;
+                _state = State.Activating;
 
                 locatorInfo = _locatorInfo;
                 if (Name.Length > 0)
@@ -119,7 +110,7 @@ namespace Ice
                 //
                 lock (_mutex)
                 {
-                    _state = StateUninitialized;
+                    _state = State.Uninitialized;
                     System.Threading.Monitor.PulseAll(_mutex);
                 }
                 throw;
@@ -132,14 +123,14 @@ namespace Ice
 
             lock (_mutex)
             {
-                Debug.Assert(_state == StateActivating);
+                Debug.Assert(_state == State.Activating);
                 Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.Activate();
                 }
 
-                _state = StateActive;
+                _state = State.Active;
                 System.Threading.Monitor.PulseAll(_mutex);
             }
         }
@@ -160,7 +151,7 @@ namespace Ice
             lock (_mutex)
             {
                 CheckForDeactivationNoSync();
-                _state = StateHeld;
+                _state = State.Held;
                 Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
@@ -220,15 +211,15 @@ namespace Ice
                 // Wait for activation to complete. This is necessary to not
                 // get out of order locator updates.
                 //
-                while (_state == StateActivating || _state == StateDeactivating)
+                while (_state == State.Activating || _state == State.Deactivating)
                 {
                     System.Threading.Monitor.Wait(_mutex);
                 }
-                if (_state > StateDeactivating)
+                if (_state > State.Deactivating)
                 {
                     return;
                 }
-                _state = StateDeactivating;
+                _state = State.Deactivating;
             }
 
             //
@@ -271,8 +262,8 @@ namespace Ice
 
             lock (_mutex)
             {
-                Debug.Assert(_state == StateDeactivating);
-                _state = StateDeactivated;
+                Debug.Assert(_state == State.Deactivating);
+                _state = State.Deactivated;
                 System.Threading.Monitor.PulseAll(_mutex);
             }
         }
@@ -295,11 +286,11 @@ namespace Ice
                 // for the return of all direct method calls using this
                 // adapter.
                 //
-                while ((_state < StateDeactivated) || _directCount > 0)
+                while ((_state < State.Deactivated) || _directCount > 0)
                 {
                     System.Threading.Monitor.Wait(_mutex);
                 }
-                if (_state > StateDeactivated)
+                if (_state > State.Deactivated)
                 {
                     return;
                 }
@@ -327,7 +318,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                return _state >= StateDeactivated;
+                return _state >= State.Deactivated;
             }
         }
 
@@ -356,15 +347,15 @@ namespace Ice
                 // adapter. Other threads wait for the destruction to be
                 // completed.
                 //
-                while (_state == StateDestroying)
+                while (_state == State.Destroying)
                 {
                     System.Threading.Monitor.Wait(_mutex);
                 }
-                if (_state == StateDestroyed)
+                if (_state == State.Destroyed)
                 {
                     return;
                 }
-                _state = StateDestroying;
+                _state = State.Destroying;
 
                 // Clear ASM maps
                 _identityServantMap.Clear();
@@ -401,7 +392,7 @@ namespace Ice
                 _locatorInfo = null;
                 _reference = null;
 
-                _state = StateDestroyed;
+                _state = State.Destroyed;
                 System.Threading.Monitor.PulseAll(_mutex);
             }
         }
@@ -442,7 +433,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T Add<T>(Identity identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -452,7 +443,7 @@ namespace Ice
             {
                 CheckForDeactivationNoSync();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
-                return NewProxy(identity, proxyFactory, facet);
+                return CreateProxy(identity, facet, proxyFactory);
             }
         }
 
@@ -483,7 +474,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string, string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T Add<T>(string identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -538,7 +529,7 @@ namespace Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T AddWithUUID<T>(string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -653,34 +644,82 @@ namespace Ice
             }
         }
 
-        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
-        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
-        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is
-        /// defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// <summary>Creates a proxy for the object with the given identity and facet. If this object adapter is
+        /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
+        /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
+        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
         /// <param name="identity">The object's identity.</param>
+        /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateProxy<T>(Identity identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            CheckIdentity(identity);
-            lock (_mutex)
+            if (_id.Length == 0)
             {
-                CheckForDeactivationNoSync();
-                return NewProxy(identity, factory, "");
+                return CreateDirectProxy(identity, facet, factory);
+            }
+            else if (_replicaGroupId.Length == 0)
+            {
+                return CreateIndirectProxy(identity, facet, factory);
+            }
+            else
+            {
+                return CreateIndirectProxyForReplicaGroup(identity, facet, factory);
             }
         }
 
         /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
         /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
-        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is
-        /// defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
+        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
+        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateProxy(identity, "", factory);
+
+        /// <summary>Creates a proxy for the object with the given identity and facet. If this object adapter is
+        /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
+        /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
+        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="facet">The facet.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateProxy<T>(string identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateProxy(Identity.Parse(identity), facet, factory);
+
+        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
+        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
+        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
+        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
         /// <param name="identity">The stringified identity of the object.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(Identity.Parse(identity), factory);
+            => CreateProxy(identity, "", factory);
+
+        /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
+        /// contains this object adapter's published endpoints.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="facet">The facet.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateDirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
+        {
+            CheckIdentity(identity);
+            lock (_mutex)
+            {
+                CheckForDeactivationNoSync();
+                return factory(Communicator.CreateReference(identity, facet, _reference!, _publishedEndpoints));
+            }
+        }
 
         /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
         /// object adapter's published endpoints.</summary>
@@ -689,43 +728,70 @@ namespace Ice
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-        {
-            CheckIdentity(identity);
-            lock (_mutex)
-            {
-                CheckForDeactivationNoSync();
-                return NewDirectProxy(identity, factory, "");
-            }
-        }
+            => CreateDirectProxy(identity, "", factory);
+
+        /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
+        /// contains this object adapter's published endpoints.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="facet">The facet.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateDirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
+            => CreateDirectProxy(Identity.Parse(identity), facet, factory);
 
         /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
         /// object adapter's published endpoints.</summary>
         /// <param name="identity">The stringified identity of the object.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateDirectProxy(Identity.Parse(identity), factory);
+            => CreateDirectProxy(identity, "", factory);
 
-        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
+        /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
         /// <param name="identity">The object's identity.</param>
+        /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
-        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateIndirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
         {
             CheckIdentity(identity);
             lock (_mutex)
             {
                 CheckForDeactivationNoSync();
-                return NewIndirectProxy(identity, factory, "", _id);
+                return factory(Communicator.CreateReference(identity, facet, _reference!, _id));
             }
         }
+
+        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
+        /// <param name="identity">The object's identity.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
+        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
+            => CreateIndirectProxy(identity, "", factory);
+
+        /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
+        /// <param name="identity">The stringified identity of the object.</param>
+        /// <param name="facet">The facet.</param>
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
+        /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity and facet.</returns>
+        public T CreateIndirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
+            => CreateIndirectProxy(Identity.Parse(identity), facet, factory);
 
         /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
         /// <param name="identity">The stringified identity of the object.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
+        /// <returns>A proxy for the object with the given identity.</returns>
         public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateIndirectProxy(Identity.Parse(identity), factory);
+            => CreateIndirectProxy(identity, "", factory);
 
         /// <summary>
         /// Set an Ice locator for this object adapter.
@@ -754,7 +820,6 @@ namespace Ice
                 {
                     _locatorInfo = null;
                 }
-
             }
         }
 
@@ -901,7 +966,7 @@ namespace Ice
             }
         }
 
-        public bool IsLocal(IObjectPrx proxy)
+        internal bool IsLocal(IObjectPrx proxy)
         {
             //
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
@@ -963,7 +1028,7 @@ namespace Ice
             }
         }
 
-        public void UpdateConnectionObservers()
+        internal void UpdateConnectionObservers()
         {
             List<IncomingConnectionFactory> f;
             lock (_mutex)
@@ -977,7 +1042,7 @@ namespace Ice
             }
         }
 
-        public void UpdateThreadObservers()
+        internal void UpdateThreadObservers()
         {
             ThreadPool? threadPool = null;
             lock (_mutex)
@@ -1015,7 +1080,7 @@ namespace Ice
             }
         }
 
-        public ThreadPool GetThreadPool()
+        internal ThreadPool GetThreadPool()
         {
             // No mutex lock necessary, _threadPool and _instance are
             // immutable after creation until they are removed in
@@ -1096,7 +1161,7 @@ namespace Ice
                 //
                 // These need to be set to prevent warnings/asserts in the destructor.
                 //
-                _state = StateDestroyed;
+                _state = State.Destroyed;
                 _incomingConnectionFactories = null;
                 throw new InitializationException($"object adapter `{Name}' requires configuration");
             }
@@ -1212,41 +1277,21 @@ namespace Ice
             }
         }
 
-        private T NewProxy<T>(Identity identity, ProxyFactory<T> factory, string facet) where T : class, IObjectPrx
+        private T CreateIndirectProxyForReplicaGroup<T>(Identity identity, string facet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
         {
-            if (_id.Length == 0)
+            CheckIdentity(identity);
+            lock (_mutex)
             {
-                return NewDirectProxy(identity, factory, facet);
-            }
-            else if (_replicaGroupId.Length == 0)
-            {
-                return NewIndirectProxy(identity, factory, facet, _id);
-            }
-            else
-            {
-                return NewIndirectProxy(identity, factory, facet, _replicaGroupId);
+                CheckForDeactivationNoSync();
+                return factory(Communicator.CreateReference(identity, facet, _reference!, _replicaGroupId));
             }
         }
-
-        //
-        // Create a reference and return a proxy for this reference.
-        //
-        private T NewDirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet)
-            where T : class, IObjectPrx
-            => factory(Communicator.CreateReference(identity, facet, _reference!, _publishedEndpoints));
-
-        //
-        // Create a reference with the adapter id and return a
-        // proxy for the reference.
-        //
-        private T NewIndirectProxy<T>(Identity identity, ProxyFactory<T> factory, string facet, string id)
-            where T : class, IObjectPrx
-            => factory(Communicator.CreateReference(identity, facet, _reference!, id));
 
         private void CheckForDeactivationNoSync()
         {
             // Must be called with _mutex locked.
-            if (_state >= StateDeactivating)
+            if (_state >= State.Deactivating)
             {
                 throw new ObjectAdapterDeactivatedException(Name);
             }
@@ -1462,7 +1507,7 @@ namespace Ice
                     Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
-                throw new NotRegisteredException("object adapter",_id);
+                throw new NotRegisteredException("object adapter", _id);
             }
             catch (InvalidReplicaGroupIdException)
             {
@@ -1607,6 +1652,18 @@ namespace Ice
                 }
             }
             return noProps;
+        }
+
+        private enum State
+        {
+            Uninitialized,
+            Held,
+            Activating,
+            Active,
+            Deactivating,
+            Deactivated,
+            Destroying,
+            Destroyed
         }
 
         private readonly struct IdentityPlusFacet : IEquatable<IdentityPlusFacet>
