@@ -191,7 +191,7 @@ namespace Ice.admin
                 {
                 }
 
-                ObjectAdapter adapter = com.CreateObjectAdapter("");
+                ObjectAdapter adapter = com.CreateObjectAdapter();
                 test(com.CreateAdmin(adapter, id) != null);
                 test(com.GetAdmin() != null);
 

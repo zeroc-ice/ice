@@ -97,6 +97,8 @@ namespace Ice
         private const int StateDestroyInProgress = 1;
         private const int StateDestroyed = 2;
 
+        private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
+        private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
         private ObjectAdapter? _adminAdapter;
         private readonly bool _adminEnabled = false;
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
@@ -108,6 +110,7 @@ namespace Ice
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
         private readonly ImplicitContext? _implicitContext; // Immutable
+        private bool _isShutdown = false;
         private static bool _oneOffDone = false;
         private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
@@ -677,7 +680,7 @@ namespace Ice
                 {
                     if (GetProperty("Ice.Admin.Endpoints") != null)
                     {
-                        adminAdapter = CreateObjectAdapter("Ice.Admin", null);
+                        adminAdapter = CreateObjectAdapter("Ice.Admin");
                     }
                     else
                     {
@@ -715,96 +718,6 @@ namespace Ice
             }
             SetServerProcessProxy(_adminAdapter, adminIdentity);
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-        }
-
-        /// <summary>
-        /// Create a new object adapter.
-        /// The endpoints for the object
-        /// adapter are taken from the property name.Endpoints.
-        ///
-        /// It is legal to create an object adapter with the empty string as
-        /// its name. Such an object adapter is accessible via bidirectional
-        /// connections or by collocated invocations that originate from the
-        /// same communicator as is used by the adapter.
-        ///
-        /// Attempts to create a named object adapter for which no configuration
-        /// can be found raise InitializationException.
-        ///
-        /// </summary>
-        /// <param name="name">The object adapter name.
-        ///
-        /// </param>
-        /// <returns>The new object adapter.
-        ///
-        /// </returns>
-        public ObjectAdapter CreateObjectAdapter(string name) => CreateObjectAdapter(name, null);
-
-        /// <summary>
-        /// Create a new object adapter with endpoints.
-        /// This operation sets
-        /// the property name.Endpoints, and then calls
-        /// createObjectAdapter. It is provided as a convenience
-        /// function.
-        ///
-        /// Calling this operation with an empty name will result in a
-        /// UUID being generated for the name.
-        ///
-        /// </summary>
-        /// <param name="name">The object adapter name.
-        ///
-        /// </param>
-        /// <param name="endpoints">The endpoints for the object adapter.
-        ///
-        /// </param>
-        /// <returns>The new object adapter.
-        ///
-        /// </returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string name, string endpoints)
-        {
-            if (name.Length == 0)
-            {
-                name = Guid.NewGuid().ToString();
-            }
-
-            SetProperty($"{name}.Endpoints", endpoints);
-            return CreateObjectAdapter(name, null);
-        }
-
-        /// <summary>
-        /// Create a new object adapter with a router.
-        /// This operation
-        /// creates a routed object adapter.
-        ///
-        /// Calling this operation with an empty name will result in a
-        /// UUID being generated for the name.
-        ///
-        /// </summary>
-        /// <param name="name">The object adapter name.
-        ///
-        /// </param>
-        /// <param name="router">The router.
-        ///
-        /// </param>
-        /// <returns>The new object adapter.
-        ///
-        /// </returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(string name, IRouterPrx router)
-        {
-            if (name.Length == 0)
-            {
-                name = Guid.NewGuid().ToString();
-            }
-
-            //
-            // We set the proxy properties here, although we still use the proxy supplied.
-            //
-            Dictionary<string, string> properties = router.ToProperty($"{name}.Router");
-            foreach (KeyValuePair<string, string> entry in properties)
-            {
-                SetProperty(entry.Key, entry.Value);
-            }
-
-            return CreateObjectAdapter(name, router);
         }
 
         public Reference CreateReference(string s, string? propertyPrefix = null)
@@ -1296,21 +1209,7 @@ namespace Ice
             //
             WaitForShutdown();
 
-            List<ObjectAdapter> adapters;
-            lock (this)
-            {
-                adapters = new List<ObjectAdapter>(_adapters);
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.Destroy();
-            }
-
-            lock (this)
-            {
-                _adapters.Clear();
-            }
+            DestroyAllObjectAdapters();
 
             _outgoingConnectionFactory.WaitUntilFinished();
 
@@ -1526,7 +1425,7 @@ namespace Ice
                 {
                     if (GetProperty("Ice.Admin.Endpoints") != null)
                     {
-                        adminAdapter = CreateObjectAdapter("Ice.Admin", null);
+                        adminAdapter = CreateObjectAdapter("Ice.Admin");
                     }
                     else
                     {
@@ -1708,47 +1607,6 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Shuts down this communicator's server functionality, which
-        /// includes the deactivation of all object adapters.
-        /// Attempts to use a
-        /// deactivated object adapter raise ObjectAdapterDeactivatedException.
-        /// Subsequent calls to shutdown are ignored.
-        ///
-        /// After shutdown returns, no new requests are processed. However, requests
-        /// that have been started before shutdown was called might still be active.
-        /// You can use waitForShutdown to wait for the completion of all
-        /// requests.
-        /// </summary>
-        public void Shutdown()
-        {
-            List<ObjectAdapter> adapters;
-            lock (this)
-            {
-                //
-                // Ignore shutdown requests if the object adapter factory has
-                // already been shut down.
-                //
-                if (_isShutdown)
-                {
-                    return;
-                }
-
-                adapters = new List<ObjectAdapter>(_adapters);
-                _isShutdown = true;
-                Monitor.PulseAll(this);
-            }
-
-            //
-            // Deactivate outside the thread synchronization, to avoid
-            // deadlocks.
-            //
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.Deactivate();
-            }
-        }
-
         public IceInternal.Timer Timer()
         {
             lock (this)
@@ -1758,45 +1616,6 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
                 return _timer;
-            }
-        }
-
-        /// <summary>
-        /// Wait until the application has called shutdown (or destroy).
-        /// On the server side, this operation blocks the calling thread
-        /// until all currently-executing operations have completed.
-        /// On the client side, the operation simply blocks until another
-        /// thread has called shutdown or destroy.
-        ///
-        /// A typical use of this operation is to call it from the main thread,
-        /// which then waits until some other thread calls shutdown.
-        /// After shut-down is complete, the main thread returns and can do some
-        /// cleanup work before it finally calls destroy to shut down
-        /// the client functionality, and then exits the application.
-        ///
-        /// </summary>
-        public void WaitForShutdown()
-        {
-            List<ObjectAdapter> adapters;
-            lock (this)
-            {
-                //
-                // First we wait for the shutdown of the factory itself.
-                //
-                while (!_isShutdown)
-                {
-                    Monitor.Wait(this);
-                }
-
-                adapters = new List<ObjectAdapter>(_adapters);
-            }
-
-            //
-            // Now we wait for deactivation of each object adapter.
-            //
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.WaitForDeactivate();
             }
         }
 
@@ -2211,10 +2030,10 @@ namespace Ice
             {
                 _outgoingConnectionFactory.UpdateConnectionObservers();
 
-                List<ObjectAdapter> adapters;
+                ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
                 lock (this)
                 {
-                    adapters = new List<ObjectAdapter>(_adapters);
+                    adapters = _adapters.ToArray();
                 }
 
                 foreach (ObjectAdapter adapter in adapters)
@@ -2237,10 +2056,10 @@ namespace Ice
                     _serverThreadPool.UpdateObservers();
                 }
 
-                List<ObjectAdapter> adapters;
+                ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
                 lock (this)
                 {
-                    adapters = new List<ObjectAdapter>(_adapters);
+                    adapters = _adapters.ToArray();
                 }
 
                 foreach (ObjectAdapter adapter in adapters)

@@ -904,7 +904,7 @@ namespace Ice
         public bool IsLocal(IObjectPrx proxy)
         {
             //
-            // NOTE: it's important that isLocal() doesn't perform any blocking operations as
+            // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             //
 
@@ -1628,7 +1628,7 @@ namespace Ice
             }
         }
 
-         private readonly struct CategoryPlusFacet : IEquatable<CategoryPlusFacet>
+        private readonly struct CategoryPlusFacet : IEquatable<CategoryPlusFacet>
         {
             internal readonly string Category;
             internal readonly string Facet;
