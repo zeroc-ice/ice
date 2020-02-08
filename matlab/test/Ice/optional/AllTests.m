@@ -178,7 +178,9 @@ classdef AllTests
             assert(strcmp(mo5.h, mo1.h));
             assert(mo5.i == mo1.i);
             assert(mo5.j == mo1.j);
-            assert(isempty(mo5.k));
+            % With the Swift mapping you cannot distinguish null from an
+            % unset optional, so we test for both to support cross-testing.
+            assert(isempty(mo5.k) || mo5.k == Ice.Unset);
             assert(mo5.bs(1) == 5);
             assert(isequal(mo5.ss, mo1.ss));
             assert(mo5.iid(4) == 3);
