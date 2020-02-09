@@ -47,6 +47,17 @@ namespace Ice
 
         internal int MessageSizeMax { get; }
 
+        internal ThreadPool ThreadPool
+        {
+            get
+            {
+                // No mutex lock necessary: _threadPool is immutable until Destroy and ThreadPool is only retrieved
+                // before Destroy runs. No check for deactivation either.
+                Debug.Assert(_state < State.Destroying);
+                return _threadPool ?? Communicator.ServerThreadPool();
+            }
+        }
+
         private static readonly string[] _suffixes =
         {
             "ACM",
@@ -1093,22 +1104,6 @@ namespace Ice
                 }
             }
         }
-        internal ThreadPool GetThreadPool()
-        {
-            // No mutex lock necessary, _threadPool is immutable after creation until they are removed in
-            // destroy().
-
-            // Not check for deactivation here!
-
-            if (_threadPool != null)
-            {
-                return _threadPool;
-            }
-            else
-            {
-                return Communicator.ServerThreadPool();
-            }
-        }
 
         internal void ExecuteOnlyWhenActive(System.Action action)
         {
@@ -1234,9 +1229,7 @@ namespace Ice
             List<Endpoint> endpoints;
             if (_routerInfo != null)
             {
-                //
                 // Get the router's server proxy endpoints and use them as the published endpoints.
-                //
                 endpoints = new List<Endpoint>();
                 foreach (Endpoint endpt in _routerInfo.GetServerEndpoints())
                 {
@@ -1266,20 +1259,16 @@ namespace Ice
 
                 if (endpoints.Count == 0)
                 {
-                    //
                     // If the PublishedEndpoints property isn't set, we compute the published enpdoints
                     // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                     // to include actual addresses in the published endpoints.
-                    //
                     foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                     {
                         foreach (Endpoint endpt in factory.Endpoint().ExpandIfWildcard())
                         {
-                            //
                             // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
                             // expands to multiple addresses. In this case, multiple incoming connection
                             // factories can point to the same published endpoint.
-                            //
                             if (!endpoints.Contains(endpt))
                             {
                                 endpoints.Add(endpt);

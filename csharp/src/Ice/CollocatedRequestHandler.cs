@@ -171,7 +171,7 @@ namespace IceInternal
             if (!synchronous || !_response || _reference.GetInvocationTimeout() > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
-                _adapter.GetThreadPool().Dispatch(
+                _adapter.ThreadPool.Dispatch(
                     () =>
                     {
                         if (SentAsync(outAsync))
@@ -182,7 +182,7 @@ namespace IceInternal
             }
             else if (_dispatcher)
             {
-                _adapter.GetThreadPool().DispatchFromThisThread(
+                _adapter.ThreadPool.DispatchFromThisThread(
                     () =>
                     {
                         if (SentAsync(outAsync))

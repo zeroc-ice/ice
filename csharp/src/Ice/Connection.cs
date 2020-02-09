@@ -1781,7 +1781,7 @@ namespace Ice
             {
                 if (adapter != null)
                 {
-                    ThreadPool = adapter.GetThreadPool();
+                    ThreadPool = adapter.ThreadPool;
                 }
                 else
                 {
