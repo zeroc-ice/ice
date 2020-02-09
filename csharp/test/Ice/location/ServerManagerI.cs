@@ -61,8 +61,8 @@ namespace Ice.location
                     adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
                     var locator = ILocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
-                    adapter.SetLocator(locator);
-                    adapter2.SetLocator(locator);
+                    adapter.Locator = locator;
+                    adapter2.Locator = locator;
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
                     _registry.addObject(adapter.Add("test", testI, Ice.IObjectPrx.Factory));

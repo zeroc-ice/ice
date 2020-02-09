@@ -1492,10 +1492,10 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Ice.Communicator communicator, Endpoint endpoint, Endpoint? publish,
-                                         Ice.ObjectAdapter adapter)
+        public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
+                                         ACMConfig acmConfig)
         {
-            _communicator = communicator;
+            _communicator = adapter.Communicator;
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
@@ -1503,7 +1503,7 @@ namespace IceInternal
             _connections = new HashSet<Ice.Connection>();
             _state = StateHolding;
             _acceptorStarted = false;
-            _monitor = new FactoryACMMonitor(communicator, adapter.GetACM());
+            _monitor = new FactoryACMMonitor(_communicator, acmConfig);
 
             DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             if (defaultsAndOverrides.OverrideTimeout)

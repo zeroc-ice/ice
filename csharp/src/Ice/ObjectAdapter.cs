@@ -11,52 +11,105 @@ using IceInternal;
 
 namespace Ice
 {
-    // TODO: rename Disp to Dispatcher and fix its signature
-    public delegate Task<OutputStream?>? Disp(Incoming inS, Current current);
-
     public sealed class ObjectAdapter
     {
         /// <summary>Returns the communicator that created this object adapter.</summary>
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
+        /// <summary>The Ice Locator associated with this object adapter, if any. The object adapter registers itself
+        /// with this locator during <see cref="Activate"/>.</summary>
+        /// <value>The locator proxy.</value>
+        public ILocatorPrx? Locator
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    CheckForDeactivation();
+                    return _locatorInfo?.Locator;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    CheckForDeactivation();
+                    _locatorInfo = value != null ? Communicator.GetLocatorInfo(value) : null;
+                }
+             }
+        }
+
         /// <summary>Returns the name of this object adapter. This name is used as prefix for the object adapter's
         /// configuration properties.</summary>
         /// <value>The object adapter's name.</value>
         public string Name { get; }
 
-        private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
-            new Dictionary<IdentityPlusFacet, IObject>();
+        internal int MessageSizeMax { get; }
 
+        private static readonly string[] _suffixes =
+        {
+            "ACM",
+            "ACM.Timeout",
+            "ACM.Heartbeat",
+            "ACM.Close",
+            "AdapterId",
+            "Endpoints",
+            "Locator",
+            "Locator.EncodingVersion",
+            "Locator.EndpointSelection",
+            "Locator.ConnectionCached",
+            "Locator.PreferSecure",
+            "Locator.CollocationOptimized",
+            "Locator.Router",
+            "MessageSizeMax",
+            "PublishedEndpoints",
+            "ReplicaGroupId",
+            "Router",
+            "Router.EncodingVersion",
+            "Router.EndpointSelection",
+            "Router.ConnectionCached",
+            "Router.PreferSecure",
+            "Router.CollocationOptimized",
+            "Router.Locator",
+            "Router.Locator.EndpointSelection",
+            "Router.Locator.ConnectionCached",
+            "Router.Locator.PreferSecure",
+            "Router.Locator.CollocationOptimized",
+            "Router.Locator.LocatorCacheTimeout",
+            "Router.Locator.InvocationTimeout",
+            "Router.LocatorCacheTimeout",
+            "Router.InvocationTimeout",
+            "ProxyOptions",
+            "ThreadPool.Size",
+            "ThreadPool.SizeMax",
+            "ThreadPool.SizeWarn",
+            "ThreadPool.StackSize",
+            "ThreadPool.Serialize"
+        };
+
+        private readonly ACMConfig _acm;
         private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
             new Dictionary<CategoryPlusFacet, IObject>();
-
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
-
-        private readonly object _mutex = new object();
-
-        private State _state = State.Uninitialized;
-
-        private ThreadPool? _threadPool;
-        private readonly ACMConfig _acm;
-
-        private readonly string _id;
-        private readonly string _replicaGroupId;
-        private Reference? _reference;
-        private readonly List<IncomingConnectionFactory>? _incomingConnectionFactories;
-        private RouterInfo? _routerInfo;
-        private Endpoint[] _publishedEndpoints;
-        private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
+        private readonly string _id; // adapter id
+        private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
+            new Dictionary<IdentityPlusFacet, IObject>();
+        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
+            new List<IncomingConnectionFactory>();
+        private LocatorInfo? _locatorInfo;
+        private readonly object _mutex = new object();
+        private Endpoint[] _publishedEndpoints;
+        private Reference? _reference;
+        private readonly string _replicaGroupId;
+        private RouterInfo? _routerInfo;
+        private State _state = State.Uninitialized;
+        private ThreadPool? _threadPool;
 
-        private int _messageSizeMax;
-
-        /// <summary>
-        /// Activate all endpoints that belong to this object adapter.
-        /// After activation, the object adapter can dispatch requests
-        /// received through its endpoints.
-        ///
-        /// </summary>
+        /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
+        /// requests received through these endpoints. Active also registers this object adapter with the locator (if
+        /// set).</summary>
         public void Activate()
         {
             LocatorInfo? locatorInfo = null;
@@ -64,15 +117,12 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
 
-                //
-                // If we've previously been initialized we just need to activate the
-                // incoming connection factories and we're done.
-                //
+                // If we've previously been initialized we just need to activate the incoming connection factories
+                // and we're done.
                 if (_state != State.Uninitialized)
                 {
-                    Debug.Assert(_incomingConnectionFactories != null);
                     foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
                     {
                         icf.Activate();
@@ -80,13 +130,9 @@ namespace Ice
                     return;
                 }
 
-                //
-                // One off initializations of the adapter: update the
-                // locator registry and print the "adapter ready"
-                // message. We set set state to State.Activating to prevent
-                // deactivation from other threads while these one off
-                // initializations are done.
-                //
+                // One-off initializations of the adapter: update the locator registry and print the "adapter ready"
+                // message. We set set state to State.Activating to prevent deactivation from other threads while these
+                // one-off initializations are performed.
                 _state = State.Activating;
 
                 locatorInfo = _locatorInfo;
@@ -100,13 +146,10 @@ namespace Ice
             {
                 UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
-                //
-                // If we couldn't update the locator registry, we let the
-                // exception go through and don't activate the adapter to
-                // allow to user code to retry activating the adapter
-                // later.
+                // If we couldn't update the locator registry, we let the exception go through and don't activate the
+                // adapter to allow to user code to retry activating the adapter later.
                 //
                 lock (_mutex)
                 {
@@ -124,7 +167,6 @@ namespace Ice
             lock (_mutex)
             {
                 Debug.Assert(_state == State.Activating);
-                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
                 {
                     icf.Activate();
@@ -140,7 +182,7 @@ namespace Ice
         /// The object
         /// adapter can be reactivated with the activate operation.
         ///
-        ///  Holding is not immediate, i.e., after hold
+        /// Holding is not immediate, i.e., after hold
         /// returns, the object adapter might still be active for some
         /// time. You can use waitForHold to wait until holding is
         /// complete.
@@ -150,9 +192,8 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 _state = State.Held;
-                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     factory.Hold();
@@ -172,7 +213,7 @@ namespace Ice
             List<IncomingConnectionFactory> incomingConnectionFactories;
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
 
                 incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
             }
@@ -183,34 +224,18 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Deactivate all endpoints that belong to this object adapter.
-        /// After deactivation, the object adapter stops receiving
-        /// requests through its endpoints. IObject adapters that have been
-        /// deactivated must not be reactivated again, and cannot be used
-        /// otherwise. Attempts to use a deactivated object adapter raise
-        /// ObjectAdapterDeactivatedException however, attempts to
-        /// deactivate an already deactivated object adapter are
-        /// ignored and do nothing. Once deactivated, it is possible to
-        /// destroy the adapter to clean up resources and then create and
-        /// activate a new adapter with the same name.
-        ///
-        ///  After deactivate returns, no new requests
-        /// are processed by the object adapter. However, requests that
-        /// have been started before deactivate was called might
-        /// still be active. You can use waitForDeactivate to wait
-        /// for the completion of all requests for this object adapter.
-        ///
-        /// </summary>
+        /// <summary>Initiates the deactivation of all endpoints that belong to this object adapter.
+        /// When Deactivate returns, the object adapter stops receiving requests through its endpoints. Object adapters
+        /// that have been deactivated must not be reactivated again, and cannot be used otherwise. Calling Deactivate
+        /// on a deactivated object adapter does nothing. Call <see cref="Destroy"/> to clean-up the resources held by
+        /// a deactivated object adapter.
+        /// <para/> Requests that have been started before Deactivate was called can still be running when Deactivate
+        /// returns. Use <see cref="WaitForDeactivate"/> to wait for the completion of these requests.</summary>
         public void Deactivate()
         {
             lock (_mutex)
             {
-                //
-                //
-                // Wait for activation to complete. This is necessary to not
-                // get out of order locator updates.
-                //
+                // Wait for activation to complete. This is necessary avoid out of order locator updates.
                 while (_state == State.Activating || _state == State.Deactivating)
                 {
                     System.Threading.Monitor.Wait(_mutex);
@@ -222,37 +247,26 @@ namespace Ice
                 _state = State.Deactivating;
             }
 
-            //
-            // NOTE: the router/locator infos and incoming connection
-            // factory list are immutable at this point.
-            //
+            // Note: the router/locator infos and incoming connection factory list are immutable at this point.
 
             try
             {
                 if (_routerInfo != null)
                 {
-                    //
                     // Remove entry from the router manager.
-                    //
                     Communicator.EraseRouterInfo(_routerInfo.Router);
 
-                    //
                     // Clear this object adapter with the router.
-                    //
                     _routerInfo.Adapter = null;
                 }
 
                 UpdateLocatorRegistry(_locatorInfo, null);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
-                //
-                // We can't throw exceptions in deactivate so we ignore
-                // failures to update the locator registry.
-                //
+                // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
             }
 
-            Debug.Assert(_incomingConnectionFactories != null);
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 factory.Destroy();
@@ -268,24 +282,15 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Wait until the object adapter has deactivated.
-        /// Calling
-        /// deactivate initiates object adapter deactivation, and
-        /// waitForDeactivate only returns when deactivation has
-        /// been completed.
-        ///
-        /// </summary>
+        /// <summary>Waits until the object adapter is deactivated and all requests dispatched through this object
+        /// adapter have completed.</summary>
         public void WaitForDeactivate()
         {
             IncomingConnectionFactory[] incomingConnectionFactories;
             lock (_mutex)
             {
-                //
-                // Wait for deactivation of the adapter itself, and
-                // for the return of all direct method calls using this
+                // Wait for deactivation of the adapter itself, and for the return of all direct calls using this
                 // adapter.
-                //
                 while ((_state < State.Deactivated) || _directCount > 0)
                 {
                     System.Threading.Monitor.Wait(_mutex);
@@ -294,59 +299,29 @@ namespace Ice
                 {
                     return;
                 }
-                Debug.Assert(_incomingConnectionFactories != null);
                 incomingConnectionFactories = _incomingConnectionFactories.ToArray();
             }
 
-            //
-            // Now we wait for until all incoming connection factories are
-            // finished.
-            //
+            // Now we wait until all incoming connection factories are finished.
             foreach (IncomingConnectionFactory factory in incomingConnectionFactories)
             {
                 factory.WaitUntilFinished();
             }
         }
 
-        /// <summary>
-        /// Check whether object adapter has been deactivated.
-        /// </summary>
-        /// <returns>Whether adapter has been deactivated.
-        ///
-        /// </returns>
-        public bool IsDeactivated()
-        {
-            lock (_mutex)
-            {
-                return _state >= State.Deactivated;
-            }
-        }
-
-        /// <summary>
-        /// Destroys the object adapter and cleans up all resources held by
-        /// the object adapter.
-        /// If the object adapter has not yet been
-        /// deactivated, destroy implicitly initiates the deactivation
-        /// and waits for it to finish. Subsequent calls to destroy are
-        /// ignored. Once destroy has returned, it is possible to create
-        /// another object adapter with the same name.
-        ///
-        /// </summary>
+        /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter.
+        /// Destroy first calls <see cref="Deactivate"/> and <see cref="WaitForDeactivate"/> to deactivate the object
+        /// adapter (if needed). Calling Destroy on an object adapter being destroyed blocks until the first call
+        /// to Destroy completes.</summary>
         public void Destroy()
         {
-            //
-            // Deactivate and wait for completion.
-            //
             Deactivate();
             WaitForDeactivate();
 
             lock (_mutex)
             {
-                //
-                // Only a single thread is allowed to destroy the object
-                // adapter. Other threads wait for the destruction to be
-                // completed.
-                //
+                // Only a single thread is allowed to destroy the object adapter. Other threads wait for the
+                // destruction to complete.
                 while (_state == State.Destroying)
                 {
                     System.Threading.Monitor.Wait(_mutex);
@@ -363,9 +338,7 @@ namespace Ice
                 _defaultServantMap.Clear();
             }
 
-            //
             // Destroy the thread pool.
-            //
             if (_threadPool != null)
             {
                 _threadPool.Destroy();
@@ -376,16 +349,10 @@ namespace Ice
 
             lock (_mutex)
             {
-                //
-                // We're done, now we can throw away all incoming connection
-                // factories.
-                //
-                Debug.Assert(_incomingConnectionFactories != null);
+                // We're done, now we can clear all incoming connection factories.
                 _incomingConnectionFactories.Clear();
 
-                //
                 // Remove object references (some of them cyclic).
-                //
                 _threadPool = null;
                 _routerInfo = null;
                 _publishedEndpoints = Array.Empty<Endpoint>();
@@ -441,7 +408,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
                 return CreateProxy(identity, facet, proxyFactory);
             }
@@ -462,7 +429,7 @@ namespace Ice
                 // We check for deactivation here because we don't want to keep this servant when the adapter is being
                 // deactivated or destroyed. In other languages, notably C++, keeping such a servant could lead to
                 // circular references and leaks.
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
             }
         }
@@ -578,7 +545,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 _categoryServantMap.Add(new CategoryPlusFacet(category, facet), servant);
             }
         }
@@ -617,7 +584,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 _defaultServantMap.Add(facet, servant);
             }
         }
@@ -716,7 +683,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 return factory(Communicator.CreateReference(identity, facet, _reference!, _publishedEndpoints));
             }
         }
@@ -762,7 +729,7 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 return factory(Communicator.CreateReference(identity, facet, _reference!, _id));
             }
         }
@@ -793,72 +760,13 @@ namespace Ice
         public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => CreateIndirectProxy(identity, "", factory);
 
-        /// <summary>
-        /// Set an Ice locator for this object adapter.
-        /// By doing so, the
-        /// object adapter will register itself with the locator registry
-        /// when it is activated for the first time. Furthermore, the proxies
-        /// created by this object adapter will contain the adapter identifier
-        /// instead of its endpoints. The adapter identifier must be configured
-        /// using the AdapterId property.
-        ///
-        /// </summary>
-        /// <param name="locator">The locator used by this object adapter.
-        ///
-        /// </param>
-        public void SetLocator(ILocatorPrx? locator)
-        {
-            lock (_mutex)
-            {
-                CheckForDeactivationNoSync();
-
-                if (locator != null)
-                {
-                    _locatorInfo = Communicator.GetLocatorInfo(locator);
-                }
-                else
-                {
-                    _locatorInfo = null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get the Ice locator used by this object adapter.
-        /// </summary>
-        /// <returns> The locator used by this object adapter, or null if no locator is
-        /// used by this object adapter.
-        ///
-        /// </returns>
-        public ILocatorPrx? GetLocator()
-        {
-            lock (_mutex)
-            {
-                CheckForDeactivationNoSync();
-
-                if (_locatorInfo == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return _locatorInfo.Locator;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get the set of endpoints configured with this object adapter.
-        /// </summary>
-        /// <returns>The set of endpoints.
-        ///
-        /// </returns>
+        /// <summary>Retrieves a copy of the endpoints configured with this object adapter.</summary>
+        /// <returns>The endpoints.</returns>
         public IEndpoint[] GetEndpoints()
         {
             lock (_mutex)
             {
                 var endpoints = new List<IEndpoint>();
-                Debug.Assert(_incomingConnectionFactories != null);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.Add(factory.Endpoint());
@@ -867,15 +775,10 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Refresh the set of published endpoints.
-        /// The run time re-reads
-        /// the PublishedEndpoints property if it is set and re-reads the
-        /// list of local interfaces if the adapter is configured to listen
-        /// on all endpoints. This operation is useful to refresh the endpoint
-        /// information that is published in the proxies that are created by
-        /// an object adapter if the network interfaces used by a host changes.
-        /// </summary>
+        /// <summary>Refreshes the set of published endpoints. The runtime rereads the PublishedEndpoints property
+        /// (if set) and rereads the list of local interfaces if the adapter is configured to listen on all endpoints.
+        /// This method is useful when the network interfaces of the host changes: it allows you to refresh the
+        /// endpoint information published in the proxies created by this object adapter.</summary>
         public void RefreshPublishedEndpoints()
         {
             LocatorInfo? locatorInfo = null;
@@ -883,7 +786,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
 
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = ComputePublishedEndpoints();
@@ -895,26 +798,20 @@ namespace Ice
             {
                 UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 lock (_mutex)
                 {
-                    //
                     // Restore the old published endpoints.
-                    //
                     _publishedEndpoints = oldPublishedEndpoints;
                     throw;
                 }
             }
         }
 
-        /// <summary>
-        /// Get the set of endpoints that proxies created by this object
-        /// adapter will contain.
+        /// <summary>Retrieves a copy of the endpoints that would be listed in a proxy created by this object adapter.
         /// </summary>
-        /// <returns>The set of published endpoints.
-        ///
-        /// </returns>
+        /// <returns>The published endpoints.</returns>
         public IEndpoint[] GetPublishedEndpoints()
         {
             lock (_mutex)
@@ -923,13 +820,9 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Set of the endpoints that proxies created by this object
-        /// adapter will contain.
+        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
-        /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies.
-        ///
-        /// </param>
+        /// <param name="newEndpoints">The new published endpoints.</param>
         public void SetPublishedEndpoints(IEndpoint[] newEndpoints)
         {
             LocatorInfo? locatorInfo = null;
@@ -937,7 +830,7 @@ namespace Ice
 
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 if (_routerInfo != null)
                 {
                     throw new ArgumentException(
@@ -957,38 +850,163 @@ namespace Ice
             {
                 lock (_mutex)
                 {
-                    //
                     // Restore the old published endpoints.
-                    //
                     _publishedEndpoints = oldPublishedEndpoints;
                     throw;
                 }
             }
         }
 
+        // Called by Communicator
+        internal ObjectAdapter(Communicator communicator, string name, IRouterPrx? router)
+        {
+            Communicator = communicator;
+            Name = name;
+
+            _publishedEndpoints = Array.Empty<Endpoint>();
+            _routerInfo = null;
+            _directCount = 0;
+
+            if (Name.Length == 0)
+            {
+                _id = "";
+                _replicaGroupId = "";
+                _reference = Communicator.CreateReference("dummy -t", "");
+                _acm = Communicator.ServerACM;
+                return;
+            }
+
+            (bool noProps, List<string> unknownProps) = FilterProperties();
+
+            // Warn about unknown object adapter properties.
+            if (unknownProps.Count != 0 && (Communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
+            {
+                var message = new StringBuilder("found unknown properties for object adapter `");
+                message.Append(Name);
+                message.Append("':");
+                foreach (string s in unknownProps)
+                {
+                    message.Append("\n    ");
+                    message.Append(s);
+                }
+                Communicator.Logger.Warning(message.ToString());
+            }
+
+            // Make sure named adapter has configuration.
+            if (router == null && noProps)
+            {
+                _state = State.Destroyed;
+                throw new InitializationException($"object adapter `{Name}' requires configuration");
+            }
+
+            _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
+            _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
+
+            // Setup a reference to be used to get the default proxy options when creating new proxies. By default,
+            // create twoway proxies.
+            string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
+            _reference = Communicator.CreateReference($"dummy {proxyOptions}", "");
+
+            _acm = new ACMConfig(Communicator, Communicator.Logger, $"{Name}.ACM", Communicator.ServerACM);
+            {
+                int defaultMessageSizeMax = Communicator.MessageSizeMax / 1024;
+                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultMessageSizeMax;
+                if (num < 1 || num > 0x7fffffff / 1024)
+                {
+                    MessageSizeMax = 0x7fffffff;
+                }
+                else
+                {
+                    MessageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                }
+            }
+
+            try
+            {
+                int threadPoolSize = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.Size") ?? 0;
+                int threadPoolSizeMax = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.SizeMax") ?? 0;
+                if (threadPoolSize > 0 || threadPoolSizeMax > 0)
+                {
+                    _threadPool = new ThreadPool(Communicator, Name + ".ThreadPool", 0);
+                }
+
+                router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
+
+                if (router != null)
+                {
+                    _routerInfo = Communicator.GetRouterInfo(router);
+
+                    // Make sure this router is not already registered with another adapter.
+                    if (_routerInfo.Adapter != null)
+                    {
+                        var routerStr = router.Identity.ToString(Communicator.ToStringMode);
+                        throw new ArgumentException($"Router `{routerStr}' already registered with an object adapter",
+                            nameof(router));
+                    }
+
+                    // Associate this object adapter with the router. This way, new outgoing connections to the
+                    // router's client proxy will use this object adapter for callbacks.
+                    _routerInfo.Adapter = this;
+
+                    // Also modify all existing outgoing connections to the router's client proxy to use this object
+                    // adapter for callbacks.
+                    Communicator.OutgoingConnectionFactory().SetRouterInfo(_routerInfo);
+                }
+                else
+                {
+                    // Parse the endpoints, but don't store them in the adapter. The connection factory might change
+                    // it, for example, to fill in the real port number.
+                    List<Endpoint> endpoints = ParseEndpoints(
+                        Communicator.GetProperty($"{Name}.Endpoints") ?? "", true);
+                    foreach (Endpoint endp in endpoints)
+                    {
+                        Endpoint? publishedEndpoint;
+                        foreach (Endpoint expanded in endp.ExpandHost(out publishedEndpoint))
+                        {
+                            var factory = new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm);
+                            _incomingConnectionFactories.Add(factory);
+                        }
+                    }
+                    if (endpoints.Count == 0)
+                    {
+                        TraceLevels tl = Communicator.TraceLevels;
+                        if (tl.Network >= 2)
+                        {
+                            Communicator.Logger.Trace(tl.NetworkCat, $"created adapter `{Name}' without endpoints");
+                        }
+                    }
+                }
+
+                // Parse published endpoints.
+                _publishedEndpoints = ComputePublishedEndpoints();
+                ILocatorPrx? locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory);
+                Locator = locator ?? Communicator.GetDefaultLocator();
+            }
+            catch (System.Exception)
+            {
+                Destroy();
+                throw;
+            }
+        }
+
         internal bool IsLocal(IObjectPrx proxy)
         {
-            //
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
-            //
 
             Reference r = proxy.IceReference;
             if (r.IsWellKnown())
             {
                 lock (_mutex)
                 {
-                    // Is servant in the ASM?
+                    // Is the servant in the ASM?
                     // TODO: Currently doesn't check default servants - should we?
                     return _identityServantMap.ContainsKey(new IdentityPlusFacet(r.GetIdentity(), r.GetFacet()));
                 }
             }
             else if (r.IsIndirect())
             {
-                //
-                // Proxy is local if the reference adapter id matches this
-                // adapter id or replica group id.
-                //
+                // Proxy is local if the reference adapter id matches this adapter id or replica group id.
                 return r.GetAdapterId().Equals(_id) || r.GetAdapterId().Equals(_replicaGroupId);
             }
             else
@@ -997,13 +1015,10 @@ namespace Ice
 
                 lock (_mutex)
                 {
-                    CheckForDeactivationNoSync();
+                    CheckForDeactivation();
 
-                    //
-                    // Proxies which have at least one endpoint in common with the
-                    // endpoints used by this object adapter's incoming connection
-                    // factories are considered local.
-                    //
+                    // Proxies which have at least one endpoint in common with the endpoints used by this object
+                    // adapter's incoming connection factories are considered local.
                     for (int i = 0; i < endpoints.Length; ++i)
                     {
                         foreach (Endpoint endpoint in _publishedEndpoints)
@@ -1014,7 +1029,6 @@ namespace Ice
                             }
                         }
 
-                        Debug.Assert(_incomingConnectionFactories != null);
                         foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                         {
                             if (factory.IsLocal(endpoints[i]))
@@ -1030,13 +1044,13 @@ namespace Ice
 
         internal void UpdateConnectionObservers()
         {
-            List<IncomingConnectionFactory> f;
+            IncomingConnectionFactory[] factories = Array.Empty<IncomingConnectionFactory>();
             lock (_mutex)
             {
-                f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
+                factories = _incomingConnectionFactories.ToArray();
             }
 
-            foreach (IncomingConnectionFactory p in f)
+            foreach (IncomingConnectionFactory p in factories)
             {
                 p.UpdateConnectionObservers();
             }
@@ -1060,7 +1074,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
 
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
@@ -1079,11 +1093,9 @@ namespace Ice
                 }
             }
         }
-
         internal ThreadPool GetThreadPool()
         {
-            // No mutex lock necessary, _threadPool and _instance are
-            // immutable after creation until they are removed in
+            // No mutex lock necessary, _threadPool is immutable after creation until they are removed in
             // destroy().
 
             // Not check for deactivation here!
@@ -1098,182 +1110,12 @@ namespace Ice
             }
         }
 
-        internal ACMConfig GetACM()
-        {
-            // Not check for deactivation here!
-            return _acm;
-        }
-
-        internal void CheckForDeactivation()
+        internal void ExecuteOnlyWhenActive(System.Action action)
         {
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
-            }
-        }
-
-        internal int MessageSizeMax() => _messageSizeMax; // No mutex lock, immutable.
-
-        // Called by Communicator
-        internal ObjectAdapter(Communicator communicator, string name, IRouterPrx? router)
-        {
-            Communicator = communicator;
-            Name = name;
-
-            _incomingConnectionFactories = new List<IncomingConnectionFactory>();
-            _publishedEndpoints = Array.Empty<Endpoint>();
-            _routerInfo = null;
-            _directCount = 0;
-
-            if (Name.Length == 0)
-            {
-                _id = "";
-                _replicaGroupId = "";
-                _reference = Communicator.CreateReference("dummy -t", "");
-                _acm = Communicator.ServerACM;
-                return;
-            }
-
-            var unknownProps = new List<string>();
-            bool noProps = FilterProperties(unknownProps);
-
-            //
-            // Warn about unknown object adapter properties.
-            //
-            if (unknownProps.Count != 0 && (Communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
-            {
-                var message = new StringBuilder("found unknown properties for object adapter `");
-                message.Append(Name);
-                message.Append("':");
-                foreach (string s in unknownProps)
-                {
-                    message.Append("\n    ");
-                    message.Append(s);
-                }
-                Communicator.Logger.Warning(message.ToString());
-            }
-
-            //
-            // Make sure named adapter has configuration.
-            //
-            if (router == null && noProps)
-            {
-                //
-                // These need to be set to prevent warnings/asserts in the destructor.
-                //
-                _state = State.Destroyed;
-                _incomingConnectionFactories = null;
-                throw new InitializationException($"object adapter `{Name}' requires configuration");
-            }
-
-            _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
-            _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
-
-            //
-            // Setup a reference to be used to get the default proxy options
-            // when creating new proxies. By default, create twoway proxies.
-            //
-            string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
-            _reference = Communicator.CreateReference($"dummy {proxyOptions}", "");
-
-            _acm = new ACMConfig(Communicator, Communicator.Logger, $"{Name}.ACM", Communicator.ServerACM);
-            {
-                int defaultMessageSizeMax = Communicator.MessageSizeMax / 1024;
-                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultMessageSizeMax;
-                if (num < 1 || num > 0x7fffffff / 1024)
-                {
-                    _messageSizeMax = 0x7fffffff;
-                }
-                else
-                {
-                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-                }
-            }
-
-            try
-            {
-                int threadPoolSize = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.Size") ?? 0;
-                int threadPoolSizeMax = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.SizeMax") ?? 0;
-                if (threadPoolSize > 0 || threadPoolSizeMax > 0)
-                {
-                    _threadPool = new ThreadPool(Communicator, Name + ".ThreadPool", 0);
-                }
-
-                router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
-
-                if (router != null)
-                {
-                    _routerInfo = Communicator.GetRouterInfo(router);
-
-                    //
-                    // Make sure this router is not already registered with another adapter.
-                    //
-                    if (_routerInfo.Adapter != null)
-                    {
-                        throw new ArgumentException(
-                            $"Router `{router.Identity.ToString(Communicator.ToStringMode)}' already registered with an object adater",
-                            nameof(router));
-                    }
-
-                    //
-                    // Associate this object adapter with the router. This way,
-                    // new outgoing connections to the router's client proxy will
-                    // use this object adapter for callbacks.
-                    //
-                    _routerInfo.Adapter = this;
-
-                    //
-                    // Also modify all existing outgoing connections to the
-                    // router's client proxy to use this object adapter for
-                    // callbacks.
-                    //
-                    Communicator.OutgoingConnectionFactory().SetRouterInfo(_routerInfo);
-                }
-                else
-                {
-                    //
-                    // Parse the endpoints, but don't store them in the adapter. The connection
-                    // factory might change it, for example, to fill in the real port number.
-                    //
-                    List<Endpoint> endpoints = ParseEndpoints(Communicator.GetProperty($"{Name}.Endpoints") ?? "", true);
-                    foreach (Endpoint endp in endpoints)
-                    {
-                        Endpoint? publishedEndpoint;
-                        foreach (Endpoint expanded in endp.ExpandHost(out publishedEndpoint))
-                        {
-                            var factory = new IncomingConnectionFactory(communicator, expanded, publishedEndpoint, this);
-                            _incomingConnectionFactories.Add(factory);
-                        }
-                    }
-                    if (endpoints.Count == 0)
-                    {
-                        TraceLevels tl = Communicator.TraceLevels;
-                        if (tl.Network >= 2)
-                        {
-                            Communicator.Logger.Trace(tl.NetworkCat, "created adapter `" + Name +
-                                                                        "' without endpoints");
-                        }
-                    }
-                }
-
-                //
-                // Parse published endpoints.
-                //
-                _publishedEndpoints = ComputePublishedEndpoints();
-                ILocatorPrx? locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory);
-                if (locator != null)
-                {
-                    SetLocator(locator);
-                }
-                else
-                {
-                    SetLocator(Communicator.GetDefaultLocator());
-                }
-            }
-            catch (LocalException)
-            {
-                Destroy();
-                throw;
+                CheckForDeactivation();
+                action(); // called within the synchronization
             }
         }
 
@@ -1283,12 +1125,12 @@ namespace Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivationNoSync();
+                CheckForDeactivation();
                 return factory(Communicator.CreateReference(identity, facet, _reference!, _replicaGroupId));
             }
         }
 
-        private void CheckForDeactivationNoSync()
+        private void CheckForDeactivation()
         {
             // Must be called with _mutex locked.
             if (_state >= State.Deactivating)
@@ -1301,7 +1143,7 @@ namespace Ice
         {
             if (ident.Name.Length == 0)
             {
-                throw new ArgumentException("Identity name cannot be empty", nameof(ident));
+                throw new ArgumentException("identity name cannot be empty", nameof(ident));
             }
         }
 
@@ -1429,7 +1271,6 @@ namespace Ice
                     // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                     // to include actual addresses in the published endpoints.
                     //
-                    Debug.Assert(_incomingConnectionFactories != null);
                     foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                     {
                         foreach (Endpoint endpt in factory.Endpoint().ExpandIfWildcard())
@@ -1476,10 +1317,8 @@ namespace Ice
                 return; // Nothing to update.
             }
 
-            //
-            // Call on the locator registry outside the synchronization to
-            // blocking other threads that need to lock this OA.
-            //
+            // Call on the locator registry outside the synchronization to blocking other threads that need to lock
+            // this OA.
             ILocatorRegistryPrx? locatorRegistry = locatorInfo.GetLocatorRegistry();
             if (locatorRegistry == null)
             {
@@ -1502,7 +1341,7 @@ namespace Ice
                 if (Communicator.TraceLevels.Location >= 1)
                 {
                     var s = new StringBuilder();
-                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
                     s.Append("the object adapter is not known to the locator registry");
                     Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
                 }
@@ -1514,8 +1353,8 @@ namespace Ice
                 if (Communicator.TraceLevels.Location >= 1)
                 {
                     var s = new StringBuilder();
-                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                    s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
+                    s.Append($"the replica group `{_replicaGroupId}' is not known to the locator registry");
                     Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
                 }
 
@@ -1526,7 +1365,7 @@ namespace Ice
                 if (Communicator.TraceLevels.Location >= 1)
                 {
                     var s = new StringBuilder();
-                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
                     s.Append("the object adapter endpoints are already set");
                     Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
                 }
@@ -1541,22 +1380,22 @@ namespace Ice
             {
                 // Ignore
             }
-            catch (LocalException e)
+            catch (System.Exception e)
             {
                 if (Communicator.TraceLevels.Location >= 1)
                 {
                     var s = new StringBuilder();
-                    s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
                     s.Append(e.ToString());
                     Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
                 }
-                throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                throw;
             }
 
             if (Communicator.TraceLevels.Location >= 1)
             {
                 var s = new StringBuilder();
-                s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                s.Append($"updated object adapter `{_id}' endpoints with the locator registry\n");
                 s.Append("endpoints = ");
                 if (proxy != null)
                 {
@@ -1574,52 +1413,9 @@ namespace Ice
             }
         }
 
-        private static readonly string[] _suffixes =
+        private (bool NoProps, List<string> UnknownProps) FilterProperties()
         {
-            "ACM",
-            "ACM.Timeout",
-            "ACM.Heartbeat",
-            "ACM.Close",
-            "AdapterId",
-            "Endpoints",
-            "Locator",
-            "Locator.EncodingVersion",
-            "Locator.EndpointSelection",
-            "Locator.ConnectionCached",
-            "Locator.PreferSecure",
-            "Locator.CollocationOptimized",
-            "Locator.Router",
-            "MessageSizeMax",
-            "PublishedEndpoints",
-            "ReplicaGroupId",
-            "Router",
-            "Router.EncodingVersion",
-            "Router.EndpointSelection",
-            "Router.ConnectionCached",
-            "Router.PreferSecure",
-            "Router.CollocationOptimized",
-            "Router.Locator",
-            "Router.Locator.EndpointSelection",
-            "Router.Locator.ConnectionCached",
-            "Router.Locator.PreferSecure",
-            "Router.Locator.CollocationOptimized",
-            "Router.Locator.LocatorCacheTimeout",
-            "Router.Locator.InvocationTimeout",
-            "Router.LocatorCacheTimeout",
-            "Router.InvocationTimeout",
-            "ProxyOptions",
-            "ThreadPool.Size",
-            "ThreadPool.SizeMax",
-            "ThreadPool.SizeWarn",
-            "ThreadPool.StackSize",
-            "ThreadPool.Serialize"
-        };
-
-        private bool FilterProperties(List<string> unknownProps)
-        {
-            //
-            // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
-            //
+            // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
             bool addUnknown = true;
             string prefix = Name + ".";
             foreach (string propertyName in PropertyNames.clPropNames)
@@ -1632,6 +1428,7 @@ namespace Ice
             }
 
             bool noProps = true;
+            var unknownProps = new List<string>();
             Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
             foreach (string prop in props.Keys)
             {
@@ -1651,7 +1448,7 @@ namespace Ice
                     unknownProps.Add(prop);
                 }
             }
-            return noProps;
+            return (noProps, unknownProps);
         }
 
         private enum State

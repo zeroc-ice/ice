@@ -68,10 +68,10 @@ namespace Ice
         public ToStringMode ToStringMode { get; }
 
         internal int CacheMessageBuffers { get; }
-        internal int ClassGraphDepthMax { get; } // No mutex lock, immutable.
+        internal int ClassGraphDepthMax { get; }
         internal ACMConfig ClientACM { get; }
         internal DefaultsAndOverrides DefaultsAndOverrides { get; private set; }
-        internal int MessageSizeMax { get; } // No mutex lock, immutable.
+        internal int MessageSizeMax { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int ProtocolSupport { get; }
@@ -1958,7 +1958,7 @@ namespace Ice
         internal void SetServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-            ILocatorPrx? locator = adminAdapter.GetLocator();
+            ILocatorPrx? locator = adminAdapter.Locator;
             string? serverId = GetProperty("Ice.Admin.ServerId");
 
             if (locator != null && serverId != null)
