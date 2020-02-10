@@ -18,16 +18,12 @@
 #   pragma warning(disable:4244)
 #endif
 
-//
 // Avoid old style cast warnings in generated grammar
-//
 #ifdef __GNUC__
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-//
 // Avoid clang conversion warnings
-//
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
@@ -56,11 +52,9 @@ slice_error(const char* s)
 
 %define api.pure
 
-//
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
 // keyword to the keyword table in Scanner.l.
-//
 %token ICE_MODULE
 %token ICE_CLASS
 %token ICE_INTERFACE
@@ -91,9 +85,7 @@ slice_error(const char* s)
 %token ICE_OPTIONAL
 %token ICE_VALUE
 
-//
 // Other tokens.
-//
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
@@ -104,9 +96,7 @@ slice_error(const char* s)
 %token ICE_GLOBAL_METADATA_OPEN
 %token ICE_GLOBAL_METADATA_CLOSE
 
-//
 // Here 'OPEN' means these tokens end with an open parenthesis.
-//
 %token ICE_IDENT_OPEN
 %token ICE_KEYWORD_OPEN
 %token ICE_TAG_OPEN
@@ -1655,7 +1645,7 @@ interface_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-    contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 | error ';' interface_exports
