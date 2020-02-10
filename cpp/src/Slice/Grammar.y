@@ -374,7 +374,7 @@ exception_def
 // ----------------------------------------------------------------------
 exception_extends
 // ----------------------------------------------------------------------
-: ICE_EXTENDS scoped_name
+: extends scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
@@ -1029,7 +1029,7 @@ class_def
 // ----------------------------------------------------------------------
 class_extends
 // ----------------------------------------------------------------------
-: ICE_EXTENDS scoped_name
+: extends scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
@@ -1066,6 +1066,17 @@ class_extends
 | %empty
 {
     $$ = 0;
+}
+;
+
+// ----------------------------------------------------------------------
+extends
+// ----------------------------------------------------------------------
+: ICE_EXTENDS
+{
+}
+| ':'
+{
 }
 ;
 
@@ -1625,7 +1636,7 @@ interface_list
 // ----------------------------------------------------------------------
 interface_extends
 // ----------------------------------------------------------------------
-: ICE_EXTENDS interface_list
+: extends interface_list
 {
     $$ = $2;
 }
