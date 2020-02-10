@@ -220,9 +220,10 @@ namespace IceInternal
         {
             if (!_hashInitialized)
             {
-                _hashValue = 5381;
-                HashUtil.HashAdd(ref _hashValue, Type());
-                HashInit(ref _hashValue);
+                var hash = new HashCode();
+                hash.Add(Type());
+                HashInit(ref hash);
+                _hashValue = hash.ToHashCode();
                 _hashInitialized = true;
             }
             return _hashValue;
@@ -272,15 +273,15 @@ namespace IceInternal
             s.WriteInt(Port);
         }
 
-        public virtual void HashInit(ref int h)
+        public virtual void HashInit(ref HashCode hash)
         {
-            HashUtil.HashAdd(ref h, Host);
-            HashUtil.HashAdd(ref h, Port);
+            hash.Add(Host);
+            hash.Add(Port);
             if (SourceAddr != null)
             {
-                HashUtil.HashAdd(ref h, SourceAddr);
+                hash.Add(SourceAddr);
             }
-            HashUtil.HashAdd(ref h, ConnectionId_);
+            hash.Add(ConnectionId_);
         }
 
         public virtual void FillEndpointInfo(Ice.IPEndpointInfo info)

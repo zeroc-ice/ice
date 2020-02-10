@@ -26,14 +26,15 @@ namespace IceInternal
             _timeout = timeout;
             _connectionId = connectionId;
 
-            _hashCode = 5381;
-            HashUtil.HashAdd(ref _hashCode, _addr);
+            var hash = new System.HashCode();
+            hash.Add(_addr);
             if (_sourceAddr != null)
             {
-                HashUtil.HashAdd(ref _hashCode, _sourceAddr);
+                hash.Add(_sourceAddr);
             }
-            HashUtil.HashAdd(ref _hashCode, _timeout);
-            HashUtil.HashAdd(ref _hashCode, _connectionId);
+            hash.Add(_timeout);
+            hash.Add(_connectionId);
+            _hashCode = hash.ToHashCode();
         }
 
         public override bool Equals(object obj)

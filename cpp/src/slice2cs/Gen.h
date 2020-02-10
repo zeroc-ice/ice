@@ -138,10 +138,6 @@ private:
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
-
-    private:
-
-        void writeMemberHashCode(const DataMemberList&);
     };
 
     class ProxyVisitor : public CsVisitor

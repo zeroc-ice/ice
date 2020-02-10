@@ -74,21 +74,21 @@ namespace IceInternal
                 {
                     return HashValue;
                 }
-                int h = 5381;
-                HashUtil.HashAdd(ref h, _mode);
-                HashUtil.HashAdd(ref h, Secure);
-                HashUtil.HashAdd(ref h, _identity);
-                HashUtil.HashAdd(ref h, _context);
-                HashUtil.HashAdd(ref h, _facet);
-                HashUtil.HashAdd(ref h, OverrideCompress);
+                var hash = new HashCode();
+                hash.Add(_mode);
+                hash.Add(Secure);
+                hash.Add(_identity);
+                hash.Add(Collections.GetHashCode(_context));
+                hash.Add(_facet);
+                hash.Add(OverrideCompress);
                 if (OverrideCompress)
                 {
-                    HashUtil.HashAdd(ref h, Compress);
+                    hash.Add(Compress);
                 }
-                HashUtil.HashAdd(ref h, _protocol);
-                HashUtil.HashAdd(ref h, _encoding);
-                HashUtil.HashAdd(ref h, _invocationTimeout);
-                HashValue = h;
+                hash.Add(_protocol);
+                hash.Add(_encoding);
+                hash.Add(_invocationTimeout);
+                HashValue = hash.ToHashCode();
                 HashInitialized = true;
                 return HashValue;
             }
@@ -1248,9 +1248,7 @@ namespace IceInternal
             {
                 if (!HashInitialized)
                 {
-                    int h = base.GetHashCode(); // Initializes hashValue_.
-                    HashUtil.HashAdd(ref h, _adapterId);
-                    HashValue = h;
+                    HashValue = HashCode.Combine(base.GetHashCode(), _adapterId);
                 }
                 return HashValue;
             }

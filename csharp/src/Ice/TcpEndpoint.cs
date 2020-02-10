@@ -169,11 +169,10 @@ namespace IceInternal
             return base.CompareTo(p);
         }
 
-        public override void HashInit(ref int h)
+        public override void HashInit(ref HashCode hash)
         {
-            base.HashInit(ref h);
-            HashUtil.HashAdd(ref h, _timeout);
-            HashUtil.HashAdd(ref h, _compress);
+            hash.Add(_timeout);
+            hash.Add(_compress);
         }
 
         public override void FillEndpointInfo(Ice.IPEndpointInfo info)

@@ -1969,14 +1969,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public override int GetHashCode()";
     _out << sb;
-    _out << nl << "int h_ = 5381;";
-    _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, \"" << p->scoped() << "\");";
+    _out << nl << "var hash = new global::System.HashCode();";
     for(const auto& i : dataMembers)
     {
-        _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, " << fixId(dataMemberName(i), Slice::ObjectType)
-             << ");";
+        SequencePtr seq = SequencePtr::dynamicCast(i->type());
+        if((seq && !seq->hasMetaDataWithPrefix("cs:serializable")) || DictionaryPtr::dynamicCast(i->type()))
+        {
+            _out << nl << "hash.Add(Ice.Collections.GetHashCode(this."
+                 << fixId(dataMemberName(i), Slice::ObjectType) << "));";
+        }
+        else
+        {
+            _out << nl << "hash.Add(this." << fixId(dataMemberName(i), Slice::ObjectType) << ");";
+        }
     }
-    _out << nl << "return h_;";
+    _out << nl << "return hash.ToHashCode();";
     _out << eb;
 
     //
@@ -2197,15 +2204,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     else
     {
         _out << ";";
-    }
-}
-
-void
-Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
-{
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        _out << nl << "global::IceInternal.HashUtil.HashAdd(ref h_, " << fixId((*q)->name()) << ");";
     }
 }
 

@@ -107,37 +107,37 @@ namespace Ice
 
         public static int GetHashCode<Key, AnyClass>(Dictionary<Key, AnyClass> d)
         {
-            int h = 5381;
+            var hash = new System.HashCode();
             foreach (KeyValuePair<Key, AnyClass> e in d)
             {
-                IceInternal.HashUtil.HashAdd(ref h, e.Key);
-                IceInternal.HashUtil.HashAdd(ref h, e.Value);
+                hash.Add(e.Key);
+                hash.Add(e.Value);
             }
-            return h;
+            return hash.ToHashCode();
         }
 
         public static int GetHashCode<T>(this T[]? arr)
         {
-            int h = 5381;
+            var hash = new System.HashCode();
             if (arr != null)
             {
                 for (int i = 0; i < arr.Length; i++)
                 {
-                    IceInternal.HashUtil.HashAdd(ref h, arr[i]);
+                    hash.Add(arr[i]);
                 }
             }
-            return h;
+            return hash.ToHashCode();
         }
 
         public static int GetHashCode(IEnumerable seq)
         {
-            int h = 5381;
+            var hash = new System.HashCode();
             IEnumerator e = seq.GetEnumerator();
             while (e.MoveNext())
             {
-                IceInternal.HashUtil.HashAdd(ref h, e.Current);
+                hash.Add(e.Current);
             }
-            return h;
+            return hash.ToHashCode();
         }
     }
 }

@@ -18,22 +18,14 @@ namespace Ice
         /// </summary>
         /// <param name="obj">The proxy whose hash value to compute.</param>
         /// <returns>The hash value for the proxy based on the identity.</returns>
-        public int GetHashCode(IObjectPrx obj)
-        {
-            int h = 5381;
-            IceInternal.HashUtil.HashAdd(ref h, obj.Identity);
-            return h;
-        }
+        public int GetHashCode(IObjectPrx obj) => obj.Identity.GetHashCode();
 
         /// Compares two proxies for equality.
         /// <param name="lhs">A proxy to compare.</param>
         /// <param name="rhs">A proxy to compare.</param>
         /// <returns>True if the passed proxies have the same object
         /// identity; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs)
-        {
-            return Compare(lhs, rhs) == 0;
-        }
+        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => Compare(lhs, rhs) == 0;
 
         /// Compares two proxies using the object identity for comparison.
         /// <param name="lhs">A proxy to compare.</param>
@@ -80,23 +72,14 @@ namespace Ice
         /// </summary>
         /// <param name="obj">The proxy whose hash value to compute.</param>
         /// <returns>The hash value for the proxy based on the identity and facet.</returns>
-        public int GetHashCode(IObjectPrx obj)
-        {
-            int h = 5381;
-            IceInternal.HashUtil.HashAdd(ref h, obj.Identity);
-            IceInternal.HashUtil.HashAdd(ref h, obj.Facet);
-            return h;
-        }
+        public int GetHashCode(IObjectPrx obj) => System.HashCode.Combine(obj.Identity, obj.Facet);
 
         /// Compares two proxies for equality.
         /// <param name="lhs">A proxy to compare.</param>
         /// <param name="rhs">A proxy to compare.</param>
         /// <returns>True if the passed proxies have the same object
         /// identity and facet; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs)
-        {
-            return Compare(lhs, rhs) == 0;
-        }
+        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => Compare(lhs, rhs) == 0;
 
         /// Compares two proxies using the object identity and facet for comparison.
         /// <param name="lhs">A proxy to compare.</param>

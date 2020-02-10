@@ -687,10 +687,7 @@ namespace Ice
 
             public override int GetHashCode()
             {
-                int h = 5381;
-                HashUtil.HashAdd(ref h, _id);
-                HashUtil.HashAdd(ref h, _encoding);
-                return h;
+                return HashCode.Combine(_id, _encoding);
             }
 
             private readonly Identity _id;

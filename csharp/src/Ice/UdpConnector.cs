@@ -26,15 +26,16 @@ namespace IceInternal
             _mcastTtl = mcastTtl;
             _connectionId = connectionId;
 
-            _hashCode = 5381;
-            HashUtil.HashAdd(ref _hashCode, _addr);
+            var hash = new System.HashCode();
+            hash.Add(_addr);
             if (sourceAddr != null)
             {
-                HashUtil.HashAdd(ref _hashCode, _sourceAddr);
+                hash.Add(_sourceAddr);
             }
-            HashUtil.HashAdd(ref _hashCode, _mcastInterface);
-            HashUtil.HashAdd(ref _hashCode, _mcastTtl);
-            HashUtil.HashAdd(ref _hashCode, _connectionId);
+            hash.Add(_mcastInterface);
+            hash.Add(_mcastTtl);
+            hash.Add(_connectionId);
+            _hashCode = hash.ToHashCode();
         }
 
         public override bool Equals(object obj)
