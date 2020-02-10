@@ -147,7 +147,7 @@ namespace Ice
             incoming.StartOver();
             byte[] inEncaps = incoming.ReadParamEncaps();
             bool ok = IceInvoke(inEncaps, out byte[] outEncaps, current);
-            incoming.SetResult(incoming.WriteParamEncaps(incoming.GetAndClearCachedOutputStream(), outEncaps, ok));
+            incoming.SetResult(incoming.WriteParamEncaps(outEncaps, ok));
             return null;
         }
     }
@@ -162,11 +162,10 @@ namespace Ice
             incoming.StartOver();
             byte[] inEncaps = incoming.ReadParamEncaps();
             Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
-            OutputStream? cached = incoming.GetAndClearCachedOutputStream();
             return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
                 {
                     Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.WriteParamEncaps(cached, ret.OutEncaps, ret.ReturnValue));
+                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps, ret.ReturnValue));
                 },
                 TaskScheduler.Current).Unwrap();
         }

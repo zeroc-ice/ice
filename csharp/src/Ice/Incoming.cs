@@ -55,34 +55,6 @@ namespace IceInternal
             _inParamPos = -1;
         }
 
-        public bool Reclaim()
-        {
-            if (_responseHandler != null) // Async dispatch not ready for being reclaimed!
-            {
-                return false;
-            }
-
-            _current = null;
-            _servant = null;
-
-            //_observer = null;
-            Debug.Assert(_observer == null);
-
-            if (_os != null)
-            {
-                _os.Reset(); // Reset the output stream to prepare it for re-use.
-            }
-
-            _is = null;
-
-            //_responseHandler = null;
-            Debug.Assert(_responseHandler == null);
-
-            _inParamPos = -1;
-
-            return true;
-        }
-
         public Ice.Current? GetCurrent() => _current;
 
         public void Invoke(Ice.InputStream stream)
@@ -225,8 +197,6 @@ namespace IceInternal
             }
             else
             {
-                Ice.OutputStream? cached = GetAndClearCachedOutputStream(); // If an output stream is cached, re-use it
-
                 //
                 // NOTE: it's important that the continuation doesn't mutate the Incoming state to
                 // guarantee thread-safety. Multiple continuations can execute concurrently if the
@@ -235,7 +205,7 @@ namespace IceInternal
                 return task.ContinueWith((Task<R> t) =>
                 {
                     R result = t.GetAwaiter().GetResult();
-                    Ice.OutputStream os = StartWriteParams(cached);
+                    Ice.OutputStream os = StartWriteParams();
                     write(os, result);
                     EndWriteParams(os);
                     return Task.FromResult<Ice.OutputStream?>(os);
@@ -257,17 +227,13 @@ namespace IceInternal
             }
             else
             {
-                Ice.OutputStream? cached = GetAndClearCachedOutputStream(); // If an output stream is cached, re-use it
-
-                //
                 // NOTE: it's important that the continuation doesn't mutate the Incoming state to
                 // guarantee thread-safety. Multiple continuations can execute concurrently if the
                 // user installed a dispatch interceptor and the dispatch is retried.
-                //
                 return task.ContinueWith((Task t) =>
                     {
                         t.GetAwaiter().GetResult();
-                        return Task.FromResult(WriteEmptyParams(cached));
+                        return Task.FromResult(WriteEmptyParams());
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
@@ -406,20 +372,6 @@ namespace IceInternal
 
         public void SetFormat(Ice.FormatType format) => _format = format;
 
-        public Ice.OutputStream? GetAndClearCachedOutputStream()
-        {
-            if (_response)
-            {
-                Ice.OutputStream? cached = _os;
-                _os = null;
-                return cached;
-            }
-            else
-            {
-                return null; // Don't consume unnecessarily the output stream if we are dispatching a oneway request
-            }
-        }
-
         public static Ice.OutputStream CreateResponseOutputStream(Ice.Current current)
         {
             var os = new Ice.OutputStream(current.Adapter!.Communicator, Ice.Util.CurrentProtocolEncoding);
@@ -429,17 +381,14 @@ namespace IceInternal
             return os;
         }
 
-        private Ice.OutputStream StartWriteParams(Ice.OutputStream? os)
+        public Ice.OutputStream StartWriteParams()
         {
             if (!_response)
             {
                 throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
             }
 
-            if (os == null) // Create the output stream if none is provided
-            {
-                os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-            }
+            var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
             Debug.Assert(_current != null);
             Debug.Assert(os.Pos == 0);
             os.WriteBlob(Protocol.replyHdr);
@@ -449,8 +398,6 @@ namespace IceInternal
             return os;
         }
 
-        public Ice.OutputStream StartWriteParams() => StartWriteParams(GetAndClearCachedOutputStream());
-
         public void EndWriteParams(Ice.OutputStream os)
         {
             if (_response)
@@ -459,14 +406,11 @@ namespace IceInternal
             }
         }
 
-        private Ice.OutputStream? WriteEmptyParams(Ice.OutputStream? os)
+        public Ice.OutputStream? WriteEmptyParams()
         {
             if (_response)
             {
-                if (os == null) // Create the output stream if none is provided
-                {
-                    os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-                }
+                var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
                 Debug.Assert(_current != null);
                 Debug.Assert(os.Pos == 0);
                 os.WriteBlob(Protocol.replyHdr);
@@ -481,9 +425,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.OutputStream? WriteEmptyParams() => WriteEmptyParams(GetAndClearCachedOutputStream());
-
-        public Ice.OutputStream? WriteParamEncaps(Ice.OutputStream? os, byte[] v, bool ok)
+        public Ice.OutputStream? WriteParamEncaps(byte[] v, bool ok)
         {
             if (!ok && _observer != null)
             {
@@ -492,10 +434,7 @@ namespace IceInternal
 
             if (_response)
             {
-                if (os == null) // Create the output stream if none is provided
-                {
-                    os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-                }
+                var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
                 Debug.Assert(_current != null);
                 Debug.Assert(os.Pos == 0);
                 os.WriteBlob(Protocol.replyHdr);

@@ -200,10 +200,6 @@ namespace IceInternal
         {
         }
 
-        public virtual void CacheMessageBuffers()
-        {
-        }
-
         public bool IsSynchronous() => Synchronous;
 
         protected OutgoingAsyncBase(Ice.Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
@@ -239,15 +235,6 @@ namespace IceInternal
                         ChildObserver = null;
                     }
                     _cancellationHandler = null;
-
-                    //
-                    // For oneway requests after the data has been sent
-                    // the buffers can be reused unless this is a
-                    // collocated invocation. For collocated invocations
-                    // the buffer won't be reused because it has already
-                    // been marked as cached in invokeCollocated.
-                    //
-                    CacheMessageBuffers();
                 }
 
                 bool invoke = _completionCallback.HandleSent(done, _alreadySent, this);
@@ -344,8 +331,8 @@ namespace IceInternal
 
         public bool SentSynchronously() => sentSynchronously_;
 
-        protected Ice.Communicator Communicator;
-        protected Ice.Connection? CachedConnection;
+        protected Communicator Communicator;
+        protected Connection? CachedConnection;
         protected bool sentSynchronously_;
         protected bool Synchronous;
         protected int State;
@@ -353,13 +340,13 @@ namespace IceInternal
         protected Ice.Instrumentation.IInvocationObserver? Observer;
         protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
-        protected Ice.OutputStream? Os;
-        protected Ice.InputStream? Is;
+        protected OutputStream? Os;
+        protected InputStream? Is;
 
         private bool _doneInSent;
         private bool _alreadySent;
-        private Ice.Exception? _ex;
-        private Ice.LocalException? _cancellationException;
+        private Exception? _ex;
+        private LocalException? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
 
@@ -951,32 +938,6 @@ namespace IceInternal
             }
         }
 
-        public override void CacheMessageBuffers()
-        {
-            if (Proxy.Communicator.CacheMessageBuffers > 0)
-            {
-                lock (this)
-                {
-                    if ((State & StateCachedBuffers) > 0)
-                    {
-                        return;
-                    }
-                    State |= StateCachedBuffers;
-                }
-
-                if (Is != null)
-                {
-                    Is.Reset();
-                }
-                Os!.Reset();
-
-                Proxy.CacheMessageBuffers(Is, Os);
-
-                Is = null;
-                Os = null;
-            }
-        }
-
         protected readonly Ice.EncodingVersion Encoding;
         protected System.Action<Ice.UserException>? UserException;
     }
@@ -1007,43 +968,36 @@ namespace IceInternal
 
         public T GetResult(bool ok)
         {
-            try
+            if (ok)
             {
-                if (ok)
+                if (Read == null)
                 {
-                    if (Read == null)
+                    if (Is == null || Is.IsEmpty)
                     {
-                        if (Is == null || Is.IsEmpty)
-                        {
-                            //
-                            // If there's no response (oneway), we just set the result
-                            // on completion without reading anything from the input stream.
-                            //
-                        }
-                        else
-                        {
-                            Is.SkipEmptyEncapsulation();
-                        }
-                        return default;
+                        //
+                        // If there's no response (oneway), we just set the result
+                        // on completion without reading anything from the input stream.
+                        //
                     }
                     else
                     {
-                        Debug.Assert(Is != null);
-                        Is.StartEncapsulation();
-                        T r = Read(Is);
-                        Is.EndEncapsulation();
-                        return r;
+                        Is.SkipEmptyEncapsulation();
                     }
+                    return default;
                 }
                 else
                 {
-                    ThrowUserException();
-                    return default; // make compiler happy
+                    Debug.Assert(Is != null);
+                    Is.StartEncapsulation();
+                    T r = Read(Is);
+                    Is.EndEncapsulation();
+                    return r;
                 }
             }
-            finally
+            else
             {
-                CacheMessageBuffers();
+                ThrowUserException();
+                return default; // make compiler happy
             }
         }
 

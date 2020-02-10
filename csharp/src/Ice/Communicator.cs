@@ -67,7 +67,6 @@ namespace Ice
 
         public ToStringMode ToStringMode { get; }
 
-        internal int CacheMessageBuffers { get; }
         internal int ClassGraphDepthMax { get; } // No mutex lock, immutable.
         internal ACMConfig ClientACM { get; }
         internal DefaultsAndOverrides DefaultsAndOverrides { get; private set; }
@@ -351,8 +350,6 @@ namespace Ice
                 }
 
                 ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");
-
-                CacheMessageBuffers = GetPropertyAsInt("Ice.CacheMessageBuffers") ?? 2;
 
                 _implicitContext = ImplicitContext.Create(GetProperty("Ice.ImplicitContext"));
 
