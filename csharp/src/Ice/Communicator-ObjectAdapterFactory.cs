@@ -16,7 +16,7 @@ namespace Ice
         /// to wait for the completion of all requests.</summary>
         public void Shutdown()
         {
-            ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
+            ObjectAdapter[] adapters;
             lock (this)
             {
                 // Ignore shutdown requests if the communicator is already shut down.
@@ -47,7 +47,7 @@ namespace Ice
         /// finally exits the application.</summary>
         public void WaitForShutdown()
         {
-            ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
+            ObjectAdapter[] adapters;
             lock (this)
             {
                 // First we wait for communicator shut down.
@@ -241,7 +241,7 @@ namespace Ice
 
         private void DestroyAllObjectAdapters()
         {
-            ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
+            ObjectAdapter[] adapters;
             lock (this)
             {
                 adapters = _adapters.ToArray();

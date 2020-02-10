@@ -990,8 +990,8 @@ namespace Ice
 
                 // Parse published endpoints.
                 _publishedEndpoints = ComputePublishedEndpoints();
-                ILocatorPrx? locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory);
-                Locator = locator ?? Communicator.GetDefaultLocator();
+                Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
+                    ?? Communicator.GetDefaultLocator();
             }
             catch (System.Exception)
             {
@@ -1055,7 +1055,7 @@ namespace Ice
 
         internal void UpdateConnectionObservers()
         {
-            IncomingConnectionFactory[] factories = Array.Empty<IncomingConnectionFactory>();
+            IncomingConnectionFactory[] factories;
             lock (_mutex)
             {
                 factories = _incomingConnectionFactories.ToArray();

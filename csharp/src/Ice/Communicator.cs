@@ -2027,7 +2027,7 @@ namespace Ice
             {
                 _outgoingConnectionFactory.UpdateConnectionObservers();
 
-                ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
+                ObjectAdapter[] adapters;
                 lock (this)
                 {
                     adapters = _adapters.ToArray();
@@ -2053,7 +2053,7 @@ namespace Ice
                     _serverThreadPool.UpdateObservers();
                 }
 
-                ObjectAdapter[] adapters = Array.Empty<ObjectAdapter>();
+                ObjectAdapter[] adapters;
                 lock (this)
                 {
                     adapters = _adapters.ToArray();
