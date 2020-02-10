@@ -879,34 +879,25 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Explicitly set an object adapter that dispatches requests that
-        /// are received over this connection.
-        /// A client can invoke an
-        /// operation on a server using a proxy, and then set an object
-        /// adapter for the outgoing connection that is used by the proxy
-        /// in order to receive callbacks. This is useful if the server
-        /// cannot establish a connection back to the client, for example
-        /// because of firewalls.
-        ///
-        /// </summary>
-        /// <param name="adapter">The object adapter that should be used by this
-        /// connection to dispatch requests. The object adapter must be
-        /// activated. When the object adapter is deactivated, it is
-        /// automatically removed from the connection. Attempts to use a
-        /// deactivated object adapter raise ObjectAdapterDeactivatedException
-        ///
-        /// </param>
+        /// <summary>Explicitly sets an object adapter that dispatches requests received over this connection.
+        /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
+        /// outgoing connection used by the proxy in order to receive callbacks. This is useful if the server
+        /// cannot establish a connection back to the client, for example because of firewalls.</summary>
+        /// <param name="adapter">The object adapter. This object adapter is automatically removed from the
+        /// connection when it is deactivated.</param>.
         public void SetAdapter(ObjectAdapter? adapter)
         {
             if (adapter != null)
             {
-                // Make sure the new adapter is still active:
-                adapter.CheckForDeactivation();
-                lock (this)
-                {
-                    _adapter = adapter;
-                }
+                // We're locking both the object adapter and this connection (in this order) to ensure the adapter
+                // gets cleared from this connection during the deactivation of the object adapter.
+                adapter.ExecuteOnlyWhenActive(() =>
+                    {
+                        lock (this)
+                        {
+                            _adapter = adapter;
+                        }
+                    });
             }
             else
             {
@@ -920,10 +911,8 @@ namespace Ice
                 }
             }
 
-            //
-            // We never change the thread pool with which we were initially
-            // registered, even if we add or remove an object adapter.
-            //
+            // We never change the thread pool with which we were initially registered, even if we add or remove an
+            // object adapter.
         }
 
         /// <summary>
@@ -1767,7 +1756,7 @@ namespace Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.MessageSizeMax() : communicator.MessageSizeMax;
+            _messageSizeMax = adapter != null ? adapter.MessageSizeMax : communicator.MessageSizeMax;
             _readStream = new InputStream(communicator, Util.CurrentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
@@ -1790,7 +1779,7 @@ namespace Ice
             {
                 if (adapter != null)
                 {
-                    ThreadPool = adapter.GetThreadPool();
+                    ThreadPool = adapter.ThreadPool;
                 }
                 else
                 {
@@ -2830,7 +2819,7 @@ namespace Ice
             for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
             {
                 info.ConnectionId = _endpoint.ConnectionId();
-                info.AdapterName = _adapter != null ? _adapter.GetName() : "";
+                info.AdapterName = _adapter != null ? _adapter.Name : "";
                 info.Incoming = _connector == null;
             }
             return _info;

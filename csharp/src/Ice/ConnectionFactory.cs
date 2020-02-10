@@ -1301,7 +1301,7 @@ namespace IceInternal
                 if (_acceptorStarted)
                 {
                     _acceptorStarted = false;
-                    _adapter.GetThreadPool().Finish(this);
+                    _adapter.ThreadPool.Finish(this);
                     CloseAcceptor();
                 }
             }
@@ -1374,7 +1374,7 @@ namespace IceInternal
                                 $"can't accept more connections:\n{ex}\n{_acceptor}");
                             Debug.Assert(_acceptorStarted);
                             _acceptorStarted = false;
-                            _adapter!.GetThreadPool().Finish(this);
+                            _adapter!.ThreadPool.Finish(this);
                             CloseAcceptor();
                         }
 
@@ -1492,10 +1492,10 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Ice.Communicator communicator, Endpoint endpoint, Endpoint? publish,
-                                         Ice.ObjectAdapter adapter)
+        public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
+                                         ACMConfig acmConfig)
         {
-            _communicator = communicator;
+            _communicator = adapter.Communicator;
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
@@ -1503,7 +1503,7 @@ namespace IceInternal
             _connections = new HashSet<Ice.Connection>();
             _state = StateHolding;
             _acceptorStarted = false;
-            _monitor = new FactoryACMMonitor(communicator, adapter.GetACM());
+            _monitor = new FactoryACMMonitor(_communicator, acmConfig);
 
             DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             if (defaultsAndOverrides.OverrideTimeout)
@@ -1602,7 +1602,7 @@ namespace IceInternal
                                 s.Append(_acceptor.ToString());
                                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                             }
-                            _adapter!.GetThreadPool().Register(this, SocketOperation.Read);
+                            _adapter!.ThreadPool.Register(this, SocketOperation.Read);
                         }
 
                         foreach (Connection connection in _connections)
@@ -1625,7 +1625,7 @@ namespace IceInternal
                                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
                                                            $"holding {_endpoint.Protocol()} connections at {_acceptor}");
                             }
-                            _adapter!.GetThreadPool().Unregister(this, SocketOperation.Read);
+                            _adapter!.ThreadPool.Unregister(this, SocketOperation.Read);
                         }
 
                         foreach (Connection connection in _connections)
@@ -1640,7 +1640,7 @@ namespace IceInternal
                         if (_acceptorStarted)
                         {
                             _acceptorStarted = false;
-                            _adapter!.GetThreadPool().Finish(this);
+                            _adapter!.ThreadPool.Finish(this);
                             CloseAcceptor();
                         }
                         else
@@ -1671,7 +1671,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_acceptorStarted);
-                _acceptor = _endpoint.Acceptor(_adapter!.GetName());
+                _acceptor = _endpoint.Acceptor(_adapter!.Name);
                 Debug.Assert(_acceptor != null);
 
                 if (_communicator.TraceLevels.Network >= 2)
@@ -1687,11 +1687,11 @@ namespace IceInternal
                         $"listening for {_endpoint.Protocol()} connections\n{_acceptor.ToDetailedString()}");
                 }
 
-                _adapter.GetThreadPool().Initialize(this);
+                _adapter.ThreadPool.Initialize(this);
 
                 if (_state == StateActive)
                 {
-                    _adapter.GetThreadPool().Register(this, SocketOperation.Read);
+                    _adapter.ThreadPool.Register(this, SocketOperation.Read);
                 }
 
                 _acceptorStarted = true;

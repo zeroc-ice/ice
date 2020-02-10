@@ -763,7 +763,7 @@ public class AllTests : Test.AllTests
                 test(slices[0].TypeId.Equals("::Test::SPreserved2"));
             }
 
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter();
             IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
             adapter.Activate();
             testPrx.GetConnection().SetAdapter(adapter);

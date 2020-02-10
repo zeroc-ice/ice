@@ -682,8 +682,8 @@ namespace IceLocatorDiscovery
             _locatorAdapter = _communicator.CreateObjectAdapter(_name + ".Locator");
 
             // We don't want those adapters to be registered with the locator so clear their locator.
-            _replyAdapter.SetLocator(null);
-            _locatorAdapter.SetLocator(null);
+            _replyAdapter.Locator = null;
+            _locatorAdapter.Locator = null;
 
             var lookupPrx = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", _communicator);
             // No colloc optimization or router for the multicast proxy!

@@ -327,7 +327,7 @@ namespace IceInternal
             return _id;
         }
 
-        public string GetParent() => _current.Adapter.GetName();
+        public string GetParent() => _current.Adapter.Name;
 
         public ConnectionInfo? GetConnectionInfo()
         {
@@ -712,7 +712,7 @@ namespace IceInternal
         public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
             base(_attributes)
         {
-            _id = adapter.GetName();
+            _id = adapter.Name;
             _requestId = requestId;
             _size = size;
         }

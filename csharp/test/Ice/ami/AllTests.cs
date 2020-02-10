@@ -896,7 +896,7 @@ namespace Ice.ami
 
                 if (!collocated)
                 {
-                    ObjectAdapter adapter = communicator.CreateObjectAdapter("");
+                    ObjectAdapter adapter = communicator.CreateObjectAdapter();
                     PingReplyI replyI = new PingReplyI();
                     var reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory);
                     adapter.Activate();

@@ -100,7 +100,7 @@ namespace Ice
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
-                    var adapter = communicator.CreateObjectAdapter("");
+                    var adapter = communicator.CreateObjectAdapter();
                     obj.GetConnection().SetAdapter(adapter);
                     obj.GetConnection().SetAdapter(null);
                     adapter.Deactivate();
@@ -120,7 +120,7 @@ namespace Ice
                 {
                     var routerId = new Identity("router", "");
                     var router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId, connectionId: "rc"));
-                    var adapter = communicator.CreateObjectAdapterWithRouter("", router);
+                    var adapter = communicator.CreateObjectAdapterWithRouter(router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
@@ -141,7 +141,7 @@ namespace Ice
                     {
                         routerId = new Identity("test", "");
                         router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId));
-                        communicator.CreateObjectAdapterWithRouter("", router);
+                        communicator.CreateObjectAdapterWithRouter(router);
                         test(false);
                     }
                     catch (OperationNotExistException)
@@ -152,7 +152,7 @@ namespace Ice
                     try
                     {
                         router = IRouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
-                        communicator.CreateObjectAdapterWithRouter("", router);
+                        communicator.CreateObjectAdapterWithRouter(router);
                         test(false);
                     }
                     catch (ConnectFailedException)

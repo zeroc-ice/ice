@@ -274,7 +274,7 @@ namespace Glacier2
             if (_useCallbacks)
             {
                 Debug.Assert(_adapter == null);
-                _adapter = _communicator.CreateObjectAdapterWithRouter("", router);
+                _adapter = _communicator.CreateObjectAdapterWithRouter(router);
                 _adapter.Activate();
             }
 
