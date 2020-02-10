@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+
 namespace IceInternal
 {
-    using System;
-    using System.Diagnostics;
-    using System.Net;
-    using System.Net.Sockets;
-
     public sealed class StreamSocket
     {
         public StreamSocket(ProtocolInstance instance, INetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
@@ -24,10 +24,10 @@ namespace IceInternal
             Network.SetTcpBufSize(_fd, _instance);
 
             _readEventArgs = new SocketAsyncEventArgs();
-            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
-            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -60,10 +60,10 @@ namespace IceInternal
             Network.SetTcpBufSize(_fd, _instance);
 
             _readEventArgs = new SocketAsyncEventArgs();
-            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
-            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -76,13 +76,13 @@ namespace IceInternal
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
         }
 
-        public void setBlock(bool block)
+        public void SetBlock(bool block)
         {
             Debug.Assert(_fd != null);
             Network.SetBlock(_fd, block);
         }
 
-        public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
+        public int Connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
         {
             if (_state == StateNeedConnect)
             {
@@ -94,7 +94,7 @@ namespace IceInternal
                 Debug.Assert(_writeEventArgs != null);
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
+                    var ex = new SocketException((int)_writeEventArgs.SocketError);
                     if (Network.ConnectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
@@ -137,84 +137,72 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public bool isConnected()
-        {
-            return _state == StateConnected && _fd != null;
-        }
+        public bool IsConnected() => _state == StateConnected && _fd != null;
 
-        public Socket? fd()
-        {
-            return _fd;
-        }
+        public Socket? Fd() => _fd;
 
-        public int getSendPacketSize(int length)
-        {
-            return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-        }
+        public int GetSendPacketSize(int length) => _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
-        public int getRecvPacketSize(int length)
-        {
-            return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-        }
+        public int GetRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
-        public void setBufferSize(int rcvSize, int sndSize)
+        public void SetBufferSize(int rcvSize, int sndSize)
         {
             Debug.Assert(_fd != null);
             Network.SetTcpBufSize(_fd, rcvSize, sndSize, _instance);
         }
 
-        public int read(Buffer buf)
+        public int Read(Buffer buf)
         {
             if (_state == StateProxyRead)
             {
                 Debug.Assert(_proxy != null);
                 while (true)
                 {
-                    int ret = read(buf.B);
+                    int ret = Read(buf.B);
                     if (ret == 0)
                     {
                         return SocketOperation.Read;
                     }
 
-                    _state = toState(_proxy.EndRead(buf));
+                    _state = ToState(_proxy.EndRead(buf));
                     if (_state != StateProxyRead)
                     {
                         return SocketOperation.None;
                     }
                 }
             }
-            read(buf.B);
+            Read(buf.B);
             return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
         }
 
-        public int write(Buffer buf)
+        public int Write(Buffer buf)
         {
             if (_state == StateProxyWrite)
             {
                 Debug.Assert(_proxy != null);
                 while (true)
                 {
-                    int ret = write(buf.B);
+                    int ret = Write(buf.B);
                     if (ret == 0)
                     {
                         return SocketOperation.Write;
                     }
-                    _state = toState(_proxy.EndWrite(buf));
+                    _state = ToState(_proxy.EndWrite(buf));
                     if (_state != StateProxyWrite)
                     {
                         return SocketOperation.None;
                     }
                 }
             }
-            write(buf.B);
+            Write(buf.B);
             return buf.B.HasRemaining() ? SocketOperation.Write : SocketOperation.None;
         }
 
-        public bool startRead(Buffer buf, AsyncCallback callback, object state)
+        public bool StartRead(Buffer buf, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null && _readEventArgs != null);
 
-            int packetSize = getRecvPacketSize(buf.B.Remaining());
+            int packetSize = GetRecvPacketSize(buf.B.Remaining());
             try
             {
                 _readCallback = callback;
@@ -232,7 +220,7 @@ namespace IceInternal
             }
         }
 
-        public void finishRead(Buffer buf)
+        public void FinishRead(Buffer buf)
         {
             if (_fd == null) // Transceiver was closed
             {
@@ -260,7 +248,7 @@ namespace IceInternal
                 if (_state == StateProxyRead)
                 {
                     Debug.Assert(_proxy != null);
-                    _state = toState(_proxy.EndRead(buf));
+                    _state = ToState(_proxy.EndRead(buf));
                 }
             }
             catch (SocketException ex)
@@ -277,7 +265,7 @@ namespace IceInternal
             }
         }
 
-        public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
+        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
             if (_state == StateConnectPending)
@@ -306,7 +294,7 @@ namespace IceInternal
                 }
             }
 
-            int packetSize = getSendPacketSize(buf.B.Remaining());
+            int packetSize = GetSendPacketSize(buf.B.Remaining());
             try
             {
                 _writeCallback = callback;
@@ -330,7 +318,7 @@ namespace IceInternal
             }
         }
 
-        public void finishWrite(Buffer buf)
+        public void FinishWrite(Buffer buf)
         {
             if (_fd == null) // Transceiver was closed
             {
@@ -367,7 +355,7 @@ namespace IceInternal
                 if (_state == StateProxyWrite)
                 {
                     Debug.Assert(_proxy != null);
-                    _state = toState(_proxy.EndWrite(buf));
+                    _state = ToState(_proxy.EndWrite(buf));
                 }
             }
             catch (SocketException ex)
@@ -385,7 +373,7 @@ namespace IceInternal
             }
         }
 
-        public void close()
+        public void Close()
         {
             Debug.Assert(_fd != null);
             try
@@ -398,19 +386,16 @@ namespace IceInternal
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             Debug.Assert(_readEventArgs != null && _writeEventArgs != null);
             _readEventArgs.Dispose();
             _writeEventArgs.Dispose();
         }
 
-        public override string ToString()
-        {
-            return _desc;
-        }
+        public override string ToString() => _desc;
 
-        private int read(ByteBuffer buf)
+        private int Read(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
             if (AssemblyUtil.IsMono)
@@ -456,7 +441,7 @@ namespace IceInternal
             return read;
         }
 
-        private int write(ByteBuffer buf)
+        private int Write(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
             if (AssemblyUtil.IsMono)
@@ -512,7 +497,7 @@ namespace IceInternal
             }
             return sent;
         }
-        private void ioCompleted(object sender, SocketAsyncEventArgs e)
+        private void IoCompleted(object sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {
@@ -530,17 +515,14 @@ namespace IceInternal
             }
         }
 
-        private int toState(int operation)
+        private int ToState(int operation)
         {
-            switch (operation)
+            return operation switch
             {
-                case SocketOperation.Read:
-                    return StateProxyRead;
-                case SocketOperation.Write:
-                    return StateProxyWrite;
-                default:
-                    return StateProxyConnected;
-            }
+                SocketOperation.Read => StateProxyRead,
+                SocketOperation.Write => StateProxyWrite,
+                _ => StateProxyConnected,
+            };
         }
 
         private readonly ProtocolInstance _instance;
@@ -549,13 +531,13 @@ namespace IceInternal
         private readonly EndPoint? _sourceAddr;
 
         private Socket? _fd;
-        private int _maxSendPacketSize;
-        private int _maxRecvPacketSize;
+        private readonly int _maxSendPacketSize;
+        private readonly int _maxRecvPacketSize;
         private int _state;
         private string _desc = "";
 
-        private SocketAsyncEventArgs? _writeEventArgs;
-        private SocketAsyncEventArgs? _readEventArgs;
+        private readonly SocketAsyncEventArgs? _writeEventArgs;
+        private readonly SocketAsyncEventArgs? _readEventArgs;
 
         private AsyncCallback? _writeCallback;
         private AsyncCallback? _readCallback;
