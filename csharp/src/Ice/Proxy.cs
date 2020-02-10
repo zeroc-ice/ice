@@ -36,7 +36,6 @@ namespace Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
         public IRequestHandler? RequestHandler { get; set; }
-        public LinkedList<StreamCacheEntry>? StreamCache { get; set; }
 
         public IObjectPrx Clone(Reference reference);
 
@@ -95,20 +94,15 @@ namespace Ice
             return completed.Task;
         }
 
-        private void IceI_ice_isA(string id,
-                                  Dictionary<string, string>? context,
+        private void IceI_ice_isA(string id, Dictionary<string, string>? context,
                                   IOutgoingAsyncCompletionCallback completed,
                                   bool synchronous)
         {
             IceCheckAsyncTwowayOnly("ice_isA");
-            GetOutgoingAsync<bool>(completed).Invoke("ice_isA",
-                                                     OperationMode.Nonmutating,
-                                                     null,
-                                                     context,
-                                                     synchronous,
-                                                     (OutputStream os) => os.WriteString(id),
-                                                     null,
-                                                     (InputStream iss) => iss.ReadBool());
+            var os = new OutgoingAsyncT<bool>(this, completed);
+            os.Invoke("ice_isA", OperationMode.Nonmutating, null, context, synchronous,
+                write: (OutputStream os) => os.WriteString(id),
+                read: (InputStream iss) => iss.ReadBool());
         }
 
         /// <summary>
@@ -148,11 +142,8 @@ namespace Ice
 
         private void IceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            GetOutgoingAsync<object>(completed).Invoke("ice_ping",
-                                                       OperationMode.Nonmutating,
-                                                       null,
-                                                       context,
-                                                       synchronous);
+            var os = new OutgoingAsyncT<object>(this, completed);
+            os.Invoke("ice_ping", OperationMode.Nonmutating, null, context, synchronous);
         }
 
         /// <summary>
@@ -199,7 +190,7 @@ namespace Ice
         private void IceI_ice_ids(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             IceCheckAsyncTwowayOnly("ice_ids");
-            GetOutgoingAsync<string[]>(completed).Invoke("ice_ids",
+            new OutgoingAsyncT<string[]>(this, completed).Invoke("ice_ids",
                                                          OperationMode.Nonmutating,
                                                          null,
                                                          context,
@@ -248,12 +239,9 @@ namespace Ice
                                  IOutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
         {
-            GetOutgoingAsync<string>(completed).Invoke("ice_id",
-                                                       OperationMode.Nonmutating,
-                                                       null,
-                                                       context,
-                                                       synchronous,
-                                                       read: (InputStream iss) => iss.ReadString());
+            var os = new OutgoingAsyncT<string>(this, completed);
+            os.Invoke("ice_id", OperationMode.Nonmutating, null, context, synchronous,
+                      read: (InputStream iss) => iss.ReadString());
         }
 
         /// <summary>
@@ -575,98 +563,6 @@ namespace Ice
                 }
             }
         }
-
-        protected OutgoingAsyncT<T>
-        GetOutgoingAsync<T>(IOutgoingAsyncCompletionCallback completed)
-        {
-            bool haveEntry = false;
-            InputStream? iss = null;
-            OutputStream? os = null;
-
-            if (IceReference.GetCommunicator().CacheMessageBuffers > 0)
-            {
-                lock (this)
-                {
-                    if (StreamCache != null && StreamCache.Count > 0)
-                    {
-                        haveEntry = true;
-                        iss = StreamCache.First.Value.Iss;
-                        os = StreamCache.First.Value.Os;
-
-                        StreamCache.RemoveFirst();
-                    }
-                }
-            }
-
-            if (!haveEntry)
-            {
-                return new OutgoingAsyncT<T>(this, completed);
-            }
-            else
-            {
-                return new OutgoingAsyncT<T>(this, completed, os, iss);
-            }
-        }
-
-        internal InvokeOutgoingAsyncT
-        GetInvokeOutgoingAsync(IOutgoingAsyncCompletionCallback completed)
-        {
-            bool haveEntry = false;
-            InputStream? iss = null;
-            OutputStream? os = null;
-
-            if (IceReference.GetCommunicator().CacheMessageBuffers > 0)
-            {
-                lock (this)
-                {
-                    if (StreamCache != null && StreamCache.Count > 0)
-                    {
-                        haveEntry = true;
-                        iss = StreamCache.First.Value.Iss;
-                        os = StreamCache.First.Value.Os;
-
-                        StreamCache.RemoveFirst();
-                    }
-                }
-            }
-
-            if (!haveEntry)
-            {
-                return new InvokeOutgoingAsyncT(this, completed);
-            }
-            else
-            {
-                return new InvokeOutgoingAsyncT(this, completed, os, iss);
-            }
-        }
-
-        /// <summary>
-        /// Only for internal use by OutgoingAsync
-        /// </summary>
-        /// <param name="iss"></param>
-        /// <param name="os"></param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void
-        CacheMessageBuffers(InputStream? iss, OutputStream os)
-        {
-            lock (this)
-            {
-                if (StreamCache == null)
-                {
-                    StreamCache = new LinkedList<StreamCacheEntry>();
-                }
-                StreamCacheEntry cacheEntry;
-                cacheEntry.Iss = iss;
-                cacheEntry.Os = os;
-                StreamCache.AddLast(cacheEntry);
-            }
-        }
-
-        public struct StreamCacheEntry
-        {
-            public InputStream? Iss;
-            public OutputStream Os;
-        }
     }
 
     /// <summary>
@@ -731,24 +627,17 @@ namespace Ice
         public Object_Ice_invokeResult
         GetResult(bool ok)
         {
-            try
+            var ret = new Object_Ice_invokeResult();
+            if (Proxy.IceReference.GetMode() == InvocationMode.Twoway)
             {
-                var ret = new Object_Ice_invokeResult();
-                if (Proxy.IceReference.GetMode() == InvocationMode.Twoway)
-                {
-                    ret.OutEncaps = Is!.ReadEncapsulation(out EncodingVersion _);
-                }
-                else
-                {
-                    ret.OutEncaps = null;
-                }
-                ret.ReturnValue = ok;
-                return ret;
+                ret.OutEncaps = Is!.ReadEncapsulation(out EncodingVersion _);
             }
-            finally
+            else
             {
-                CacheMessageBuffers();
+                ret.OutEncaps = null;
             }
+            ret.ReturnValue = ok;
+            return ret;
         }
     }
 
@@ -784,7 +673,6 @@ namespace Ice
     {
         public Reference IceReference { get; private set; }
         public IRequestHandler? RequestHandler { get; set; }
-        public LinkedList<IObjectPrx.StreamCacheEntry>? StreamCache { get; set; }
 
         public virtual IObjectPrx Clone(Reference reference) => new ObjectPrx(reference);
 
@@ -1155,6 +1043,6 @@ namespace Ice
                                      Dictionary<string, string>? context,
                                      IOutgoingAsyncCompletionCallback completed,
                                      bool synchronous) =>
-            prx.GetInvokeOutgoingAsync(completed).Invoke(operation, mode, inEncaps, context, synchronous);
+            new InvokeOutgoingAsyncT(prx, completed).Invoke(operation, mode, inEncaps, context, synchronous);
     }
 }

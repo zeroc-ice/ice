@@ -238,7 +238,7 @@ class Platform(object):
     def hasSwift(self, version):
         if self._hasSwift is None:
             try:
-                m = re.search("Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
+                m = re.search(r"Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
                 if m and m.group(1):
                     self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
@@ -3834,7 +3834,7 @@ class SwiftMapping(Mapping):
             "macOS",
             current.config.buildConfig)
 
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1} {2} {3}".format(
             targetBuildDir,
@@ -3861,7 +3861,7 @@ class SwiftMapping(Mapping):
                           -sdk {2}".format(self.getXcodeProject(current),
                                            current.config.buildConfig,
                                            current.config.buildPlatform)
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         return "{0}/TestDriver.app".format(targetBuildDir)
 
     def getSSLProps(self, process, current):

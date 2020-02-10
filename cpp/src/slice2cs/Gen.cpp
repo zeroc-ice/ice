@@ -2508,7 +2508,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
              << (outParams.empty() ? "object" : resultT) << ">(progress, cancel);";
-        _out << nl << "var outAsync = GetOutgoingAsync<" << (outParams.empty() ? "object" : resultT) << ">(completed);";
+        _out << nl << "var outAsync = new global::IceInternal.OutgoingAsyncT<" << (outParams.empty() ? "object" : resultT)
+             << ">(this, completed);";
 
         _out << nl << "outAsync.Invoke(";
         _out.inc();

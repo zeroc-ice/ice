@@ -1604,7 +1604,6 @@ namespace Ice
             _writeStream.GetBuffer().Clear();
             _readStream.Clear();
             _readStream.GetBuffer().Clear();
-            _incomingCache = null;
 
             if (_closeCallback != null)
             {
@@ -1748,7 +1747,6 @@ namespace Ice
             _readTimeoutScheduled = false;
             _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
-            _cacheBuffers = communicator.CacheMessageBuffers > 0;
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {
                 _acmLastActivity = Time.CurrentMonotonicTimeMillis();
@@ -2707,7 +2705,7 @@ namespace Ice
                     bool response = !_endpoint.Datagram() && requestId != 0;
                     Debug.Assert(!response || invokeNum == 1);
 
-                    inc = GetIncoming(adapter, response, compress, requestId);
+                    inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
 
                     //
                     // Dispatch the invocation.
@@ -2716,7 +2714,6 @@ namespace Ice
 
                     --invokeNum;
 
-                    ReclaimIncoming(inc);
                     inc = null;
                 }
 
@@ -2725,13 +2722,6 @@ namespace Ice
             catch (LocalException ex)
             {
                 InvokeException(requestId, ex, invokeNum, false);
-            }
-            finally
-            {
-                if (inc != null)
-                {
-                    ReclaimIncoming(inc);
-                }
             }
         }
 
@@ -2893,47 +2883,6 @@ namespace Ice
                 _observer!.SentBytes(buf.B.Position() - _writeStreamPos);
             }
             _writeStreamPos = -1;
-        }
-
-        private Incoming GetIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)
-        {
-            Incoming inc;
-
-            if (_cacheBuffers)
-            {
-                lock (_incomingCacheMutex)
-                {
-                    if (_incomingCache == null)
-                    {
-                        inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
-                    }
-                    else
-                    {
-                        inc = _incomingCache;
-                        _incomingCache = _incomingCache.Next;
-                        inc.Reset(_communicator, this, this, adapter, response, compress, requestId);
-                        inc.Next = null;
-                    }
-                }
-            }
-            else
-            {
-                inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
-            }
-
-            return inc;
-        }
-
-        internal void ReclaimIncoming(Incoming inc)
-        {
-            if (_cacheBuffers && inc.Reclaim())
-            {
-                lock (_incomingCacheMutex)
-                {
-                    inc.Next = _incomingCache;
-                    _incomingCache = inc;
-                }
-            }
         }
 
         private int Read(IceInternal.Buffer buf)
@@ -3105,12 +3054,7 @@ namespace Ice
         private bool _initialized = false;
         private bool _validated = false;
 
-        private Incoming? _incomingCache;
-        private readonly object _incomingCacheMutex = new object();
-
         private static readonly bool _compressionSupported = BZip2.Supported();
-
-        private readonly bool _cacheBuffers;
 
         private ConnectionInfo? _info;
 

@@ -20,10 +20,8 @@
 #   pragma warning(disable:4244)
 
 #   if defined(ICE_64)
-//
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
-//
 #       pragma warning(disable:4267)
 #   endif
 #endif
@@ -32,9 +30,7 @@
 #   pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
-//
 // Avoid clang conversion warnings
-//
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
@@ -64,9 +60,7 @@ using namespace Slice;
 namespace Slice
 {
 
-//
 // Definitions for the case-insensitive keyword-token map.
-//
 typedef std::map<std::string, int> StringTokenMap;
 static StringTokenMap keywordMap;
 
@@ -275,9 +269,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
             {
                 case '\\':
                 {
-                    //
                     // add extra escape to our internal string
-                    //
                     str->v += '\\';
                     str->v += '\\';
                     break;
@@ -325,10 +317,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     break;
                 }
 
-                //
                 // Octal value \nnn limited to three octal digits but terminate at the first character
                 // that is not a valid octal digit if encountered sooner.
-                //
                 case '0':
                 case '1':
                 case '2':
@@ -366,9 +356,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     string escape = "";
                     next = yyinput();
 
-                    //
                     // Unlike C++, we limit hex escape sequences to 2 hex digits
-                    //
                     while(isxdigit(static_cast<char>(next)) && escape.length() < 2)
                     {
                         escape += static_cast<char>(next);
@@ -389,9 +377,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     break;
                 }
 
-                //
                 // Universal character name
-                //
                 case 'u':
                 case 'U':
                 {
@@ -535,12 +521,9 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
 namespace Slice {
 
-//
 // initScanner() fills the keyword map with all keyword-token pairs.
-//
 
-void
-initScanner()
+void initScanner()
 {
     keywordMap["module"] = ICE_MODULE;
     keywordMap["class"] = ICE_CLASS;
@@ -576,15 +559,11 @@ initScanner()
     keywordMap["Value"] = ICE_VALUE;
 }
 
-//
 // Check if an identifier looks like a keyword.
 // If the identifier is a keyword, return the
 // corresponding keyword token; otherwise, return
 // an identifier token.
-//
-
-int
-checkKeyword(string& id)
+int checkKeyword(string& id)
 {
     StringTokenMap::const_iterator pos = keywordMap.find(id);
     if(pos != keywordMap.end())
@@ -602,13 +581,10 @@ checkKeyword(string& id)
     return checkIdentifier(id);
 }
 
-//
 // Checks an identifier for any illegal syntax and
 // determines whether it's scoped. If it is, this
 // returns a scoped identifier token; otherwise this
 // returns a normal identifier token.
-//
-
 int checkIdentifier(string& id)
 {
     // check whether the identifier is scoped

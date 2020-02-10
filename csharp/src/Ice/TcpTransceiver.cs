@@ -10,17 +10,17 @@ namespace IceInternal
 {
     internal sealed class TcpTransceiver : ITransceiver
     {
-        public Socket? Fd() => _stream.fd();
+        public Socket? Fd() => _stream.Fd();
 
         public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
-            _stream.connect(readBuffer, writeBuffer, ref hasMoreData);
+            _stream.Connect(readBuffer, writeBuffer, ref hasMoreData);
 
         // If we are initiating the connection closure, wait for the peer
         // to close the TCP/IP connection. Otherwise, close immediately.
         public int Closing(bool initiator, Ice.LocalException? ex) =>
             initiator ? SocketOperation.Read : SocketOperation.None;
 
-        public void Close() => _stream.close();
+        public void Close() => _stream.Close();
 
         public Endpoint Bind()
         {
@@ -28,28 +28,28 @@ namespace IceInternal
             throw new System.InvalidOperationException();
         }
 
-        public void Destroy() => _stream.destroy();
+        public void Destroy() => _stream.Destroy();
 
-        public int Write(Buffer buf) => _stream.write(buf);
+        public int Write(Buffer buf) => _stream.Write(buf);
 
-        public int Read(Buffer buf, ref bool hasMoreData) => _stream.read(buf);
+        public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
 
         public bool StartRead(Buffer buf, AsyncCallback callback, object state) =>
-            _stream.startRead(buf, callback, state);
+            _stream.StartRead(buf, callback, state);
 
-        public void FinishRead(Buffer buf) => _stream.finishRead(buf);
+        public void FinishRead(Buffer buf) => _stream.FinishRead(buf);
 
         public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed) =>
-            _stream.startWrite(buf, callback, state, out completed);
+            _stream.StartWrite(buf, callback, state, out completed);
 
-        public void FinishWrite(Buffer buf) => _stream.finishWrite(buf);
+        public void FinishWrite(Buffer buf) => _stream.FinishWrite(buf);
 
         public string Protocol() => _instance.Protocol;
 
         public Ice.ConnectionInfo GetInfo()
         {
             var info = new Ice.TCPConnectionInfo();
-            Socket? fd = _stream.fd();
+            Socket? fd = _stream.Fd();
             if (fd != null)
             {
                 EndPoint localEndpoint = Network.GetLocalAddress(fd);
@@ -68,7 +68,7 @@ namespace IceInternal
         {
         }
 
-        public void SetBufferSize(int rcvSize, int sndSize) => _stream.setBufferSize(rcvSize, sndSize);
+        public void SetBufferSize(int rcvSize, int sndSize) => _stream.SetBufferSize(rcvSize, sndSize);
 
         public override string ToString() => _stream.ToString();
 

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace IceInternal
 {
-    public sealed class AssemblyUtil
+    public static class AssemblyUtil
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static readonly bool IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -37,41 +37,6 @@ namespace IceInternal
                 }
             }
             return null;
-        }
-
-        public static Type[] FindTypesWithPrefix(string prefix)
-        {
-            var l = new LinkedList<Type>();
-
-            lock (_mutex)
-            {
-                LoadAssemblies(); // Lazy initialization
-                foreach (Assembly a in _loadedAssemblies.Values)
-                {
-                    try
-                    {
-                        Type[] types = a.GetTypes();
-                        foreach (Type t in types)
-                        {
-                            if (t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
-                            {
-                                l.AddLast(t);
-                            }
-                        }
-                    }
-                    catch (ReflectionTypeLoadException)
-                    {
-                        // Failed to load types from the assembly, ignore and continue
-                    }
-                }
-            }
-
-            var result = new Type[l.Count];
-            if (l.Count > 0)
-            {
-                l.CopyTo(result, 0);
-            }
-            return result;
         }
 
         public static object? CreateInstance(Type t)
