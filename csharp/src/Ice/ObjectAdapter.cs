@@ -938,7 +938,7 @@ namespace Ice
                 int threadPoolSizeMax = Communicator.GetPropertyAsInt($"{Name}.ThreadPool.SizeMax") ?? 0;
                 if (threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
-                    _threadPool = new ThreadPool(Communicator, Name + ".ThreadPool", 0);
+                    _threadPool = new ThreadPool(Communicator, $"{Name}.ThreadPool", 0);
                 }
 
                 router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
