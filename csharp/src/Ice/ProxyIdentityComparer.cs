@@ -6,49 +6,36 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    /// <summary>
-    /// This class allows a proxy to be used as the key for a hashed collection.
-    /// The GetHashCode, Equals, and Compare methods are based on the object identity
-    /// of the proxy.
-    /// </summary>
+    /// <summary>A ProxyIdentityComparer allows you to use proxies as keys of a Dictionary, while using only the
+    /// proxies' object identity for equality and hashing.</summary>
     public struct ProxyIdentityComparer : IEqualityComparer<IObjectPrx>
     {
-        /// <summary>
-        /// Computes a hash value based on the object identity of the proxy.
-        /// </summary>
-        /// <param name="obj">The proxy whose hash value to compute.</param>
+        /// <summary>Computes a hash value based on the object identity of the proxy.</summary>
+        /// <param name="obj">The proxy.</param>
         /// <returns>The hash value for the proxy based on the identity.</returns>
         public int GetHashCode(IObjectPrx obj) => obj.Identity.GetHashCode();
 
-        /// <summary>Compares two proxies for equality.</summary>
-        /// <param name="lhs">A proxy to compare.</param>
-        /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>True if the passed proxies have the same object identity; false, otherwise.</returns>
+        /// <summary>Compares two proxies for equality based on their identity.</summary>
+        /// <param name="lhs">The proxy.</param>
+        /// <param name="rhs">The other proxy.</param>
+        /// <returns>True if the proxies have the same object identity; false, otherwise.</returns>
         public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => lhs.Identity.Equals(rhs.Identity);
     }
 
-    /// <summary>
-    /// This class allows a proxy to be used as the key for a hashed collection.
-    /// The GetHashCode, Equals, and Compare methods are based on the object identity and
-    /// the facet of the proxy.
-    /// </summary>
+    /// <summary>A ProxyIdentityFacetComparer allows you to use proxies as keys of a Dictionary, while using only the
+    /// proxies' object identity and facet for equality and hashing.</summary>
     public struct ProxyIdentityFacetComparer : IEqualityComparer<IObjectPrx>
     {
-        /// <summary>
-        /// Computes a hash value based on the object identity and facet of the proxy.
-        /// </summary>
-        /// <param name="obj">The proxy whose hash value to compute.</param>
+        /// <summary>Computes a hash value based on the object identity and facet of the proxy.</summary>
+        /// <param name="obj">The proxy.</param>
         /// <returns>The hash value for the proxy based on the identity and facet.</returns>
         public int GetHashCode(IObjectPrx obj) => System.HashCode.Combine(obj.Identity, obj.Facet);
 
-        /// <summary>
-        /// Compares two proxies for equality.
-        /// </summary>
-        /// <param name="lhs">A proxy to compare.</param>
-        /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>True if the passed proxies have the same object identity and facet; false, otherwise.</returns>
+        /// <summary>Compares two proxies for equality based on their identity and facet.</summary>
+        /// <param name="lhs">The proxy.</param>
+        /// <param name="rhs">The other proxy.</param>
+        /// <returns>True if the proxies have the same object identity and facet; false, otherwise.</returns>
         public bool Equals(IObjectPrx lhs, IObjectPrx rhs) =>
             lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
-
     }
 }
