@@ -970,7 +970,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     writeDocCommentLines(_out, comment.summaryLines, "summary");
     writeParamDocComment(p, comment, InParam);
 
-    list<ParamInfo> outParams = getAllOutParams(p);
+    list<ParamInfo> outParams = getAllOutParams(p,"", true);
 
     if(dispatch)
     {
@@ -1003,10 +1003,11 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     {
         writeDocCommentLines(_out, comment.returnLines, "returns");
     }
-    else if(outParams.size() >= 1)
+    else if(outParams.size() > 1)
     {
-        _out << nl << "/// <returns>Named tuple " << resultType(p, "", dispatch);
-        for(const auto paramInfo : outParams)
+        _out << nl << "/// <returns>Named tuple with the following fields:";
+
+        for(const auto& paramInfo : outParams)
         {
             if(paramInfo.param)
             {
@@ -1020,7 +1021,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
             }
             else if(!comment.returnLines.empty()) // Return type
             {
-                _out << nl << "/// <para> " << paramName(paramInfo) << ": ";
+                _out << nl << "/// <para> " << paramInfo.name << ": ";
                 writeDocCommentLines(_out, comment.returnLines);
                 _out << "</para>";
             }
