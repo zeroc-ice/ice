@@ -252,7 +252,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        FoundLocator(ILocatorPrx locator)
+        FoundLocator(ILocatorPrx? locator)
         {
             lock (this)
             {
@@ -620,7 +620,7 @@ namespace IceLocatorDiscovery
         public LookupReplyI(LocatorI locator) => _locator = locator;
 
         public void
-        FoundLocator(ILocatorPrx locator, Current current) => _locator.FoundLocator(locator);
+        FoundLocator(ILocatorPrx? locator, Current current) => _locator.FoundLocator(locator);
 
         private readonly LocatorI _locator;
     }

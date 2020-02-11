@@ -165,7 +165,7 @@ namespace Ice
             return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
                 {
                     Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps, ret.ReturnValue));
+                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps!, ret.ReturnValue));
                 },
                 TaskScheduler.Current).Unwrap();
         }

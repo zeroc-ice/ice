@@ -183,7 +183,7 @@ namespace IceInternal
             info.Compress = _compress;
         }
 
-        protected override bool CheckOption(string option, string argument, string endpoint)
+        protected override bool CheckOption(string option, string? argument, string endpoint)
         {
             if (base.CheckOption(option, argument, endpoint))
             {

@@ -34,7 +34,7 @@ namespace IceInternal
             ICommunicatorObserver? obsv = proxy.Communicator.Observer;
             if (obsv != null)
             {
-                IInvocationObserver observer;
+                IInvocationObserver? observer;
                 if (context == null)
                 {
                     observer = obsv.GetInvocationObserver(proxy, op, _emptyContext);

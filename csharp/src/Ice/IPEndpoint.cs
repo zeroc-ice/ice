@@ -109,7 +109,7 @@ namespace IceInternal
             // this endpoint.
             //
             var endpoints = new List<Endpoint>();
-            if (Host.Length == 0)
+            if (Host!.Length == 0)
             {
                 publish = null;
                 endpoints.Add(this);
@@ -269,13 +269,13 @@ namespace IceInternal
 
         public override void StreamWriteImpl(Ice.OutputStream s)
         {
-            s.WriteString(Host);
+            s.WriteString(Host!);
             s.WriteInt(Port);
         }
 
         public virtual void HashInit(ref HashCode hash)
         {
-            hash.Add(Host);
+            hash.Add(Host!);
             hash.Add(Port);
             if (SourceAddr != null)
             {
@@ -286,7 +286,7 @@ namespace IceInternal
 
         public virtual void FillEndpointInfo(Ice.IPEndpointInfo info)
         {
-            info.Host = Host;
+            info.Host = Host!;
             info.Port = Port;
             info.SourceAddress = Network.EndpointAddressToString(SourceAddr);
         }

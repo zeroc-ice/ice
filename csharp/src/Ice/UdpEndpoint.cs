@@ -98,7 +98,7 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpoint(Instance, Host, Port, SourceAddr, _mcastInterface, _mcastTtl, _connect,
+                return new UdpEndpoint(Instance, Host!, Port, SourceAddr, _mcastInterface, _mcastTtl, _connect,
                                         ConnectionId_, compress);
             }
         }
@@ -147,7 +147,7 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpoint(Instance, Host, port, SourceAddr, _mcastInterface, _mcastTtl, _connect,
+                return new UdpEndpoint(Instance, Host!, port, SourceAddr, _mcastInterface, _mcastTtl, _connect,
                                        ConnectionId_, _compress);
             }
         }
@@ -287,7 +287,7 @@ namespace IceInternal
             }
         }
 
-        protected override bool CheckOption(string option, string argument, string endpoint)
+        protected override bool CheckOption(string option, string? argument, string endpoint)
         {
             if (base.CheckOption(option, argument, endpoint))
             {
@@ -369,8 +369,8 @@ namespace IceInternal
         protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new UdpConnector(Instance, addr, SourceAddr, _mcastInterface, _mcastTtl, ConnectionId_);
 
-        protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
-            new UdpEndpoint(Instance, host, port, SourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId,
+        protected override IPEndpoint CreateEndpoint(string? host, int port, string connectionId) =>
+            new UdpEndpoint(Instance, host!, port, SourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId,
                              _compress);
 
         private string _mcastInterface = "";

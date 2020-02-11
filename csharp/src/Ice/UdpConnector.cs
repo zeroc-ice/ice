@@ -80,7 +80,7 @@ namespace IceInternal
 
         private readonly ProtocolInstance _instance;
         private readonly EndPoint _addr;
-        private readonly EndPoint _sourceAddr;
+        private readonly EndPoint? _sourceAddr;
         private readonly string _mcastInterface;
         private readonly int _mcastTtl;
         private readonly string _connectionId;

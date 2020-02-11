@@ -17,13 +17,13 @@ namespace IceMX
             {
                 protected Resolver(string name) => Name = name;
 
-                protected abstract object Resolve(object obj);
+                protected abstract object? Resolve(object obj);
 
                 public string ResolveImpl(object obj)
                 {
                     try
                     {
-                        object result = Resolve(obj);
+                        object? result = Resolve(obj);
                         if (result != null)
                         {
                             return result.ToString();
@@ -78,7 +78,7 @@ namespace IceMX
                     _field = field;
                 }
 
-                protected override object Resolve(object obj) => GetField(_field, obj);
+                protected override object? Resolve(object obj) => GetField(_field, obj);
 
                 private readonly System.Reflection.FieldInfo _field;
             }
@@ -91,7 +91,7 @@ namespace IceMX
                     _method = method;
                 }
 
-                protected override object Resolve(object obj) => _method.Invoke(obj, null);
+                protected override object? Resolve(object obj) => _method.Invoke(obj, null);
 
                 private readonly System.Reflection.MethodInfo _method;
             }
@@ -107,7 +107,7 @@ namespace IceMX
                     _field = field;
                 }
 
-                protected override object Resolve(object obj)
+                protected override object? Resolve(object obj)
                 {
                     object o = _method.Invoke(obj, null);
                     if (o != null)
@@ -132,7 +132,7 @@ namespace IceMX
                     _subMethod = subMeth;
                 }
 
-                protected override object Resolve(object obj)
+                protected override object? Resolve(object obj)
                 {
                     object o = _method.Invoke(obj, null);
                     if (o != null)
@@ -157,7 +157,7 @@ namespace IceMX
                     _property = property;
                 }
 
-                protected override object Resolve(object obj)
+                protected override object? Resolve(object obj)
                 {
                     object o = _method.Invoke(obj, null);
                     if (o != null)
@@ -240,7 +240,7 @@ namespace IceMX
         {
             Stop();
             long lifetime = _previousDelay + (long)(ElapsedTicks / (Frequency / 1000000.0));
-            foreach (MetricsMap<T>.Entry e in _objects)
+            foreach (MetricsMap<T>.Entry e in _objects!)
             {
                 e.Detach(lifetime);
             }
@@ -248,7 +248,7 @@ namespace IceMX
 
         public virtual void Failed(string exceptionName)
         {
-            foreach (MetricsMap<T>.Entry e in _objects)
+            foreach (MetricsMap<T>.Entry e in _objects!)
             {
                 e.Failed(exceptionName);
             }
@@ -256,13 +256,13 @@ namespace IceMX
 
         public void ForEach(MetricsUpdate u)
         {
-            foreach (MetricsMap<T>.Entry e in _objects)
+            foreach (MetricsMap<T>.Entry e in _objects!)
             {
                 e.Execute(u);
             }
         }
 
-        public void Init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T>? previous)
+        public void Init(List<MetricsMap<T>.Entry> objects, Observer<T>? previous)
         {
             _objects = objects;
 
@@ -272,7 +272,7 @@ namespace IceMX
             }
 
             _previousDelay = previous._previousDelay + (long)(previous.ElapsedTicks / (Frequency / 1000000.0));
-            foreach (MetricsMap<T>.Entry e in previous._objects)
+            foreach (MetricsMap<T>.Entry e in previous._objects!)
             {
                 if (!_objects.Contains(e))
                 {
@@ -286,7 +286,7 @@ namespace IceMX
             where ObserverImpl : Observer<S>, new()
         {
             List<MetricsMap<S>.Entry>? metricsObjects = null;
-            foreach (MetricsMap<T>.Entry entry in _objects)
+            foreach (MetricsMap<T>.Entry entry in _objects!)
             {
                 MetricsMap<S>.Entry? e = entry.GetMatching(mapName, helper);
                 if (e != null)
@@ -307,7 +307,7 @@ namespace IceMX
             try
             {
                 var obsv = new ObserverImpl();
-                obsv.Init(helper, metricsObjects, null);
+                obsv.Init(metricsObjects, null);
                 return obsv;
             }
             catch (Exception)
@@ -319,7 +319,7 @@ namespace IceMX
 
         public MetricsMap<T>.Entry? GetEntry(MetricsMap<T> map)
         {
-            foreach (MetricsMap<T>.Entry e in _objects)
+            foreach (MetricsMap<T>.Entry e in _objects!)
             {
                 if (e.GetMap() == map)
                 {
@@ -403,13 +403,13 @@ namespace IceMX
                     Debug.Assert(false);
                     return null;
                 }
-                obsv.Init(helper, metricsObjects, old);
+                obsv.Init(metricsObjects, old);
                 return obsv;
             }
         }
 
         public void RegisterSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-            where S : Metrics, new() => _metrics.RegisterSubMap<S>(_name, subMap, field);
+            where S : Metrics, new() => _metrics!.RegisterSubMap<S>(_name, subMap, field);
 
         public bool IsEnabled() => _enabled;
 
@@ -419,7 +419,7 @@ namespace IceMX
             lock (this)
             {
                 _maps.Clear();
-                foreach (MetricsMap<T> m in _metrics.GetMaps<T>(_name))
+                foreach (MetricsMap<T> m in _metrics!.GetMaps<T>(_name))
                 {
                     _maps.Add(m);
                 }

@@ -872,7 +872,7 @@ namespace IceInternal
             base.Abort(ex);
         }
 
-        protected void Invoke(string operation, bool synchronous)
+        protected void Invoke(bool synchronous)
         {
             Synchronous = synchronous;
             Ice.InvocationMode mode = Proxy.IceReference.GetMode();
@@ -911,7 +911,7 @@ namespace IceInternal
                 {
                     Os.WriteEmptyEncapsulation(Encoding);
                 }
-                Invoke(operation, synchronous);
+                Invoke(synchronous);
             }
             catch (Ice.Exception ex)
             {

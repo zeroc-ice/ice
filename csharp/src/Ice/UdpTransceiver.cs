@@ -660,7 +660,7 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
+        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
                                 int mcastTtl)
         {
             _instance = instance;

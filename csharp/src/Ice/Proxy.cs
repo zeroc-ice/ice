@@ -616,7 +616,7 @@ namespace Ice
                 {
                     Os.WriteEncapsulation(inParams);
                 }
-                Invoke(operation, synchronous);
+                Invoke(synchronous);
             }
             catch (Exception ex)
             {
@@ -883,8 +883,7 @@ namespace Ice
 
         public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
         {
-            public GetConnectionTaskCompletionCallback(IObjectPrx proxy,
-                                                       IProgress<bool>? progress = null,
+            public GetConnectionTaskCompletionCallback(IProgress<bool>? progress = null,
                                                        CancellationToken cancellationToken = new CancellationToken()) :
                 base(progress, cancellationToken)
             {
@@ -905,7 +904,7 @@ namespace Ice
         {
             try
             {
-                var completed = new GetConnectionTaskCompletionCallback(prx);
+                var completed = new GetConnectionTaskCompletionCallback();
                 IceI_getConnection(prx, completed, true);
                 return completed.Task.Result;
             }
@@ -919,7 +918,7 @@ namespace Ice
                                                           IProgress<bool>? progress = null,
                                                           CancellationToken cancel = new CancellationToken())
         {
-            var completed = new GetConnectionTaskCompletionCallback(prx, progress, cancel);
+            var completed = new GetConnectionTaskCompletionCallback(progress, cancel);
             IceI_getConnection(prx, completed, false);
             return completed.Task;
         }

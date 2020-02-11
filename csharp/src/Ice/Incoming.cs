@@ -146,7 +146,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        task.ContinueWith((Task<Ice.OutputStream> t) =>
+                        task.ContinueWith((Task<Ice.OutputStream?> t) =>
                         {
                             try
                             {

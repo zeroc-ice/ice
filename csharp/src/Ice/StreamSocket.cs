@@ -11,7 +11,7 @@ namespace IceInternal
 {
     public sealed class StreamSocket
     {
-        public StreamSocket(ProtocolInstance instance, INetworkProxy proxy, EndPoint addr, EndPoint sourceAddr)
+        public StreamSocket(ProtocolInstance instance, INetworkProxy? proxy, EndPoint addr, EndPoint? sourceAddr)
         {
             _instance = instance;
             _proxy = proxy;

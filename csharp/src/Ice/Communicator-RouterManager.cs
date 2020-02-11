@@ -60,7 +60,7 @@ namespace Ice
             }
 
             var (proxy, hasRoutingTable) = Router.GetClientProxy();
-            return SetClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+            return SetClientEndpoints(proxy!, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
         public void GetClientEndpoints(GetClientEndpointsCallback callback)
@@ -83,7 +83,7 @@ namespace Ice
                     try
                     {
                         var (prx, hasRoutingTable) = t.Result;
-                        callback.setEndpoints(SetClientEndpoints(prx, hasRoutingTable ?? true));
+                        callback.setEndpoints(SetClientEndpoints(prx!, hasRoutingTable ?? true));
                     }
                     catch (System.AggregateException ae)
                     {
@@ -120,7 +120,7 @@ namespace Ice
                 }
             }
 
-            AddAndEvictProxies(proxy, Router.AddProxies(new IObjectPrx[] { proxy }));
+            AddAndEvictProxies(proxy, Router.AddProxies(new IObjectPrx[] { proxy }) as IObjectPrx[]);
         }
 
         public bool AddProxy(IObjectPrx proxy, AddProxyCallback callback)
@@ -146,7 +146,7 @@ namespace Ice
                 {
                     try
                     {
-                        AddAndEvictProxies(proxy, t.Result);
+                        AddAndEvictProxies(proxy, t.Result as IObjectPrx[]);
                         callback.addedProxy();
                     }
                     catch (System.AggregateException ae)

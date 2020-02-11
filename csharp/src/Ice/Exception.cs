@@ -179,7 +179,7 @@ namespace Ice
 
 namespace IceInternal
 {
-    internal class RetryException : Exception
+    public class RetryException : Exception
     {
         internal RetryException(Ice.LocalException ex) => _ex = ex;
 

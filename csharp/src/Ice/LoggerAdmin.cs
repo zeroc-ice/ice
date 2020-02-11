@@ -13,7 +13,7 @@ namespace IceInternal
     internal sealed class LoggerAdmin : ILoggerAdmin
     {
         public void
-        AttachRemoteLogger(IRemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
+        AttachRemoteLogger(IRemoteLoggerPrx? prx, LogMessageType[] messageTypes, string[] categories,
                            int messageMax, Current current)
         {
             if (prx == null)
@@ -105,7 +105,7 @@ namespace IceInternal
         }
 
         public bool
-        DetachRemoteLogger(IRemoteLoggerPrx remoteLogger, Current current)
+        DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
         {
             if (remoteLogger == null)
             {

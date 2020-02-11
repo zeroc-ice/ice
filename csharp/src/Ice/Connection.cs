@@ -1411,7 +1411,7 @@ namespace Ice
             //
             if (info.InvokeNum > 0)
             {
-                InvokeAll(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.Adapter);
+                InvokeAll(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.Adapter!);
 
                 //
                 // Don't increase dispatchedCount, the dispatch count is
@@ -1485,7 +1485,7 @@ namespace Ice
             ThreadPool.Dispatch(Finish, this);
         }
 
-        private void Finish()
+        private new void Finish() // TODO: rename to avoid new
         {
             if (!_initialized)
             {
@@ -2272,7 +2272,7 @@ namespace Ice
             {
                 // Message wasn't sent, empty the _writeStream, we're not going to send more data.
                 OutgoingMessage message = _sendStreams.First.Value;
-                _writeStream.Swap(message.Stream);
+                _writeStream.Swap(message.Stream!);
                 return SocketOperation.None;
             }
 
@@ -2285,7 +2285,7 @@ namespace Ice
                     // Notify the message that it was sent.
                     //
                     OutgoingMessage message = _sendStreams.First.Value;
-                    _writeStream.Swap(message.Stream);
+                    _writeStream.Swap(message.Stream!);
                     if (message.Sent())
                     {
                         if (callbacks == null)
@@ -2679,7 +2679,7 @@ namespace Ice
         }
 
         private void InvokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
-                               ObjectAdapter? adapter)
+                               ObjectAdapter adapter)
         {
             //
             // Note: In contrast to other private or protected methods, this

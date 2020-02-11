@@ -13,7 +13,7 @@ namespace IceInternal
     internal interface IMetricsMap
     {
         IceMX.Metrics[] GetMetrics();
-        IceMX.MetricsFailures[]? GetFailures();
+        IceMX.MetricsFailures[] GetFailures();
         IceMX.MetricsFailures? GetFailures(string id);
         Dictionary<string, string> GetProperties();
     }
@@ -583,13 +583,13 @@ namespace IceInternal
             return metrics;
         }
 
-        internal IceMX.MetricsFailures[]? GetFailures(string mapName)
+        internal IceMX.MetricsFailures[] GetFailures(string mapName)
         {
             if (_maps.TryGetValue(mapName, out IMetricsMap m))
             {
                 return m.GetFailures();
             }
-            return null;
+            return Array.Empty<IceMX.MetricsFailures>();
         }
 
         internal IceMX.MetricsFailures? GetFailures(string mapName, string id)
@@ -797,18 +797,18 @@ namespace IceInternal
             UpdateViews();
         }
 
-        public (Dictionary<string, IceMX.Metrics[]>, long)
+        public (Dictionary<string, IceMX.Metrics?[]>, long)
         GetMetricsView(string viewName, Ice.Current current)
         {
             lock (this)
             {
                 MetricsViewI? view = GetMetricsView(viewName);
-                return (view == null ? new Dictionary<string, IceMX.Metrics[]>() : view.GetMetrics(),
-                        Time.CurrentMonotonicTimeMillis());
+                return (view == null ? new Dictionary<string, IceMX.Metrics?[]>()
+                    : view.GetMetrics() as Dictionary<string, IceMX.Metrics?[]>, Time.CurrentMonotonicTimeMillis());
             }
         }
 
-        public IceMX.MetricsFailures[]? GetMapMetricsFailures(string viewName, string mapName, Ice.Current c)
+        public IceMX.MetricsFailures[] GetMapMetricsFailures(string viewName, string mapName, Ice.Current c)
         {
             lock (this)
             {

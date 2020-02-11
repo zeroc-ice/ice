@@ -300,10 +300,10 @@ namespace IceInternal
         public override IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short underlying) =>
             new WSEndpointFactory(instance, underlying);
 
-        protected override Endpoint CreateWithUnderlying(Endpoint underlying, List<string> args, bool oaEndpoint) =>
-            new WSEndpoint(Instance!, underlying, args);
+        protected override Endpoint CreateWithUnderlying(Endpoint? underlying, List<string> args, bool oaEndpoint) =>
+            new WSEndpoint(Instance!, underlying!, args);
 
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
-            new WSEndpoint(Instance!, underlying, s);
+        protected override Endpoint ReadWithUnderlying(Endpoint? underlying, Ice.InputStream s) =>
+            new WSEndpoint(Instance!, underlying!, s);
     }
 }

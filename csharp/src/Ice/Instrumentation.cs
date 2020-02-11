@@ -244,7 +244,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The thread observer to instrument the thread.</returns>
-            IThreadObserver GetThreadObserver(string parent, string id, ThreadState s, IThreadObserver? o);
+            IThreadObserver? GetThreadObserver(string parent, string id, ThreadState s, IThreadObserver? o);
 
             /// <summary>
             /// This method should return an invocation observer for the given
