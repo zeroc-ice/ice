@@ -82,8 +82,8 @@ namespace Ice.optional
             test(mo1.h.Equals("test"));
             test(mo1.i == Test.MyEnum.MyEnumMember);
             test(mo1.k == mo1);
-            test(Collections.Equals(mo1.bs, new byte[] { 5 }));
-            test(Collections.Equals(mo1.ss, new string[] { "test", "test2" }));
+            test(global::Test.Collections.Equals(mo1.bs, new byte[] { 5 }));
+            test(global::Test.Collections.Equals(mo1.ss, new string[] { "test", "test2" }));
             test(mo1.iid[4] == 3);
             test(mo1.sid["test"] == 10);
             test(mo1.fs.Equals(new Test.FixedStruct(78)));
@@ -100,7 +100,7 @@ namespace Ice.optional
             test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
             test(mo1.iood[5].a == 15);
 
-            test(Collections.Equals(mo1.bos, new bool[] { false, true, false }));
+            test(global::Test.Collections.Equals(mo1.bos, new bool[] { false, true, false }));
             test(mo1.ser.Equals(new Test.SerializableClass(56)));
 
             output.WriteLine("ok");
@@ -164,13 +164,13 @@ namespace Ice.optional
             test(mo5.h.Equals(mo1.h));
             test(mo5.i == mo1.i);
             test(mo5.k == mo5);
-            test(Collections.Equals(mo5.bs, mo1.bs));
-            test(Collections.Equals(mo5.ss, mo1.ss));
+            test(global::Test.Collections.Equals(mo5.bs, mo1.bs));
+            test(global::Test.Collections.Equals(mo5.ss, mo1.ss));
             test(mo5.iid[4] == 3);
             test(mo5.sid["test"] == 10);
             test(mo5.fs.Equals(mo1.fs));
             test(mo5.vs.Equals(mo1.vs));
-            test(Collections.Equals(mo5.shs, mo1.shs));
+            test(global::Test.Collections.Equals(mo5.shs, mo1.shs));
             test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
             test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
@@ -181,7 +181,7 @@ namespace Ice.optional
             test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
             test(mo5.iood[5].a == 15);
 
-            test(Collections.Equals(mo5.bos, new bool[] { false, true, false }));
+            test(global::Test.Collections.Equals(mo5.bos, new bool[] { false, true, false }));
             if (supportsCsharpSerializable)
             {
                 test(mo5.ser.Equals(new Test.SerializableClass(56)));
@@ -214,14 +214,14 @@ namespace Ice.optional
             test(mo7.h.Equals(mo1.h));
             test(mo7.i == null);
             test(mo7.k == null);
-            test(Collections.Equals(mo7.bs, mo1.bs));
+            test(global::Test.Collections.Equals(mo7.bs, mo1.bs));
             test(mo7.ss == null);
             test(mo7.iid[4] == 3);
             test(mo7.sid == null);
             test(mo7.fs.Equals(mo1.fs));
             test(mo7.vs == null);
 
-            test(Collections.Equals(mo7.shs, mo1.shs));
+            test(global::Test.Collections.Equals(mo7.shs, mo1.shs));
             test(mo7.es == null);
             test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
             test(mo7.vss == null);
@@ -232,7 +232,7 @@ namespace Ice.optional
             test(mo7.ivsd == null);
             test(mo7.iood[5].a == 15);
 
-            test(Collections.Equals(mo7.bos, new bool[] { false, true, false }));
+            test(global::Test.Collections.Equals(mo7.bos, new bool[] { false, true, false }));
             test(mo7.ser == null);
 
             // Clear the second half of the optional members
@@ -269,7 +269,7 @@ namespace Ice.optional
             test(mo9.i.Equals(mo1.i));
             test(mo9.k == mo9);
             test(mo9.bs == null);
-            test(Collections.Equals(mo9.ss, mo1.ss));
+            test(global::Test.Collections.Equals(mo9.ss, mo1.ss));
             test(mo9.iid == null);
             test(mo9.sid["test"] == 10);
             test(mo9.fs == null);
@@ -301,7 +301,7 @@ namespace Ice.optional
                 owc1.s = new Test.ClassVarStruct(5);
                 Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
                 test(owc2.l != null);
-                test(Collections.Equals(owc1.l, owc2.l));
+                test(global::Test.Collections.Equals(owc1.l, owc2.l));
                 test(owc2.s != null && owc2.s.Value.a == 5);
             }
 
@@ -1149,13 +1149,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
                 (p2, p3) = initial.opByteSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opByteSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opByteSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opByteSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opByteSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1170,9 +1170,9 @@ namespace Ice.optional
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(istr.ReadByteArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadByteArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(istr.ReadByteArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadByteArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1189,13 +1189,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
                 (p2, p3) = initial.opBoolSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opBoolSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opBoolSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opBoolSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1210,9 +1210,9 @@ namespace Ice.optional
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
-                test(Collections.Equals(istr.ReadBoolArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadBoolArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
-                test(Collections.Equals(istr.ReadBoolArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadBoolArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1229,14 +1229,14 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
                 (p2, p3) = initial.opShortSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opShortSeqAsync(p1).Result;
 
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opShortSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opShortSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opShortSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1253,10 +1253,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadShortArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadShortArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadShortArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadShortArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1273,13 +1273,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
                 (p2, p3) = initial.opIntSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opIntSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opIntSeq(p1);
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 r = initial.opIntSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opIntSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1296,10 +1296,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadIntArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadIntArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadIntArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadIntArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1316,13 +1316,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
                 (p2, p3) = initial.opLongSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opLongSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opLongSeq(p1);
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 r = initial.opLongSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opLongSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1339,10 +1339,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadLongArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadLongArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadLongArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadLongArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1359,13 +1359,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
                 (p2, p3) = initial.opFloatSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opFloatSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFloatSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opFloatSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFloatSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1382,10 +1382,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadFloatArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadFloatArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadFloatArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadFloatArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1402,13 +1402,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
                 (p2, p3) = initial.opDoubleSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opDoubleSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opDoubleSeq(p1);
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 r = initial.opDoubleSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opDoubleSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1425,10 +1425,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadDoubleArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadDoubleArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
-                test(Collections.Equals(istr.ReadDoubleArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadDoubleArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1445,13 +1445,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
                 (p2, p3) = initial.opStringSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opStringSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opStringSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opStringSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opStringSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1469,10 +1469,10 @@ namespace Ice.optional
                 istr.StartEncapsulation();
                 test(istr.ReadOptional(1, OptionalFormat.FSize));
                 istr.Skip(4);
-                test(Collections.Equals(istr.ReadStringArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadStringArray(), p1));
                 test(istr.ReadOptional(3, OptionalFormat.FSize));
                 istr.Skip(4);
-                test(Collections.Equals(istr.ReadStringArray(), p1));
+                test(global::Test.Collections.Equals(istr.ReadStringArray(), p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1489,13 +1489,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new Test.SmallStruct()).ToArray();
                 (p2, p3) = initial.opSmallStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opSmallStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opSmallStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opSmallStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opSmallStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1513,11 +1513,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
                 SmallStruct[] arr = istr.ReadSmallStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
                 arr = istr.ReadSmallStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1538,13 +1538,13 @@ namespace Ice.optional
                     p1.Add(new SmallStruct());
                 }
                 (p2, p3) = initial.opSmallStructList(p1);
-                test(Collections.Equals(p2, p1));
+                test(global::Test.Collections.Equals(p2, p1));
                 var r = initial.opSmallStructListAsync(p1).Result;
-                test(Collections.Equals(p2, p1));
+                test(global::Test.Collections.Equals(p2, p1));
                 (p2, p3) = initial.opSmallStructList(p1);
-                test(Collections.Equals(p2, p1));
+                test(global::Test.Collections.Equals(p2, p1));
                 r = initial.opSmallStructListAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1));
 
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1562,11 +1562,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
                 List<SmallStruct> arr = istr.ReadSmallStructList();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
                 arr = istr.ReadSmallStructList();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1583,13 +1583,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new Test.FixedStruct()).ToArray();
                 (p2, p3) = initial.opFixedStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opFixedStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFixedStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opFixedStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1607,11 +1607,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
                 Test.FixedStruct[] arr = istr.ReadFixedStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
                 arr = istr.ReadFixedStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1632,13 +1632,13 @@ namespace Ice.optional
                     p1.AddLast(new Test.FixedStruct());
                 }
                 (p2, p3) = initial.opFixedStructList(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opFixedStructListAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opFixedStructList(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opFixedStructListAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1656,11 +1656,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
                 var arr = istr.ReadFixedStructList();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
                 arr = istr.ReadFixedStructList();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1677,13 +1677,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new Test.VarStruct("")).ToArray();
                 (p2, p3) = initial.opVarStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opVarStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opVarStructSeq(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opVarStructSeqAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opVarStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1702,11 +1702,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.FSize));
                 istr.Skip(4);
                 VarStruct[] arr = istr.ReadVarStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 test(istr.ReadOptional(3, OptionalFormat.FSize));
                 istr.Skip(4);
                 arr = istr.ReadVarStructSeq();
-                test(Collections.Equals(arr, p1));
+                test(global::Test.Collections.Equals(arr, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1768,13 +1768,13 @@ namespace Ice.optional
                 p1.Add(1, 2);
                 p1.Add(2, 3);
                 (p2, p3) = initial.opIntIntDict(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opIntIntDictAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opIntIntDict(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opIntIntDictAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opIntIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1792,11 +1792,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.VSize));
                 istr.SkipSize();
                 Dictionary<int, int> m = istr.ReadIntIntDict();
-                test(Collections.Equals(m, p1));
+                test(global::Test.Collections.Equals(m, p1));
                 test(istr.ReadOptional(3, OptionalFormat.VSize));
                 istr.SkipSize();
                 m = istr.ReadIntIntDict();
-                test(Collections.Equals(m, p1));
+                test(global::Test.Collections.Equals(m, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -1815,13 +1815,13 @@ namespace Ice.optional
                 p1.Add("1", 1);
                 p1.Add("2", 2);
                 (p2, p3) = initial.opStringIntDict(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 var r = initial.opStringIntDictAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
                 (p2, p3) = initial.opStringIntDict(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
                 r = initial.opStringIntDictAsync(p1).Result;
-                test(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                test(global::Test.Collections.Equals(r.ReturnValue, p1) && global::Test.Collections.Equals(r.p3, p1));
 
                 (p2, p3) = initial.opStringIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1840,11 +1840,11 @@ namespace Ice.optional
                 test(istr.ReadOptional(1, OptionalFormat.FSize));
                 istr.Skip(4);
                 Dictionary<string, int> m = istr.ReadStringIntDict();
-                test(Collections.Equals(m, p1));
+                test(global::Test.Collections.Equals(m, p1));
                 test(istr.ReadOptional(3, OptionalFormat.FSize));
                 istr.Skip(4);
                 m = istr.ReadStringIntDict();
-                test(Collections.Equals(m, p1));
+                test(global::Test.Collections.Equals(m, p1));
                 istr.EndEncapsulation();
 
                 istr = new InputStream(communicator, outEncaps);
@@ -2043,8 +2043,8 @@ namespace Ice.optional
 
                     p1 = new string[1] { "hello" };
                     (p3, p2) = initial.opMSeq2(p1);
-                    test(Collections.Equals(p2, p1) &&
-                            Collections.Equals(p3, p1));
+                    test(global::Test.Collections.Equals(p2, p1) &&
+                            global::Test.Collections.Equals(p3, p1));
                 }
                 {
                     Dictionary<string, int>? p1, p2, p3;
@@ -2054,8 +2054,8 @@ namespace Ice.optional
                     p1 = new Dictionary<string, int>();
                     p1["test"] = 54;
                     (p3, p2) = initial.opMDict2(p1);
-                    test(Collections.Equals(p2, p1) &&
-                            Collections.Equals(p3, p1));
+                    test(global::Test.Collections.Equals(p2, p1) &&
+                            global::Test.Collections.Equals(p3, p1));
                 }
                 {
                     Test.G? p1, p2, p3;

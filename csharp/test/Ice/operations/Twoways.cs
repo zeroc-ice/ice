@@ -42,7 +42,7 @@ namespace Ice.operations
                 test(ctx.Count == 0);
                 ctx["one"] = "ONE";
                 _proxy.Communicator.GetImplicitContext().SetContext(ctx);
-                test(Ice.Collections.Equals(_proxy.opContext(), ctx));
+                test(global::Test.Collections.Equals(_proxy.opContext(), ctx));
             }
 
             private Test.IMyClassPrx _proxy;
@@ -237,9 +237,9 @@ namespace Ice.operations
 
                 (r, c1, c2) = p.opMyClass(p);
                 ProxyIdentityFacetComparer comparer;
-                test(comparer.Compare(c1, p) == 0);
-                test(comparer.Compare(c2, p) != 0);
-                test(comparer.Compare(r, p) == 0);
+                test(comparer.Equals(c1, p));
+                test(!comparer.Equals(c2, p));
+                test(comparer.Equals(r, p));
                 test(c1.Identity.Equals(Identity.Parse("test")));
                 test(c2.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 test(r.Identity.Equals(Identity.Parse("test")));
@@ -257,7 +257,7 @@ namespace Ice.operations
                 (r, c1, c2) = p.opMyClass(null);
                 test(c1 == null);
                 test(c2 != null);
-                test(comparer.Compare(r, p) == 0);
+                test(comparer.Equals(r, p));
                 r.opVoid();
             }
 
@@ -665,7 +665,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opByteBoolD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro[10] == true);
                 test(ro[11] == false);
@@ -684,7 +684,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opShortIntD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro[110] == -1);
                 test(ro[111] == -100);
@@ -703,7 +703,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opLongFloatD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro[999999110L] == -1.1f);
                 test(ro[999999120L] == -100.4f);
@@ -722,7 +722,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opStringStringD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro["foo"].Equals("abc -1.1"));
                 test(ro["FOO"].Equals("abc -100.4"));
@@ -741,7 +741,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opStringMyEnumD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro["abc"] == Test.MyEnum.enum1);
                 test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -758,7 +758,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opMyEnumStringD(di1, di2);
 
-                test(Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 3);
                 test(ro[Test.MyEnum.enum1].Equals("abc"));
                 test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
@@ -781,7 +781,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opMyStructMyEnumD(di1, di2);
 
-                test(Ice.Collections.Equals(_do, di1));
+                test(global::Test.Collections.Equals(_do, di1));
                 test(ro.Count == 4);
                 test(ro[s11] == Test.MyEnum.enum1);
                 test(ro[s12] == Test.MyEnum.enum2);
@@ -1390,15 +1390,15 @@ namespace Ice.operations
                 {
                     Dictionary<string, string> r = p.opContext(ctx);
                     test(p.Context.Count == 0);
-                    test(Collections.Equals(r, ctx));
+                    test(global::Test.Collections.Equals(r, ctx));
                 }
                 {
                     var p2 = p.Clone(context: ctx);
-                    test(Collections.Equals(p2.Context, ctx));
+                    test(global::Test.Collections.Equals(p2.Context, ctx));
                     Dictionary<string, string> r = p2.opContext();
-                    test(Collections.Equals(r, ctx));
+                    test(global::Test.Collections.Equals(r, ctx));
                     r = p2.opContext(ctx);
-                    test(Collections.Equals(r, ctx));
+                    test(global::Test.Collections.Equals(r, ctx));
                 }
             }
 
@@ -1424,8 +1424,8 @@ namespace Ice.operations
                     var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                     ic.GetImplicitContext().SetContext(ctx);
-                    test(Collections.Equals(ic.GetImplicitContext().GetContext(), ctx));
-                    test(Collections.Equals(p3.opContext(), ctx));
+                    test(global::Test.Collections.Equals(ic.GetImplicitContext().GetContext(), ctx));
+                    test(global::Test.Collections.Equals(p3.opContext(), ctx));
 
                     test(ic.GetImplicitContext().ContainsKey("zero") == false);
                     string r = ic.GetImplicitContext().Put("zero", "ZERO");
@@ -1433,7 +1433,7 @@ namespace Ice.operations
                     test(ic.GetImplicitContext().Get("zero").Equals("ZERO"));
 
                     ctx = ic.GetImplicitContext().GetContext();
-                    test(Collections.Equals(p3.opContext(), ctx));
+                    test(global::Test.Collections.Equals(p3.opContext(), ctx));
 
                     Dictionary<string, string> prxContext = new Dictionary<string, string>();
                     prxContext["one"] = "UN";
@@ -1456,10 +1456,10 @@ namespace Ice.operations
                     p3 = p3.Clone(context: prxContext);
 
                     ic.GetImplicitContext().SetContext(null);
-                    test(Collections.Equals(p3.opContext(), prxContext));
+                    test(global::Test.Collections.Equals(p3.opContext(), prxContext));
 
                     ic.GetImplicitContext().SetContext(ctx);
-                    test(Collections.Equals(p3.opContext(), combined));
+                    test(global::Test.Collections.Equals(p3.opContext(), combined));
 
                     test(ic.GetImplicitContext().Remove("one").Equals("ONE"));
 
@@ -1528,7 +1528,7 @@ namespace Ice.operations
                 p1[0] = "test";
                 string[] p2, p3;
                 (p3, p2) = p.opMSeq2(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
             }
 
             {
@@ -1538,7 +1538,7 @@ namespace Ice.operations
                 p1["test"] = "test";
                 Dictionary<string, string> p2, p3;
                 (p3, p2) = p.opMDict2(p1);
-                test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                test(global::Test.Collections.Equals(p2, p1) && global::Test.Collections.Equals(p3, p1));
             }
         }
     }

@@ -75,7 +75,7 @@ public class Client : Test.TestHelper
                 { "Ice.Config", "config/escapes.cfg" }
             };
 
-            test(Collections.Equals(properties, props));
+            test(global::Test.Collections.Equals(properties, props));
             Console.Out.WriteLine("ok");
         }
     }

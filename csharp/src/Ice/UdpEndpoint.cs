@@ -268,6 +268,7 @@ namespace IceInternal
 
         public override void HashInit(ref HashCode hash)
         {
+            base.HashInit(ref hash);
             hash.Add(_mcastInterface);
             hash.Add(_mcastTtl);
             hash.Add(_connect);

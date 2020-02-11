@@ -327,6 +327,7 @@ namespace IceInternal
             {
                 return false;
             }
+
             if (OverrideCompress && Compress != other.Compress)
             {
                 return false;
@@ -838,10 +839,7 @@ namespace IceInternal
             return _fixedConnection.Equals(rhs._fixedConnection);
         }
 
-        //
-        // If we override Equals, we must also override GetHashCode.
-        //
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _fixedConnection);
 
         private Connection _fixedConnection;
     }
@@ -1239,16 +1237,32 @@ namespace IceInternal
             return properties;
         }
 
-        //
-        // If we override Equals, we must also override GetHashCode.
-        //
         public override int GetHashCode()
         {
             lock (this)
             {
                 if (!HashInitialized)
                 {
-                    HashValue = HashCode.Combine(base.GetHashCode(), _adapterId);
+                    var hash = new HashCode();
+                    hash.Add(base.GetHashCode());
+                    if (_locatorInfo != null)
+                    {
+                        hash.Add(_locatorInfo);
+                    }
+                    if (_routerInfo != null)
+                    {
+                        hash.Add(_routerInfo);
+                    }
+                    hash.Add(_collocationOptimized);
+                    hash.Add(_collocationOptimized);
+                    hash.Add(_preferSecure);
+                    hash.Add(_endpointSelection);
+                    hash.Add(_locatorCacheTimeout);
+                    hash.Add(_overrideTimeout);
+                    hash.Add(_connectionId);
+                    hash.Add(_adapterId);
+                    hash.Add(Collections.GetHashCode(_endpoints));
+                    HashValue = hash.ToHashCode();
                 }
                 return HashValue;
             }

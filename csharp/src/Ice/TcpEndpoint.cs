@@ -171,6 +171,7 @@ namespace IceInternal
 
         public override void HashInit(ref HashCode hash)
         {
+            base.HashInit(ref hash);
             hash.Add(_timeout);
             hash.Add(_compress);
         }

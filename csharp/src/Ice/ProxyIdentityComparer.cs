@@ -11,7 +11,7 @@ namespace Ice
     /// The GetHashCode, Equals, and Compare methods are based on the object identity
     /// of the proxy.
     /// </summary>
-    public struct ProxyIdentityComparer : IEqualityComparer<IObjectPrx>, IComparer<IObjectPrx>
+    public struct ProxyIdentityComparer : IEqualityComparer<IObjectPrx>
     {
         /// <summary>
         /// Computes a hash value based on the object identity of the proxy.
@@ -20,44 +20,11 @@ namespace Ice
         /// <returns>The hash value for the proxy based on the identity.</returns>
         public int GetHashCode(IObjectPrx obj) => obj.Identity.GetHashCode();
 
-        /// Compares two proxies for equality.
+        /// <summary>Compares two proxies for equality.</summary>
         /// <param name="lhs">A proxy to compare.</param>
         /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>True if the passed proxies have the same object
-        /// identity; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => Compare(lhs, rhs) == 0;
-
-        /// Compares two proxies using the object identity for comparison.
-        /// <param name="lhs">A proxy to compare.</param>
-        /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
-        /// 0, otherwise.</returns>
-        public int Compare(IObjectPrx? lhs, IObjectPrx? rhs)
-        {
-            if (ReferenceEquals(lhs, rhs))
-            {
-                return 0;
-            }
-
-            if (lhs == null)
-            {
-                return -1;
-            }
-
-            if (rhs == null)
-            {
-                return 1;
-            }
-
-            Identity lhsIdentity = lhs.Identity;
-            Identity rhsIdentity = rhs.Identity;
-            int n = string.CompareOrdinal(lhsIdentity.Name, rhsIdentity.Name);
-            if (n != 0)
-            {
-                return n;
-            }
-            return string.CompareOrdinal(lhsIdentity.Category, rhsIdentity.Category);
-        }
+        /// <returns>True if the passed proxies have the same object identity; false, otherwise.</returns>
+        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => lhs.Identity.Equals(rhs.Identity);
     }
 
     /// <summary>
@@ -65,7 +32,7 @@ namespace Ice
     /// The GetHashCode, Equals, and Compare methods are based on the object identity and
     /// the facet of the proxy.
     /// </summary>
-    public struct ProxyIdentityFacetComparer : IEqualityComparer<IObjectPrx>, IComparer<IObjectPrx>
+    public struct ProxyIdentityFacetComparer : IEqualityComparer<IObjectPrx>
     {
         /// <summary>
         /// Computes a hash value based on the object identity and facet of the proxy.
@@ -74,48 +41,14 @@ namespace Ice
         /// <returns>The hash value for the proxy based on the identity and facet.</returns>
         public int GetHashCode(IObjectPrx obj) => System.HashCode.Combine(obj.Identity, obj.Facet);
 
+        /// <summary>
         /// Compares two proxies for equality.
+        /// </summary>
         /// <param name="lhs">A proxy to compare.</param>
         /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>True if the passed proxies have the same object
-        /// identity and facet; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => Compare(lhs, rhs) == 0;
+        /// <returns>True if the passed proxies have the same object identity and facet; false, otherwise.</returns>
+        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) =>
+            lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
 
-        /// Compares two proxies using the object identity and facet for comparison.
-        /// <param name="lhs">A proxy to compare.</param>
-        /// <param name="rhs">A proxy to compare.</param>
-        /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
-        /// 0, otherwise.</returns>
-        public int Compare(IObjectPrx? lhs, IObjectPrx? rhs)
-        {
-            if (ReferenceEquals(lhs, rhs))
-            {
-                return 0;
-            }
-
-            if (lhs == null)
-            {
-                return -1;
-            }
-
-            if (rhs == null)
-            {
-                return 1;
-            }
-
-            Identity lhsIdentity = lhs.Identity;
-            Identity rhsIdentity = rhs.Identity;
-            int n = string.CompareOrdinal(lhsIdentity.Name, rhsIdentity.Name);
-            if (n != 0)
-            {
-                return n;
-            }
-            n = string.CompareOrdinal(lhsIdentity.Category, rhsIdentity.Category);
-            if (n != 0)
-            {
-                return n;
-            }
-            return string.CompareOrdinal(lhs.Facet, rhs.Facet);
-        }
     }
 }

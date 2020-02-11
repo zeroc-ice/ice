@@ -95,7 +95,7 @@ namespace Ice.info
                 IEndpoint[] endpoints = adapter.GetEndpoints();
                 test(endpoints.Length == 2);
                 IEndpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(Collections.Equals(endpoints, publishedEndpoints));
+                test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
 
                 TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].GetInfo());
                 test(tcpEndpoint.Type() == TCPEndpointType.Value ||
@@ -116,7 +116,7 @@ namespace Ice.info
                 test(endpoints.Length == 1);
                 adapter.SetPublishedEndpoints(endpoints);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(Collections.Equals(endpoints, publishedEndpoints));
+                test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
 
                 adapter.Destroy();
 

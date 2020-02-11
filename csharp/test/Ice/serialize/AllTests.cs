@@ -145,7 +145,7 @@ namespace Ice.serialize
             test(ex2.i == ex.i);
             test(ex2.l == ex.l);
             test(ex2.vs.Equals(ex.vs));
-            test(ex2.rs.Equals(ex.rs));
+            test(ex2.rs.p != null && ex2.rs.p.Equals(ex.rs.p));
             test(ex2.vss[0].Equals(ex.vs));
             test(ex2.vsll.Count == 1 && ex2.vsll.Last!.Value.Equals(ex.vs));
             test(ex2.vssk.Count == 1 && ex2.vssk.Peek().Equals(ex.vs));
@@ -157,7 +157,7 @@ namespace Ice.serialize
             test(ex2.optName == "MyException");
             test(ex2.optInt.HasValue && ex2.optInt.Value == 99);
             test(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
-            test(ex2.optRefStruct != null && ex2.optRefStruct.Equals(ex.rs));
+            test(ex2.optRefStruct != null && ex2.optRefStruct.Value.p!.Equals(ex.rs.p));
             test(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
             test(ex2.optClass == null);
             test(ex2.optProxy.Equals(proxy));
@@ -170,7 +170,12 @@ namespace Ice.serialize
             rs.p = Test.IMyInterfacePrx.Parse("test", communicator);
             rs.seq = new Test.IMyInterfacePrx[] { rs.p };
             rs2 = inOut(rs, communicator);
-            test(rs.Equals(rs2));
+            test(rs2.s == "RefStruct");
+            test(rs2.sp == "prop");
+            test(rs2.c == null);
+            test(rs2.p != null && rs2.p.Equals(rs.p));
+            test(rs2.seq.Length == rs.seq.Length);
+            test(rs2.seq[0]!.Equals(rs.seq[0]));
 
             Test.Base b, b2;
             b = new Test.Base(true, 1, 2, 3, 4, Test.MyEnum.enum2);

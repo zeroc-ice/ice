@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Ice
 {
-    public static class Collections
+    internal static class Collections
     {
-        public static bool Equals<Key, AnyClass>(Dictionary<Key, AnyClass>? lhs, Dictionary<Key, AnyClass>? rhs)
+        public static bool Equals<TKey, TValue>(Dictionary<TKey, TValue>? lhs, Dictionary<TKey, TValue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -21,15 +20,26 @@ namespace Ice
                 return false;
             }
 
-            EqualityComparer<AnyClass> comparer = EqualityComparer<AnyClass>.Default;
-            foreach (KeyValuePair<Key, AnyClass> entry in lhs)
+            EqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
+            foreach (KeyValuePair<TKey, TValue> entry in lhs)
             {
-                if (!rhs.TryGetValue(entry.Key, out AnyClass value) || !comparer.Equals(entry.Value, value))
+                if (!rhs.TryGetValue(entry.Key, out TValue value) || !comparer.Equals(entry.Value, value))
                 {
                     return false;
                 }
             }
             return true;
+        }
+
+        public static int GetHashCode<TKey, TValue>(Dictionary<TKey, TValue> d)
+        {
+            var hash = new System.HashCode();
+            foreach (KeyValuePair<TKey, TValue> e in d)
+            {
+                hash.Add(e.Key);
+                hash.Add(e.Value);
+            }
+            return hash.ToHashCode();
         }
 
         public static bool Equals<T>(T[]? arr1, T[]? arr2)
@@ -55,67 +65,6 @@ namespace Ice
             return true;
         }
 
-        public static bool Equals<T>(ICollection<T>? lhs, ICollection<T>? rhs)
-        {
-            if (ReferenceEquals(lhs, rhs))
-            {
-                return true;
-            }
-
-            if (lhs == null || rhs == null || lhs.Count != rhs.Count)
-            {
-                return false;
-            }
-
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-            IEnumerator<T> i = lhs.GetEnumerator();
-            IEnumerator<T> j = rhs.GetEnumerator();
-            while (i.MoveNext())
-            {
-                if (!j.MoveNext() || !comparer.Equals(i.Current, j.Current))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool Equals<T>(this IEnumerable<T>? lhs, IEnumerable<T>? rhs)
-        {
-            if (ReferenceEquals(lhs, rhs))
-            {
-                return true;
-            }
-
-            if (lhs == null || rhs == null)
-            {
-                return false;
-            }
-
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-            IEnumerator<T> i = lhs.GetEnumerator();
-            IEnumerator<T> j = rhs.GetEnumerator();
-            while (i.MoveNext())
-            {
-                if (!j.MoveNext() || !comparer.Equals(i.Current, j.Current))
-                {
-                    return false;
-                }
-            }
-            return !j.MoveNext();
-        }
-
-        public static int GetHashCode<Key, AnyClass>(Dictionary<Key, AnyClass> d)
-        {
-            var hash = new System.HashCode();
-            foreach (KeyValuePair<Key, AnyClass> e in d)
-            {
-                hash.Add(e.Key);
-                hash.Add(e.Value);
-            }
-            return hash.ToHashCode();
-        }
-
         public static int GetHashCode<T>(this T[]? arr)
         {
             var hash = new System.HashCode();
@@ -125,17 +74,6 @@ namespace Ice
                 {
                     hash.Add(arr[i]);
                 }
-            }
-            return hash.ToHashCode();
-        }
-
-        public static int GetHashCode(IEnumerable seq)
-        {
-            var hash = new System.HashCode();
-            IEnumerator e = seq.GetEnumerator();
-            while (e.MoveNext())
-            {
-                hash.Add(e.Current);
             }
             return hash.ToHashCode();
         }

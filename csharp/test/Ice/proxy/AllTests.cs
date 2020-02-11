@@ -827,7 +827,7 @@ namespace Ice.proxy
             c["two"] = "world";
             cl = Test.IMyClassPrx.CheckedCast(baseProxy, c);
             Dictionary<string, string> c2 = cl.getContext();
-            test(Collections.Equals(c, c2));
+            test(global::Test.Collections.Equals(c, c2));
             output.WriteLine("ok");
 
             output.Write("testing ice_fixed... ");

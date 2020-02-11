@@ -1972,16 +1972,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "var hash = new global::System.HashCode();";
     for(const auto& i : dataMembers)
     {
-        SequencePtr seq = SequencePtr::dynamicCast(i->type());
-        if((seq && !seq->hasMetaDataWithPrefix("cs:serializable")) || DictionaryPtr::dynamicCast(i->type()))
-        {
-            _out << nl << "hash.Add(Ice.Collections.GetHashCode(this."
-                 << fixId(dataMemberName(i), Slice::ObjectType) << "));";
-        }
-        else
-        {
-            _out << nl << "hash.Add(this." << fixId(dataMemberName(i), Slice::ObjectType) << ");";
-        }
+        _out << nl << "hash.Add(this." << fixId(dataMemberName(i), Slice::ObjectType) << ");";
     }
     _out << nl << "return hash.ToHashCode();";
     _out << eb;
@@ -2001,11 +1992,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         string mName = fixId(dataMemberName(*q));
         TypePtr mType = (*q)->type();
 
-        if(isCollectionType(mType))
-        {
-            _out << getUnqualified("Ice.Collections", ns) << ".Equals(this." << mName << ", other." << mName << ")";
-        }
-        else if(isProxyType(mType))
+        if(isProxyType(mType))
         {
             _out << getUnqualified("Ice.IObjectPrx", ns) << ".Equals(this." << mName << ", other." << mName << ")";
         }

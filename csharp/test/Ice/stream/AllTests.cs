@@ -592,7 +592,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadByteBoolD();
-                test(Collections.Equals(dict2, dict));
+                test(global::Test.Collections.Equals(dict2, dict));
             }
 
             {
@@ -604,7 +604,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadShortIntD();
-                test(Collections.Equals(dict2, dict));
+                test(global::Test.Collections.Equals(dict2, dict));
             }
 
             {
@@ -616,7 +616,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadLongFloatD();
-                test(Collections.Equals(dict2, dict));
+                test(global::Test.Collections.Equals(dict2, dict));
             }
 
             {
@@ -628,7 +628,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadStringStringD();
-                test(Collections.Equals(dict2, dict));
+                test(global::Test.Collections.Equals(dict2, dict));
             }
 
             {
@@ -934,7 +934,7 @@ namespace Ice.stream
                 var data = ostr.Finished();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadSortedStringStringD();
-                test(Collections.Equals(dict2, dict));
+                test(global::Test.Collections.Equals(dict2, dict));
             }
 
             output.WriteLine("ok");

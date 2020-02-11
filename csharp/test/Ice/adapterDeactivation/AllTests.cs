@@ -81,9 +81,9 @@ namespace Ice
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);
                     test(adapter.GetPublishedEndpoints().Length == 2);
-                    test(Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
+                    test(global::Test.Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
                         prx.Endpoints));
-                    test(Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
+                    test(global::Test.Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].Equals(endpt));

@@ -58,7 +58,7 @@ namespace Ice
         }
 
         private readonly Communicator _communicator;
-        private ProxyOutgoingAsyncBase _outAsync;
+        private readonly ProxyOutgoingAsyncBase _outAsync;
     }
 
     public sealed partial class Communicator

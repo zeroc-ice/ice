@@ -27,8 +27,8 @@ namespace Ice.dictMapping
                 Dictionary<int, int> r;
                 (r, o) = p.opNV(i);
 
-                test(Collections.Equals(i, o));
-                test(Collections.Equals(i, r));
+                test(global::Test.Collections.Equals(i, o));
+                test(global::Test.Collections.Equals(i, r));
             }
 
             {
@@ -40,8 +40,8 @@ namespace Ice.dictMapping
                 Dictionary<string, string> r;
                 (r, o) = p.opNR(i);
 
-                test(Collections.Equals(i, o));
-                test(Collections.Equals(i, r));
+                test(global::Test.Collections.Equals(i, o));
+                test(global::Test.Collections.Equals(i, r));
             }
 
             {
@@ -58,8 +58,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
 
@@ -77,8 +77,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
 
@@ -94,8 +94,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
 
@@ -113,8 +113,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
 
@@ -130,8 +130,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
 
@@ -149,8 +149,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(Collections.Equals(i[key], o[key]));
-                    test(Collections.Equals(i[key], r[key]));
+                    test(global::Test.Collections.Equals(i[key], o[key]));
+                    test(global::Test.Collections.Equals(i[key], r[key]));
                 }
             }
         }
