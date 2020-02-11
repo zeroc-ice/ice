@@ -411,14 +411,7 @@ namespace IceInternal
             }
         }
 
-        private void calcHashValue()
-        {
-            int h = 5381;
-            HashUtil.HashAdd(ref h, _type);
-            HashUtil.HashAdd(ref h, _rawEncoding);
-            HashUtil.HashAdd(ref h, _rawBytes);
-            _hashCode = h;
-        }
+        private void calcHashValue() => _hashCode = HashCode.Combine(_type, _rawEncoding, _rawBytes);
 
         private short _type;
         private Ice.EncodingVersion _rawEncoding;

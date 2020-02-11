@@ -223,7 +223,7 @@ namespace IceUtilInternal
                 var utf8 = new UTF8Encoding();
                 byte[] bytes = utf8.GetBytes(s);
 
-                StringBuilder result = new StringBuilder(bytes.Length);
+                var result = new StringBuilder(bytes.Length);
                 for (int i = 0; i < bytes.Length; i++)
                 {
                     EncodeChar((char)bytes[i], result, special, toStringMode);
@@ -233,7 +233,7 @@ namespace IceUtilInternal
             }
             else
             {
-                StringBuilder result = new StringBuilder(s.Length);
+                var result = new StringBuilder(s.Length);
 
                 for (int i = 0; i < s.Length; i++)
                 {

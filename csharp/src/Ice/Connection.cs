@@ -48,15 +48,7 @@ namespace Ice
             Heartbeat = heartbeat;
         }
 
-        public override int GetHashCode()
-        {
-            int h_ = 5381;
-            HashUtil.HashAdd(ref h_, "::Ice::ACM");
-            HashUtil.HashAdd(ref h_, Timeout);
-            HashUtil.HashAdd(ref h_, Close);
-            HashUtil.HashAdd(ref h_, Heartbeat);
-            return h_;
-        }
+        public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
 
         public bool Equals(ACM other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;

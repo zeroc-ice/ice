@@ -245,12 +245,7 @@ namespace IceInternal
             return s;
         }
 
-        public override int GetHashCode()
-        {
-            int h = _delegate.GetHashCode();
-            HashUtil.HashAdd(ref h, _resource);
-            return h;
-        }
+        public override int GetHashCode() => HashCode.Combine(_delegate, _resource);
 
         public override int CompareTo(Endpoint obj)
         {

@@ -32,18 +32,18 @@ namespace Ice.location
             output.WriteLine("ok");
 
             output.Write("testing ice_locator and ice_getLocator... ");
-            test(default(ProxyIdentityComparer).Compare(@base.Locator, communicator.GetDefaultLocator()) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.GetDefaultLocator()));
             var anotherLocator = ILocatorPrx.Parse("anotherLocator", communicator);
             @base = @base.Clone(locator: anotherLocator);
-            test(default(ProxyIdentityComparer).Compare(@base.Locator, anotherLocator) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, anotherLocator));
             communicator.SetDefaultLocator(null);
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
             test(@base.Locator == null);
             @base = @base.Clone(locator: anotherLocator);
-            test(default(ProxyIdentityComparer).Compare(@base.Locator, anotherLocator) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, anotherLocator));
             communicator.SetDefaultLocator(locator);
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            test(default(ProxyIdentityComparer).Compare(@base.Locator, communicator.GetDefaultLocator()) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.GetDefaultLocator()));
 
             //
             // We also test ice_router/ice_getRouter(perhaps we should add a
@@ -52,11 +52,11 @@ namespace Ice.location
             test(@base.Router == null);
             var anotherRouter = IRouterPrx.Parse("anotherRouter", communicator);
             @base = @base.Clone(router: anotherRouter);
-            test(default(ProxyIdentityComparer).Compare(@base.Router, anotherRouter) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Router, anotherRouter));
             var router = IRouterPrx.Parse("dummyrouter", communicator);
             communicator.SetDefaultRouter(router);
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            test(default(ProxyIdentityComparer).Compare(@base.Router, communicator.GetDefaultRouter()) == 0);
+            test(default(ProxyIdentityComparer).Equals(@base.Router, communicator.GetDefaultRouter()));
             communicator.SetDefaultRouter(null);
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
             test(@base.Router == null);

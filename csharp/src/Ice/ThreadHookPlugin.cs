@@ -19,10 +19,8 @@ namespace Ice
         /// <param name="threadStart">The start thread notification hook for the communicator.</param>
         /// <param name="threadStop">The stop thread notification hook for the communicator.</param>
         public
-        ThreadHookPlugin(Communicator communicator, System.Action threadStart, System.Action threadStop)
-        {
+        ThreadHookPlugin(Communicator communicator, System.Action threadStart, System.Action threadStop) =>
             communicator.SetThreadHook(threadStart, threadStop);
-        }
 
         /// <summary>
         /// Called by the Ice run time during communicator initialization. The derived class

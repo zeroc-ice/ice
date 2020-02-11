@@ -309,13 +309,7 @@ namespace IceInternal
                 return !(o is Token t) ? false : CompareTo(t) == 0;
             }
 
-            public override int GetHashCode()
-            {
-                int h = 5381;
-                HashUtil.HashAdd(ref h, Id);
-                HashUtil.HashAdd(ref h, ScheduledTime);
-                return h;
-            }
+            public override int GetHashCode() => System.HashCode.Combine(Id, ScheduledTime);
 
             public long ScheduledTime;
             public int Id; // Since we can't compare references, we need to use another id.

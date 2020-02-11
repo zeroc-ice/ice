@@ -16,14 +16,7 @@ namespace Ice
             Minor = minor;
         }
 
-        public override int GetHashCode()
-        {
-            int h_ = 5381;
-            IceInternal.HashUtil.HashAdd(ref h_, "::Ice::ProtocolVersion");
-            IceInternal.HashUtil.HashAdd(ref h_, Major);
-            IceInternal.HashUtil.HashAdd(ref h_, Minor);
-            return h_;
-        }
+        public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
 
         public bool Equals(ProtocolVersion other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
 
@@ -54,14 +47,7 @@ namespace Ice
             Minor = minor;
         }
 
-        public override int GetHashCode()
-        {
-            int h_ = 5381;
-            IceInternal.HashUtil.HashAdd(ref h_, "::Ice::EncodingVersion");
-            IceInternal.HashUtil.HashAdd(ref h_, Major);
-            IceInternal.HashUtil.HashAdd(ref h_, Minor);
-            return h_;
-        }
+        public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
 
         public bool Equals(EncodingVersion other)
         {

@@ -74,21 +74,21 @@ namespace IceInternal
                 {
                     return HashValue;
                 }
-                int h = 5381;
-                HashUtil.HashAdd(ref h, _mode);
-                HashUtil.HashAdd(ref h, Secure);
-                HashUtil.HashAdd(ref h, _identity);
-                HashUtil.HashAdd(ref h, _context);
-                HashUtil.HashAdd(ref h, _facet);
-                HashUtil.HashAdd(ref h, OverrideCompress);
+                var hash = new HashCode();
+                hash.Add(_mode);
+                hash.Add(Secure);
+                hash.Add(_identity);
+                hash.Add(Collections.GetHashCode(_context));
+                hash.Add(_facet);
+                hash.Add(OverrideCompress);
                 if (OverrideCompress)
                 {
-                    HashUtil.HashAdd(ref h, Compress);
+                    hash.Add(Compress);
                 }
-                HashUtil.HashAdd(ref h, _protocol);
-                HashUtil.HashAdd(ref h, _encoding);
-                HashUtil.HashAdd(ref h, _invocationTimeout);
-                HashValue = h;
+                hash.Add(_protocol);
+                hash.Add(_encoding);
+                hash.Add(_invocationTimeout);
+                HashValue = hash.ToHashCode();
                 HashInitialized = true;
                 return HashValue;
             }
@@ -327,6 +327,7 @@ namespace IceInternal
             {
                 return false;
             }
+
             if (OverrideCompress && Compress != other.Compress)
             {
                 return false;
@@ -838,10 +839,7 @@ namespace IceInternal
             return _fixedConnection.Equals(rhs._fixedConnection);
         }
 
-        //
-        // If we override Equals, we must also override GetHashCode.
-        //
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _fixedConnection);
 
         private Connection _fixedConnection;
     }
@@ -1239,18 +1237,32 @@ namespace IceInternal
             return properties;
         }
 
-        //
-        // If we override Equals, we must also override GetHashCode.
-        //
         public override int GetHashCode()
         {
             lock (this)
             {
                 if (!HashInitialized)
                 {
-                    int h = base.GetHashCode(); // Initializes hashValue_.
-                    HashUtil.HashAdd(ref h, _adapterId);
-                    HashValue = h;
+                    var hash = new HashCode();
+                    hash.Add(base.GetHashCode());
+                    if (_locatorInfo != null)
+                    {
+                        hash.Add(_locatorInfo);
+                    }
+                    if (_routerInfo != null)
+                    {
+                        hash.Add(_routerInfo);
+                    }
+                    hash.Add(_collocationOptimized);
+                    hash.Add(_collocationOptimized);
+                    hash.Add(_preferSecure);
+                    hash.Add(_endpointSelection);
+                    hash.Add(_locatorCacheTimeout);
+                    hash.Add(_overrideTimeout);
+                    hash.Add(_connectionId);
+                    hash.Add(_adapterId);
+                    hash.Add(Collections.GetHashCode(_endpoints));
+                    HashValue = hash.ToHashCode();
                 }
                 return HashValue;
             }

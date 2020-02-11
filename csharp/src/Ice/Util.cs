@@ -150,62 +150,6 @@ namespace Ice
 
 namespace IceInternal
 {
-    public sealed class HashUtil
-    {
-        public static void HashAdd(ref int hashCode, bool value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-
-        public static void HashAdd(ref int hashCode, short value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-
-        public static void HashAdd(ref int hashCode, byte value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-
-        public static void HashAdd(ref int hashCode, int value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
-
-        public static void HashAdd(ref int hashCode, long value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-
-        public static void HashAdd(ref int hashCode, float value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-
-        public static void HashAdd(ref int hashCode, double value) =>
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-
-        public static void HashAdd(ref int hashCode, object? value)
-        {
-            if (value != null)
-            {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
-            }
-        }
-
-        public static void HashAdd<T>(ref int hashCode, T[]? arr)
-        {
-            if (arr != null)
-            {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(arr));
-            }
-        }
-
-        public static void HashAdd(ref int hashCode, IEnumerable? s)
-        {
-            if (s != null)
-            {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(s));
-            }
-        }
-
-        public static void HashAdd<Key, AnyClass>(ref int hashCode, Dictionary<Key, AnyClass>? d)
-        {
-            if (d != null)
-            {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(d));
-            }
-        }
-    }
-
     public sealed class Util
     {
         public static IProtocolPluginFacade GetProtocolPluginFacade(Ice.Communicator communicator) =>

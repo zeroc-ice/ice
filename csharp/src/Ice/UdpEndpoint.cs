@@ -266,13 +266,13 @@ namespace IceInternal
             s.WriteBool(_compress);
         }
 
-        public override void HashInit(ref int h)
+        public override void HashInit(ref HashCode hash)
         {
-            base.HashInit(ref h);
-            HashUtil.HashAdd(ref h, _mcastInterface);
-            HashUtil.HashAdd(ref h, _mcastTtl);
-            HashUtil.HashAdd(ref h, _connect);
-            HashUtil.HashAdd(ref h, _compress);
+            base.HashInit(ref hash);
+            hash.Add(_mcastInterface);
+            hash.Add(_mcastTtl);
+            hash.Add(_connect);
+            hash.Add(_compress);
         }
 
         public override void FillEndpointInfo(Ice.IPEndpointInfo info)

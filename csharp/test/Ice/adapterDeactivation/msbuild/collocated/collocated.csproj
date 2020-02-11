@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../../../TestCommon/Collections.cs" />
     <Compile Include="../../TestI.cs" />
     <Compile Include="../../Servant.cs" />
     <Compile Include="../../AllTests.cs" />

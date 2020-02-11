@@ -4,11 +4,11 @@
 
 using System.Collections.Generic;
 
-namespace Ice
+namespace Test
 {
-    internal static class Collections
+    public static class Collections
     {
-        public static bool Equals<TKey, TValue>(Dictionary<TKey, TValue>? lhs, Dictionary<TKey, TValue>? rhs)
+        public static bool Equals<Key, Tvalue>(Dictionary<Key, Tvalue>? lhs, Dictionary<Key, Tvalue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -20,26 +20,15 @@ namespace Ice
                 return false;
             }
 
-            EqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
-            foreach (KeyValuePair<TKey, TValue> entry in lhs)
+            EqualityComparer<Tvalue> comparer = EqualityComparer<Tvalue>.Default;
+            foreach (KeyValuePair<Key, Tvalue> entry in lhs)
             {
-                if (!rhs.TryGetValue(entry.Key, out TValue value) || !comparer.Equals(entry.Value, value))
+                if (!rhs.TryGetValue(entry.Key, out Tvalue value) || !comparer.Equals(entry.Value, value))
                 {
                     return false;
                 }
             }
             return true;
-        }
-
-        public static int GetHashCode<TKey, TValue>(Dictionary<TKey, TValue> d)
-        {
-            var hash = new System.HashCode();
-            foreach (KeyValuePair<TKey, TValue> e in d)
-            {
-                hash.Add(e.Key);
-                hash.Add(e.Value);
-            }
-            return hash.ToHashCode();
         }
 
         public static bool Equals<T>(T[]? arr1, T[]? arr2)
@@ -65,17 +54,29 @@ namespace Ice
             return true;
         }
 
-        public static int GetHashCode<T>(this T[]? arr)
+        public static bool Equals<T>(ICollection<T>? lhs, ICollection<T>? rhs)
         {
-            var hash = new System.HashCode();
-            if (arr != null)
+            if (ReferenceEquals(lhs, rhs))
             {
-                for (int i = 0; i < arr.Length; i++)
+                return true;
+            }
+
+            if (lhs == null || rhs == null || lhs.Count != rhs.Count)
+            {
+                return false;
+            }
+
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            IEnumerator<T> i = lhs.GetEnumerator();
+            IEnumerator<T> j = rhs.GetEnumerator();
+            while (i.MoveNext())
+            {
+                if (!j.MoveNext() || !comparer.Equals(i.Current, j.Current))
                 {
-                    hash.Add(arr[i]);
+                    return false;
                 }
             }
-            return hash.ToHashCode();
+            return true;
         }
     }
 }
