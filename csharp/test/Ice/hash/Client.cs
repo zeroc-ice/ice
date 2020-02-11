@@ -67,7 +67,6 @@ public class Client : Test.TestHelper
                         {
                             continue;
                         }
-                        Console.WriteLine($"collision: 1: {endpoint} 2: {seenEndpoint[endpoint.GetHashCode()]} hash: {endpoint.GetHashCode()}");
                         ++endpointCollisions;
                     }
                     else
