@@ -68,30 +68,23 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            lock (this)
+            // We don't cache the hash code in Reference as Reference is abstract. We cache it in concrete
+            // Reference classes.
+            var hash = new HashCode();
+            hash.Add(_mode);
+            hash.Add(Secure);
+            hash.Add(_identity);
+            hash.Add(Collections.GetHashCode(_context));
+            hash.Add(_facet);
+            hash.Add(OverrideCompress);
+            if (OverrideCompress)
             {
-                if (HashInitialized)
-                {
-                    return HashValue;
-                }
-                var hash = new HashCode();
-                hash.Add(_mode);
-                hash.Add(Secure);
-                hash.Add(_identity);
-                hash.Add(Collections.GetHashCode(_context));
-                hash.Add(_facet);
-                hash.Add(OverrideCompress);
-                if (OverrideCompress)
-                {
-                    hash.Add(Compress);
-                }
-                hash.Add(_protocol);
-                hash.Add(_encoding);
-                hash.Add(_invocationTimeout);
-                HashValue = hash.ToHashCode();
-                HashInitialized = true;
-                return HashValue;
+                hash.Add(Compress);
             }
+            hash.Add(_protocol);
+            hash.Add(_encoding);
+            hash.Add(_invocationTimeout);
+            return hash.ToHashCode();
         }
 
         public bool GetCompressOverride(out bool compress)
@@ -285,7 +278,6 @@ namespace IceInternal
                 return false;
             }
             return rhs.Equals(lhs);
-
         }
 
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
@@ -478,8 +470,6 @@ namespace IceInternal
 
         public Reference Clone() => (Reference)MemberwiseClone();
 
-        protected int HashValue;
-        protected bool HashInitialized;
         private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
         protected Communicator Communicator;
@@ -522,7 +512,6 @@ namespace IceInternal
             _encoding = encoding;
             _invocationTimeout = invocationTimeout;
             Secure = secure;
-            HashInitialized = false;
             OverrideCompress = false;
             Compress = false;
         }
@@ -532,6 +521,10 @@ namespace IceInternal
 
     public class FixedReference : Reference
     {
+        // _hashCode is a cached hash code initialized lazily to a value other than 0.
+        private int _hashCode = 0;
+        private Connection _fixedConnection;
+
         public FixedReference(Communicator communicator,
                               Identity identity,
                               string facet,
@@ -839,9 +832,24 @@ namespace IceInternal
             return _fixedConnection.Equals(rhs._fixedConnection);
         }
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _fixedConnection);
-
-        private Connection _fixedConnection;
+        public override int GetHashCode()
+        {
+            if (_hashCode != 0)
+            {
+                return _hashCode;
+            }
+            else
+            {
+                // lazy initialization, thread-safe because reading/writing _hashcode (an int) is atomic
+                int hashCode = HashCode.Combine(base.GetHashCode(), _fixedConnection);
+                if (hashCode == 0)
+                {
+                    hashCode = 1;
+                }
+                _hashCode = hashCode;
+                return _hashCode;
+            }
+        }
     }
 
     public class RoutableReference : Reference
@@ -1239,32 +1247,40 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            lock (this)
+            if (_hashCode != 0)
             {
-                if (!HashInitialized)
+                // Already computed, return cached value:
+                return _hashCode;
+            }
+            else
+            {
+                // Lazy initialization of _hashCode to a value other than 0. Reading/writing _hashCode is atomic.
+                var hash = new HashCode();
+                hash.Add(base.GetHashCode());
+                if (_locatorInfo != null)
                 {
-                    var hash = new HashCode();
-                    hash.Add(base.GetHashCode());
-                    if (_locatorInfo != null)
-                    {
-                        hash.Add(_locatorInfo);
-                    }
-                    if (_routerInfo != null)
-                    {
-                        hash.Add(_routerInfo);
-                    }
-                    hash.Add(_collocationOptimized);
-                    hash.Add(_collocationOptimized);
-                    hash.Add(_preferSecure);
-                    hash.Add(_endpointSelection);
-                    hash.Add(_locatorCacheTimeout);
-                    hash.Add(_overrideTimeout);
-                    hash.Add(_connectionId);
-                    hash.Add(_adapterId);
-                    hash.Add(Collections.GetHashCode(_endpoints));
-                    HashValue = hash.ToHashCode();
+                    hash.Add(_locatorInfo);
                 }
-                return HashValue;
+                if (_routerInfo != null)
+                {
+                    hash.Add(_routerInfo);
+                }
+                hash.Add(_collocationOptimized);
+                hash.Add(_collocationOptimized);
+                hash.Add(_preferSecure);
+                hash.Add(_endpointSelection);
+                hash.Add(_locatorCacheTimeout);
+                hash.Add(_overrideTimeout);
+                hash.Add(_connectionId);
+                hash.Add(_adapterId);
+                hash.Add(Collections.GetHashCode(_endpoints));
+                int hashCode = hash.ToHashCode();
+                if (hashCode == 0)
+                {
+                    hashCode = 1;
+                }
+                _hashCode = hashCode;
+                return _hashCode;
             }
         }
 
@@ -1772,6 +1788,7 @@ namespace IceInternal
             private readonly bool _preferSecure;
         }
 
+        private int _hashCode = 0; // cached hash code. 0 means not initialized.
         private static readonly Endpoint[] _emptyEndpoints = Array.Empty<Endpoint>();
 
         private Endpoint[] _endpoints;
