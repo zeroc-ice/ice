@@ -26,7 +26,6 @@ namespace Glacier2
         /// <param name="callback">The callback for notifications about session establishment.</param>
         /// <param name="properties">Optional properties used for communicator initialization.</param>
         /// <param name="compactIdResolver">Optional compact type ID resolver delegate used for communicator initialization.</param>
-        /// <param name="dispatcher">Optional dispatcher delegate used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="threadStart">Optional thread start delegate used for communicator initialization.</param>
@@ -37,7 +36,6 @@ namespace Glacier2
         SessionFactoryHelper(SessionCallback callback,
                              Dictionary<string, string> properties,
                              Func<int, string>? compactIdResolver = null,
-                             Action<Action, Ice.Connection?>? dispatcher = null,
                              Ice.ILogger? logger = null,
                              Ice.Instrumentation.ICommunicatorObserver? observer = null,
                              Action? threadStart = null,
@@ -47,7 +45,6 @@ namespace Glacier2
             _callback = callback;
             _properties = properties;
             _compactIdResolver = compactIdResolver;
-            _dispatcher = dispatcher;
             _logger = logger;
             _observer = observer;
             _threadStart = threadStart;
@@ -268,7 +265,6 @@ namespace Glacier2
                     _useCallbacks,
                     CreateProperties(),
                     _compactIdResolver,
-                    _dispatcher,
                     _logger,
                     _observer,
                     _threadStart,
@@ -299,7 +295,6 @@ namespace Glacier2
                     _useCallbacks,
                     CreateProperties(),
                     _compactIdResolver,
-                    _dispatcher,
                     _logger,
                     _observer,
                     _threadStart,
@@ -366,7 +361,6 @@ namespace Glacier2
         private SessionCallback _callback;
         private Dictionary<string, string> _properties;
         private Func<int, string>? _compactIdResolver;
-        private Action<Action, Ice.Connection?>? _dispatcher;
         private Ice.ILogger? _logger;
         private Ice.Instrumentation.ICommunicatorObserver? _observer;
         private Action? _threadStart;

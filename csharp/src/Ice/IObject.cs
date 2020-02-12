@@ -25,7 +25,6 @@ namespace Ice
     ///<summary>The base interface for all servants.</summary>
     public interface IObject
     {
-        // See Dispatcher.
         public Task<OutputStream>? Dispatch(Incoming inS, Current current)
         {
             // TODO: switch to abstract method
