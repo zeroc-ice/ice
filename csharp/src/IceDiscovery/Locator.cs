@@ -15,8 +15,8 @@ namespace IceDiscovery
             _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
                 clearLocator: true, clearRouter: true, collocationOptimized: true);
 
-        public Task
-        SetAdapterDirectProxyAsync(string adapterId, IObjectPrx proxy, Current current)
+        public Task?
+        SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
         {
             lock (this)
             {
@@ -32,8 +32,8 @@ namespace IceDiscovery
             return null;
         }
 
-        public Task
-        SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx proxy,
+        public Task?
+        SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
                                              Current current)
         {
             lock (this)
@@ -66,10 +66,10 @@ namespace IceDiscovery
             return null;
         }
 
-        public Task
-        SetServerProcessProxyAsync(string id, IProcessPrx process, Current current) => null;
+        public Task?
+        SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) => null;
 
-        internal IObjectPrx FindObject(Identity id)
+        internal IObjectPrx? FindObject(Identity id)
         {
             lock (this)
             {
@@ -170,13 +170,13 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public Task<IObjectPrx>
+        public Task<IObjectPrx?>?
         FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
 
-        public Task<IObjectPrx?>
+        public Task<IObjectPrx?>?
         FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);
 
-        public ILocatorRegistryPrx GetRegistry(Current current) => _registry;
+        public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;
 
         private readonly Lookup _lookup;
         private readonly ILocatorRegistryPrx _registry;

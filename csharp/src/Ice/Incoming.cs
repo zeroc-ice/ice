@@ -216,7 +216,7 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? SetResultTask(Task task)
+        public Task<Ice.OutputStream?>? SetResultTask(Task? task)
         {
             if (task == null)
             {
@@ -241,7 +241,7 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? SetMarshaledResultTask<T>(Task<T> task) where T : struct, Ice.IMarshaledReturnValue
+        public Task<Ice.OutputStream?>? SetMarshaledResultTask<T>(Task<T>? task) where T : struct, Ice.IMarshaledReturnValue
         {
             Debug.Assert(_current != null);
             if (task == null)

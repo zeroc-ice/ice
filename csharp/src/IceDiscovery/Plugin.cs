@@ -118,8 +118,7 @@ namespace IceDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            ILocatorPrx? defaultLocator = _communicator.GetDefaultLocator();
-            if (defaultLocator != null && defaultLocator.Equals(_locator))
+            if (IObjectPrx.Equals(_communicator.GetDefaultLocator(), _locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.SetDefaultLocator(_defaultLocator);

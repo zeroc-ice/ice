@@ -39,7 +39,7 @@ namespace IceDiscovery
             var id = new Identity(_requestId, "");
             foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> entry in lookups)
             {
-                InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value.Clone(id)));
+                InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value!.Clone(id)));
             }
         }
 
@@ -76,7 +76,7 @@ namespace IceDiscovery
 
         public override bool Retry() => _proxies.Count == 0 && --RetryCount >= 0;
 
-        public bool Response(IObjectPrx? proxy, bool isReplicaGroup)
+        public bool Response(IObjectPrx proxy, bool isReplicaGroup)
         {
             if (isReplicaGroup)
             {
@@ -166,7 +166,7 @@ namespace IceDiscovery
         {
         }
 
-        public void Response(IObjectPrx? proxy) => Finished(proxy);
+        public void Response(IObjectPrx proxy) => Finished(proxy);
 
         public override void Finished(IObjectPrx? proxy)
         {
@@ -356,7 +356,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void FoundObject(Identity id, string requestId, IObjectPrx? proxy)
+        internal void FoundObject(Identity id, string requestId, IObjectPrx proxy)
         {
             lock (this)
             {
@@ -370,7 +370,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx? proxy, bool isReplicaGroup)
+        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx proxy, bool isReplicaGroup)
         {
             lock (this)
             {
@@ -522,10 +522,11 @@ namespace IceDiscovery
     {
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
-        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c) => _lookup.FoundObject(id, c.Id.Name, proxy);
+        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c)
+            => _lookup.FoundObject(id, c.Id.Name, proxy!); // proxy cannot be null
 
         public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current c) =>
-            _lookup.FoundAdapter(adapterId, c.Id.Name, proxy, isReplicaGroup);
+            _lookup.FoundAdapter(adapterId, c.Id.Name, proxy!, isReplicaGroup); // proxy cannot be null
 
         private readonly Lookup _lookup;
     };

@@ -1591,7 +1591,7 @@ namespace Ice
         /// <param name="router">The default router to use for this communicator.
         ///
         /// </param>
-        public void SetDefaultRouter(IRouterPrx router)
+        public void SetDefaultRouter(IRouterPrx? router)
         {
             lock (this)
             {
