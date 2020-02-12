@@ -27,8 +27,6 @@ namespace IceInternal
             {
                 throw new FormatException($"no -v option in endpoint {this}");
             }
-
-            calcHashValue();
         }
 
         public OpaqueEndpointI(short type, Ice.InputStream s)
@@ -38,8 +36,6 @@ namespace IceInternal
             int sz = s.GetEncapsulationSize();
             _rawBytes = new byte[sz];
             s.ReadBlob(_rawBytes);
-
-            calcHashValue();
         }
 
         //
@@ -244,7 +240,20 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            return _hashCode;
+            if (_hashCode != 0)
+            {
+                return _hashCode;
+            }
+            else
+            {
+               int hashCode = HashCode.Combine(_type, _rawEncoding, _rawBytes);
+               if (hashCode == 0)
+               {
+                   hashCode = 1;
+               }
+               _hashCode = hashCode;
+               return _hashCode;
+            }
         }
 
         public override string Options()
@@ -411,12 +420,10 @@ namespace IceInternal
             }
         }
 
-        private void calcHashValue() => _hashCode = HashCode.Combine(_type, _rawEncoding, _rawBytes);
-
         private short _type;
         private Ice.EncodingVersion _rawEncoding;
         private byte[] _rawBytes;
-        private int _hashCode;
+        private int _hashCode = 0; // 0 is a special value that means not initialized.
     }
 
 }

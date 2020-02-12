@@ -18,7 +18,6 @@ namespace IceInternal
             Port = port;
             SourceAddr = sourceAddr;
             ConnectionId_ = connectionId;
-            _hashInitialized = false;
         }
 
         public IPEndpoint(ProtocolInstance instance)
@@ -28,7 +27,6 @@ namespace IceInternal
             Port = 0;
             SourceAddr = null;
             ConnectionId_ = "";
-            _hashInitialized = false;
         }
 
         public IPEndpoint(ProtocolInstance instance, Ice.InputStream s)
@@ -38,7 +36,6 @@ namespace IceInternal
             Port = s.ReadInt();
             SourceAddr = null;
             ConnectionId_ = "";
-            _hashInitialized = false;
         }
 
         private sealed class Info : Ice.IPEndpointInfo
@@ -218,15 +215,25 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            if (!_hashInitialized)
+            // This code is thread safe because reading/writing _hashCode (an int) is atomic.
+            if (_hashCode != 0)
+            {
+                // Return cached value
+                return _hashCode;
+            }
+            else
             {
                 var hash = new HashCode();
                 hash.Add(Type());
                 HashInit(ref hash);
-                _hashValue = hash.ToHashCode();
-                _hashInitialized = true;
+                int hashCode = hash.ToHashCode();
+                if (hashCode == 0) // 0 is not a valid value as it means "not initialized"
+                {
+                    hashCode = 1;
+                }
+                _hashCode = hashCode;
+                return _hashCode;
             }
-            return _hashValue;
         }
 
         public override int CompareTo(Endpoint obj)
@@ -384,8 +391,8 @@ namespace IceInternal
         protected int Port;
         protected EndPoint? SourceAddr;
         protected string ConnectionId_;
-        private bool _hashInitialized;
-        private int _hashValue;
+
+        private int _hashCode = 0; // 0 is a special value that means not initialized.
     }
 
 }
