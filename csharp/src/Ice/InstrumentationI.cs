@@ -88,7 +88,7 @@ namespace IceInternal
             return del;
         }
 
-        public O? GetObserver(MetricsHelper<T> helper, object observer, O? del)
+        public O? GetObserver(MetricsHelper<T> helper, object? observer, O? del)
         {
             OImpl? o = GetObserver(helper, observer);
             if (o != null)
@@ -1022,20 +1022,20 @@ namespace IceInternal
         }
 
         public Ice.Instrumentation.IThreadObserver? GetThreadObserver(string parent, string id,
-                                                                     Ice.Instrumentation.ThreadState s,
-                                                                     Ice.Instrumentation.IThreadObserver? obsv)
+                                                                      Ice.Instrumentation.ThreadState s,
+                                                                      Ice.Instrumentation.IThreadObserver? oldObsv)
         {
             if (_threads.IsEnabled())
             {
                 try
                 {
-                    Ice.Instrumentation.IThreadObserver? del = null;
-                    ThreadObserverI? o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
+                    Ice.Instrumentation.IThreadObserver? newDelegate = null;
                     if (_delegate != null)
                     {
-                        del = _delegate.GetThreadObserver(parent, id, s, o != null ? o.GetDelegate() : obsv);
+                        ThreadObserverI? o = oldObsv is ThreadObserverI ? (ThreadObserverI)oldObsv : null;
+                        newDelegate = _delegate.GetThreadObserver(parent, id, s, o != null ? o.GetDelegate() : oldObsv);
                     }
-                    return _threads.GetObserver(new ThreadHelper(parent, id, s), obsv, del);
+                    return _threads.GetObserver(new ThreadHelper(parent, id, s), oldObsv, newDelegate);
                 }
                 catch (System.Exception ex)
                 {

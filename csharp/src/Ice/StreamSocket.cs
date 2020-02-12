@@ -82,7 +82,7 @@ namespace IceInternal
             Network.SetBlock(_fd, block);
         }
 
-        public int Connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
+        public int Connect(Buffer readBuffer, Buffer writeBuffer)
         {
             if (_state == StateNeedConnect)
             {

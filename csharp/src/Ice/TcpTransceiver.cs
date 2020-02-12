@@ -13,7 +13,7 @@ namespace IceInternal
         public Socket? Fd() => _stream.Fd();
 
         public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
-            _stream.Connect(readBuffer, writeBuffer, ref hasMoreData);
+            _stream.Connect(readBuffer, writeBuffer);
 
         // If we are initiating the connection closure, wait for the peer
         // to close the TCP/IP connection. Otherwise, close immediately.
