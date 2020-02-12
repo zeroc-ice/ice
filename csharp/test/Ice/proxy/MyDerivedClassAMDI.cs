@@ -13,7 +13,7 @@ namespace Ice.proxy.AMD
     {
         public Task<IObjectPrx> echoAsync(IObjectPrx obj, Current c) => Task.FromResult(obj);
 
-        public Task shutdownAsync(Current current)
+        public Task? shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
             return null;

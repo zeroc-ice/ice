@@ -15,7 +15,7 @@ namespace Ice.location
             _objects = new Hashtable();
         }
 
-        public Task
+        public Task?
         SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
         {
             if (obj != null)
@@ -29,7 +29,7 @@ namespace Ice.location
             return null;
         }
 
-        public Task
+        public Task?
         SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx obj, Current current)
         {
             if (obj != null)
@@ -45,7 +45,7 @@ namespace Ice.location
             return null;
         }
 
-        public Task
+        public Task?
         SetServerProcessProxyAsync(string id, IProcessPrx proxy, Current current) => null;
 
         public void addObject(IObjectPrx obj, Current current) => addObject(obj);

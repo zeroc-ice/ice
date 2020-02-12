@@ -25,7 +25,7 @@ namespace Ice.adapterDeactivation
     {
         private readonly IRouter _router = new Router();
 
-        public Task<OutputStream?>? Dispatch(IceInternal.Incoming inS, Current current)
+        public Task<OutputStream>? Dispatch(IceInternal.Incoming inS, Current current)
         {
             IObject? servant;
             if (current.Id.Name.Equals("router"))

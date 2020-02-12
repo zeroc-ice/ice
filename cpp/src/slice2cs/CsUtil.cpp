@@ -611,20 +611,19 @@ string
 Slice::resultTask(const OperationPtr& op, const string& ns, bool dispatch)
 {
     string t = resultType(op, ns, dispatch);
-    string task;
     if(t == "void")
     {
-        task = "global::System.Threading.Tasks.Task";
+        string task = "global::System.Threading.Tasks.Task";
+        if (dispatch)
+        {
+            task += '?';
+        }
+        return task;
     }
     else
     {
-        task = "global::System.Threading.Tasks.Task<" + t + '>';
+        return "global::System.Threading.Tasks.Task<" + t + '>';
     }
-    if (dispatch)
-    {
-        task += '?';
-    }
-    return task;
 }
 
 bool

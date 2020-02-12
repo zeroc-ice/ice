@@ -132,7 +132,7 @@ namespace IceInternal
 
             try
             {
-                Task<Ice.OutputStream?>? task = _servant.Dispatch(this, _current);
+                Task<Ice.OutputStream>? task = _servant.Dispatch(this, _current);
                 if (task == null)
                 {
                     Completed(null, false);
@@ -146,21 +146,21 @@ namespace IceInternal
                     }
                     else
                     {
-                        task.ContinueWith((Task<Ice.OutputStream?> t) =>
-                        {
-                            try
+                        task.ContinueWith((Task<Ice.OutputStream> t) =>
                             {
-                                _os = t.GetAwaiter().GetResult();
-                                Completed(null, true); // true = asynchronous
-                            }
-                            catch (Exception ex)
-                            {
-                                Completed(ex, true); // true = asynchronous
-                            }
-                        },
-                        CancellationToken.None,
-                        TaskContinuationOptions.ExecuteSynchronously,
-                        scheduler: TaskScheduler.Current);
+                                try
+                                {
+                                    _os = t.GetAwaiter().GetResult();
+                                    Completed(null, true); // true = asynchronous
+                                }
+                                catch (Exception ex)
+                                {
+                                    Completed(ex, true); // true = asynchronous
+                                }
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.ExecuteSynchronously,
+                            scheduler: TaskScheduler.Current);
                     }
                 }
             }
@@ -170,10 +170,10 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? SetResult(Ice.OutputStream? os)
+        public Task<Ice.OutputStream>? SetResult(Ice.OutputStream? os)
         {
             _os = os;
-            return null; // Response is cached in the Incoming to not have to create unecessary Task
+            return null; // Response is cached in the Incoming to not have to create unnecessary Task
         }
 
         public Task<Ice.OutputStream>? SetMarshaledResult<T>(T result) where T : struct, Ice.IMarshaledReturnValue
@@ -183,40 +183,25 @@ namespace IceInternal
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
-        public Task<Ice.OutputStream?>? SetResultTask<R>(Task<R>? task, Action<Ice.OutputStream, R> write)
+        public Task<Ice.OutputStream> SetResultTask<R>(Task<R> task, Action<Ice.OutputStream, R> write)
         {
-            if (task == null)
-            {
-                //
-                // Write default constructed response if no task is provided
-                //
-                Ice.OutputStream os = StartWriteParams();
-                write(os, default);
-                EndWriteParams(os);
-                return SetResult(os);
-            }
-            else
-            {
-                //
-                // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-                // guarantee thread-safety. Multiple continuations can execute concurrently if the
-                // user installed a dispatch interceptor and the dispatch is retried.
-                //
-                return task.ContinueWith((Task<R> t) =>
+            // NOTE: it's important that the continuation doesn't mutate the Incoming state to
+            // guarantee thread-safety. Multiple continuations can execute concurrently if the
+            // user installed a dispatch interceptor and the dispatch is retried.
+            return task.ContinueWith((Task<R> t) =>
                 {
                     R result = t.GetAwaiter().GetResult();
                     Ice.OutputStream os = StartWriteParams();
                     write(os, result);
                     EndWriteParams(os);
-                    return Task.FromResult<Ice.OutputStream?>(os);
+                    return Task.FromResult<Ice.OutputStream>(os);
                 },
                 CancellationToken.None,
                 TaskContinuationOptions.ExecuteSynchronously,
                 TaskScheduler.Current).Unwrap();
-            }
         }
 
-        public Task<Ice.OutputStream?>? SetResultTask(Task? task)
+        public Task<Ice.OutputStream>? SetResultTask(Task? task)
         {
             if (task == null)
             {
@@ -233,7 +218,7 @@ namespace IceInternal
                 return task.ContinueWith((Task t) =>
                     {
                         t.GetAwaiter().GetResult();
-                        return Task.FromResult(WriteEmptyParams());
+                        return Task.FromResult(WriteEmptyParams()!);
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
@@ -241,26 +226,18 @@ namespace IceInternal
             }
         }
 
-        public Task<Ice.OutputStream?>? SetMarshaledResultTask<T>(Task<T>? task) where T : struct, Ice.IMarshaledReturnValue
+        public Task<Ice.OutputStream> SetMarshaledResultTask<T>(Task<T> task)
+            where T : struct, Ice.IMarshaledReturnValue
         {
             Debug.Assert(_current != null);
-            if (task == null)
-            {
-                return SetResult(default(T).GetOutputStream(_current));
-            }
-            else
-            {
-                //
-                // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-                // guarantee thread-safety. Multiple continuations can execute concurrently if the
-                // user installed a dispatch interceptor and the dispatch is retried.
-                //
-                return task.ContinueWith((Task<T> t) =>
-                    Task.FromResult<Ice.OutputStream?>(t.GetAwaiter().GetResult().GetOutputStream(_current)),
-                        CancellationToken.None,
-                        TaskContinuationOptions.ExecuteSynchronously,
-                        TaskScheduler.Current).Unwrap();
-            }
+            // NOTE: it's important that the continuation doesn't mutate the Incoming state to
+            // guarantee thread-safety. Multiple continuations can execute concurrently if the
+            // user installed a dispatch interceptor and the dispatch is retried.
+            return task.ContinueWith((Task<T> t) =>
+                Task.FromResult<Ice.OutputStream>(t.GetAwaiter().GetResult().GetOutputStream(_current)),
+                    CancellationToken.None,
+                    TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Current).Unwrap();
         }
 
         private void Completed(Exception? exc, bool amd)

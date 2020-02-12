@@ -2753,7 +2753,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
-    _out << nl << "global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
+    _out << nl << "global::System.Threading.Tasks.Task<global::Ice.OutputStream>? "
         << getUnqualified("Ice.IObject", ns)
         << ".Dispatch(global::IceInternal.Incoming incoming, global::Ice.Current current)";
     _out.inc();
@@ -2763,7 +2763,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "// This protected static Dispatch allows a derived class to override the instance Dispatch";
     _out << nl << "// and reuse the generated implementation.";
-    _out << nl << "protected static global::System.Threading.Tasks.Task<global::Ice.OutputStream?>? "
+    _out << nl << "protected static global::System.Threading.Tasks.Task<global::Ice.OutputStream>? "
         << "Dispatch(" << fixId(name) << " servant, "
         << "global::IceInternal.Incoming incoming, global::Ice.Current current)";
     _out << sb;
@@ -2911,7 +2911,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     _out << sp;
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
     _out << nl << "protected global::System.Threading.Tasks.Task<"
-         << getUnqualified("Ice.OutputStream", ns) << "?>?";
+         << getUnqualified("Ice.OutputStream", ns) << ">?";
     _out << nl << internalName << "(global::IceInternal.Incoming inS, "
         << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;

@@ -26,7 +26,7 @@ namespace Ice
     public interface IObject
     {
         // See Dispatcher.
-        public Task<OutputStream?>? Dispatch(Incoming inS, Current current)
+        public Task<OutputStream>? Dispatch(Incoming inS, Current current)
         {
             // TODO: switch to abstract method
             Debug.Assert(false);
@@ -77,7 +77,7 @@ namespace Ice
             }
         }
 
-        protected Task<OutputStream?>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
+        protected Task<OutputStream>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
             IcePing(current);
@@ -85,7 +85,7 @@ namespace Ice
             return null;
         }
 
-        protected Task<OutputStream?>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
+        protected Task<OutputStream>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.StartReadParams();
             string id = istr.ReadString();
@@ -97,7 +97,7 @@ namespace Ice
             return inS.SetResult(ostr)!;
         }
 
-        protected Task<OutputStream?>? IceD_ice_id(IceInternal.Incoming inS, Current current)
+        protected Task<OutputStream>? IceD_ice_id(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
             string ret = IceId(current);
@@ -108,7 +108,7 @@ namespace Ice
             return null;
         }
 
-        protected Task<OutputStream?>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
+        protected Task<OutputStream>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
         {
             inS.ReadEmptyParams();
             string[] ret = IceIds(current);
@@ -142,7 +142,7 @@ namespace Ice
         public abstract bool IceInvoke(byte[] inParams, out byte[] outParams, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
+        public Task<OutputStream>? Dispatch(Incoming incoming, Current current)
         {
             incoming.StartOver();
             byte[] inEncaps = incoming.ReadParamEncaps();
@@ -157,7 +157,7 @@ namespace Ice
         public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream?>? Dispatch(Incoming incoming, Current current)
+        public Task<OutputStream>? Dispatch(Incoming incoming, Current current)
         {
             incoming.StartOver();
             byte[] inEncaps = incoming.ReadParamEncaps();
@@ -165,7 +165,7 @@ namespace Ice
             return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
                 {
                     Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps!, ret.ReturnValue));
+                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps!, ret.ReturnValue)!);
                 },
                 TaskScheduler.Current).Unwrap();
         }

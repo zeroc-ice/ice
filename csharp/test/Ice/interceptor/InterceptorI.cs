@@ -22,7 +22,7 @@ namespace Ice.interceptor
             }
         }
 
-        public  Task<Ice.OutputStream?>?
+        public  Task<Ice.OutputStream>?
         Dispatch(IceInternal.Incoming incoming, Current current)
         {
             try

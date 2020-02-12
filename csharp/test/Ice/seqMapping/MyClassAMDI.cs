@@ -9,7 +9,7 @@ namespace Ice.seqMapping.AMD
 {
     public sealed class MyClass : Test.IMyClass
     {
-        public Task shutdownAsync(Current current)
+        public Task? shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
             return null;
@@ -124,25 +124,25 @@ namespace Ice.seqMapping.AMD
         public Task<(Stack<string>, Stack<string>)> opSStringSAsync(Stack<string> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(AnyClass[], AnyClass[])> opAObjectSAsync(AnyClass[] i, Current current) =>
+        public Task<(AnyClass?[], AnyClass?[])> opAObjectSAsync(AnyClass?[] i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(List<AnyClass>, List<AnyClass>)> opLObjectSAsync(List<AnyClass> i, Current current) =>
+        public Task<(List<AnyClass?>, List<AnyClass?>)> opLObjectSAsync(List<AnyClass?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(IObjectPrx[], IObjectPrx[])> opAObjectPrxSAsync(IObjectPrx[] i, Current current) =>
+        public Task<(IObjectPrx?[], IObjectPrx?[])> opAObjectPrxSAsync(IObjectPrx?[] i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(List<IObjectPrx>, List<IObjectPrx>)> opLObjectPrxSAsync(List<IObjectPrx> i, Current current) =>
+        public Task<(List<IObjectPrx?>, List<IObjectPrx?>)> opLObjectPrxSAsync(List<IObjectPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(LinkedList<IObjectPrx>, LinkedList<IObjectPrx>)>
-        opKObjectPrxSAsync(LinkedList<IObjectPrx> i, Current current) => Task.FromResult((i, i));
+        public Task<(LinkedList<IObjectPrx?>, LinkedList<IObjectPrx?>)>
+        opKObjectPrxSAsync(LinkedList<IObjectPrx?> i, Current current) => Task.FromResult((i, i));
 
-        public Task<(Queue<IObjectPrx>, Queue<IObjectPrx>)> opQObjectPrxSAsync(Queue<IObjectPrx> i, Current current) =>
+        public Task<(Queue<IObjectPrx?>, Queue<IObjectPrx?>)> opQObjectPrxSAsync(Queue<IObjectPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Stack<IObjectPrx>, Stack<IObjectPrx>)> opSObjectPrxSAsync(Stack<IObjectPrx> i, Current current) =>
+        public Task<(Stack<IObjectPrx?>, Stack<IObjectPrx?>)> opSObjectPrxSAsync(Stack<IObjectPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
         public Task<(Test.S[], Test.S[])> opAStructSAsync(Test.S[] i, Current current) =>
@@ -175,30 +175,30 @@ namespace Ice.seqMapping.AMD
         public Task<(Stack<Test.SD>, Stack<Test.SD>)> opSStructSDAsync(Stack<Test.SD> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Test.CV[], Test.CV[])> opACVSAsync(Test.CV[] i, Current current) =>
+        public Task<(Test.CV?[], Test.CV?[])> opACVSAsync(Test.CV?[] i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(List<Test.CV>, List<Test.CV>)> opLCVSAsync(List<Test.CV> i, Current current) =>
+        public Task<(List<Test.CV?>, List<Test.CV?>)> opLCVSAsync(List<Test.CV?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Test.IIPrx[], Test.IIPrx[])> opAIPrxSAsync(Test.IIPrx[] i, Current current) =>
+        public Task<(Test.IIPrx?[], Test.IIPrx?[])> opAIPrxSAsync(Test.IIPrx?[] i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(List<Test.IIPrx>, List<Test.IIPrx>)> opLIPrxSAsync(List<Test.IIPrx> i, Current current) =>
+        public Task<(List<Test.IIPrx?>, List<Test.IIPrx?>)> opLIPrxSAsync(List<Test.IIPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(LinkedList<Test.IIPrx>, LinkedList<Test.IIPrx>)>
-        opKIPrxSAsync(LinkedList<Test.IIPrx> i, Current current) => Task.FromResult((i, i));
+        public Task<(LinkedList<Test.IIPrx?>, LinkedList<Test.IIPrx?>)>
+        opKIPrxSAsync(LinkedList<Test.IIPrx?> i, Current current) => Task.FromResult((i, i));
 
-        public Task<(Queue<Test.IIPrx>, Queue<Test.IIPrx>)> opQIPrxSAsync(Queue<Test.IIPrx> i, Current current) =>
+        public Task<(Queue<Test.IIPrx?>, Queue<Test.IIPrx?>)> opQIPrxSAsync(Queue<Test.IIPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Stack<Test.IIPrx>, Stack<Test.IIPrx>)> opSIPrxSAsync(Stack<Test.IIPrx> i, Current current) =>
+        public Task<(Stack<Test.IIPrx?>, Stack<Test.IIPrx?>)> opSIPrxSAsync(Stack<Test.IIPrx?> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Test.CR[], Test.CR[])> opACRSAsync(Test.CR[] i, Current current) => Task.FromResult((i, i));
+        public Task<(Test.CR?[], Test.CR?[])> opACRSAsync(Test.CR?[] i, Current current) => Task.FromResult((i, i));
 
-        public Task<(List<Test.CR>, List<Test.CR>)> opLCRSAsync(List<Test.CR> i, Current current) =>
+        public Task<(List<Test.CR?>, List<Test.CR?>)> opLCRSAsync(List<Test.CR?> i, Current current) =>
             Task.FromResult((i, i));
 
         public Task<(Test.En[], Test.En[])> opAEnSAsync(Test.En[] i, Current current) =>
@@ -219,14 +219,14 @@ namespace Ice.seqMapping.AMD
         public Task<(Custom<int>, Custom<int>)> opCustomIntSAsync(Custom<int> i, Current current) =>
             Task.FromResult((i, i));
 
-        public Task<(Custom<Test.CV>, Custom<Test.CV>)> opCustomCVSAsync(Custom<Test.CV> i, Current current) =>
+        public Task<(Custom<Test.CV?>, Custom<Test.CV?>)> opCustomCVSAsync(Custom<Test.CV?> i, Current current) =>
             Task.FromResult((i, i));
 
         public Task<(Custom<Custom<int>>, Custom<Custom<int>>)>
         opCustomIntSSAsync(Custom<Custom<int>> i, Current current) => Task.FromResult((i, i));
 
-        public Task<(Custom<Custom<Test.CV>>, Custom<Custom<Test.CV>>)>
-        opCustomCVSSAsync(Custom<Custom<Test.CV>> i, Current current) => Task.FromResult((i, i));
+        public Task<(Custom<Custom<Test.CV?>>, Custom<Custom<Test.CV?>>)>
+        opCustomCVSSAsync(Custom<Custom<Test.CV?>> i, Current current) => Task.FromResult((i, i));
 
         public Task<(Serialize.Small, Serialize.Small)> opSerialSmallCSharpAsync(Serialize.Small i, Current current) =>
             Task.FromResult((i, i));

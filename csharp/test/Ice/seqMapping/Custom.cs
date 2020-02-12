@@ -51,8 +51,12 @@ namespace Ice.seqMapping
 
         public void Add(T elmt) => _list.Add(elmt);
 
-        public override bool Equals(object o)
+        public override bool Equals(object? o)
         {
+            if (o == null)
+            {
+                return false;
+            }
             try
             {
                 Custom<T> tmp = (Custom<T>)o;
