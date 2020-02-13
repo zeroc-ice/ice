@@ -120,30 +120,40 @@ int checkIdentifier(string&);
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
 
+oct                 [0-7]
+dec                 [0-9]
+hex                 [0-9a-fA-F]
+
+preprocessor_prefix [[:blank:]]*#[[:blank:]]*
+preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
-integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
-fractional_constant (\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
-exponent_part       (e|E)(\+|-)?[[:digit:]]+
-floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
+
+integer_constant    (\+|-)?((0[0-7]+)|(0x{hex}+)|({dec}+))
+fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
+exponent_part       (e|E)(\+|-)?{dec}+
+floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
+
+bom                 ^"\357\273\277"
 
 %%
 
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-^[[:blank:]]*#[[:blank:]]* {
+^{preprocessor_prefix} {
     yy_push_state(PREPROCESS);
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
-^[[:blank:]]*#[[:blank:]]*line[[:blank:]]* {
+^{preprocessor_prefix}line[[:blank:]]* {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
-^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+                         |
-^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\" {
+^{preprocessor_lineno}                         |
+^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     yy_push_state(PREPROCESS);
     unit->scanPosition(yytext);
 }
@@ -315,7 +325,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Matches a single escaped octal value. Octal literals are limited to a max of 3 digits. */
-<QUOTED_STRING>"\\"[0-7]{1,3} {
+<QUOTED_STRING>"\\"{oct}{1,3} {
     auto value = strtoull((yytext + 1), 0, 8);
     if(value > 255)
     {
@@ -328,7 +338,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Matches a single escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
-<QUOTED_STRING>"\\x"[0-9a-fA-F]{1,2} {
+<QUOTED_STRING>"\\x"{hex}{1,2} {
     auto value = strtoull((yytext + 2), 0, 16);
     assert(value >= 0 && value <= 255);
 
@@ -345,8 +355,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Matches a single 4-char or 8-char size universal character code. */
-<QUOTED_STRING>"\\u"[0-9a-fA-F]{4} |
-<QUOTED_STRING>"\\U"[0-9a-fA-F]{8} {
+<QUOTED_STRING>"\\u"{hex}{4} |
+<QUOTED_STRING>"\\U"{hex}{8} {
     auto codePoint = strtoull((yytext + 2), 0, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
     {
@@ -358,9 +368,9 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
-<QUOTED_STRING>"\\u"[0-9a-fA-F]{0,3}[g-zG-Z]* |
-<QUOTED_STRING>"\\U"[0-9a-fA-F]{0,7}[g-zG-Z]* {
-    unit->error("unknown escape sequence in string literal `" + string(yytext) + "'");
+<QUOTED_STRING>"\\u"{hex}{0,3}[g-zG-Z]* |
+<QUOTED_STRING>"\\U"{hex}{0,7}[g-zG-Z]* {
+    unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
     StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
     str->v += yytext;
     str->literal += yytext;
@@ -373,14 +383,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
   /* Matches an unescaped newline, and issues an error. */
 <QUOTED_STRING>\n {
-    unit->error("encountered unescaped EOL while scanning a string literal.");
+    unit->error("encountered un-escaped EOL while scanning a string literal.");
     unit->nextLine();
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 <QUOTED_STRING>"\\". {
-    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+    unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
     StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
     // Escape the entire sequence.
@@ -447,7 +457,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
-<INITIAL>^"\357\273\277" {}
+<INITIAL>{bom} {}
 
   /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
 <*>([[:space:]]{-}[\n])+ {}
