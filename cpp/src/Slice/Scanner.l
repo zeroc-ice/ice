@@ -1,8 +1,14 @@
-%{
 
+%top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+
+#include <IceUtil/ScannerConfig.h>
+
+}
+
+%{
 
 #include <Slice/GrammarUtil.h>  // Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
