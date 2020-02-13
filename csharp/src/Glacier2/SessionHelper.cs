@@ -309,17 +309,14 @@ namespace Glacier2
                 }
             }
 
-            DispatchCallback(() =>
-                {
-                    try
-                    {
-                        _callback.connected(this);
-                    }
-                    catch (SessionNotExistException)
-                    {
-                        Destroy();
-                    }
-                }, conn);
+            try
+            {
+                _callback.connected(this);
+            }
+            catch (SessionNotExistException)
+            {
+                Destroy();
+            }
         }
 
         private void
@@ -369,7 +366,7 @@ namespace Glacier2
             communicator.Destroy();
 
             // Notify the callback that the session is gone.
-            DispatchCallback(() => _callback.disconnected(this), null);
+            _callback.disconnected(this);
         }
 
         private void
@@ -412,7 +409,7 @@ namespace Glacier2
                     {
                         _destroy = true;
                     }
-                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    _callback.connectFailed(this, ex);
                     return;
                 }
 
@@ -425,7 +422,7 @@ namespace Glacier2
                     }
                     catch (CommunicatorDestroyedException ex)
                     {
-                        DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                        _callback.connectFailed(this, ex);
                         return;
                     }
                     catch (System.Exception)
@@ -440,7 +437,7 @@ namespace Glacier2
 
                 try
                 {
-                    DispatchCallbackAndWait(() => _callback.createdCommunicator(this));
+                    _callback.createdCommunicator(this);
                     Ice.IRouterPrx? defaultRouter = _communicator.GetDefaultRouter();
                     Debug.Assert(defaultRouter != null);
                     var routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
@@ -450,21 +447,9 @@ namespace Glacier2
                 catch (System.Exception ex)
                 {
                     _communicator.Destroy();
-                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    _callback.connectFailed(this, ex);
                 }
             })).Start();
-        }
-
-        private void
-        DispatchCallback(Action callback, Connection? conn)
-        {
-            callback();
-        }
-
-        private void
-        DispatchCallbackAndWait(Action callback)
-        {
-            callback();
         }
 
         private Communicator? _communicator;

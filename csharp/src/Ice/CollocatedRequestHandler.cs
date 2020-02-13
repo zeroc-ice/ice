@@ -177,7 +177,7 @@ namespace IceInternal
                         {
                             InvokeAll(outAsync.GetOs(), requestId);
                         }
-                    }, null);
+                    });
             }
             else // Optimization: directly call invokeAll
             {

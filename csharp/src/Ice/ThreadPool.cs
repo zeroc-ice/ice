@@ -28,7 +28,7 @@ namespace IceInternal
             var ctx = Current as ThreadPoolSynchronizationContext;
             if (ctx != this)
             {
-                _threadPool.Dispatch(() => d(state), null);
+                _threadPool.Dispatch(() => d(state));
             }
             else
             {
@@ -334,12 +334,7 @@ namespace IceInternal
             }
         }
 
-        public void DispatchFromThisThread(System.Action call, Ice.Connection? con)
-        {
-            call();
-        }
-
-        public void Dispatch(System.Action call, Ice.Connection? con)
+        public void Dispatch(System.Action call)
         {
             lock (this)
             {
@@ -410,13 +405,13 @@ namespace IceInternal
         public bool Serialize() => _serialize;
 
         protected sealed override void QueueTask(Task task) =>
-            Dispatch(() => TryExecuteTask(task), null);
+            Dispatch(() => TryExecuteTask(task));
 
         protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
         {
             if (!taskWasPreviouslyQueued)
             {
-                DispatchFromThisThread(() => TryExecuteTask(task), null);
+                TryExecuteTask(task);
                 return true;
             }
             return false;
