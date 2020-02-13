@@ -200,7 +200,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
   /* Matches EOF, but only while parsing a C style comment. */
 <C_COMMENT><<EOF>> {
     yy_pop_state();
-    unit->warning(All, "encountered EOF while scanning comment");
+    unit->warning(All, "encountered EOF while scanning a comment");
     unit->setComment(yytext);
 }
 
@@ -360,10 +360,18 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
   /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 <QUOTED_STRING>"\\u"[0-9a-fA-F]{0,3}[g-zG-Z]* |
 <QUOTED_STRING>"\\U"[0-9a-fA-F]{0,7}[g-zG-Z]* {
-    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+    unit->error("unknown escape sequence in string literal `" + string(yytext) + "'");
     StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
     str->v += yytext;
     str->literal += yytext;
+}
+
+  /* Matches an escaped newline to allow for multi-line strings. The scanner consumes the newline. */
+<QUOTED_STRING>"\\"\n {}
+
+  /* Matches an unescaped newline, and issues an error. */
+<QUOTED_STRING>\n {
+    unit->error("encountered unescaped EOL while scanning a string literal.");
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
@@ -389,7 +397,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
   /* Matches EOF, but only while scanning a string literal. */
 <QUOTED_STRING><<EOF>> {
     yy_pop_state();
-    unit->error("encountered EOF while scanning string literal");
+    unit->error("encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 
