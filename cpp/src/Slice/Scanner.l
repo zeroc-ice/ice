@@ -78,62 +78,41 @@ int checkIdentifier(string&);
 %option never-interactive
 %option prefix="slice_"
 
+%s BOMSCAN
+%s MAINSCAN
+
+line_directive      "#"[[:blank:]]*("line"[[:blank:]]+)?[[:digit:]]+
+quoted_string       \"[^\"\n]*\"
+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
 integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
 fractional_constant (\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
 exponent_part       (e|E)(\+|-)?[[:digit:]]+
 floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
 
-%s BOMSCAN
-%s MAINSCAN
-
 %%
 
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
+  /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
+^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]*                           |
+^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]*\n                         |
+^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\"[[:blank:]]*   |
+^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\"[[:blank:]]*\n {
     if(unit->scanPosition(yytext))
     {
         BEGIN(BOMSCAN);
     }
 }
 
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-"//" {
-    // C++-style comment
+  /* Matches and consumes a C++ style comment. All characters after the
+   * starting '//' and until the next new line are matched and discarded. */
+"//".* {
     BEGIN(MAINSCAN);
-    int c;
-    do
-    {
-        c = yyinput();
-        if(c == '\n')
-        {
-            unit->nextLine();
-        }
-    }
-    while(c != '\n' && c != EOF);
 }
 
+  /* Matches the start of a C style comment. We then manually read and scan through characters
+   * inside the corresponding action, until we reach the end of the comment. The scanned comment is
+   * not passed to bison, but instead stored in the unit via 'unit::setComment'. */
 "/*" {
-    // C-style comment
     BEGIN(MAINSCAN);
     string comment = yytext + 2;
     while(true)
@@ -482,22 +461,25 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     return ICE_FLOATING_POINT_LITERAL;
 }
 
-[[:space:]] {
-    // Ignore white-space
-
+  /* Ignore and consume new-line characters. */
+\n {
     if(unit->currentLine() != 0)
     {
         BEGIN(MAINSCAN);
     }
-    if(yytext[0] == '\n')
+    unit->nextLine();
+}
+
+  /* Ignore and consume any whitespace, other than new-lines. */
+([[:space:]]{-}[\n])+ {
+    if(unit->currentLine() != 0)
     {
-        unit->nextLine();
+        BEGIN(MAINSCAN);
     }
 }
 
+  /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
 <BOMSCAN>^"\357\273\277" {
-    // Ignore UTF-8 BOM, rule only active when parsing start of file.
-
     BEGIN(MAINSCAN);
 }
 
