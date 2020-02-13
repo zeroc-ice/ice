@@ -119,6 +119,7 @@ int checkIdentifier(string&);
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
 %s SLICE
 %x PREPROCESS
+%x C_COMMENT
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
 
@@ -173,46 +174,39 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
    * starting '//' and until the next new line are matched and discarded. */
 "//".* {}
 
-  /* Matches the start of a C style comment. We then manually read and scan through characters
-   * inside the corresponding action, until we reach the end of the comment. The scanned comment is
-   * not passed to bison, but instead stored in the unit via 'unit::setComment'. */
+  /* Matches the start of a C style comment. */
 "/*" {
-    string comment = yytext + 2;
-    while(true)
-    {
-        int c = yyinput();
-        if(c == '\n')
-        {
-            comment += static_cast<char>(c);
-            unit->nextLine();
-        }
-        else if(c == '*')
-        {
-            int next = yyinput();
-            if(next == '/')
-            {
-                break;
-            }
-            else
-            {
-                comment += static_cast<char>(c);
-                unput(next);
-            }
-        }
-        else if(c == EOF)
-        {
-            unit->warning(All, "EOF in comment");
-            break;
-        }
-        else
-        {
-            comment += static_cast<char>(c);
-        }
-    }
-    if(!comment.empty() && comment[0] == '*')
-    {
-        unit->setComment(comment);
-    }
+    yy_push_state(C_COMMENT);
+}
+
+  /* TODO: use Flex's in-built line counter and merge this rule with the ones underneath it. */
+<C_COMMENT>\n {
+    yymore();
+    unit->nextLine();
+}
+
+  /* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines),
+   * but only while scanning a C style comment. */
+<C_COMMENT>"*"     |
+<C_COMMENT>[^*\n]+ {
+    yymore();
+}
+
+  /* Matches the end of a C style comment, but only while scanning a C style comment. Flex always prefers to match the
+   * longest string it can, so this rule will beat the previous one, which can only match a single '*' at a time. */
+<C_COMMENT>"*/" {
+    yy_pop_state();
+    string comment(yytext);
+
+    // The last 2 characters are the '*/' matched by this rule.
+    unit->setComment(comment.substr(0, (comment.length() - 2)));
+}
+
+  /* Matches EOF, but only when parsing a C style comment. */
+<C_COMMENT><<EOF>> {
+    yy_pop_state();
+    unit->warning(All, "encountered EOF while scanning comment");
+    unit->setComment(yytext);
 }
 
   /* ========== Metadata ========== */
@@ -503,11 +497,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        unit->error("floating-point constant ` + string(yytext) + "' too large (overflow)");
+        unit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-        unit->error("floating-point constant `" + string(yyext) + "' too small (underflow)");
+        unit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }

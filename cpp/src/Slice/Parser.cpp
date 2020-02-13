@@ -6006,6 +6006,11 @@ Slice::Unit::allowUnderscore() const
 void
 Slice::Unit::setComment(const string& comment)
 {
+    if(comment.empty() || comment[0] != '*')
+    {
+        return;
+    }
+
     _currentComment = "";
 
     string::size_type end = 0;
