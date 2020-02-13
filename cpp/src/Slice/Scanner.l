@@ -74,16 +74,46 @@ int checkIdentifier(string&);
 
 %}
 
-%option noyywrap
-%option never-interactive
+  /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
 %option prefix="slice_"
+  /* Instructs flex to not suppress any warnings when generating the scanner. */
+%option warn
 
+  /* Makes all patterns case insensitive (the actual matched text has it's case preserved). */
+%option case-insensitive
+  /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
+   * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
+%option nodefault
+
+  /* Enables the use of flex's built int start-condition state stack. */
+%option stack
+  /* Ensures flex generates a scanner that supports reading 8-bit characters. */
+%option 8bit
+  /* Directs flex to generate lookup tables that are better aligned in memory to
+   * improve access speeds, even if this means allocating larger tables. */
+%option align
+  /* Enables batching for improved performance. */
+%option batch
+  /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
+%option pointer
+  /* Disables the scanner's interactive modes for improved performance. */
+%option never-interactive
+
+  /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
+%option noyy_push_state noyy_pop_state noyy_top_state
+%option noyy_scan_buffer noyy_scan_bytes noyy_scan_string
+%option noyyget_extra noyyset_extra noyyget_leng noyyget_text
+%option noyyget_in noyyset_in noyyget_out noyyset_out
+%option noyyget_lineno noyyset_lineno noyyget_lloc noyyset_lloc
+%option noyyget_lval noyyset_lval noyyget_debug noyyset_debug
+%option noyywrap
+
+  /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
 %s BOMSCAN
 %s MAINSCAN
 %x PREPROCESS
-
-line_directive      "#"[[:blank:]]*("line"[[:blank:]]+)?[[:digit:]]+
-quoted_string       \"[^\"\n]*\"
+  /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
+   * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
 
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
 integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
