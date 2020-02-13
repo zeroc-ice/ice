@@ -65,12 +65,14 @@ typedef std::map<std::string, int> StringTokenMap;
 static StringTokenMap keywordMap;
 
 void initScanner();
+void preAction();
 int checkKeyword(string&);
 int checkIdentifier(string&);
 
 }
 
 #define YY_USER_INIT initScanner();
+#define YY_USER_ACTION preAction();
 
 %}
 
@@ -100,7 +102,7 @@ int checkIdentifier(string&);
 %option never-interactive
 
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-%option noyy_push_state noyy_pop_state noyy_top_state
+%option noyy_top_state
 %option noyy_scan_buffer noyy_scan_bytes noyy_scan_string
 %option noyyget_extra noyyset_extra noyyget_leng noyyget_text
 %option noyyget_in noyyset_in noyyget_out noyyset_out
@@ -109,8 +111,7 @@ int checkIdentifier(string&);
 %option noyywrap
 
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
-%s BOMSCAN
-%s MAINSCAN
+%s SLICE
 %x PREPROCESS
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
@@ -125,19 +126,19 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
   /* Matches the empty preprocessor directive. */
 ^[[:blank:]]*#[[:blank:]]* {
-    BEGIN(PREPROCESS);
+    yy_push_state(PREPROCESS);
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
 ^[[:blank:]]*#[[:blank:]]*line[[:blank:]]* {
-    BEGIN(PREPROCESS);
+    yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 ^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+                         |
 ^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\" {
-    BEGIN(PREPROCESS);
+    yy_push_state(PREPROCESS);
     unit->scanPosition(yytext);
 }
 
@@ -150,28 +151,22 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
   /* Matches a new-line character, but only while scanning a preprocessor statement.
    * This signals the end of the preprocessor statement. */
 <PREPROCESS>\n {
-    unit->nextLine();
+    yy_pop_state();
     if(unit->currentLine() == 0)
     {
-        BEGIN(BOMSCAN);
+        BEGIN(INITIAL);
     }
-    else
-    {
-        BEGIN(MAINSCAN);
-    }
+    unit->nextLine();
 }
 
   /* Matches and consumes a C++ style comment. All characters after the
    * starting '//' and until the next new line are matched and discarded. */
-"//".* {
-    BEGIN(MAINSCAN);
-}
+"//".* {}
 
   /* Matches the start of a C style comment. We then manually read and scan through characters
    * inside the corresponding action, until we reach the end of the comment. The scanned comment is
    * not passed to bison, but instead stored in the unit via 'unit::setComment'. */
 "/*" {
-    BEGIN(MAINSCAN);
     string comment = yytext + 2;
     while(true)
     {
@@ -211,27 +206,22 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
 "[" {
-    BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
 }
 
 "]" {
-    BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
 }
 
 "[[" {
-    BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
 }
 
 "]]" {
-    BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
 }
 
 {identifier}[[:space:]]*"(" {
-    BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
@@ -269,7 +259,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
 {identifier} {
-    BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
@@ -277,7 +266,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
 \" {
-    BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
     while(true)
@@ -474,7 +462,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
 {integer_constant} {
-    BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
     *yylvalp = itp;
@@ -490,7 +477,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
 {floating_literal} {
-    BEGIN(MAINSCAN);
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
     *yylvalp = ftp;
@@ -521,28 +507,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
   /* Ignore and consume new-line characters. */
 \n {
-    if(unit->currentLine() != 0)
-    {
-        BEGIN(MAINSCAN);
-    }
     unit->nextLine();
 }
 
   /* Ignore and consume any whitespace, other than new-lines. */
-([[:space:]]{-}[\n])+ {
-    if(unit->currentLine() != 0)
-    {
-        BEGIN(MAINSCAN);
-    }
-}
+([[:space:]]{-}[\n])+ {}
 
   /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
-<BOMSCAN>^"\357\273\277" {
-    BEGIN(MAINSCAN);
-}
+<INITIAL>^"\357\273\277" {}
 
 . {
-    BEGIN(MAINSCAN);
     if(yytext[0] < 32 || yytext[0] > 126)
     {
         stringstream s;
@@ -597,6 +571,17 @@ void initScanner()
     // But for 'tag' we require an optional (nullable) type. No inferencing is done.
     keywordMap["optional"] = ICE_OPTIONAL;
     keywordMap["Value"] = ICE_VALUE;
+}
+
+// This function is always called diectly after a match has been made, but directly before it's action block is run.
+void preAction()
+{
+    // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
+    // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
+    if(YY_START == INITIAL)
+    {
+        BEGIN(SLICE);
+    }
 }
 
 // Check if an identifier looks like a keyword.
