@@ -1,8 +1,14 @@
-%{
 
+%top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+
+#include <IceUtil/ScannerConfig.h>
+
+}
+
+%{
 
 #include <Ice/Ice.h>
 #include <IceGrid/Parser.h>
@@ -54,8 +60,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
+static std::map<std::string, int>  keywordMap;
 
 void initScanner();
 std::string parseDoubleQuotedString();
@@ -190,7 +195,7 @@ keyword [[:alpha:]]*
     yylvalp->clear();
     yylvalp->push_back(s);
 
-    StringTokenMap::const_iterator pos = keywordMap.find(s);
+    const auto pos = keywordMap.find(s);
     return pos != keywordMap.end() ? pos->second : ICE_GRID_STRING;
 }
 
@@ -205,46 +210,48 @@ namespace IceGrid {
 void
 initScanner()
 {
-    keywordMap["help"] = ICE_GRID_HELP;
-    keywordMap["quit"] = ICE_GRID_EXIT;
-    keywordMap["exit"] = ICE_GRID_EXIT;
-    keywordMap["application"] = ICE_GRID_APPLICATION;
-    keywordMap["server"] = ICE_GRID_SERVER;
-    keywordMap["adapter"] = ICE_GRID_ADAPTER;
-    keywordMap["add"] = ICE_GRID_ADD;
-    keywordMap["remove"] = ICE_GRID_REMOVE;
-    keywordMap["list"] = ICE_GRID_LIST;
-    keywordMap["shutdown"] = ICE_GRID_SHUTDOWN;
-    keywordMap["describe"] = ICE_GRID_DESCRIBE;
-    keywordMap["properties"] = ICE_GRID_PROPERTIES;
-    keywordMap["property"] = ICE_GRID_PROPERTY;
-    keywordMap["state"] = ICE_GRID_STATE;
-    keywordMap["pid"] = ICE_GRID_PID;
-    keywordMap["endpoints"] = ICE_GRID_ENDPOINTS;
-    keywordMap["start"] = ICE_GRID_START;
-    keywordMap["stop"] = ICE_GRID_STOP;
-    keywordMap["signal"] = ICE_GRID_SIGNAL;
-    keywordMap["stdout"] = ICE_GRID_STDOUT;
-    keywordMap["stderr"] = ICE_GRID_STDERR;
-    keywordMap["node"] = ICE_GRID_NODE;
-    keywordMap["registry"] = ICE_GRID_REGISTRY;
-    keywordMap["ping"] = ICE_GRID_PING;
-    keywordMap["load"] = ICE_GRID_LOAD;
-    keywordMap["processors"] = ICE_GRID_SOCKETS;
-    keywordMap["sockets"] = ICE_GRID_SOCKETS;
-    keywordMap["activation"] = ICE_GRID_ACTIVATION;
-    keywordMap["object"] = ICE_GRID_OBJECT;
-    keywordMap["find"] = ICE_GRID_FIND;
-    keywordMap["show"] = ICE_GRID_SHOW;
-    keywordMap["copying"] = ICE_GRID_COPYING;
-    keywordMap["warranty"] = ICE_GRID_WARRANTY;
-    keywordMap["diff"] = ICE_GRID_DIFF;
-    keywordMap["update"] = ICE_GRID_UPDATE;
-    keywordMap["instantiate"] = ICE_GRID_INSTANTIATE;
-    keywordMap["template"] = ICE_GRID_TEMPLATE;
-    keywordMap["service"] = ICE_GRID_SERVICE;
-    keywordMap["enable"] = ICE_GRID_ENABLE;
-    keywordMap["disable"] = ICE_GRID_DISABLE;
+    keywordMap = {
+        {"help", ICE_GRID_HELP},
+        {"quit", ICE_GRID_EXIT},
+        {"exit", ICE_GRID_EXIT},
+        {"application", ICE_GRID_APPLICATION},
+        {"server", ICE_GRID_SERVER},
+        {"adapter", ICE_GRID_ADAPTER},
+        {"add", ICE_GRID_ADD},
+        {"remove", ICE_GRID_REMOVE},
+        {"list", ICE_GRID_LIST},
+        {"shutdown", ICE_GRID_SHUTDOWN},
+        {"describe", ICE_GRID_DESCRIBE},
+        {"properties", ICE_GRID_PROPERTIES},
+        {"property", ICE_GRID_PROPERTY},
+        {"state", ICE_GRID_STATE},
+        {"pid", ICE_GRID_PID},
+        {"endpoints", ICE_GRID_ENDPOINTS},
+        {"start", ICE_GRID_START},
+        {"stop", ICE_GRID_STOP},
+        {"signal", ICE_GRID_SIGNAL},
+        {"stdout", ICE_GRID_STDOUT},
+        {"stderr", ICE_GRID_STDERR},
+        {"node", ICE_GRID_NODE},
+        {"registry", ICE_GRID_REGISTRY},
+        {"ping", ICE_GRID_PING},
+        {"load", ICE_GRID_LOAD},
+        {"processors", ICE_GRID_SOCKETS},
+        {"sockets", ICE_GRID_SOCKETS},
+        {"activation", ICE_GRID_ACTIVATION},
+        {"object", ICE_GRID_OBJECT},
+        {"find", ICE_GRID_FIND},
+        {"show", ICE_GRID_SHOW},
+        {"copying", ICE_GRID_COPYING},
+        {"warranty", ICE_GRID_WARRANTY},
+        {"diff", ICE_GRID_DIFF},
+        {"update", ICE_GRID_UPDATE},
+        {"instantiate", ICE_GRID_INSTANTIATE},
+        {"template", ICE_GRID_TEMPLATE},
+        {"service", ICE_GRID_SERVICE},
+        {"enable", ICE_GRID_ENABLE},
+        {"disable", ICE_GRID_DISABLE}
+    };
 }
 
 std::string

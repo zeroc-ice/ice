@@ -67,8 +67,7 @@ namespace Slice
 {
 
 // Definitions for the case-insensitive keyword-token map.
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
+static std::map<std::string, int> keywordMap;
 
 void initScanner();
 void preAction();
@@ -538,42 +537,43 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
 namespace Slice {
 
-// initScanner() fills the keyword map with all keyword-token pairs.
-
+// This function is always called once, right before scanning begins.
 void initScanner()
 {
-    keywordMap["module"] = ICE_MODULE;
-    keywordMap["class"] = ICE_CLASS;
-    keywordMap["interface"] = ICE_INTERFACE;
-    keywordMap["exception"] = ICE_EXCEPTION;
-    keywordMap["struct"] = ICE_STRUCT;
-    keywordMap["sequence"] = ICE_SEQUENCE;
-    keywordMap["dictionary"] = ICE_DICTIONARY;
-    keywordMap["enum"] = ICE_ENUM;
-    keywordMap["out"] = ICE_OUT;
-    keywordMap["extends"] = ICE_EXTENDS;
-    keywordMap["implements"] = ICE_IMPLEMENTS;
-    keywordMap["throws"] = ICE_THROWS;
-    keywordMap["void"] = ICE_VOID;
-    keywordMap["byte"] = ICE_BYTE;
-    keywordMap["bool"] = ICE_BOOL;
-    keywordMap["short"] = ICE_SHORT;
-    keywordMap["int"] = ICE_INT;
-    keywordMap["long"] = ICE_LONG;
-    keywordMap["float"] = ICE_FLOAT;
-    keywordMap["double"] = ICE_DOUBLE;
-    keywordMap["string"] = ICE_STRING;
-    keywordMap["Object"] = ICE_OBJECT;
-    keywordMap["const"] = ICE_CONST;
-    keywordMap["false"] = ICE_FALSE;
-    keywordMap["true"] = ICE_TRUE;
-    keywordMap["idempotent"] = ICE_IDEMPOTENT;
-    keywordMap["tag"] = ICE_TAG;
-    // 'optional' is kept as an alias for 'tag' for backwards compatability.
-    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
-    keywordMap["optional"] = ICE_OPTIONAL;
-    keywordMap["Value"] = ICE_VALUE;
+    keywordMap = {
+        {"module", ICE_MODULE},
+        {"class", ICE_CLASS},
+        {"interface", ICE_INTERFACE},
+        {"exception", ICE_EXCEPTION},
+        {"struct", ICE_STRUCT},
+        {"sequence", ICE_SEQUENCE},
+        {"dictionary", ICE_DICTIONARY},
+        {"enum", ICE_ENUM},
+        {"out", ICE_OUT},
+        {"extends", ICE_EXTENDS},
+        {"implements", ICE_IMPLEMENTS},
+        {"throws", ICE_THROWS},
+        {"void", ICE_VOID},
+        {"byte", ICE_BYTE},
+        {"bool", ICE_BOOL},
+        {"short", ICE_SHORT},
+        {"int", ICE_INT},
+        {"long", ICE_LONG},
+        {"float", ICE_FLOAT},
+        {"double", ICE_DOUBLE},
+        {"string", ICE_STRING},
+        {"Object", ICE_OBJECT},
+        {"const", ICE_CONST},
+        {"false", ICE_FALSE},
+        {"true", ICE_TRUE},
+        {"idempotent", ICE_IDEMPOTENT},
+        {"tag", ICE_TAG},
+        // 'optional' is kept as an alias for 'tag' for backwards compatability.
+        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        {"optional", ICE_OPTIONAL},
+        {"Value", ICE_VALUE}
+    };
 }
 
 // This function is always called diectly after a match has been made, but directly before it's action block is run.
@@ -593,7 +593,7 @@ void preAction()
 // an identifier token.
 int checkKeyword(string& id)
 {
-    StringTokenMap::const_iterator pos = keywordMap.find(id);
+    const auto pos = keywordMap.find(id);
     if(pos != keywordMap.end())
     {
         if(pos->first != id)
