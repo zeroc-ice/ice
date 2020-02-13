@@ -130,6 +130,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
 %%
 
+  /* ========== Preprocessor Statements ========== */
+
   /* Matches the empty preprocessor directive. */
 ^[[:blank:]]*#[[:blank:]]* {
     yy_push_state(PREPROCESS);
@@ -164,6 +166,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     }
     unit->nextLine();
 }
+
+  /* ========== Comments ========== */
 
   /* Matches and consumes a C++ style comment. All characters after the
    * starting '//' and until the next new line are matched and discarded. */
@@ -211,6 +215,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     }
 }
 
+  /* ========== Metadata ========== */
+
 "[" {
     return ICE_METADATA_OPEN;
 }
@@ -226,6 +232,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 "]]" {
     return ICE_GLOBAL_METADATA_CLOSE;
 }
+
+  /* ========== Identifiers and Keywords ========== */
 
 {identifier}[[:space:]]*"(" {
     StringTokPtr ident = new StringTok;
@@ -270,6 +278,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     *yylvalp = ident;
     return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
 }
+
+  /* ========== Literals ========== */
 
 \" {
     StringTokPtr str = new StringTok;
@@ -474,10 +484,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
         assert(itp->v != 0);
-        string msg = "integer constant `";
-        msg += yytext;
-        msg += "' out of range";
-        unit->error(msg);
+        unit->error("integer constant `" + string(yytext) + "' out of range");
     }
     return ICE_INTEGER_LITERAL;
 }
@@ -496,28 +503,24 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        string msg = "floating-point constant `";
-        msg += yytext;
-        msg += "' too large (overflow)";
-        unit->error(msg);
+        unit->error("floating-point constant ` + string(yytext) + "' too large (overflow)");
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-        string msg = "floating-point constant `";
-        msg += yytext;
-        msg += "' too small (underflow)";
-    unit->error(msg);
+        unit->error("floating-point constant `" + string(yyext) + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
+
+  /* ========== Whitespace and Others ========== */
 
   /* Ignore and consume new-line characters. */
 \n {
     unit->nextLine();
 }
 
-  /* Ignore and consume any whitespace, other than new-lines. */
-([[:space:]]{-}[\n])+ {}
+  /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
+<*>([[:space:]]{-}[\n])+ {}
 
   /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
 <INITIAL>^"\357\273\277" {}
@@ -601,10 +604,8 @@ int checkKeyword(string& id)
     {
         if(pos->first != id)
         {
-            string msg;
-            msg = "illegal identifier: `" + id + "' differs from keyword `";
-            msg += pos->first + "' only in capitalization";
-            unit->error(msg);
+            unit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                        "' only in capitalization");
             id = pos->first;
         }
         return pos->second;
