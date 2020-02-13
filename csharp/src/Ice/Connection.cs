@@ -518,7 +518,7 @@ namespace Ice
                             {
                                 _logger.Error("connection callback exception:\n" + ex + '\n' + _desc);
                             }
-                        }, this);
+                        });
                     }
                 }
                 else
@@ -1333,7 +1333,7 @@ namespace Ice
                     {
                         Dispatch(startCB, sentCBs, info);
                         msg.Destroy(ref c);
-                    }, this);
+                    });
                 }
             }
             finally
@@ -1482,7 +1482,7 @@ namespace Ice
             // non-blocking activity of the connection from these threads, the dispatching
             // of the message must be taken care of by the Ice thread pool.
             //
-            ThreadPool.Dispatch(Finish, this);
+            ThreadPool.Dispatch(Finish);
         }
 
         private new void Finish() // TODO: rename to avoid new

@@ -50,7 +50,6 @@ namespace Ice
             private readonly Communicator _communicator;
         }
 
-        public Action<Action, Connection?>? Dispatcher { get; }
         /// <summary>
         /// Get the logger for this communicator.
         /// </summary>
@@ -122,7 +121,6 @@ namespace Ice
 
         public Communicator(Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
-                            Action<Action, Connection?>? dispatcher = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -132,7 +130,6 @@ namespace Ice
                  null,
                  properties,
                  compactIdResolver,
-                 dispatcher,
                  logger,
                  observer,
                  threadStart,
@@ -144,7 +141,6 @@ namespace Ice
         public Communicator(ref string[] args,
                             Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
-                            Action<Action, Connection?>? dispatcher = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -154,7 +150,6 @@ namespace Ice
                  null,
                  properties,
                  compactIdResolver,
-                 dispatcher,
                  logger,
                  observer,
                  threadStart,
@@ -166,7 +161,6 @@ namespace Ice
         public Communicator(NameValueCollection? appSettings = null,
                             Dictionary<string, string>? properties = null,
                             Func<int, string>? compactIdResolver = null,
-                            Action<Action, Connection?>? dispatcher = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -176,7 +170,6 @@ namespace Ice
                  appSettings,
                  properties,
                  compactIdResolver,
-                 dispatcher,
                  logger,
                  observer,
                  threadStart,
@@ -189,7 +182,6 @@ namespace Ice
                             NameValueCollection? appSettings,
                             Dictionary<string, string>? properties = null,
                             Func<int, string>? compactIdResolver = null,
-                            Action<Action, Connection?>? dispatcher = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -198,7 +190,6 @@ namespace Ice
         {
             _state = StateActive;
             _compactIdResolver = compactIdResolver;
-            Dispatcher = dispatcher;
             Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
             ThreadStart = threadStart;

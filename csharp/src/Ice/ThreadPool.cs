@@ -23,19 +23,12 @@ namespace IceInternal
 
         public override void Post(SendOrPostCallback d, object state)
         {
-            //
             // Dispatch the continuation on the thread pool if this isn't called
-            // already from a thread pool thread. We don't use the dispatcher
-            // for the continuations, the dispatcher is only used when the
-            // call is initialy invoked (e.g.: a servant dispatch after being
-            // received is dispatched using the dispatcher which might dispatch
-            // the call on the UI thread which will then use its own synchronization
-            // context to execute continuations).
-            //
+            // already from a thread pool thread.
             var ctx = Current as ThreadPoolSynchronizationContext;
             if (ctx != this)
             {
-                _threadPool.Dispatch(() => d(state), null, false);
+                _threadPool.Dispatch(() => d(state));
             }
             else
             {
@@ -141,7 +134,6 @@ namespace IceInternal
         public ThreadPool(Ice.Communicator communicator, string prefix, int timeout)
         {
             _communicator = communicator;
-            _dispatcher = communicator.Dispatcher;
             _destroyed = false;
             _prefix = prefix;
             _threadIndex = 0;
@@ -342,29 +334,7 @@ namespace IceInternal
             }
         }
 
-        public void DispatchFromThisThread(System.Action call, Ice.Connection? con)
-        {
-            if (_dispatcher != null)
-            {
-                try
-                {
-                    _dispatcher(call, con);
-                }
-                catch (System.Exception ex)
-                {
-                    if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 1)
-                    {
-                        _communicator.Logger.Warning("dispatch exception:\n" + ex);
-                    }
-                }
-            }
-            else
-            {
-                call();
-            }
-        }
-
-        public void Dispatch(System.Action call, Ice.Connection? con, bool useDispatcher = true)
+        public void Dispatch(System.Action call)
         {
             lock (this)
             {
@@ -373,14 +343,8 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if (useDispatcher)
-                {
-                    _workItems.Enqueue(() => DispatchFromThisThread(call, con));
-                }
-                else
-                {
-                    _workItems.Enqueue(() => call());
-                }
+                _workItems.Enqueue(() => call());
+
                 Monitor.Pulse(this);
 
                 //
@@ -440,13 +404,14 @@ namespace IceInternal
 
         public bool Serialize() => _serialize;
 
-        protected sealed override void QueueTask(Task task) => Dispatch(() => TryExecuteTask(task), null, _dispatcher != null);
+        protected sealed override void QueueTask(Task task) =>
+            Dispatch(() => TryExecuteTask(task));
 
         protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
         {
             if (!taskWasPreviouslyQueued)
             {
-                DispatchFromThisThread(() => TryExecuteTask(task), null);
+                TryExecuteTask(task);
                 return true;
             }
             return false;
@@ -700,7 +665,7 @@ namespace IceInternal
         }
 
         private readonly Ice.Communicator _communicator;
-        private readonly System.Action<System.Action, Ice.Connection?>? _dispatcher;
+
         private bool _destroyed;
         private readonly string _prefix;
         private readonly string _threadPrefix;

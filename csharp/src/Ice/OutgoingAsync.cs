@@ -44,7 +44,7 @@ namespace IceInternal
             //
             try
             {
-                Communicator.ClientThreadPool().Dispatch(InvokeSent, CachedConnection);
+                Communicator.ClientThreadPool().Dispatch(InvokeSent);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -57,7 +57,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            Communicator.ClientThreadPool().Dispatch(InvokeException, CachedConnection);
+            Communicator.ClientThreadPool().Dispatch(InvokeException);
         }
 
         public void InvokeResponseAsync()
@@ -66,7 +66,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            Communicator.ClientThreadPool().Dispatch(InvokeResponse, CachedConnection);
+            Communicator.ClientThreadPool().Dispatch(InvokeResponse);
         }
 
         public void InvokeSent()

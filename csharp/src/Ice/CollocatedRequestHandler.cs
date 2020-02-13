@@ -17,7 +17,6 @@ namespace IceInternal
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
-            _dispatcher = _reference.GetCommunicator().Dispatcher != null;
             _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _adapter = adapter;
 
@@ -178,20 +177,9 @@ namespace IceInternal
                         {
                             InvokeAll(outAsync.GetOs(), requestId);
                         }
-                    }, null);
+                    });
             }
-            else if (_dispatcher)
-            {
-                _adapter.ThreadPool.DispatchFromThisThread(
-                    () =>
-                    {
-                        if (SentAsync(outAsync))
-                        {
-                            InvokeAll(outAsync.GetOs(), requestId);
-                        }
-                    }, null);
-            }
-            else // Optimization: directly call invokeAll if there's no dispatcher.
+            else // Optimization: directly call invokeAll
             {
                 if (SentAsync(outAsync))
                 {
@@ -308,7 +296,7 @@ namespace IceInternal
         }
 
         private readonly Reference _reference;
-        private readonly bool _dispatcher;
+
         private readonly bool _response;
         private readonly Ice.ObjectAdapter _adapter;
         private readonly Ice.ILogger _logger;

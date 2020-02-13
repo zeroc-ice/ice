@@ -209,16 +209,12 @@ public class Client : Test.TestHelper
         properties["Ice.Warn.Connections"] = "0";
         properties["Ice.Default.Router"] = $"Glacier2/router:{getTestEndpoint(properties, 50)}";
 
-        Action<Action, Connection?> dispatcher = (Action action, Connection? connection) =>
-            {
-                action();
-            };
-        using var communicator = initialize(properties, dispatcher);
+        using var communicator = initialize(properties);
 
         string protocol = getTestProtocol();
         string host = getTestHost();
 
-        Glacier2.SessionFactoryHelper factory = new Glacier2.SessionFactoryHelper(new SessionCallback1(this), properties, dispatcher: dispatcher);
+        Glacier2.SessionFactoryHelper factory = new Glacier2.SessionFactoryHelper(new SessionCallback1(this), properties);
         Glacier2.SessionHelper? session = null;
 
         //
@@ -249,7 +245,7 @@ public class Client : Test.TestHelper
         }
 
         properties.Remove("Ice.Default.Router");
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback4(this), properties, dispatcher: dispatcher);
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback4(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect interrupt... ");
@@ -279,7 +275,7 @@ public class Client : Test.TestHelper
             test(!session.IsConnected());
         }
 
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback2(this), properties, dispatcher: dispatcher);
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback2(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect... ");
@@ -428,7 +424,7 @@ public class Client : Test.TestHelper
             }
         }
 
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback3(this), properties, dispatcher: dispatcher);
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback3(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect after router shutdown... ");

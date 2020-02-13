@@ -23,7 +23,6 @@ namespace Glacier2
         /// establishment.</param>
         /// <param name="properties">Optional properties used for communicator initialization.</param>
         /// <param name="compactIdResolver">Optional compact type ID resolver delegate used for communicator initialization.</param>
-        /// <param name="dispatcher">Optional dispatcher delegate used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="threadStart">Optional thread start delegate used for communicator initialization.</param>
@@ -37,7 +36,6 @@ namespace Glacier2
             bool useCallbacks,
             Dictionary<string, string> properties,
             Func<int, string>? compactIdResolver = null,
-            Action<Action, Connection?>? dispatcher = null,
             ILogger? logger = null,
             Ice.Instrumentation.ICommunicatorObserver? observer = null,
             Action? threadStart = null,
@@ -49,7 +47,6 @@ namespace Glacier2
             _useCallbacks = useCallbacks;
             _properties = properties;
             _compactIdResolver = compactIdResolver;
-            _dispatcher = dispatcher;
             _logger = logger;
             _observer = observer;
             _threadStart = threadStart;
@@ -312,17 +309,14 @@ namespace Glacier2
                 }
             }
 
-            DispatchCallback(() =>
-                {
-                    try
-                    {
-                        _callback.connected(this);
-                    }
-                    catch (SessionNotExistException)
-                    {
-                        Destroy();
-                    }
-                }, conn);
+            try
+            {
+                _callback.connected(this);
+            }
+            catch (SessionNotExistException)
+            {
+                Destroy();
+            }
         }
 
         private void
@@ -372,7 +366,7 @@ namespace Glacier2
             communicator.Destroy();
 
             // Notify the callback that the session is gone.
-            DispatchCallback(() => _callback.disconnected(this), null);
+            _callback.disconnected(this);
         }
 
         private void
@@ -402,7 +396,6 @@ namespace Glacier2
                         _communicator = new Communicator(
                             properties: _properties,
                             compactIdResolver: _compactIdResolver,
-                            dispatcher: _dispatcher,
                             logger: _logger,
                             observer: _observer,
                             threadStart: _threadStart,
@@ -416,7 +409,7 @@ namespace Glacier2
                     {
                         _destroy = true;
                     }
-                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    _callback.connectFailed(this, ex);
                     return;
                 }
 
@@ -429,7 +422,7 @@ namespace Glacier2
                     }
                     catch (CommunicatorDestroyedException ex)
                     {
-                        DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                        _callback.connectFailed(this, ex);
                         return;
                     }
                     catch (System.Exception)
@@ -444,7 +437,7 @@ namespace Glacier2
 
                 try
                 {
-                    DispatchCallbackAndWait(() => _callback.createdCommunicator(this));
+                    _callback.createdCommunicator(this);
                     Ice.IRouterPrx? defaultRouter = _communicator.GetDefaultRouter();
                     Debug.Assert(defaultRouter != null);
                     var routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
@@ -454,41 +447,9 @@ namespace Glacier2
                 catch (System.Exception ex)
                 {
                     _communicator.Destroy();
-                    DispatchCallback(() => _callback.connectFailed(this, ex), null);
+                    _callback.connectFailed(this, ex);
                 }
             })).Start();
-        }
-
-        private void
-        DispatchCallback(Action callback, Connection? conn)
-        {
-            if (_dispatcher != null)
-            {
-                _dispatcher(callback, conn);
-            }
-            else
-            {
-                callback();
-            }
-        }
-
-        private void
-        DispatchCallbackAndWait(Action callback)
-        {
-            if (_dispatcher != null)
-            {
-                EventWaitHandle h = new ManualResetEvent(false);
-                _dispatcher(() =>
-                    {
-                        callback();
-                        h.Set();
-                    }, null);
-                h.WaitOne();
-            }
-            else
-            {
-                callback();
-            }
         }
 
         private Communicator? _communicator;
@@ -501,7 +462,6 @@ namespace Glacier2
         private readonly bool _useCallbacks;
         private readonly Dictionary<string, string> _properties;
         private readonly Func<int, string>? _compactIdResolver;
-        private readonly Action<Action, Ice.Connection?>? _dispatcher;
         private readonly Ice.ILogger? _logger;
         private readonly Ice.Instrumentation.ICommunicatorObserver? _observer;
         private readonly Action? _threadStart;
