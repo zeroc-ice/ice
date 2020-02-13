@@ -85,9 +85,6 @@ int checkIdentifier(string&);
 %option prefix="slice_"
   /* Instructs flex to not suppress any warnings when generating the scanner. */
 %option warn
-
-  /* Makes all patterns case insensitive (the actual matched text has it's case preserved). */
-%option case-insensitive
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
    * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
 %option nodefault
@@ -150,14 +147,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     unit->scanPosition(yytext);
 }
 
-  /* Matches any non white-space character, but only while scanning a preprocessor statement line.
-   * This is a catch-all to report any invalid characters found while scanning the directive. */
+  /* Matches any non white-space character. This is a catch-all to report any invalid characters
+   * found while scanning the directive. */
 <PREPROCESS>[[:^space:]]+ {
     unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
 
-  /* Matches a new-line character, but only while scanning a preprocessor statement.
-   * This signals the end of the preprocessor statement. */
+  /* Matches a new-line character. This signals the end of the preprocessor statement. */
 <PREPROCESS>\n {
     yy_pop_state();
     if(unit->currentLine() == 0)
@@ -184,15 +180,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     unit->nextLine();
 }
 
-  /* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines),
-   * but only while scanning a C style comment. */
+  /* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines). */
 <C_COMMENT>"*"     |
 <C_COMMENT>[^*\n]+ {
     yymore();
 }
 
-  /* Matches the end of a C style comment, but only while scanning a C style comment. Flex always prefers to match the
-   * longest string it can, so this rule will beat the previous one, which can only match a single '*' at a time. */
+  /* Matches the end of a C style comment. Flex always prefers to match the longest string it can,
+   * so this rule will beat the previous one, which can only match a single '*' at a time. */
 <C_COMMENT>"*/" {
     yy_pop_state();
     string comment(yytext);
@@ -201,7 +196,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     unit->setComment(comment.substr(0, (comment.length() - 2)));
 }
 
-  /* Matches EOF, but only when parsing a C style comment. */
+  /* Matches EOF, but only while parsing a C style comment. */
 <C_COMMENT><<EOF>> {
     yy_pop_state();
     unit->warning(All, "encountered EOF while scanning comment");
@@ -512,24 +507,28 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     unit->nextLine();
 }
 
-  /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
-<*>([[:space:]]{-}[\n])+ {}
-
   /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
 <INITIAL>^"\357\273\277" {}
 
+  /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
+<*>([[:space:]]{-}[\n])+ {}
+
+  /* Matches a single non-printable ASCII character. This rule is active in any start-condition,
+   * but is the second lowest priority rule. */
+<*>[\x0-\x1f\x7f] {
+    stringstream s;
+    s << "illegal input character: '\\";
+    s.width(3);
+    s.fill('0');
+    s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+    s << "'";
+    unit->error(s.str());
+    return BAD_CHAR;
+}
+
+  /* Matches any character (except for new-lines) not matched by another rule and forwards it to the parser.
+   * This is the lowest priority rule. */
 . {
-    if(yytext[0] < 32 || yytext[0] > 126)
-    {
-        stringstream s;
-        s << "illegal input character: '\\";
-        s.width(3);
-        s.fill('0');
-        s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
-        s << "'";
-        unit->error(s.str());
-        return BAD_CHAR;
-    }
     return yytext[0];
 }
 
