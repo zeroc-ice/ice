@@ -80,6 +80,7 @@ int checkIdentifier(string&);
 
 %s BOMSCAN
 %s MAINSCAN
+%x PREPROCESS
 
 line_directive      "#"[[:blank:]]*("line"[[:blank:]]+)?[[:digit:]]+
 quoted_string       \"[^\"\n]*\"
@@ -92,14 +93,41 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
 %%
 
+  /* Matches the empty preprocessor directive. */
+^[[:blank:]]*#[[:blank:]]* {
+    BEGIN(PREPROCESS);
+}
+
+  /* Matches a line preprocessor directive, but missing a line number. */
+^[[:blank:]]*#[[:blank:]]*line[[:blank:]]* {
+    BEGIN(PREPROCESS);
+    unit->error("missing line number in line preprocessor directive");
+}
+
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
-^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]*                           |
-^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]*\n                         |
-^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\"[[:blank:]]*   |
-^#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\"[[:blank:]]*\n {
-    if(unit->scanPosition(yytext))
+^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+                         |
+^[[:blank:]]*#[[:blank:]]*(line[[:blank:]]+)?[[:digit:]]+[[:blank:]]+\"[^\"\n]*\" {
+    BEGIN(PREPROCESS);
+    unit->scanPosition(yytext);
+}
+
+  /* Matches any non white-space character, but only while scanning a preprocessor statement line.
+   * This is a catch-all to report any invalid characters found while scanning the directive. */
+<PREPROCESS>[[:^space:]]+ {
+    unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+}
+
+  /* Matches a new-line character, but only while scanning a preprocessor statement.
+   * This signals the end of the preprocessor statement. */
+<PREPROCESS>\n {
+    unit->nextLine();
+    if(unit->currentLine() == 0)
     {
         BEGIN(BOMSCAN);
+    }
+    else
+    {
+        BEGIN(MAINSCAN);
     }
 }
 
