@@ -1610,22 +1610,25 @@ case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
 #line 371 "src/Slice/Scanner.l"
-{}
+{
+    unit->nextLine();
+}
 	YY_BREAK
 /* Matches an unescaped newline, and issues an error. */
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-#line 374 "src/Slice/Scanner.l"
+#line 376 "src/Slice/Scanner.l"
 {
     unit->error("encountered unescaped EOL while scanning a string literal.");
+    unit->nextLine();
 }
 	YY_BREAK
 /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 case 35:
 YY_RULE_SETUP
-#line 380 "src/Slice/Scanner.l"
+#line 383 "src/Slice/Scanner.l"
 {
     unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
 
@@ -1639,7 +1642,7 @@ YY_RULE_SETUP
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 case 36:
 YY_RULE_SETUP
-#line 391 "src/Slice/Scanner.l"
+#line 394 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
@@ -1649,7 +1652,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches EOF, but only while scanning a string literal. */
 case YY_STATE_EOF(QUOTED_STRING):
-#line 399 "src/Slice/Scanner.l"
+#line 402 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     unit->error("encountered EOF while scanning a string literal");
@@ -1658,7 +1661,7 @@ case YY_STATE_EOF(QUOTED_STRING):
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 405 "src/Slice/Scanner.l"
+#line 408 "src/Slice/Scanner.l"
 {
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
@@ -1673,7 +1676,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 417 "src/Slice/Scanner.l"
+#line 420 "src/Slice/Scanner.l"
 {
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
@@ -1702,7 +1705,7 @@ YY_RULE_SETUP
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 443 "src/Slice/Scanner.l"
+#line 446 "src/Slice/Scanner.l"
 {
     unit->nextLine();
 }
@@ -1710,13 +1713,13 @@ YY_RULE_SETUP
 /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
 case 40:
 YY_RULE_SETUP
-#line 448 "src/Slice/Scanner.l"
+#line 451 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
 case 41:
 YY_RULE_SETUP
-#line 451 "src/Slice/Scanner.l"
+#line 454 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches a single non-printable ASCII character. This rule is active in any start-condition,
@@ -1724,7 +1727,7 @@ YY_RULE_SETUP
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 455 "src/Slice/Scanner.l"
+#line 458 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -1740,17 +1743,17 @@ YY_RULE_SETUP
    * This is the lowest priority rule. */
 case 43:
 YY_RULE_SETUP
-#line 468 "src/Slice/Scanner.l"
+#line 471 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 472 "src/Slice/Scanner.l"
+#line 475 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1753 "src/Slice/Scanner.cpp"
+#line 1756 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(PREPROCESS):
@@ -2605,7 +2608,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 472 "src/Slice/Scanner.l"
+#line 475 "src/Slice/Scanner.l"
 
 
 namespace Slice {

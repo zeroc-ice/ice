@@ -367,11 +367,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 }
 
   /* Matches an escaped newline to allow for multi-line strings. The scanner consumes the newline. */
-<QUOTED_STRING>"\\"\n {}
+<QUOTED_STRING>"\\"\n {
+    unit->nextLine();
+}
 
   /* Matches an unescaped newline, and issues an error. */
 <QUOTED_STRING>\n {
     unit->error("encountered unescaped EOL while scanning a string literal.");
+    unit->nextLine();
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
