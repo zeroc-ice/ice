@@ -104,7 +104,7 @@ int checkIdentifier(string&);
 %option never-interactive
 
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-%option noyy_top_state
+%option noyy_top_state noinput nounput
 %option noyy_scan_buffer noyy_scan_bytes noyy_scan_string
 %option noyyget_extra noyyset_extra noyyget_leng noyyget_text
 %option noyyget_in noyyset_in noyyget_out noyyset_out
@@ -116,6 +116,7 @@ int checkIdentifier(string&);
 %s SLICE
 %x PREPROCESS
 %x C_COMMENT
+%x QUOTED_STRING
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
 
@@ -269,199 +270,126 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
 
   /* ========== Literals ========== */
 
+  /* Matches the start of a double-quoted string literal. */
 \" {
+    yy_push_state(QUOTED_STRING);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-    while(true)
+    *yylvalp = new StringTok;
+}
+
+  /* Matches a single escaped backslash, or as many characters as it can,
+   * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
+<QUOTED_STRING>"\\\\"                 |
+<QUOTED_STRING>[^\\\n"\x0-\x1f\x7f]+ {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+
+  /* Matches a single escaped double-quote, single-quote, or question mark. */
+<QUOTED_STRING>"\\\"" |
+<QUOTED_STRING>"\\\'" |
+<QUOTED_STRING>"\\?"  {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext[1];
+    str->literal += yytext[1];
+}
+
+  /* Matches a single ANSI-C escape code pattern. */
+<QUOTED_STRING>"\\"[abfnrtv] {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    char ansiCode;
+    switch(yytext[1])
     {
-        int c = yyinput();
-        str->literal += static_cast<char>(c);
-        if(c == '"')
-        {
-            break;
-        }
-        else if(c == EOF)
-        {
-            unit->error("EOF in string");
-            break;
-        }
-        else if(c < 32 || c == 127)
-        {
-            unit->error("a string literal can only contain printable ASCII characters and non-ASCII characters");
-            break;
-        }
-        else if(c == '\\')
-        {
-            int next = yyinput();
-            str->literal += static_cast<char>(next);
-            switch(next)
-            {
-                case '\\':
-                {
-                    // add extra escape to our internal string
-                    str->v += '\\';
-                    str->v += '\\';
-                    break;
-                }
-                case '"':
-                case '\'':
-                case '?':
-                {
-                    str->v += static_cast<char>(next);
-                    break;
-                }
-                case 'a':
-                {
-                    str->v += '\a';
-                    break;
-                }
-                case 'b':
-                {
-                    str->v += '\b';
-                    break;
-                }
-                case 'f':
-                {
-                    str->v += '\f';
-                    break;
-                }
-                case 'n':
-                {
-                    str->v += '\n';
-                    break;
-                }
-                case 'r':
-                {
-                    str->v += '\r';
-                    break;
-                }
-                case 't':
-                {
-                    str->v += '\t';
-                    break;
-                }
-                case 'v':
-                {
-                    str->v += '\v';
-                    break;
-                }
-
-                // Octal value \nnn limited to three octal digits but terminate at the first character
-                // that is not a valid octal digit if encountered sooner.
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                {
-                    static string octalDigits = "01234567";
-                    string escape;
-                    escape += static_cast<char>(next);
-                    for(int i = 0; i < 2; ++i)
-                    {
-                        next = yyinput();
-                        if(octalDigits.find_first_of(static_cast<char>(next)) == string::npos)
-                        {
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                    }
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
-                    if(value > 255)
-                    {
-                        unit->error(string("octal escape sequence out of range: `\\") + escape + "'");
-                    }
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                case 'x':
-                {
-                    string escape = "";
-                    next = yyinput();
-
-                    // Unlike C++, we limit hex escape sequences to 2 hex digits
-                    while(isxdigit(static_cast<char>(next)) && escape.length() < 2)
-                    {
-                        escape += static_cast<char>(next);
-                        next = yyinput();
-                    }
-                    unput(next);
-
-                    if(escape.length() == 0)
-                    {
-                        unit->error("no hex digit in hex escape sequence");
-                    }
-
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-
-                    assert(value >= 0 && value <= 255);
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                // Universal character name
-                case 'u':
-                case 'U':
-                {
-                    string escape = "";
-                    c = next;
-                    int size = (c == 'u') ? 4 : 8;
-                    while(size > 0)
-                    {
-                        next = yyinput();
-                        if(!isxdigit(next))
-                        {
-                            unit->error(string("unknown escape sequence in string literal: `\\") +
-                                               static_cast<char>(c) + escape + static_cast<char>(next) + "'");
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                        --size;
-                    }
-
-                    if(size == 0)
-                    {
-                        // All digits read, check value
-                        IceUtil::Int64 codePoint = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-                        if(codePoint >= 0xd800 && codePoint <= 0xdfff)
-                        {
-                            unit->error(string("a universal character name cannot designate a surrogate: `\\") +
-                                               static_cast<char>(c) + escape + "'");
-                        }
-                    }
-
-                    str->literal += escape;
-                    str->v += string("\\") + static_cast<char>(c) + escape;
-                    break;
-                }
-
-                default:
-                {
-                    ostringstream os;
-                    os << "unknown escape sequence `\\" << static_cast<char>(next) << "'";
-                    unit->warning(All, os.str());
-
-                    // Escape the \ in this unknown escape sequence
-                    str->v += '\\';
-                    str->v += '\\';
-                    unput(next);
-                }
-            }
-        }
-        else
-        {
-            str->v += static_cast<char>(c);
-        }
+        case 'a': ansiCode = '\a'; break;
+        case 'b': ansiCode = '\b'; break;
+        case 'f': ansiCode = '\f'; break;
+        case 'n': ansiCode = '\n'; break;
+        case 'r': ansiCode = '\r'; break;
+        case 't': ansiCode = '\t'; break;
+        case 'v': ansiCode = '\v'; break;
     }
-    *yylvalp = str;
+    str->v += ansiCode;
+    str->literal += yytext;
+}
+
+  /* Matches a single escaped octal value. Octal literals are limited to a max of 3 digits. */
+<QUOTED_STRING>"\\"[0-7]{1,3} {
+    auto value = strtoull((yytext + 1), 0, 8);
+    if(value > 255)
+    {
+        unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+    }
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += static_cast<char>(value);
+    str->literal += yytext;
+}
+
+  /* Matches a single escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
+<QUOTED_STRING>"\\x"[0-9a-fA-F]{1,2} {
+    auto value = strtoull((yytext + 2), 0, 16);
+    assert(value >= 0 && value <= 255);
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += static_cast<char>(value);
+    str->literal += yytext;
+}
+
+  /* Matches an empty hexadecimal escape value. */
+<QUOTED_STRING>"\\x" {
+    unit->error("no hex digit in hex escape sequence");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->literal += yytext;
+}
+
+  /* Matches a single 4-char or 8-char size universal character code. */
+<QUOTED_STRING>"\\u"[0-9a-fA-F]{4} |
+<QUOTED_STRING>"\\U"[0-9a-fA-F]{8} {
+    auto codePoint = strtoull((yytext + 2), 0, 16);
+    if(codePoint <= 0xdfff && codePoint >= 0xd800)
+    {
+        unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+    }
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+
+  /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
+<QUOTED_STRING>"\\u"[0-9a-fA-F]{0,3}[g-zG-Z]* |
+<QUOTED_STRING>"\\U"[0-9a-fA-F]{0,7}[g-zG-Z]* {
+    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+
+  /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
+   * it only matches 2 characters (the lowest any match), and it's beneath the others. */
+<QUOTED_STRING>"\\". {
+    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    // Escape the entire sequence.
+    str->v += "\\" + string(yytext);
+    str->literal += yytext;
+}
+
+  /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
+   * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
+<QUOTED_STRING>\" {
+    yy_pop_state();
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->literal += yytext;
+    return ICE_STRING_LITERAL;
+}
+
+  /* Matches EOF, but only while scanning a string literal. */
+<QUOTED_STRING><<EOF>> {
+    yy_pop_state();
+    unit->error("encountered EOF while scanning string literal");
     return ICE_STRING_LITERAL;
 }
 

@@ -620,8 +620,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 26
-#define YY_END_OF_BUFFER 27
+#define YY_NUM_RULES 42
+#define YY_END_OF_BUFFER 43
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -629,17 +629,22 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int32_t yy_accept[84] =
+static const flex_int32_t yy_accept[128] =
     {   0,
-        0,    0,    0,    0,    0,    0,    0,    0,   27,   25,
-       23,   22,   19,   25,   25,   25,   20,   20,   25,   18,
-       13,   25,   14,   23,    1,   25,    5,   23,    6,   26,
-       11,   11,    9,   10,   23,    0,   20,   20,   21,    8,
-        7,   21,   20,    0,    0,    0,    0,   17,   18,    0,
-       18,    0,   15,   18,   16,   23,    1,    1,    3,    0,
-        0,    5,   11,   11,   12,    0,   21,    7,    0,   21,
-       20,    0,    0,   24,    0,   21,    0,    0,    0,    4,
-        2,    2,    0
+        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+       43,   40,   39,   37,   39,   41,   19,   41,   41,   41,
+       35,   35,   41,   18,   13,   41,   14,   39,   39,    1,
+       41,    5,   39,    6,   39,    5,   42,   11,   11,    9,
+       11,   11,   10,   40,   21,   21,   34,   42,   39,    0,
+       35,   35,   36,    8,    7,   36,   35,    0,    0,    0,
+        0,   17,   18,    0,   18,    0,   15,   18,   16,   39,
+        1,    1,    3,    0,    0,    5,   11,   11,   12,   21,
+       21,   33,   22,   23,   26,   24,   32,   20,   25,   31,
+       28,    0,   36,    7,    0,   36,   35,    0,    0,   38,
+
+       26,   32,   32,   31,   31,   27,    0,   36,    0,    0,
+       26,   32,   31,   27,    0,    4,    2,   32,   31,    2,
+       32,   29,   32,   32,   32,   30,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -647,139 +652,256 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         4,    4,    4,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    5,    6,    1,    1,    1,    1,    7,
-        1,    8,    9,    1,   10,   11,   12,   13,   14,   14,
-       14,   14,   14,   14,   14,   15,   15,   16,    1,    1,
-        1,    1,    1,    1,   17,   17,   17,   17,   18,   19,
-       20,   20,   21,   20,   20,   22,   20,   23,   20,   20,
-       20,   20,   20,   20,   20,   20,   20,   24,   20,   20,
-       25,   26,   27,    1,   20,    1,   17,   17,   17,   17,
+        1,    5,    6,    7,    8,    6,    6,    6,    9,   10,
+        6,   11,   12,    6,   13,   14,   15,   16,   17,   17,
+       17,   17,   17,   17,   17,   18,   18,   19,    6,    6,
+        6,    6,   20,    6,   21,   21,   21,   21,   22,   23,
+       24,   24,   24,   24,   24,   24,   24,   24,   24,   24,
+       24,   24,   24,   24,   25,   24,   24,   24,   24,   24,
+       26,   27,   28,    6,   29,    6,   30,   30,   21,   21,
 
-       28,   19,   20,   20,   29,   20,   20,   30,   20,   31,
-       20,   20,   20,   20,   20,   20,   20,   20,   20,   32,
-       20,   20,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,   33,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,   33,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,   34,    1,    1,    1,
-       35,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+       31,   32,   24,   24,   33,   24,   24,   34,   24,   35,
+       24,   24,   24,   36,   24,   36,   37,   36,   24,   38,
+       24,   24,    6,    6,    6,    6,    1,    6,    6,    6,
+        6,    6,   39,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,   39,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,   40,    6,    6,    6,
+       41,    6,    6,    6,    6,    6,    6,    6,    6,    6,
 
-        1,    1,    1,    1,    1,    1,   36,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,   37,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,   42,    6,
+        6,    6,    6,    6,    6,    6,    6,    6,    6,    6,
+        6,    6,    6,    6,    6
     } ;
 
-static const YY_CHAR yy_meta[38] =
+static const YY_CHAR yy_meta[43] =
     {   0,
-        1,    2,    3,    2,    1,    1,    1,    4,    1,    1,
-        1,    1,    5,    5,    5,    1,    6,    6,    6,    7,
-        7,    7,    7,    7,    1,    1,    1,    6,    7,    7,
-        7,    7,    2,    1,    1,    1,    1
+        1,    2,    3,    2,    2,    4,    1,    4,    4,    5,
+        6,    4,    4,    4,    4,    7,    7,    7,    5,    4,
+        8,    8,    8,    9,    9,    4,   10,    4,   11,    8,
+        8,    8,    9,    9,    9,    9,    9,    9,   12,    4,
+        4,    4
     } ;
 
-static const flex_int32_t yy_base[92] =
+static const flex_int32_t yy_base[144] =
     {   0,
-        0,   36,    0,   37,   42,   45,   48,   51,  177,  249,
-       56,  249,  249,   50,   53,   62,   68,   90,  155,  117,
-      132,    0,  102,   83,  148,   94,    0,   67,  249,  249,
-        0,   86,  249,  111,   89,   84,    0,    0,  166,  249,
-        0,    0,   27,   97,    0,   96,  149,  249,    0,  100,
-        0,    0,  249,    0,  249,  111,    0,    0,  112,   55,
-       74,    0,    0,  140,  249,  145,  249,    0,  151,  154,
-        0,   75,   71,  249,  161,  173,   90,  154,   57,  249,
-       55,  187,  249,  202,  209,  211,  218,  225,  232,  235,
-      241
+        0,   41,    0,   42,   50,   55,   60,   65,   94,  121,
+      160,  722,   70,  722,   75,  722,  722,   68,   74,   89,
+      135,   89,  136,  172,  128,    0,  122,  108,  125,  129,
+      104,    0,  113,  722,  133,    0,  722,    0,  137,  722,
+      154,    0,  128,  722,  160,  165,  722,  193,  166,  162,
+        0,  190,  216,  722,    0,    0,  227,  180,    0,  113,
+      212,  722,  257,  117,    0,    0,  722,    0,  722,  179,
+      235,  261,  280,   99,   78,    0,    0,  222,  722,  252,
+      199,  722,  722,  722,   71,  722,  283,  722,  722,  306,
+        0,  274,  722,    0,  254,  329,    0,  346,   79,  722,
 
+       92,  346,    0,  369,    0,    0,  293,  342,   95,   62,
+      722,  392,  415,  722,   74,  722,   43,  438,  461,  485,
+      488,  722,  511,  534,  557,  722,  722,  595,  607,  619,
+      630,  634,  645,  656,  667,  679,  691,  697,  699,   69,
+       64,  701,  709
     } ;
 
-static const flex_int32_t yy_def[92] =
+static const flex_int32_t yy_def[144] =
     {   0,
-       83,    1,    1,    1,   84,   84,   85,   85,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   86,   83,   83,   83,   83,   87,   83,   83,   83,
-       88,   88,   83,   83,   83,   83,   17,   18,   83,   83,
-       89,   39,   18,   83,   90,   86,   83,   83,   20,   83,
-       20,   86,   83,   20,   83,   83,   25,   25,   83,   83,
-       83,   87,   88,   88,   83,   83,   83,   89,   83,   83,
-       90,   83,   83,   83,   83,   83,   91,   83,   91,   83,
-       83,   83,    0,   83,   83,   83,   83,   83,   83,   83,
-       83
+      127,    1,    1,    1,  128,  128,  129,  129,  130,  130,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  131,  127,  132,  127,  127,  127,  127,
+      127,  133,  127,  127,  127,  133,  127,  134,  134,  127,
+      134,  134,  127,  127,  135,  135,  127,  136,  127,  127,
+       21,  127,  127,  127,  137,   53,  127,  127,  138,  132,
+      127,  127,  131,  127,   63,  132,  127,   63,  127,  127,
+      127,  127,  127,  127,  127,  133,  134,  134,  127,  135,
+      135,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      139,  127,  127,  137,  127,  127,  138,  127,  127,  127,
 
+      127,  127,  140,  127,  141,  142,  127,  127,  143,  127,
+      127,  127,  127,  127,  143,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,    0,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127
     } ;
 
-static const flex_int32_t yy_nxt[287] =
+static const flex_int32_t yy_nxt[765] =
     {   0,
-       10,   11,   12,   11,   13,   10,   10,   10,   14,   14,
-       15,   16,   17,   18,   18,   19,   20,   20,   20,   20,
-       20,   20,   20,   20,   21,   22,   23,   20,   20,   20,
-       20,   20,   10,   10,   10,   10,   10,   24,   24,   43,
-       43,   25,   25,   28,   29,   28,   28,   29,   28,   32,
-       33,   32,   32,   33,   32,   34,   82,   35,   34,   35,
-       36,   80,   37,   38,   38,   39,   39,   39,   35,   40,
-       35,   26,   26,   41,   30,   73,   72,   30,   42,   77,
-       43,   43,   38,   73,   56,   44,   35,   64,   57,   64,
-       35,   45,   35,   78,   80,   44,   39,   39,   39,   45,
+       12,   13,   14,   13,   15,   16,   17,   16,   16,   16,
+       16,   18,   18,   19,   20,   21,   22,   22,   23,   16,
+       24,   24,   24,   24,   24,   25,   26,   27,   24,   24,
+       24,   24,   24,   24,   24,   24,   24,   24,   16,   16,
+       16,   16,   28,   28,  120,   29,   29,  120,   30,   30,
+       32,   33,   34,   33,   35,   32,   33,   34,   33,   35,
+       38,   39,   40,   39,   41,   38,   39,   40,   39,   41,
+       43,   49,  105,   49,   49,   43,   49,  103,   49,   49,
+      116,   50,   31,   51,   52,   52,  101,  101,   37,   53,
+       53,   53,  117,   37,   44,   33,   44,   33,   45,   54,
 
-       42,   78,   38,   38,   38,   69,   69,   44,   74,   70,
-       70,   70,   56,   72,   35,   46,   57,   44,   47,   47,
-       47,   52,   65,   48,   59,   59,   59,   61,   55,   49,
-       49,   49,   50,   51,   51,   51,   51,   51,   51,   51,
-       51,   64,   52,   64,   51,   51,   51,   51,   51,   58,
-       47,   47,   47,   75,   75,   48,   53,   76,   76,   76,
-       59,   59,   59,   70,   70,   70,   70,   70,   70,   60,
-       46,   81,   67,   76,   76,   76,   83,   60,   39,   39,
-       39,   81,   83,   66,   67,   76,   76,   76,   82,   83,
-       83,   67,   83,   66,   83,   83,   83,   83,   83,   59,
+       47,  116,   56,   55,   52,   52,   52,  111,  111,   70,
+       58,   49,   70,  110,   49,   71,   49,   49,  100,   58,
+       48,   44,   33,   44,   33,   45,   70,   47,   49,   70,
+       72,   99,   71,   72,   49,   60,   49,   49,   78,   66,
+       78,   78,   79,   75,   73,   73,   73,   48,   56,   69,
+       57,   57,   52,   67,   60,   78,   58,   78,   78,  127,
+      127,   49,   74,   49,   80,   58,  127,   49,  127,   49,
+       49,  127,   59,   61,   61,   61,   61,   53,   53,   53,
+       70,   62,   49,   70,  127,  127,   71,   63,   63,   63,
+       64,   95,   95,  127,  127,   96,   96,   96,   66,   83,
 
-       59,   59,   27,   27,   27,   27,   27,   27,   27,   31,
-       31,   31,   31,   31,   31,   31,   54,   54,   62,   83,
-       83,   62,   62,   62,   62,   63,   63,   83,   83,   63,
-       63,   63,   68,   68,   83,   68,   68,   68,   68,   71,
-       71,   79,   79,   83,   79,   79,   79,   79,    9,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83
+      127,   84,  127,   56,  127,   52,   52,   52,   85,   85,
+      127,   58,   86,   61,   61,   61,   61,   87,  127,   88,
+       58,   62,   89,   78,   89,   78,   78,   89,   89,   90,
+       91,   53,   53,   53,  127,  127,   72,   92,   93,   72,
+       56,  127,   57,   57,   52,  127,   92,   93,   58,  127,
+       73,   73,   73,   49,  127,   49,   80,   58,   61,   61,
+       61,   61,   72,  127,  127,   72,   62,  127,   74,   96,
+       96,   96,   63,   63,   63,   64,   73,   73,   73,  127,
+      127,   98,  127,   66,   98,  107,  107,  127,  127,  108,
+      108,  108,  127,  127,   74,   73,   73,   73,  102,  102,
+
+      102,  127,  127,  102,  102,  102,  103,  103,  108,  108,
+      108,  127,  102,  102,  102,  103,  103,  103,  103,  103,
+      103,  104,  104,  104,  127,  127,  104,  104,  104,  105,
+      105,  127,  127,  127,  127,  104,  104,  104,  105,  105,
+      105,  105,  105,  105,   96,   96,   96,   98,  127,  127,
+       98,   93,  109,  127,  127,  127,  127,  108,  108,  108,
+       93,  112,  112,  112,   93,  127,  112,  112,  112,  103,
+      103,  127,  127,   93,  127,  112,  112,  112,  103,  103,
+      103,  103,  103,  103,  113,  113,  113,  127,  127,  113,
+      113,  113,  105,  105,  127,  127,  127,  127,  113,  113,
+
+      113,  105,  105,  105,  105,  105,  105,  118,  118,  118,
+      127,  127,  118,  118,  118,  103,  103,  127,  127,  127,
+      127,  118,  118,  118,  103,  103,  103,  103,  103,  103,
+      119,  119,  119,  127,  127,  119,  119,  119,  105,  105,
+      127,  127,  127,  127,  119,  119,  119,  105,  105,  105,
+      105,  105,  105,  121,  121,  121,  127,  127,  121,  121,
+      121,  103,  103,  127,  127,  127,  127,  121,  121,  121,
+      103,  103,  103,  103,  103,  103,  122,  122,  122,  127,
+      127,  122,  122,  122,  105,  105,  120,  127,  127,  120,
+      122,  122,  122,  105,  105,  105,  105,  105,  105,  127,
+
+       73,   73,   73,  123,  123,  123,  127,  127,  123,  123,
+      123,  103,  103,  127,  127,  127,  127,  123,  123,  123,
+      103,  103,  103,  103,  103,  103,  124,  124,  124,  127,
+      127,  124,  124,  124,  103,  103,  127,  127,  127,  127,
+      124,  124,  124,  103,  103,  103,  103,  103,  103,  125,
+      125,  125,  127,  127,  125,  125,  125,  103,  103,  127,
+      127,  127,  127,  125,  125,  125,  103,  103,  103,  103,
+      103,  103,  126,  126,  126,  127,  127,  126,  126,  126,
+      103,  103,  127,  127,  127,  127,  126,  126,  126,  103,
+      103,  103,  103,  103,  103,   36,   36,   36,   36,   36,
+
+       36,   36,   36,   36,   36,   36,   36,   42,   42,   42,
+       42,   42,   42,   42,   42,   42,   42,   42,   42,   46,
+       46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
+       46,   65,   65,  127,   65,  127,   65,   65,   65,   65,
+       65,   68,   68,  127,   68,   76,  127,  127,   76,   76,
+       76,   76,   76,   76,   76,   76,   77,   77,  127,   77,
+       77,  127,   77,   77,   77,   77,   77,   77,   81,  127,
+       81,   81,   81,   81,   81,   81,  127,   81,   81,   82,
+       82,  127,   82,   82,   82,   82,   82,   82,   82,   82,
+       82,   94,   94,  127,   94,   94,   94,   94,   94,   94,
+
+       94,   94,   94,   97,   97,  106,  106,  114,  114,  115,
+      115,  127,  115,  115,  115,  115,  115,  115,  115,  115,
+      115,   11,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127
     } ;
 
-static const flex_int32_t yy_chk[287] =
+static const flex_int32_t yy_chk[765] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    2,    4,   43,
-       43,    2,    4,    5,    5,    5,    6,    6,    6,    7,
-        7,    7,    8,    8,    8,    7,   81,   11,    8,   11,
-       14,   79,   14,   14,   14,   15,   15,   15,   28,   16,
-       28,    2,    2,   16,    5,   60,   72,    6,   17,   72,
-       17,   17,   17,   60,   24,   17,   24,   32,   24,   32,
-       35,   17,   35,   73,   77,   17,   36,   36,   36,   17,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    2,    4,  117,    2,    4,  117,    2,    4,
+        5,    5,    5,    5,    5,    6,    6,    6,    6,    6,
+        7,    7,    7,    7,    7,    8,    8,    8,    8,    8,
+        7,   13,  141,   13,   13,    8,   15,  140,   15,   15,
+      115,   18,    2,   18,   18,   18,   85,   85,    5,   19,
+       19,   19,  110,    6,    9,    9,    9,    9,    9,   20,
 
-       18,   73,   18,   18,   18,   44,   44,   18,   61,   44,
-       44,   44,   56,   59,   56,   50,   56,   18,   20,   20,
-       20,   46,   34,   20,   59,   59,   59,   26,   23,   20,
-       20,   20,   20,   20,   20,   20,   20,   20,   20,   20,
-       20,   64,   20,   64,   20,   20,   20,   20,   20,   25,
-       47,   47,   47,   66,   66,   47,   21,   66,   66,   66,
-       25,   25,   25,   69,   69,   69,   70,   70,   70,   25,
-       19,   78,   70,   75,   75,   75,    9,   25,   39,   39,
-       39,   78,    0,   39,   39,   76,   76,   76,   82,    0,
-        0,   76,    0,   39,    0,    0,    0,    0,    0,   82,
+        9,  109,   22,   20,   22,   22,   22,  101,  101,   28,
+       22,   28,   28,   99,   33,   28,   33,   33,   75,   22,
+        9,   10,   10,   10,   10,   10,   29,   10,   29,   29,
+       30,   74,   29,   30,   35,   64,   35,   35,   39,   60,
+       39,   39,   43,   31,   30,   30,   30,   10,   21,   27,
+       21,   21,   21,   25,   23,   41,   21,   41,   41,   11,
+        0,   45,   30,   45,   45,   21,   46,   49,   46,   49,
+       49,    0,   21,   24,   24,   24,   24,   50,   50,   50,
+       70,   24,   70,   70,    0,    0,   70,   24,   24,   24,
+       24,   58,   58,    0,    0,   58,   58,   58,   24,   48,
 
-       82,   82,   84,   84,   84,   84,   84,   84,   84,   85,
-       85,   85,   85,   85,   85,   85,   86,   86,   87,    0,
-        0,   87,   87,   87,   87,   88,   88,    0,    0,   88,
-       88,   88,   89,   89,    0,   89,   89,   89,   89,   90,
-       90,   91,   91,    0,   91,   91,   91,   91,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
-       83,   83,   83,   83,   83,   83
+       81,   48,   81,   52,    0,   52,   52,   52,   48,   48,
+        0,   52,   48,   61,   61,   61,   61,   48,    0,   48,
+       52,   61,   48,   78,   48,   78,   78,   48,   48,   48,
+       48,   53,   53,   53,    0,    0,   71,   53,   53,   71,
+       57,    0,   57,   57,   57,    0,   53,   53,   57,    0,
+       71,   71,   71,   80,    0,   80,   80,   57,   63,   63,
+       63,   63,   72,    0,    0,   72,   63,    0,   71,   95,
+       95,   95,   63,   63,   63,   63,   72,   72,   72,    0,
+        0,   73,    0,   63,   73,   92,   92,    0,    0,   92,
+       92,   92,    0,    0,   72,   73,   73,   73,   87,   87,
+
+       87,    0,    0,   87,   87,   87,   87,   87,  107,  107,
+      107,    0,   87,   87,   87,   87,   87,   87,   87,   87,
+       87,   90,   90,   90,    0,    0,   90,   90,   90,   90,
+       90,    0,    0,    0,    0,   90,   90,   90,   90,   90,
+       90,   90,   90,   90,   96,   96,   96,   98,    0,    0,
+       98,   96,   98,    0,    0,    0,    0,  108,  108,  108,
+       96,  102,  102,  102,  108,    0,  102,  102,  102,  102,
+      102,    0,    0,  108,    0,  102,  102,  102,  102,  102,
+      102,  102,  102,  102,  104,  104,  104,    0,    0,  104,
+      104,  104,  104,  104,    0,    0,    0,    0,  104,  104,
+
+      104,  104,  104,  104,  104,  104,  104,  112,  112,  112,
+        0,    0,  112,  112,  112,  112,  112,    0,    0,    0,
+        0,  112,  112,  112,  112,  112,  112,  112,  112,  112,
+      113,  113,  113,    0,    0,  113,  113,  113,  113,  113,
+        0,    0,    0,    0,  113,  113,  113,  113,  113,  113,
+      113,  113,  113,  118,  118,  118,    0,    0,  118,  118,
+      118,  118,  118,    0,    0,    0,    0,  118,  118,  118,
+      118,  118,  118,  118,  118,  118,  119,  119,  119,    0,
+        0,  119,  119,  119,  119,  119,  120,    0,    0,  120,
+      119,  119,  119,  119,  119,  119,  119,  119,  119,    0,
+
+      120,  120,  120,  121,  121,  121,    0,    0,  121,  121,
+      121,  121,  121,    0,    0,    0,    0,  121,  121,  121,
+      121,  121,  121,  121,  121,  121,  123,  123,  123,    0,
+        0,  123,  123,  123,  123,  123,    0,    0,    0,    0,
+      123,  123,  123,  123,  123,  123,  123,  123,  123,  124,
+      124,  124,    0,    0,  124,  124,  124,  124,  124,    0,
+        0,    0,    0,  124,  124,  124,  124,  124,  124,  124,
+      124,  124,  125,  125,  125,    0,    0,  125,  125,  125,
+      125,  125,    0,    0,    0,    0,  125,  125,  125,  125,
+      125,  125,  125,  125,  125,  128,  128,  128,  128,  128,
+
+      128,  128,  128,  128,  128,  128,  128,  129,  129,  129,
+      129,  129,  129,  129,  129,  129,  129,  129,  129,  130,
+      130,  130,  130,  130,  130,  130,  130,  130,  130,  130,
+      130,  131,  131,    0,  131,    0,  131,  131,  131,  131,
+      131,  132,  132,    0,  132,  133,    0,    0,  133,  133,
+      133,  133,  133,  133,  133,  133,  134,  134,    0,  134,
+      134,    0,  134,  134,  134,  134,  134,  134,  135,    0,
+      135,  135,  135,  135,  135,  135,    0,  135,  135,  136,
+      136,    0,  136,  136,  136,  136,  136,  136,  136,  136,
+      136,  137,  137,    0,  137,  137,  137,  137,  137,  137,
+
+      137,  137,  137,  138,  138,  139,  139,  142,  142,  143,
+      143,    0,  143,  143,  143,  143,  143,  143,  143,  143,
+      143,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127,  127,  127,  127,  127,  127,  127,
+      127,  127,  127,  127
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -859,8 +981,7 @@ namespace Slice
 {
 
 // Definitions for the case-insensitive keyword-token map.
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
+static std::map<std::string, int> keywordMap;
 
 void initScanner();
 void preAction();
@@ -872,11 +993,10 @@ int checkIdentifier(string&);
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
 
-#line 875 "src/Slice/Scanner.cpp"
-#line 86 "src/Slice/Scanner.l"
+#line 996 "src/Slice/Scanner.cpp"
+#line 85 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
-  /* Makes all patterns case insensitive (the actual matched text has it's case preserved). */
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
    * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
   /* Enables the use of flex's built int start-condition state stack. */
@@ -887,18 +1007,21 @@ int checkIdentifier(string&);
   /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
   /* Disables the scanner's interactive modes for improved performance. */
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
+#define YY_NO_INPUT 1
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
+
 
 
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 896 "src/Slice/Scanner.cpp"
+#line 1018 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define SLICE 1
 #define PREPROCESS 2
 #define C_COMMENT 3
+#define QUOTED_STRING 4
 
 #ifndef YY_NO_UNISTD_H
 /* Special case for "unistd.h", since it is non-ANSI. We include it way
@@ -932,8 +1055,6 @@ extern int yywrap ( void );
 #endif
 
 #ifndef YY_NO_UNPUT
-    
-    static void yyunput ( int c, char *buf_ptr  );
     
 #endif
 
@@ -1100,13 +1221,13 @@ YY_DECL
 		}
 
 	{
-#line 133 "src/Slice/Scanner.l"
+#line 130 "src/Slice/Scanner.l"
 
 
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-#line 1109 "src/Slice/Scanner.cpp"
+#line 1230 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1140,13 +1261,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 84 )
+				if ( yy_current_state >= 128 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 83 );
+		while ( yy_current_state != 127 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -1168,7 +1289,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 138 "src/Slice/Scanner.l"
+#line 135 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
 }
@@ -1176,7 +1297,7 @@ YY_RULE_SETUP
 /* Matches a line preprocessor directive, but missing a line number. */
 case 2:
 YY_RULE_SETUP
-#line 143 "src/Slice/Scanner.l"
+#line 140 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
@@ -1184,30 +1305,29 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 case 3:
-#line 150 "src/Slice/Scanner.l"
+#line 147 "src/Slice/Scanner.l"
 case 4:
 YY_RULE_SETUP
-#line 150 "src/Slice/Scanner.l"
+#line 147 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     unit->scanPosition(yytext);
 }
 	YY_BREAK
-/* Matches any non white-space character, but only while scanning a preprocessor statement line.
-   * This is a catch-all to report any invalid characters found while scanning the directive. */
+/* Matches any non white-space character. This is a catch-all to report any invalid characters
+   * found while scanning the directive. */
 case 5:
 YY_RULE_SETUP
-#line 157 "src/Slice/Scanner.l"
+#line 154 "src/Slice/Scanner.l"
 {
     unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
 	YY_BREAK
-/* Matches a new-line character, but only while scanning a preprocessor statement.
-   * This signals the end of the preprocessor statement. */
+/* Matches a new-line character. This signals the end of the preprocessor statement. */
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 163 "src/Slice/Scanner.l"
+#line 159 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     if(unit->currentLine() == 0)
@@ -1222,13 +1342,13 @@ YY_RULE_SETUP
    * starting '//' and until the next new line are matched and discarded. */
 case 7:
 YY_RULE_SETUP
-#line 176 "src/Slice/Scanner.l"
+#line 172 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches the start of a C style comment. */
 case 8:
 YY_RULE_SETUP
-#line 179 "src/Slice/Scanner.l"
+#line 175 "src/Slice/Scanner.l"
 {
     yy_push_state(C_COMMENT);
 }
@@ -1237,28 +1357,27 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 184 "src/Slice/Scanner.l"
+#line 180 "src/Slice/Scanner.l"
 {
     yymore();
     unit->nextLine();
 }
 	YY_BREAK
-/* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines),
-   * but only while scanning a C style comment. */
+/* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines). */
 case 10:
-#line 192 "src/Slice/Scanner.l"
+#line 187 "src/Slice/Scanner.l"
 case 11:
 YY_RULE_SETUP
-#line 192 "src/Slice/Scanner.l"
+#line 187 "src/Slice/Scanner.l"
 {
     yymore();
 }
 	YY_BREAK
-/* Matches the end of a C style comment, but only while scanning a C style comment. Flex always prefers to match the
-   * longest string it can, so this rule will beat the previous one, which can only match a single '*' at a time. */
+/* Matches the end of a C style comment. Flex always prefers to match the longest string it can,
+   * so this rule will beat the previous one, which can only match a single '*' at a time. */
 case 12:
 YY_RULE_SETUP
-#line 198 "src/Slice/Scanner.l"
+#line 193 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     string comment(yytext);
@@ -1267,9 +1386,9 @@ YY_RULE_SETUP
     unit->setComment(comment.substr(0, (comment.length() - 2)));
 }
 	YY_BREAK
-/* Matches EOF, but only when parsing a C style comment. */
+/* Matches EOF, but only while parsing a C style comment. */
 case YY_STATE_EOF(C_COMMENT):
-#line 207 "src/Slice/Scanner.l"
+#line 202 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     unit->warning(All, "encountered EOF while scanning comment");
@@ -1279,28 +1398,28 @@ case YY_STATE_EOF(C_COMMENT):
 /* ========== Metadata ========== */
 case 13:
 YY_RULE_SETUP
-#line 215 "src/Slice/Scanner.l"
+#line 210 "src/Slice/Scanner.l"
 {
     return ICE_METADATA_OPEN;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 219 "src/Slice/Scanner.l"
+#line 214 "src/Slice/Scanner.l"
 {
     return ICE_METADATA_CLOSE;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 223 "src/Slice/Scanner.l"
+#line 218 "src/Slice/Scanner.l"
 {
     return ICE_GLOBAL_METADATA_OPEN;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 227 "src/Slice/Scanner.l"
+#line 222 "src/Slice/Scanner.l"
 {
     return ICE_GLOBAL_METADATA_CLOSE;
 }
@@ -1309,7 +1428,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 233 "src/Slice/Scanner.l"
+#line 228 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -1349,7 +1468,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 270 "src/Slice/Scanner.l"
+#line 265 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -1358,208 +1477,172 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 /* ========== Literals ========== */
+/* Matches the start of a double-quoted string literal. */
 case 19:
 YY_RULE_SETUP
-#line 279 "src/Slice/Scanner.l"
+#line 275 "src/Slice/Scanner.l"
 {
+    yy_push_state(QUOTED_STRING);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-    while(true)
+    *yylvalp = new StringTok;
+}
+	YY_BREAK
+/* Matches a single escaped backslash, or as many characters as it can,
+   * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
+case 20:
+#line 285 "src/Slice/Scanner.l"
+case 21:
+YY_RULE_SETUP
+#line 285 "src/Slice/Scanner.l"
+{
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches a single escaped double-quote, single-quote, or question mark. */
+case 22:
+#line 293 "src/Slice/Scanner.l"
+case 23:
+#line 294 "src/Slice/Scanner.l"
+case 24:
+YY_RULE_SETUP
+#line 294 "src/Slice/Scanner.l"
+{
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext[1];
+    str->literal += yytext[1];
+}
+	YY_BREAK
+/* Matches a single ANSI-C escape code pattern. */
+case 25:
+YY_RULE_SETUP
+#line 301 "src/Slice/Scanner.l"
+{
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    char ansiCode;
+    switch(yytext[1])
     {
-        int c = yyinput();
-        str->literal += static_cast<char>(c);
-        if(c == '"')
-        {
-            break;
-        }
-        else if(c == EOF)
-        {
-            unit->error("EOF in string");
-            break;
-        }
-        else if(c < 32 || c == 127)
-        {
-            unit->error("a string literal can only contain printable ASCII characters and non-ASCII characters");
-            break;
-        }
-        else if(c == '\\')
-        {
-            int next = yyinput();
-            str->literal += static_cast<char>(next);
-            switch(next)
-            {
-                case '\\':
-                {
-                    // add extra escape to our internal string
-                    str->v += '\\';
-                    str->v += '\\';
-                    break;
-                }
-                case '"':
-                case '\'':
-                case '?':
-                {
-                    str->v += static_cast<char>(next);
-                    break;
-                }
-                case 'a':
-                {
-                    str->v += '\a';
-                    break;
-                }
-                case 'b':
-                {
-                    str->v += '\b';
-                    break;
-                }
-                case 'f':
-                {
-                    str->v += '\f';
-                    break;
-                }
-                case 'n':
-                {
-                    str->v += '\n';
-                    break;
-                }
-                case 'r':
-                {
-                    str->v += '\r';
-                    break;
-                }
-                case 't':
-                {
-                    str->v += '\t';
-                    break;
-                }
-                case 'v':
-                {
-                    str->v += '\v';
-                    break;
-                }
-
-                // Octal value \nnn limited to three octal digits but terminate at the first character
-                // that is not a valid octal digit if encountered sooner.
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                {
-                    static string octalDigits = "01234567";
-                    string escape;
-                    escape += static_cast<char>(next);
-                    for(int i = 0; i < 2; ++i)
-                    {
-                        next = yyinput();
-                        if(octalDigits.find_first_of(static_cast<char>(next)) == string::npos)
-                        {
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                    }
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
-                    if(value > 255)
-                    {
-                        unit->error(string("octal escape sequence out of range: `\\") + escape + "'");
-                    }
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                case 'x':
-                {
-                    string escape = "";
-                    next = yyinput();
-
-                    // Unlike C++, we limit hex escape sequences to 2 hex digits
-                    while(isxdigit(static_cast<char>(next)) && escape.length() < 2)
-                    {
-                        escape += static_cast<char>(next);
-                        next = yyinput();
-                    }
-                    unput(next);
-
-                    if(escape.length() == 0)
-                    {
-                        unit->error("no hex digit in hex escape sequence");
-                    }
-
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-
-                    assert(value >= 0 && value <= 255);
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                // Universal character name
-                case 'u':
-                case 'U':
-                {
-                    string escape = "";
-                    c = next;
-                    int size = (c == 'u') ? 4 : 8;
-                    while(size > 0)
-                    {
-                        next = yyinput();
-                        if(!isxdigit(next))
-                        {
-                            unit->error(string("unknown escape sequence in string literal: `\\") +
-                                               static_cast<char>(c) + escape + static_cast<char>(next) + "'");
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                        --size;
-                    }
-
-                    if(size == 0)
-                    {
-                        // All digits read, check value
-                        IceUtil::Int64 codePoint = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-                        if(codePoint >= 0xd800 && codePoint <= 0xdfff)
-                        {
-                            unit->error(string("a universal character name cannot designate a surrogate: `\\") +
-                                               static_cast<char>(c) + escape + "'");
-                        }
-                    }
-
-                    str->literal += escape;
-                    str->v += string("\\") + static_cast<char>(c) + escape;
-                    break;
-                }
-
-                default:
-                {
-                    ostringstream os;
-                    os << "unknown escape sequence `\\" << static_cast<char>(next) << "'";
-                    unit->warning(All, os.str());
-
-                    // Escape the \ in this unknown escape sequence
-                    str->v += '\\';
-                    str->v += '\\';
-                    unput(next);
-                }
-            }
-        }
-        else
-        {
-            str->v += static_cast<char>(c);
-        }
+        case 'a': ansiCode = '\a'; break;
+        case 'b': ansiCode = '\b'; break;
+        case 'f': ansiCode = '\f'; break;
+        case 'n': ansiCode = '\n'; break;
+        case 'r': ansiCode = '\r'; break;
+        case 't': ansiCode = '\t'; break;
+        case 'v': ansiCode = '\v'; break;
     }
-    *yylvalp = str;
+    str->v += ansiCode;
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches a single escaped octal value. Octal literals are limited to a max of 3 digits. */
+case 26:
+YY_RULE_SETUP
+#line 319 "src/Slice/Scanner.l"
+{
+    auto value = strtoull((yytext + 1), 0, 8);
+    if(value > 255)
+    {
+        unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+    }
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += static_cast<char>(value);
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches a single escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
+case 27:
+YY_RULE_SETUP
+#line 332 "src/Slice/Scanner.l"
+{
+    auto value = strtoull((yytext + 2), 0, 16);
+    assert(value >= 0 && value <= 255);
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += static_cast<char>(value);
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches an empty hexadecimal escape value. */
+case 28:
+YY_RULE_SETUP
+#line 342 "src/Slice/Scanner.l"
+{
+    unit->error("no hex digit in hex escape sequence");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches a single 4-char or 8-char size universal character code. */
+case 29:
+#line 350 "src/Slice/Scanner.l"
+case 30:
+YY_RULE_SETUP
+#line 350 "src/Slice/Scanner.l"
+{
+    auto codePoint = strtoull((yytext + 2), 0, 16);
+    if(codePoint <= 0xdfff && codePoint >= 0xd800)
+    {
+        unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+    }
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
+case 31:
+#line 363 "src/Slice/Scanner.l"
+case 32:
+YY_RULE_SETUP
+#line 363 "src/Slice/Scanner.l"
+{
+    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->v += yytext;
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
+   * it only matches 2 characters (the lowest any match), and it's beneath the others. */
+case 33:
+YY_RULE_SETUP
+#line 372 "src/Slice/Scanner.l"
+{
+    unit->warning(All, "unknown escape sequence in string literal `" + string(yytext) + "'");
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    // Escape the entire sequence.
+    str->v += "\\" + string(yytext);
+    str->literal += yytext;
+}
+	YY_BREAK
+/* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
+   * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
+case 34:
+YY_RULE_SETUP
+#line 383 "src/Slice/Scanner.l"
+{
+    yy_pop_state();
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->literal += yytext;
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
-case 20:
+/* Matches EOF, but only while scanning a string literal. */
+case YY_STATE_EOF(QUOTED_STRING):
+#line 391 "src/Slice/Scanner.l"
+{
+    yy_pop_state();
+    unit->error("encountered EOF while scanning string literal");
+    return ICE_STRING_LITERAL;
+}
+	YY_BREAK
+case 35:
 YY_RULE_SETUP
-#line 475 "src/Slice/Scanner.l"
+#line 397 "src/Slice/Scanner.l"
 {
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
@@ -1572,9 +1655,9 @@ YY_RULE_SETUP
     return ICE_INTEGER_LITERAL;
 }
 	YY_BREAK
-case 21:
+case 36:
 YY_RULE_SETUP
-#line 487 "src/Slice/Scanner.l"
+#line 409 "src/Slice/Scanner.l"
 {
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
@@ -1600,50 +1683,58 @@ YY_RULE_SETUP
 	YY_BREAK
 /* ========== Whitespace and Others ========== */
 /* Ignore and consume new-line characters. */
-case 22:
-/* rule 22 can match eol */
+case 37:
+/* rule 37 can match eol */
 YY_RULE_SETUP
-#line 513 "src/Slice/Scanner.l"
+#line 435 "src/Slice/Scanner.l"
 {
     unit->nextLine();
 }
 	YY_BREAK
-/* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
-case 23:
-YY_RULE_SETUP
-#line 518 "src/Slice/Scanner.l"
-{}
-	YY_BREAK
 /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
-case 24:
+case 38:
 YY_RULE_SETUP
-#line 521 "src/Slice/Scanner.l"
+#line 440 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
-case 25:
+/* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
+case 39:
 YY_RULE_SETUP
-#line 523 "src/Slice/Scanner.l"
+#line 443 "src/Slice/Scanner.l"
+{}
+	YY_BREAK
+/* Matches a single non-printable ASCII character. This rule is active in any start-condition,
+   * but is the second lowest priority rule. */
+case 40:
+/* rule 40 can match eol */
+YY_RULE_SETUP
+#line 447 "src/Slice/Scanner.l"
 {
-    if(yytext[0] < 32 || yytext[0] > 126)
-    {
-        stringstream s;
-        s << "illegal input character: '\\";
-        s.width(3);
-        s.fill('0');
-        s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
-        s << "'";
-        unit->error(s.str());
-        return BAD_CHAR;
-    }
+    stringstream s;
+    s << "illegal input character: '\\";
+    s.width(3);
+    s.fill('0');
+    s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+    s << "'";
+    unit->error(s.str());
+    return BAD_CHAR;
+}
+	YY_BREAK
+/* Matches any character (except for new-lines) not matched by another rule and forwards it to the parser.
+   * This is the lowest priority rule. */
+case 41:
+YY_RULE_SETUP
+#line 460 "src/Slice/Scanner.l"
+{
     return yytext[0];
 }
 	YY_BREAK
-case 26:
+case 42:
 YY_RULE_SETUP
-#line 538 "src/Slice/Scanner.l"
+#line 464 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1646 "src/Slice/Scanner.cpp"
+#line 1737 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(PREPROCESS):
@@ -1944,7 +2035,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 84 )
+			if ( yy_current_state >= 128 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1972,53 +2063,16 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 84 )
+		if ( yy_current_state >= 128 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 83);
+	yy_is_jam = (yy_current_state == 127);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
 
 #ifndef YY_NO_UNPUT
-
-    static void yyunput (int c, char * yy_bp )
-{
-	char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up yytext */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		int number_to_move = (yy_n_chars) + 2;
-		char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = (int) YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
-}
 
 #endif
 
@@ -2535,47 +2589,48 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 538 "src/Slice/Scanner.l"
+#line 464 "src/Slice/Scanner.l"
 
 
 namespace Slice {
 
-// initScanner() fills the keyword map with all keyword-token pairs.
-
+// This function is always called once, right before scanning begins.
 void initScanner()
 {
-    keywordMap["module"] = ICE_MODULE;
-    keywordMap["class"] = ICE_CLASS;
-    keywordMap["interface"] = ICE_INTERFACE;
-    keywordMap["exception"] = ICE_EXCEPTION;
-    keywordMap["struct"] = ICE_STRUCT;
-    keywordMap["sequence"] = ICE_SEQUENCE;
-    keywordMap["dictionary"] = ICE_DICTIONARY;
-    keywordMap["enum"] = ICE_ENUM;
-    keywordMap["out"] = ICE_OUT;
-    keywordMap["extends"] = ICE_EXTENDS;
-    keywordMap["implements"] = ICE_IMPLEMENTS;
-    keywordMap["throws"] = ICE_THROWS;
-    keywordMap["void"] = ICE_VOID;
-    keywordMap["byte"] = ICE_BYTE;
-    keywordMap["bool"] = ICE_BOOL;
-    keywordMap["short"] = ICE_SHORT;
-    keywordMap["int"] = ICE_INT;
-    keywordMap["long"] = ICE_LONG;
-    keywordMap["float"] = ICE_FLOAT;
-    keywordMap["double"] = ICE_DOUBLE;
-    keywordMap["string"] = ICE_STRING;
-    keywordMap["Object"] = ICE_OBJECT;
-    keywordMap["const"] = ICE_CONST;
-    keywordMap["false"] = ICE_FALSE;
-    keywordMap["true"] = ICE_TRUE;
-    keywordMap["idempotent"] = ICE_IDEMPOTENT;
-    keywordMap["tag"] = ICE_TAG;
-    // 'optional' is kept as an alias for 'tag' for backwards compatability.
-    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
-    keywordMap["optional"] = ICE_OPTIONAL;
-    keywordMap["Value"] = ICE_VALUE;
+    keywordMap = {
+        {"module", ICE_MODULE},
+        {"class", ICE_CLASS},
+        {"interface", ICE_INTERFACE},
+        {"exception", ICE_EXCEPTION},
+        {"struct", ICE_STRUCT},
+        {"sequence", ICE_SEQUENCE},
+        {"dictionary", ICE_DICTIONARY},
+        {"enum", ICE_ENUM},
+        {"out", ICE_OUT},
+        {"extends", ICE_EXTENDS},
+        {"implements", ICE_IMPLEMENTS},
+        {"throws", ICE_THROWS},
+        {"void", ICE_VOID},
+        {"byte", ICE_BYTE},
+        {"bool", ICE_BOOL},
+        {"short", ICE_SHORT},
+        {"int", ICE_INT},
+        {"long", ICE_LONG},
+        {"float", ICE_FLOAT},
+        {"double", ICE_DOUBLE},
+        {"string", ICE_STRING},
+        {"Object", ICE_OBJECT},
+        {"const", ICE_CONST},
+        {"false", ICE_FALSE},
+        {"true", ICE_TRUE},
+        {"idempotent", ICE_IDEMPOTENT},
+        {"tag", ICE_TAG},
+        // 'optional' is kept as an alias for 'tag' for backwards compatability.
+        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        {"optional", ICE_OPTIONAL},
+        {"Value", ICE_VALUE}
+    };
 }
 
 // This function is always called diectly after a match has been made, but directly before it's action block is run.
@@ -2595,7 +2650,7 @@ void preAction()
 // an identifier token.
 int checkKeyword(string& id)
 {
-    StringTokenMap::const_iterator pos = keywordMap.find(id);
+    const auto pos = keywordMap.find(id);
     if(pos != keywordMap.end())
     {
         if(pos->first != id)
