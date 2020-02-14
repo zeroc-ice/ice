@@ -9,7 +9,7 @@
 
 //
 // in C99 conformant compilers we don't need to include it because the
-// header is included by inttypes.h, that is included by the gernated
+// header is included by inttypes.h, that is included by the generated
 // Scanners.
 //
 #if defined(_MSC_VER)

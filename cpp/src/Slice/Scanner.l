@@ -134,7 +134,7 @@ fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
 exponent_part       (e|E)(\+|-)?{dec}+
 floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
 
-bom                 ^"\357\273\277"
+bom                 "\357\273\277"
 
 %%
 
@@ -160,12 +160,13 @@ bom                 ^"\357\273\277"
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
    * found while scanning the directive. */
-<PREPROCESS>[[:^space:]]+ {
+<PREPROCESS>[^[:space:]]+ {
     unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
 
-  /* Matches a new-line character. This signals the end of the preprocessor statement. */
-<PREPROCESS>\n {
+  /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
+<PREPROCESS>\n      |
+<PREPROCESS><<EOF>> {
     yy_pop_state();
     if(unit->currentLine() == 0)
     {
@@ -198,7 +199,7 @@ bom                 ^"\357\273\277"
 }
 
   /* Matches the end of a C style comment. Flex always prefers to match the longest string it can,
-   * so this rule will beat the previous one, which can only match a single '*' at a time. */
+   * so this rule will beat the previous one, which can only match a single '*'. */
 <C_COMMENT>"*/" {
     yy_pop_state();
     string comment(yytext);
@@ -398,6 +399,13 @@ bom                 ^"\357\273\277"
     str->literal += yytext;
 }
 
+  /* Matches a dangling backslash, with nothing to escape. This rule is mostly included mostly for completeness. */
+<QUOTED_STRING>\\ {
+    unit->warning(All, "dangling backslash in string literal");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    str->literal += yytext;
+}
+
   /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 <QUOTED_STRING>\" {
@@ -456,10 +464,7 @@ bom                 ^"\357\273\277"
     unit->nextLine();
 }
 
-  /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
-<INITIAL>{bom} {}
-
-  /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition */
+  /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition. */
 <*>([[:space:]]{-}[\n])+ {}
 
   /* Matches a single non-printable ASCII character. This rule is active in any start-condition,
@@ -480,6 +485,9 @@ bom                 ^"\357\273\277"
 . {
     return yytext[0];
 }
+
+  /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
+<INITIAL>{bom} {}
 
 %%
 
