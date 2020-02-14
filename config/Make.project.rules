@@ -189,7 +189,7 @@ endef
 define make-flex
 $1/%.cpp: $1/%.l
 	@$(RM) $$@
-	flex $2 -o $$@ $$<
+	flex $2 -Cf -o $$@ $$<
 endef
 
 #
