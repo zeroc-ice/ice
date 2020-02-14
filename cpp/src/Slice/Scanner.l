@@ -467,9 +467,10 @@ bom                 "\357\273\277"
   /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition. */
 <*>([[:space:]]{-}[\n])+ {}
 
-  /* Matches a single non-printable ASCII character. This rule is active in any start-condition,
-   * but is the second lowest priority rule. */
-<*>[\x0-\x1f\x7f] {
+  /* Matches any non-printable standard ASCII characters (127 and those below 32), and any characters outside of
+   * the standard ASCII range. This rule is active in any start-condition, but the second lowest priority rule. */
+<*>[\x0-\x1f\x7f] |
+<*>[^\x0-\x7f]    {
     stringstream s;
     s << "illegal input character: '\\";
     s.width(3);
