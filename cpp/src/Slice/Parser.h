@@ -1070,7 +1070,7 @@ public:
     int currentLine() const;
 
     void nextLine();
-    bool scanPosition(const char*);
+    int scanPosition(const char*);
     int currentIncludeLevel() const;
 
     void addGlobalMetaData(const StringList&);

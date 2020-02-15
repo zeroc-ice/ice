@@ -74,7 +74,15 @@ void preAction();
 int checkKeyword(string&);
 int checkIdentifier(string&);
 
+void nextLine(int = 1);
+void setLocation(YYLTYPE*);
+void startLocation(YYLTYPE*);
+void endLocation(YYLTYPE*);
+
 }
+
+int yycolno = 0;
+shared_ptr<std::string> yyfilename;
 
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
@@ -158,7 +166,8 @@ bom                 "\357\273\277"
 ^{preprocessor_lineno}                         |
 ^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     yy_push_state(PREPROCESS);
-    unit->scanPosition(yytext);
+    yylineno = unit->scanPosition(yytext);
+    yyfilename = make_shared<string>(unit->currentFile());
 }
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
@@ -171,12 +180,11 @@ bom                 "\357\273\277"
 <PREPROCESS>\n      |
 <PREPROCESS><<EOF>> {
     yy_pop_state();
-    yylineno++;
+    nextLine();
     if(unit->currentLine() == 0)
     {
         BEGIN(INITIAL);
     }
-    unit->nextLine();
 }
 
   /* ========== Comments ========== */
@@ -193,8 +201,7 @@ bom                 "\357\273\277"
   /* Matches as many newlines as possible. */
 <C_COMMENT>\n+ {
     yymore();
-    yylineno += yyleng;
-    unit->nextLine();
+    nextLine(yyleng);
 }
 
   /* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines). */
@@ -384,16 +391,14 @@ bom                 "\357\273\277"
 
   /* Matches an escaped newline to allow for multi-line strings. The scanner consumes the newline. */
 <QUOTED_STRING>"\\"\n {
-    yylineno++;
-    unit->nextLine();
+    nextLine();
 }
 
   /* Matches an unescaped newline, and issues an error. */
 <QUOTED_STRING>\n {
     yy_pop_state();
-    yylineno++;
+    nextLine();
     unit->error("encountered un-escaped EOL while scanning a string literal.");
-    unit->nextLine();
     return ICE_STRING_LITERAL;
 }
 
@@ -470,8 +475,7 @@ bom                 "\357\273\277"
 
   /* Match and consume as many newlines as possible. */
 \n+ {
-    yylineno += yyleng;
-    unit->nextLine();
+    nextLine(yyleng);
 }
 
   /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition. */
@@ -546,6 +550,8 @@ void initScanner()
 // This function is always called diectly after a match has been made, but directly before it's action block is run.
 void preAction()
 {
+    yycolno += yyleng;
+
     // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
     // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
     if(YY_START == INITIAL)
@@ -646,6 +652,38 @@ int checkIdentifier(string& id)
     }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
+}
+
+void nextLine(int count)
+{
+    yylineno += count;
+    yycolno = 0;
+    for(int i = 0; i < count; i++)
+    {
+        unit->nextLine();
+    }
+}
+
+void setLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->lastLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+    yylloc->lastColumn = yycolno;
+    yylloc->filename = yyfilename;
+}
+
+void startLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+}
+
+void endLocation(YYLTYPE* yylloc)
+{
+    yylloc->lastLine = yylineno;
+    yylloc->lastColumn = yycolno - yyleng;
+    yylloc->filename = yyfilename;
 }
 
 }

@@ -43,6 +43,22 @@
 #if YYDEBUG
 extern int slice_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 9 "src/Slice/Grammar.y"
+
+
+// Define a custom location type for storing the location (and filename) of matched tokens.
+#define YYLTYPE YYLTYPE
+typedef struct YYLTYPE {
+    int firstLine;
+    int lastLine;
+    int firstColumn;
+    int lastColumn;
+    std::shared_ptr<std::string> filename;
+} YYLTYPE;
+
+
+#line 62 "src/Slice/Grammar.hpp"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -97,9 +113,23 @@ extern int slice_debug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef Slice::GrammarBasePtr YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
+#endif
+
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
 #endif
 
 

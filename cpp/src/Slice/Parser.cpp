@@ -6101,7 +6101,7 @@ Slice::Unit::nextLine()
     _currentLine++;
 }
 
-bool
+int
 Slice::Unit::scanPosition(const char* s)
 {
     assert(*s == '#');
@@ -6204,7 +6204,7 @@ Slice::Unit::scanPosition(const char* s)
     //
     // Return code indicates whether starting parse of a new file.
     //
-    return _currentLine == 0;
+    return _currentLine;
 }
 
 int

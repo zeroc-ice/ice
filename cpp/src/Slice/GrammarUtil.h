@@ -234,6 +234,6 @@ public:
 // Newer bison versions allow to disable stack resizing by defining
 // yyoverflow.
 //
-#define yyoverflow(a, b, c, d, e, f) yyerror(a)
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
 #endif
