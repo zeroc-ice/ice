@@ -14,25 +14,6 @@
 #include <IceGrid/Parser.h>
 #include <IceGrid/Grammar.h>
 
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-
-#   if defined(ICE_64)
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#       pragma warning(disable:4267)
-#   endif
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
@@ -42,16 +23,12 @@ using namespace IceGrid;
 #      undef yywrap
 #      define yywrap() 1
 #   endif
-#   define YY_NO_UNISTD_H
 #endif
 
 #ifdef __SUNPRO_CC
 #   ifdef yywrap
 #      undef yywrap
 #      define yywrap() 1
-#   endif
-#   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)
 #   endif
 #endif
 
@@ -60,7 +37,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-static std::map<std::string, int>  keywordMap;
+static std::map<std::string, int> keywordMap;
 
 void initScanner();
 std::string parseDoubleQuotedString();

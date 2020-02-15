@@ -10,7 +10,7 @@
 
 %{
 
-#include <Slice/GrammarUtil.h>  // Before Grammer.h, so that YYSTYPE is defined
+#include <Slice/GrammarUtil.h>
 #include <Slice/Grammar.h>
 #include <IceUtil/InputUtil.h>
 
@@ -19,44 +19,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-
-#   if defined(ICE_64)
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-#       pragma warning(disable:4267)
-#   endif
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
-// Avoid clang conversion warnings
-#if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wconversion"
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
 #ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap
 #      define slice_wrap() 1
 #   endif
-#   define YY_NO_UNISTD_H
 #endif
 
 #ifdef __SUNPRO_CC
 #   ifdef slice_wrap
 #      undef slice_wrap
 #      define slice_wrap() 1
-#   endif
-#   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)
 #   endif
 #endif
 

@@ -7,23 +7,35 @@
 
 #include <IceUtil/Config.h> // Required by generated Scanners.
 
-//
+#if defined(_MSC_VER)
+// Suppresses inclusion of the non ANSI unistd.h header file.
+#   define YY_NO_UNISTD_H
+
 // in C99 conformant compilers we don't need to include it because the
 // header is included by inttypes.h, that is included by the generated
 // Scanners.
-//
-#if defined(_MSC_VER)
 #   include <stdint.h>
+
+// '<' : signed/unsigned mismatch
+#   pragma warning(disable:4018)
+// 'initializing' : conversion from '__int64' to 'int', possible loss of data
+#   pragma warning(disable:4244)
+
+#   if defined(ICE_64)
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+#       pragma warning(disable:4267)
+#   endif
 #endif
 
-//
-// Clang++ >= 5.1 and VC++ using C++17 standard deprecate 'register' storage
-// class specifier used by lex generated Scanners.
-//
-#if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wdeprecated-register"
-#elif defined(_MSC_VER)
-#   pragma warning(disable:5033)
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
+#ifdef __SUNPRO_CC
+#   ifdef ICE_64
+#       pragma error_messages(off,truncwarn)
+#   endif
 #endif
 
 #if defined(__clang__)
