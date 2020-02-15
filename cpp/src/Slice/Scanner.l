@@ -80,6 +80,9 @@ shared_ptr<std::string> yyfilename;
   /* Directs flex to generate lookup tables that are better aligned in memory to
    * improve access speeds, even if this means allocating larger tables. */
 %option align
+  /* Directs flex to generate it's full lookup tables, instead of compressing them.
+   * this results in improved performance, at the cost of larger tables and file-sizes. */
+%option full
   /* Enables batching for improved performance. */
 %option batch
   /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
