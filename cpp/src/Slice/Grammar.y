@@ -4,19 +4,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+// Included first to get 'TokenLocation' which we need to define YYLTYPE before flex does.
+#include <Slice/GrammarUtil.h>
+
 }
 
 %code requires{
 
 // Define a custom location type for storing the location (and filename) of matched tokens.
-#define YYLTYPE YYLTYPE
-typedef struct YYLTYPE {
-    int firstLine;
-    int lastLine;
-    int firstColumn;
-    int lastColumn;
-    std::shared_ptr<std::string> filename;
-} YYLTYPE;
+#define YYLTYPE Slice::TokenLocation
+
+// I must set the initial stack depth to the maximum stack depth to
+// disable bison stack resizing. The bison stack resizing routines use
+// simple malloc/alloc/memcpy calls, which do not work for the
+// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
+// assignment operator, etc.
+#define YYMAXDEPTH  10000
+#define YYINITDEPTH YYMAXDEPTH
+
+// Newer bison versions allow to disable stack resizing by defining yyoverflow.
+#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
 }
 
@@ -54,7 +61,6 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 %{
 
-#include <Slice/GrammarUtil.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/UUID.h>
 #include <cstring>

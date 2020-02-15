@@ -1,4 +1,3 @@
-
 %top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
@@ -67,7 +66,7 @@ shared_ptr<std::string> yyfilename;
   /* Instructs flex to not suppress any warnings when generating the scanner. */
 %option warn
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
-   * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
+   * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
 %option nodefault
   /* Directs flex to generate a scanner tailored for use by bison, and that supports bison's token location mechanism.
    * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
@@ -116,7 +115,7 @@ preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
 
-integer_constant    (\+|-)?((0[0-7]+)|(0x{hex}+)|({dec}+))
+integer_constant    (\+|-)?((0{oct}+)|(0x{hex}+)|({dec}+))
 fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
 exponent_part       (e|E)(\+|-)?{dec}+
 floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
