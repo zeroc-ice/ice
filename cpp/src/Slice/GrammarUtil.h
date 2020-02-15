@@ -220,10 +220,6 @@ public:
 // Stuff for flex and bison
 //
 
-#define YYSTYPE Slice::GrammarBasePtr
-#define YY_DECL int slice_lex(YYSTYPE* yylvalp)
-YY_DECL;
-
 //
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use

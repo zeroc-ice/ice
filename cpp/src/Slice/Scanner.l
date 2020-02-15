@@ -88,6 +88,9 @@ int checkIdentifier(string&);
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
    * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
 %option nodefault
+  /* Directs flex to generate a scanner tailored for use by bison, and that supports bison's token location mechanism.
+   * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
+%option bison-bridge bison-locations
 
   /* Enables the use of flex's built int start-condition state stack. */
 %option stack
@@ -168,6 +171,7 @@ bom                 "\357\273\277"
 <PREPROCESS>\n      |
 <PREPROCESS><<EOF>> {
     yy_pop_state();
+    yylineno++;
     if(unit->currentLine() == 0)
     {
         BEGIN(INITIAL);
@@ -186,9 +190,10 @@ bom                 "\357\273\277"
     yy_push_state(C_COMMENT);
 }
 
-  /* TODO: use Flex's in-built line counter and merge this rule with the ones underneath it. */
-<C_COMMENT>\n {
+  /* Matches as many newlines as possible. */
+<C_COMMENT>\n+ {
     yymore();
+    yylineno += yyleng;
     unit->nextLine();
 }
 
@@ -239,7 +244,7 @@ bom                 "\357\273\277"
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
-    *yylvalp = ident;
+    *yylval = ident;
     if(*yytext == '\\')
     {
         if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
@@ -275,7 +280,7 @@ bom                 "\357\273\277"
 {identifier} {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
-    *yylvalp = ident;
+    *yylval = ident;
     return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
 }
 
@@ -286,14 +291,14 @@ bom                 "\357\273\277"
     yy_push_state(QUOTED_STRING);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-    *yylvalp = new StringTok;
+    *yylval = new StringTok;
 }
 
   /* Matches a single escaped backslash, or as many characters as it can,
    * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
 <QUOTED_STRING>"\\\\"                 |
 <QUOTED_STRING>[^\\\n"\x0-\x1f\x7f]+ {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext;
     str->literal += yytext;
 }
@@ -302,14 +307,14 @@ bom                 "\357\273\277"
 <QUOTED_STRING>"\\\"" |
 <QUOTED_STRING>"\\\'" |
 <QUOTED_STRING>"\\?"  {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext[1];
     str->literal += yytext[1];
 }
 
   /* Matches a single ANSI-C escape code pattern. */
 <QUOTED_STRING>"\\"[abfnrtv] {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     char ansiCode;
     switch(yytext[1])
     {
@@ -333,7 +338,7 @@ bom                 "\357\273\277"
         unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
     }
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += static_cast<char>(value);
     str->literal += yytext;
 }
@@ -343,7 +348,7 @@ bom                 "\357\273\277"
     auto value = strtoull((yytext + 2), 0, 16);
     assert(value >= 0 && value <= 255);
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += static_cast<char>(value);
     str->literal += yytext;
 }
@@ -351,7 +356,7 @@ bom                 "\357\273\277"
   /* Matches an empty hexadecimal escape value. */
 <QUOTED_STRING>"\\x" {
     unit->error("no hex digit in hex escape sequence");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
 }
 
@@ -363,7 +368,7 @@ bom                 "\357\273\277"
     {
         unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
     }
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext;
     str->literal += yytext;
 }
@@ -372,20 +377,24 @@ bom                 "\357\273\277"
 <QUOTED_STRING>"\\u"{hex}{0,3}[g-zG-Z]* |
 <QUOTED_STRING>"\\U"{hex}{0,7}[g-zG-Z]* {
     unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext;
     str->literal += yytext;
 }
 
   /* Matches an escaped newline to allow for multi-line strings. The scanner consumes the newline. */
 <QUOTED_STRING>"\\"\n {
+    yylineno++;
     unit->nextLine();
 }
 
   /* Matches an unescaped newline, and issues an error. */
 <QUOTED_STRING>\n {
+    yy_pop_state();
+    yylineno++;
     unit->error("encountered un-escaped EOL while scanning a string literal.");
     unit->nextLine();
+    return ICE_STRING_LITERAL;
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
@@ -393,7 +402,7 @@ bom                 "\357\273\277"
 <QUOTED_STRING>"\\". {
     unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     // Escape the entire sequence.
     str->v += "\\" + string(yytext);
     str->literal += yytext;
@@ -402,7 +411,7 @@ bom                 "\357\273\277"
   /* Matches a dangling backslash, with nothing to escape. This rule is mostly included mostly for completeness. */
 <QUOTED_STRING>\\ {
     unit->warning(All, "dangling backslash in string literal");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
 }
 
@@ -410,7 +419,7 @@ bom                 "\357\273\277"
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 <QUOTED_STRING>\" {
     yy_pop_state();
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylvalp);
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
     return ICE_STRING_LITERAL;
 }
@@ -425,7 +434,7 @@ bom                 "\357\273\277"
 {integer_constant} {
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
-    *yylvalp = itp;
+    *yylval = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
         assert(itp->v != 0);
@@ -437,7 +446,7 @@ bom                 "\357\273\277"
 {floating_literal} {
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
-    *yylvalp = ftp;
+    *yylval = ftp;
     string literal(yytext);
     ftp->literal = literal;
     char lastChar = literal[literal.size() - 1];
@@ -459,8 +468,9 @@ bom                 "\357\273\277"
 
   /* ========== Whitespace and Others ========== */
 
-  /* Ignore and consume new-line characters. */
-\n {
+  /* Match and consume as many newlines as possible. */
+\n+ {
+    yylineno += yyleng;
     unit->nextLine();
 }
 
