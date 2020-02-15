@@ -4947,7 +4947,7 @@ static int yy_more_len = 0;
 char *yytext;
 #line 1 "src/Slice/Scanner.l"
 
-#line 12 "src/Slice/Scanner.l"
+#line 11 "src/Slice/Scanner.l"
 
 #include <Slice/GrammarUtil.h>
 #include <Slice/Grammar.h>
@@ -4983,6 +4983,7 @@ static std::map<std::string, int> keywordMap;
 
 void initScanner();
 void preAction();
+static void yynoreturn fatalError(const char* msg);
 int checkKeyword(string&);
 int checkIdentifier(string&);
 
@@ -4998,13 +4999,14 @@ shared_ptr<std::string> yyfilename;
 
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 5002 "src/Slice/Scanner.cpp"
-#line 66 "src/Slice/Scanner.l"
+#line 5004 "src/Slice/Scanner.cpp"
+#line 67 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
-   * option disables default-matching (it throws 'syntax error' instead) to make grammar holes more obvious. */
+   * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
   /* Directs flex to generate a scanner tailored for use by bison, and that supports bison's token location mechanism.
    * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
   /* Enables the use of flex's built int start-condition state stack. */
@@ -5025,7 +5027,7 @@ shared_ptr<std::string> yyfilename;
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 5028 "src/Slice/Scanner.cpp"
+#line 5030 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define SLICE 1
@@ -5227,13 +5229,13 @@ YY_DECL
 		}
 
 	{
-#line 127 "src/Slice/Scanner.l"
+#line 128 "src/Slice/Scanner.l"
 
 
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-#line 5236 "src/Slice/Scanner.cpp"
+#line 5238 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -5287,7 +5289,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 132 "src/Slice/Scanner.l"
+#line 133 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
 }
@@ -5295,7 +5297,7 @@ YY_RULE_SETUP
 /* Matches a line preprocessor directive, but missing a line number. */
 case 2:
 YY_RULE_SETUP
-#line 137 "src/Slice/Scanner.l"
+#line 138 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
@@ -5303,10 +5305,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 case 3:
-#line 144 "src/Slice/Scanner.l"
+#line 145 "src/Slice/Scanner.l"
 case 4:
 YY_RULE_SETUP
-#line 144 "src/Slice/Scanner.l"
+#line 145 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     yylineno = unit->scanPosition(yytext);
@@ -5317,7 +5319,7 @@ YY_RULE_SETUP
    * found while scanning the directive. */
 case 5:
 YY_RULE_SETUP
-#line 152 "src/Slice/Scanner.l"
+#line 153 "src/Slice/Scanner.l"
 {
     unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
@@ -5325,10 +5327,10 @@ YY_RULE_SETUP
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
 case 6:
 /* rule 6 can match eol */
-#line 158 "src/Slice/Scanner.l"
+#line 159 "src/Slice/Scanner.l"
 YY_RULE_SETUP
 case YY_STATE_EOF(PREPROCESS):
-#line 158 "src/Slice/Scanner.l"
+#line 159 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     nextLine();
@@ -5343,13 +5345,13 @@ case YY_STATE_EOF(PREPROCESS):
    * starting '//' and until the next new line are matched and discarded. */
 case 7:
 YY_RULE_SETUP
-#line 171 "src/Slice/Scanner.l"
+#line 172 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches the start of a C style comment. */
 case 8:
 YY_RULE_SETUP
-#line 174 "src/Slice/Scanner.l"
+#line 175 "src/Slice/Scanner.l"
 {
     yy_push_state(C_COMMENT);
 }
@@ -5358,7 +5360,7 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 179 "src/Slice/Scanner.l"
+#line 180 "src/Slice/Scanner.l"
 {
     yymore();
     nextLine(yyleng);
@@ -5366,10 +5368,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches either a single literal '*' or as many other (non-'*') characters as it can (except newlines). */
 case 10:
-#line 186 "src/Slice/Scanner.l"
+#line 187 "src/Slice/Scanner.l"
 case 11:
 YY_RULE_SETUP
-#line 186 "src/Slice/Scanner.l"
+#line 187 "src/Slice/Scanner.l"
 {
     yymore();
 }
@@ -5378,7 +5380,7 @@ YY_RULE_SETUP
    * so this rule will beat the previous one, which can only match a single '*'. */
 case 12:
 YY_RULE_SETUP
-#line 192 "src/Slice/Scanner.l"
+#line 193 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     string comment(yytext);
@@ -5389,7 +5391,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches EOF, but only while parsing a C style comment. */
 case YY_STATE_EOF(C_COMMENT):
-#line 201 "src/Slice/Scanner.l"
+#line 202 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     unit->warning(All, "encountered EOF while scanning a comment");
@@ -5399,28 +5401,28 @@ case YY_STATE_EOF(C_COMMENT):
 /* ========== Metadata ========== */
 case 13:
 YY_RULE_SETUP
-#line 209 "src/Slice/Scanner.l"
+#line 210 "src/Slice/Scanner.l"
 {
     return ICE_METADATA_OPEN;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 213 "src/Slice/Scanner.l"
+#line 214 "src/Slice/Scanner.l"
 {
     return ICE_METADATA_CLOSE;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 217 "src/Slice/Scanner.l"
+#line 218 "src/Slice/Scanner.l"
 {
     return ICE_GLOBAL_METADATA_OPEN;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 221 "src/Slice/Scanner.l"
+#line 222 "src/Slice/Scanner.l"
 {
     return ICE_GLOBAL_METADATA_CLOSE;
 }
@@ -5429,7 +5431,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 227 "src/Slice/Scanner.l"
+#line 228 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -5469,7 +5471,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 264 "src/Slice/Scanner.l"
+#line 265 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -5481,7 +5483,7 @@ YY_RULE_SETUP
 /* Matches the start of a double-quoted string literal. */
 case 19:
 YY_RULE_SETUP
-#line 274 "src/Slice/Scanner.l"
+#line 275 "src/Slice/Scanner.l"
 {
     yy_push_state(QUOTED_STRING);
     StringTokPtr str = new StringTok;
@@ -5492,10 +5494,10 @@ YY_RULE_SETUP
 /* Matches a single escaped backslash, or as many characters as it can,
    * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
 case 20:
-#line 284 "src/Slice/Scanner.l"
+#line 285 "src/Slice/Scanner.l"
 case 21:
 YY_RULE_SETUP
-#line 284 "src/Slice/Scanner.l"
+#line 285 "src/Slice/Scanner.l"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext;
@@ -5504,12 +5506,12 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a single escaped double-quote, single-quote, or question mark. */
 case 22:
-#line 292 "src/Slice/Scanner.l"
-case 23:
 #line 293 "src/Slice/Scanner.l"
+case 23:
+#line 294 "src/Slice/Scanner.l"
 case 24:
 YY_RULE_SETUP
-#line 293 "src/Slice/Scanner.l"
+#line 294 "src/Slice/Scanner.l"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->v += yytext[1];
@@ -5519,7 +5521,7 @@ YY_RULE_SETUP
 /* Matches a single ANSI-C escape code pattern. */
 case 25:
 YY_RULE_SETUP
-#line 300 "src/Slice/Scanner.l"
+#line 301 "src/Slice/Scanner.l"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     char ansiCode;
@@ -5540,7 +5542,7 @@ YY_RULE_SETUP
 /* Matches a single escaped octal value. Octal literals are limited to a max of 3 digits. */
 case 26:
 YY_RULE_SETUP
-#line 318 "src/Slice/Scanner.l"
+#line 319 "src/Slice/Scanner.l"
 {
     auto value = strtoull((yytext + 1), 0, 8);
     if(value > 255)
@@ -5556,7 +5558,7 @@ YY_RULE_SETUP
 /* Matches a single escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
 case 27:
 YY_RULE_SETUP
-#line 331 "src/Slice/Scanner.l"
+#line 332 "src/Slice/Scanner.l"
 {
     auto value = strtoull((yytext + 2), 0, 16);
     assert(value >= 0 && value <= 255);
@@ -5569,7 +5571,7 @@ YY_RULE_SETUP
 /* Matches an empty hexadecimal escape value. */
 case 28:
 YY_RULE_SETUP
-#line 341 "src/Slice/Scanner.l"
+#line 342 "src/Slice/Scanner.l"
 {
     unit->error("no hex digit in hex escape sequence");
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
@@ -5578,10 +5580,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a single 4-char or 8-char size universal character code. */
 case 29:
-#line 349 "src/Slice/Scanner.l"
+#line 350 "src/Slice/Scanner.l"
 case 30:
 YY_RULE_SETUP
-#line 349 "src/Slice/Scanner.l"
+#line 350 "src/Slice/Scanner.l"
 {
     auto codePoint = strtoull((yytext + 2), 0, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
@@ -5595,10 +5597,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 case 31:
-#line 362 "src/Slice/Scanner.l"
+#line 363 "src/Slice/Scanner.l"
 case 32:
 YY_RULE_SETUP
-#line 362 "src/Slice/Scanner.l"
+#line 363 "src/Slice/Scanner.l"
 {
     unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
@@ -5610,7 +5612,7 @@ YY_RULE_SETUP
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 370 "src/Slice/Scanner.l"
+#line 371 "src/Slice/Scanner.l"
 {
     nextLine();
 }
@@ -5619,7 +5621,7 @@ YY_RULE_SETUP
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-#line 375 "src/Slice/Scanner.l"
+#line 376 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     nextLine();
@@ -5631,7 +5633,7 @@ YY_RULE_SETUP
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 case 35:
 YY_RULE_SETUP
-#line 384 "src/Slice/Scanner.l"
+#line 385 "src/Slice/Scanner.l"
 {
     unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
@@ -5644,7 +5646,7 @@ YY_RULE_SETUP
 /* Matches a dangling backslash, with nothing to escape. This rule is mostly included mostly for completeness. */
 case 36:
 YY_RULE_SETUP
-#line 394 "src/Slice/Scanner.l"
+#line 395 "src/Slice/Scanner.l"
 {
     unit->warning(All, "dangling backslash in string literal");
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
@@ -5655,7 +5657,7 @@ YY_RULE_SETUP
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 case 37:
 YY_RULE_SETUP
-#line 402 "src/Slice/Scanner.l"
+#line 403 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
@@ -5665,7 +5667,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches EOF, but only while scanning a string literal. */
 case YY_STATE_EOF(QUOTED_STRING):
-#line 410 "src/Slice/Scanner.l"
+#line 411 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     unit->error("encountered EOF while scanning a string literal");
@@ -5674,7 +5676,7 @@ case YY_STATE_EOF(QUOTED_STRING):
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 416 "src/Slice/Scanner.l"
+#line 417 "src/Slice/Scanner.l"
 {
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
@@ -5689,7 +5691,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 428 "src/Slice/Scanner.l"
+#line 429 "src/Slice/Scanner.l"
 {
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
@@ -5718,7 +5720,7 @@ YY_RULE_SETUP
 case 40:
 /* rule 40 can match eol */
 YY_RULE_SETUP
-#line 454 "src/Slice/Scanner.l"
+#line 455 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -5726,18 +5728,18 @@ YY_RULE_SETUP
 /* Ignore and consume any whitespace, other than new-lines. This rule is active in any start-condition. */
 case 41:
 YY_RULE_SETUP
-#line 459 "src/Slice/Scanner.l"
+#line 460 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches any non-printable standard ASCII characters (127 and those below 32), and any characters outside of
    * the standard ASCII range. This rule is active in any start-condition, but the second lowest priority rule. */
 case 42:
 /* rule 42 can match eol */
-#line 464 "src/Slice/Scanner.l"
+#line 465 "src/Slice/Scanner.l"
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 464 "src/Slice/Scanner.l"
+#line 465 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -5753,7 +5755,7 @@ YY_RULE_SETUP
    * This is the lowest priority rule. */
 case 44:
 YY_RULE_SETUP
-#line 477 "src/Slice/Scanner.l"
+#line 478 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
@@ -5761,15 +5763,15 @@ YY_RULE_SETUP
 /* Ignore and consume UTF-8 BOMs, but only when the scanner has just started scanning a new file. */
 case 45:
 YY_RULE_SETUP
-#line 482 "src/Slice/Scanner.l"
+#line 483 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 484 "src/Slice/Scanner.l"
+#line 485 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 5772 "src/Slice/Scanner.cpp"
+#line 5774 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 	yyterminate();
@@ -6617,7 +6619,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 484 "src/Slice/Scanner.l"
+#line 485 "src/Slice/Scanner.l"
 
 
 namespace Slice {
@@ -6672,6 +6674,17 @@ void preAction()
     {
         BEGIN(SLICE);
     }
+}
+
+// This function is called whenever the scanner encounters an unrecoverable error.
+static void yynoreturn fatalError(const char* msg)
+{
+    cerr << msg << endl
+         << "\tfile = " << unit->currentFile()
+         << ", line = " << to_string(yylineno)
+         << ", column = " << to_string(yycolno) << endl
+         << "\tlast matched text: " << yytext << endl;
+	exit(YY_EXIT_FAILURE);
 }
 
 // Check if an identifier looks like a keyword.

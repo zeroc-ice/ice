@@ -456,7 +456,7 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "src/IceStorm/Scanner.l"
 
-#line 12 "src/IceStorm/Scanner.l"
+#line 11 "src/IceStorm/Scanner.l"
 
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
@@ -710,7 +710,7 @@ YY_DECL
 		}
 
 	{
-#line 56 "src/IceStorm/Scanner.l"
+#line 55 "src/IceStorm/Scanner.l"
 
 
 #line 716 "src/IceStorm/Scanner.cpp"
@@ -772,7 +772,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 58 "src/IceStorm/Scanner.l"
+#line 57 "src/IceStorm/Scanner.l"
 {
     // C++-style comment
     int c;
@@ -785,7 +785,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 68 "src/IceStorm/Scanner.l"
+#line 67 "src/IceStorm/Scanner.l"
 {
     // C-style comment
     while(true)
@@ -814,7 +814,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 93 "src/IceStorm/Scanner.l"
+#line 92 "src/IceStorm/Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -829,14 +829,14 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 104 "src/IceStorm/Scanner.l"
+#line 103 "src/IceStorm/Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 108 "src/IceStorm/Scanner.l"
+#line 107 "src/IceStorm/Scanner.l"
 {
     // "..."-type strings
     string s;
@@ -883,7 +883,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 152 "src/IceStorm/Scanner.l"
+#line 151 "src/IceStorm/Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -911,7 +911,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 177 "src/IceStorm/Scanner.l"
+#line 176 "src/IceStorm/Scanner.l"
 {
     // Simple strings
     string s;
@@ -941,7 +941,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 204 "src/IceStorm/Scanner.l"
+#line 203 "src/IceStorm/Scanner.l"
 ECHO;
 	YY_BREAK
 #line 947 "src/IceStorm/Scanner.cpp"
@@ -1949,7 +1949,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 204 "src/IceStorm/Scanner.l"
+#line 203 "src/IceStorm/Scanner.l"
 
 
 namespace IceStorm {

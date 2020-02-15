@@ -43,6 +43,7 @@ static std::map<std::string, int> keywordMap;
 
 void initScanner();
 void preAction();
+static void yynoreturn fatalError(const char* msg);
 int checkKeyword(string&);
 int checkIdentifier(string&);
 
@@ -58,6 +59,7 @@ shared_ptr<std::string> yyfilename;
 
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
+#define YY_FATAL_ERROR(msg) fatalError(msg);
 
 %}
 
@@ -533,6 +535,17 @@ void preAction()
     {
         BEGIN(SLICE);
     }
+}
+
+// This function is called whenever the scanner encounters an unrecoverable error.
+static void yynoreturn fatalError(const char* msg)
+{
+    cerr << msg << endl
+         << "\tfile = " << unit->currentFile()
+         << ", line = " << to_string(yylineno)
+         << ", column = " << to_string(yycolno) << endl
+         << "\tlast matched text: " << yytext << endl;
+    exit(YY_EXIT_FAILURE);
 }
 
 // Check if an identifier looks like a keyword.

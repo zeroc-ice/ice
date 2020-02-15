@@ -456,7 +456,7 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "src/IceGrid/Scanner.l"
 
-#line 12 "src/IceGrid/Scanner.l"
+#line 11 "src/IceGrid/Scanner.l"
 
 #include <Ice/Ice.h>
 #include <IceGrid/Parser.h>
@@ -712,7 +712,7 @@ YY_DECL
 		}
 
 	{
-#line 58 "src/IceGrid/Scanner.l"
+#line 57 "src/IceGrid/Scanner.l"
 
 
 #line 718 "src/IceGrid/Scanner.cpp"
@@ -774,7 +774,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 60 "src/IceGrid/Scanner.l"
+#line 59 "src/IceGrid/Scanner.l"
 {
     // C++-style comment
     int c;
@@ -787,7 +787,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 70 "src/IceGrid/Scanner.l"
+#line 69 "src/IceGrid/Scanner.l"
 {
     // C-style comment
     while(true)
@@ -816,7 +816,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 95 "src/IceGrid/Scanner.l"
+#line 94 "src/IceGrid/Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -831,14 +831,14 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 106 "src/IceGrid/Scanner.l"
+#line 105 "src/IceGrid/Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 110 "src/IceGrid/Scanner.l"
+#line 109 "src/IceGrid/Scanner.l"
 {
     // "..."-type strings
     string s = parseDoubleQuotedString();
@@ -849,7 +849,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 118 "src/IceGrid/Scanner.l"
+#line 117 "src/IceGrid/Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -877,7 +877,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 143 "src/IceGrid/Scanner.l"
+#line 142 "src/IceGrid/Scanner.l"
 {
     // Simple strings
     string s;
@@ -916,7 +916,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 179 "src/IceGrid/Scanner.l"
+#line 178 "src/IceGrid/Scanner.l"
 ECHO;
 	YY_BREAK
 #line 922 "src/IceGrid/Scanner.cpp"
@@ -1924,7 +1924,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 179 "src/IceGrid/Scanner.l"
+#line 178 "src/IceGrid/Scanner.l"
 
 
 namespace IceGrid {
