@@ -11,7 +11,8 @@ namespace Ice.proxy.AMD
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
-        public Task<IObjectPrx> echoAsync(IObjectPrx obj, Current c) => Task.FromResult(obj);
+        public ValueTask<IObjectPrx?> echoAsync(IObjectPrx obj, Current c)
+            => new ValueTask<IObjectPrx?>(obj);
 
         public Task? shutdownAsync(Current current)
         {
@@ -19,7 +20,8 @@ namespace Ice.proxy.AMD
             return null;
         }
 
-        public Task<Dictionary<string, string>> getContextAsync(Current current) => Task.FromResult(_ctx);
+        public ValueTask<Dictionary<string, string>> getContextAsync(Current current)
+            => new ValueTask<Dictionary<string, string>>(_ctx);
 
         public bool IceIsA(string typeId, Current current)
         {

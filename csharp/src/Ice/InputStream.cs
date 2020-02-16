@@ -88,6 +88,9 @@ namespace Ice
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
+        // See StartEncapsulation/RestartEncapsulation
+        private MainEncapsBackup? _mainEncapsBackup;
+
         // When set, we are reading an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
         // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
         // when _mainEncaps is set (so nested inside _mainEncaps).
@@ -152,41 +155,28 @@ namespace Ice
         }
 
         /// <summary>
-        /// Resets this stream. This method allows the stream to be reused, to avoid creating
-        /// unnecessary garbage.
-        /// </summary>
-        public void Reset()
-        {
-            _buf.Reset();
-            _minTotalSeqSize = 0;
-            Clear();
-        }
-
-        /// <summary>
         /// Releases any data retained by encapsulations.
         /// </summary>
         public void Clear() => ResetEncapsulation();
 
-        /// <summary>
-        /// Reads the start of an encapsulation.
-        /// </summary>
-        /// <returns>The encapsulation encoding version.</returns>
+        /// <summary>Reads the start of an encapsulation.</summary>
+        /// <returns>The encoding of the encapsulation.</returns>
         public EncodingVersion StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            // TODO: is this check necessary / correct?
-            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
             Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
+
+            // _mainEncapsBackup is usually null here, but can be set in the event we are reading a batch request
+            // message/frame with multiple main encaps (one per request in the batch).
+            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, Pos, Encoding, _minTotalSeqSize);
             return encapsHeader.Encoding;
         }
 
-        /// <summary>
-        /// Ends the previous encapsulation.
-        /// </summary>
+        /// <summary>Ends an encapsulation started with StartEncpasulation or RestartEncapsulation.</summary>
         public void EndEncapsulation()
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
@@ -199,6 +189,45 @@ namespace Ice
             _limit = _mainEncaps.Value.OldLimit;
             Encoding = _mainEncaps.Value.OldEncoding;
             ResetEncapsulation();
+        }
+
+        /// <summary>Restarts the most recently started encapsulation.</summary>
+        public void RestartEncapsulation()
+        {
+            if (_mainEncapsBackup == null)
+            {
+                throw new EncapsulationException();
+            }
+
+            if (_mainEncaps != null || _endpointEncaps != null)
+            {
+                ResetEncapsulation();
+            }
+
+            // Restore backup:
+            _mainEncaps = _mainEncapsBackup.Value.Encaps;
+            Pos = _mainEncapsBackup.Value.Pos;
+            Encoding = _mainEncapsBackup.Value.Encoding;
+            _minTotalSeqSize = _mainEncapsBackup.Value.MinTotalSeqSize;
+            _limit = Pos + _mainEncaps.Value.Size - 6;
+        }
+
+        /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
+        /// Throws Ice.UnsupportedEncodingException if it cannot.</summary>
+        public void CheckIsReadable()
+        {
+            Protocol.checkSupportedEncoding(Encoding);
+        }
+
+        /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
+        public void SkipCurrentEncapsulation()
+        {
+            Debug.Assert(_endpointEncaps == null);
+            if (_mainEncaps != null)
+            {
+                Pos = _limit!.Value;
+                EndEncapsulation();
+            }
         }
 
         /// <summary>
@@ -1346,8 +1375,6 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            // TODO: is this check necessary / correct?
-            Protocol.checkSupportedEncoding(encapsHeader.Encoding);
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
@@ -2058,6 +2085,23 @@ namespace Ice
                 OldLimit = oldLimit;
                 OldEncoding = oldEncoding;
                 Size = size;
+            }
+        }
+
+        private readonly struct MainEncapsBackup
+        {
+            internal readonly Encaps Encaps;
+            internal readonly int Pos;
+
+            internal readonly EncodingVersion Encoding;
+            internal readonly int MinTotalSeqSize;
+
+            internal MainEncapsBackup(Encaps encaps, int pos, EncodingVersion encoding, int minTotalSeqSize)
+            {
+                Encaps = encaps;
+                Pos = pos;
+                Encoding = encoding;
+                MinTotalSeqSize = minTotalSeqSize;
             }
         }
 

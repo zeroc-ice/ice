@@ -8,68 +8,18 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
-{
-    public interface IMarshaledReturnValue
-    {
-        OutputStream GetOutputStream(Current current);
-    };
-}
-
 namespace IceInternal
 {
-    public class Incoming : Ice.IRequest
+    internal static class Incoming
     {
-        public Incoming(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection? connection,
-                        Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
+        internal static void Invoke(Ice.Communicator communicator, IResponseHandler responseHandler,
+            Ice.Connection? connection, Ice.ObjectAdapter adapter, byte compress, int requestId, Ice.InputStream istr)
         {
-            _communicator = communicator;
-            _responseHandler = handler;
-            _response = response;
-            _compress = compress;
+            int start = istr.Pos;
+            var identity = new Ice.Identity(istr);
 
-            _adapter = adapter;
-            _connection = connection;
-            _requestId = requestId;
-        }
-
-        //
-        // These functions allow this object to be reused, rather than reallocated.
-        //
-        public void Reset(Ice.Communicator communicator, IResponseHandler handler, Ice.Connection connection,
-                          Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
-        {
-            _communicator = communicator;
-            _responseHandler = handler;
-            _response = response;
-            _compress = compress;
-
-            //
-            // Don't recycle the Current object, because servants may keep a reference to it.
-            //
-            _current = null;
-            _adapter = adapter;
-            _connection = connection;
-            _requestId = requestId;
-
-            _inParamPos = -1;
-        }
-
-        public Ice.Current? GetCurrent() => _current;
-
-        public void Invoke(Ice.InputStream stream)
-        {
-            _is = stream;
-
-            int start = _is.Pos;
-            //
-            // Read the current.
-            //
-            var id = new Ice.Identity(_is);
-            //
             // For compatibility with the old FacetPath.
-            //
-            string[] facetPath = _is.ReadStringArray();
+            string[] facetPath = istr.ReadStringArray();
             string facet;
             if (facetPath.Length > 0)
             {
@@ -84,78 +34,79 @@ namespace IceInternal
                 facet = "";
             }
 
-            string operation = _is.ReadString();
-            byte mode = _is.ReadByte();
+            string operation = istr.ReadString();
+            byte mode = istr.ReadByte();
             var context = new Dictionary<string, string>();
-            int sz = _is.ReadSize();
+            int sz = istr.ReadSize();
             while (sz-- > 0)
             {
-                string first = _is.ReadString();
-                string second = _is.ReadString();
+                string first = istr.ReadString();
+                string second = istr.ReadString();
                 context[first] = second;
             }
-            _current = new Ice.Current(_adapter, id, facet, operation, (Ice.OperationMode)mode, context, _requestId, _connection);
-            Ice.Instrumentation.ICommunicatorObserver? obsv = _communicator.Observer;
+
+            var current = new Ice.Current(adapter, identity, facet, operation, (Ice.OperationMode)mode, context,
+                requestId, connection, istr.StartEncapsulation(), responseHandler, compress);
+
+            Ice.Instrumentation.ICommunicatorObserver? obsv = communicator.Observer;
             if (obsv != null)
             {
-                // Read the encapsulation size.
-                int size = _is.ReadInt();
-                _is.Pos -= 4;
+                int encapsSize = istr.GetEncapsulationSize();
 
-                _observer = obsv.GetDispatchObserver(_current, _is.Pos - start + size);
-                if (_observer != null)
+                var dispatchObserver = obsv.GetDispatchObserver(current, istr.Pos - start + encapsSize);
+                if (dispatchObserver != null)
                 {
-                    _observer.Attach();
+                    dispatchObserver.Attach();
+                    current.DispatchObserver = dispatchObserver;
                 }
             }
 
-            //
-            // Don't put the code above into the try block below. Exceptions
-            // in the code above are considered fatal, and must propagate to
-            // the caller of this operation.
-            //
-            _servant = _adapter.Find(_current.Id, _current.Facet);
+            Ice.IObject? servant = current.Adapter.Find(current.Id, current.Facet);
 
-            if (_servant == null)
+            if (servant == null)
             {
                 try
                 {
-                    throw new Ice.ObjectNotExistException(_current.Id, _current.Facet, _current.Operation);
+                    throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                 }
                 catch (Exception ex)
                 {
-                    SkipReadParams(); // Required for batch requests
-                    HandleException(ex, false);
+                    istr.SkipCurrentEncapsulation(); // Required for batch requests, and incoming batch requests
+                                                     // are still supported in Ice 4.x.
+                    HandleException(ex, false, current);
                     return;
                 }
             }
 
             try
             {
-                Task<Ice.OutputStream>? task = _servant.Dispatch(this, _current);
-                if (task == null)
+                ValueTask<Ice.OutputStream>? valueTask = servant.Dispatch(istr, current);
+                if (valueTask == null)
                 {
-                    Completed(null, false);
+                    Debug.Assert(current.IsOneway);
+                    // TODO: also throw an exception to report incorrect use of the stream APIs?
+
+                    Completed(null, null, false, current);
                 }
                 else
                 {
-                    if (task.IsCompleted)
+                    if (valueTask.Value.IsCompleted)
                     {
-                        _os = task.GetAwaiter().GetResult(); // Get the response
-                        Completed(null, false);
+                        Ice.OutputStream ostr = valueTask.Value.Result;
+                        Completed(ostr, null, false, current);
                     }
                     else
                     {
-                        task.ContinueWith((Task<Ice.OutputStream> t) =>
+                        valueTask.Value.AsTask().ContinueWith((Task<Ice.OutputStream> t) =>
                             {
                                 try
                                 {
-                                    _os = t.GetAwaiter().GetResult();
-                                    Completed(null, true); // true = asynchronous
+                                    Ice.OutputStream ostr = t.GetAwaiter().GetResult();
+                                    Completed(ostr, null, true, current); // true = asynchronous
                                 }
                                 catch (Exception ex)
                                 {
-                                    Completed(ex, true); // true = asynchronous
+                                    Completed(null, ex, true, current); // true = asynchronous
                                 }
                             },
                             CancellationToken.None,
@@ -166,289 +117,112 @@ namespace IceInternal
             }
             catch (Exception ex)
             {
-                Completed(ex, false);
+                Completed(null, ex, false, current);
             }
         }
 
-        public Task<Ice.OutputStream>? SetResult(Ice.OutputStream? os)
+        private static void Completed(Ice.OutputStream? ostr, System.Exception? exc, bool amd, Ice.Current current)
         {
-            _os = os;
-            return null; // Response is cached in the Incoming to not have to create unnecessary Task
-        }
-
-        public Task<Ice.OutputStream>? SetMarshaledResult<T>(T result) where T : struct, Ice.IMarshaledReturnValue
-        {
-            Debug.Assert(_current != null);
-            _os = result.GetOutputStream(_current);
-            return null; // Response is cached in the Incoming to not have to create unecessary Task
-        }
-
-        public Task<Ice.OutputStream> SetResultTask<R>(Task<R> task, Action<Ice.OutputStream, R> write)
-        {
-            // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-            // guarantee thread-safety. Multiple continuations can execute concurrently if the
-            // user installed a dispatch interceptor and the dispatch is retried.
-            return task.ContinueWith((Task<R> t) =>
-                {
-                    R result = t.GetAwaiter().GetResult();
-                    Ice.OutputStream os = StartWriteParams();
-                    write(os, result);
-                    EndWriteParams(os);
-                    return Task.FromResult<Ice.OutputStream>(os);
-                },
-                CancellationToken.None,
-                TaskContinuationOptions.ExecuteSynchronously,
-                TaskScheduler.Current).Unwrap();
-        }
-
-        public Task<Ice.OutputStream>? SetResultTask(Task? task)
-        {
-            if (task == null)
-            {
-                //
-                // Write response if no task is provided
-                //
-                return SetResult(WriteEmptyParams());
-            }
-            else
-            {
-                // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-                // guarantee thread-safety. Multiple continuations can execute concurrently if the
-                // user installed a dispatch interceptor and the dispatch is retried.
-                return task.ContinueWith((Task t) =>
-                    {
-                        t.GetAwaiter().GetResult();
-                        return Task.FromResult(WriteEmptyParams()!);
-                    },
-                    CancellationToken.None,
-                    TaskContinuationOptions.ExecuteSynchronously,
-                    TaskScheduler.Current).Unwrap();
-            }
-        }
-
-        public Task<Ice.OutputStream> SetMarshaledResultTask<T>(Task<T> task)
-            where T : struct, Ice.IMarshaledReturnValue
-        {
-            Debug.Assert(_current != null);
-            // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-            // guarantee thread-safety. Multiple continuations can execute concurrently if the
-            // user installed a dispatch interceptor and the dispatch is retried.
-            return task.ContinueWith((Task<T> t) =>
-                Task.FromResult<Ice.OutputStream>(t.GetAwaiter().GetResult().GetOutputStream(_current)),
-                    CancellationToken.None,
-                    TaskContinuationOptions.ExecuteSynchronously,
-                    TaskScheduler.Current).Unwrap();
-        }
-
-        private void Completed(Exception? exc, bool amd)
-        {
-            Debug.Assert(_responseHandler != null, "null response handler");
-            Debug.Assert(_current != null, "null current");
+            Debug.Assert(current.ResponseHandler != null, "null response handler");
             try
             {
                 if (exc != null)
                 {
-                    HandleException(exc, amd);
+                    HandleException(exc, amd, current);
                 }
-                else if (_response)
+                else if (!current.IsOneway)
                 {
-                    Debug.Assert(_os != null, "null output stream");
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
+                    Debug.Assert(ostr != null, "null output stream");
+                    current.DispatchObserver?.Reply(ostr.Size - Protocol.headerSize - 4);
+                    current.ResponseHandler.SendResponse(current.RequestId, ostr, current.Compress, amd);
                 }
                 else
                 {
-                    _responseHandler.SendNoResponse();
+                    current.ResponseHandler.SendNoResponse();
                 }
             }
             catch (Ice.LocalException ex)
             {
-                _responseHandler.InvokeException(_current.RequestId, ex, 1, amd);
+                current.ResponseHandler.InvokeException(current.RequestId, ex, 1, amd);
             }
             finally
             {
-                if (_observer != null)
-                {
-                    _observer.Detach();
-                    _observer = null;
-                }
-                _responseHandler = null;
+                current.DispatchObserver?.Detach();
+                current.DispatchObserver = null;
             }
         }
 
-        public void StartOver()
+        private static void HandleException(System.Exception exc, bool amd, Ice.Current current)
         {
-            Debug.Assert(_is != null);
-            if (_inParamPos == -1)
+            Debug.Assert(current.ResponseHandler != null);
+
+            if (exc is Ice.SystemException)
             {
-                //
-                // That's the first startOver, so almost nothing to do
-                //
-                _inParamPos = _is.Pos;
+                if (current.ResponseHandler.SystemException(current.RequestId, (Ice.SystemException)exc, amd))
+                {
+                    return;
+                }
+            }
+
+            bool userException = exc is Ice.UserException;
+
+            if (!userException && current.Adapter.Communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 0)
+            {
+                Warning(exc, current);
+            }
+
+            if (userException)
+            {
+                current.DispatchObserver?.UserException();
             }
             else
             {
-                //
-                // Let's rewind _is, reset _os
-                //
-                _is.Pos = _inParamPos;
-                if (_response && _os != null)
+                if (current.DispatchObserver != null)
                 {
-                    _os.Reset();
+                    // TODO: temporary, should just use ToString all the time
+                    if (exc is Ice.Exception ex)
+                    {
+                        current.DispatchObserver.Failed(ex.ice_id());
+                    }
+                    else
+                    {
+                        current.DispatchObserver.Failed(exc.GetType().FullName);
+                    }
                 }
             }
-        }
 
-        public void SkipReadParams()
-        {
-            Debug.Assert(_is != null);
-            Debug.Assert(_current != null);
-            //
-            // Remember the encoding used by the input parameters, we'll
-            // encode the response parameters with the same encoding.
-            //
-            _current.Encoding = _is.SkipEncapsulation();
-        }
-
-        public Ice.InputStream StartReadParams()
-        {
-            Debug.Assert(_is != null);
-            Debug.Assert(_current != null);
-            //
-            // Remember the encoding used by the input parameters, we'll
-            // encode the response parameters with the same encoding.
-            //
-            _current.Encoding = _is.StartEncapsulation();
-            return _is;
-        }
-
-        public void EndReadParams()
-        {
-            Debug.Assert(_is != null);
-            _is.EndEncapsulation();
-        }
-
-        public void ReadEmptyParams()
-        {
-            Debug.Assert(_is != null);
-            Debug.Assert(_current != null);
-            _current.Encoding = _is.SkipEmptyEncapsulation();
-        }
-
-        public byte[] ReadParamEncaps()
-        {
-            Debug.Assert(_is != null);
-            Debug.Assert(_current != null);
-            byte[] result = _is.ReadEncapsulation(out Ice.EncodingVersion encoding);
-            _current.Encoding = encoding;
-            return result;
-        }
-
-        public void SetFormat(Ice.FormatType format) => _format = format;
-
-        public static Ice.OutputStream CreateResponseOutputStream(Ice.Current current)
-        {
-            var os = new Ice.OutputStream(current.Adapter!.Communicator, Ice.Util.CurrentProtocolEncoding);
-            os.WriteBlob(Protocol.replyHdr);
-            os.WriteInt(current.RequestId);
-            os.WriteByte(ReplyStatus.replyOK);
-            return os;
-        }
-
-        public Ice.OutputStream StartWriteParams()
-        {
-            if (!_response)
+            if (current.IsOneway)
             {
-                throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
-            }
-
-            var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-            Debug.Assert(_current != null);
-            Debug.Assert(os.Pos == 0);
-            os.WriteBlob(Protocol.replyHdr);
-            os.WriteInt(_current.RequestId);
-            os.WriteByte(ReplyStatus.replyOK);
-            os.StartEncapsulation(_current.Encoding, _format);
-            return os;
-        }
-
-        public void EndWriteParams(Ice.OutputStream os)
-        {
-            if (_response)
-            {
-                os.EndEncapsulation();
-            }
-        }
-
-        public Ice.OutputStream? WriteEmptyParams()
-        {
-            if (_response)
-            {
-                var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-                Debug.Assert(_current != null);
-                Debug.Assert(os.Pos == 0);
-                os.WriteBlob(Protocol.replyHdr);
-                os.WriteInt(_current.RequestId);
-                os.WriteByte(ReplyStatus.replyOK);
-                os.WriteEmptyEncapsulation(_current.Encoding);
-                return os;
+                current.ResponseHandler.SendNoResponse();
             }
             else
             {
-                return null;
+                Ice.OutputStream ostr = Protocol.CreateResponseFrameForFailure(exc, current);
+                current.DispatchObserver?.Reply(ostr.Size - Protocol.headerSize - 4);
+                current.ResponseHandler.SendResponse(current.RequestId, ostr, current.Compress,
+                    userException ? false : amd); // TODO why false for user exception?
             }
+
+            current.DispatchObserver?.Detach();
+            current.DispatchObserver = null;
         }
 
-        public Ice.OutputStream? WriteParamEncaps(byte[] v, bool ok)
+        private static void Warning(System.Exception ex, Ice.Current current)
         {
-            if (!ok && _observer != null)
-            {
-                _observer.UserException();
-            }
-
-            if (_response)
-            {
-                var os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-                Debug.Assert(_current != null);
-                Debug.Assert(os.Pos == 0);
-                os.WriteBlob(Protocol.replyHdr);
-                os.WriteInt(_current.RequestId);
-                os.WriteByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
-                if (v == null || v.Length == 0)
-                {
-                    os.WriteEmptyEncapsulation(_current.Encoding);
-                }
-                else
-                {
-                    os.WriteEncapsulation(v);
-                }
-                return os;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private void Warning(Exception ex)
-        {
-            Debug.Assert(_communicator != null);
-            Debug.Assert(_current != null);
+            Debug.Assert(current.Adapter.Communicator != null);
 
             var output = new System.Text.StringBuilder();
 
             output.Append("dispatch exception:");
-            output.Append("\nidentity: ").Append(_current.Id.ToString(_communicator.ToStringMode));
-            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.EscapeString(_current.Facet, "", _communicator.ToStringMode));
-            output.Append("\noperation: ").Append(_current.Operation);
-            if (_current.Connection != null)
+            output.Append("\nidentity: ").Append(current.Id.ToString(current.Adapter.Communicator.ToStringMode));
+            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.EscapeString(current.Facet, "",
+                current.Adapter.Communicator.ToStringMode));
+            output.Append("\noperation: ").Append(current.Operation);
+            if (current.Connection != null)
             {
                 try
                 {
-                    for (Ice.ConnectionInfo? p = _current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
+                    for (Ice.ConnectionInfo? p = current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
                     {
                         if (p is Ice.IPConnectionInfo ipinfo)
                         {
@@ -465,323 +239,7 @@ namespace IceInternal
             }
             output.Append("\n");
             output.Append(ex.ToString());
-            _communicator.Logger.Warning(output.ToString());
+            current.Adapter.Communicator.Logger.Warning(output.ToString());
         }
-
-        private void HandleException(Exception exc, bool amd)
-        {
-            Debug.Assert(_current != null);
-            Debug.Assert(_responseHandler != null);
-
-            if (exc is Ice.SystemException)
-            {
-                if (_responseHandler.SystemException(_requestId, (Ice.SystemException)exc, amd))
-                {
-                    return;
-                }
-            }
-
-            if (_response)
-            {
-                //
-                // If there's already a response output stream, reset it to re-use it
-                //
-                if (_os != null)
-                {
-                    _os.Reset();
-                }
-                else
-                {
-                    _os = new Ice.OutputStream(_communicator, Ice.Util.CurrentProtocolEncoding);
-                }
-            }
-
-            try
-            {
-                throw exc;
-            }
-            catch (Ice.RequestFailedException ex)
-            {
-                if (ex.Id.Name == null || ex.Id.Name.Length == 0)
-                {
-                    ex.Id = _current.Id;
-                }
-
-                if (ex.Facet == null || ex.Facet.Length == 0)
-                {
-                    ex.Facet = _current.Facet;
-                }
-
-                if (ex.Operation == null || ex.Operation.Length == 0)
-                {
-                    ex.Operation = _current.Operation;
-                }
-
-                if (_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 1)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.ice_id());
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    if (ex is Ice.ObjectNotExistException)
-                    {
-                        _os.WriteByte(ReplyStatus.replyObjectNotExist);
-                    }
-                    else if (ex is Ice.FacetNotExistException)
-                    {
-                        _os.WriteByte(ReplyStatus.replyFacetNotExist);
-                    }
-                    else if (ex is Ice.OperationNotExistException)
-                    {
-                        _os.WriteByte(ReplyStatus.replyOperationNotExist);
-                    }
-                    else
-                    {
-                        Debug.Assert(false);
-                    }
-                    ex.Id.IceWrite(_os);
-
-                    //
-                    // For compatibility with the old FacetPath.
-                    //
-                    if (ex.Facet == null || ex.Facet.Length == 0)
-                    {
-                        _os.WriteStringSeq(Array.Empty<string>());
-                    }
-                    else
-                    {
-                        string[] facetPath2 = { ex.Facet };
-                        _os.WriteStringSeq(facetPath2);
-                    }
-
-                    _os.WriteString(ex.Operation);
-
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Ice.UnknownLocalException ex)
-            {
-                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.ice_id());
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUnknownLocalException);
-                    _os.WriteString(ex.Unknown);
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Ice.UnknownUserException ex)
-            {
-                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.ice_id());
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUnknownUserException);
-                    _os.WriteString(ex.Unknown);
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    Debug.Assert(_responseHandler != null && _current != null);
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Ice.UnknownException ex)
-            {
-                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.ice_id());
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUnknownException);
-                    _os.WriteString(ex.Unknown);
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Ice.UserException ex)
-            {
-                if (_observer != null)
-                {
-                    _observer.UserException();
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUserException);
-                    _os.StartEncapsulation(_current.Encoding, _format);
-                    _os.WriteException(ex);
-                    _os.EndEncapsulation();
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, false);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Ice.Exception ex)
-            {
-                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.ice_id());
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUnknownLocalException);
-                    _os.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-            catch (Exception ex)
-            {
-                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
-                {
-                    Warning(ex);
-                }
-
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.GetType().FullName);
-                }
-
-                if (_response)
-                {
-                    Debug.Assert(_os != null);
-                    _os.WriteBlob(Protocol.replyHdr);
-                    _os.WriteInt(_current.RequestId);
-                    _os.WriteByte(ReplyStatus.replyUnknownException);
-                    _os.WriteString(ex.ToString());
-                    if (_observer != null)
-                    {
-                        _observer.Reply(_os.Size - Protocol.headerSize - 4);
-                    }
-                    _responseHandler.SendResponse(_current.RequestId, _os, _compress, amd);
-                }
-                else
-                {
-                    _responseHandler.SendNoResponse();
-                }
-            }
-
-            if (_observer != null)
-            {
-                _observer.Detach();
-                _observer = null;
-            }
-            _responseHandler = null;
-        }
-
-        private Ice.Communicator _communicator;
-        private Ice.Current? _current;
-        private Ice.IObject? _servant;
-
-        private Ice.Instrumentation.IDispatchObserver? _observer;
-        private IResponseHandler? _responseHandler;
-
-        private bool _response;
-        private byte _compress;
-        private Ice.ObjectAdapter _adapter;
-        private Ice.Connection? _connection;
-        private int _requestId;
-        private Ice.FormatType? _format;
-
-        private Ice.OutputStream? _os;
-        private Ice.InputStream? _is;
-
-        private int _inParamPos = -1;
-
-        public Incoming? Next; // For use by Connection.
     }
 }

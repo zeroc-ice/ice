@@ -170,10 +170,10 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public Task<IObjectPrx?>
+        public ValueTask<IObjectPrx?>
         FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
 
-        public Task<IObjectPrx?>
+        public ValueTask<IObjectPrx?>
         FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);
 
         public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;

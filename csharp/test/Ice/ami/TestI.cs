@@ -63,7 +63,7 @@ namespace Ice.ami
 
         public async Task opAsyncDispatchAsync(Current current) => await Task.Delay(10);
 
-        public async Task<int>
+        public async ValueTask<int>
         opWithResultAsyncDispatchAsync(Ice.Current current)
         {
             await Task.Delay(10);
@@ -73,7 +73,7 @@ namespace Ice.ami
             return r;
         }
 
-        public async Task
+        public async Task?
         opWithUEAsyncDispatchAsync(Ice.Current current)
         {
             test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));

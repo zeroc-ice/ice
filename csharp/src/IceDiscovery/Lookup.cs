@@ -300,7 +300,7 @@ namespace IceDiscovery
             }
         }
 
-        internal Task<IObjectPrx?> FindObject(Identity id)
+        internal ValueTask<IObjectPrx?> FindObject(Identity id)
         {
             lock (this)
             {
@@ -324,11 +324,11 @@ namespace IceDiscovery
                         _objectRequests.Remove(id);
                     }
                 }
-                return task.Task;
+                return new ValueTask<IObjectPrx?>(task.Task);
             }
         }
 
-        internal Task<IObjectPrx?> FindAdapter(string adapterId)
+        internal ValueTask<IObjectPrx?> FindAdapter(string adapterId)
         {
             lock (this)
             {
@@ -352,7 +352,7 @@ namespace IceDiscovery
                         _adapterRequests.Remove(adapterId);
                     }
                 }
-                return task.Task;
+                return new ValueTask<IObjectPrx?>(task.Task);
             }
         }
 

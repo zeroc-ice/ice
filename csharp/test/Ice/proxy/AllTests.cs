@@ -921,7 +921,6 @@ namespace Ice.proxy
             }
             catch (UnknownLocalException ex)
             {
-                // The server thrown an UnsupportedEncodingException
                 test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
             }
 
@@ -941,7 +940,6 @@ namespace Ice.proxy
             }
             catch (UnknownLocalException ex)
             {
-                // The server thrown an UnsupportedEncodingException
                 test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
             }
 

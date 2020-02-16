@@ -25,25 +25,25 @@ namespace Ice
                     return null;
                 }
 
-                public Task<bool>
+                public ValueTask<bool>
                 supportsUndeclaredExceptionsAsync(Ice.Current current)
                 {
-                    return Task.FromResult(true);
+                    return new ValueTask<bool>(true);
                 }
 
-                public Task<bool>
+                public ValueTask<bool>
                 supportsAssertExceptionAsync(Ice.Current current)
                 {
-                    return Task.FromResult(false);
+                    return new ValueTask<bool>(false);
                 }
 
-                public Task
+                public Task?
                 throwAasAAsync(int a, Ice.Current current)
                 {
                     throw new Test.A(a);
                 }
 
-                public Task
+                public Task?
                 throwAorDasAorDAsync(int a, Ice.Current current)
                 {
                     if (a > 0)
@@ -56,7 +56,7 @@ namespace Ice
                     }
                 }
 
-                public Task
+                public Task?
                 throwBasAAsync(int a, int b, Ice.Current current)
                 {
                     //throw new B(a, b);
@@ -65,80 +65,80 @@ namespace Ice
                     return s.Task;
                 }
 
-                public Task
+                public Task?
                 throwBasBAsync(int a, int b, Ice.Current current)
                 {
                     throw new Test.B(a, b);
                 }
 
-                public Task
+                public Task?
                 throwCasAAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public Task
+                public Task?
                 throwCasBAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public Task
+                public Task?
                 throwCasCAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public Task
+                public Task?
                 throwUndeclaredAAsync(int a, Ice.Current current)
                 {
                     throw new Test.A(a);
                 }
 
-                public Task
+                public Task?
                 throwUndeclaredBAsync(int a, int b, Ice.Current current)
                 {
                     throw new Test.B(a, b);
                 }
 
-                public Task
+                public Task?
                 throwUndeclaredCAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public Task
+                public Task?
                 throwLocalExceptionAsync(Ice.Current current)
                 {
                     throw new Ice.TimeoutException();
                 }
 
-                public Task
+                public Task?
                 throwNonIceExceptionAsync(Ice.Current current)
                 {
                     throw new System.Exception();
                 }
 
-                public Task
+                public Task?
                 throwAssertExceptionAsync(Ice.Current current)
                 {
                     Debug.Assert(false);
                     return null;
                 }
 
-                public Task<byte[]>
+                public ValueTask<byte[]>
                 throwMemoryLimitExceptionAsync(byte[] seq, Ice.Current current)
                 {
-                    return Task.FromResult(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+                    return new ValueTask<byte[]>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
                 }
 
-                public Task
+                public Task?
                 throwLocalExceptionIdempotentAsync(Ice.Current current)
                 {
                     throw new Ice.TimeoutException();
                 }
 
-                public Task
+                public Task?
                 throwAfterResponseAsync(Ice.Current current)
                 {
                     // Only supported with callback based AMD API
@@ -146,7 +146,7 @@ namespace Ice
                     //throw new Exception();
                 }
 
-                public Task
+                public Task?
                 throwAfterExceptionAsync(Ice.Current current)
                 {
                     // Only supported with callback based AMD API

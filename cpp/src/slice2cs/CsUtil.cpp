@@ -620,6 +620,10 @@ Slice::resultTask(const OperationPtr& op, const string& ns, bool dispatch)
         }
         return task;
     }
+    else if (dispatch)
+    {
+        return "global::System.Threading.Tasks.ValueTask<" + t + '>';
+    }
     else
     {
         return "global::System.Threading.Tasks.Task<" + t + '>';

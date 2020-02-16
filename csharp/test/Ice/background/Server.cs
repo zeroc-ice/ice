@@ -15,18 +15,16 @@ public class Server : TestHelper
 {
     internal class Locator : ILocator
     {
-        public Task<IObjectPrx>
-        FindAdapterByIdAsync(string adapter, Current current)
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapter, Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.Adapter.CreateDirectProxy("dummy", IObjectPrx.Factory));
+            return new ValueTask<IObjectPrx?>(current.Adapter.CreateDirectProxy("dummy", IObjectPrx.Factory));
         }
 
-        public Task<IObjectPrx>
-        FindObjectByIdAsync(Identity id, Current current)
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.Adapter.CreateDirectProxy(id, IObjectPrx.Factory));
+            return new ValueTask<IObjectPrx?>(current.Adapter.CreateDirectProxy(id, IObjectPrx.Factory));
         }
 
         public ILocatorRegistryPrx GetRegistry(Current current) => null;

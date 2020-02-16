@@ -2,20 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice.objects
 {
-    public sealed class UnexpectedObjectExceptionTest : Blobject
+    public sealed class UnexpectedObjectExceptionTest : IObject
     {
-        public override bool IceInvoke(byte[] inParams, out byte[] outParams, Current current)
+        public ValueTask<OutputStream>? Dispatch(InputStream istr, Current current)
         {
-            var communicator = current.Adapter.Communicator;
-            var ostr = new OutputStream(communicator);
-            ostr.StartEncapsulation(current.Encoding);
+            var ostr = IceInternal.Protocol.StartResponseFrame(current);
             var ae = new Test.AlsoEmpty();
             ostr.WriteClass(ae);
             ostr.EndEncapsulation();
-            outParams = ostr.Finished();
-            return true;
+            return new ValueTask<OutputStream>(ostr);
         }
     }
 }

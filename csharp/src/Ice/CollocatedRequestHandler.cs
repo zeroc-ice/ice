@@ -243,8 +243,7 @@ namespace IceInternal
                         break;
                     }
 
-                    var inS = new Incoming(_reference.GetCommunicator(), this, null, _adapter, _response, 0, requestId);
-                    inS.Invoke(iss);
+                    Incoming.Invoke(_reference.GetCommunicator(), this, null, _adapter, 0, requestId, iss);
                     --invokeNum;
                 }
             }

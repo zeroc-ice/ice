@@ -2,10 +2,162 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+
 namespace IceInternal
 {
+     // TODO: move class to namespace Ice
     public static class Protocol
     {
+        /// <summary>Starts a new response frame and the encapsulation in that frame. This frame encodes a "success"
+        /// response.</summary>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request currently dispatched.</param>
+        /// <param name="format">The Slice format (Compact or Sliced) used by the encapsulation.</param>
+        /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
+        public static Ice.OutputStream StartResponseFrame(Ice.Current current, Ice.FormatType? format = null)
+        {
+            Debug.Assert(format == current.Format); // temporary
+
+            var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
+            ostr.WriteBlob(Protocol.replyHdr);
+            ostr.WriteInt(current.RequestId);
+            ostr.WriteByte(ReplyStatus.replyOK);
+            ostr.StartEncapsulation(current.Encoding, format);
+            return ostr;
+        }
+
+        /// <summary>Creates a new response frame that represents "success" with a void return value. The returned
+        /// frame is complete and no additional data can be included in its payload.</summary>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request currently dispatched.</param>
+        /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
+        public static Ice.OutputStream CreateEmptyResponseFrame(Ice.Current current)
+        {
+            var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
+            ostr.WriteBlob(Protocol.replyHdr);
+            ostr.WriteInt(current.RequestId);
+            ostr.WriteByte(ReplyStatus.replyOK);
+            ostr.WriteEmptyEncapsulation(current.Encoding);
+            return ostr;
+        }
+
+        /// <summary>Starts a new response frame and the encapsulation in that frame. This frame encodes a "failure"
+        /// response.</summary>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request currently dispatched.</param>
+        /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
+        public static Ice.OutputStream StartResponseFrameForFailure(Ice.Current current)
+        {
+            var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
+            ostr.WriteBlob(Protocol.replyHdr);
+            ostr.WriteInt(current.RequestId);
+            ostr.WriteByte(ReplyStatus.replyUserException);
+            ostr.StartEncapsulation(current.Encoding, current.Format);
+            return ostr;
+        }
+
+        ///<summary>Creates a response frame that represents "failure" and contains an exception. The returned frame is
+        /// complete and no additional data can be included in its payload.</summary>
+        /// <param name="exception">The exception to marshal into the frame.</param>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request currently dispatched.</param>
+        /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
+        public static Ice.OutputStream CreateResponseFrameForFailure(System.Exception exception, Ice.Current current)
+        {
+            var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
+            ostr.WriteBlob(Protocol.replyHdr);
+            ostr.WriteInt(current.RequestId);
+
+            try
+            {
+                throw exception;
+            }
+            catch (Ice.RequestFailedException ex)
+            {
+                if (ex.Id.Name == null || ex.Id.Name.Length == 0)
+                {
+                    ex.Id = current.Id;
+                }
+
+                if (ex.Facet == null || ex.Facet.Length == 0)
+                {
+                    ex.Facet = current.Facet;
+                }
+
+                if (ex.Operation == null || ex.Operation.Length == 0)
+                {
+                    ex.Operation = current.Operation;
+                }
+
+                if (ex is Ice.ObjectNotExistException)
+                {
+                    ostr.WriteByte(ReplyStatus.replyObjectNotExist);
+                }
+                else if (ex is Ice.FacetNotExistException)
+                {
+                    ostr.WriteByte(ReplyStatus.replyFacetNotExist);
+                }
+                else if (ex is Ice.OperationNotExistException)
+                {
+                    ostr.WriteByte(ReplyStatus.replyOperationNotExist);
+                }
+                else
+                {
+                    Debug.Assert(false);
+                }
+                ex.Id.IceWrite(ostr);
+
+                // For compatibility with the old FacetPath.
+                if (ex.Facet == null || ex.Facet.Length == 0)
+                {
+                    ostr.WriteStringSeq(Array.Empty<string>());
+                }
+                else
+                {
+                    string[] facetPath2 = { ex.Facet };
+                    ostr.WriteStringSeq(facetPath2);
+                }
+                ostr.WriteString(ex.Operation);
+            }
+            catch (Ice.UnknownLocalException ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUnknownLocalException);
+                ostr.WriteString(ex.Unknown);
+            }
+            catch (Ice.UnknownUserException ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUnknownUserException);
+                ostr.WriteString(ex.Unknown);
+            }
+            catch (Ice.UnknownException ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUnknownException);
+                ostr.WriteString(ex.Unknown);
+            }
+            catch (Ice.UserException ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUserException);
+                // TODO: always send exception in sliced format?
+                // ostr.StartEncapsulation(current.Encoding, Ice.FormatType.SlicedFormat);
+                ostr.StartEncapsulation(current.Encoding, current.Format);
+                ostr.WriteException(ex);
+                ostr.EndEncapsulation();
+            }
+            catch (Ice.Exception ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUnknownLocalException);
+                ostr.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
+            }
+            catch (System.Exception ex)
+            {
+                ostr.WriteByte(ReplyStatus.replyUnknownException);
+                ostr.WriteString(ex.ToString());
+            }
+            return ostr;
+        }
+
         //
         // Size of the Ice protocol header
         //
