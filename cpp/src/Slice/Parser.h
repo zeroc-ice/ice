@@ -1069,7 +1069,6 @@ public:
     std::string topLevelFile() const;
     int currentLine() const;
 
-    void nextLine();
     int scanPosition(const char*);
     int currentIncludeLevel() const;
 
@@ -1136,7 +1135,6 @@ private:
     StringList _defaultGlobalMetaData;
     int _errors;
     std::string _currentComment;
-    int _currentLine;
     int _currentIncludeLevel;
     std::string _currentFile;
     std::string _topLevelFile;

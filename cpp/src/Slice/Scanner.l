@@ -52,10 +52,12 @@ void setLocation(YYLTYPE*);
 void startLocation(YYLTYPE*);
 void endLocation(YYLTYPE*);
 
-}
-
+// Stores the scanner's current column position. Flex also automatically
+// defines 'yylineno', which stores the scanner's current line number.
 int yycolno = 0;
 shared_ptr<std::string> yyfilename;
+
+}
 
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
@@ -157,11 +159,11 @@ bom                 "\357\273\277"
 <PREPROCESS>\n      |
 <PREPROCESS><<EOF>> {
     yy_pop_state();
-    nextLine();
-    if(unit->currentLine() == 0)
+    if(yylineno == 0)
     {
         BEGIN(INITIAL);
     }
+    nextLine();
 }
 
   /* ========== Comments ========== */
@@ -488,6 +490,9 @@ namespace Slice {
 // This function is always called once, right before scanning begins.
 void initScanner()
 {
+    // Ensure the scanner starts at line number 1.
+    yylineno = 1;
+
     keywordMap = {
         {"module", ICE_MODULE},
         {"class", ICE_CLASS},
@@ -646,10 +651,6 @@ void nextLine(int count)
 {
     yylineno += count;
     yycolno = 0;
-    for(int i = 0; i < count; i++)
-    {
-        unit->nextLine();
-    }
 }
 
 void setLocation(YYLTYPE* yylloc)

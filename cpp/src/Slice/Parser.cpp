@@ -64,10 +64,11 @@ Slice::CompilerException::reason() const
     return _reason;
 }
 
+// Forward declare things from Bison and Flex the parser can use.
+extern int slice_parse();
+extern int slice_lineno;
 extern FILE* slice_in;
 extern int slice_debug;
-
-int slice_parse();
 
 //
 // Operation attributes
@@ -6092,13 +6093,7 @@ Slice::Unit::topLevelFile() const
 int
 Slice::Unit::currentLine() const
 {
-    return _currentLine;
-}
-
-void
-Slice::Unit::nextLine()
-{
-    _currentLine++;
+    return slice_lineno;
 }
 
 int
@@ -6116,7 +6111,7 @@ Slice::Unit::scanPosition(const char* s)
 
     string::size_type idx;
 
-    _currentLine = atoi(line.c_str()) - 1;   // Read line number
+    int lineNumber = atoi(line.c_str()) - 1;   // Read line number
 
     idx = line.find_first_of(" \t\r");       // Erase line number
     if(idx != string::npos)
@@ -6146,7 +6141,7 @@ Slice::Unit::scanPosition(const char* s)
 
     LineType type = File;
 
-    if(_currentLine == 0)
+    if(lineNumber == 0)
     {
         if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
@@ -6204,7 +6199,7 @@ Slice::Unit::scanPosition(const char* s)
     //
     // Return code indicates whether starting parse of a new file.
     //
-    return _currentLine;
+    return lineNumber;
 }
 
 int
@@ -6251,7 +6246,7 @@ Slice::Unit::setSeenDefinition()
 void
 Slice::Unit::error(const string& s)
 {
-    emitError(currentFile(), _currentLine, s);
+    emitError(currentFile(), currentLine(), s);
     _errors++;
 }
 
@@ -6260,11 +6255,11 @@ Slice::Unit::warning(WarningCategory category, const string& msg) const
 {
     if(_definitionContextStack.empty())
     {
-        emitWarning(currentFile(), _currentLine, msg);
+        emitWarning(currentFile(), currentLine(), msg);
     }
     else
     {
-        _definitionContextStack.top()->warning(category, currentFile(), _currentLine, msg);
+        _definitionContextStack.top()->warning(category, currentFile(), currentLine(), msg);
     }
 }
 
@@ -6500,7 +6495,6 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
     Slice::unit = this;
 
     _currentComment = "";
-    _currentLine = 1;
     _currentIncludeLevel = 0;
     _topLevelFile = fullPath(filename);
     pushContainer(this);
@@ -6602,6 +6596,7 @@ Slice::Unit::addTopLevelModule(const string& file, const string& module)
         i->second.insert(module);
     }
 }
+
 set<string>
 Slice::Unit::getTopLevelModules(const string& file) const
 {
@@ -6626,7 +6621,6 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnder
     _allowUnderscore(allowUnderscore),
     _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0),
-    _currentLine(0),
     _currentIncludeLevel(0)
 
 {
