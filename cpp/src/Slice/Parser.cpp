@@ -6196,9 +6196,6 @@ Slice::Unit::scanPosition(const char* s)
         _definitionContextMap.insert(make_pair(currentFile, dc));
     }
 
-    //
-    // Return code indicates whether starting parse of a new file.
-    //
     return lineNumber;
 }
 

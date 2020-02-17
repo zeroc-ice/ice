@@ -41,21 +41,21 @@ namespace Slice
 // Definitions for the case-insensitive keyword-token map.
 static std::map<std::string, int> keywordMap;
 
-void initScanner();
-void preAction();
-static void yynoreturn fatalError(const char* msg);
-int checkKeyword(string&);
-int checkIdentifier(string&);
-
-void nextLine(int = 1);
-void setLocation(YYLTYPE*);
-void startLocation(YYLTYPE*);
-void endLocation(YYLTYPE*);
-
 // Stores the scanner's current column position. Flex also automatically
 // defines 'yylineno', which stores the scanner's current line number.
 int yycolno = 0;
 shared_ptr<std::string> yyfilename;
+
+void initScanner();
+void preAction();
+void nextLine(int = 1);
+void setLocation(YYLTYPE*);
+void startLocation(YYLTYPE*);
+void endLocation(YYLTYPE*);
+static void yynoreturn fatalError(const char* msg);
+
+int checkKeyword(string&);
+int checkIdentifier(string&);
 
 }
 
@@ -542,6 +542,34 @@ void preAction()
     }
 }
 
+void nextLine(int count)
+{
+    yylineno += count;
+    yycolno = 0;
+}
+
+void setLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->lastLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+    yylloc->lastColumn = yycolno;
+    yylloc->filename = yyfilename;
+}
+
+void startLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+}
+
+void endLocation(YYLTYPE* yylloc)
+{
+    yylloc->lastLine = yylineno;
+    yylloc->lastColumn = yycolno - yyleng;
+    yylloc->filename = yyfilename;
+}
+
 // This function is called whenever the scanner encounters an unrecoverable error.
 static void yynoreturn fatalError(const char* msg)
 {
@@ -645,34 +673,6 @@ int checkIdentifier(string& id)
     }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
-}
-
-void nextLine(int count)
-{
-    yylineno += count;
-    yycolno = 0;
-}
-
-void setLocation(YYLTYPE* yylloc)
-{
-    yylloc->firstLine = yylineno;
-    yylloc->lastLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
-    yylloc->lastColumn = yycolno;
-    yylloc->filename = yyfilename;
-}
-
-void startLocation(YYLTYPE* yylloc)
-{
-    yylloc->firstLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
-}
-
-void endLocation(YYLTYPE* yylloc)
-{
-    yylloc->lastLine = yylineno;
-    yylloc->lastColumn = yycolno - yyleng;
-    yylloc->filename = yyfilename;
 }
 
 }
