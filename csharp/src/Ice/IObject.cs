@@ -23,11 +23,11 @@ namespace Ice
         /// request. See <see cref="IceInternal.Protocol.StartResponseFrame"/>.</returns>
         /// <exception cref="System.Exception">Any exception thrown by Dispatch is marshaled into the response frame.
         /// </exception>
-        public ValueTask<OutputStream>? Dispatch(InputStream istr, Current current)
+        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
             // TODO: switch to abstract method
             Debug.Assert(false);
-            return null;
+            return IceFromVoidResult(current);
         }
 
         // The following are helper methods for generated servants.
@@ -123,15 +123,10 @@ namespace Ice
             }
         }
 
-        protected static ValueTask<Ice.OutputStream>? IceFromTask(Task? task, Current current)
+        protected static ValueTask<Ice.OutputStream> IceFromTask(Task? task, Current current)
         {
-            if (current.IsOneway)
+            if (current.IsOneway || task == null)
             {
-                return null;
-            }
-            else if (task == null)
-            {
-                // A null task as response to a two-way request means success:
                 return IceFromVoidResult(current);
             }
             else
@@ -153,19 +148,14 @@ namespace Ice
         protected static ValueTask<Ice.OutputStream> IceFromResult(Ice.OutputStream ostr)
             => new ValueTask<Ice.OutputStream>(ostr);
 
-        protected static ValueTask<Ice.OutputStream>? IceFromVoidResult(Ice.Current current)
+        protected static ValueTask<Ice.OutputStream> IceFromVoidResult(Ice.Current current)
         {
-            if (current.IsOneway)
-            {
-                return null;
-            }
-            else
-            {
-                return IceFromResult(Protocol.CreateEmptyResponseFrame(current));
-            }
+            // TODO: for oneway requests, we should reuse the same fake response frame, not
+            // create a new one each time. It could be OutputStream.Empty.
+            return IceFromResult(Protocol.CreateEmptyResponseFrame(current));
         }
 
-        protected ValueTask<OutputStream>? IceD_ice_ping(InputStream istr, Current current)
+        protected ValueTask<OutputStream> IceD_ice_pingAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
@@ -173,7 +163,7 @@ namespace Ice
             return IceFromVoidResult(current);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_isA(InputStream istr, Current current)
+        protected ValueTask<OutputStream> IceD_ice_isAAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             string id = istr.ReadString();
@@ -185,7 +175,7 @@ namespace Ice
             return IceFromResult(ostr);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_id(InputStream istr, Current current)
+        protected ValueTask<OutputStream> IceD_ice_idAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
@@ -196,7 +186,7 @@ namespace Ice
             return IceFromResult(ostr);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_ids(InputStream istr, Current current)
+        protected ValueTask<OutputStream> IceD_ice_idsAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
@@ -221,13 +211,13 @@ namespace Ice
     public abstract class BlobjectAsync : IObject
     {
         public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
-        public ValueTask<OutputStream>? Dispatch(InputStream istr, Current current)
+        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
             byte[] inEncaps = ReadParamEncaps(istr);
             Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
             if (current.IsOneway)
             {
-                return null;
+                return IObject.IceFromVoidResult(current);
             }
             else
             {

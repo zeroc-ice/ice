@@ -2751,18 +2751,18 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
-    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream>? "
+    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
         << getUnqualified("Ice.IObject", ns)
-        << ".Dispatch(global::Ice.InputStream istr, global::Ice.Current current)";
+        << ".DispatchAsync(global::Ice.InputStream istr, global::Ice.Current current)";
     _out.inc();
-    _out << nl << " => Dispatch(this, istr, current);";
+    _out << nl << " => DispatchAsync(this, istr, current);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "// This protected static Dispatch allows a derived class to override the instance Dispatch";
+    _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
-    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream>? "
-        << "Dispatch(" << fixId(name) << " servant, "
+    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+        << "DispatchAsync(" << fixId(name) << " servant, "
         << "global::Ice.InputStream istr, global::Ice.Current current)";
     _out << sb;
     _out << nl << "switch(current.Operation)";
@@ -2781,7 +2781,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return servant.IceD_" << opName << "(istr, current);";
+        _out << nl << "return servant.IceD_" << opName << "Async(istr, current);";
         _out << eb;
     }
 
@@ -2879,7 +2879,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string ns = getNamespace(cl);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
-    string internalName = "IceD_" + operation->name();
+    string internalName = "IceD_" + operation->name() + "Async";
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
@@ -2895,10 +2895,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     _out << sp;
     _out << nl << "protected global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
-    if (outParams.size() == 0)
-    {
-        _out << "?";
-    }
     _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
         << " current)";
     _out << sb;

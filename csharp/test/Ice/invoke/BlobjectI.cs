@@ -9,12 +9,13 @@ namespace Ice.invoke
 {
     public class BlobjectI : IObject
     {
-        public ValueTask<OutputStream>? Dispatch(Ice.InputStream istr, Current current)
+        public ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
             if (current.Operation.Equals("opOneway"))
             {
                 Debug.Assert(current.IsOneway);
-                return null;
+                // TODO: replace by OutputStream.Empty
+                return new ValueTask<OutputStream>(IceInternal.Protocol.CreateEmptyResponseFrame(current));
             }
             else if (current.Operation.Equals("opString"))
             {

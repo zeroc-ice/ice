@@ -80,39 +80,30 @@ namespace IceInternal
 
             try
             {
-                ValueTask<Ice.OutputStream>? valueTask = servant.Dispatch(istr, current);
-                if (valueTask == null)
-                {
-                    Debug.Assert(current.IsOneway);
-                    // TODO: also throw an exception to report incorrect use of the stream APIs?
+                ValueTask<Ice.OutputStream> valueTask = servant.DispatchAsync(istr, current);
 
-                    Completed(null, null, false, current);
+                if (valueTask.IsCompleted)
+                {
+                    Ice.OutputStream ostr = valueTask.Result;
+                    Completed(ostr, null, false, current);
                 }
                 else
                 {
-                    if (valueTask.Value.IsCompleted)
-                    {
-                        Ice.OutputStream ostr = valueTask.Value.Result;
-                        Completed(ostr, null, false, current);
-                    }
-                    else
-                    {
-                        valueTask.Value.AsTask().ContinueWith((Task<Ice.OutputStream> t) =>
+                    valueTask.AsTask().ContinueWith((Task<Ice.OutputStream> t) =>
+                        {
+                            try
                             {
-                                try
-                                {
-                                    Ice.OutputStream ostr = t.GetAwaiter().GetResult();
-                                    Completed(ostr, null, true, current); // true = asynchronous
-                                }
-                                catch (Exception ex)
-                                {
-                                    Completed(null, ex, true, current); // true = asynchronous
-                                }
-                            },
-                            CancellationToken.None,
-                            TaskContinuationOptions.ExecuteSynchronously,
-                            scheduler: TaskScheduler.Current);
-                    }
+                                Ice.OutputStream ostr = t.GetAwaiter().GetResult();
+                                Completed(ostr, null, true, current); // true = asynchronous
+                            }
+                            catch (Exception ex)
+                            {
+                                Completed(null, ex, true, current); // true = asynchronous
+                            }
+                        },
+                        CancellationToken.None,
+                        TaskContinuationOptions.ExecuteSynchronously,
+                        scheduler: TaskScheduler.Current);
                 }
             }
             catch (Exception ex)

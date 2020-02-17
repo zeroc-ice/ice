@@ -22,7 +22,7 @@ namespace Ice.interceptor
             }
         }
 
-        public ValueTask<Ice.OutputStream>? Dispatch(Ice.InputStream istr, Current current)
+        public ValueTask<Ice.OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
             string context;
             if (current.Context.TryGetValue("raiseBeforeDispatch", out context))
@@ -49,10 +49,10 @@ namespace Ice.interceptor
                 {
                     try
                     {
-                        var vt = _servant.Dispatch(istr, current);
-                        if (vt.HasValue && vt.Value.IsFaulted)
+                        var vt = _servant.DispatchAsync(istr, current);
+                        if (vt.IsFaulted)
                         {
-                            throw vt.Value.AsTask().Exception.InnerException;
+                            throw vt.AsTask().Exception.InnerException;
                         }
                         else
                         {
@@ -76,20 +76,20 @@ namespace Ice.interceptor
                 // Retry the dispatch to ensure that abandoning the result of the dispatch
                 // works fine and is thread-safe
                 //
-                _servant.Dispatch(istr, current);
+                _servant.DispatchAsync(istr, current);
                 istr.RestartEncapsulation();
-                _servant.Dispatch(istr, current);
+                _servant.DispatchAsync(istr, current);
             }
 
             istr.RestartEncapsulation();
-            var valueTask = _servant.Dispatch(istr, current);
+            var valueTask = _servant.DispatchAsync(istr, current);
             if (valueTask == null)
             {
                 AsyncCompletion = false;
             }
             else
             {
-                AsyncCompletion = !valueTask.Value.IsCompleted;
+                AsyncCompletion = !valueTask.IsCompleted;
             }
 
             if (current.Context.TryGetValue("raiseAfterDispatch", out context))
