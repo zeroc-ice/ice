@@ -21,14 +21,14 @@ namespace Ice
 
         internal IceInternal.IResponseHandler ResponseHandler { get; }
 
-        internal byte Compress { get; } // TODO, why is this a byte?
+        internal byte CompressionStatus { get; }
 
         internal Ice.Instrumentation.IDispatchObserver? DispatchObserver { get; set; }
         public FormatType? Format { get ; set; } // TODO: temporary, until exceptions are always sliced
 
         internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, OperationMode mode,
             Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding,
-            IceInternal.IResponseHandler responseHandler, byte compress)
+            IceInternal.IResponseHandler responseHandler, byte compressionStatus)
         {
             Adapter = adapter;
             Id = id;
@@ -40,7 +40,7 @@ namespace Ice
             Connection = connection;
             Encoding = encoding;
             ResponseHandler = responseHandler;
-            Compress = compress;
+            CompressionStatus = compressionStatus;
         }
     }
 }

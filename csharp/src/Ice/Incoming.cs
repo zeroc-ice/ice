@@ -134,7 +134,7 @@ namespace IceInternal
                 {
                     Debug.Assert(ostr != null, "null output stream");
                     current.DispatchObserver?.Reply(ostr.Size - Protocol.headerSize - 4);
-                    current.ResponseHandler.SendResponse(current.RequestId, ostr, current.Compress, amd);
+                    current.ResponseHandler.SendResponse(current.RequestId, ostr, current.CompressionStatus, amd);
                 }
                 else
                 {
@@ -197,10 +197,9 @@ namespace IceInternal
             }
             else
             {
-                Ice.OutputStream ostr = Protocol.CreateResponseFrameForFailure(exc, current);
+                Ice.OutputStream ostr = Protocol.CreateFailureResponseFrame(exc, current);
                 current.DispatchObserver?.Reply(ostr.Size - Protocol.headerSize - 4);
-                current.ResponseHandler.SendResponse(current.RequestId, ostr, current.Compress,
-                    userException ? false : amd); // TODO why false for user exception?
+                current.ResponseHandler.SendResponse(current.RequestId, ostr, current.CompressionStatus, amd);
             }
 
             current.DispatchObserver?.Detach();

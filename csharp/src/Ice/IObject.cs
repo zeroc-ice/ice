@@ -92,13 +92,13 @@ namespace Ice
             }
             else
             {
-                return FromTask(valueTask.AsTask().ContinueWith((Task<R> t) =>
+                return FromTask(valueTask.AsTask().ContinueWith(t =>
                     {
                         R result = t.GetAwaiter().GetResult();
                         Ice.OutputStream ostr = Protocol.StartResponseFrame(current, format);
                         write(ostr, result);
                         ostr.EndEncapsulation();
-                        return Task.FromResult<Ice.OutputStream>(ostr);
+                        return Task.FromResult(ostr);
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
@@ -115,8 +115,8 @@ namespace Ice
             }
             else
             {
-                return FromTask(valueTask.AsTask().ContinueWith((Task<T> t) =>
-                    Task.FromResult<Ice.OutputStream>(t.GetAwaiter().GetResult().OutputStream),
+                return FromTask(valueTask.AsTask().ContinueWith(t =>
+                    Task.FromResult(t.GetAwaiter().GetResult().OutputStream),
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Current).Unwrap());
@@ -139,11 +139,10 @@ namespace Ice
                 // NOTE: it's important that the continuation doesn't mutate the request state to
                 // guarantee thread-safety. Multiple continuations can execute concurrently if the
                 // user installed a dispatch interceptor and the dispatch is retried.
-                return FromTask(task.ContinueWith((Task t) =>
+                return FromTask(task.ContinueWith(t =>
                     {
                         t.GetAwaiter().GetResult();
-                        var ostr = Protocol.CreateEmptyResponseFrame(current);
-                        return Task.FromResult(ostr);
+                        return Task.FromResult(Protocol.CreateEmptyResponseFrame(current));
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,

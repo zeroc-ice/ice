@@ -32,7 +32,7 @@ namespace Ice.invoke
                     throw new Test.MyException();
                 }
                 var ex = new Test.MyException();
-                var ostr = IceInternal.Protocol.StartResponseFrameForFailure(current);
+                var ostr = IceInternal.Protocol.StartFailureResponseFrame(current);
                 ostr.WriteException(ex);
                 ostr.EndEncapsulation();
                 return new ValueTask<OutputStream>(ostr);

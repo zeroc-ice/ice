@@ -48,7 +48,7 @@ namespace IceInternal
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request currently dispatched.</param>
         /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
-        public static Ice.OutputStream StartResponseFrameForFailure(Ice.Current current)
+        public static Ice.OutputStream StartFailureResponseFrame(Ice.Current current)
         {
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
@@ -64,7 +64,7 @@ namespace IceInternal
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request currently dispatched.</param>
         /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
-        public static Ice.OutputStream CreateResponseFrameForFailure(System.Exception exception, Ice.Current current)
+        public static Ice.OutputStream CreateFailureResponseFrame(System.Exception exception, Ice.Current current)
         {
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
