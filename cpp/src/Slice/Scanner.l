@@ -49,6 +49,7 @@ shared_ptr<std::string> yyfilename;
 void initScanner();
 void preAction();
 void nextLine(int = 1);
+void scanPosition(const char*);
 void setLocation(YYLTYPE*);
 void startLocation(YYLTYPE*);
 void endLocation(YYLTYPE*);
@@ -145,8 +146,7 @@ bom                 "\357\273\277"
 ^{preprocessor_lineno}                         |
 ^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     yy_push_state(PREPROCESS);
-    yylineno = unit->scanPosition(yytext);
-    yyfilename = make_shared<string>(unit->currentFile());
+    scanPosition(yytext);
 }
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
@@ -548,6 +548,44 @@ void nextLine(int count)
     yycolno = 0;
 }
 
+void scanPosition(const char* s)
+{
+    string line(s);
+    // Skip the leading '#', optional 'line', and any whitespace before the line number.
+    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
+    if(line.find("line", idx) == idx)
+    {
+        idx = line.find_first_not_of(" \t\r", (idx + 4));
+    }
+    line.erase(0, idx);
+
+    // Read the line number
+    yylineno = stoi(line.c_str(), &idx) - 1;
+
+    // Scan the remainder of the line for a filename.
+    idx = line.find_first_not_of(" \t\r", idx);
+    line.erase(0, idx);
+
+    if(!line.empty())
+    {
+        if(line[0] == '"')
+        {
+            string::size_type edx = line.rfind('"');
+            if(edx != string::npos)
+            {
+                line = line.substr(1, edx - 1);
+            }
+            else
+            {
+                unit->error("mismatched quotations in line directive");
+                line = line.substr(1);
+            }
+        }
+        unit->setCurrentFile(line, yylineno);
+        yyfilename = make_shared<string>(move(line));
+    }
+}
+
 void setLocation(YYLTYPE* yylloc)
 {
     yylloc->firstLine = yylineno;
@@ -574,10 +612,10 @@ void endLocation(YYLTYPE* yylloc)
 static void yynoreturn fatalError(const char* msg)
 {
     cerr << msg << endl
+         << "\tlast matched text: `" << yytext << "'" << endl
          << "\tfile = " << unit->currentFile()
          << ", line = " << to_string(yylineno)
-         << ", column = " << to_string(yycolno) << endl
-         << "\tlast matched text: " << yytext << endl;
+         << ", column = " << to_string(yycolno) << endl;
     exit(YY_EXIT_FAILURE);
 }
 

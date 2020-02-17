@@ -6096,47 +6096,9 @@ Slice::Unit::currentLine() const
     return slice_lineno;
 }
 
-int
-Slice::Unit::scanPosition(const char* s)
+void
+Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
 {
-    assert(*s == '#');
-
-    string line(s + 1);                      // Skip leading #
-    eraseWhiteSpace(line);
-    if(line.find("line", 0) == 0)            // Erase optional "line"
-    {
-        line.erase(0, 4);
-        eraseWhiteSpace(line);
-    }
-
-    string::size_type idx;
-
-    int lineNumber = atoi(line.c_str()) - 1;   // Read line number
-
-    idx = line.find_first_of(" \t\r");       // Erase line number
-    if(idx != string::npos)
-    {
-        line.erase(0, idx);
-    }
-    eraseWhiteSpace(line);
-
-    string currentFile;
-    if(!line.empty())
-    {
-        if(line[0] == '"')
-        {
-            idx = line.rfind('"');
-            if(idx != string::npos)
-            {
-                currentFile = line.substr(1, idx - 1);
-            }
-        }
-        else
-        {
-            currentFile = line;
-        }
-    }
-
     enum LineType { File, Push, Pop };
 
     LineType type = File;
@@ -6146,8 +6108,6 @@ Slice::Unit::scanPosition(const char* s)
         if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
             type = Push;
-            line.erase(idx);
-            eraseWhiteSpace(line);
         }
     }
     else
@@ -6156,8 +6116,6 @@ Slice::Unit::scanPosition(const char* s)
         if(dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
         {
             type = Pop;
-            line.erase(idx);
-            eraseWhiteSpace(line);
         }
     }
 
@@ -6195,8 +6153,6 @@ Slice::Unit::scanPosition(const char* s)
         dc->setFilename(currentFile);
         _definitionContextMap.insert(make_pair(currentFile, dc));
     }
-
-    return lineNumber;
 }
 
 int
@@ -6496,13 +6452,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
     _topLevelFile = fullPath(filename);
     pushContainer(this);
     pushDefinitionContext();
-
-    //
-    // MCPP Fix: mcpp doesn't always output the first #line when mcpp_lib_main is
-    // called repeatedly. We scan a fake #line here to ensure the top definition
-    // context is correctly initialized.
-    //
-    scanPosition(string("#line 1 " + _topLevelFile).c_str());
+    setCurrentFile(_topLevelFile, 0);
 
     slice_in = file;
     int status = slice_parse();

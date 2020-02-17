@@ -4981,21 +4981,22 @@ namespace Slice
 // Definitions for the case-insensitive keyword-token map.
 static std::map<std::string, int> keywordMap;
 
-void initScanner();
-void preAction();
-static void yynoreturn fatalError(const char* msg);
-int checkKeyword(string&);
-int checkIdentifier(string&);
-
-void nextLine(int = 1);
-void setLocation(YYLTYPE*);
-void startLocation(YYLTYPE*);
-void endLocation(YYLTYPE*);
-
 // Stores the scanner's current column position. Flex also automatically
 // defines 'yylineno', which stores the scanner's current line number.
 int yycolno = 0;
 shared_ptr<std::string> yyfilename;
+
+void initScanner();
+void preAction();
+void nextLine(int = 1);
+void scanPosition(const char*);
+void setLocation(YYLTYPE*);
+void startLocation(YYLTYPE*);
+void endLocation(YYLTYPE*);
+static void yynoreturn fatalError(const char* msg);
+
+int checkKeyword(string&);
+int checkIdentifier(string&);
 
 }
 
@@ -5003,8 +5004,8 @@ shared_ptr<std::string> yyfilename;
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 5006 "src/Slice/Scanner.cpp"
-#line 69 "src/Slice/Scanner.l"
+#line 5007 "src/Slice/Scanner.cpp"
+#line 70 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
@@ -5029,7 +5030,7 @@ shared_ptr<std::string> yyfilename;
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 5032 "src/Slice/Scanner.cpp"
+#line 5033 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define SLICE 1
@@ -5231,13 +5232,13 @@ YY_DECL
 		}
 
 	{
-#line 130 "src/Slice/Scanner.l"
+#line 131 "src/Slice/Scanner.l"
 
 
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-#line 5240 "src/Slice/Scanner.cpp"
+#line 5241 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -5291,7 +5292,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 135 "src/Slice/Scanner.l"
+#line 136 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
 }
@@ -5299,7 +5300,7 @@ YY_RULE_SETUP
 /* Matches a line preprocessor directive, but missing a line number. */
 case 2:
 YY_RULE_SETUP
-#line 140 "src/Slice/Scanner.l"
+#line 141 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
@@ -5307,14 +5308,13 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 case 3:
-#line 147 "src/Slice/Scanner.l"
+#line 148 "src/Slice/Scanner.l"
 case 4:
 YY_RULE_SETUP
-#line 147 "src/Slice/Scanner.l"
+#line 148 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
-    yylineno = unit->scanPosition(yytext);
-    yyfilename = make_shared<string>(unit->currentFile());
+    scanPosition(yytext);
 }
 	YY_BREAK
 /* Matches any non white-space character. This is a catch-all to report any invalid characters
@@ -6681,6 +6681,72 @@ void preAction()
     }
 }
 
+void nextLine(int count)
+{
+    yylineno += count;
+    yycolno = 0;
+}
+
+void scanPosition(const char* s)
+{
+    string line(s);
+    // Skip the leading '#', optional 'line', and any whitespace before the line number.
+    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
+    if(line.find("line", idx) == idx)
+    {
+        idx = line.find_first_not_of(" \t\r", (idx + 4));
+    }
+    line.erase(0, idx);
+
+    // Read the line number
+    yylineno = stoi(line.c_str(), &idx) - 1;
+
+    // Scan the remainder of the line for a filename.
+    idx = line.find_first_not_of(" \t\r", idx);
+    line.erase(0, idx);
+
+    if(!line.empty())
+    {
+        if(line[0] == '"')
+        {
+            string::size_type edx = line.rfind('"');
+            if(edx != string::npos)
+            {
+                line = line.substr(1, edx - 1);
+            }
+            else
+            {
+                unit->error("mismatched quotations in line directive");
+                line = line.substr(1);
+            }
+        }
+        unit->setCurrentFile(line, yylineno);
+        yyfilename = make_shared<string>(move(line));
+    }
+}
+
+void setLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->lastLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+    yylloc->lastColumn = yycolno;
+    yylloc->filename = yyfilename;
+}
+
+void startLocation(YYLTYPE* yylloc)
+{
+    yylloc->firstLine = yylineno;
+    yylloc->firstColumn = yycolno - yyleng;
+}
+
+void endLocation(YYLTYPE* yylloc)
+{
+    yylloc->lastLine = yylineno;
+    yylloc->lastColumn = yycolno - yyleng;
+    yylloc->filename = yyfilename;
+}
+
 // This function is called whenever the scanner encounters an unrecoverable error.
 static void yynoreturn fatalError(const char* msg)
 {
@@ -6784,34 +6850,6 @@ int checkIdentifier(string& id)
     }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
-}
-
-void nextLine(int count)
-{
-    yylineno += count;
-    yycolno = 0;
-}
-
-void setLocation(YYLTYPE* yylloc)
-{
-    yylloc->firstLine = yylineno;
-    yylloc->lastLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
-    yylloc->lastColumn = yycolno;
-    yylloc->filename = yyfilename;
-}
-
-void startLocation(YYLTYPE* yylloc)
-{
-    yylloc->firstLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
-}
-
-void endLocation(YYLTYPE* yylloc)
-{
-    yylloc->lastLine = yylineno;
-    yylloc->lastColumn = yycolno - yyleng;
-    yylloc->filename = yyfilename;
 }
 
 }
