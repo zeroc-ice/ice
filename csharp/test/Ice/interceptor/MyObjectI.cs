@@ -29,9 +29,6 @@ namespace Ice.interceptor
         public int
         addWithRetry(int x, int y, Current current)
         {
-            test(current != null);
-            test(current.Context != null);
-
             if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
             {
                 return x + y;

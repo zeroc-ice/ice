@@ -24,8 +24,7 @@ namespace Ice.interceptor
 
         public async ValueTask<Ice.OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
-            string context;
-            if (current.Context.TryGetValue("raiseBeforeDispatch", out context))
+            if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
             {
                 if (context.Equals("user"))
                 {
@@ -55,23 +54,20 @@ namespace Ice.interceptor
                     catch (RetryException)
                     {
                         istr.RestartEncapsulation();
-                        //
                         // Expected, retry
-                        //
                     }
                 }
-
                 current.Context["retry"] = "no";
             }
             else if (current.Context.TryGetValue("retry", out context) && context.Equals("yes"))
             {
-                //
                 // Retry the dispatch to ensure that abandoning the result of the dispatch
                 // works fine and is thread-safe
-                //
-                _servant.DispatchAsync(istr, current);
+                var vt1 = _servant.DispatchAsync(istr, current);
                 istr.RestartEncapsulation();
-                _servant.DispatchAsync(istr, current);
+                var vt2 = _servant.DispatchAsync(istr, current);
+                await vt1.ConfigureAwait(false);
+                await vt2.ConfigureAwait(false);
             }
 
             istr.RestartEncapsulation();
@@ -100,7 +96,7 @@ namespace Ice.interceptor
 
         internal bool AsyncCompletion { get ; private set; } = false;
 
-        internal string getLastOperation() => _lastOperation;
+        internal string? getLastOperation() => _lastOperation;
 
         internal void
         clear()
@@ -110,6 +106,6 @@ namespace Ice.interceptor
         }
 
         private readonly IObject _servant;
-        private string _lastOperation;
+        private string? _lastOperation;
     }
 }

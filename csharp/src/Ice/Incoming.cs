@@ -78,14 +78,24 @@ namespace IceInternal
                 }
             }
 
+            bool amd = true;
             try
             {
-                Ice.OutputStream ostr = await servant.DispatchAsync(istr, current).ConfigureAwait(false);
-                Completed(ostr, null, false, current); // true = amd, TODO: why does this matter?
+                var vt = servant.DispatchAsync(istr, current);
+                if (vt.IsCompleted)
+                {
+                    amd = false;
+                    Completed(vt.Result, null, amd, current);
+                }
+                else
+                {
+                    Ice.OutputStream ostr = await vt.ConfigureAwait(false);
+                    Completed(vt.Result, null, amd, current);
+                }
             }
             catch (System.Exception ex)
             {
-                Completed(null, ex, true, current); // true = amd, TODO: why does this matter?
+                Completed(null, ex, amd, current);
             }
         }
 
