@@ -2895,7 +2895,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     _out << sp;
     _out << nl << "protected ";
-    if (amd && outParams.size() == 0)
+    if (amd)
     {
         _out << "async ";
     }
@@ -2927,70 +2927,15 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         if (amd)
         {
-            _out << nl << "return IceFromValueTask(this." << name << spar
-                << getNames(inParams) << "current" << epar << ");";
+            _out << nl << "var result = await this." << name << spar << getNames(inParams) << "current" << epar
+                << ".ConfigureAwait(false);";
+            _out << nl << "return result.OutputStream;";
         }
         else
         {
             _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
                 << "current" << epar << ".OutputStream);";
         }
-        _out << eb;
-    }
-    else if(amd)
-    {
-        _out << nl;
-        if (outParams.size() > 0)
-        {
-            _out << "return IceFromValueTask(";
-        }
-        else
-        {
-            _out << "await ";
-        }
-        _out << "this." << opName << "Async" << spar << getNames(inParams) << "current" << epar;
-        if(outParams.size() > 0)
-        {
-            _out << ", current";
-            if (operation->format() == DefaultFormat)
-            {
-                _out << ", null";
-            }
-            else
-            {
-                _out << ", " << opFormatTypeToString(operation, ns);
-            }
-            _out << ",";
-            _out.inc();
-            if(outParams.size() == 1)
-            {
-                _out << nl << "(ostr, " << outParams.front().name << ") =>";
-                _out << sb;
-                writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-                _out << eb;
-            }
-            else
-            {
-                _out << nl << "(ostr, ret) =>";
-                _out << sb;
-                getOutParams(operation, requiredOutParams, taggedOutParams);
-                writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "ret.");
-                _out << eb;
-            }
-            _out.dec();
-            _out << ")";
-        }
-        if(outParams.size() == 0)
-        {
-            _out << ".ConfigureAwait(false);";
-            // TODO: for oneway, return OutputStream.Empty
-            _out << nl << "return global::IceInternal.Protocol.CreateEmptyResponseFrame(current);";
-        }
-        else
-        {
-            _out << ";";
-        }
-
         _out << eb;
     }
     else
@@ -3004,12 +2949,27 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << "var " << outParams.front().name << " = ";
         }
-
-        _out << "this." << name << spar << getNames(inParams) << "current" << epar << ";";
+        if (amd)
+        {
+            _out << "await ";
+        }
+        _out << "this." << name << spar << getNames(inParams) << "current" << epar;
+        if (amd)
+        {
+            _out << ".ConfigureAwait(false)";
+        }
+        _out << ";";
 
         if(outParams.size() == 0)
         {
-            _out << nl << "return IceFromVoidResult(current);";
+            if (amd)
+            {
+                _out << nl << "return global::IceInternal.Protocol.CreateEmptyResponseFrame(current);";
+            }
+            else
+            {
+                _out << nl << "return IceFromVoidResult(current);";
+            }
         }
         else
         {
@@ -3021,7 +2981,14 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             _out << ");";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams);
             _out << nl << "ostr.EndEncapsulation();";
-            _out << nl << "return IceFromResult(ostr);";
+            if (amd)
+            {
+                _out << nl << "return ostr;";
+            }
+            else
+            {
+                _out << nl << "return IceFromResult(ostr);";
+            }
         }
         _out << eb;
     }
