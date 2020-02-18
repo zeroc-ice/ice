@@ -86,9 +86,9 @@ namespace Ice.objects
         public Test.IInitial.GetMBMarshaledReturnValue getMB(Current current) =>
             new Test.IInitial.GetMBMarshaledReturnValue(_b1, current);
 
-        public Task<Test.IInitial.GetAMDMBMarshaledReturnValue>
-        getAMDMBAsync(Current current) =>
-            Task.FromResult(new Test.IInitial.GetAMDMBMarshaledReturnValue(_b1, current));
+        public ValueTask<Test.IInitial.GetAMDMBMarshaledReturnValue> getAMDMBAsync(Current current)
+            => new ValueTask<Test.IInitial.GetAMDMBMarshaledReturnValue>(
+                new Test.IInitial.GetAMDMBMarshaledReturnValue(_b1, current));
 
         public (Test.M?, Test.M?) opM(Test.M? v1, Current current) => (v1, v1);
 

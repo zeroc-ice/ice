@@ -61,10 +61,9 @@ namespace Ice.ami
 
         public bool supportsFunctionalTests(Current current) => false;
 
-        public async Task opAsyncDispatchAsync(Current current) => await Task.Delay(10);
+        public async ValueTask opAsyncDispatchAsync(Current current) => await Task.Delay(10);
 
-        public async Task<int>
-        opWithResultAsyncDispatchAsync(Ice.Current current)
+        public async ValueTask<int> opWithResultAsyncDispatchAsync(Ice.Current current)
         {
             await Task.Delay(10);
             test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
@@ -73,8 +72,7 @@ namespace Ice.ami
             return r;
         }
 
-        public async Task
-        opWithUEAsyncDispatchAsync(Ice.Current current)
+        public async ValueTask opWithUEAsyncDispatchAsync(Ice.Current current)
         {
             test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
             await Task.Delay(10);
@@ -82,8 +80,7 @@ namespace Ice.ami
             await self(current).opWithUEAsync();
         }
 
-        public void
-        pingBiDir(Test.IPingReplyPrx reply, Ice.Current current)
+        public void pingBiDir(Test.IPingReplyPrx reply, Ice.Current current)
         {
             reply = reply.Clone(fixedConnection: current.Connection);
             Thread dispatchThread = Thread.CurrentThread;
@@ -100,8 +97,7 @@ namespace Ice.ami
         Test.ITestIntfPrx self(Current current) =>
             current.Adapter.CreateProxy(current.Id, Test.ITestIntfPrx.Factory);
 
-        public Task
-        startDispatchAsync(Ice.Current current)
+        public ValueTask startDispatchAsync(Ice.Current current)
         {
             lock (this)
             {
@@ -111,19 +107,18 @@ namespace Ice.ami
                     // before start dispatch.
                     var v = new TaskCompletionSource<object>();
                     v.SetResult(null);
-                    return v.Task;
+                    return new ValueTask(v.Task);
                 }
                 else if (_pending != null)
                 {
                     _pending.SetResult(null);
                 }
                 _pending = new TaskCompletionSource<object>();
-                return _pending.Task;
+                return new ValueTask(_pending.Task);
             }
         }
 
-        public void
-        finishDispatch(Ice.Current current)
+        public void finishDispatch(Ice.Current current)
         {
             lock (this)
             {

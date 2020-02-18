@@ -2,33 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Ice.invoke
 {
-    public class BlobjectI : Blobject
+    public class BlobjectI : IObject
     {
-        public override bool
-        IceInvoke(byte[] inParams, out byte[]? outParams, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
-            Communicator communicator = current.Adapter.Communicator;
-            InputStream inS = new InputStream(communicator, inParams);
-            inS.StartEncapsulation();
-            OutputStream outS = new OutputStream(communicator);
-            outS.StartEncapsulation();
             if (current.Operation.Equals("opOneway"))
             {
-                outParams = new byte[0];
-                return true;
+                Debug.Assert(current.IsOneway);
+                // TODO: replace by OutputStream.Empty
+                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
             }
             else if (current.Operation.Equals("opString"))
             {
-                string s = inS.ReadString();
-                outS.WriteString(s);
-                outS.WriteString(s);
-                outS.EndEncapsulation();
-                outParams = outS.Finished();
-                return true;
+                string s = istr.ReadString();
+                var ostr = IceInternal.Protocol.StartResponseFrame(current);
+                ostr.WriteString(s);
+                ostr.WriteString(s);
+                ostr.EndEncapsulation();
+                return ostr;
             }
             else if (current.Operation.Equals("opException"))
             {
@@ -37,39 +33,34 @@ namespace Ice.invoke
                     throw new Test.MyException();
                 }
                 var ex = new Test.MyException();
-                outS.WriteException(ex);
-                outS.EndEncapsulation();
-                outParams = outS.Finished();
-                return false;
+                var ostr = IceInternal.Protocol.StartFailureResponseFrame(current);
+                ostr.WriteException(ex);
+                ostr.EndEncapsulation();
+                return ostr;
             }
             else if (current.Operation.Equals("shutdown"))
             {
-                communicator.Shutdown();
-                outParams = null;
-                return true;
+                current.Adapter.Communicator.Shutdown();
+                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
-                string s = inS.ReadString();
+                string s = istr.ReadString();
+                var ostr = IceInternal.Protocol.StartResponseFrame(current);
                 if (s.Equals("::Test::MyClass"))
                 {
-                    outS.WriteBool(true);
+                    ostr.WriteBool(true);
                 }
                 else
                 {
-                    outS.WriteBool(false);
+                    ostr.WriteBool(false);
                 }
-                outS.EndEncapsulation();
-                outParams = outS.Finished();
-                return true;
+                ostr.EndEncapsulation();
+                return ostr;
             }
             else
             {
-                OperationNotExistException ex = new OperationNotExistException();
-                ex.Id = current.Id;
-                ex.Facet = current.Facet;
-                ex.Operation = current.Operation;
-                throw ex;
+                throw new OperationNotExistException(current.Id, current.Facet, current.Operation);
             }
         }
     }

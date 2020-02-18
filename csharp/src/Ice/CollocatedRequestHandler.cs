@@ -243,8 +243,9 @@ namespace IceInternal
                         break;
                     }
 
-                    var inS = new Incoming(_reference.GetCommunicator(), this, null, _adapter, _response, 0, requestId);
-                    inS.Invoke(iss);
+                    // TODO: await ValueTask returned by InvokeAsync
+                    var vt = Incoming.InvokeAsync(_reference.GetCommunicator(), this, null, _adapter, 0, requestId,
+                        iss);
                     --invokeNum;
                 }
             }

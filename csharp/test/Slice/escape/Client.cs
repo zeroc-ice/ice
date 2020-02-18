@@ -12,10 +12,10 @@ public class Client : Test.TestHelper
 {
     public sealed class caseI : Icase
     {
-        public Task<int>
+        public ValueTask<int>
         catchAsync(int @checked, Ice.Current current)
         {
-            return Task.FromResult(0);
+            return new ValueTask<int>(0);
         }
     }
 
@@ -28,8 +28,8 @@ public class Client : Test.TestHelper
 
     public sealed class explicitI : Iexplicit
     {
-        public Task<int>
-        catchAsync(int @checked, Ice.Current current) => Task.FromResult(0);
+        public ValueTask<int>
+        catchAsync(int @checked, Ice.Current current) => new ValueTask<int>(0);
 
         public void @default(Ice.Current current) => test(current.Operation == "default");
     }

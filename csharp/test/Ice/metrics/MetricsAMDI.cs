@@ -24,28 +24,28 @@ public sealed class Controller : IController
 
 public sealed class Metrics : IMetrics
 {
-    public Task opAsync(Ice.Current current) => null;
+    public ValueTask opAsync(Ice.Current current) => new ValueTask(Task.CompletedTask);
 
-    public Task failAsync(Ice.Current current)
+    public ValueTask failAsync(Ice.Current current)
     {
         Debug.Assert(current != null);
         current.Connection.Close(Ice.ConnectionClose.Forcefully);
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task opWithUserExceptionAsync(Ice.Current current) => throw new UserEx();
+    public ValueTask opWithUserExceptionAsync(Ice.Current current) => throw new UserEx();
 
-    public Task
+    public ValueTask
     opWithRequestFailedExceptionAsync(Ice.Current current) => throw new Ice.ObjectNotExistException();
 
-    public Task
+    public ValueTask
     opWithLocalExceptionAsync(Ice.Current current) => throw new Ice.SyscallException();
 
-    public Task
+    public ValueTask
     opWithUnknownExceptionAsync(Ice.Current current) => throw new ArgumentOutOfRangeException();
 
-    public Task
-    opByteSAsync(byte[] bs, Ice.Current current) => null;
+    public ValueTask
+    opByteSAsync(byte[] bs, Ice.Current current) => new ValueTask(Task.CompletedTask);
 
     public Ice.IObjectPrx
     getAdmin(Ice.Current current)

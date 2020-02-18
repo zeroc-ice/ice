@@ -6,30 +6,28 @@ using IceInternal;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ice
 {
-    /// <summary>
-    /// Interface for incoming requests.
-    /// </summary>
-    public interface IRequest
-    {
-        /// <summary>
-        /// Returns the {@link Current} object for this the request.
-        /// </summary>
-        /// <returns>The Current object for this request.</returns>
-        Current? GetCurrent();
-    }
-
     ///<summary>The base interface for all servants.</summary>
     public interface IObject
     {
-        public Task<OutputStream>? Dispatch(Incoming inS, Current current)
+        /// <summary>Dispatches a request on this servant.</summary>
+        /// <param name="istr">The <see cref="InputStream"/> that holds the request frame. It is positionned at
+        /// the start of the request's payload, just after starting to read the encapsulation.</param>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// current request.</param>
+        /// <returns>A value task that provides the response frame for the request. Null means the request is a oneway
+        /// request. See <see cref="IceInternal.Protocol.StartResponseFrame"/>.</returns>
+        /// <exception cref="System.Exception">Any exception thrown by Dispatch is marshaled into the response frame.
+        /// </exception>
+        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
             // TODO: switch to abstract method
             Debug.Assert(false);
-            return null;
+            return IceFromVoidResult(current);
         }
 
         // The following are helper methods for generated servants.
@@ -60,6 +58,9 @@ namespace Ice
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string IceId(Current current) => "::Ice::Object";
 
+        // The following protected static methods with Ice-prefixes are Ice-internal helper methods used by
+        // generated servants.
+
         protected static void IceCheckMode(OperationMode expected, OperationMode received)
         {
             if (expected != received)
@@ -75,98 +76,132 @@ namespace Ice
                 }
             }
         }
-
-        protected Task<OutputStream>? IceD_ice_ping(IceInternal.Incoming inS, Current current)
+        protected static async ValueTask<Ice.OutputStream> IceFromValueTask<R>(ValueTask<R> valueTask,
+            Current current, FormatType? format, Action<Ice.OutputStream, R> write)
         {
-            inS.ReadEmptyParams();
+            // NOTE: it's important that the continuation (wruite) doesn't mutate the request state to
+            // guarantee thread-safety. Multiple continuations can execute concurrently if the
+            // user installed a dispatch interceptor and the dispatch is retried.
+
+            R result = await valueTask.ConfigureAwait(false);
+            Ice.OutputStream ostr = Protocol.StartResponseFrame(current, format);
+            write(ostr, result);
+            ostr.EndEncapsulation();
+            return ostr;
+        }
+
+        protected static async ValueTask<Ice.OutputStream> IceFromValueTask<T>(ValueTask<T> valueTask)
+            where T : struct, IMarshaledReturnValue
+        {
+            var result = await valueTask.ConfigureAwait(false);
+            return result.OutputStream;
+        }
+
+        protected static ValueTask<Ice.OutputStream> IceFromResult(Ice.OutputStream ostr)
+            => new ValueTask<Ice.OutputStream>(ostr);
+
+        protected static ValueTask<Ice.OutputStream> IceFromVoidResult(Ice.Current current)
+        {
+            // TODO: for oneway requests, we should reuse the same fake response frame, not
+            // create a new one each time. It could be OutputStream.Empty.
+            return IceFromResult(Protocol.CreateEmptyResponseFrame(current));
+        }
+
+        protected ValueTask<OutputStream> IceD_ice_pingAsync(InputStream istr, Current current)
+        {
+            istr.CheckIsReadable();
+            istr.EndEncapsulation();
             IcePing(current);
-            inS.SetResult(inS.WriteEmptyParams());
-            return null;
+            return IceFromVoidResult(current);
         }
 
-        protected Task<OutputStream>? IceD_ice_isA(IceInternal.Incoming inS, Current current)
+        protected ValueTask<OutputStream> IceD_ice_isAAsync(InputStream istr, Current current)
         {
-            InputStream istr = inS.StartReadParams();
+            istr.CheckIsReadable();
             string id = istr.ReadString();
-            inS.EndReadParams();
+            istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            OutputStream ostr = inS.StartWriteParams();
+            OutputStream ostr = Protocol.StartResponseFrame(current);
             ostr.WriteBool(ret);
-            inS.EndWriteParams(ostr);
-            return inS.SetResult(ostr)!;
+            ostr.EndEncapsulation();
+            return IceFromResult(ostr);
         }
 
-        protected Task<OutputStream>? IceD_ice_id(IceInternal.Incoming inS, Current current)
+        protected ValueTask<OutputStream> IceD_ice_idAsync(InputStream istr, Current current)
         {
-            inS.ReadEmptyParams();
+            istr.CheckIsReadable();
+            istr.EndEncapsulation();
             string ret = IceId(current);
-            OutputStream ostr = inS.StartWriteParams();
+            OutputStream ostr = Protocol.StartResponseFrame(current);
             ostr.WriteString(ret);
-            inS.EndWriteParams(ostr);
-            inS.SetResult(ostr);
-            return null;
+            ostr.EndEncapsulation();
+            return IceFromResult(ostr);
         }
 
-        protected Task<OutputStream>? IceD_ice_ids(IceInternal.Incoming inS, Current current)
+        protected ValueTask<OutputStream> IceD_ice_idsAsync(InputStream istr, Current current)
         {
-            inS.ReadEmptyParams();
+            istr.CheckIsReadable();
+            istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            OutputStream ostr = inS.StartWriteParams();
+            OutputStream ostr = Protocol.StartResponseFrame(current);
             ostr.WriteStringSeq(ret);
-            inS.EndWriteParams(ostr);
-            inS.SetResult(ostr);
-            return null;
+            ostr.EndEncapsulation();
+            return IceFromResult(ostr);
         }
     }
 
-    /// <summary>
-    /// Base class for dynamic dispatch servants. A server application
-    /// derives a concrete servant class from Blobject that
-    /// implements the Blobject.ice_invoke method.
-    /// </summary>
-    public abstract class Blobject : IObject
+    /// <summary>All marshaled return value structs generated by the Slice compiler implement this
+    /// IMarshaledResultValue interface.</summary>
+    public interface IMarshaledReturnValue
     {
-        /// <summary>
-        /// Dispatch an incoming request.
-        /// </summary>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
-        /// for the operation. The return value follows any out-parameters.</param>
-        /// <param name="current">The Current object to pass to the operation.</param>
-        /// <returns>If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// must contain the encoded user exception. If the operation raises an
-        /// Ice run-time exception, it must throw it directly.</returns>
-        public abstract bool IceInvoke(byte[] inParams, out byte[] outParams, Current current);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream>? Dispatch(Incoming incoming, Current current)
-        {
-            incoming.StartOver();
-            byte[] inEncaps = incoming.ReadParamEncaps();
-            bool ok = IceInvoke(inEncaps, out byte[] outEncaps, current);
-            incoming.SetResult(incoming.WriteParamEncaps(outEncaps, ok));
-            return null;
-        }
+        public OutputStream OutputStream { get; }
     }
 
+    // TODO: remove once the proxy InvokeAsync signature is updated to match the Dispatch signature.
     public abstract class BlobjectAsync : IObject
     {
         public abstract Task<Ice.Object_Ice_invokeResult> IceInvokeAsync(byte[] inEncaps, Current current);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<OutputStream>? Dispatch(Incoming incoming, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
-            incoming.StartOver();
-            byte[] inEncaps = incoming.ReadParamEncaps();
-            Task<Object_Ice_invokeResult> task = IceInvokeAsync(inEncaps, current);
-            return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
-                {
-                    Object_Ice_invokeResult ret = t.GetAwaiter().GetResult();
-                    return Task.FromResult(incoming.WriteParamEncaps(ret.OutEncaps!, ret.ReturnValue)!);
-                },
-                TaskScheduler.Current).Unwrap();
+            byte[] inEncaps = ReadParamEncaps(istr);
+            Object_Ice_invokeResult ret = await IceInvokeAsync(inEncaps, current).ConfigureAwait(false);
+            return WriteParamEncaps(ret.OutEncaps, ret.ReturnValue, current);
+        }
+
+        private static byte[] ReadParamEncaps(InputStream istr)
+        {
+            istr.Pos -= 6;
+            byte[] result = istr.ReadEncapsulation(out Ice.EncodingVersion encoding);
+            return result;
+        }
+
+        private static Ice.OutputStream WriteParamEncaps(byte[]? v, bool ok, Current current)
+        {
+            if (current.IsOneway)
+            {
+                Debug.Assert(ok);
+                return Protocol.CreateEmptyResponseFrame(current);
+            }
+
+            if (!ok)
+            {
+                current.DispatchObserver?.UserException();
+            }
+
+            var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
+            ostr.WriteBlob(Protocol.replyHdr);
+            ostr.WriteInt(current.RequestId);
+            ostr.WriteByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+
+            if (v == null || v.Length == 0)
+            {
+                ostr.WriteEmptyEncapsulation(current.Encoding);
+            }
+            else
+            {
+                ostr.WriteEncapsulation(v);
+            }
+            return ostr;
         }
     }
 }

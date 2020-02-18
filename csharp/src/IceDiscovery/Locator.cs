@@ -15,8 +15,7 @@ namespace IceDiscovery
             _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
                 clearLocator: true, clearRouter: true, collocationOptimized: true);
 
-        public Task?
-        SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
+        public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
         {
             lock (this)
             {
@@ -29,11 +28,10 @@ namespace IceDiscovery
                     _adapters.Remove(adapterId);
                 }
             }
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task?
-        SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
                                              Current current)
         {
             lock (this)
@@ -63,11 +61,11 @@ namespace IceDiscovery
                     }
                 }
             }
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task?
-        SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) => null;
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current)
+            => new ValueTask(Task.CompletedTask);
 
         internal IObjectPrx? FindObject(Identity id)
         {
@@ -170,10 +168,10 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public Task<IObjectPrx?>
+        public ValueTask<IObjectPrx?>
         FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
 
-        public Task<IObjectPrx?>
+        public ValueTask<IObjectPrx?>
         FindAdapterByIdAsync(string adapterId, Current current) => _lookup.FindAdapter(adapterId);
 
         public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;

@@ -22,116 +22,90 @@ namespace Ice.interceptor
             }
         }
 
-        public  Task<Ice.OutputStream>?
-        Dispatch(IceInternal.Incoming incoming, Current current)
+        public async ValueTask<Ice.OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
-            try
+            if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
             {
-                incoming.StartOver();
-                string context;
-                if (current.Context.TryGetValue("raiseBeforeDispatch", out context))
+                if (context.Equals("user"))
                 {
-                    if (context.Equals("user"))
-                    {
-                        throw new Test.InvalidInputException();
-                    }
-                    else if (context.Equals("notExist"))
-                    {
-                        throw new Ice.ObjectNotExistException();
-                    }
-                    else if (context.Equals("system"))
-                    {
-                        throw new MySystemException();
-                    }
+                    throw new Test.InvalidInputException();
                 }
-
-                _lastOperation = current.Operation;
-
-                if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
+                else if (context.Equals("notExist"))
                 {
-                    for (int i = 0; i < 10; ++i)
-                    {
-                        try
-                        {
-                            var t = _servant.Dispatch(incoming, current);
-                            if (t != null && t.IsFaulted)
-                            {
-                                throw t.Exception.InnerException;
-                            }
-                            else
-                            {
-                                test(false);
-                            }
-                        }
-                        catch (RetryException)
-                        {
-                            //
-                            // Expected, retry
-                            //
-                        }
-                    }
-
-                    current.Context["retry"] = "no";
+                    throw new Ice.ObjectNotExistException();
                 }
-                else if (current.Context.TryGetValue("retry", out context) && context.Equals("yes"))
+                else if (context.Equals("system"))
                 {
-                    //
-                    // Retry the dispatch to ensure that abandoning the result of the dispatch
-                    // works fine and is thread-safe
-                    //
-                    _servant.Dispatch(incoming, current);
-                    _servant.Dispatch(incoming, current);
+                    throw new MySystemException();
                 }
-
-                var task = _servant.Dispatch(incoming, current);
-                _lastStatus = task != null;
-
-                if (current.Context.TryGetValue("raiseAfterDispatch", out context))
-                {
-                    if (context.Equals("user"))
-                    {
-                        throw new Test.InvalidInputException();
-                    }
-                    else if (context.Equals("notExist"))
-                    {
-                        throw new Ice.ObjectNotExistException();
-                    }
-                    else if (context.Equals("system"))
-                    {
-                        throw new MySystemException();
-                    }
-                }
-
-                return task;
             }
-            catch (Exception)
+
+            _lastOperation = current.Operation;
+
+            if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
             {
-                //
-                // If the input parameters weren't read, make sure we skip them here. It's needed to read the
-                // encoding version used by the client to eventually marshal the user exception. It's also needed
-                // if we dispatch a batch oneway request to read the next batch request.
-                //
-                if (current.Encoding == null || (current.Encoding.Major == 0 && current.Encoding.Minor == 0))
+                for (int i = 0; i < 10; ++i)
                 {
-                    incoming.SkipReadParams();
+                    try
+                    {
+                        var ostr = await _servant.DispatchAsync(istr, current).ConfigureAwait(false);
+                        test(false);
+                    }
+                    catch (RetryException)
+                    {
+                        istr.RestartEncapsulation();
+                        // Expected, retry
+                    }
                 }
-                throw;
+                current.Context["retry"] = "no";
             }
+            else if (current.Context.TryGetValue("retry", out context) && context.Equals("yes"))
+            {
+                // Retry the dispatch to ensure that abandoning the result of the dispatch
+                // works fine and is thread-safe
+                var vt1 = _servant.DispatchAsync(istr, current);
+                istr.RestartEncapsulation();
+                var vt2 = _servant.DispatchAsync(istr, current);
+                await vt1.ConfigureAwait(false);
+                await vt2.ConfigureAwait(false);
+            }
+
+            istr.RestartEncapsulation();
+            var vt = _servant.DispatchAsync(istr, current);
+
+            AsyncCompletion = !vt.IsCompleted;
+
+            if (current.Context.TryGetValue("raiseAfterDispatch", out context))
+            {
+                if (context.Equals("user"))
+                {
+                    throw new Test.InvalidInputException();
+                }
+                else if (context.Equals("notExist"))
+                {
+                    throw new Ice.ObjectNotExistException();
+                }
+                else if (context.Equals("system"))
+                {
+                    throw new MySystemException();
+                }
+            }
+
+            return await vt.ConfigureAwait(false);
         }
 
-        internal bool getLastStatus() => _lastStatus;
+        internal bool AsyncCompletion { get ; private set; } = false;
 
-        internal string getLastOperation() => _lastOperation;
+        internal string? getLastOperation() => _lastOperation;
 
         internal void
         clear()
         {
             _lastOperation = null;
-            _lastStatus = false;
+            AsyncCompletion = false;
         }
 
         private readonly IObject _servant;
-        private string _lastOperation;
-        private bool _lastStatus = false;
+        private string? _lastOperation;
     }
 }

@@ -2686,7 +2686,6 @@ namespace Ice
             // operation must be called *without* the mutex locked.
             //
 
-            Incoming? inc = null;
             try
             {
                 while (invokeNum > 0)
@@ -2694,19 +2693,12 @@ namespace Ice
                     //
                     // Prepare the invocation.
                     //
-                    bool response = !_endpoint.Datagram() && requestId != 0;
-                    Debug.Assert(!response || invokeNum == 1);
+                    Debug.Assert(_endpoint.Datagram() || requestId == 0 || invokeNum == 1);
 
-                    inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
-
-                    //
                     // Dispatch the invocation.
-                    //
-                    inc.Invoke(stream);
-
+                    // TODO: await ValueTask returned by InvokeAsync
+                    var vt = Incoming.InvokeAsync(_communicator, this, this, adapter, compress, requestId, stream);
                     --invokeNum;
-
-                    inc = null;
                 }
 
                 stream.Clear();

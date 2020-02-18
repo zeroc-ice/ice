@@ -291,7 +291,7 @@ public sealed class TestIntf : ITestIntf
         test(pu.cl != null && pu.cl.i == 15);
     }
 
-    public Task<Preserved>
+    public ValueTask<Preserved>
     PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
@@ -302,7 +302,7 @@ public sealed class TestIntf : ITestIntf
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        return Task.FromResult<Preserved>(r);
+        return new ValueTask<Preserved>(r);
     }
 
     public void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
@@ -317,14 +317,14 @@ public sealed class TestIntf : ITestIntf
         test(pu.graph.next.next.next == pu.graph);
     }
 
-    public Task<Preserved>
+    public ValueTask<Preserved>
     PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        return Task.FromResult<Preserved>(r);
+        return new ValueTask<Preserved>(r);
     }
 
     public void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
@@ -399,7 +399,7 @@ public sealed class TestIntf : ITestIntf
         throw ude;
     }
 
-    public Task
+    public ValueTask
     throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();

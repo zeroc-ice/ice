@@ -1744,8 +1744,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
-    _out << sp;
-
     if(!dataMembers.empty())
     {
         _out << sp;
@@ -2753,21 +2751,20 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
-    _out << nl << "global::System.Threading.Tasks.Task<global::Ice.OutputStream>? "
+    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
         << getUnqualified("Ice.IObject", ns)
-        << ".Dispatch(global::IceInternal.Incoming incoming, global::Ice.Current current)";
+        << ".DispatchAsync(global::Ice.InputStream istr, global::Ice.Current current)";
     _out.inc();
-    _out << nl << " => Dispatch(this, incoming, current);";
+    _out << nl << " => DispatchAsync(this, istr, current);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "// This protected static Dispatch allows a derived class to override the instance Dispatch";
+    _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
-    _out << nl << "protected static global::System.Threading.Tasks.Task<global::Ice.OutputStream>? "
-        << "Dispatch(" << fixId(name) << " servant, "
-        << "global::IceInternal.Incoming incoming, global::Ice.Current current)";
+    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+        << "DispatchAsync(" << fixId(name) << " servant, "
+        << "global::Ice.InputStream istr, global::Ice.Current current)";
     _out << sb;
-    _out << nl << "incoming.StartOver();";
     _out << nl << "switch(current.Operation)";
     _out << sb;
     StringList allOpNames;
@@ -2784,7 +2781,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return servant.IceD_" << opName << "(incoming, current);";
+        _out << nl << "return servant.IceD_" << opName << "Async(istr, current);";
         _out << eb;
     }
 
@@ -2818,7 +2815,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "public struct " << opName << "MarshaledReturnValue : "
              << getUnqualified("Ice.IMarshaledReturnValue", ns);
         _out << sb;
-        _out << nl << "private " << getUnqualified("Ice.OutputStream", ns) << " _ostr;";
+        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " OutputStream { get; }";
 
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(outParams, [](const auto& p)
@@ -2828,26 +2825,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "_ostr = global::IceInternal.Incoming.CreateResponseOutputStream(current);";
-        _out << nl << "_ostr.StartEncapsulation(current.Encoding, " << opFormatTypeToString(operation, ns) << ");";
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "_ostr");
-        _out << nl << "_ostr.EndEncapsulation();";
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " GetOutputStream("
-             << getUnqualified("Ice.Current", ns) << " current)";
-        _out << sb;
-        _out << nl << "if(_ostr == null)";
-        _out << sb;
-        _out << nl << "return new " << opName << "MarshaledReturnValue"<< spar;
-        for(const auto& p : outParams)
+        _out << nl << "OutputStream = global::IceInternal.Protocol.StartResponseFrame(current";
+        if (operation->format() != DefaultFormat)
         {
-            _out << writeValue(p.type, ns);
+            _out << ", " << opFormatTypeToString(operation, ns);
         }
-        _out << "current" << epar << ".GetOutputStream(current);";
-        _out << eb;
-        _out << nl << "return _ostr;";
+        _out << ");";
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "OutputStream");
+        _out << nl << "OutputStream.EndEncapsulation();";
         _out << eb;
 
         _out << eb;
@@ -2894,7 +2879,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string ns = getNamespace(cl);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
-    string internalName = "IceD_" + operation->name();
+    string internalName = "IceD_" + operation->name() + "Async";
 
     list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
     list<ParamInfo> requiredInParams;
@@ -2909,63 +2894,48 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string retS = resultType(operation, ns, true);
 
     _out << sp;
-    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
-    _out << nl << "protected global::System.Threading.Tasks.Task<"
-         << getUnqualified("Ice.OutputStream", ns) << ">?";
-    _out << nl << internalName << "(global::IceInternal.Incoming inS, "
-        << getUnqualified("Ice.Current", ns) << " current)";
+    _out << nl << "protected ";
+    if (amd)
+    {
+        _out << "async ";
+    }
+    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
+    _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
+        << " current)";
     _out << sb;
 
     _out << nl << "IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns) << ", current.Mode);";
-    if(inParams.empty())
+
+    // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
+    // skips tagged members, and needs to understand them.
+
+    _out << nl << "istr.CheckIsReadable();";
+    if(!inParams.empty())
     {
-        _out << nl << "inS.ReadEmptyParams();";
-    }
-    else
-    {
-        _out << nl << "var istr = inS.StartReadParams();";
         writeUnmarshalParams(operation, requiredInParams, taggedInParams);
-        _out << nl << "inS.EndReadParams();";
     }
+    _out << nl << "istr.EndEncapsulation();";
 
     if(operation->format() != DefaultFormat)
     {
-        _out << nl << "inS.SetFormat(" << opFormatTypeToString(operation, ns) << ");";
+        _out << nl << "current.Format = " << opFormatTypeToString(operation, ns) << ";";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
+
     if(operation->hasMarshaledResult())
     {
-        _out << nl << "return inS." << (amd ? "SetMarshaledResultTask" : "SetMarshaledResult");
-        _out << "(this." << name << spar << getNames(inParams) << "current" << epar << ");";
-        _out << eb;
-    }
-    else if(amd)
-    {
-        _out << nl << "return inS.SetResultTask" << "(this." << opName << "Async" << spar
-             << getNames(inParams) << "current" << epar;
-        if(outParams.size() > 0)
+        if (amd)
         {
-            _out << ",";
-            _out.inc();
-            if(outParams.size() == 1)
-            {
-                _out << nl << "(ostr, " << outParams.front().name << ") =>";
-                _out << sb;
-                writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-                _out << eb;
-            }
-            else
-            {
-                _out << nl << "(ostr, ret) =>";
-                _out << sb;
-                getOutParams(operation, requiredOutParams, taggedOutParams);
-                writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "ret.");
-                _out << eb;
-            }
-            _out.dec();
+            _out << nl << "var result = await this." << name << spar << getNames(inParams) << "current" << epar
+                << ".ConfigureAwait(false);";
+            _out << nl << "return result.OutputStream;";
         }
-        _out << ");";
+        else
+        {
+            _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
+                << "current" << epar << ".OutputStream);";
+        }
         _out << eb;
     }
     else
@@ -2979,19 +2949,46 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << "var " << outParams.front().name << " = ";
         }
-
-        _out << "this." << name << spar << getNames(inParams) << "current" << epar << ";";
+        if (amd)
+        {
+            _out << "await ";
+        }
+        _out << "this." << name << spar << getNames(inParams) << "current" << epar;
+        if (amd)
+        {
+            _out << ".ConfigureAwait(false)";
+        }
+        _out << ";";
 
         if(outParams.size() == 0)
         {
-            _out << nl << "return inS.SetResult(inS.WriteEmptyParams());";
+            if (amd)
+            {
+                _out << nl << "return global::IceInternal.Protocol.CreateEmptyResponseFrame(current);";
+            }
+            else
+            {
+                _out << nl << "return IceFromVoidResult(current);";
+            }
         }
         else
         {
-            _out << nl << "var ostr = inS.StartWriteParams();";
+            _out << nl << "var ostr = global::IceInternal.Protocol.StartResponseFrame(current";
+            if (operation->format() != DefaultFormat)
+            {
+                _out << ", " << opFormatTypeToString(operation, ns);
+            }
+            _out << ");";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-            _out << nl << "inS.EndWriteParams(ostr);";
-            _out << nl << "return inS.SetResult(ostr);";
+            _out << nl << "ostr.EndEncapsulation();";
+            if (amd)
+            {
+                _out << nl << "return ostr;";
+            }
+            else
+            {
+                _out << nl << "return IceFromResult(ostr);";
+            }
         }
         _out << eb;
     }

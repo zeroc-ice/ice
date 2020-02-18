@@ -17,57 +17,57 @@ public sealed class TestIntf : ITestIntf
         }
     }
 
-    public Task? shutdownAsync(Ice.Current current)
+    public ValueTask shutdownAsync(Ice.Current current)
     {
         current.Adapter.Communicator.Shutdown();
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task<Ice.AnyClass?>
-    SBaseAsObjectAsync(Ice.Current current) => Task.FromResult<Ice.AnyClass?>(new SBase("SBase.sb"));
+    public ValueTask<Ice.AnyClass?>
+    SBaseAsObjectAsync(Ice.Current current) => FromResult<Ice.AnyClass?>(new SBase("SBase.sb"));
 
-    public Task<SBase?> SBaseAsSBaseAsync(Ice.Current current) => Task.FromResult(new SBase("SBase.sb"));
+    public ValueTask<SBase?> SBaseAsSBaseAsync(Ice.Current current) => FromResult(new SBase("SBase.sb"));
 
-    public Task<SBase?>
+    public ValueTask<SBase?>
     SBSKnownDerivedAsSBaseAsync(Ice.Current current) =>
-        Task.FromResult<SBase?>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+        FromResult<SBase?>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
-    public Task<SBSKnownDerived?>
+    public ValueTask<SBSKnownDerived?>
     SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current) =>
-        Task.FromResult(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+        FromResult(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
-    public Task<SBase?>
+    public ValueTask<SBase?>
     SBSUnknownDerivedAsSBaseAsync(Ice.Current current) =>
-        Task.FromResult<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+        FromResult<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
-    public Task<SBase?>
+    public ValueTask<SBase?>
     SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current) =>
-        Task.FromResult<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+        FromResult<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
-    public Task<Ice.AnyClass?> SUnknownAsObjectAsync(Ice.Current current)
+    public ValueTask<Ice.AnyClass?> SUnknownAsObjectAsync(Ice.Current current)
     {
         var su = new SUnknown("SUnknown.su", null);
         su.cycle = su;
-        return Task.FromResult<Ice.AnyClass?>(su);
+        return FromResult<Ice.AnyClass?>(su);
     }
 
-    public Task? checkSUnknownAsync(Ice.AnyClass? obj, Ice.Current current)
+    public ValueTask checkSUnknownAsync(Ice.AnyClass? obj, Ice.Current current)
     {
         test(obj is SUnknown);
         SUnknown su = (SUnknown)obj;
         test(su.su.Equals("SUnknown.su"));
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task<B?> oneElementCycleAsync(Ice.Current current)
+    public ValueTask<B?> oneElementCycleAsync(Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
         b.pb = b;
-        return Task.FromResult(b);
+        return FromResult(b);
     }
 
-    public Task<B?> twoElementCycleAsync(Ice.Current current)
+    public ValueTask<B?> twoElementCycleAsync(Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -75,10 +75,10 @@ public sealed class TestIntf : ITestIntf
         b2.sb = "B2.sb";
         b2.pb = b1;
         b1.pb = b2;
-        return Task.FromResult(b1);
+        return FromResult(b1);
     }
 
-    public Task<B?> D1AsBAsync(Ice.Current current)
+    public ValueTask<B?> D1AsBAsync(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -90,10 +90,10 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult<B?>(d1);
+        return FromResult<B?>(d1);
     }
 
-    public Task<D1?> D1AsD1Async(Ice.Current current)
+    public ValueTask<D1?> D1AsD1Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -105,10 +105,10 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(d1);
+        return FromResult(d1);
     }
 
-    public Task<B?> D2AsBAsync(Ice.Current current)
+    public ValueTask<B?> D2AsBAsync(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -120,10 +120,10 @@ public sealed class TestIntf : ITestIntf
         d1.pd1 = d2;
         d2.pb = d1;
         d2.pd2 = d1;
-        return Task.FromResult<B?>(d2);
+        return FromResult<B?>(d2);
     }
 
-    public Task<(B?, B?)>
+    public ValueTask<(B?, B?)>
     paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -136,10 +136,10 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B?)d1, (B?)d2));
+        return FromResult(((B?)d1, (B?)d2));
     }
 
-    public Task<(B?, B?)>
+    public ValueTask<(B?, B?)>
     paramTest2Async(Ice.Current current)
     {
         var d1 = new D1();
@@ -152,10 +152,10 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B?)d2, (B?)d1));
+        return FromResult(((B?)d2, (B?)d1));
     }
 
-    public Task<(B?, B?, B?)>
+    public ValueTask<(B?, B?, B?)>
     paramTest3Async(Ice.Current current)
     {
         var d2 = new D2();
@@ -182,10 +182,10 @@ public sealed class TestIntf : ITestIntf
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        return Task.FromResult(((B?)d3, (B?)d2, (B?)d4));
+        return FromResult(((B?)d3, (B?)d2, (B?)d4));
     }
 
-    public Task<(B?, B?)>
+    public ValueTask<(B?, B?)>
     paramTest4Async(Ice.Current current)
     {
         var d4 = new D4();
@@ -195,10 +195,10 @@ public sealed class TestIntf : ITestIntf
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        return Task.FromResult(((B?)d4.p2, (B?)d4));
+        return FromResult(((B?)d4.p2, (B?)d4));
     }
 
-    public Task<(B?, B?, B?)>
+    public ValueTask<(B?, B?, B?)>
     returnTest1Async(Ice.Current current)
     {
         var d1 = new D1();
@@ -211,10 +211,10 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B?)d2, (B?)d2, (B?)d1));
+        return FromResult(((B?)d2, (B?)d2, (B?)d1));
     }
 
-    public Task<(B?, B?, B?)>
+    public ValueTask<(B?, B?, B?)>
     returnTest2Async(Ice.Current current)
     {
         var d1 = new D1();
@@ -227,16 +227,16 @@ public sealed class TestIntf : ITestIntf
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        return Task.FromResult(((B?)d1, (B?)d1, (B?)d2));
+        return FromResult(((B?)d1, (B?)d1, (B?)d2));
     }
 
-    public Task<B?>
-    returnTest3Async(B? p1, B? p2, Ice.Current current) => Task.FromResult(p1);
+    public ValueTask<B?>
+    returnTest3Async(B? p1, B? p2, Ice.Current current) => FromResult(p1);
 
-    public Task<SS3>
-    sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current) => Task.FromResult(new SS3(p1, p2));
+    public ValueTask<SS3>
+    sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current) => FromResult(new SS3(p1, p2));
 
-    public Task<(Dictionary<int, B?>, Dictionary<int, B?>)>
+    public ValueTask<(Dictionary<int, B?>, Dictionary<int, B?>)>
     dictionaryTestAsync(Dictionary<int, B?> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B?>();
@@ -262,13 +262,13 @@ public sealed class TestIntf : ITestIntf
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        return Task.FromResult((r, bout));
+        return FromResult((r, bout));
     }
 
-    public Task<PBase>
-    exchangePBaseAsync(PBase pb, Ice.Current current) => Task.FromResult(pb);
+    public ValueTask<PBase>
+    exchangePBaseAsync(PBase pb, Ice.Current current) => FromResult(pb);
 
-    public Task<Preserved>
+    public ValueTask<Preserved>
     PBSUnknownAsPreservedAsync(Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
@@ -277,10 +277,10 @@ public sealed class TestIntf : ITestIntf
         r.psu = "unknown";
         r.graph = null;
         r.cl = new MyClass(15);
-        return Task.FromResult<Preserved>(r);
+        return FromResult<Preserved>(r);
     }
 
-    public Task
+    public ValueTask
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
         var pu = p as PSUnknown;
@@ -289,10 +289,10 @@ public sealed class TestIntf : ITestIntf
         test(pu.psu.Equals("unknown"));
         test(pu.graph == null);
         test(pu.cl != null && pu.cl.i == 15);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task<Preserved>
+    public ValueTask<Preserved>
     PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
@@ -303,10 +303,10 @@ public sealed class TestIntf : ITestIntf
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        return Task.FromResult<Preserved>(r);
+        return FromResult<Preserved>(r);
     }
 
-    public Task
+    public ValueTask
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
         test(p is PSUnknown);
@@ -317,33 +317,33 @@ public sealed class TestIntf : ITestIntf
         test(pu.graph != pu.graph.next);
         test(pu.graph.next != pu.graph.next.next);
         test(pu.graph.next.next.next == pu.graph);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task<Preserved>
+    public ValueTask<Preserved>
     PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        return Task.FromResult<Preserved>(r);
+        return FromResult<Preserved>(r);
     }
 
-    public Task
+    public ValueTask
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
         var pu = (PSUnknown2)p;
         test(pu.pi == 5);
         test(pu.ps.Equals("preserved"));
         test(pu.pb == pu);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task<PNode>
-    exchangePNodeAsync(PNode pn, Ice.Current current) => Task.FromResult(pn);
+    public ValueTask<PNode>
+    exchangePNodeAsync(PNode pn, Ice.Current current) => FromResult(pn);
 
-    public Task throwBaseAsBaseAsync(Ice.Current current)
+    public ValueTask throwBaseAsBaseAsync(Ice.Current current)
     {
         var be = new BaseException();
         be.sbe = "sbe";
@@ -353,7 +353,7 @@ public sealed class TestIntf : ITestIntf
         throw be;
     }
 
-    public Task throwDerivedAsBaseAsync(Ice.Current current)
+    public ValueTask throwDerivedAsBaseAsync(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -369,7 +369,7 @@ public sealed class TestIntf : ITestIntf
         throw de;
     }
 
-    public Task
+    public ValueTask
     throwDerivedAsDerivedAsync(Ice.Current current)
     {
         var de = new DerivedException();
@@ -386,7 +386,7 @@ public sealed class TestIntf : ITestIntf
         throw de;
     }
 
-    public Task throwUnknownDerivedAsBaseAsync(Ice.Current current)
+    public ValueTask throwUnknownDerivedAsBaseAsync(Ice.Current current)
     {
         var d2 = new D2();
         d2.sb = "sb d2";
@@ -403,7 +403,7 @@ public sealed class TestIntf : ITestIntf
         throw ude;
     }
 
-    public Task throwPreservedExceptionAsync(Ice.Current current)
+    public ValueTask throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
@@ -414,12 +414,14 @@ public sealed class TestIntf : ITestIntf
         throw ue;
     }
 
-    public Task<Forward>
+    public ValueTask<Forward>
     useForwardAsync(Ice.Current current)
     {
         var f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
-        return Task.FromResult(f);
+        return FromResult(f);
     }
+
+    internal static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
 }

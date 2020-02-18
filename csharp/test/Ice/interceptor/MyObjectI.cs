@@ -29,9 +29,6 @@ namespace Ice.interceptor
         public int
         addWithRetry(int x, int y, Current current)
         {
-            test(current != null);
-            test(current.Context != null);
-
             if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
             {
                 return x + y;
@@ -51,14 +48,14 @@ namespace Ice.interceptor
         //
         // AMD
         //
-        public async Task<int>
+        public async ValueTask<int>
         amdAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             return x + y;
         }
 
-        public async Task<int>
+        public async ValueTask<int>
         amdAddWithRetryAsync(int x, int y, Current current)
         {
             if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
@@ -72,21 +69,21 @@ namespace Ice.interceptor
             }
         }
 
-        public async Task<int>
+        public async ValueTask<int>
         amdBadAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new Test.InvalidInputException();
         }
 
-        public async Task<int>
+        public async ValueTask<int>
         amdNotExistAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new ObjectNotExistException();
         }
 
-        public async Task<int>
+        public async ValueTask<int>
         amdBadSystemAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);

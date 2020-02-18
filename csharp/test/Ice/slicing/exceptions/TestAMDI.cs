@@ -16,92 +16,92 @@ public sealed class TestIntf : ITestIntf
         }
     }
 
-    public Task shutdownAsync(Ice.Current current)
+    public ValueTask shutdownAsync(Ice.Current current)
     {
         current.Adapter.Communicator.Shutdown();
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task baseAsBaseAsync(Ice.Current current) => throw new Base("Base.b");
+    public ValueTask baseAsBaseAsync(Ice.Current current) => throw new Base("Base.b");
 
-    public Task unknownDerivedAsBaseAsync(Ice.Current current) =>
+    public ValueTask unknownDerivedAsBaseAsync(Ice.Current current) =>
         throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
 
-    public Task knownDerivedAsBaseAsync(Ice.Current current) =>
+    public ValueTask knownDerivedAsBaseAsync(Ice.Current current) =>
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-    public Task
+    public ValueTask
     knownDerivedAsKnownDerivedAsync(Ice.Current current) =>
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-    public Task
+    public ValueTask
     unknownIntermediateAsBaseAsync(Ice.Current current) =>
         throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
 
-    public Task
+    public ValueTask
     knownIntermediateAsBaseAsync(Ice.Current current) =>
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-    public Task
+    public ValueTask
     knownMostDerivedAsBaseAsync(Ice.Current current)
     {
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public Task
+    public ValueTask
     knownIntermediateAsKnownIntermediateAsync(Ice.Current current) =>
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-    public Task
+    public ValueTask
     knownMostDerivedAsKnownIntermediateAsync(Ice.Current current) =>
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-    public Task
+    public ValueTask
     knownMostDerivedAsKnownMostDerivedAsync(Ice.Current current) =>
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-    public Task
+    public ValueTask
     unknownMostDerived1AsBaseAsync(Ice.Current current) =>
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-    public Task
+    public ValueTask
     unknownMostDerived1AsKnownIntermediateAsync(Ice.Current current) =>
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-    public Task
+    public ValueTask
     unknownMostDerived2AsBaseAsync(Ice.Current current) =>
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-    public Task
+    public ValueTask
     unknownMostDerived2AsBaseCompactAsync(Ice.Current current) =>
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-    public Task knownPreservedAsBaseAsync(Ice.Current current) =>
+    public ValueTask knownPreservedAsBaseAsync(Ice.Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
 
-    public Task
+    public ValueTask
     knownPreservedAsKnownPreservedAsync(Ice.Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
 
-    public Task
+    public ValueTask
     relayKnownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
     {
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
         p.knownPreservedAsBase();
         test(false);
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task
+    public ValueTask
     relayKnownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
     {
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
         p.knownPreservedAsKnownPreserved();
         test(false);
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task unknownPreservedAsBaseAsync(Ice.Current current)
+    public ValueTask unknownPreservedAsBaseAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -112,7 +112,7 @@ public sealed class TestIntf : ITestIntf
         throw ex;
     }
 
-    public Task
+    public ValueTask
     unknownPreservedAsKnownPreservedAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
@@ -124,21 +124,21 @@ public sealed class TestIntf : ITestIntf
         throw ex;
     }
 
-    public Task
+    public ValueTask
     relayUnknownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
     {
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
         p.unknownPreservedAsBase();
         test(false);
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
-    public Task
+    public ValueTask
     relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
     {
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
         p.unknownPreservedAsKnownPreserved();
         test(false);
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 }
