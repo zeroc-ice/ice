@@ -50,13 +50,13 @@ void initScanner();
 void preAction();
 void nextLine(int = 1);
 void scanPosition(const char*);
-void setLocation(YYLTYPE*);
-void startLocation(YYLTYPE*);
-void endLocation(YYLTYPE*);
+void setLocation(TokenContext*);
+void startLocation(TokenContext*);
+void endLocation(TokenContext*);
 static void yynoreturn fatalError(const char* msg);
 
 int checkKeyword(string&);
-int checkIdentifier(string&);
+int checkIdentifier(const string&);
 
 }
 
@@ -368,11 +368,6 @@ bom                 "\357\273\277"
     str->literal += yytext;
 }
 
-  /* Matches an escaped newline to allow for multi-line strings. The scanner consumes the newline. */
-<QUOTED_STRING>"\\"\n {
-    nextLine();
-}
-
   /* Matches an unescaped newline, and issues an error. */
 <QUOTED_STRING>\n {
     yy_pop_state();
@@ -529,7 +524,7 @@ void initScanner()
     };
 }
 
-// This function is always called diectly after a match has been made, but directly before it's action block is run.
+// This function is always called directly after a match has been made, but directly before it's action block is run.
 void preAction()
 {
     yycolno += yyleng;
@@ -586,26 +581,26 @@ void scanPosition(const char* s)
     }
 }
 
-void setLocation(YYLTYPE* yylloc)
+void setLocation(TokenContext* location)
 {
-    yylloc->firstLine = yylineno;
-    yylloc->lastLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
-    yylloc->lastColumn = yycolno;
-    yylloc->filename = yyfilename;
+    location->firstLine = yylineno;
+    location->lastLine = yylineno;
+    location->firstColumn = yycolno - yyleng;
+    location->lastColumn = yycolno;
+    location->filename = yyfilename;
 }
 
-void startLocation(YYLTYPE* yylloc)
+void startLocation(TokenContext* location)
 {
-    yylloc->firstLine = yylineno;
-    yylloc->firstColumn = yycolno - yyleng;
+    location->firstLine = yylineno;
+    location->firstColumn = yycolno - yyleng;
 }
 
-void endLocation(YYLTYPE* yylloc)
+void endLocation(TokenContext* location)
 {
-    yylloc->lastLine = yylineno;
-    yylloc->lastColumn = yycolno - yyleng;
-    yylloc->filename = yyfilename;
+    location->lastLine = yylineno;
+    location->lastColumn = yycolno - yyleng;
+    location->filename = yyfilename;
 }
 
 // This function is called whenever the scanner encounters an unrecoverable error.
@@ -643,7 +638,7 @@ int checkKeyword(string& id)
 // determines whether it's scoped. If it is, this
 // returns a scoped identifier token; otherwise this
 // returns a normal identifier token.
-int checkIdentifier(string& id)
+int checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
     size_t scopeIndex = id.rfind("::");

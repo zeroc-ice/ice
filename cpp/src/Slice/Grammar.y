@@ -12,7 +12,7 @@
 %code requires{
 
 // Define a custom location type for storing the location (and filename) of matched tokens.
-#define YYLTYPE Slice::TokenLocation
+#define YYLTYPE Slice::TokenContext
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
