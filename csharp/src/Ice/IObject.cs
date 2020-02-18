@@ -15,14 +15,14 @@ namespace Ice
     public interface IObject
     {
         /// <summary>Dispatches a request on this servant.</summary>
-        /// <param name="istr">The <see cref="InputStream"/> that holds the request frame. It is positionned at
+        /// <param name="istr">The <see cref="InputStream"/> that holds the request frame. It is positioned at
         /// the start of the request's payload, just after starting to read the encapsulation.</param>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// current request.</param>
-        /// <returns>A value task that provides the response frame for the request. Null means the request is a oneway
-        /// request. See <see cref="IceInternal.Protocol.StartResponseFrame"/>.</returns>
-        /// <exception cref="System.Exception">Any exception thrown by Dispatch is marshaled into the response frame.
-        /// </exception>
+        /// <returns>A value task that provides the response frame for the request.
+        /// See <see cref="IceInternal.Protocol.StartResponseFrame"/>.</returns>
+        /// <exception cref="System.Exception">Any exception thrown by Dispatch will be marshaled into the response
+        /// frame.</exception>
         public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
             // TODO: switch to abstract method
@@ -75,26 +75,6 @@ namespace Ice
                         $"unexpected operation mode. expected = {expected} received = {received}");
                 }
             }
-        }
-        protected static async ValueTask<Ice.OutputStream> IceFromValueTask<R>(ValueTask<R> valueTask,
-            Current current, FormatType? format, Action<Ice.OutputStream, R> write)
-        {
-            // NOTE: it's important that the continuation (wruite) doesn't mutate the request state to
-            // guarantee thread-safety. Multiple continuations can execute concurrently if the
-            // user installed a dispatch interceptor and the dispatch is retried.
-
-            R result = await valueTask.ConfigureAwait(false);
-            Ice.OutputStream ostr = Protocol.StartResponseFrame(current, format);
-            write(ostr, result);
-            ostr.EndEncapsulation();
-            return ostr;
-        }
-
-        protected static async ValueTask<Ice.OutputStream> IceFromValueTask<T>(ValueTask<T> valueTask)
-            where T : struct, IMarshaledReturnValue
-        {
-            var result = await valueTask.ConfigureAwait(false);
-            return result.OutputStream;
         }
 
         protected static ValueTask<Ice.OutputStream> IceFromResult(Ice.OutputStream ostr)
