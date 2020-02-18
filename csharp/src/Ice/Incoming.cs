@@ -12,7 +12,7 @@ namespace IceInternal
 {
     internal static class Incoming
     {
-        internal static void Invoke(Ice.Communicator communicator, IResponseHandler responseHandler,
+        internal static async ValueTask InvokeAsync(Ice.Communicator communicator, IResponseHandler responseHandler,
             Ice.Connection? connection, Ice.ObjectAdapter adapter, byte compress, int requestId, Ice.InputStream istr)
         {
             int start = istr.Pos;
@@ -80,35 +80,12 @@ namespace IceInternal
 
             try
             {
-                ValueTask<Ice.OutputStream> valueTask = servant.DispatchAsync(istr, current);
-
-                if (valueTask.IsCompleted)
-                {
-                    Ice.OutputStream ostr = valueTask.Result;
-                    Completed(ostr, null, false, current);
-                }
-                else
-                {
-                    valueTask.AsTask().ContinueWith((Task<Ice.OutputStream> t) =>
-                        {
-                            try
-                            {
-                                Ice.OutputStream ostr = t.GetAwaiter().GetResult();
-                                Completed(ostr, null, true, current); // true = asynchronous
-                            }
-                            catch (Exception ex)
-                            {
-                                Completed(null, ex, true, current); // true = asynchronous
-                            }
-                        },
-                        CancellationToken.None,
-                        TaskContinuationOptions.ExecuteSynchronously,
-                        scheduler: TaskScheduler.Current);
-                }
+                Ice.OutputStream ostr = await servant.DispatchAsync(istr, current).ConfigureAwait(false);
+                Completed(ostr, null, false, current); // true = amd, TODO: why does this matter?
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                Completed(null, ex, false, current);
+                Completed(null, ex, true, current); // true = amd, TODO: why does this matter?
             }
         }
 

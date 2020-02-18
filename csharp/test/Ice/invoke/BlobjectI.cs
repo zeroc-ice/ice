@@ -9,13 +9,13 @@ namespace Ice.invoke
 {
     public class BlobjectI : IObject
     {
-        public ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
         {
             if (current.Operation.Equals("opOneway"))
             {
                 Debug.Assert(current.IsOneway);
                 // TODO: replace by OutputStream.Empty
-                return new ValueTask<OutputStream>(IceInternal.Protocol.CreateEmptyResponseFrame(current));
+                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
             }
             else if (current.Operation.Equals("opString"))
             {
@@ -24,7 +24,7 @@ namespace Ice.invoke
                 ostr.WriteString(s);
                 ostr.WriteString(s);
                 ostr.EndEncapsulation();
-                return new ValueTask<OutputStream>(ostr);
+                return ostr;
             }
             else if (current.Operation.Equals("opException"))
             {
@@ -36,12 +36,12 @@ namespace Ice.invoke
                 var ostr = IceInternal.Protocol.StartFailureResponseFrame(current);
                 ostr.WriteException(ex);
                 ostr.EndEncapsulation();
-                return new ValueTask<OutputStream>(ostr);
+                return ostr;
             }
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return new ValueTask<OutputStream>(IceInternal.Protocol.CreateEmptyResponseFrame(current));
+                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
@@ -56,7 +56,7 @@ namespace Ice.invoke
                     ostr.WriteBool(false);
                 }
                 ostr.EndEncapsulation();
-                return new ValueTask<OutputStream>(ostr);
+                return ostr;
             }
             else
             {

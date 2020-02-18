@@ -8,13 +8,13 @@ namespace Ice.objects
 {
     public sealed class UnexpectedObjectExceptionTest : IObject
     {
-        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
             var ostr = IceInternal.Protocol.StartResponseFrame(current);
             var ae = new Test.AlsoEmpty();
             ostr.WriteClass(ae);
             ostr.EndEncapsulation();
-            return new ValueTask<OutputStream>(ostr);
+            return ostr;
         }
     }
 }

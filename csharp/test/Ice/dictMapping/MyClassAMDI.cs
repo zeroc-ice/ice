@@ -9,10 +9,10 @@ namespace Ice.dictMapping.AMD
 {
     public sealed class MyClass : Test.IMyClass
     {
-        public Task shutdownAsync(Current current)
+        public ValueTask shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<(Dictionary<int, int>, Dictionary<int, int>)>

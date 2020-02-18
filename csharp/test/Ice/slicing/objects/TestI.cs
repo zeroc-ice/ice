@@ -399,7 +399,7 @@ public sealed class TestIntf : ITestIntf
         throw ude;
     }
 
-    public Task?
+    public ValueTask
     throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();

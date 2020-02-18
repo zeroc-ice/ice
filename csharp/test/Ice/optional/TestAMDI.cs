@@ -9,24 +9,24 @@ namespace Ice.optional.AMD
 {
     public class Initial : Test.IInitial
     {
-        public Task shutdownAsync(Current current)
+        public ValueTask shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<AnyClass>
         pingPongAsync(AnyClass obj, Current current) => FromResult(obj);
 
-        public Task?
+        public ValueTask
         opOptionalExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>
             throw new Test.OptionalException(false, a, b, o);
 
-        public Task?
+        public ValueTask
         opDerivedExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>
             throw new Test.DerivedException(false, a, b, o, b, o);
 
-        public Task?
+        public ValueTask
         opRequiredExceptionAsync(int? a,
                                     string? b,
                                     Test.OneOptional? o,
@@ -132,11 +132,11 @@ namespace Ice.optional.AMD
         public ValueTask<(Dictionary<int, Test.OneOptional>?, Dictionary<int, Test.OneOptional>?)>
         opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional>? p1, Current current) => FromResult((p1, p1));
 
-        public Task?
-        opClassAndUnknownOptionalAsync(Test.A p, Current current) => Task.CompletedTask;
+        public ValueTask
+        opClassAndUnknownOptionalAsync(Test.A p, Current current) => new ValueTask(Task.CompletedTask);
 
-        public Task?
-        sendOptionalClassAsync(bool req, Test.OneOptional? o, Current current) => Task.CompletedTask;
+        public ValueTask
+        sendOptionalClassAsync(bool req, Test.OneOptional? o, Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask<Test.OneOptional?>
         returnOptionalClassAsync(bool req, Current current) =>
@@ -144,7 +144,7 @@ namespace Ice.optional.AMD
 
         public ValueTask<Test.G> opGAsync(Test.G g, Current current) => FromResult(g);
 
-        public Task opVoidAsync(Current current) => Task.CompletedTask;
+        public ValueTask opVoidAsync(Current current) => new ValueTask(Task.CompletedTask);
 
         public async ValueTask<Test.IInitial.OpMStruct1MarshaledReturnValue>
         opMStruct1Async(Current current)

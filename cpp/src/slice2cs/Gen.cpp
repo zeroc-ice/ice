@@ -2894,7 +2894,12 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string retS = resultType(operation, ns, true);
 
     _out << sp;
-    _out << nl << "protected global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
+    _out << nl << "protected ";
+    if (amd && outParams.size() == 0)
+    {
+        _out << "async ";
+    }
+    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
     _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
         << " current)";
     _out << sb;
@@ -2934,19 +2939,19 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     }
     else if(amd)
     {
-        _out << nl << "return ";
+        _out << nl;
         if (outParams.size() > 0)
         {
-            _out << "IceFromValueTask";
+            _out << "return IceFromValueTask(";
         }
         else
         {
-            _out << "IceFromTask";
+            _out << "await ";
         }
-        _out << "(this." << opName << "Async" << spar << getNames(inParams) << "current" << epar;
-        _out << ", current";
+        _out << "this." << opName << "Async" << spar << getNames(inParams) << "current" << epar;
         if(outParams.size() > 0)
         {
+            _out << ", current";
             if (operation->format() == DefaultFormat)
             {
                 _out << ", null";
@@ -2973,8 +2978,19 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                 _out << eb;
             }
             _out.dec();
+            _out << ")";
         }
-        _out << ");";
+        if(outParams.size() == 0)
+        {
+            _out << ".ConfigureAwait(false);";
+            // TODO: for oneway, return OutputStream.Empty
+            _out << nl << "return global::IceInternal.Protocol.CreateEmptyResponseFrame(current);";
+        }
+        else
+        {
+            _out << ";";
+        }
+
         _out << eb;
     }
     else

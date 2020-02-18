@@ -9,10 +9,10 @@ namespace Ice.seqMapping.AMD
 {
     public sealed class MyClass : Test.IMyClass
     {
-        public Task? shutdownAsync(Current current)
+        public ValueTask shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<(byte[], byte[])> opAByteSAsync(byte[] i, Current current) => FromResult((i, i));

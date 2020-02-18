@@ -16,24 +16,22 @@ namespace Ice.location
             _requestCount = 0;
         }
 
-        public ValueTask<IObjectPrx?>
-        FindAdapterByIdAsync(string adapter, Current current)
+        public async ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapter, Current current)
         {
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
-            return new ValueTask<IObjectPrx?>(_registry.getAdapter(adapter));
+            return _registry.getAdapter(adapter);
         }
 
-        public ValueTask<IObjectPrx?>
-        FindObjectByIdAsync(Identity id, Current current)
+        public async ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current)
         {
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
-            return new ValueTask<IObjectPrx?>(_registry.getObject(id));
+            return _registry.getObject(id);
         }
 
         public ILocatorRegistryPrx GetRegistry(Current current) => _registryPrx;

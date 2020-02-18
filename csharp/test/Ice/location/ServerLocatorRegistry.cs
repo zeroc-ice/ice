@@ -15,8 +15,7 @@ namespace Ice.location
             _objects = new Hashtable();
         }
 
-        public Task?
-        SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
+        public ValueTask SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
         {
             if (obj != null)
             {
@@ -26,11 +25,11 @@ namespace Ice.location
             {
                 _adapters.Remove(adapter);
             }
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task?
-        SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx obj, Current current)
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx obj,
+            Current current)
         {
             if (obj != null)
             {
@@ -42,11 +41,11 @@ namespace Ice.location
                 _adapters.Remove(adapter);
                 _adapters.Remove(replica);
             }
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task?
-        SetServerProcessProxyAsync(string id, IProcessPrx proxy, Current current) => null;
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx proxy, Current current)
+            => new ValueTask(Task.CompletedTask);
 
         public void addObject(IObjectPrx obj, Current current) => addObject(obj);
         public void addObject(IObjectPrx obj) => _objects[obj.Identity] = obj;

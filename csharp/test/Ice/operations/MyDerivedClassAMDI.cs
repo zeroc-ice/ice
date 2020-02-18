@@ -68,7 +68,7 @@ namespace Ice.operations.AMD
             return typeof(Test.IMyDerivedClass).GetIceTypeId();
         }
 
-        public Task shutdownAsync(Current current)
+        public ValueTask shutdownAsync(Current current)
         {
             while (_opVoidThread != null)
             {
@@ -77,12 +77,12 @@ namespace Ice.operations.AMD
             }
 
             current.Adapter.Communicator.Shutdown();
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<bool> supportsCompressAsync(Current current) => FromResult(true);
 
-        public Task opVoidAsync(Current current)
+        public ValueTask opVoidAsync(Current current)
         {
             test(current.Mode == OperationMode.Normal);
 
@@ -94,7 +94,7 @@ namespace Ice.operations.AMD
 
             _opVoidThread = new Thread_opVoid();
             _opVoidThread.Start();
-            return _opVoidThread.Task;
+            return new ValueTask(_opVoidThread.Task);
         }
 
         public ValueTask<(bool, bool)> opBoolAsync(bool p1, bool p2, Current current) => FromResult((p2, p1));
@@ -627,14 +627,14 @@ namespace Ice.operations.AMD
         public ValueTask<Dictionary<string, string>>
         opContextAsync(Current current) => FromResult(current.Context);
 
-        public Task
+        public ValueTask
         opByteSOnewayAsync(byte[] s, Current current)
         {
             lock (this)
             {
                 ++_opByteSOnewayCallCount;
             }
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<int>
@@ -648,7 +648,7 @@ namespace Ice.operations.AMD
             }
         }
 
-        public Task
+        public ValueTask
         opDoubleMarshalingAsync(double p1, double[] p2, Current current)
         {
             var d = 1278312346.0 / 13.0;
@@ -657,7 +657,7 @@ namespace Ice.operations.AMD
             {
                 test(p2[i] == d);
             }
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<(string[], string[])>
@@ -728,22 +728,22 @@ namespace Ice.operations.AMD
             return FromResult((p2, p3));
         }
 
-        public Task
+        public ValueTask
         opIdempotentAsync(Current current)
         {
             test(current.Mode == OperationMode.Idempotent);
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task
+        public ValueTask
         opNonmutatingAsync(Current current)
         {
             test(current.Mode == OperationMode.Nonmutating);
-            return Task.CompletedTask;
+            return new ValueTask(Task.CompletedTask);
         }
 
-        public Task
-        opDerivedAsync(Current current) => Task.CompletedTask;
+        public ValueTask
+        opDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask<byte>
         opByte1Async(byte value, Current current) => FromResult(value);
@@ -800,7 +800,6 @@ namespace Ice.operations.AMD
                         Test.s8.value,
                         Test.s9.value,
                         Test.s10.value,
-
                         Test.sw0.value,
                         Test.sw1.value,
                         Test.sw2.value,

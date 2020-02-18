@@ -2696,7 +2696,8 @@ namespace Ice
                     Debug.Assert(_endpoint.Datagram() || requestId == 0 || invokeNum == 1);
 
                     // Dispatch the invocation.
-                    Incoming.Invoke(_communicator, this, this, adapter, compress, requestId, stream);
+                    // TODO: await ValueTask returned by InvokeAsync
+                    Incoming.InvokeAsync(_communicator, this, this, adapter, compress, requestId, stream);
                     --invokeNum;
                 }
 

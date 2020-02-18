@@ -14,10 +14,10 @@ namespace Ice.proxy.AMD
         public ValueTask<IObjectPrx?> echoAsync(IObjectPrx obj, Current c)
             => new ValueTask<IObjectPrx?>(obj);
 
-        public Task? shutdownAsync(Current current)
+        public ValueTask shutdownAsync(Current current)
         {
             current.Adapter.Communicator.Shutdown();
-            return null;
+            return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask<Dictionary<string, string>> getContextAsync(Current current)

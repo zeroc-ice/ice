@@ -17,10 +17,10 @@ public sealed class TestIntf : ITestIntf
         }
     }
 
-    public Task? shutdownAsync(Ice.Current current)
+    public ValueTask shutdownAsync(Ice.Current current)
     {
         current.Adapter.Communicator.Shutdown();
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask<Ice.AnyClass?>
@@ -51,12 +51,12 @@ public sealed class TestIntf : ITestIntf
         return FromResult<Ice.AnyClass?>(su);
     }
 
-    public Task? checkSUnknownAsync(Ice.AnyClass? obj, Ice.Current current)
+    public ValueTask checkSUnknownAsync(Ice.AnyClass? obj, Ice.Current current)
     {
         test(obj is SUnknown);
         SUnknown su = (SUnknown)obj;
         test(su.su.Equals("SUnknown.su"));
-        return null;
+        return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask<B?> oneElementCycleAsync(Ice.Current current)
@@ -280,7 +280,7 @@ public sealed class TestIntf : ITestIntf
         return FromResult<Preserved>(r);
     }
 
-    public Task?
+    public ValueTask
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
         var pu = p as PSUnknown;
@@ -289,7 +289,7 @@ public sealed class TestIntf : ITestIntf
         test(pu.psu.Equals("unknown"));
         test(pu.graph == null);
         test(pu.cl != null && pu.cl.i == 15);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask<Preserved>
@@ -306,7 +306,7 @@ public sealed class TestIntf : ITestIntf
         return FromResult<Preserved>(r);
     }
 
-    public Task?
+    public ValueTask
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
         test(p is PSUnknown);
@@ -317,7 +317,7 @@ public sealed class TestIntf : ITestIntf
         test(pu.graph != pu.graph.next);
         test(pu.graph.next != pu.graph.next.next);
         test(pu.graph.next.next.next == pu.graph);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask<Preserved>
@@ -330,20 +330,20 @@ public sealed class TestIntf : ITestIntf
         return FromResult<Preserved>(r);
     }
 
-    public Task?
+    public ValueTask
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
         var pu = (PSUnknown2)p;
         test(pu.pi == 5);
         test(pu.ps.Equals("preserved"));
         test(pu.pb == pu);
-        return Task.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask<PNode>
     exchangePNodeAsync(PNode pn, Ice.Current current) => FromResult(pn);
 
-    public Task? throwBaseAsBaseAsync(Ice.Current current)
+    public ValueTask throwBaseAsBaseAsync(Ice.Current current)
     {
         var be = new BaseException();
         be.sbe = "sbe";
@@ -353,7 +353,7 @@ public sealed class TestIntf : ITestIntf
         throw be;
     }
 
-    public Task throwDerivedAsBaseAsync(Ice.Current current)
+    public ValueTask throwDerivedAsBaseAsync(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -369,7 +369,7 @@ public sealed class TestIntf : ITestIntf
         throw de;
     }
 
-    public Task?
+    public ValueTask
     throwDerivedAsDerivedAsync(Ice.Current current)
     {
         var de = new DerivedException();
@@ -386,7 +386,7 @@ public sealed class TestIntf : ITestIntf
         throw de;
     }
 
-    public Task? throwUnknownDerivedAsBaseAsync(Ice.Current current)
+    public ValueTask throwUnknownDerivedAsBaseAsync(Ice.Current current)
     {
         var d2 = new D2();
         d2.sb = "sb d2";
@@ -403,7 +403,7 @@ public sealed class TestIntf : ITestIntf
         throw ude;
     }
 
-    public Task? throwPreservedExceptionAsync(Ice.Current current)
+    public ValueTask throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
