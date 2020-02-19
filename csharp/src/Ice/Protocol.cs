@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -162,40 +163,22 @@ namespace IceInternal
         internal static Ice.Current CreateCurrent(int requestId, Ice.InputStream requestFrame,
             Ice.ObjectAdapter adapter, Ice.Connection? connection = null)
         {
-            int start = requestFrame.Pos;
             var identity = new Ice.Identity(requestFrame);
 
             // For compatibility with the old FacetPath.
             string[] facetPath = requestFrame.ReadStringArray();
-            string facet;
-            if (facetPath.Length > 0)
+            if (facetPath.Length > 1)
             {
-                if (facetPath.Length > 1)
-                {
-                    throw new Ice.MarshalException();
-                }
-                facet = facetPath[0];
+                throw new Ice.MarshalException();
             }
-            else
-            {
-                facet = "";
-            }
-
+            string facet = facetPath.Length == 0 ? "" : facetPath[0];
             string operation = requestFrame.ReadString();
             byte mode = requestFrame.ReadByte();
-            var context = new Dictionary<string, string>();
-            int sz = requestFrame.ReadSize();
-            while (sz-- > 0)
-            {
-                string first = requestFrame.ReadString();
-                string second = requestFrame.ReadString();
-                context[first] = second;
-            }
+            var context = requestFrame.ReadContext();
+            Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
 
-            var current = new Ice.Current(adapter, identity, facet, operation, (Ice.OperationMode)mode, context,
-                requestId, connection, requestFrame.StartEncapsulation());
-
-            return current;
+            return new Ice.Current(adapter, identity, facet, operation, (Ice.OperationMode)mode, context,
+                requestId, connection, encoding);
         }
 
         //
