@@ -68,7 +68,7 @@ namespace Ice
         GracefullyWithWait
     }
 
-    public sealed class Connection : IceInternal.EventHandler, IResponseHandler, ICancellationHandler
+    public sealed class Connection : IceInternal.EventHandler, ICancellationHandler
     {
         public interface IStartCallback
         {
@@ -639,7 +639,7 @@ namespace Ice
         /// <param name="close">The close condition
         ///
         /// </param>
-        /// <param name="heartbeat">The hertbeat condition</param>
+        /// <param name="heartbeat">The heartbeat condition</param>
         public void SetACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat)
         {
             lock (this)
@@ -756,107 +756,6 @@ namespace Ice
                             }
                             return;
                         }
-                    }
-                }
-            }
-        }
-
-        public void SendResponse(int requestId, OutputStream os, byte compressFlag, bool amd)
-        {
-            lock (this)
-            {
-                Debug.Assert(_state > StateNotValidated);
-
-                try
-                {
-                    if (--_dispatchCount == 0)
-                    {
-                        if (_state == StateFinished)
-                        {
-                            Reap();
-                        }
-                        System.Threading.Monitor.PulseAll(this);
-                    }
-
-                    if (_state >= StateClosed)
-                    {
-                        Debug.Assert(_exception != null);
-                        throw _exception;
-                    }
-
-                    SendMessage(new OutgoingMessage(os, compressFlag > 0, true));
-
-                    if (_state == StateClosing && _dispatchCount == 0)
-                    {
-                        InitiateShutdown();
-                    }
-                }
-                catch (LocalException ex)
-                {
-                    SetState(StateClosed, ex);
-                }
-            }
-        }
-
-        public void SendNoResponse()
-        {
-            lock (this)
-            {
-                Debug.Assert(_state > StateNotValidated);
-
-                try
-                {
-                    if (--_dispatchCount == 0)
-                    {
-                        if (_state == StateFinished)
-                        {
-                            Reap();
-                        }
-                        System.Threading.Monitor.PulseAll(this);
-                    }
-
-                    if (_state >= StateClosed)
-                    {
-                        Debug.Assert(_exception != null);
-                        throw _exception;
-                    }
-
-                    if (_state == StateClosing && _dispatchCount == 0)
-                    {
-                        InitiateShutdown();
-                    }
-                }
-                catch (LocalException ex)
-                {
-                    SetState(StateClosed, ex);
-                }
-            }
-        }
-
-        public bool SystemException(int requestId, SystemException ex, bool amd) => false; // System exceptions aren't marshalled.
-
-        public void InvokeException(int requestId, LocalException ex, int invokeNum, bool amd)
-        {
-            //
-            // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-            // called in case of a fatal exception we decrement _dispatchCount here.
-            //
-
-            lock (this)
-            {
-                SetState(StateClosed, ex);
-
-                if (invokeNum > 0)
-                {
-                    Debug.Assert(_dispatchCount >= invokeNum);
-                    _dispatchCount -= invokeNum;
-                    if (_dispatchCount == 0)
-                    {
-                        if (_state == StateFinished)
-                        {
-                            Reap();
-                        }
-                        System.Threading.Monitor.PulseAll(this);
                     }
                 }
             }
@@ -1411,7 +1310,10 @@ namespace Ice
             //
             if (info.InvokeNum > 0)
             {
-                InvokeAll(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.Adapter!);
+                ValueTask vt = InvokeAllAsync(info.Stream, info.InvokeNum, info.RequestId, info.Compress,
+                    info.Adapter!);
+
+                // TODO: do something with the value task
 
                 //
                 // Don't increase dispatchedCount, the dispatch count is
@@ -1623,6 +1525,103 @@ namespace Ice
                 if (_dispatchCount == 0)
                 {
                     Reap();
+                }
+            }
+        }
+
+        private void SendResponse(OutputStream os, byte compressionStatus)
+        {
+            lock (this)
+            {
+                Debug.Assert(_state > StateNotValidated);
+
+                try
+                {
+                    if (--_dispatchCount == 0)
+                    {
+                        if (_state == StateFinished)
+                        {
+                            Reap();
+                        }
+                        System.Threading.Monitor.PulseAll(this);
+                    }
+
+                    if (_state >= StateClosed)
+                    {
+                        Debug.Assert(_exception != null);
+                        throw _exception;
+                    }
+
+                    SendMessage(new OutgoingMessage(os, compressionStatus > 0, true));
+
+                    if (_state == StateClosing && _dispatchCount == 0)
+                    {
+                        InitiateShutdown();
+                    }
+                }
+                catch (LocalException ex)
+                {
+                    SetState(StateClosed, ex);
+                }
+            }
+        }
+
+        private void SendNoResponse()
+        {
+            lock (this)
+            {
+                Debug.Assert(_state > StateNotValidated);
+
+                try
+                {
+                    if (--_dispatchCount == 0)
+                    {
+                        if (_state == StateFinished)
+                        {
+                            Reap();
+                        }
+                        System.Threading.Monitor.PulseAll(this);
+                    }
+
+                    if (_state >= StateClosed)
+                    {
+                        Debug.Assert(_exception != null);
+                        throw _exception;
+                    }
+
+                    if (_state == StateClosing && _dispatchCount == 0)
+                    {
+                        InitiateShutdown();
+                    }
+                }
+                catch (LocalException ex)
+                {
+                    SetState(StateClosed, ex);
+                }
+            }
+        }
+
+        private void InvokeException(LocalException ex, int invokeNum)
+        {
+            // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+            // called in case of a fatal exception we decrement _dispatchCount here.
+
+            lock (this)
+            {
+                SetState(StateClosed, ex);
+
+                if (invokeNum > 0)
+                {
+                    Debug.Assert(_dispatchCount >= invokeNum);
+                    _dispatchCount -= invokeNum;
+                    if (_dispatchCount == 0)
+                    {
+                        if (_state == StateFinished)
+                        {
+                            Reap();
+                        }
+                        System.Threading.Monitor.PulseAll(this);
+                    }
                 }
             }
         }
@@ -2678,34 +2677,80 @@ namespace Ice
             return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
         }
 
-        private void InvokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
-                               ObjectAdapter adapter)
+        private async ValueTask InvokeAllAsync(InputStream requestFrame, int invokeNum, int requestId,
+            byte compressionStatus, ObjectAdapter adapter)
         {
-            //
-            // Note: In contrast to other private or protected methods, this
-            // operation must be called *without* the mutex locked.
-            //
+            // Note: In contrast to other private or protected methods, this method must be called *without* the
+            // mutex locked.
+
+            Debug.Assert(invokeNum > 0); // invokeNum is usually 1 but can be larger for a batch request.
+            Debug.Assert(invokeNum == 1); // TODO: deal with batch requests
+
+            Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
 
             try
             {
-                while (invokeNum > 0)
-                {
-                    //
-                    // Prepare the invocation.
-                    //
-                    Debug.Assert(_endpoint.Datagram() || requestId == 0 || invokeNum == 1);
+                int start = requestFrame.Pos;
+                var current = Protocol.CreateCurrent(requestId, requestFrame, adapter, this);
 
-                    // Dispatch the invocation.
-                    // TODO: await ValueTask returned by InvokeAsync
-                    ValueTask vt = Incoming.InvokeAsync(_communicator, this, this, adapter, compress, requestId, stream);
-                    --invokeNum;
+                // Then notify and set dispatch observer, if any.
+                Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = adapter.Communicator.Observer;
+                if (communicatorObserver != null)
+                {
+                    int encapsSize = requestFrame.GetEncapsulationSize();
+
+                    dispatchObserver = communicatorObserver.GetDispatchObserver(current,
+                        requestFrame.Pos - start + encapsSize);
+                    dispatchObserver?.Attach();
                 }
 
-                stream.Clear();
+                Ice.OutputStream? responseFrame = null;
+                try
+                {
+                    Ice.IObject? servant = current.Adapter.Find(current.Id, current.Facet);
+
+                    if (servant == null)
+                    {
+                        requestFrame.SkipCurrentEncapsulation(); // Required for batch requests, and incoming batch
+                                                                 // requests are still supported in Ice 4.x.
+
+                        throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
+                    }
+
+                    ValueTask<OutputStream> vt = servant.DispatchAsync(requestFrame, current);
+                    --invokeNum;
+                    if (requestId != 0)
+                    {
+                        responseFrame = await vt.ConfigureAwait(false);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    if (requestId != 0)
+                    {
+                        Incoming.ReportException(ex, dispatchObserver, current);
+                        responseFrame = Protocol.CreateFailureResponseFrame(ex, current);
+                    }
+                }
+
+                if (requestId == 0)
+                {
+                    SendNoResponse();
+                }
+                else
+                {
+                    Debug.Assert(responseFrame != null);
+                    dispatchObserver?.Reply(responseFrame.Size - Protocol.headerSize - 4);
+                    SendResponse(responseFrame, compressionStatus);
+                }
             }
             catch (LocalException ex)
             {
-                InvokeException(requestId, ex, invokeNum, false);
+                InvokeException(ex, invokeNum);
+            }
+            finally
+            {
+                dispatchObserver?.Detach();
             }
         }
 

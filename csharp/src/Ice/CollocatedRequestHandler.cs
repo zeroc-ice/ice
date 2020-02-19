@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IceInternal
 {
-    public class CollocatedRequestHandler : IRequestHandler, IResponseHandler
+    public class CollocatedRequestHandler : IRequestHandler
     {
         private void
         FillInValue(Ice.OutputStream os, int pos, int value) => os.RewriteInt(value, pos);
@@ -68,71 +68,6 @@ namespace IceInternal
             }
         }
 
-        public void SendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
-        {
-            OutgoingAsyncBase? outAsync;
-            lock (this)
-            {
-                Debug.Assert(_response);
-
-                if (_traceLevels.Protocol >= 1)
-                {
-
-                    FillInValue(os, 10, os.Size);
-                }
-
-                // Adopt the OutputStream's buffer.
-                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
-
-                iss.Pos = Protocol.replyHdr.Length + 4;
-
-                if (_traceLevels.Protocol >= 1)
-                {
-                    TraceUtil.TraceRecv(iss, _logger, _traceLevels);
-                }
-
-                if (_asyncRequests.TryGetValue(requestId, out outAsync))
-                {
-                    outAsync.GetIs().Swap(iss);
-                    if (!outAsync.Response())
-                    {
-                        outAsync = null;
-                    }
-                    _asyncRequests.Remove(requestId);
-                }
-            }
-
-            if (outAsync != null)
-            {
-                if (amd)
-                {
-                    outAsync.InvokeResponseAsync();
-                }
-                else
-                {
-                    outAsync.InvokeResponse();
-                }
-            }
-            _adapter.DecDirectCount();
-        }
-
-        public void SendNoResponse() => _adapter.DecDirectCount();
-
-        public bool
-        SystemException(int requestId, Ice.SystemException ex, bool amd)
-        {
-            HandleException(requestId, ex, amd);
-            _adapter.DecDirectCount();
-            return true;
-        }
-
-        public void
-        InvokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
-        {
-            HandleException(requestId, ex, amd);
-            _adapter.DecDirectCount();
-        }
-
         public Reference GetReference() => _reference;
 
         public Ice.Connection? GetConnection() => null;
@@ -176,7 +111,8 @@ namespace IceInternal
                     {
                         if (SentAsync(outAsync))
                         {
-                            InvokeAll(outAsync.GetOs(), requestId);
+                            ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                            // TODO: do something with the value task
                         }
                     });
             }
@@ -184,7 +120,8 @@ namespace IceInternal
             {
                 if (SentAsync(outAsync))
                 {
-                    InvokeAll(outAsync.GetOs(), requestId);
+                    ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                    // TODO: do something with the value task
                 }
             }
             return OutgoingAsyncBase.AsyncStatusQueued;
@@ -208,58 +145,138 @@ namespace IceInternal
             return true;
         }
 
-        private void InvokeAll(Ice.OutputStream os, int requestId)
+        private async ValueTask InvokeAllAsync(Ice.OutputStream os, int requestId)
         {
-            if (_traceLevels.Protocol >= 1)
-            {
-                FillInValue(os, 10, os.Size);
-                if (requestId > 0)
-                {
-                    FillInValue(os, Protocol.headerSize, requestId);
-                }
-                TraceUtil.TraceSend(os, _logger, _traceLevels);
-            }
+            // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
+            // upon completion.
 
-            var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
-            iss.Pos = Protocol.requestHdr.Length;
-
-            int invokeNum = 1;
+            Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                while (invokeNum > 0)
+                if (_traceLevels.Protocol >= 1)
                 {
-                    //
-                    // Increase the direct count for the dispatch. We increase it again here for
-                    // each dispatch. It's important for the direct count to be > 0 until the last
-                    // collocated request response is sent to make sure the thread pool isn't
-                    // destroyed before.
-                    //
-                    try
+                    FillInValue(os, 10, os.Size);
+                    if (requestId > 0)
                     {
-                        _adapter.IncDirectCount();
+                        FillInValue(os, Protocol.headerSize, requestId);
                     }
-                    catch (Ice.ObjectAdapterDeactivatedException ex)
+                    TraceUtil.TraceSend(os, _logger, _traceLevels);
+                }
+
+                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
+                requestFrame.Pos = Protocol.requestHdr.Length;
+
+                int start = requestFrame.Pos;
+                var current = Protocol.CreateCurrent(requestId, requestFrame, _adapter);
+
+                // Then notify and set dispatch observer, if any.
+                Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
+                if (communicatorObserver != null)
+                {
+                    int encapsSize = requestFrame.GetEncapsulationSize();
+
+                    dispatchObserver = communicatorObserver.GetDispatchObserver(current,
+                        requestFrame.Pos - start + encapsSize);
+                    dispatchObserver?.Attach();
+                }
+
+                bool amd = true;
+                try
+                {
+                    Ice.IObject? servant = current.Adapter.Find(current.Id, current.Facet);
+
+                    if (servant == null)
                     {
-                        HandleException(requestId, ex, false);
-                        break;
+                        amd = false;
+                        throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
-                    // TODO: await ValueTask returned by InvokeAsync
-                    ValueTask vt = Incoming.InvokeAsync(_reference.GetCommunicator(), this, null, _adapter, 0, requestId,
-                        iss);
-                    --invokeNum;
+                    ValueTask<Ice.OutputStream> vt = servant.DispatchAsync(requestFrame, current);
+                    amd = !vt.IsCompleted;
+                    if (requestId != 0)
+                    {
+                        var responseFrame = await vt.ConfigureAwait(false);
+                        dispatchObserver?.Reply(responseFrame.Size - Protocol.headerSize - 4);
+                        SendResponse(requestId, responseFrame, amd);
+                    }
+                }
+                catch (Ice.SystemException ex)
+                {
+                    Incoming.ReportException(ex, dispatchObserver, current);
+                    // Forward the exception to the caller without marshaling
+                    HandleException(requestId, ex, amd);
+                }
+                catch (System.Exception ex)
+                {
+                    Incoming.ReportException(ex, dispatchObserver, current);
+                    if (requestId != 0)
+                    {
+                        // For now, marshal it
+                        // TODO: revisit during exception refactoring.
+                        var responseFrame = Protocol.CreateFailureResponseFrame(ex, current);
+                        dispatchObserver?.Reply(responseFrame.Size - Protocol.headerSize - 4);
+                        SendResponse(requestId, responseFrame, amd);
+                    }
                 }
             }
             catch (Ice.LocalException ex)
             {
-                InvokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
+                HandleException(requestId, ex, false);
             }
-
-            _adapter.DecDirectCount();
+            finally
+            {
+                dispatchObserver?.Detach();
+                _adapter.DecDirectCount();
+            }
         }
 
-        private void
-        HandleException(int requestId, Ice.Exception ex, bool amd)
+        private void SendResponse(int requestId, Ice.OutputStream os, bool amd)
+        {
+            OutgoingAsyncBase? outAsync;
+            lock (this)
+            {
+                Debug.Assert(_response);
+
+                if (_traceLevels.Protocol >= 1)
+                {
+                    FillInValue(os, 10, os.Size);
+                }
+
+                // Adopt the OutputStream's buffer.
+                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
+
+                iss.Pos = Protocol.replyHdr.Length + 4;
+
+                if (_traceLevels.Protocol >= 1)
+                {
+                    TraceUtil.TraceRecv(iss, _logger, _traceLevels);
+                }
+
+                if (_asyncRequests.TryGetValue(requestId, out outAsync))
+                {
+                    outAsync.GetIs().Swap(iss);
+                    if (!outAsync.Response())
+                    {
+                        outAsync = null;
+                    }
+                    _asyncRequests.Remove(requestId);
+                }
+            }
+
+            if (outAsync != null)
+            {
+                if (amd)
+                {
+                    outAsync.InvokeResponseAsync();
+                }
+                else
+                {
+                    outAsync.InvokeResponse();
+                }
+            }
+        }
+
+        private void HandleException(int requestId, Ice.Exception ex, bool amd)
         {
             if (requestId == 0)
             {

@@ -18,17 +18,10 @@ namespace Ice
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
         public EncodingVersion Encoding { get; }
-
-        internal IceInternal.IResponseHandler ResponseHandler { get; }
-
-        internal byte CompressionStatus { get; }
-
-        internal Ice.Instrumentation.IDispatchObserver? DispatchObserver { get; set; }
         public FormatType? Format { get ; set; } // TODO: temporary, until exceptions are always sliced
 
         internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, OperationMode mode,
-            Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding,
-            IceInternal.IResponseHandler responseHandler, byte compressionStatus)
+            Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding)
         {
             Adapter = adapter;
             Id = id;
@@ -39,8 +32,6 @@ namespace Ice
             RequestId = requestId;
             Connection = connection;
             Encoding = encoding;
-            ResponseHandler = responseHandler;
-            CompressionStatus = compressionStatus;
         }
     }
 }

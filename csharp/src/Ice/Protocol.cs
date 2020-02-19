@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace IceInternal
@@ -156,6 +158,27 @@ namespace IceInternal
                 ostr.WriteString(ex.ToString());
             }
             return ostr;
+        }
+
+        internal static Ice.Current CreateCurrent(int requestId, Ice.InputStream requestFrame,
+            Ice.ObjectAdapter adapter, Ice.Connection? connection = null)
+        {
+            var identity = new Ice.Identity(requestFrame);
+
+            // For compatibility with the old FacetPath.
+            string[] facetPath = requestFrame.ReadStringArray();
+            if (facetPath.Length > 1)
+            {
+                throw new Ice.MarshalException();
+            }
+            string facet = facetPath.Length == 0 ? "" : facetPath[0];
+            string operation = requestFrame.ReadString();
+            byte mode = requestFrame.ReadByte();
+            var context = requestFrame.ReadContext();
+            Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
+
+            return new Ice.Current(adapter, identity, facet, operation, (Ice.OperationMode)mode, context,
+                requestId, connection, encoding);
         }
 
         //
