@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -244,7 +245,7 @@ namespace IceInternal
                     }
 
                     // TODO: await ValueTask returned by InvokeAsync
-                    var vt = Incoming.InvokeAsync(_reference.GetCommunicator(), this, null, _adapter, 0, requestId,
+                    ValueTask vt = Incoming.InvokeAsync(_reference.GetCommunicator(), this, null, _adapter, 0, requestId,
                         iss);
                     --invokeNum;
                 }

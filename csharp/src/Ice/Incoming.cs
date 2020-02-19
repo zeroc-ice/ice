@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace IceInternal
@@ -53,7 +52,8 @@ namespace IceInternal
             {
                 int encapsSize = istr.GetEncapsulationSize();
 
-                var dispatchObserver = obsv.GetDispatchObserver(current, istr.Pos - start + encapsSize);
+                Ice.Instrumentation.IDispatchObserver? dispatchObserver =
+                    obsv.GetDispatchObserver(current, istr.Pos - start + encapsSize);
                 if (dispatchObserver != null)
                 {
                     dispatchObserver.Attach();
@@ -81,7 +81,7 @@ namespace IceInternal
             bool amd = true;
             try
             {
-                var vt = servant.DispatchAsync(istr, current);
+                ValueTask<Ice.OutputStream> vt = servant.DispatchAsync(istr, current);
                 if (vt.IsCompleted)
                 {
                     amd = false;

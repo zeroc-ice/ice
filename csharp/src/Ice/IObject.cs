@@ -151,8 +151,7 @@ namespace Ice
         private static byte[] ReadParamEncaps(InputStream istr)
         {
             istr.Pos -= 6;
-            byte[] result = istr.ReadEncapsulation(out Ice.EncodingVersion encoding);
-            return result;
+            return istr.ReadEncapsulation(out _);
         }
 
         private static Ice.OutputStream WriteParamEncaps(byte[]? v, bool ok, Current current)

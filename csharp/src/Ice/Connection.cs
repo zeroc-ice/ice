@@ -2697,7 +2697,7 @@ namespace Ice
 
                     // Dispatch the invocation.
                     // TODO: await ValueTask returned by InvokeAsync
-                    var vt = Incoming.InvokeAsync(_communicator, this, this, adapter, compress, requestId, stream);
+                    ValueTask vt = Incoming.InvokeAsync(_communicator, this, this, adapter, compress, requestId, stream);
                     --invokeNum;
                 }
 
