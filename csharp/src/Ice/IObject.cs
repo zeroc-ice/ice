@@ -163,10 +163,10 @@ namespace Ice
                 return Protocol.CreateEmptyResponseFrame(current);
             }
 
-            if (!ok)
-            {
-                current.DispatchObserver?.UserException();
-            }
+            // if (!ok)
+            // {
+            //    current.DispatchObserver?.UserException();
+            //}
 
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
