@@ -1191,6 +1191,7 @@ namespace Ice
         public void WriteException(UserException v)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
+            Debug.Assert(_format != null && _format == FormatType.SlicedFormat);
             Push(InstanceType.Exception);
             v.Write(this);
             Pop(null);

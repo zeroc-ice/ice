@@ -529,7 +529,7 @@ namespace Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                ostr.StartEncapsulation();
+                ostr.StartEncapsulation(ostr.Encoding, FormatType.SlicedFormat);
                 var ex = new Test.MyException();
 
                 var c = new Test.MyClass();
