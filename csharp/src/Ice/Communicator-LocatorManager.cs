@@ -685,10 +685,7 @@ namespace Ice
 
             public override bool Equals(object obj) => (obj is LocatorKey other) && Equals(other);
 
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(_id, _encoding);
-            }
+            public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
             private readonly Identity _id;
             private readonly EncodingVersion _encoding;

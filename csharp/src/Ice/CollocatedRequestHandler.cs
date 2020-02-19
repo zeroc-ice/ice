@@ -111,7 +111,7 @@ namespace IceInternal
                     {
                         if (SentAsync(outAsync))
                         {
-                            var vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                            ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
                             // TODO: do something with the value task
                         }
                     });
@@ -120,7 +120,7 @@ namespace IceInternal
             {
                 if (SentAsync(outAsync))
                 {
-                    var vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                    ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
                     // TODO: do something with the value task
                 }
             }
@@ -191,7 +191,7 @@ namespace IceInternal
                         throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
-                    var vt = servant.DispatchAsync(requestFrame, current);
+                    ValueTask<Ice.OutputStream> vt = servant.DispatchAsync(requestFrame, current);
                     amd = !vt.IsCompleted;
                     if (requestId != 0)
                     {

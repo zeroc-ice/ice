@@ -1310,7 +1310,8 @@ namespace Ice
             //
             if (info.InvokeNum > 0)
             {
-                var vt = InvokeAllAsync(info.Stream, info.InvokeNum, info.RequestId, info.Compress, info.Adapter!);
+                ValueTask vt = InvokeAllAsync(info.Stream, info.InvokeNum, info.RequestId, info.Compress,
+                    info.Adapter!);
 
                 // TODO: do something with the value task
 
@@ -2716,7 +2717,7 @@ namespace Ice
                         throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
-                    var vt = servant.DispatchAsync(requestFrame, current);
+                    ValueTask<OutputStream> vt = servant.DispatchAsync(requestFrame, current);
                     --invokeNum;
                     if (requestId != 0)
                     {
