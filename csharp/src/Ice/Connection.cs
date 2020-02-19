@@ -1528,7 +1528,7 @@ namespace Ice
             }
         }
 
-            private void SendResponse(OutputStream os, byte compressionStatus)
+        private void SendResponse(OutputStream os, byte compressionStatus)
         {
             lock (this)
             {
