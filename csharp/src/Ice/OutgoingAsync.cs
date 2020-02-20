@@ -695,7 +695,7 @@ namespace IceInternal
                 }
             }
         }
-        public override bool Sent() => base.SentImpl(!Proxy.IsTwoway); // done = true if it's not a two-way proxy
+        public override bool Sent() => base.SentImpl(Proxy.IsOneway); // done = true if it's not a two-way proxy
 
         public override bool Response()
         {
@@ -705,7 +705,7 @@ namespace IceInternal
             // with the connection locked. Therefore, it must not invoke
             // any user callbacks.
             //
-            Debug.Assert(Proxy.IsTwoway); // Can only be called for twoways.
+            Debug.Assert(!Proxy.IsOneway); // Can only be called for twoways.
 
             if (ChildObserver != null)
             {
@@ -855,7 +855,7 @@ namespace IceInternal
         public override int InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if (!Proxy.IsTwoway || Proxy.IceReference.GetInvocationTimeout() != -1)
+            if (Proxy.IsOneway || Proxy.IceReference.GetInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
                 State |= StateCachedBuffers;

@@ -351,17 +351,11 @@ namespace Ice
         /// <returns>True if the proxy uses collocation optimization; false, otherwise.</returns>
         public bool IsCollocationOptimized => IceReference.GetCollocationOptimized();
 
-        /// <summary>
-        /// Returns whether this proxy uses twoway invocations.
-        /// </summary>
-        /// <returns>True if this proxy uses twoway invocations; false, otherwise.</returns>
-        public bool IsTwoway => IceReference.GetMode() == InvocationMode.Twoway;
-
-        /// <summary>
-        /// Returns whether this proxy uses oneway invocations.
-        /// </summary>
-        /// <returns>True if this proxy uses oneway invocations; false, otherwise.</returns>
-        public bool IsOneway => IceReference.GetMode() == InvocationMode.Oneway;
+        /// <summary>Returns whether or not an operation invoked on this proxy returns a response.</summary>
+        /// <returns>True if invoking an operation on this proxy does not return a response. This corresponds to
+        /// several <see cref="InvocationMode"> enumerators, such as Oneway and Datagram. Otherwise,
+        /// returns false.</returns>
+        public bool IsOneway => IceReference.GetMode() != InvocationMode.Twoway;
 
         public InvocationMode InvocationMode => IceReference.GetMode();
 
@@ -443,7 +437,7 @@ namespace Ice
             // operation.
             //
 
-            if (!IsTwoway)
+            if (IsOneway)
             {
                 throw new TwowayOnlyException(name);
             }
@@ -457,9 +451,9 @@ namespace Ice
             // operation.
             //
 
-            if (!IsTwoway)
+            if (IsOneway)
             {
-                throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
+                throw new ArgumentException($"`{name}' can only be called with a twoway proxy");
             }
         }
 
