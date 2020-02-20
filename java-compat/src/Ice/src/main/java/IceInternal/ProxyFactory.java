@@ -87,8 +87,16 @@ public final class ProxyFactory
         // the all the requests batched with the connection to be aborted and we
         // want the application to be notified.
         //
-        if(ref.getMode() == IceInternal.Reference.ModeBatchOneway ||
-           ref.getMode() == IceInternal.Reference.ModeBatchDatagram)
+        if(ref.getMode() == Reference.ModeBatchOneway || ref.getMode() == Reference.ModeBatchDatagram)
+        {
+            throw ex;
+        }
+
+        //
+        // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+        // the connection and the request will fail with the exception.
+        //
+        if(ref instanceof FixedReference)
         {
             throw ex;
         }

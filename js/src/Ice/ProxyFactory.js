@@ -121,6 +121,15 @@ class ProxyFactory
             throw ex;
         }
 
+        //
+        // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+        // the connection and the request will fail with the exception.
+        //
+        if(ref instanceof Ice.FixedReference)
+        {
+            throw ex;
+        }
+
         if(ex instanceof Ice.ObjectNotExistException)
         {
             if(ref.getRouterInfo() !== null && ex.operation === "ice_add_proxy")

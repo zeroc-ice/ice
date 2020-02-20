@@ -90,6 +90,15 @@ public final class ProxyFactory
             throw ex;
         }
 
+        //
+        // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+        // the connection and the request will fail with the exception.
+        //
+        if (ref instanceof FixedReference)
+        {
+            throw ex;
+        }
+
         if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
         {
             com.zeroc.Ice.ObjectNotExistException one = (com.zeroc.Ice.ObjectNotExistException)ex;

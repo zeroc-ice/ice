@@ -110,6 +110,15 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         ex.ice_throw();
     }
 
+    //
+    // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+    // the connection and the request will fail with the exception.
+    //
+    if(dynamic_cast<const FixedReference*>(ref.get()))
+    {
+        ex.ice_throw();
+    }
+
     const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
     if(one)
     {
