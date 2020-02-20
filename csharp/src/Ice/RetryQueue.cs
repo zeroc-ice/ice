@@ -131,12 +131,15 @@ namespace IceInternal
             {
                 if(_requests.Remove(task))
                 {
-                    if(_instance == null && _requests.Count == 0)
+                    if(_instance != null)
+                    {
+                        return _instance.timer().cancel(task);
+                    }
+                    else if(_requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _instance.timer().cancel(task);
                 }
                 return false;
             }
