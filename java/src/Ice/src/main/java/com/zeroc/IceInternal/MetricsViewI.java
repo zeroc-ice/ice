@@ -19,14 +19,14 @@ public class MetricsViewI
         // Add maps to views configured with the given map.
         //
         String viewPrefix = "IceMX.Metrics." + _name + ".";
-        String mapsPrefix = viewPrefix + "Map.";
-        java.util.Map<String, String> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
+        String allMapsPrefix = viewPrefix + "Map.";
+        java.util.Map<String, String> allMapsProps = properties.getPropertiesForPrefix(allMapsPrefix);
 
         String mapPrefix;
         java.util.Map<String, String> mapProps = new java.util.HashMap<>();
-        if(!mapsProps.isEmpty())
+        if(!allMapsProps.isEmpty())
         {
-            mapPrefix = mapsPrefix + mapName + ".";
+            mapPrefix = allMapsPrefix + mapName + ".";
             mapProps = properties.getPropertiesForPrefix(mapPrefix);
             if(mapProps.isEmpty())
             {

@@ -287,11 +287,11 @@ public:
         for(p = subMaps.begin(); p != subMaps.end(); ++p)
         {
             subMapNames.push_back(p->first);
-            const std::string subMapsPrefix = mapPrefix + "Map.";
-            std::string subMapPrefix = subMapsPrefix + p->first + '.';
+            const std::string subAllMapsPrefix = mapPrefix + "Map.";
+            std::string subMapPrefix = subAllMapsPrefix + p->first + '.';
             if(properties->getPropertiesForPrefix(subMapPrefix).empty())
             {
-                if(properties->getPropertiesForPrefix(subMapsPrefix).empty())
+                if(properties->getPropertiesForPrefix(subAllMapsPrefix).empty())
                 {
                     subMapPrefix = mapPrefix;
                 }

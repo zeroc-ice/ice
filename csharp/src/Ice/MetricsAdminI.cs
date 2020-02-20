@@ -267,11 +267,11 @@ namespace IceInternal
                 foreach (KeyValuePair<string, ISubMapFactory> e in subMaps)
                 {
                     subMapNames.Add(e.Key);
-                    string subMapsPrefix = mapPrefix + "Map.";
-                    string subMapPrefix = subMapsPrefix + e.Key + '.';
+                    string subAllMapsPrefix = mapPrefix + "Map.";
+                    string subMapPrefix = subAllMapsPrefix + e.Key + '.';
                     if (communicator.GetProperties(forPrefix: subMapPrefix).Count == 0)
                     {
-                        if (communicator.GetProperties(forPrefix: subMapsPrefix).Count == 0)
+                        if (communicator.GetProperties(forPrefix: subAllMapsPrefix).Count == 0)
                         {
                             subMapPrefix = mapPrefix;
                         }
@@ -523,14 +523,14 @@ namespace IceInternal
             // Add maps to views configured with the given map.
             //
             string viewPrefix = "IceMX.Metrics." + _name + ".";
-            string mapsPrefix = viewPrefix + "Map.";
-            Dictionary<string, string> mapsProps = communicator.GetProperties(forPrefix: mapsPrefix);
+            string allMapsPrefix = viewPrefix + "Map.";
+            Dictionary<string, string> allMapsProps = communicator.GetProperties(forPrefix: allMapsPrefix);
 
             string mapPrefix;
             Dictionary<string, string> mapProps;
-            if (mapsProps.Count > 0)
+            if (allMapsProps.Count > 0)
             {
-                mapPrefix = mapsPrefix + mapName + ".";
+                mapPrefix = allMapsPrefix + mapName + ".";
                 mapProps = communicator.GetProperties(forPrefix: mapPrefix);
                 if (mapProps.Count == 0)
                 {

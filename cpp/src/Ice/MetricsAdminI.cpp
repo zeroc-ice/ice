@@ -228,14 +228,14 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
                              const MetricsMapFactoryPtr& factory, const ::Ice::LoggerPtr& logger)
 {
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
-    const string mapsPrefix = viewPrefix + "Map.";
-    PropertyDict mapsProps = properties->getPropertiesForPrefix(mapsPrefix);
+    const string allMapsPrefix = viewPrefix + "Map.";
+    PropertyDict allMapsProps = properties->getPropertiesForPrefix(allMapsPrefix);
 
     string mapPrefix;
     PropertyDict mapProps;
-    if(!mapsProps.empty())
+    if(!allMapsProps.empty())
     {
-        mapPrefix = mapsPrefix + mapName + ".";
+        mapPrefix = allMapsPrefix + mapName + ".";
         mapProps = properties->getPropertiesForPrefix(mapPrefix);
         if(mapProps.empty())
         {

@@ -259,11 +259,11 @@ public class MetricsMap<T extends com.zeroc.IceMX.Metrics>
             for(java.util.Map.Entry<String, SubMapFactory<?>> e : subMaps.entrySet())
             {
                 subMapNames.add(e.getKey());
-                String subMapsPrefix = mapPrefix + "Map.";
-                String subMapPrefix = subMapsPrefix + e.getKey() + '.';
+                String subAllMapsPrefix = mapPrefix + "Map.";
+                String subMapPrefix = subAllMapsPrefix + e.getKey() + '.';
                 if(props.getPropertiesForPrefix(subMapPrefix).isEmpty())
                 {
-                    if(props.getPropertiesForPrefix(subMapsPrefix).isEmpty())
+                    if(props.getPropertiesForPrefix(subAllMapsPrefix).isEmpty())
                     {
                         subMapPrefix = mapPrefix;
                     }
