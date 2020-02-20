@@ -144,11 +144,14 @@ IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
     Lock sync(*this);
     if(_requests.erase(task) > 0)
     {
-        if(!_instance && _requests.empty())
+        if(_instance)
+        {
+            return _instance->timer()->cancel(task);
+        }
+        else if(_requests.empty())
         {
             notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
         }
-        return _instance->timer()->cancel(task);
     }
     return false;
 }

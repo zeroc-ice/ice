@@ -1201,7 +1201,7 @@ namespace Ice
 
             _outgoingConnectionFactory.WaitUntilFinished();
 
-            DestroyRetryTask(); // Must be called before destroying thread pools.
+            DestroyRetryQueue(); // Must be called before destroying thread pools.
 
             if (Observer != null)
             {

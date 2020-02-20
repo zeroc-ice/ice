@@ -78,7 +78,7 @@ namespace Ice
             }
         }
 
-        internal void DestroyRetryTask()
+        internal void DestroyRetryQueue()
         {
             lock (this)
             {
@@ -123,12 +123,15 @@ namespace Ice
             {
                 if (_requests.Remove(task))
                 {
-                    if (_state == StateDestroyed && _requests.Count == 0)
+                    if (_state < StateDestroyInProgress)
+                    {
+                        return _timer.Cancel(task);
+                    }
+                    else if (_requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _timer.Cancel(task);
                 }
                 return false;
             }
