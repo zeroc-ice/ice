@@ -171,11 +171,16 @@ namespace IceInternal
             }
             string facet = facetPath.Length == 0 ? "" : facetPath[0];
             string operation = requestFrame.ReadString();
-            byte mode = requestFrame.ReadByte();
+            var mode = requestFrame.ReadByte();
+            if (mode > 2)
+            {
+                throw new Ice.MarshalException();
+            }
+            bool idempotent = mode > 0;
             var context = requestFrame.ReadContext();
             Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
 
-            return new Ice.Current(adapter, identity, facet, operation, (Ice.OperationMode)mode, context,
+            return new Ice.Current(adapter, identity, facet, operation, idempotent, context,
                 requestId, connection, encoding);
         }
 

@@ -59,6 +59,14 @@ sliceModeToIceMode(Operation::Mode opMode, string ns)
 }
 
 string
+sliceModeToIdempotent(Operation::Mode opMode)
+{
+    assert(opMode != Operation::Nonmutating); // TODO: can we just eliminate this enumerator?
+
+    return opMode == Operation::Normal ? "false" : "true";
+}
+
+string
 opFormatTypeToString(const OperationPtr& op, string ns)
 {
     switch (op->format())
@@ -2904,7 +2912,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         << " current)";
     _out << sb;
 
-    _out << nl << "IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns) << ", current.Mode);";
+    _out << nl << "IceCheckIdempotent(" << sliceModeToIdempotent(operation->mode()) << ", current);";
 
     // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
     // skips tagged members, and needs to understand them.
