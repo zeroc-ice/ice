@@ -588,6 +588,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server2") == IceGrid::ServerState::Inactive);
         auto obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server2"));
+        obj = obj->ice_locatorCacheTimeout(0);
         while(true)
         {
             obj->ice_ping();
