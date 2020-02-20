@@ -905,41 +905,6 @@ namespace IceSSL
             return result;
         }
 
-        private static bool decodeASN1Length(byte[] data, int start, out int len, out int next)
-        {
-            len = 0;
-            next = 0;
-
-            if(start + 1 > data.Length)
-            {
-                return false;
-            }
-
-            len = data[start];
-            int len2 = 0;
-            if(len > 0x80) // Composed length
-            {
-                len2 = len - 0x80;
-                if(start + len2 + 1 > data.Length)
-                {
-                    return false;
-                }
-                len = 0;
-                for(int i = 0; i < len2; i++)
-                {
-                    len *= 256;
-                    len += data[start + i + 1];
-                }
-            }
-            else if(len == 0x80) // Undefined length encoding
-            {
-                return false;
-            }
-
-            next = start + len2 + 1;
-            return (next + len <= data.Length);
-        }
-
         private Ice.Communicator _communicator;
         private Ice.Logger _logger;
         private IceInternal.ProtocolPluginFacade _facade;
