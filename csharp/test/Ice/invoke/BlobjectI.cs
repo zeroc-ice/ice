@@ -74,7 +74,6 @@ namespace Ice.invoke
             InputStream inS = new InputStream(communicator, inParams);
             inS.StartEncapsulation();
             OutputStream outS = new OutputStream(communicator);
-            outS.StartEncapsulation();
             if (current.Operation.Equals("opOneway"))
             {
                 return Task.FromResult(new Object_Ice_invokeResult(true, new byte[0]));
@@ -82,6 +81,7 @@ namespace Ice.invoke
             else if (current.Operation.Equals("opString"))
             {
                 string s = inS.ReadString();
+                outS.StartEncapsulation();
                 outS.WriteString(s);
                 outS.WriteString(s);
                 outS.EndEncapsulation();
@@ -90,6 +90,7 @@ namespace Ice.invoke
             else if (current.Operation.Equals("opException"))
             {
                 Test.MyException ex = new Test.MyException();
+                outS.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
                 outS.WriteException(ex);
                 outS.EndEncapsulation();
                 return Task.FromResult(new Object_Ice_invokeResult(false, outS.Finished()));
@@ -102,6 +103,7 @@ namespace Ice.invoke
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = inS.ReadString();
+                outS.StartEncapsulation();
                 if (s.Equals("::Test::MyClass"))
                 {
                     outS.WriteBool(true);

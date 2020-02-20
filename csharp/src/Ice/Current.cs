@@ -18,7 +18,6 @@ namespace Ice
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
         public EncodingVersion Encoding { get; }
-        public FormatType? Format { get ; set; } // TODO: temporary, until exceptions are always sliced
 
         internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, OperationMode mode,
             Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding)

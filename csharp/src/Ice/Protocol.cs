@@ -20,8 +20,6 @@ namespace IceInternal
         /// <returns>An <see cref="Ice.OutputStream"/> that holds the new frame.</returns>
         public static Ice.OutputStream StartResponseFrame(Ice.Current current, Ice.FormatType? format = null)
         {
-            Debug.Assert(format == current.Format); // temporary
-
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
             ostr.WriteInt(current.RequestId);
@@ -56,7 +54,8 @@ namespace IceInternal
             ostr.WriteBlob(Protocol.replyHdr);
             ostr.WriteInt(current.RequestId);
             ostr.WriteByte(ReplyStatus.replyUserException);
-            ostr.StartEncapsulation(current.Encoding, current.Format);
+            // Exceptions are always marshaled in the sliced format:
+            ostr.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
             return ostr;
         }
 
@@ -141,9 +140,8 @@ namespace IceInternal
             catch (Ice.UserException ex)
             {
                 ostr.WriteByte(ReplyStatus.replyUserException);
-                // TODO: always send exception in sliced format?
-                // ostr.StartEncapsulation(current.Encoding, Ice.FormatType.SlicedFormat);
-                ostr.StartEncapsulation(current.Encoding, current.Format);
+                // Exceptions are always marshaled in the sliced format:
+                ostr.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
                 ostr.WriteException(ex);
                 ostr.EndEncapsulation();
             }

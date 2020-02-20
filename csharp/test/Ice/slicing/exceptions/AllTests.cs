@@ -714,14 +714,12 @@ public class AllTests : Test.AllTests
             }
             catch (Base)
             {
-                test(false);
+                // Exceptions are always marshaled in sliced format; format:compact applies only to in-parameters and
+                // return values.
             }
             catch (Ice.UnknownUserException)
             {
-                //
-                // A MarshalException is raised for the compact format because the
-                // most-derived type is unknown and the exception cannot be sliced.
-                //
+                test(false);
             }
             catch (Ice.OperationNotExistException)
             {

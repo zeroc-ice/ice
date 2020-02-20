@@ -2916,11 +2916,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     }
     _out << nl << "istr.EndEncapsulation();";
 
-    if(operation->format() != DefaultFormat)
-    {
-        _out << nl << "current.Format = " << opFormatTypeToString(operation, ns) << ";";
-    }
-
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
 
     if(operation->hasMarshaledResult())
