@@ -237,7 +237,7 @@ namespace Ice
             {
                 ArraySegment<byte> segment = Segments[i];
                 int remaining = Math.Min(size, segment.Count);
-                Buffer.BlockCopy(segment.Array, data.Length - size, data, 0, remaining);
+                Buffer.BlockCopy(segment.Array, 0, data, data.Length - size, remaining);
                 size -= remaining;
             }
             return data;

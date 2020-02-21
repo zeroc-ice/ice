@@ -2411,7 +2411,6 @@ namespace Ice
                     //
                     cstream.Buffer.Pos = new BufferPosition(0, 9);
                     cstream.WriteByte(2);
-                    cstream.Buffer.Pos = new BufferPosition(0, 10);
                     cstream.WriteInt(cstream.Size);
 
                     //
@@ -2421,19 +2420,6 @@ namespace Ice
                     uncompressed.Buffer.Pos = new BufferPosition(0, 9);
                     uncompressed.WriteByte(2);
                     uncompressed.WriteInt(cstream.Size);
-                    Console.WriteLine($"compressed size: {cstream.Size}");
-
-                    Console.WriteLine("COMPRESSED DATA");
-                    int i = 0;
-                    foreach (var segment in cstream.Buffer.Segments)
-                    {
-                        for (int j = 0; j < segment.Count && i < cstream.Buffer.Size; i++, j++)
-                        {
-
-                            Console.WriteLine($"b[{i}] = {segment[j]}");
-                        }
-                    }
-
                     return cstream;
                 }
             }

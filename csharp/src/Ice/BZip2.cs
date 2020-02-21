@@ -343,8 +343,7 @@ namespace IceInternal
             //
             r.Pos = new Ice.BufferPosition(0, headerSize);
             r.WriteInt(buf.Size);
-            r.WriteSpan(new ArraySegment<byte>(data, 0, compressedLen).AsSpan());
-            Console.WriteLine($"Compress: compressed length: {compressedLen} unconpressed length: {buf.Size}");
+            r.Add(new ArraySegment<byte>(compressed, 0, compressedLen));
             return r;
         }
 
@@ -367,18 +366,10 @@ namespace IceInternal
             byte[] compressed = buf.B.RawBytes(headerSize + 4, compressedLen);
             int uncompressedLen = uncompressedSize - headerSize;
 
-            for (int i = 0; i < buf.Size(); ++i)
-            {
-                Console.WriteLine($"B[{i}] {buf.B.Get(i)}");
-            }
-
-            Console.WriteLine($"Uncompress: compressed length: {compressedLen} unconpressed size: {uncompressedSize} uncompresed len: {uncompressedLen}");
-
             byte[] uncompressed = new byte[uncompressedLen];
             int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
             if (rc < 0)
             {
-                Console.WriteLine($"BZ2_bzBuffToBuffDecompress failed: {rc} {GetBZ2Error(rc)}");
                 throw new Ice.CompressionException($"BZ2_bzBuffToBuffDecompress failed\n{GetBZ2Error(rc)}");
             }
 
@@ -391,7 +382,6 @@ namespace IceInternal
             r.B.Position(0);
             r.B.Put(buf.B.RawBytes(), 0, headerSize);
             r.B.Put(uncompressed);
-
             return r;
         }
 
