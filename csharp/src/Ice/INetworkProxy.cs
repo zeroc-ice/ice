@@ -91,11 +91,8 @@ namespace IceInternal
             buffer.WriteByte(0x04); // SOCKS version 4.
             buffer.WriteByte(0x01); // Command, establish a TCP/IP stream connection
 
-            short port = (short)addr.Port;
-            if (BitConverter.IsLittleEndian) // Network byte order (BIG_ENDIAN)
-            {
-                port = BinaryPrimitives.ReverseEndianness(port);
-            }
+            Debug.Assert(BitConverter.IsLittleEndian);
+            short port = BinaryPrimitives.ReverseEndianness((short)addr.Port); // Network byte order (BIG_ENDIAN)
             buffer.WriteShort(port); // Port
             buffer.WriteByteSeq(addr.Address.GetAddressBytes()); // IPv4 address
             buffer.WriteByte(0x00); // User ID.

@@ -100,12 +100,23 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="buffer">The intial stream data, the stream takes ownership of the array</param>
+        /// <param name="buffer">The intial stream data</param>
         public OutputStream(Communicator communicator, EncodingVersion encoding, byte[]? buffer = null)
+            : this(communicator, encoding, new VectoredBuffer(buffer))
+        {
+        }
+
+        /// <summary>
+        /// This constructor uses the given communicator and encoding version.
+        /// </summary>
+        /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="encoding">The desired encoding version.</param>
+        /// <param name="buffer">The intial stream data.</param>
+        public OutputStream(Communicator communicator, EncodingVersion encoding, VectoredBuffer buffer)
         {
             Communicator = communicator;
             Encoding = encoding;
-            Buffer = new VectoredBuffer(buffer);
+            Buffer = buffer;
         }
 
         public void Reset() => Buffer.Reset();

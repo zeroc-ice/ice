@@ -1287,11 +1287,8 @@ namespace IceInternal
                     PrepareWriteHeader(OP_CLOSE, 2);
                     byte[] buffer = new byte[2];
 
-                    short reason = (short)_closingReason;
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        reason = BinaryPrimitives.ReverseEndianness(reason);
-                    }
+                    Debug.Assert(BitConverter.IsLittleEndian);
+                    short reason = BinaryPrimitives.ReverseEndianness((short)_closingReason);
                     // Write closing reason
                     MemoryMarshal.Write(buffer.AsSpan(0, 2), ref reason);
 
@@ -1507,9 +1504,9 @@ namespace IceInternal
                 // Use an extra 16 bits to encode the payload length.
                 //
                 buffer[i++] = 126;
-                short lenght = BitConverter.IsLittleEndian ?
-                    BinaryPrimitives.ReverseEndianness((short)payloadLength) : (short)payloadLength;
-                MemoryMarshal.Write(buffer.AsSpan(i, 2), ref lenght);
+                Debug.Assert(BitConverter.IsLittleEndian);
+                short length = BinaryPrimitives.ReverseEndianness((short)payloadLength);
+                MemoryMarshal.Write(buffer.AsSpan(i, 2), ref length);
                 i += 2;
             }
             else if (payloadLength > 65535)
@@ -1518,9 +1515,9 @@ namespace IceInternal
                 // Use an extra 64 bits to encode the payload length.
                 //
                 buffer[i++] = 127;
-                long lenght = BitConverter.IsLittleEndian ?
-                    BinaryPrimitives.ReverseEndianness((long)payloadLength) : (long)payloadLength;
-                MemoryMarshal.Write(buffer.AsSpan(i, 8), ref lenght);
+                Debug.Assert(BitConverter.IsLittleEndian);
+                long length = BinaryPrimitives.ReverseEndianness((long)payloadLength);
+                MemoryMarshal.Write(buffer.AsSpan(i, 8), ref length);
                 i += 8;
             }
 

@@ -264,7 +264,7 @@ namespace IceInternal
             }
         }
 
-        public bool StartWrite(Ice.VectoredBuffer buffer , AsyncCallback callback, object state, out bool completed)
+        public bool StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
             if (_state == StateConnectPending)
@@ -295,11 +295,13 @@ namespace IceInternal
 
             try
             {
-                completed = buffer.FillSegments(_sendSegments, _maxSendPacketSize);
+                buffer.FillSegments(_sendSegments, _maxSendPacketSize);
                 _writeCallback = callback;
                 _writeEventArgs.UserToken = state;
                 _writeEventArgs.BufferList = _sendSegments;
-                return !_fd.SendAsync(_writeEventArgs);
+                bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
+                completed = _maxSendPacketSize >= buffer.Remaining;
+                return completedSynchronously;
             }
             catch (SocketException ex)
             {
@@ -350,7 +352,6 @@ namespace IceInternal
                 {
                     throw new Ice.ConnectionLostException();
                 }
-
                 Debug.Assert(ret > 0);
                 buffer.Advance(ret);
                 if (_state == StateProxyWrite)

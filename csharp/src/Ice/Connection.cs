@@ -2397,48 +2397,41 @@ namespace Ice
 
         private OutputStream DoCompress(OutputStream uncompressed, bool compress)
         {
-            // TODO Rework compression
-            /*if (_compressionSupported)
+            if (_compressionSupported)
             {
                 if (compress && uncompressed.Size >= 100)
                 {
                     //
                     // Do compression.
                     //
-                    IceInternal.Buffer? cbuf = BZip2.Compress(uncompressed.GetBuffer(), Protocol.headerSize,
-                                                              _compressionLevel);
+                    VectoredBuffer? cbuf = BZip2.Compress(uncompressed.Buffer, Protocol.headerSize, _compressionLevel);
                     if (cbuf != null)
                     {
-                        var cstream = new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf, true);
+                        var cstream = new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf);
 
                         //
-                        // Set compression status.
+                        // Write the compression status and the size of the
+                        // compressed stream into the header.
                         //
-                        cstream.Pos = 9;
+                        cstream.Buffer.Pos = new BufferPosition(0, 9);
                         cstream.WriteByte(2);
-
-                        //
-                        // Write the size of the compressed stream into the header.
-                        //
-                        cstream.Pos = 10;
                         cstream.WriteInt(cstream.Size);
 
                         //
                         // Write the compression status and size of the compressed stream into the header of the
                         // uncompressed stream -- we need this to trace requests correctly.
                         //
-                        uncompressed.Pos = 9;
+                        uncompressed.Buffer.Pos = new BufferPosition(0, 9);
                         uncompressed.WriteByte(2);
                         uncompressed.WriteInt(cstream.Size);
 
                         return cstream;
                     }
                 }
-            }*/
+            }
 
             uncompressed.Buffer.Pos = new BufferPosition(0, 9);
-            //uncompressed.WriteByte((byte)((_compressionSupported && compress) ? 1 : 0));
-            uncompressed.WriteByte((byte) 0); // TODO Fix compression
+            uncompressed.WriteByte((byte)((_compressionSupported && compress) ? 1 : 0));
 
             //
             // Not compressed, fill in the message size.

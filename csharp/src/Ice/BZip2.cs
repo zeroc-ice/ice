@@ -298,14 +298,22 @@ namespace IceInternal
 
         public static bool Supported() => _bzlibInstalled;
 
-        public static Buffer? Compress(Buffer buf, int headerSize, int compressionLevel)
+        public static Ice.VectoredBuffer? Compress(Ice.VectoredBuffer buf, int headerSize, int compressionLevel)
         {
             Debug.Assert(Supported());
             //
             // Compress the message body, but not the header.
             //
-            int uncompressedLen = buf.Size() - headerSize;
-            byte[] data = buf.B.RawBytes(headerSize, uncompressedLen);
+            int uncompressedLen = buf.Size - headerSize;
+            int offset = headerSize;
+            byte[] data = new byte[uncompressedLen];
+            var segment = buf.Segments[0];
+            System.Buffer.BlockCopy(segment.Array, headerSize, data, 0, Math.Min(buf.Size - headerSize, segment.Count - headerSize));
+            for (int i = 0; i < buf.Segments.Count; i++)
+            {
+                segment = buf.Segments[i];
+                System.Buffer.BlockCopy(segment.Array, 0, data, offset, Math.Min(buf.Size - offset, segment.Count));
+            }
             int compressedLen = (int)((uncompressedLen * 1.01) + 600);
             byte[] compressed = new byte[compressedLen];
 
@@ -330,27 +338,20 @@ namespace IceInternal
                 return null;
             }
 
-            var r = new Buffer();
-            r.Resize(headerSize + 4 + compressedLen, false);
-            r.B.Position(0);
-
             //
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            r.B.Put(buf.B.RawBytes(0, headerSize));
-
+            var header = new byte[headerSize + 4];
+            segment = buf.Segments[0];
+            System.Buffer.BlockCopy(segment.Array, 0, header, 0, headerSize);
+            var r = new Ice.VectoredBuffer(new byte[][] { header, data });
             //
             // Add the size of the uncompressed stream before the
             // message body.
             //
-            r.B.PutInt(buf.Size());
-
-            //
-            // Add the compressed message body.
-            //
-            r.B.Put(compressed, 0, compressedLen);
-
+            r.Pos = new Ice.BufferPosition(0, headerSize);
+            r.WriteInt(compressedLen);
             return r;
         }
 
