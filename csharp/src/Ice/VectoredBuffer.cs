@@ -269,7 +269,7 @@ namespace Ice
                 for (int i = _position.Segment + 1; i < Segments.Count && offset < size; ++i)
                 {
                     ArraySegment<byte> segment = Segments[i];
-                    Buffer.BlockCopy(segment.Array, 0, data, offset, Math.Min(segment.Count, Size - offset));
+                    Buffer.BlockCopy(segment.Array, 0, data, offset, Math.Min(segment.Count, size - offset));
                     offset += segment.Count;
                 }
                 return data;
