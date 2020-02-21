@@ -213,9 +213,9 @@ namespace Ice.proxy
             {
             }
             b1 = IObjectPrx.Parse("test", communicator);
-            test(b1.IsTwoway);
+            test(!b1.IsOneway);
             b1 = IObjectPrx.Parse("test -t", communicator);
-            test(b1.IsTwoway);
+            test(!b1.IsOneway);
             b1 = IObjectPrx.Parse("test -o", communicator);
             test(b1.IsOneway);
             b1 = IObjectPrx.Parse("test -O", communicator);
@@ -587,8 +587,9 @@ namespace Ice.proxy
 
             test(baseProxy.Clone(facet: "facet").Facet.Equals("facet"));
             test(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
-            test(baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsTwoway);
+            test(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             test(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
+            test(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
             test(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode == InvocationMode.BatchOneway);
             test(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode == InvocationMode.Datagram);
             test(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode == InvocationMode.BatchDatagram);
