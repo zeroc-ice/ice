@@ -382,7 +382,7 @@ namespace Ice.optional
             ostr.WriteOptional(1, OptionalFormat.VSize);
             ostr.WriteString("test");
             ostr.EndEncapsulation();
-            var inEncaps = ostr.Finished();
+            var inEncaps = ostr.ToArray();
             test(initial.Invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
 
             output.WriteLine("ok");
@@ -525,7 +525,7 @@ namespace Ice.optional
                     ostr.StartEncapsulation();
                     ostr.WriteClass(c);
                     ostr.EndEncapsulation();
-                    inEncaps = ostr.Finished();
+                    inEncaps = ostr.ToArray();
 
                     /*
                     factory.setEnabled(true);
@@ -606,7 +606,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteByte(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -643,7 +643,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteBool(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -680,7 +680,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteShort(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -717,7 +717,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteInt(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -754,7 +754,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteLong(1, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -791,7 +791,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteFloat(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -828,7 +828,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteDouble(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -867,7 +867,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteString(2, p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -904,7 +904,7 @@ namespace Ice.optional
                 ostr.StartEncapsulation();
                 ostr.WriteEnum(2, (int?)p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -945,7 +945,7 @@ namespace Ice.optional
                 ostr.WriteSize(1);
                 p1.Value.IceWrite(ostr);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -990,7 +990,7 @@ namespace Ice.optional
                 ostr.WriteSize(4);
                 p1.Value.IceWrite(ostr);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1037,11 +1037,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 p1.Value.IceWrite(ostr);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1085,7 +1085,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.Class);
                 ostr.WriteClass(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1123,11 +1123,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 ostr.WriteProxy(p1);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1165,7 +1165,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteByteSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1205,7 +1205,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteBoolSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1247,7 +1247,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteShortSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1290,7 +1290,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteIntSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1333,7 +1333,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteLongSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1376,7 +1376,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteFloatSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1419,7 +1419,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteDoubleSeq(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1459,11 +1459,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 ostr.WriteStringSeq(p1);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1506,7 +1506,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
                 ostr.Write(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1555,7 +1555,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1600,7 +1600,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.Write(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1649,7 +1649,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1691,11 +1691,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1740,7 +1740,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSerializable(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1785,7 +1785,7 @@ namespace Ice.optional
                 ostr.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1829,11 +1829,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();
@@ -1863,7 +1863,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.Class);
                 ostr.WriteClass(f.ae);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
 
                 istr = new InputStream(communicator, inEncaps);
                 istr.StartEncapsulation();
@@ -1898,11 +1898,11 @@ namespace Ice.optional
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteOptional(2, OptionalFormat.FSize);
-                int pos = ostr.StartSize();
+                var pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
                 ostr.EndEncapsulation();
-                inEncaps = ostr.Finished();
+                inEncaps = ostr.ToArray();
                 initial.Invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
                 var istr = new InputStream(communicator, outEncaps);
                 istr.StartEncapsulation();

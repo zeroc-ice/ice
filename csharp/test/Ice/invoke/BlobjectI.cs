@@ -85,7 +85,7 @@ namespace Ice.invoke
                 outS.WriteString(s);
                 outS.WriteString(s);
                 outS.EndEncapsulation();
-                return Task.FromResult(new Object_Ice_invokeResult(true, outS.Finished()));
+                return Task.FromResult(new Object_Ice_invokeResult(true, outS.ToArray()));
             }
             else if (current.Operation.Equals("opException"))
             {
@@ -93,7 +93,7 @@ namespace Ice.invoke
                 outS.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
                 outS.WriteException(ex);
                 outS.EndEncapsulation();
-                return Task.FromResult(new Object_Ice_invokeResult(false, outS.Finished()));
+                return Task.FromResult(new Object_Ice_invokeResult(false, outS.ToArray()));
             }
             else if (current.Operation.Equals("shutdown"))
             {
@@ -113,7 +113,7 @@ namespace Ice.invoke
                     outS.WriteBool(false);
                 }
                 outS.EndEncapsulation();
-                return Task.FromResult(new Object_Ice_invokeResult(true, outS.Finished()));
+                return Task.FromResult(new Object_Ice_invokeResult(true, outS.ToArray()));
             }
             else
             {

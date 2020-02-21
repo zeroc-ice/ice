@@ -2,9 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Protocol = IceInternal.Protocol;
@@ -45,24 +47,18 @@ namespace Ice
         /// <value>The encoding.</value>
         public EncodingVersion Encoding { get; private set; }
 
-        /// <summary>
-        /// Determines the current size of the stream.
-        /// </summary>
+        /// <summary>Determines the current size of the stream, this correspond
+        /// to the number of bytes already writen to the stream.</summary>
         /// <value>The current size.</value>
-        internal int Size => _buf.Size();
+        internal int Size => Buffer.Size;
 
         /// <summary>
         /// Determines whether the stream is empty.
         /// </summary>
         /// <returns>True if no data has been written yet, false otherwise.</returns>
-        internal bool IsEmpty => _buf.Empty();
+        internal bool IsEmpty => Buffer.Size == 0;
 
-        // The position (offset) in the underlying buffer.
-        internal int Pos
-        {
-            get => _buf.B.Position();
-            set => _buf.B.Position(value);
-        }
+        public VectoredBuffer Buffer { get; private set; }
 
         // When set, we are writing to a top-level encapsulation.
         private Encaps? _mainEncaps;
@@ -71,8 +67,6 @@ namespace Ice
         // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
         // when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
-
-        private IceInternal.Buffer _buf;
 
         // The current class/exception format, can be either Compact or Sliced.
         private FormatType _format;
@@ -97,7 +91,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         public OutputStream(Communicator communicator)
-            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding, new IceInternal.Buffer())
+            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding)
         {
         }
 
@@ -106,27 +100,19 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        public OutputStream(Communicator communicator, EncodingVersion encoding)
-            : this(communicator, encoding, new IceInternal.Buffer())
+        /// <param name="buffer">The intial stream data, the stream takes ownership of the array</param>
+        public OutputStream(Communicator communicator, EncodingVersion encoding, byte[]? buffer = null)
         {
+            Communicator = communicator;
+            Encoding = encoding;
+            Buffer = new VectoredBuffer(buffer);
         }
 
-        public OutputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
-            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
-        {
-        }
+        public void Reset() => Buffer.Reset();
 
-        /// <summary>
-        /// Indicates that the marshaling of a request or reply is finished.
-        /// </summary>
-        /// <returns>The byte sequence containing the encoded request or reply.</returns>
-        public byte[] Finished()
-        {
-            IceInternal.Buffer buf = PrepareWrite();
-            byte[] result = new byte[buf.B.Limit()];
-            buf.B.Get(result);
-            return result;
-        }
+        public byte[] ToArray() => Buffer.ToArray();
+
+        internal void Prepare() => Buffer.Prepare();
 
         /// <summary>
         /// Writes the start of an encapsulation to the stream.
@@ -143,7 +129,7 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _mainEncaps = new Encaps(Encoding, _format, _buf.B.Position());
+            _mainEncaps = new Encaps(Encoding, _format, Buffer.Pos);
 
             Encoding = encoding;
             if (format.HasValue)
@@ -164,8 +150,7 @@ namespace Ice
             Encaps encaps = _mainEncaps.Value;
 
             // Size includes size and version.
-            int sz = _buf.Size() - encaps.StartPos;
-            _buf.B.PutInt(encaps.StartPos, sz);
+            Buffer.RewriteInt(Buffer.Distance(encaps.StartPos), encaps.StartPos);
 
             Encoding = encaps.OldEncoding;
             _format = encaps.OldFormat;
@@ -191,7 +176,6 @@ namespace Ice
                 } // else we didn't write anything and it's still the first slice
             }
 
-            _current.SliceFlagsPos = Pos;
             _current.SliceFlags = 0;
 
             if (_format == FormatType.SlicedFormat)
@@ -200,6 +184,7 @@ namespace Ice
                 _current.SliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
             }
 
+            _current.SliceFlagsPos = Buffer.Pos;
             WriteByte(0); // Placeholder for the slice flags
 
             // For instance slices, encode the flag and the type ID either as a string or index. For exception slices,
@@ -240,10 +225,12 @@ namespace Ice
 
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
+
+                _current.SliceSizePos = Buffer.Pos;
                 WriteInt(0); // Placeholder for the slice length.
             }
 
-            _current.SliceFirstMemberPos = Pos;
+            _current.SliceFirstMemberPos = Buffer.Pos;
         }
 
         // Marks the end of a slice for a class instance or user exception.
@@ -269,8 +256,7 @@ namespace Ice
             // Write the slice size if necessary.
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                int sz = Pos - _current.SliceFirstMemberPos + 4;
-                RewriteInt(sz, _current.SliceFirstMemberPos - 4);
+                Buffer.RewriteInt(Buffer.Distance(_current.SliceSizePos), _current.SliceSizePos);
             }
 
             if (_current.IndirectionTable?.Count > 0)
@@ -299,23 +285,21 @@ namespace Ice
         {
             if (v > 254)
             {
-                Expand(5);
-                _buf.B.Put(255);
-                _buf.B.PutInt(v);
+                WriteByte(255);
+                WriteInt(v);
             }
             else
             {
-                Expand(1);
-                _buf.B.Put((byte)v);
+                WriteByte((byte)v);
             }
         }
 
         /// <summary>
         /// Returns the current position and allocates four bytes for a fixed-length (32-bit) size value.
         /// </summary>
-        public int StartSize()
+        public BufferPosition StartSize()
         {
-            int pos = _buf.B.Position();
+            BufferPosition pos = Buffer.Pos;
             WriteInt(0); // Placeholder for 32-bit size
             return pos;
         }
@@ -324,26 +308,18 @@ namespace Ice
         /// Computes the amount of data written since the previous call to startSize and writes that value
         /// at the saved position.
         /// </summary>
-        /// <param name="pos">The saved position.</param>
-        public void EndSize(int pos)
+        /// <param name="start">The start position.</param>
+        public void EndSize(BufferPosition start)
         {
-            Debug.Assert(pos >= 0);
-            RewriteInt(_buf.B.Position() - pos - 4, pos);
+            Debug.Assert(start.Offset >= 0);
+            Buffer.RewriteInt(Buffer.Distance(start) - 4, start);
         }
 
         /// <summary>
         /// Writes a blob of bytes to the stream.
         /// </summary>
         /// <param name="v">The byte array to be written. All of the bytes in the array are written.</param>
-        public void WriteBlob(byte[] v)
-        {
-            if (v == null)
-            {
-                return;
-            }
-            Expand(v.Length);
-            _buf.B.Put(v);
-        }
+        public void WriteBlob(byte[] v) => Buffer.WriteSpan(v.AsSpan());
 
         /// <summary>
         /// Write the header information for an optional value.
@@ -383,11 +359,7 @@ namespace Ice
         /// Writes a byte to the stream.
         /// </summary>
         /// <param name="v">The byte to write to the stream.</param>
-        public void WriteByte(byte v)
-        {
-            Expand(1);
-            _buf.B.Put(v);
-        }
+        public void WriteByte(byte v) => Buffer.WriteByte(v);
 
         /// <summary>
         /// Writes an optional byte to the stream.
@@ -406,8 +378,8 @@ namespace Ice
         /// Writes a byte to the stream at the given position. The current position of the stream is not modified.
         /// </summary>
         /// <param name="v">The byte to write to the stream.</param>
-        /// <param name="dest">The position at which to store the byte in the buffer.</param>
-        private void RewriteByte(byte v, int dest) => _buf.B.Put(dest, v);
+        /// <param name="pos">The position at which to store the byte in the buffer.</param>
+        public void RewriteByte(byte v, BufferPosition pos) => Buffer.RewriteByte(v, pos);
 
         /// <summary>
         /// Writes a byte sequence to the stream.
@@ -417,8 +389,7 @@ namespace Ice
         public void WriteByteSeq(byte[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length);
-            _buf.B.Put(v);
+            Buffer.WriteByteSeq(v);
         }
 
         /// <summary>
@@ -481,11 +452,7 @@ namespace Ice
         /// Writes a boolean to the stream.
         /// </summary>
         /// <param name="v">The boolean to write to the stream.</param>
-        public void WriteBool(bool v)
-        {
-            Expand(1);
-            _buf.B.Put(v ? (byte)1 : (byte)0);
-        }
+        public void WriteBool(bool v) => Buffer.WriteBool(v);
 
         /// <summary>
         /// Writes an optional boolean to the stream.
@@ -505,18 +472,10 @@ namespace Ice
         /// </summary>
         /// <param name="v">The boolean sequence to write to the stream.
         /// Passing null causes an empty sequence to be written to the stream.</param>
-        public void WriteBoolSeq(bool[]? v)
+        public void WriteBoolSeq(bool[] v)
         {
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(v.Length);
-                Expand(v.Length);
-                _buf.B.PutBoolSeq(v);
-            }
+            WriteSize(v.Length);
+            Buffer.WriteBoolSeq(v);
         }
 
         /// <summary>
@@ -555,11 +514,7 @@ namespace Ice
         /// Writes a short to the stream.
         /// </summary>
         /// <param name="v">The short to write to the stream.</param>
-        public void WriteShort(short v)
-        {
-            Expand(2);
-            _buf.B.PutShort(v);
-        }
+        public void WriteShort(short v) => Buffer.WriteShort(v);
 
         /// <summary>
         /// Writes an optional short to the stream.
@@ -582,8 +537,7 @@ namespace Ice
         public void WriteShortSeq(short[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length * 2);
-            _buf.B.PutShortSeq(v);
+            Buffer.WriteShortSeq(v);
         }
 
         /// <summary>
@@ -625,11 +579,9 @@ namespace Ice
         /// Writes an int to the stream.
         /// </summary>
         /// <param name="v">The int to write to the stream.</param>
-        public void WriteInt(int v)
-        {
-            Expand(4);
-            _buf.B.PutInt(v);
-        }
+        public void WriteInt(int v) => Buffer.WriteInt(v);
+
+        public void RewriteInt(int v, BufferPosition pos) => Buffer.RewriteInt(v, pos);
 
         /// <summary>
         /// Writes an optional int to the stream.
@@ -645,13 +597,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes an int to the stream at the given position. The current position of the stream is not modified.
-        /// </summary>
-        /// <param name="v">The int to write to the stream.</param>
-        /// <param name="dest">The position at which to store the int in the buffer.</param>
-        internal void RewriteInt(int v, int dest) => _buf.B.PutInt(dest, v);
-
-        /// <summary>
         /// Writes an int sequence to the stream.
         /// </summary>
         /// <param name="v">The int sequence to write to the stream.
@@ -659,8 +604,7 @@ namespace Ice
         public void WriteIntSeq(int[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length * 4);
-            _buf.B.PutIntSeq(v);
+            Buffer.WriteIntSeq(v);
         }
 
         /// <summary>
@@ -702,11 +646,7 @@ namespace Ice
         /// Writes a long to the stream.
         /// </summary>
         /// <param name="v">The long to write to the stream.</param>
-        public void WriteLong(long v)
-        {
-            Expand(8);
-            _buf.B.PutLong(v);
-        }
+        public void WriteLong(long v) => Buffer.WriteLong(v);
 
         /// <summary>
         /// Writes an optional long to the stream.
@@ -729,8 +669,7 @@ namespace Ice
         public void WriteLongSeq(long[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length * 8);
-            _buf.B.PutLongSeq(v);
+            Buffer.WriteLongSeq(v);
         }
 
         /// <summary>
@@ -772,11 +711,7 @@ namespace Ice
         /// Writes a float to the stream.
         /// </summary>
         /// <param name="v">The float to write to the stream.</param>
-        public void WriteFloat(float v)
-        {
-            Expand(4);
-            _buf.B.PutFloat(v);
-        }
+        public void WriteFloat(float v) => Buffer.WriteFloat(v);
 
         /// <summary>
         /// Writes an optional float to the stream.
@@ -799,8 +734,7 @@ namespace Ice
         public void WriteFloatSeq(float[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length * 4);
-            _buf.B.PutFloatSeq(v);
+            Buffer.WriteFloatSeq(v);
         }
 
         /// <summary>
@@ -842,11 +776,7 @@ namespace Ice
         /// Writes a double to the stream.
         /// </summary>
         /// <param name="v">The double to write to the stream.</param>
-        public void WriteDouble(double v)
-        {
-            Expand(8);
-            _buf.B.PutDouble(v);
-        }
+        public void WriteDouble(double v) => Buffer.WriteDouble(v);
 
         /// <summary>
         /// Writes an optional double to the stream.
@@ -869,8 +799,7 @@ namespace Ice
         public void WriteDoubleSeq(double[] v)
         {
             WriteSize(v.Length);
-            Expand(v.Length * 8);
-            _buf.B.PutDoubleSeq(v);
+            Buffer.WriteDoubleSeq(v);
         }
 
         /// <summary>
@@ -919,12 +848,13 @@ namespace Ice
             if (v.Length == 0)
             {
                 WriteSize(0);
-                return;
             }
-            byte[] arr = _utf8.GetBytes(v);
-            WriteSize(arr.Length);
-            Expand(arr.Length);
-            _buf.B.Put(arr);
+            else
+            {
+                byte[] data = _utf8.GetBytes(v);
+                WriteSize(data.Length);
+                Buffer.WriteSpan(data.AsSpan());
+            }
         }
 
         /// <summary>
@@ -962,7 +892,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
-                int pos = StartSize();
+                BufferPosition pos = StartSize();
                 WriteStringSeq(v);
                 EndSize(pos);
             }
@@ -977,7 +907,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
-                int pos = StartSize();
+                BufferPosition pos = StartSize();
                 WriteStringSeq(v);
                 EndSize(pos);
             }
@@ -1008,7 +938,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
-                int pos = StartSize();
+                BufferPosition pos = StartSize();
                 WriteProxy(v);
                 EndSize(pos);
             }
@@ -1022,7 +952,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
-                int pos = StartSize();
+                BufferPosition pos = StartSize();
                 WriteProxySeq(v);
                 EndSize(pos);
             }
@@ -1032,7 +962,7 @@ namespace Ice
         {
             if (v != null && WriteOptional(tag, OptionalFormat.FSize))
             {
-                int pos = StartSize();
+                BufferPosition pos = StartSize();
                 WriteProxySeq(v);
                 EndSize(pos);
             }
@@ -1198,42 +1128,18 @@ namespace Ice
         }
 
         /// <summary>
-        /// Expand the stream to accept more data.
-        /// </summary>
-        /// <param name="n">The number of bytes to accommodate in the stream.</param>
-        internal void Expand(int n) => _buf.Expand(n);
-
-        /// <summary>
-        /// Resets this output stream. This method allows the stream to be reused, to avoid creating
-        /// unnecessary garbage.
-        /// </summary>
-        internal void Reset()
-        {
-            _buf.Reset();
-            Clear();
-            _format = Communicator.DefaultsAndOverrides.DefaultFormat;
-        }
-
-        /// <summary>
         /// Releases any data retained by encapsulations. The reset() method internally calls clear().
         /// </summary>
         internal void Clear() => ResetEncapsulation();
 
-        /// <summary>
-        /// Swaps the contents of one stream with another.
-        /// </summary>
+        /// <summary>Swaps the contents of one stream with another.</summary>
         /// <param name="other">The other stream.</param>
         internal void Swap(OutputStream other)
         {
             Debug.Assert(Communicator == other.Communicator);
 
-            IceInternal.Buffer tmpBuf = other._buf;
-            other._buf = _buf;
-            _buf = tmpBuf;
-
-            EncodingVersion tmpEncoding = other.Encoding;
-            other.Encoding = Encoding;
-            Encoding = tmpEncoding;
+            (Buffer, other.Buffer) = (other.Buffer, Buffer);
+            (Encoding, other.Encoding) = (other.Encoding, Encoding);
 
             // Swap is never called for streams that have encapsulations being written. However,
             // encapsulations might still be set in case marshalling failed. We just
@@ -1242,32 +1148,6 @@ namespace Ice
             other.ResetEncapsulation();
         }
 
-        /// <summary>
-        /// Resizes the stream to a new size.
-        /// </summary>
-        /// <param name="sz">The new size.</param>
-        internal void Resize(int sz)
-        {
-            _buf.Resize(sz, false);
-            _buf.B.Position(sz);
-        }
-
-        /// <summary>
-        /// Prepares the internal data buffer to be written to a socket.
-        /// </summary>
-        internal IceInternal.Buffer PrepareWrite()
-        {
-            _buf.B.Limit(_buf.Size());
-            _buf.B.Position(0);
-            return _buf;
-        }
-
-        /// <summary>
-        /// Retrieves the internal data buffer.
-        /// </summary>
-        /// <returns>The buffer.</returns>
-        internal IceInternal.Buffer GetBuffer() => _buf;
-
         internal void StartEndpointEncapsulation() => StartEndpointEncapsulation(Encoding);
 
         internal void StartEndpointEncapsulation(EncodingVersion encoding)
@@ -1275,7 +1155,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _endpointEncaps = new Encaps(Encoding, _format, _buf.B.Position());
+            _endpointEncaps = new Encaps(Encoding, _format, Buffer.Pos);
             Encoding = encoding;
             // We didn't change _format, so no need to restore it.
 
@@ -1287,9 +1167,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps.HasValue);
 
             // Size includes size and version.
-            int startPos = _endpointEncaps.Value.StartPos;
-            int sz = _buf.Size() - startPos;
-            _buf.B.PutInt(startPos, sz);
+            Buffer.RewriteInt(Buffer.Distance(_endpointEncaps.Value.StartPos), _endpointEncaps.Value.StartPos);
 
             Encoding = _endpointEncaps.Value.OldEncoding;
             // No need to restore format since it didn't change.
@@ -1316,8 +1194,7 @@ namespace Ice
             {
                 throw new EncapsulationException();
             }
-            Expand(v.Length);
-            _buf.B.Put(v);
+            Buffer.WriteSpan(v.AsSpan());
         }
 
         // Returns true when something was written, and false otherwise
@@ -1359,14 +1236,6 @@ namespace Ice
                 IceEndSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
             }
             return firstSlice == false; // we wrote at least one slice
-        }
-
-        // Helper constructor used by the other constructors.
-        private OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
-        {
-            Communicator = communicator;
-            Encoding = encoding;
-            _buf = buf;
         }
 
         private void WriteEncapsulationHeader(int size, EncodingVersion encoding)
@@ -1449,10 +1318,13 @@ namespace Ice
             internal byte SliceFlags = 0;
 
             // Position of the first data member in the slice, just after the optional slice size.
-            internal int SliceFirstMemberPos = 0;
+            internal BufferPosition SliceSizePos = new BufferPosition(0, 0);
+
+            // Position of the first data member in the slice, just after the optional slice size.
+            internal BufferPosition SliceFirstMemberPos = new BufferPosition(0, 0);
 
             // Position of the slice flags.
-            internal int SliceFlagsPos = 0;
+            internal BufferPosition SliceFlagsPos = new BufferPosition(0, 0);
 
             // The indirection table and indirection map are only used for the sliced format.
             internal List<AnyClass>? IndirectionTable;
@@ -1469,9 +1341,9 @@ namespace Ice
             // Previous format (Compact or Sliced).
             internal readonly FormatType OldFormat;
 
-            internal readonly int StartPos;
+            internal readonly BufferPosition StartPos;
 
-            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, int startPos)
+            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, BufferPosition startPos)
             {
                 OldEncoding = oldEncoding;
                 OldFormat = oldFormat;

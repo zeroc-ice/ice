@@ -13,7 +13,7 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Fd();
     }
 
-    public int Initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
+    public int Initialize(IceInternal.Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
     {
         _configuration.checkInitializeException();
         if (!_initialized)
@@ -43,9 +43,9 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Bind();
     }
 
-    public int Write(IceInternal.Buffer buf)
+    public int Write(Ice.VectoredBuffer buf)
     {
-        if (!_configuration.writeReady() && buf.B.HasRemaining())
+        if (!_configuration.writeReady() && buf.Remaining > 0)
         {
             return IceInternal.SocketOperation.Write;
         }
@@ -183,13 +183,13 @@ internal class Transceiver : IceInternal.ITransceiver
         }
     }
 
-    public bool StartWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state, out bool completed)
+    public bool StartWrite(Ice.VectoredBuffer buf, IceInternal.AsyncCallback callback, object state, out bool completed)
     {
         _configuration.checkWriteException();
         return _transceiver.StartWrite(buf, callback, state, out completed);
     }
 
-    public void FinishWrite(IceInternal.Buffer buf)
+    public void FinishWrite(Ice.VectoredBuffer buf)
     {
         _configuration.checkWriteException();
         _transceiver.FinishWrite(buf);
@@ -215,9 +215,9 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.ToDetailedString();
     }
 
-    public void CheckSendSize(IceInternal.Buffer buf)
+    public void CheckSendSize(int sz)
     {
-        _transceiver.CheckSendSize(buf);
+        _transceiver.CheckSendSize(sz);
     }
 
     public void SetBufferSize(int rcvSize, int sndSize)

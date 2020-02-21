@@ -101,7 +101,10 @@ namespace Ice
             IceCheckAsyncTwowayOnly("ice_isA");
             var os = new OutgoingAsyncT<bool>(this, completed);
             os.Invoke("ice_isA", OperationMode.Nonmutating, null, context, synchronous,
-                write: (OutputStream os) => os.WriteString(id),
+                write: (OutputStream os) =>
+                {
+                    os.WriteString(id);
+                },
                 read: (InputStream iss) => iss.ReadBool());
         }
 

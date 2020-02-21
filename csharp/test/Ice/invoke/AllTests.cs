@@ -31,7 +31,7 @@ namespace Ice.invoke
                 outS.StartEncapsulation();
                 outS.WriteString(testString);
                 outS.EndEncapsulation();
-                inEncaps = outS.Finished();
+                inEncaps = outS.ToArray();
 
                 if (cl.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps))
                 {
@@ -101,7 +101,7 @@ namespace Ice.invoke
                 outS.StartEncapsulation();
                 outS.WriteString(testString);
                 outS.EndEncapsulation();
-                byte[] inEncaps = outS.Finished();
+                byte[] inEncaps = outS.ToArray();
 
                 // begin_ice_invoke with no callback
                 var result = cl.InvokeAsync("opString", OperationMode.Normal, inEncaps).Result;

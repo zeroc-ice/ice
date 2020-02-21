@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 
 namespace IceInternal
@@ -9,13 +11,14 @@ namespace IceInternal
     public interface ITransceiver
     {
         Socket? Fd();
-        int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
+        int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData);
         int Closing(bool initiator, Ice.LocalException? ex);
         void Close();
         void Destroy();
 
         Endpoint Bind();
-        int Write(Buffer buf);
+        int Write(Ice.VectoredBuffer buffer);
+
         int Read(Buffer buf, ref bool hasMoreData);
 
         //
@@ -40,13 +43,13 @@ namespace IceInternal
         // will be invoked in the same thread as startWrite. The request
         // will be canceled upon the termination of the thread that calls startWrite.
         //
-        bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
-        void FinishWrite(Buffer buf);
+        bool StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed);
+        void FinishWrite(Ice.VectoredBuffer buffer);
 
         string Protocol();
         string ToDetailedString();
         Ice.ConnectionInfo GetInfo();
-        void CheckSendSize(Buffer buf);
+        void CheckSendSize(int size);
         void SetBufferSize(int rcvSize, int sndSize);
     }
 

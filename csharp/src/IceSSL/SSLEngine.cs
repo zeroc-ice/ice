@@ -186,7 +186,7 @@ namespace IceSSL
                 {
                     if (!CheckPath(ref certFile))
                     {
-                        throw new FileNotFoundException("IceSSL: certificate file not found: `{certFile}'", certFile);
+                        throw new FileNotFoundException($"IceSSL: certificate file not found: `{certFile}'", certFile);
                     }
 
                     SecureString? password = null;

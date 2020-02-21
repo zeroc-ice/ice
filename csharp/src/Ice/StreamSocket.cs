@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -36,7 +37,7 @@ namespace IceInternal
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
+            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd)) / 2;
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
         }
 
@@ -82,7 +83,7 @@ namespace IceInternal
             Network.SetBlock(_fd, block);
         }
 
-        public int Connect(Buffer readBuffer, Buffer writeBuffer)
+        public int Connect(Buffer readBuffer, Ice.VectoredBuffer writeBuffer)
         {
             if (_state == StateNeedConnect)
             {
@@ -125,7 +126,7 @@ namespace IceInternal
             else if (_state == StateProxyConnected)
             {
                 Debug.Assert(_proxy != null);
-                _proxy.Finish(readBuffer, writeBuffer);
+                _proxy.Finish(readBuffer);
 
                 readBuffer.Clear();
                 writeBuffer.Clear();
@@ -140,8 +141,6 @@ namespace IceInternal
         public bool IsConnected() => _state == StateConnected && _fd != null;
 
         public Socket? Fd() => _fd;
-
-        public int GetSendPacketSize(int length) => _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
         public int GetRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
@@ -175,27 +174,27 @@ namespace IceInternal
             return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
         }
 
-        public int Write(Buffer buf)
+        public int Write(Ice.VectoredBuffer buffer)
         {
             if (_state == StateProxyWrite)
             {
                 Debug.Assert(_proxy != null);
                 while (true)
                 {
-                    int ret = Write(buf.B);
+                    int ret = WriteData(buffer);
                     if (ret == 0)
                     {
                         return SocketOperation.Write;
                     }
-                    _state = ToState(_proxy.EndWrite(buf));
+                    _state = ToState(_proxy.EndWrite(buffer));
                     if (_state != StateProxyWrite)
                     {
                         return SocketOperation.None;
                     }
                 }
             }
-            Write(buf.B);
-            return buf.B.HasRemaining() ? SocketOperation.Write : SocketOperation.None;
+            WriteData(buffer);
+            return buffer.Remaining > 0 ? SocketOperation.Write : SocketOperation.None;
         }
 
         public bool StartRead(Buffer buf, AsyncCallback callback, object state)
@@ -265,7 +264,7 @@ namespace IceInternal
             }
         }
 
-        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
+        public bool StartWrite(Ice.VectoredBuffer buffer , AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
             if (_state == StateConnectPending)
@@ -294,15 +293,13 @@ namespace IceInternal
                 }
             }
 
-            int packetSize = GetSendPacketSize(buf.B.Remaining());
             try
             {
+                completed = buffer.FillSegments(_sendSegments, _maxSendPacketSize);
                 _writeCallback = callback;
                 _writeEventArgs.UserToken = state;
-                _writeEventArgs.SetBuffer(buf.B.RawBytes(), buf.B.Position(), packetSize);
-                bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-                completed = packetSize == buf.B.Remaining();
-                return completedSynchronously;
+                _writeEventArgs.BufferList = _sendSegments;
+                return !_fd.SendAsync(_writeEventArgs);
             }
             catch (SocketException ex)
             {
@@ -318,13 +315,19 @@ namespace IceInternal
             }
         }
 
-        public void FinishWrite(Buffer buf)
+        public void FinishWrite(Ice.VectoredBuffer buffer)
         {
+            if (_writeEventArgs.BufferList != null)
+            {
+                _writeEventArgs.BufferList.Clear();
+                _writeEventArgs.BufferList = null;
+            }
+
             if (_fd == null) // Transceiver was closed
             {
-                if (buf.Size() - buf.B.Position() < _maxSendPacketSize)
+                if (buffer.Remaining < _maxSendPacketSize)
                 {
-                    buf.B.Position(buf.B.Limit()); // Assume all the data was sent for at-most-once semantics.
+                    buffer.Advance(buffer.Remaining); // Assume all the data was sent for at-most-once semantics.
                 }
                 return;
             }
@@ -343,20 +346,19 @@ namespace IceInternal
                     throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
-                _writeEventArgs.SetBuffer(null, 0, 0);
                 if (ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
                 }
 
                 Debug.Assert(ret > 0);
-                buf.B.Position(buf.B.Position() + ret);
-
+                buffer.Advance(ret);
                 if (_state == StateProxyWrite)
                 {
                     Debug.Assert(_proxy != null);
-                    _state = ToState(_proxy.EndWrite(buf));
+                    _state = ToState(_proxy.EndWrite(buffer));
                 }
+                return;
             }
             catch (SocketException ex)
             {
@@ -441,7 +443,7 @@ namespace IceInternal
             return read;
         }
 
-        private int Write(ByteBuffer buf)
+        private int WriteData(Ice.VectoredBuffer buffer)
         {
             Debug.Assert(_fd != null);
             if (AssemblyUtil.IsMono)
@@ -453,34 +455,18 @@ namespace IceInternal
                 //
                 return 0;
             }
-            int packetSize = buf.Remaining();
-            if (AssemblyUtil.IsWindows)
-            {
-                //
-                // On Windows, limiting the buffer size is important to prevent
-                // poor throughput performances when transfering large amount of
-                // data. See Microsoft KB article KB823764.
-                //
-                if (_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
-                {
-                    packetSize = _maxSendPacketSize / 2;
-                }
-            }
 
             int sent = 0;
-            while (buf.HasRemaining())
+            while (buffer.Remaining > 0)
             {
                 try
                 {
-                    int ret = _fd.Send(buf.RawBytes(), buf.Position(), packetSize, SocketFlags.None);
+                    buffer.FillSegments(_sendSegments, _maxSendPacketSize);
+                    int ret = _fd.Send(_sendSegments, SocketFlags.None);
+                    _sendSegments.Clear();
                     Debug.Assert(ret > 0);
-
                     sent += ret;
-                    buf.Position(buf.Position() + ret);
-                    if (packetSize > buf.Remaining())
-                    {
-                        packetSize = buf.Remaining();
-                    }
+                    buffer.Advance(ret);
                 }
                 catch (SocketException ex)
                 {
@@ -536,11 +522,13 @@ namespace IceInternal
         private int _state;
         private string _desc = "";
 
-        private readonly SocketAsyncEventArgs? _writeEventArgs;
-        private readonly SocketAsyncEventArgs? _readEventArgs;
+        private readonly SocketAsyncEventArgs _writeEventArgs;
+        private readonly SocketAsyncEventArgs _readEventArgs;
 
         private AsyncCallback? _writeCallback;
         private AsyncCallback? _readCallback;
+
+        private readonly List<ArraySegment<byte>> _sendSegments = new List<ArraySegment<byte>>();
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

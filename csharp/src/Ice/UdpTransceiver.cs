@@ -15,7 +15,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _fd;
 
-        public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
         {
             Debug.Assert(_fd != null);
             if (_state == StateNeedConnect)
@@ -122,18 +122,17 @@ namespace IceInternal
             _writeEventArgs.Dispose();
         }
 
-        public int Write(Buffer buf)
+        public int Write(Ice.VectoredBuffer buffer)
         {
-            if (!buf.B.HasRemaining())
+            if (buffer.Remaining == 0)
             {
                 return SocketOperation.None;
             }
 
-            Debug.Assert(buf.B.Position() == 0);
             Debug.Assert(_fd != null && _state >= StateConnected);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buf.Size());
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buffer.Size);
 
             int ret;
             while (true)
@@ -142,7 +141,7 @@ namespace IceInternal
                 {
                     if (_state == StateConnected)
                     {
-                        ret = _fd.Send(buf.B.RawBytes(), 0, buf.Size(), SocketFlags.None);
+                        ret = _fd.Send(buffer.Segments, SocketFlags.None);
                     }
                     else
                     {
@@ -150,7 +149,13 @@ namespace IceInternal
                         {
                             throw new Ice.SocketException();
                         }
-                        ret = _fd.SendTo(buf.B.RawBytes(), 0, buf.Size(), SocketFlags.None, _peerAddr);
+
+                        if (buffer.Segments.Count > 1)
+                        {
+                            buffer.Compact();
+                        }
+                        ret = _fd.SendTo(buffer.Segments[0].Array, 0, buffer.Size, SocketFlags.None, _peerAddr);
+                        Debug.Assert(ret == buffer.Size);
                     }
                     break;
                 }
@@ -180,10 +185,6 @@ namespace IceInternal
                     throw new Ice.SyscallException(e);
                 }
             }
-
-            Debug.Assert(ret > 0);
-            Debug.Assert(ret == buf.B.Limit());
-            buf.B.Position(buf.B.Limit());
             return SocketOperation.None;
         }
 
@@ -426,11 +427,12 @@ namespace IceInternal
             buf.B.Position(ret);
         }
 
-        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
+        public bool
+        StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null);
             Debug.Assert(_writeEventArgs != null);
-
+            bool completedSynchronously;
             if (!_incoming && _state < StateConnected)
             {
                 Debug.Assert(_addr != null);
@@ -444,11 +446,8 @@ namespace IceInternal
             }
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buf.Size());
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buffer.Size);
 
-            Debug.Assert(buf.B.Position() == 0);
-
-            bool completedSynchronously;
             try
             {
                 _writeCallback = callback;
@@ -456,7 +455,7 @@ namespace IceInternal
                 if (_state == StateConnected)
                 {
                     _writeEventArgs.UserToken = state;
-                    _writeEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
+                    _writeEventArgs.BufferList = buffer.Segments;
                     completedSynchronously = !_fd.SendAsync(_writeEventArgs);
                 }
                 else
@@ -467,7 +466,12 @@ namespace IceInternal
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
-                    _writeEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
+                    if (buffer.Segments.Count > 1)
+                    {
+                        buffer.Compact();
+                    }
+                    _writeEventArgs.SetBuffer(buffer.Segments[0].Array, 0, buffer.Size);
+
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
                 }
             }
@@ -482,17 +486,16 @@ namespace IceInternal
                     throw new Ice.SocketException(ex);
                 }
             }
-
             completed = true;
             return completedSynchronously;
         }
 
-        public void FinishWrite(Buffer buf)
+        public void FinishWrite(Ice.VectoredBuffer buffer)
         {
             Debug.Assert(_writeEventArgs != null);
             if (_fd == null)
             {
-                buf.B.Position(buf.Size()); // Assume all the data was sent for at-most-once semantics.
+                buffer.Advance(buffer.Remaining); // Assume all the data was sent for at-most-once semantics.
                 _writeEventArgs = null;
                 return;
             }
@@ -541,8 +544,8 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-            Debug.Assert(ret == buf.B.Limit());
-            buf.B.Position(buf.B.Position() + ret);
+            Debug.Assert(ret == buffer.Remaining);
+            buffer.Advance(buffer.Remaining);
         }
 
         public string Protocol() => _instance.Protocol;
@@ -584,14 +587,14 @@ namespace IceInternal
             return info;
         }
 
-        public void CheckSendSize(Buffer buf)
+        public void CheckSendSize(int size)
         {
             //
             // The maximum packetSize is either the maximum allowable UDP packet size, or
             // the UDP send buffer size (which ever is smaller).
             //
             int packetSize = Math.Min(MaxPacketSize, _sndSize - UdpOverhead);
-            if (packetSize < buf.Size())
+            if (packetSize < size)
             {
                 throw new Ice.DatagramLimitException();
             }

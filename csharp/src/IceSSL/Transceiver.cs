@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Security;
@@ -16,7 +17,7 @@ namespace IceSSL
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(IceInternal.Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
         {
             if (!_isConnected)
             {
@@ -100,13 +101,9 @@ namespace IceSSL
 
         public void Destroy() => _delegate.Destroy();
 
-        public int Write(IceInternal.Buffer buf)
-        {
-            //
-            // Force caller to use async write.
-            //
-            return buf.B.HasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
-        }
+        // Force caller to use async write.
+        public int Write(Ice.VectoredBuffer buffer) =>
+            buffer.Remaining > 0 ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
         public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
         {
@@ -206,11 +203,11 @@ namespace IceSSL
             }
         }
 
-        public bool StartWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback cb, object state, out bool completed)
+        public bool StartWrite(Ice.VectoredBuffer buffer, IceInternal.AsyncCallback cb, object state, out bool completed)
         {
             if (!_isConnected)
             {
-                return _delegate.StartWrite(buf, cb, state, out completed);
+                return _delegate.StartWrite(buffer, cb, state, out completed);
             }
 
             Debug.Assert(_sslStream != null);
@@ -224,13 +221,13 @@ namespace IceSSL
             // We limit the packet size for beingWrite to ensure connection timeouts are based
             // on a fixed packet size.
             //
-            int packetSize = GetSendPacketSize(buf.B.Remaining());
+            int packetSize = GetSendPacketSize(buffer.Remaining);
             try
             {
                 _writeCallback = cb;
-                _writeResult = _sslStream.BeginWrite(buf.B.RawBytes(), buf.B.Position(), packetSize, WriteCompleted,
-                                                     state);
-                completed = packetSize == buf.B.Remaining();
+                ArraySegment<byte> data = buffer.GetSegment(packetSize);
+                _writeResult = _sslStream.BeginWrite(data.Array, data.Offset, data.Count, WriteCompleted, state);
+                completed = packetSize == buffer.Remaining;
                 return _writeResult.CompletedSynchronously;
             }
             catch (IOException ex)
@@ -255,18 +252,18 @@ namespace IceSSL
             }
         }
 
-        public void FinishWrite(IceInternal.Buffer buf)
+        public void FinishWrite(Ice.VectoredBuffer bufffer)
         {
             if (!_isConnected)
             {
-                _delegate.FinishWrite(buf);
+                _delegate.FinishWrite(bufffer);
                 return;
             }
             else if (_sslStream == null) // Transceiver was closed
             {
-                if (GetSendPacketSize(buf.B.Remaining()) == buf.B.Remaining()) // Sent last packet
+                if (GetSendPacketSize(bufffer.Remaining) == bufffer.Remaining) // Sent last packet
                 {
-                    buf.B.Position(buf.B.Limit()); // Assume all the data was sent for at-most-once semantics.
+                    bufffer.Advance(bufffer.Remaining); // Assume all the data was sent for at-most-once semantics.
                 }
                 _writeResult = null;
                 return;
@@ -278,12 +275,12 @@ namespace IceSSL
             }
 
             Debug.Assert(_writeResult != null);
-            int sent = GetSendPacketSize(buf.B.Remaining());
+            int sent = GetSendPacketSize(bufffer.Remaining);
             try
             {
                 _sslStream.EndWrite(_writeResult);
                 _writeResult = null;
-                buf.B.Position(buf.B.Position() + sent);
+                bufffer.Advance(sent);
             }
             catch (IOException ex)
             {
@@ -321,7 +318,7 @@ namespace IceSSL
             return info;
         }
 
-        public void CheckSendSize(IceInternal.Buffer buf) => _delegate.CheckSendSize(buf);
+        public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 
         public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 

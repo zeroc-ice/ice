@@ -968,7 +968,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         out << sb;
         if(st->isVariableLength())
         {
-            out << nl << "int pos = " << stream << ".StartSize();";
+            out << nl << "var pos = " << stream << ".StartSize();";
         }
         else
         {
@@ -1003,7 +1003,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
-            out << nl << "int pos = " << stream << ".StartSize();";
+            out << nl << "var pos = " << stream << ".StartSize();";
         }
         else
         {
@@ -1266,7 +1266,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
                     << getTagFormat(seq, scope) << "))";
                 out << sb;
-                out << nl << "int pos = " << stream << ".StartSize();";
+                out << nl << "var pos = " << stream << ".StartSize();";
                 writeMarshalCode(out, seq, scope, param, stream);
                 out << nl << stream << ".EndSize(pos);";
                 out << eb;
@@ -1313,7 +1313,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             if(st->isVariableLength())
             {
-                out << nl << "int pos = " << stream << ".StartSize();";
+                out << nl << "var pos = " << stream << ".StartSize();";
             }
             else if(st->minWireSize() > 1)
             {
@@ -1367,7 +1367,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
         out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
             << getTagFormat(seq, scope) << "))";
         out << sb;
-        out << nl << "int pos = " << stream << ".StartSize();";
+        out << nl << "var pos = " << stream << ".StartSize();";
         writeMarshalCode(out, seq, scope, param, stream);
         out << nl << stream << ".EndSize(pos);";
         out << eb;

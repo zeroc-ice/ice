@@ -12,7 +12,7 @@ namespace IceInternal
     public class CollocatedRequestHandler : IRequestHandler
     {
         private void
-        FillInValue(Ice.OutputStream os, int pos, int value) => os.RewriteInt(value, pos);
+        FillInValue(Ice.OutputStream os, Ice.BufferPosition pos, int value) => os.RewriteInt(value, pos);
 
         public
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
@@ -155,15 +155,16 @@ namespace IceInternal
             {
                 if (_traceLevels.Protocol >= 1)
                 {
-                    FillInValue(os, 10, os.Size);
+                    FillInValue(os, new Ice.BufferPosition(0, 10), os.Size);
                     if (requestId > 0)
                     {
-                        FillInValue(os, Protocol.headerSize, requestId);
+                        FillInValue(os, new Ice.BufferPosition(0, Protocol.headerSize), requestId);
                     }
                     TraceUtil.TraceSend(os, _logger, _traceLevels);
                 }
 
-                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), false);
+                // TODO Avoid copy OutputStream buffer
+                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.Buffer.ToArray()), false);
                 requestFrame.Pos = Protocol.requestHdr.Length;
 
                 int start = requestFrame.Pos;
@@ -239,11 +240,12 @@ namespace IceInternal
 
                 if (_traceLevels.Protocol >= 1)
                 {
-                    FillInValue(os, 10, os.Size);
+                    FillInValue(os, new Ice.BufferPosition(0, 10), os.Size);
                 }
 
                 // Adopt the OutputStream's buffer.
-                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.GetBuffer(), true);
+                // TODO Avoid copy OutputStream buffer
+                var iss = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.Buffer.ToArray()), true);
 
                 iss.Pos = Protocol.replyHdr.Length + 4;
 

@@ -14,8 +14,8 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                int p = str.Pos;
-                var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
+                var buffer = new Buffer(str.Buffer.ToArray()); // TODO avoid copy the data
+                var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 
                 using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -24,7 +24,6 @@ namespace IceInternal
 
                     logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
-                str.Pos = p;
             }
         }
 
@@ -49,8 +48,8 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                int p = str.Pos;
-                var iss = new Ice.InputStream(str.Communicator, str.Encoding, str.GetBuffer(), false);
+                var buffer = new Buffer(str.Buffer.ToArray()); // TODO avoid copy the data
+                var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 
                 using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -60,7 +59,6 @@ namespace IceInternal
 
                     logger.Trace(tl.ProtocolCat, s.ToString());
                 }
-                str.Pos = p;
             }
         }
 

@@ -3,8 +3,10 @@
 //
 
 using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -14,7 +16,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
         {
             //
             // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
@@ -50,14 +52,14 @@ namespace IceInternal
                         //
                         // Compose the upgrade request.
                         //
-                        var @out = new StringBuilder();
-                        @out.Append("GET " + _resource + " HTTP/1.1\r\n");
-                        @out.Append("Host: " + _host + "\r\n");
-                        @out.Append("Upgrade: websocket\r\n");
-                        @out.Append("Connection: Upgrade\r\n");
-                        @out.Append("Sec-WebSocket-Protocol: " + IceProtocol + "\r\n");
-                        @out.Append("Sec-WebSocket-Version: 13\r\n");
-                        @out.Append("Sec-WebSocket-Key: ");
+                        var sb = new StringBuilder();
+                        sb.Append("GET " + _resource + " HTTP/1.1\r\n");
+                        sb.Append("Host: " + _host + "\r\n");
+                        sb.Append("Upgrade: websocket\r\n");
+                        sb.Append("Connection: Upgrade\r\n");
+                        sb.Append("Sec-WebSocket-Protocol: " + IceProtocol + "\r\n");
+                        sb.Append("Sec-WebSocket-Version: 13\r\n");
+                        sb.Append("Sec-WebSocket-Key: ");
 
                         //
                         // The value for Sec-WebSocket-Key is a 16-byte random number,
@@ -65,14 +67,11 @@ namespace IceInternal
                         //
                         byte[] key = new byte[16];
                         _rand.NextBytes(key);
-                        _key = System.Convert.ToBase64String(key);
-                        @out.Append(_key + "\r\n\r\n"); // EOM
-
-                        byte[] bytes = _utf8.GetBytes(@out.ToString());
-                        _writeBuffer.Resize(bytes.Length, false);
-                        _writeBuffer.B.Position(0);
-                        _writeBuffer.B.Put(bytes);
-                        _writeBuffer.B.Flip();
+                        _key = Convert.ToBase64String(key);
+                        sb.Append(_key + "\r\n\r\n"); // EOM
+                        Debug.Assert(_writeBuffer.Size == 0);
+                        _writeBuffer.WriteByteSeq(_utf8.GetBytes(sb.ToString()));
+                        _writeBuffer.Prepare();
                     }
                 }
 
@@ -81,7 +80,7 @@ namespace IceInternal
                 //
                 if (_state == StateUpgradeRequestPending && !_incoming)
                 {
-                    if (_writeBuffer.B.HasRemaining())
+                    if (_writeBuffer.Remaining > 0)
                     {
                         int s = _delegate.Write(_writeBuffer);
                         if (s != 0)
@@ -89,7 +88,7 @@ namespace IceInternal
                             return s;
                         }
                     }
-                    Debug.Assert(!_writeBuffer.B.HasRemaining());
+                    Debug.Assert(_writeBuffer.Remaining == 0);
                     _state = StateUpgradeResponsePending;
                 }
 
@@ -168,7 +167,7 @@ namespace IceInternal
                     {
                         if (_incoming)
                         {
-                            if (_writeBuffer.B.HasRemaining())
+                            if (_writeBuffer.Remaining > 0)
                             {
                                 int s = _delegate.Write(_writeBuffer);
                                 if (s != 0)
@@ -314,7 +313,7 @@ namespace IceInternal
 
         public void Destroy() => _delegate.Destroy();
 
-        public int Write(Buffer buf)
+        public int Write(Ice.VectoredBuffer buffer)
         {
             if (_writePending)
             {
@@ -325,7 +324,7 @@ namespace IceInternal
             {
                 if (_state < StateConnected)
                 {
-                    return _delegate.Write(buf);
+                    return _delegate.Write(buffer);
                 }
                 else
                 {
@@ -336,28 +335,28 @@ namespace IceInternal
             int s = SocketOperation.None;
             do
             {
-                if (PreWrite(buf))
+                if (PreWrite(buffer))
                 {
                     if (_writeState == WriteStateFlush)
                     {
                         //
                         // Invoke write() even though there's nothing to write.
                         //
-                        Debug.Assert(!buf.B.HasRemaining());
-                        s = _delegate.Write(buf);
+                        Debug.Assert(buffer.Remaining == 0);
+                        s = _delegate.Write(buffer);
                     }
 
-                    if (s == SocketOperation.None && _writeBuffer.B.HasRemaining())
+                    if (s == SocketOperation.None && _writeBuffer.Remaining > 0)
                     {
                         s = _delegate.Write(_writeBuffer);
                     }
-                    else if (s == SocketOperation.None && _incoming && !buf.Empty() && _writeState == WriteStatePayload)
+                    else if (s == SocketOperation.None && _incoming && buffer.Size > 0 && _writeState == WriteStatePayload)
                     {
-                        s = _delegate.Write(buf);
+                        s = _delegate.Write(buffer);
                     }
                 }
             }
-            while (PostWrite(buf, s));
+            while (PostWrite(buffer, s));
 
             if (s != SocketOperation.None)
             {
@@ -562,8 +561,8 @@ namespace IceInternal
             PostRead(buf);
         }
 
-        public bool StartWrite(Buffer buf, AsyncCallback callback, object state,
-                               out bool completed)
+        public bool
+        StartWrite(Ice.VectoredBuffer buf, AsyncCallback callback, object state, out bool completed)
         {
             _writePending = true;
             if (_state < StateOpened)
@@ -580,7 +579,7 @@ namespace IceInternal
 
             if (PreWrite(buf))
             {
-                if (_writeBuffer.B.HasRemaining())
+                if (_writeBuffer.Remaining > 0)
                 {
                     return _delegate.StartWrite(_writeBuffer, callback, state, out completed);
                 }
@@ -597,10 +596,9 @@ namespace IceInternal
             }
         }
 
-        public void FinishWrite(Buffer buf)
+        public void FinishWrite(Ice.VectoredBuffer buf)
         {
             _writePending = false;
-
             if (_state < StateOpened)
             {
                 if (_state < StateConnected)
@@ -614,11 +612,11 @@ namespace IceInternal
                 return;
             }
 
-            if (_writeBuffer.B.HasRemaining())
+            if (_writeBuffer.Remaining > 0)
             {
                 _delegate.FinishWrite(_writeBuffer);
             }
-            else if (!buf.Empty() && buf.B.HasRemaining())
+            else if (buf.Remaining > 0)
             {
                 Debug.Assert(_incoming);
                 _delegate.FinishWrite(buf);
@@ -643,7 +641,7 @@ namespace IceInternal
             return info;
         }
 
-        public void CheckSendSize(Buffer buf) => _delegate.CheckSendSize(buf);
+        public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 
         public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
@@ -659,18 +657,8 @@ namespace IceInternal
             _incoming = false;
 
             //
-            // Use a 16KB write buffer size. We use 16KB for the write
-            // buffer size because all the data needs to be copied to the
-            // write buffer for the purpose of masking. A 16KB buffer
-            // appears to be a good compromise to reduce the number of
-            // socket write calls and not consume too much memory.
-            //
-            _writeBufferSize = 16 * 1024;
-
-            //
             // Write and read buffer size must be large enough to hold the frame header!
             //
-            Debug.Assert(_writeBufferSize > 256);
             Debug.Assert(_readBufferSize > 256);
         }
 
@@ -688,8 +676,7 @@ namespace IceInternal
             _readHeaderLength = 0;
             _readPayloadLength = 0;
             _writeState = WriteStateHeader;
-            _writeBuffer = new Buffer(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order
-            _writeBufferSize = 1024;
+            _writeBuffer = new Ice.VectoredBuffer();
             _readPending = false;
             _finishRead = false;
             _writePending = false;
@@ -705,11 +692,10 @@ namespace IceInternal
             //
             // Write and read buffer size must be large enough to hold the frame header!
             //
-            Debug.Assert(_writeBufferSize > 256);
             Debug.Assert(_readBufferSize > 256);
         }
 
-        private void HandleRequest(Buffer responseBuffer)
+        private void HandleRequest(Ice.VectoredBuffer responseBuffer)
         {
             //
             // HTTP/1.1
@@ -809,13 +795,13 @@ namespace IceInternal
             //
             // Compose the response.
             //
-            var @out = new StringBuilder();
-            @out.Append("HTTP/1.1 101 Switching Protocols\r\n");
-            @out.Append("Upgrade: websocket\r\n");
-            @out.Append("Connection: Upgrade\r\n");
+            var sb = new StringBuilder();
+            sb.Append("HTTP/1.1 101 Switching Protocols\r\n");
+            sb.Append("Upgrade: websocket\r\n");
+            sb.Append("Connection: Upgrade\r\n");
             if (addProtocol)
             {
-                @out.Append($"Sec-WebSocket-Protocol: {IceProtocol}\r\n");
+                sb.Append($"Sec-WebSocket-Protocol: {IceProtocol}\r\n");
             }
 
             //
@@ -828,19 +814,15 @@ namespace IceInternal
             //  concatenated value to obtain a 20-byte value and base64-
             //  encoding (see Section 4 of [RFC4648]) this 20-byte hash.
             //
-            @out.Append("Sec-WebSocket-Accept: ");
+            sb.Append("Sec-WebSocket-Accept: ");
             string input = key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
-            @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
-
-            byte[] bytes = _utf8.GetBytes(@out.ToString());
-            Debug.Assert(bytes.Length == @out.Length);
-            responseBuffer.Resize(bytes.Length, false);
-            responseBuffer.B.Position(0);
-            responseBuffer.B.Put(bytes);
-            responseBuffer.B.Flip();
+            sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
+            responseBuffer.Reset();
+            responseBuffer.WriteByteSeq(_utf8.GetBytes(sb.ToString()));
+            responseBuffer.Prepare();
         }
 
         private void HandleResponse()
@@ -1268,65 +1250,59 @@ namespace IceInternal
             return buf.B.HasRemaining();
         }
 
-        private bool PreWrite(Buffer buf)
+        private bool PreWrite(Ice.VectoredBuffer buf)
         {
             if (_writeState == WriteStateHeader)
             {
                 if (_state == StateOpened)
                 {
-                    if (buf.Empty() || !buf.B.HasRemaining())
+                    if (buf.Size == 0 || buf.Remaining == 0)
                     {
                         return false;
                     }
-
-                    Debug.Assert(buf.B.Position() == 0);
-                    PrepareWriteHeader((byte)OP_DATA, buf.Size());
+                    Debug.Assert(buf.Pos.Segment == 0 && buf.Pos.Offset == 0);
+                    PrepareWriteHeader(OP_DATA, buf.Size);
 
                     _writeState = WriteStatePayload;
                 }
                 else if (_state == StatePingPending)
                 {
-                    PrepareWriteHeader((byte)OP_PING, 0); // Don't send any payload
+                    PrepareWriteHeader(OP_PING, 0); // Don't send any payload
 
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.B.Flip();
+                    _writeBuffer.Prepare();
                 }
                 else if (_state == StatePongPending)
                 {
-                    PrepareWriteHeader((byte)OP_PONG, _pingPayload.Length);
-                    if (_pingPayload.Length > _writeBuffer.B.Remaining())
-                    {
-                        int pos = _writeBuffer.B.Position();
-                        _writeBuffer.Resize(pos + _pingPayload.Length, false);
-                        _writeBuffer.B.Position(pos);
-                    }
-                    _writeBuffer.B.Put(_pingPayload);
+                    PrepareWriteHeader(OP_PONG, _pingPayload.Length);
+                    _writeBuffer.WriteByteSeq(_pingPayload);
                     _pingPayload = Array.Empty<byte>();
 
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.B.Flip();
+                    _writeBuffer.Prepare();
                 }
                 else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
-                        (_state == StateClosingResponsePending && _closingInitiator))
+                         (_state == StateClosingResponsePending && _closingInitiator))
                 {
-                    PrepareWriteHeader((byte)OP_CLOSE, 2);
+                    PrepareWriteHeader(OP_CLOSE, 2);
+                    byte[] buffer = new byte[2];
 
+                    short reason = (short)_closingReason;
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        reason = BinaryPrimitives.ReverseEndianness(reason);
+                    }
                     // Write closing reason
-                    _writeBuffer.B.PutShort((short)_closingReason);
+                    MemoryMarshal.Write(buffer.AsSpan(0, 2), ref reason);
 
                     if (!_incoming)
                     {
-                        byte b;
-                        int pos = _writeBuffer.B.Position() - 2;
-                        b = (byte)(_writeBuffer.B.Get(pos) ^ _writeMask[0]);
-                        _writeBuffer.B.Put(pos, b);
-                        pos++;
-                        b = (byte)(_writeBuffer.B.Get(pos) ^ _writeMask[1]);
-                        _writeBuffer.B.Put(pos, b);
+                        buffer[0] = (byte)(buffer[0] ^ _writeMask[0]);
+                        buffer[1] = (byte)(buffer[1] ^ _writeMask[1]);
                     }
-
+                    _writeBuffer.WriteByteSeq(buffer);
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.B.Flip();
+                    _writeBuffer.Prepare();
                 }
                 else
                 {
@@ -1347,47 +1323,32 @@ namespace IceInternal
                 // larger, the reminder is sent directly from the message buffer to avoid
                 // copying.
                 //
-                if (!_incoming && (_writePayloadLength == 0 || !_writeBuffer.B.HasRemaining()))
+                if (!_incoming && (_writePayloadLength == 0 || _writeBuffer.Remaining == 0))
                 {
-                    if (!_writeBuffer.B.HasRemaining())
+                    int n = 0;
+                    foreach (ArraySegment<byte> segment in buf.Segments)
                     {
-                        _writeBuffer.B.Position(0);
+                        for (int i = 0; i < segment.Count; ++i, ++n)
+                        {
+                            _writeBuffer.WriteByte((byte)(segment[i] ^ _writeMask[n % 4]));
+                        }
                     }
-
-                    int n = buf.B.Position();
-                    int sz = buf.Size();
-                    int pos = _writeBuffer.B.Position();
-                    int count = Math.Min(sz - n, _writeBuffer.B.Remaining());
-                    byte[] src = buf.B.RawBytes();
-                    byte[] dest = _writeBuffer.B.RawBytes();
-                    for (int i = 0; i < count; ++i, ++n, ++pos)
-                    {
-                        dest[pos] = (byte)(src[n] ^ _writeMask[n % 4]);
-                    }
-                    _writeBuffer.B.Position(pos);
                     _writePayloadLength = n;
-
-                    _writeBuffer.B.Flip();
+                    _writeBuffer.Prepare();
                 }
                 else if (_writePayloadLength == 0)
                 {
                     Debug.Assert(_incoming);
-                    if (_writeBuffer.B.HasRemaining())
-                    {
-                        Debug.Assert(buf.B.Position() == 0);
-                        int n = Math.Min(_writeBuffer.B.Remaining(), buf.B.Remaining());
-                        int pos = _writeBuffer.B.Position();
-                        System.Buffer.BlockCopy(buf.B.RawBytes(), 0, _writeBuffer.B.RawBytes(), pos, n);
-                        _writeBuffer.B.Position(pos + n);
-                        _writePayloadLength = n;
-                    }
-                    _writeBuffer.B.Flip();
+                    int n = buf.Remaining;
+                    // Borrow data from the buffer
+                    _writeBuffer.Add(buf.Segments);
+                    _writePayloadLength = n;
                 }
                 return true;
             }
             else if (_writeState == WriteStateControlFrame)
             {
-                return _writeBuffer.B.HasRemaining();
+                return _writeBuffer.Remaining > 0;
             }
             else
             {
@@ -1396,11 +1357,11 @@ namespace IceInternal
             }
         }
 
-        private bool PostWrite(Buffer buf, int status)
+        private bool PostWrite(Ice.VectoredBuffer buffer, int status)
         {
             if (_state > StateOpened && _writeState == WriteStateControlFrame)
             {
-                if (!_writeBuffer.B.HasRemaining())
+                if (_writeBuffer.Remaining == 0)
                 {
                     if (_state == StatePingPending)
                     {
@@ -1453,15 +1414,15 @@ namespace IceInternal
                 }
             }
 
-            if ((!_incoming || buf.B.Position() == 0) && _writePayloadLength > 0)
+            if ((!_incoming || (buffer.Pos.Segment == 0 && buffer.Pos.Offset == 0)) && _writePayloadLength > 0)
             {
-                if (!_writeBuffer.B.HasRemaining())
+                if (_writeBuffer.Remaining == 0 && buffer.Remaining > 0)
                 {
-                    buf.B.Position(_writePayloadLength);
+                    buffer.Advance(_writePayloadLength);
                 }
             }
 
-            if (status == SocketOperation.Write && !buf.B.HasRemaining() && !_writeBuffer.B.HasRemaining())
+            if (status == SocketOperation.Write && buffer.Remaining == 0 && _writeBuffer.Remaining == 0)
             {
                 //
                 // Our buffers are empty but the delegate needs another call to write().
@@ -1469,7 +1430,7 @@ namespace IceInternal
                 _writeState = WriteStateFlush;
                 return false;
             }
-            else if (!buf.B.HasRemaining())
+            else if (buffer.Remaining == 0)
             {
                 _writeState = WriteStateHeader;
                 if (_state == StatePingPending ||
@@ -1484,7 +1445,6 @@ namespace IceInternal
             {
                 return status == SocketOperation.None;
             }
-
             return false;
         }
 
@@ -1528,37 +1488,40 @@ namespace IceInternal
             //
             // We need to prepare the frame header.
             //
-            _writeBuffer.Resize(_writeBufferSize, false);
-            _writeBuffer.B.Limit(_writeBufferSize);
-            _writeBuffer.B.Position(0);
-
+            byte[] buffer = new byte[16];
+            int i = 0;
             //
             // Set the opcode - this is the one and only data frame.
             //
-            _writeBuffer.B.Put((byte)(opCode | FLAG_FINAL));
-
+            buffer[i++] = (byte)(opCode | FLAG_FINAL);
             //
             // Set the payload length.
             //
             if (payloadLength <= 125)
             {
-                _writeBuffer.B.Put((byte)payloadLength);
+                buffer[i++] = (byte)payloadLength;
             }
             else if (payloadLength > 125 && payloadLength <= 65535)
             {
                 //
                 // Use an extra 16 bits to encode the payload length.
                 //
-                _writeBuffer.B.Put(126);
-                _writeBuffer.B.PutShort((short)payloadLength);
+                buffer[i++] = 126;
+                short lenght = BitConverter.IsLittleEndian ?
+                    BinaryPrimitives.ReverseEndianness((short)payloadLength) : (short)payloadLength;
+                MemoryMarshal.Write(buffer.AsSpan(i, 2), ref lenght);
+                i += 2;
             }
             else if (payloadLength > 65535)
             {
                 //
                 // Use an extra 64 bits to encode the payload length.
                 //
-                _writeBuffer.B.Put(127);
-                _writeBuffer.B.PutLong(payloadLength);
+                buffer[i++] = 127;
+                long lenght = BitConverter.IsLittleEndian ?
+                    BinaryPrimitives.ReverseEndianness((long)payloadLength) : (long)payloadLength;
+                MemoryMarshal.Write(buffer.AsSpan(i, 8), ref lenght);
+                i += 8;
             }
 
             if (!_incoming)
@@ -1567,10 +1530,14 @@ namespace IceInternal
                 // Add a random 32-bit mask to every outgoing frame, copy the payload data,
                 // and apply the mask.
                 //
-                _writeBuffer.B.Put(1, (byte)(_writeBuffer.B.Get(1) | FLAG_MASKED));
+                buffer[1] = (byte)(buffer[1] | FLAG_MASKED);
                 _rand.NextBytes(_writeMask);
-                _writeBuffer.B.Put(_writeMask);
+                System.Buffer.BlockCopy(_writeMask, 0, buffer, i, _writeMask.Length);
+                i += _writeMask.Length;
             }
+
+            _writeBuffer.Reset();
+            _writeBuffer.WriteSpan(buffer.AsSpan(0, i));
         }
 
         private readonly ProtocolInstance _instance;
@@ -1620,8 +1587,7 @@ namespace IceInternal
         private const int WriteStateFlush = 3;
 
         private int _writeState;
-        private readonly Buffer _writeBuffer;
-        private readonly int _writeBufferSize;
+        private readonly Ice.VectoredBuffer _writeBuffer;
         private readonly byte[] _writeMask;
         private int _writePayloadLength;
 

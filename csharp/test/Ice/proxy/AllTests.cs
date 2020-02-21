@@ -912,7 +912,7 @@ namespace Ice.proxy
                 OutputStream os = new OutputStream(communicator);
                 os.StartEncapsulation();
                 os.EndEncapsulation();
-                byte[] inEncaps = os.Finished();
+                byte[] inEncaps = os.ToArray();
                 inEncaps[4] = version.Major;
                 inEncaps[5] = version.Minor;
                 byte[] outEncaps;
@@ -931,7 +931,7 @@ namespace Ice.proxy
                 OutputStream os = new OutputStream(communicator);
                 os.StartEncapsulation();
                 os.EndEncapsulation();
-                byte[] inEncaps = os.Finished();
+                byte[] inEncaps = os.ToArray();
                 inEncaps[4] = version.Major;
                 inEncaps[5] = version.Minor;
                 byte[] outEncaps;

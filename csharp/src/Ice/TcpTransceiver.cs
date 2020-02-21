@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -12,7 +14,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _stream.Fd();
 
-        public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
+        public int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData) =>
             _stream.Connect(readBuffer, writeBuffer);
 
         // If we are initiating the connection closure, wait for the peer
@@ -25,12 +27,12 @@ namespace IceInternal
         public Endpoint Bind()
         {
             Debug.Assert(false);
-            throw new System.InvalidOperationException();
+            throw new InvalidOperationException();
         }
 
         public void Destroy() => _stream.Destroy();
 
-        public int Write(Buffer buf) => _stream.Write(buf);
+        public int Write(Ice.VectoredBuffer buffer) => _stream.Write(buffer);
 
         public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
 
@@ -39,10 +41,11 @@ namespace IceInternal
 
         public void FinishRead(Buffer buf) => _stream.FinishRead(buf);
 
-        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed) =>
-            _stream.StartWrite(buf, callback, state, out completed);
+        public bool
+        StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed) =>
+            _stream.StartWrite(buffer, callback, state, out completed);
 
-        public void FinishWrite(Buffer buf) => _stream.FinishWrite(buf);
+        public void FinishWrite(Ice.VectoredBuffer buffer) => _stream.FinishWrite(buffer);
 
         public string Protocol() => _instance.Protocol;
 
@@ -64,7 +67,7 @@ namespace IceInternal
             return info;
         }
 
-        public void CheckSendSize(Buffer buf)
+        public void CheckSendSize(int size)
         {
         }
 
