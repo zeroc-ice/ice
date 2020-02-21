@@ -247,7 +247,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         {
             retry1->ice_fixed(retry1->ice_getCachedConnection())->opIdempotent(4);
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
         }
         testInvocationCount(1);
@@ -256,7 +256,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         test(retry1->opIdempotent(4) == 4);
         testInvocationCount(1);
         testFailureCount(0);
-        // It suceeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+        // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
         testRetryCount(3);
         cout << "ok" << endl;
     }
