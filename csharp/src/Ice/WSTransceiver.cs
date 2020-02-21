@@ -1337,8 +1337,8 @@ namespace IceInternal
                 {
                     Debug.Assert(_incoming);
                     int n = buf.Remaining;
-                    // Borrow data from the buffer
-                    _writeBuffer.Add(buf.Segments);
+                    _writeBuffer.Prepare();
+                    _writeBuffer.Add(buf.Segments); // Borrow data from the buffer
                     _writePayloadLength = n;
                 }
                 return true;

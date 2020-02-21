@@ -150,11 +150,8 @@ namespace IceInternal
                             throw new Ice.SocketException();
                         }
 
-                        if (buffer.Segments.Count > 1)
-                        {
-                            buffer.Compact();
-                        }
-                        ret = _fd.SendTo(buffer.Segments[0].Array, 0, buffer.Size, SocketFlags.None, _peerAddr);
+                        ArraySegment<byte> data = buffer.GetSegment(buffer.Size);
+                        ret = _fd.SendTo(data.Array, 0, data.Count, SocketFlags.None, _peerAddr);
                         Debug.Assert(ret == buffer.Size);
                     }
                     break;
@@ -466,11 +463,8 @@ namespace IceInternal
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
-                    if (buffer.Segments.Count > 1)
-                    {
-                        buffer.Compact();
-                    }
-                    _writeEventArgs.SetBuffer(buffer.Segments[0].Array, 0, buffer.Size);
+                    ArraySegment<byte> data = buffer.GetSegment(buffer.Size);
+                    _writeEventArgs.SetBuffer(data.Array, 0, data.Count);
 
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
                 }

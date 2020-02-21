@@ -305,15 +305,8 @@ namespace IceInternal
             // Compress the message body, but not the header.
             //
             int uncompressedLen = buf.Size - headerSize;
-            int offset = headerSize;
-            byte[] data = new byte[uncompressedLen];
-            var segment = buf.Segments[0];
-            System.Buffer.BlockCopy(segment.Array, headerSize, data, 0, Math.Min(buf.Size - headerSize, segment.Count - headerSize));
-            for (int i = 0; i < buf.Segments.Count; i++)
-            {
-                segment = buf.Segments[i];
-                System.Buffer.BlockCopy(segment.Array, 0, data, offset, Math.Min(buf.Size - offset, segment.Count));
-            }
+            byte[] data = buf.GetBytes(headerSize, uncompressedLen);
+
             int compressedLen = (int)((uncompressedLen * 1.01) + 600);
             byte[] compressed = new byte[compressedLen];
 
@@ -324,9 +317,7 @@ namespace IceInternal
             }
             else if (rc < 0)
             {
-                var ex = new Ice.CompressionException("BZ2_bzBuffToBuffCompress failed");
-                ex.Reason = GetBZ2Error(rc);
-                throw ex;
+                throw new Ice.CompressionException($"BZ2_bzBuffToBuffCompress failed {GetBZ2Error(rc)}");
             }
 
             //
@@ -342,16 +333,18 @@ namespace IceInternal
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            var header = new byte[headerSize + 4];
-            segment = buf.Segments[0];
+            byte[] header = new byte[headerSize + 4];
+            var segment = buf.Segments[0];
             System.Buffer.BlockCopy(segment.Array, 0, header, 0, headerSize);
-            var r = new Ice.VectoredBuffer(new byte[][] { header, data });
+            var r = new Ice.VectoredBuffer(header);
             //
             // Add the size of the uncompressed stream before the
             // message body.
             //
             r.Pos = new Ice.BufferPosition(0, headerSize);
-            r.WriteInt(compressedLen);
+            r.WriteInt(buf.Size);
+            r.WriteSpan(new ArraySegment<byte>(data, 0, compressedLen).AsSpan());
+            Console.WriteLine($"Compress: compressed length: {compressedLen} unconpressed length: {buf.Size}");
             return r;
         }
 
@@ -374,10 +367,18 @@ namespace IceInternal
             byte[] compressed = buf.B.RawBytes(headerSize + 4, compressedLen);
             int uncompressedLen = uncompressedSize - headerSize;
 
+            for (int i = 0; i < buf.Size(); ++i)
+            {
+                Console.WriteLine($"B[{i}] {buf.B.Get(i)}");
+            }
+
+            Console.WriteLine($"Uncompress: compressed length: {compressedLen} unconpressed size: {uncompressedSize} uncompresed len: {uncompressedLen}");
+
             byte[] uncompressed = new byte[uncompressedLen];
             int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
             if (rc < 0)
             {
+                Console.WriteLine($"BZ2_bzBuffToBuffDecompress failed: {rc} {GetBZ2Error(rc)}");
                 throw new Ice.CompressionException($"BZ2_bzBuffToBuffDecompress failed\n{GetBZ2Error(rc)}");
             }
 

@@ -89,7 +89,6 @@ namespace Ice.info
                 string host = communicator.GetPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                     "\" -t 15000:udp -h \"" + host + "\"");
-                System.Console.WriteLine(communicator.GetProperty("TestAdapter.Endpoints"));
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 IEndpoint[] endpoints = adapter.GetEndpoints();

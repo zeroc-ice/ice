@@ -2397,36 +2397,44 @@ namespace Ice
 
         private OutputStream DoCompress(OutputStream uncompressed, bool compress)
         {
-            if (_compressionSupported)
+            if (_compressionSupported && compress && uncompressed.Size >= 100)
             {
-                if (compress && uncompressed.Size >= 100)
+                // Do compression.
+                VectoredBuffer? cbuf = BZip2.Compress(uncompressed.Buffer, Protocol.headerSize, _compressionLevel);
+                if (cbuf != null)
                 {
+                    var cstream = new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf);
+
                     //
-                    // Do compression.
+                    // Write the compression status and the size of the
+                    // compressed stream into the header.
                     //
-                    VectoredBuffer? cbuf = BZip2.Compress(uncompressed.Buffer, Protocol.headerSize, _compressionLevel);
-                    if (cbuf != null)
+                    cstream.Buffer.Pos = new BufferPosition(0, 9);
+                    cstream.WriteByte(2);
+                    cstream.Buffer.Pos = new BufferPosition(0, 10);
+                    cstream.WriteInt(cstream.Size);
+
+                    //
+                    // Write the compression status and size of the compressed stream into the header of the
+                    // uncompressed stream -- we need this to trace requests correctly.
+                    //
+                    uncompressed.Buffer.Pos = new BufferPosition(0, 9);
+                    uncompressed.WriteByte(2);
+                    uncompressed.WriteInt(cstream.Size);
+                    Console.WriteLine($"compressed size: {cstream.Size}");
+
+                    Console.WriteLine("COMPRESSED DATA");
+                    int i = 0;
+                    foreach (var segment in cstream.Buffer.Segments)
                     {
-                        var cstream = new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf);
+                        for (int j = 0; j < segment.Count && i < cstream.Buffer.Size; i++, j++)
+                        {
 
-                        //
-                        // Write the compression status and the size of the
-                        // compressed stream into the header.
-                        //
-                        cstream.Buffer.Pos = new BufferPosition(0, 9);
-                        cstream.WriteByte(2);
-                        cstream.WriteInt(cstream.Size);
-
-                        //
-                        // Write the compression status and size of the compressed stream into the header of the
-                        // uncompressed stream -- we need this to trace requests correctly.
-                        //
-                        uncompressed.Buffer.Pos = new BufferPosition(0, 9);
-                        uncompressed.WriteByte(2);
-                        uncompressed.WriteInt(cstream.Size);
-
-                        return cstream;
+                            Console.WriteLine($"b[{i}] = {segment[j]}");
+                        }
                     }
+
+                    return cstream;
                 }
             }
 
