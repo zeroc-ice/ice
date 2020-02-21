@@ -141,6 +141,27 @@ namespace Ice.retry
             Instrumentation.testRetryCount(4);
             output.WriteLine("ok");
 
+            if (retry1.GetCachedConnection() != null)
+            {
+                output.Write("testing non-idempotent operation with bi-dir proxy... ");
+                try
+                {
+                    retry1.Clone(fixedConnection: retry1.GetCachedConnection()).opIdempotent(4);
+                }
+                catch (Ice.Exception)
+                {
+                }
+                Instrumentation.testInvocationCount(1);
+                Instrumentation.testFailureCount(1);
+                Instrumentation.testRetryCount(0);
+                test(retry1.opIdempotent(4) == 4);
+                Instrumentation.testInvocationCount(1);
+                Instrumentation.testFailureCount(0);
+                // It suceeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+                Instrumentation.testRetryCount(3);
+                output.WriteLine("ok");
+            }
+
             output.Write("testing non-idempotent operation... ");
             try
             {

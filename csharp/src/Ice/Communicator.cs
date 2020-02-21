@@ -1625,19 +1625,29 @@ namespace Ice
             }
         }
 
-        internal int CheckRetryAfterException(LocalException ex, Reference @ref, ref int cnt)
+        internal int CheckRetryAfterException(LocalException ex, Reference reference, ref int cnt)
         {
             ILogger logger = Logger;
 
-            if (@ref.GetMode() == InvocationMode.BatchOneway || @ref.GetMode() == InvocationMode.BatchDatagram)
+            if (reference.GetMode() == InvocationMode.BatchOneway ||
+                reference.GetMode() == InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // batch no longer implemented anyway
                 throw ex;
             }
 
+            //
+            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+            // the connection and the request will fail with the exception.
+            //
+            if (reference is FixedReference)
+            {
+                throw ex;
+            }
+
             if (ex is ObjectNotExistException one)
             {
-                RouterInfo? ri = @ref.GetRouterInfo();
+                RouterInfo? ri = reference.GetRouterInfo();
                 if (ri != null && one.Operation.Equals("ice_add_proxy"))
                 {
                     //
@@ -1649,7 +1659,7 @@ namespace Ice
                     // to the router.
                     //
 
-                    ri.ClearCache(@ref);
+                    ri.ClearCache(reference);
 
                     if (TraceLevels.Retry >= 1)
                     {
@@ -1658,16 +1668,16 @@ namespace Ice
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
-                else if (@ref.IsIndirect())
+                else if (reference.IsIndirect())
                 {
                     //
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
 
-                    if (@ref.IsWellKnown())
+                    if (reference.IsWellKnown())
                     {
-                        @ref.GetLocatorInfo()?.ClearCache(@ref);
+                        reference.GetLocatorInfo()?.ClearCache(reference);
                     }
                 }
                 else

@@ -161,6 +161,27 @@ public class AllTests
         instrumentation.testRetryCount(4);
         out.println("ok");
 
+        if(retry1.ice_getCachedConnection() != null)
+        {
+            out.print("testing non-idempotent operation with bi-dir proxy... ");
+            try
+            {
+                ((RetryPrx)retry1.ice_fixed(retry1.ice_getCachedConnection())).opIdempotent(4);
+            }
+            catch(com.zeroc.Ice.Exception ex)
+            {
+            }
+            instrumentation.testInvocationCount(1);
+            instrumentation.testFailureCount(1);
+            instrumentation.testRetryCount(0);
+            test(retry1.opIdempotent(4) == 4);
+            instrumentation.testInvocationCount(1);
+            instrumentation.testFailureCount(0);
+            // It suceeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+            instrumentation.testRetryCount(3);
+            out.println("ok");
+        }
+
         out.print("testing non-idempotent operation... ");
         try
         {
