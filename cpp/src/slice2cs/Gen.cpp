@@ -29,40 +29,9 @@ namespace
 {
 
 string
-sliceModeToIceMode(Operation::Mode opMode, string ns)
-{
-    string mode;
-    switch(opMode)
-    {
-        case Operation::Normal:
-        {
-            mode = getUnqualified("Ice.OperationMode.Normal", ns);
-            break;
-        }
-        case Operation::Nonmutating:
-        {
-            mode = getUnqualified("Ice.OperationMode.Nonmutating", ns);
-            break;
-        }
-        case Operation::Idempotent:
-        {
-            mode = getUnqualified("Ice.OperationMode.Idempotent", ns);
-            break;
-        }
-        default:
-        {
-            assert(false);
-            break;
-        }
-    }
-    return mode;
-}
-
-string
 sliceModeToIdempotent(Operation::Mode opMode)
 {
-    assert(opMode != Operation::Nonmutating); // TODO: can we just eliminate this enumerator?
-
+    // TODO: eliminate Nonmutating enumerator in the parser together with the nonmutating metadata.
     return opMode == Operation::Normal ? "false" : "true";
 }
 
@@ -2506,7 +2475,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "outAsync.Invoke(";
         _out.inc();
         _out << nl << '"' << operation->name() << '"' << ",";
-        _out << nl << sliceModeToIceMode(operation->sendMode(), ns) << ",";
+        _out << nl << "idempotent: " << sliceModeToIdempotent(operation->sendMode()) << ",";
         _out << nl << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";
@@ -2912,7 +2881,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         << " current)";
     _out << sb;
 
-    _out << nl << "IceCheckIdempotent(" << sliceModeToIdempotent(operation->mode()) << ", current);";
+    if (operation->mode() == Operation::Normal) // = non-idempotent
+    {
+         _out << nl << "IceCheckNonIdempotent(current);";
+    }
 
     // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
     // skips tagged members, and needs to understand them.

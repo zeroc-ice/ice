@@ -917,7 +917,7 @@ namespace Ice.proxy
                 inEncaps[4] = version.Major;
                 inEncaps[5] = version.Minor;
                 byte[] outEncaps;
-                cl.Invoke("ice_ping", OperationMode.Normal, inEncaps, out outEncaps);
+                cl.Invoke("ice_ping", idempotent: false, inEncaps, out outEncaps);
                 test(false);
             }
             catch (UnknownLocalException ex)
@@ -936,7 +936,7 @@ namespace Ice.proxy
                 inEncaps[4] = version.Major;
                 inEncaps[5] = version.Minor;
                 byte[] outEncaps;
-                cl.Invoke("ice_ping", OperationMode.Normal, inEncaps, out outEncaps);
+                cl.Invoke("ice_ping", idempotent: false, inEncaps, out outEncaps);
                 test(false);
             }
             catch (UnknownLocalException ex)

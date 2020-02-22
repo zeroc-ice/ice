@@ -61,17 +61,16 @@ namespace Ice
         // The following protected static methods with Ice-prefixes are Ice-internal helper methods used by
         // generated servants.
 
-        protected static void IceCheckIdempotent(bool expected, Current current)
+        // The generated code calls this method to ensure that when an operation is _not_ declared idempotent, the
+        // request is not marked idempotent (which would mean the caller incorrectly believes this operation is
+        // idempotent).
+        protected static void IceCheckNonIdempotent(Current current)
         {
-            // TODO: if we expect idempotent = true (because the implementation was made idempotent), is it really
-            // a problem to receive a non-idempotent request?
-            if (expected != current.IsIdempotent)
+            if (current.IsIdempotent)
             {
-                string expectedStr = expected ? "idempotent" : "non-idempotent";
-                string receivedStr = current.IsIdempotent ? "idempotent" : "non-idempotent";
                 throw new MarshalException(
-                        $@"idempotent mistmatch for operation {current.Operation
-                        }: expected = {expectedStr} received = {receivedStr}");
+                        $@"idempotent mistmatch for operation `{current.Operation
+                        }': received request marked idempotent for a non-idempotent operation");
             }
         }
 

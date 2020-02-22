@@ -398,7 +398,7 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, Mode, _sent, ref _cnt));
+                Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, IsIdempotent, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
@@ -468,7 +468,7 @@ namespace IceInternal
             base(prx.Communicator, completionCallback, os, iss)
         {
             Proxy = prx;
-            Mode = Ice.OperationMode.Normal;
+            IsIdempotent = false;
             _cnt = 0;
             _sent = false;
         }
@@ -529,7 +529,7 @@ namespace IceInternal
                             ChildObserver.Detach();
                             ChildObserver = null;
                         }
-                        int interval = Proxy.IceHandleException(ex, Handler, Mode, _sent, ref _cnt);
+                        int interval = Proxy.IceHandleException(ex, Handler, IsIdempotent, _sent, ref _cnt);
                         if (interval > 0)
                         {
                             Communicator.AddRetryTask(this, interval);
@@ -602,7 +602,7 @@ namespace IceInternal
 
         protected readonly Ice.IObjectPrx Proxy;
         protected IRequestHandler? Handler;
-        protected Ice.OperationMode Mode;
+        protected bool IsIdempotent;
 
         private int _cnt;
         private bool _sent;
@@ -621,12 +621,12 @@ namespace IceInternal
             Synchronous = false;
         }
 
-        public void Prepare(string operation, Ice.OperationMode mode, Dictionary<string, string>? context)
+        public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(Proxy.IceReference.GetProtocol()));
 
-            Mode = mode;
+            IsIdempotent = idempotent;
 
             Observer = ObserverHelper.get(Proxy, operation, context);
 
@@ -668,7 +668,7 @@ namespace IceInternal
 
             Os.WriteString(operation);
 
-            Os.WriteByte((byte)mode);
+            Os.WriteByte(idempotent ? (byte)0x2 : (byte)0x0);
 
             if (context != null)
             {
@@ -891,7 +891,7 @@ namespace IceInternal
         }
 
         public void Invoke(string operation,
-                           Ice.OperationMode mode,
+                           bool idempotent,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
@@ -900,7 +900,7 @@ namespace IceInternal
             Debug.Assert(Os != null);
             try
             {
-                Prepare(operation, mode, context);
+                Prepare(operation, idempotent, context);
                 if (write != null)
                 {
                     Os.StartEncapsulation(Encoding, format);
@@ -953,7 +953,7 @@ namespace IceInternal
         }
 
         public void Invoke(string operation,
-                           Ice.OperationMode mode,
+                           bool idempotent,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
@@ -963,7 +963,7 @@ namespace IceInternal
         {
             Read = read;
             UserException = userException;
-            base.Invoke(operation, mode, format, context, synchronous, write);
+            base.Invoke(operation, idempotent, format, context, synchronous, write);
         }
 
         public T GetResult(bool ok)

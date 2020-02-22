@@ -44,8 +44,7 @@ namespace IceLocatorDiscovery
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                l.InvokeAsync(_operation, _idempotent ? OperationMode.Idempotent : OperationMode.Normal,
-                    _inParams, _context).ContinueWith(
+                l.InvokeAsync(_operation, _idempotent, _inParams, _context).ContinueWith(
                     (task) =>
                     {
                         try
