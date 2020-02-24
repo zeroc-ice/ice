@@ -100,7 +100,7 @@ namespace Ice
         {
             IceCheckAsyncTwowayOnly("ice_isA");
             var os = new OutgoingAsyncT<bool>(this, completed);
-            os.Invoke("ice_isA", OperationMode.Nonmutating, null, context, synchronous,
+            os.Invoke("ice_isA", idempotent: true, null, context, synchronous,
                 write: (OutputStream os) => os.WriteString(id),
                 read: (InputStream iss) => iss.ReadBool());
         }
@@ -143,7 +143,7 @@ namespace Ice
         private void IceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             var os = new OutgoingAsyncT<object>(this, completed);
-            os.Invoke("ice_ping", OperationMode.Nonmutating, null, context, synchronous);
+            os.Invoke("ice_ping", idempotent: true, null, context, synchronous);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Ice
         {
             IceCheckAsyncTwowayOnly("ice_ids");
             new OutgoingAsyncT<string[]>(this, completed).Invoke("ice_ids",
-                                                         OperationMode.Nonmutating,
+                                                         idempotent: true,
                                                          null,
                                                          context,
                                                          synchronous,
@@ -240,7 +240,7 @@ namespace Ice
                                  bool synchronous)
         {
             var os = new OutgoingAsyncT<string>(this, completed);
-            os.Invoke("ice_id", OperationMode.Nonmutating, null, context, synchronous,
+            os.Invoke("ice_id", idempotent: true, null, context, synchronous,
                       read: (InputStream iss) => iss.ReadString());
         }
 
@@ -353,7 +353,7 @@ namespace Ice
 
         /// <summary>Returns whether or not an operation invoked on this proxy returns a response.</summary>
         /// <returns>True if invoking an operation on this proxy does not return a response. This corresponds to
-        /// several <see cref="InvocationMode"> enumerators, such as Oneway and Datagram. Otherwise,
+        /// several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. Otherwise,
         /// returns false.</returns>
         public bool IsOneway => IceReference.GetMode() != InvocationMode.Twoway;
 
@@ -458,7 +458,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public int IceHandleException(Exception ex, IRequestHandler? handler, OperationMode mode, bool sent,
+        public int IceHandleException(Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
             IceUpdateRequestHandler(handler, null); // Clear the request handler
@@ -479,7 +479,7 @@ namespace Ice
             // also always be retried if the retry count isn't reached.
             //
             if (ex is LocalException && (!sent ||
-                                        mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
+                                        idempotent ||
                                         ex is CloseConnectionException ||
                                         ex is ObjectNotExistException))
             {
@@ -595,13 +595,13 @@ namespace Ice
         {
         }
 
-        public void Invoke(string operation, OperationMode mode, byte[] inParams,
+        public void Invoke(string operation, bool idempotent, byte[] inParams,
                            Dictionary<string, string>? context, bool synchronous)
         {
             try
             {
                 Debug.Assert(Os != null);
-                Prepare(operation, mode, context);
+                Prepare(operation, idempotent, context);
                 if (inParams == null || inParams.Length == 0)
                 {
                     Os.WriteEmptyEncapsulation(Encoding);
@@ -964,7 +964,7 @@ namespace Ice
         /// </summary>
         /// <param name="prx">The proxy to invoke the operation.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="idempotent">True if this operation is idempotent, and false otherwise.</param>
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="outEncaps">The encoded out-paramaters and return value
         /// for the operation. The return value follows any out-parameters.</param>
@@ -976,14 +976,14 @@ namespace Ice
         /// it throws it directly.</returns>
         public static bool Invoke(this IObjectPrx prx,
                                   string operation,
-                                  OperationMode mode,
+                                  bool idempotent,
                                   byte[] inEncaps,
                                   out byte[]? outEncaps,
                                   Dictionary<string, string>? context = null)
         {
             try
             {
-                Object_Ice_invokeResult result = prx.IceI_ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
+                Object_Ice_invokeResult result = prx.IceI_ice_invokeAsync(operation, idempotent, inEncaps, context, null, CancellationToken.None, true).Result;
                 outEncaps = result.OutEncaps;
                 return result.ReturnValue;
             }
@@ -998,7 +998,7 @@ namespace Ice
         /// </summary>
         /// <param name="prx">The proxy to invoke the operation.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="idempotent">True if this operation is idempotent, and false otherwise.</param>
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -1007,17 +1007,17 @@ namespace Ice
         public static Task<Object_Ice_invokeResult>
         InvokeAsync(this IObjectPrx prx,
                     string operation,
-                    OperationMode mode,
+                    bool idempotent,
                     byte[] inEncaps,
                     Dictionary<string, string>? context = null,
                     IProgress<bool>? progress = null,
                     CancellationToken cancel = new CancellationToken()) =>
-            prx.IceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
+            prx.IceI_ice_invokeAsync(operation, idempotent, inEncaps, context, progress, cancel, false);
 
         private static Task<Object_Ice_invokeResult>
         IceI_ice_invokeAsync(this IObjectPrx prx,
                              string operation,
-                             OperationMode mode,
+                             bool idempotent,
                              byte[] inEncaps,
                              Dictionary<string, string>? context,
                              IProgress<bool>? progress,
@@ -1025,17 +1025,17 @@ namespace Ice
                              bool synchronous)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            prx.IceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
+            prx.IceI_ice_invoke(operation, idempotent, inEncaps, context, completed, synchronous);
             return completed.Task;
         }
 
         private static void IceI_ice_invoke(this IObjectPrx prx,
                                      string operation,
-                                     OperationMode mode,
+                                     bool idempotent,
                                      byte[] inEncaps,
                                      Dictionary<string, string>? context,
                                      IOutgoingAsyncCompletionCallback completed,
                                      bool synchronous) =>
-            new InvokeOutgoingAsyncT(prx, completed).Invoke(operation, mode, inEncaps, context, synchronous);
+            new InvokeOutgoingAsyncT(prx, completed).Invoke(operation, idempotent, inEncaps, context, synchronous);
     }
 }

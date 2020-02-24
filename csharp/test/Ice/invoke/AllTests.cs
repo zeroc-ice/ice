@@ -22,7 +22,7 @@ namespace Ice.invoke
 
             {
                 byte[] inEncaps, outEncaps;
-                if (!oneway.Invoke("opOneway", OperationMode.Normal, null, out outEncaps))
+                if (!oneway.Invoke("opOneway", idempotent: false, null, out outEncaps))
                 {
                     test(false);
                 }
@@ -33,7 +33,7 @@ namespace Ice.invoke
                 outS.EndEncapsulation();
                 inEncaps = outS.Finished();
 
-                if (cl.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps))
+                if (cl.Invoke("opString", idempotent: false, inEncaps, out outEncaps))
                 {
                     InputStream inS = new InputStream(communicator, outEncaps);
                     inS.StartEncapsulation();
@@ -59,7 +59,7 @@ namespace Ice.invoke
                     ctx["raise"] = "";
                 }
 
-                if (cl.Invoke("opException", OperationMode.Normal, null, out outEncaps, ctx))
+                if (cl.Invoke("opException", idempotent: false, null, out outEncaps, ctx))
                 {
                     test(false);
                 }
@@ -90,7 +90,7 @@ namespace Ice.invoke
             {
                 try
                 {
-                    oneway.InvokeAsync("opOneway", OperationMode.Normal, null).Wait();
+                    oneway.InvokeAsync("opOneway", idempotent: false, null).Wait();
                 }
                 catch (Exception)
                 {
@@ -104,7 +104,7 @@ namespace Ice.invoke
                 byte[] inEncaps = outS.Finished();
 
                 // begin_ice_invoke with no callback
-                var result = cl.InvokeAsync("opString", OperationMode.Normal, inEncaps).Result;
+                var result = cl.InvokeAsync("opString", idempotent: false, inEncaps).Result;
                 if (result.ReturnValue)
                 {
                     InputStream inS = new InputStream(communicator, result.OutEncaps);
@@ -122,7 +122,7 @@ namespace Ice.invoke
             }
 
             {
-                var result = cl.InvokeAsync("opException", OperationMode.Normal, null).Result;
+                var result = cl.InvokeAsync("opException", idempotent: false, null).Result;
                 if (result.ReturnValue)
                 {
                     test(false);

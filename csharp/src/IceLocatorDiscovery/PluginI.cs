@@ -27,13 +27,13 @@ namespace IceLocatorDiscovery
     {
         public Request(LocatorI locator,
                        string operation,
-                       OperationMode mode,
+                       bool idempotent,
                        byte[] inParams,
                        Dictionary<string, string>? context)
         {
             _locator = locator;
             _operation = operation;
-            _mode = mode;
+            _idempotent = idempotent;
             _inParams = inParams;
             _context = context;
         }
@@ -44,7 +44,7 @@ namespace IceLocatorDiscovery
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                l.InvokeAsync(_operation, _mode, _inParams, _context).ContinueWith(
+                l.InvokeAsync(_operation, _idempotent, _inParams, _context).ContinueWith(
                     (task) =>
                     {
                         try
@@ -101,7 +101,7 @@ namespace IceLocatorDiscovery
 
         private readonly LocatorI _locator;
         private readonly string _operation;
-        private readonly OperationMode _mode;
+        private readonly bool _idempotent;
         private readonly Dictionary<string, string>? _context;
         private readonly byte[] _inParams;
 
@@ -207,7 +207,7 @@ namespace IceLocatorDiscovery
         {
             lock (this)
             {
-                var request = new Request(this, current.Operation, current.Mode, inParams, current.Context);
+                var request = new Request(this, current.Operation, current.IsIdempotent, inParams, current.Context);
                 Invoke(null, request);
                 return request.Task;
             }

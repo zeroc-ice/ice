@@ -28,34 +28,11 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string
-sliceModeToIceMode(Operation::Mode opMode, string ns)
+bool
+isIdempotent(const OperationPtr& operation)
 {
-    string mode;
-    switch(opMode)
-    {
-        case Operation::Normal:
-        {
-            mode = getUnqualified("Ice.OperationMode.Normal", ns);
-            break;
-        }
-        case Operation::Nonmutating:
-        {
-            mode = getUnqualified("Ice.OperationMode.Nonmutating", ns);
-            break;
-        }
-        case Operation::Idempotent:
-        {
-            mode = getUnqualified("Ice.OperationMode.Idempotent", ns);
-            break;
-        }
-        default:
-        {
-            assert(false);
-            break;
-        }
-    }
-    return mode;
+    // TODO: eliminate Nonmutating enumerator in the parser together with the nonmutating metadata.
+    return operation->mode() != Operation::Normal;
 }
 
 string
@@ -2498,7 +2475,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "outAsync.Invoke(";
         _out.inc();
         _out << nl << '"' << operation->name() << '"' << ",";
-        _out << nl << sliceModeToIceMode(operation->sendMode(), ns) << ",";
+        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
         _out << nl << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";
@@ -2904,7 +2881,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         << " current)";
     _out << sb;
 
-    _out << nl << "IceCheckMode(" << sliceModeToIceMode(operation->mode(), ns) << ", current.Mode);";
+    if (!isIdempotent(operation))
+    {
+         _out << nl << "IceCheckNonIdempotent(current);";
+    }
 
     // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
     // skips tagged members, and needs to understand them.

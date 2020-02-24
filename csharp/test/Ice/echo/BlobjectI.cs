@@ -14,6 +14,6 @@ public class BlobjectI : Ice.BlobjectAsync
         Debug.Assert(current.Connection != null);
         var prx = current.Connection.CreateProxy(current.Id, IObjectPrx.Factory)
             .Clone(facet: current.Facet, oneway: current.RequestId == 0);
-        return prx.InvokeAsync(current.Operation, current.Mode, inEncaps, current.Context);
+        return prx.InvokeAsync(current.Operation, current.IsIdempotent, inEncaps, current.Context);
     }
 }

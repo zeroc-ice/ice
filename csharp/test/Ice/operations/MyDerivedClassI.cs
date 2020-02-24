@@ -25,21 +25,21 @@ namespace Ice.operations
 
         public bool IceIsA(string id, Current current)
         {
-            test(current.Mode == OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
-        public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
+        public void IcePing(Current current) => test(current.IsIdempotent);
 
         public string[] IceIds(Current current)
         {
-            test(current.Mode == OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
-            test(current.Mode == OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
         }
 
@@ -47,7 +47,7 @@ namespace Ice.operations
 
         public bool supportsCompress(Current current) => IceInternal.BZip2.Supported();
 
-        public void opVoid(Current current) => test(current.Mode == OperationMode.Normal);
+        public void opVoid(Current current) => test(!current.IsIdempotent);
 
         public (bool, bool) opBool(bool p1, bool p2, Current current) => (p2, p1);
 
@@ -646,9 +646,9 @@ namespace Ice.operations
             return (p2, p3);
         }
 
-        public void opIdempotent(Current current) => test(current.Mode == OperationMode.Idempotent);
+        public void opIdempotent(Current current) => test(current.IsIdempotent);
 
-        public void opNonmutating(Current current) => test(current.Mode == OperationMode.Nonmutating);
+        public void opNonmutating(Current current) => test(current.IsIdempotent);
 
         public void opDerived(Current current)
         {
