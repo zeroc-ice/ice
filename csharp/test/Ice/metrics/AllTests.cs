@@ -394,8 +394,8 @@ public class AllTests : Test.AllTests
         string host = helper.getTestHost();
         string port = helper.getTestPort(0).ToString();
         string hostAndPort = host + ":" + port;
-        string protocol = helper.getTestProtocol();
-        string endpoint = protocol + " -h " + host + " -p " + port;
+        string transport = helper.getTestTransport();
+        string endpoint = transport + " -h " + host + " -p " + port;
         string timeout = communicator.GetProperty("Ice.Default.Timeout") ?? "60000";
 
         IMetricsPrx metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
@@ -726,7 +726,7 @@ public class AllTests : Test.AllTests
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
             test(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
 
-            var prx = IObjectPrx.Parse($"metrics:{protocol} -p {port} -h localhost -t 500", communicator);
+            var prx = IObjectPrx.Parse($"metrics:{transport} -p {port} -h localhost -t 500", communicator);
             try
             {
                 prx.IcePing();

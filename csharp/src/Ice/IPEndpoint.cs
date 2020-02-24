@@ -11,7 +11,7 @@ namespace IceInternal
 {
     public abstract class IPEndpoint : Endpoint
     {
-        public IPEndpoint(ProtocolInstance instance, string host, int port, EndPoint? sourceAddr, string connectionId)
+        public IPEndpoint(TransportInstance instance, string host, int port, EndPoint? sourceAddr, string connectionId)
         {
             Instance = instance;
             Host = host;
@@ -20,7 +20,7 @@ namespace IceInternal
             ConnectionId_ = connectionId;
         }
 
-        public IPEndpoint(ProtocolInstance instance)
+        public IPEndpoint(TransportInstance instance)
         {
             Instance = instance;
             Host = null;
@@ -29,7 +29,7 @@ namespace IceInternal
             ConnectionId_ = "";
         }
 
-        public IPEndpoint(ProtocolInstance instance, Ice.InputStream s)
+        public IPEndpoint(TransportInstance instance, Ice.InputStream s)
         {
             Instance = instance;
             Host = s.ReadString();
@@ -60,7 +60,7 @@ namespace IceInternal
 
         public override short Type() => Instance.Type;
 
-        public override string Protocol() => Instance.Protocol;
+        public override string Transport() => Instance.Transport;
 
         public override bool Secure() => Instance.Secure;
 
@@ -84,7 +84,7 @@ namespace IceInternal
         public override List<Endpoint> ExpandIfWildcard()
         {
             var endps = new List<Endpoint>();
-            List<string> hosts = Network.GetHostsForEndpointExpand(Host!, Instance.ProtocolSupport, false);
+            List<string> hosts = Network.GetHostsForEndpointExpand(Host!, Instance.IPVersion, false);
             if (hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);
@@ -122,7 +122,7 @@ namespace IceInternal
 
             List<EndPoint> addresses = Network.GetAddresses(Host,
                                                             Port,
-                                                            Instance.ProtocolSupport,
+                                                            Instance.IPVersion,
                                                             Ice.EndpointSelectionType.Ordered,
                                                             Instance.PreferIPv6,
                                                             true);
@@ -386,7 +386,7 @@ namespace IceInternal
         protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
         protected abstract IPEndpoint CreateEndpoint(string? host, int port, string connectionId);
 
-        protected ProtocolInstance Instance;
+        protected TransportInstance Instance;
         protected string? Host;
         protected int Port;
         protected EndPoint? SourceAddr;

@@ -37,7 +37,7 @@ namespace IceSSL
 
         public override short Type() => _delegate.Type();
 
-        public override string Protocol() => _delegate.Protocol();
+        public override string Transport() => _delegate.Transport();
 
         public override int Timeout() => _delegate.Timeout();
 
@@ -209,8 +209,8 @@ namespace IceSSL
         public EndpointFactoryI(Instance instance, short type) : base(instance, type) => _instance = instance;
 
         public override IceInternal.IEndpointFactory
-        CloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying) =>
-            new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Protocol), underlying);
+        CloneWithUnderlying(IceInternal.TransportInstance inst, short underlying) =>
+            new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
 
         protected override IceInternal.Endpoint
         CreateWithUnderlying(IceInternal.Endpoint? underlying, List<string> args, bool oaEndpoint) =>

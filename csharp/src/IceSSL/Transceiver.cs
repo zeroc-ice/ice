@@ -307,7 +307,7 @@ namespace IceSSL
             }
         }
 
-        public string Protocol() => _delegate.Protocol();
+        public string Transport() => _delegate.Transport();
 
         public Ice.ConnectionInfo GetInfo()
         {

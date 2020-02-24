@@ -91,7 +91,7 @@ namespace Ice
             {
                 try
                 {
-                    List<EndPoint> addrs = Network.GetAddresses(host, port, ProtocolSupport, selType, PreferIPv6, false);
+                    List<EndPoint> addrs = Network.GetAddresses(host, port, IPVersion, selType, PreferIPv6, false);
                     if (addrs.Count > 0)
                     {
                         callback.Connectors(endpoint.Connectors(addrs, null));
@@ -160,17 +160,18 @@ namespace Ice
                 {
 
                     INetworkProxy? networkProxy = NetworkProxy;
-                    int protocol = ProtocolSupport;
+                    int ipVersion = IPVersion;
                     if (networkProxy != null)
                     {
-                        networkProxy = networkProxy.ResolveHost(protocol);
+                        networkProxy = networkProxy.ResolveHost(ipVersion);
                         if (networkProxy != null)
                         {
-                            protocol = networkProxy.GetProtocolSupport();
+                            ipVersion = networkProxy.GetIPVersion();
                         }
                     }
 
-                    List<EndPoint> addrs = Network.GetAddresses(r.Host, r.Port, protocol, r.SelType, PreferIPv6, true);
+                    List<EndPoint> addrs = Network.GetAddresses(r.Host, r.Port, ipVersion, r.SelType,
+                        PreferIPv6, true);
                     if (r.Observer != null)
                     {
                         r.Observer.Detach();

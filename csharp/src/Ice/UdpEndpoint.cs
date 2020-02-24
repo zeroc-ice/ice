@@ -10,7 +10,7 @@ namespace IceInternal
 {
     internal sealed class UdpEndpoint : IPEndpoint
     {
-        public UdpEndpoint(ProtocolInstance instance, string ho, int po, EndPoint? sourceAddr, string mcastInterface,
+        public UdpEndpoint(TransportInstance instance, string ho, int po, EndPoint? sourceAddr, string mcastInterface,
                             int mttl, bool conn, string conId, bool co) :
             base(instance, ho, po, sourceAddr, conId)
         {
@@ -20,14 +20,14 @@ namespace IceInternal
             _compress = co;
         }
 
-        public UdpEndpoint(ProtocolInstance instance) :
+        public UdpEndpoint(TransportInstance instance) :
             base(instance)
         {
             _connect = false;
             _compress = false;
         }
 
-        public UdpEndpoint(ProtocolInstance instance, Ice.InputStream s) :
+        public UdpEndpoint(TransportInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
             if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
@@ -381,7 +381,7 @@ namespace IceInternal
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        internal UdpEndpointFactory(ProtocolInstance instance) => _instance = instance;
+        internal UdpEndpointFactory(TransportInstance instance) => _instance = instance;
 
         public void Initialize()
         {
@@ -389,7 +389,7 @@ namespace IceInternal
 
         public short Type() => _instance!.Type;
 
-        public string Protocol() => _instance!.Protocol;
+        public string Transport() => _instance!.Transport;
 
         public Endpoint Create(List<string> args, bool oaEndpoint)
         {
@@ -402,9 +402,9 @@ namespace IceInternal
 
         public void Destroy() => _instance = null;
 
-        public IEndpointFactory Clone(ProtocolInstance instance) => new UdpEndpointFactory(instance);
+        public IEndpointFactory Clone(TransportInstance instance) => new UdpEndpointFactory(instance);
 
-        private ProtocolInstance? _instance;
+        private TransportInstance? _instance;
     }
 
 }

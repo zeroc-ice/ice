@@ -107,40 +107,40 @@ namespace Glacier2
         }
 
         /// <summary>
-        /// Sets the protocol that will be used by the session factory to establish the connection..
+        /// Sets the transport that will be used by the session factory to establish the connection..
         /// </summary>
-        /// <param name="protocol">The protocol.</param>
+        /// <param name="transport">The transport.</param>
         public void
-        setProtocol(string protocol)
+        setTransport(string transport)
         {
             lock (this)
             {
-                if (protocol == null)
+                if (transport == null)
                 {
-                    throw new ArgumentException("You must use a valid protocol");
+                    throw new ArgumentException("You must use a valid transport");
                 }
 
-                if (!protocol.Equals("tcp") &&
-                    !protocol.Equals("ssl") &&
-                    !protocol.Equals("wss") &&
-                    !protocol.Equals("ws"))
+                if (!transport.Equals("tcp") &&
+                    !transport.Equals("ssl") &&
+                    !transport.Equals("wss") &&
+                    !transport.Equals("ws"))
                 {
-                    throw new ArgumentException("Unknown protocol `" + protocol + "'");
+                    throw new ArgumentException($"Unknown transport `{transport}'");
                 }
-                _protocol = protocol;
+                _transport = transport;
             }
         }
 
         /// <summary>
-        /// Returns the protocol that will be used by the session factory to establish the connection.
+        /// Returns the transport that will be used by the session factory to establish the connection.
         /// </summary>
-        /// <returns>The protocol.</returns>
+        /// <returns>The transport.</returns>
         public string
-        getProtocol()
+        getTransport()
         {
             lock (this)
             {
-                return _protocol;
+                return _transport;
             }
         }
 
@@ -202,8 +202,8 @@ namespace Glacier2
         private int
         getPortInternal()
         {
-            return _port == 0 ? ((_protocol.Equals("ssl") ||
-                                  _protocol.Equals("wss")) ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
+            return _port == 0 ? ((_transport.Equals("ssl") ||
+                                  _transport.Equals("wss")) ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace Glacier2
             // plug-in has already been setup we don't want to override the
             // configuration so it can be loaded from a custom location.
             //
-            if ((_protocol.Equals("ssl") || _protocol.Equals("wss")) && !properties.ContainsKey("Ice.Plugin.IceSSL"))
+            if ((_transport.Equals("ssl") || _transport.Equals("wss")) && !properties.ContainsKey("Ice.Plugin.IceSSL"))
             {
                 properties["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
             }
@@ -343,11 +343,11 @@ namespace Glacier2
         {
             if (_timeout > 0)
             {
-                return $"\"{ident}\":{_protocol} -p {getPortInternal()} -h \"{_routerHost}\" -t {_timeout}";
+                return $"\"{ident}\":{_transport} -p {getPortInternal()} -h \"{_routerHost}\" -t {_timeout}";
             }
             else
             {
-                return $"\"{ident}\":{_protocol} -p {getPortInternal()} -h \"{_routerHost}\"";
+                return $"\"{ident}\":{_transport} -p {getPortInternal()} -h \"{_routerHost}\"";
             }
         }
 
@@ -369,7 +369,7 @@ namespace Glacier2
 
         private string _routerHost = "localhost";
         private Ice.Identity? _identity = null;
-        private string _protocol = "ssl";
+        private string _transport = "ssl";
         private int _port = 0;
         private int _timeout = 10000;
         private Dictionary<string, string>? _context;

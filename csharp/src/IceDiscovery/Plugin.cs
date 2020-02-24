@@ -43,8 +43,8 @@ namespace IceDiscovery
             string lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                System.Collections.Generic.List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, protocol);
+                int ipVersion = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+                System.Collections.Generic.List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])

@@ -20,7 +20,7 @@ namespace IceInternal
 
         public ITransceiver Accept() => new WSTransceiver(_instance, _delegate.Accept());
 
-        public string Protocol() => _delegate.Protocol();
+        public string Transport() => _delegate.Transport();
 
         public override string ToString() => _delegate.ToString();
 
@@ -28,7 +28,7 @@ namespace IceInternal
 
         public IAcceptor GetDelegate() => _delegate;
 
-        internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, IAcceptor del)
+        internal WSAcceptor(WSEndpoint endpoint, TransportInstance instance, IAcceptor del)
         {
             _endpoint = endpoint;
             _instance = instance;
@@ -36,7 +36,7 @@ namespace IceInternal
         }
 
         private WSEndpoint _endpoint;
-        private ProtocolInstance _instance;
+        private TransportInstance _instance;
         private readonly IAcceptor _delegate;
     }
 }

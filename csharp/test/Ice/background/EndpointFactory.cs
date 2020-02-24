@@ -21,9 +21,9 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
         return (short)(Endpoint.TYPE_BASE + _factory.Type());
     }
 
-    public string Protocol()
+    public string Transport()
     {
-        return "test-" + _factory.Protocol();
+        return "test-" + _factory.Transport();
     }
 
     public IceInternal.Endpoint Create(List<string> args, bool server)
@@ -43,7 +43,7 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
     {
     }
 
-    public IceInternal.IEndpointFactory Clone(IceInternal.ProtocolInstance instance)
+    public IceInternal.IEndpointFactory Clone(IceInternal.TransportInstance instance)
     {
         return this;
     }

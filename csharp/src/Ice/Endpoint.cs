@@ -24,7 +24,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            return Protocol() + Options();
+            return Transport() + Options();
         }
 
         public abstract Ice.EndpointInfo GetInfo();
@@ -51,9 +51,9 @@ namespace IceInternal
         public abstract short Type();
 
         //
-        // Return the protocol name.
+        // Return the transport name.
         //
-        public abstract string Protocol();
+        public abstract string Transport();
 
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
@@ -150,7 +150,7 @@ namespace IceInternal
         {
             var unknown = new List<string>();
 
-            string str = "`" + Protocol() + " ";
+            string str = "`" + Transport() + " ";
             foreach (string p in args)
             {
                 if (IceUtilInternal.StringUtil.FindFirstOf(p, " \t\n\r") != -1)

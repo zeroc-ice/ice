@@ -195,9 +195,9 @@ internal class Transceiver : IceInternal.ITransceiver
         _transceiver.FinishWrite(buf);
     }
 
-    public string Protocol()
+    public string Transport()
     {
-        return "test-" + _transceiver.Protocol();
+        return "test-" + _transceiver.Transport();
     }
 
     public Ice.ConnectionInfo GetInfo()

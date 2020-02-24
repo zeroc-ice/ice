@@ -10,7 +10,7 @@ namespace IceInternal
 {
     internal sealed class WSEndpoint : Endpoint
     {
-        internal WSEndpoint(ProtocolInstance instance, Endpoint del, string res)
+        internal WSEndpoint(TransportInstance instance, Endpoint del, string res)
         {
             _instance = instance;
             _delegate = del;
@@ -18,7 +18,7 @@ namespace IceInternal
         }
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        internal WSEndpoint(ProtocolInstance instance, Endpoint del, List<string> args)
+        internal WSEndpoint(TransportInstance instance, Endpoint del, List<string> args)
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _instance = instance;
@@ -32,7 +32,7 @@ namespace IceInternal
             }
         }
 
-        internal WSEndpoint(ProtocolInstance instance, Endpoint del, Ice.InputStream s)
+        internal WSEndpoint(TransportInstance instance, Endpoint del, Ice.InputStream s)
         {
             _instance = instance;
             _delegate = del;
@@ -65,7 +65,7 @@ namespace IceInternal
 
         public override short Type() => _delegate.Type();
 
-        public override string Protocol() => _delegate.Protocol();
+        public override string Transport() => _delegate.Transport();
 
         public override void StreamWriteImpl(Ice.OutputStream s)
         {
@@ -123,7 +123,7 @@ namespace IceInternal
 
         private sealed class EndpointConnectors : IEndpointConnectors
         {
-            public EndpointConnectors(ProtocolInstance instance, string host, string res, IEndpointConnectors cb)
+            public EndpointConnectors(TransportInstance instance, string host, string res, IEndpointConnectors cb)
             {
                 _instance = instance;
                 _host = host;
@@ -143,7 +143,7 @@ namespace IceInternal
 
             public void Exception(Ice.LocalException ex) => _callback.Exception(ex);
 
-            private readonly ProtocolInstance _instance;
+            private readonly TransportInstance _instance;
             private readonly string _host;
             private readonly string _resource;
             private readonly IEndpointConnectors _callback;
@@ -286,18 +286,18 @@ namespace IceInternal
             }
         }
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly Endpoint _delegate;
         private string _resource;
     }
 
     public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public WSEndpointFactory(ProtocolInstance instance, short type) : base(instance, type)
+        public WSEndpointFactory(TransportInstance instance, short type) : base(instance, type)
         {
         }
 
-        public override IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short underlying) =>
+        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, short underlying) =>
             new WSEndpointFactory(instance, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint? underlying, List<string> args, bool oaEndpoint) =>

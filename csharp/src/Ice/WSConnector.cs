@@ -10,7 +10,7 @@ namespace IceInternal
 
         public short Type() => _delegate.Type();
 
-        internal WSConnector(ProtocolInstance instance, IConnector del, string host, string resource)
+        internal WSConnector(TransportInstance instance, IConnector del, string host, string resource)
         {
             _instance = instance;
             _delegate = del;
@@ -48,7 +48,7 @@ namespace IceInternal
 
         public override int GetHashCode() => _delegate.GetHashCode();
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly IConnector _delegate;
         private readonly string _host;
         private readonly string _resource;

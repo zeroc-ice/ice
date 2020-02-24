@@ -211,7 +211,7 @@ public class Client : Test.TestHelper
 
         using var communicator = initialize(properties);
 
-        string protocol = getTestProtocol();
+        string transport = getTestTransport();
         string host = getTestHost();
 
         Glacier2.SessionFactoryHelper factory = new Glacier2.SessionFactoryHelper(new SessionCallback1(this), properties);
@@ -225,7 +225,7 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
             Console.Out.Flush();
 
-            factory.setProtocol(protocol);
+            factory.setTransport(transport);
             session = factory.connect("userid", "xxx");
             while (true)
             {
@@ -252,7 +252,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             factory.setRouterHost(host);
             factory.setPort(getTestPort(1));
-            factory.setProtocol(protocol);
+            factory.setTransport(transport);
             session = factory.connect("userid", "abc123");
 
             Thread.Sleep(100);
@@ -282,7 +282,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             factory.setRouterHost(host);
             factory.setPort(getTestPort(50));
-            factory.setProtocol(protocol);
+            factory.setTransport(transport);
             session = factory.connect("userid", "abc123");
             while (true)
             {
@@ -432,7 +432,7 @@ public class Client : Test.TestHelper
 
             factory.setRouterHost(host);
             factory.setPort(getTestPort(50));
-            factory.setProtocol(protocol);
+            factory.setTransport(transport);
             session = factory.connect("userid", "abc123");
             while (true)
             {

@@ -41,12 +41,12 @@ namespace Ice
             }
 
             var v = new List<string>(arr);
-            string protocol = v[0];
+            string transport = v[0];
             v.RemoveAt(0);
 
-            if (protocol.Equals("default"))
+            if (transport.Equals("default"))
             {
-                protocol = DefaultsAndOverrides.DefaultProtocol;
+                transport = DefaultsAndOverrides.DefaultTransport;
             }
 
             IEndpointFactory? factory = null;
@@ -56,7 +56,7 @@ namespace Ice
                 for (int i = 0; i < _endpointFactories.Count; i++)
                 {
                     IEndpointFactory f = _endpointFactories[i];
-                    if (f.Protocol().Equals(protocol))
+                    if (f.Transport().Equals(transport))
                     {
                         factory = f;
                     }
@@ -92,7 +92,7 @@ namespace Ice
             // If the stringified endpoint is opaque, create an unknown endpoint,
             // then see whether the type matches one of the known endpoints.
             //
-            if (protocol.Equals("opaque"))
+            if (transport.Equals("opaque"))
             {
                 Endpoint ue = new OpaqueEndpointI(v);
                 if (v.Count > 0)

@@ -16,7 +16,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(ProtocolInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
+        internal UdpConnector(TransportInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
                               int mcastTtl, string connectionId)
         {
             _instance = instance;
@@ -78,7 +78,7 @@ namespace IceInternal
 
         public override int GetHashCode() => _hashCode;
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly EndPoint _addr;
         private readonly EndPoint? _sourceAddr;
         private readonly string _mcastInterface;

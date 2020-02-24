@@ -94,7 +94,7 @@ namespace IceInternal
             return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
         }
 
-        public string Protocol() => _instance.Protocol;
+        public string Transport() => _instance.Transport;
 
         public override string ToString() => Network.AddrToString(_addr);
 
@@ -104,7 +104,7 @@ namespace IceInternal
             s.Append(ToString());
 
             List<string> intfs =
-                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _instance.ProtocolSupport, true);
+                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _instance.IPVersion, true);
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -115,7 +115,7 @@ namespace IceInternal
 
         internal int EffectivePort() => _addr.Port;
 
-        internal TcpAcceptor(TcpEndpoint endpoint, ProtocolInstance instance, string host, int port)
+        internal TcpAcceptor(TcpEndpoint endpoint, TransportInstance instance, string host, int port)
         {
             _endpoint = endpoint;
             _instance = instance;
@@ -123,9 +123,9 @@ namespace IceInternal
 
             try
             {
-                int protocol = _instance.ProtocolSupport;
-                _addr = (IPEndPoint)Network.GetAddressForServer(host, port, protocol, _instance.PreferIPv6);
-                _fd = Network.CreateServerSocket(false, _addr.AddressFamily, protocol);
+                int ipVersion = _instance.IPVersion;
+                _addr = (IPEndPoint)Network.GetAddressForServer(host, port, ipVersion, _instance.PreferIPv6);
+                _fd = Network.CreateServerSocket(false, _addr.AddressFamily, ipVersion);
                 Network.SetBlock(_fd, false);
                 Network.SetTcpBufSize(_fd, _instance);
             }
@@ -137,7 +137,7 @@ namespace IceInternal
         }
 
         private TcpEndpoint _endpoint;
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private Socket? _fd;
         private Socket? _acceptFd;
         private Exception? _acceptError;

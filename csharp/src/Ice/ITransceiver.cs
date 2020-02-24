@@ -43,7 +43,7 @@ namespace IceInternal
         bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
         void FinishWrite(Buffer buf);
 
-        string Protocol();
+        string Transport();
         string ToDetailedString();
         Ice.ConnectionInfo GetInfo();
         void CheckSendSize(Buffer buf);

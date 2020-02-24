@@ -32,12 +32,12 @@ public class Client : Test.TestHelper
         //
         // Setup the test transport plug-in.
         //
-        string? protocol;
-        if (!properties.TryGetValue("Ice.Default.Protocol", out protocol))
+        string? transport;
+        if (!properties.TryGetValue("Ice.Default.Protocol", out transport))
         {
-            protocol = "tcp";
+            transport = "tcp";
         }
-        properties["Ice.Default.Protocol"] = $"test-{protocol}";
+        properties["Ice.Default.Protocol"] = $"test-{transport}";
 
         using var communicator = initialize(properties);
         Plugin plugin = new Plugin(communicator);
