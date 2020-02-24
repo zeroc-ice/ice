@@ -28,11 +28,11 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string
-sliceModeToIdempotent(Operation::Mode opMode)
+bool
+isIdempotent(const OperationPtr& operation)
 {
     // TODO: eliminate Nonmutating enumerator in the parser together with the nonmutating metadata.
-    return opMode == Operation::Normal ? "false" : "true";
+    return operation->mode() != Operation::Normal;
 }
 
 string
@@ -2475,7 +2475,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "outAsync.Invoke(";
         _out.inc();
         _out << nl << '"' << operation->name() << '"' << ",";
-        _out << nl << "idempotent: " << sliceModeToIdempotent(operation->sendMode()) << ",";
+        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
         _out << nl << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";
@@ -2881,7 +2881,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         << " current)";
     _out << sb;
 
-    if (operation->mode() == Operation::Normal) // = non-idempotent
+    if (!isIdempotent(operation))
     {
          _out << nl << "IceCheckNonIdempotent(current);";
     }

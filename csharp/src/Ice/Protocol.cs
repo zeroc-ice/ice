@@ -174,7 +174,8 @@ namespace IceInternal
             var mode = requestFrame.ReadByte();
             if (mode > 2)
             {
-                throw new Ice.MarshalException();
+                throw new Ice.MarshalException(
+                    $"received invalid operation mode `{mode}' with operation `{operation}'");
             }
             bool idempotent = mode > 0;
             var context = requestFrame.ReadContext();

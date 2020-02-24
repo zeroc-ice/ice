@@ -353,7 +353,7 @@ namespace Ice
 
         /// <summary>Returns whether or not an operation invoked on this proxy returns a response.</summary>
         /// <returns>True if invoking an operation on this proxy does not return a response. This corresponds to
-        /// several <see cref="InvocationMode"> enumerators, such as Oneway and Datagram. Otherwise,
+        /// several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. Otherwise,
         /// returns false.</returns>
         public bool IsOneway => IceReference.GetMode() != InvocationMode.Twoway;
 
