@@ -36,9 +36,9 @@ internal class Endpoint : IceInternal.Endpoint
         return (short)(TYPE_BASE + _endpoint.Type());
     }
 
-    public override string Protocol()
+    public override string Transport()
     {
-        return _endpoint.Protocol();
+        return _endpoint.Transport();
     }
 
     public override int Timeout()

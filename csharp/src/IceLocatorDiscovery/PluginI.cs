@@ -660,8 +660,8 @@ namespace IceLocatorDiscovery
             string lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, protocol);
+                int ipVersion = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+                List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])

@@ -8,7 +8,7 @@ internal class Plugin : Ice.IPlugin
 
     public void Initialize()
     {
-        IceInternal.IProtocolPluginFacade facade = IceInternal.Util.GetProtocolPluginFacade(_communicator);
+        IceInternal.ITransportPluginFacade facade = IceInternal.Util.GetTransportPluginFacade(_communicator);
         for (short s = 0; s < 100; ++s)
         {
             IceInternal.IEndpointFactory? factory = facade.GetEndpointFactory(s);

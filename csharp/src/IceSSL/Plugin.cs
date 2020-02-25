@@ -66,7 +66,7 @@ namespace IceSSL
     {
         internal Plugin(Communicator communicator)
         {
-            IceInternal.IProtocolPluginFacade facade = IceInternal.Util.GetProtocolPluginFacade(communicator);
+            IceInternal.ITransportPluginFacade facade = IceInternal.Util.GetTransportPluginFacade(communicator);
 
             _engine = new SSLEngine(facade);
 

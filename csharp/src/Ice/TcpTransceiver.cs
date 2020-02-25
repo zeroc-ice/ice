@@ -44,7 +44,7 @@ namespace IceInternal
 
         public void FinishWrite(Buffer buf) => _stream.FinishWrite(buf);
 
-        public string Protocol() => _instance.Protocol;
+        public string Transport() => _instance.Transport;
 
         public Ice.ConnectionInfo GetInfo()
         {
@@ -77,13 +77,13 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(ProtocolInstance instance, StreamSocket stream)
+        internal TcpTransceiver(TransportInstance instance, StreamSocket stream)
         {
             _instance = instance;
             _stream = stream;
         }
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly StreamSocket _stream;
     }
 }

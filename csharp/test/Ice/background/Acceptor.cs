@@ -30,9 +30,9 @@ internal class Acceptor : IceInternal.IAcceptor
         return new Transceiver(_acceptor.Accept());
     }
 
-    public string Protocol()
+    public string Transport()
     {
-        return _acceptor.Protocol();
+        return _acceptor.Transport();
     }
 
     public override string ToString()

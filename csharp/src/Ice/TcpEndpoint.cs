@@ -11,7 +11,7 @@ namespace IceInternal
 {
     internal sealed class TcpEndpoint : IPEndpoint
     {
-        public TcpEndpoint(ProtocolInstance instance, string ho, int po, EndPoint? sourceAddr, int ti, string conId,
+        public TcpEndpoint(TransportInstance instance, string ho, int po, EndPoint? sourceAddr, int ti, string conId,
                             bool co) :
             base(instance, ho, po, sourceAddr, conId)
         {
@@ -19,14 +19,14 @@ namespace IceInternal
             _compress = co;
         }
 
-        public TcpEndpoint(ProtocolInstance instance) :
+        public TcpEndpoint(TransportInstance instance) :
             base(instance)
         {
             _timeout = instance.DefaultTimeout;
             _compress = false;
         }
 
-        public TcpEndpoint(ProtocolInstance instance, Ice.InputStream s) :
+        public TcpEndpoint(TransportInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
             _timeout = s.ReadInt();
@@ -254,7 +254,7 @@ namespace IceInternal
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        internal TcpEndpointFactory(ProtocolInstance instance) => _instance = instance;
+        internal TcpEndpointFactory(TransportInstance instance) => _instance = instance;
 
         public void Initialize()
         {
@@ -262,7 +262,7 @@ namespace IceInternal
 
         public short Type() => _instance!.Type;
 
-        public string Protocol() => _instance!.Protocol;
+        public string Transport() => _instance!.Transport;
 
         public Endpoint Create(List<string> args, bool oaEndpoint)
         {
@@ -275,9 +275,9 @@ namespace IceInternal
 
         public void Destroy() => _instance = null;
 
-        public IEndpointFactory Clone(ProtocolInstance instance) => new TcpEndpointFactory(instance);
+        public IEndpointFactory Clone(TransportInstance instance) => new TcpEndpointFactory(instance);
 
-        private ProtocolInstance? _instance;
+        private TransportInstance? _instance;
     }
 
 }

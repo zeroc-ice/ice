@@ -14,7 +14,8 @@ namespace IceInternal
         {
             string? val;
 
-            DefaultProtocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            // TODO: rename property to Ice.Default.Transport, or remove property and always map default to tcp.
+            DefaultTransport = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
 
             DefaultHost = communicator.GetProperty("Ice.Default.Host");
 
@@ -180,7 +181,7 @@ namespace IceInternal
 
         public string? DefaultHost;
         public EndPoint? DefaultSourceAddress;
-        public string DefaultProtocol;
+        public string DefaultTransport;
         public bool DefaultCollocationOptimization;
         public Ice.EndpointSelectionType DefaultEndpointSelection;
         public int DefaultTimeout;

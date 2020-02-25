@@ -563,7 +563,7 @@ namespace controller
             return current.adapter.AddWithUUID(new ProccessI(helper));
         }
 
-        public string getHost(string protocol, bool ipv6, Current current)
+        public string getHost(string transport, bool ipv6, Current current)
         {
             if (_mainPage.platformAdapter.isEmulator())
             {

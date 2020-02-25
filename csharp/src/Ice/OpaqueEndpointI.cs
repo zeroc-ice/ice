@@ -105,9 +105,9 @@ namespace IceInternal
         }
 
         //
-        // Return the protocol name;
+        // Return the transport name;
         //
-        public override string Protocol()
+        public override string Transport()
         {
             return "opaque";
         }
