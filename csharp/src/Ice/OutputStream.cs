@@ -57,9 +57,12 @@ namespace Ice
 
         // The number of bytes that the stream can hold.
         private int _capacity;
-        // The segment curretnly used by write operations
+        // The segment currently used by write operations, this is usually the last segment of
+        // the segment list but it can occasionally be one before last after expanding the list.
+        // The tail Position always points to this segment, and the tail offset indicates how much
+        // of the segment has been used.
         private byte[] _currentSegment;
-        // all segments except the last are fully used
+        // all segments before the the tail segment are fully used
         private List<byte[]> _segmentList;
 
         // When set, we are writing to a top-level encapsulation.
@@ -87,7 +90,10 @@ namespace Ice
 
         // Data for the class or exception instance that is currently getting marshaled.
         private InstanceData? _current;
-        private Position _position;
+
+        // This is the position for the next write operation, it holds the index of the current
+        // segment and the offset into it.
+        private Position _tail;
 
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
@@ -123,7 +129,7 @@ namespace Ice
                 Size = buffer.Length;
                 _capacity = buffer.Length;
             }
-            _position = new Position(0, 0);
+            _tail = new Position(0, 0);
         }
 
         /// <summary>
@@ -141,7 +147,7 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _mainEncaps = new Encaps(Encoding, _format, _position);
+            _mainEncaps = new Encaps(Encoding, _format, _tail);
 
             Encoding = encoding;
             if (format.HasValue)
@@ -152,16 +158,17 @@ namespace Ice
             WriteEncapsulationHeader(0, Encoding);
         }
 
-        public IList<ArraySegment<byte>> GetUnderlyingBuffer()
+        internal IList<ArraySegment<byte>> GetUnderlyingBuffer()
         {
             Debug.Assert(_segmentList.Count > 0);
             var buffer = new List<ArraySegment<byte>>();
             for (int i = 0; i < _segmentList.Count; i++)
             {
                 byte[] segment = _segmentList[i];
-                if (i == _position.Segment)
+                if (i == _tail.Segment)
                 {
-                    buffer.Add(new ArraySegment<byte>(segment, 0, _position.Offset));
+                    buffer.Add(new ArraySegment<byte>(segment, 0, _tail.Offset));
+                    break;
                 }
                 else
                 {
@@ -215,7 +222,7 @@ namespace Ice
                 _current.SliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE;
             }
 
-            _current.SliceFlagsPos = _position;
+            _current.SliceFlagsPos = _tail;
             WriteByte(0); // Placeholder for the slice flags
 
             // For instance slices, encode the flag and the type ID either as a string or index. For exception slices,
@@ -256,10 +263,10 @@ namespace Ice
 
             if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
-                _current.SliceSizePos = _position;
+                _current.SliceSizePos = _tail;
                 WriteInt(0); // Placeholder for the slice length.
             }
-            _current.SliceFirstMemberPos = _position;
+            _current.SliceFirstMemberPos = _tail;
         }
 
         // Marks the end of a slice for a class instance or user exception.
@@ -328,7 +335,7 @@ namespace Ice
         /// </summary>
         public Position StartSize()
         {
-            var pos = _position;
+            var pos = _tail;
             WriteInt(0); // Placeholder for 32-bit size
             return pos;
         }
@@ -1187,8 +1194,8 @@ namespace Ice
             _segmentList.Add(_currentSegment);
             Size = 0;
             _capacity = DefaultSegmentSize;
-            _position.Offset = 0;
-            _position.Segment = 0;
+            _tail.Offset = 0;
+            _tail.Segment = 0;
         }
 
         /// <summary>Write a byte at a given position of the stream.</summary>
@@ -1254,17 +1261,17 @@ namespace Ice
         public void WriteByte(byte v)
         {
             Expand(1);
-            int offset = _position.Offset;
+            int offset = _tail.Offset;
             if (offset < _currentSegment.Length)
             {
                 _currentSegment[offset] = v;
-                _position.Offset++;
+                _tail.Offset++;
             }
             else
             {
-                _currentSegment = _segmentList[++_position.Segment];
+                _currentSegment = _segmentList[++_tail.Segment];
                 _currentSegment[0] = v;
-                _position.Offset = 1;
+                _tail.Offset = 1;
             }
         }
 
@@ -1273,25 +1280,25 @@ namespace Ice
         /// <returns>The distance in bytes from the current position to the start position.</returns>
         private int Distance(Position start)
         {
-            Debug.Assert(_position.Segment > start.Segment ||
-                         (_position.Segment == start.Segment && _position.Offset > start.Offset));
+            Debug.Assert(_tail.Segment > start.Segment ||
+                         (_tail.Segment == start.Segment && _tail.Offset > start.Offset));
 
             // If both the start and end position are in the same array segment just
             // compute the offsets distance.
-            if (start.Segment == _position.Segment)
+            if (start.Segment == _tail.Segment)
             {
-                return _position.Offset - start.Offset;
+                return _tail.Offset - start.Offset;
             }
             // If start and end position are in different segments we need to acumulate the
             // size from start offset to the end of the start segment, the size of the intermediary
             // segments, and the current offset into the last segment.
             byte[] segment = _segmentList[start.Segment];
             int size = segment.Length - start.Offset;
-            for (int i = start.Segment + 1; i < _position.Segment; ++i)
+            for (int i = start.Segment + 1; i < _tail.Segment; ++i)
             {
                 size += _segmentList[i].Length;
             }
-            return size + _position.Offset;
+            return size + _tail.Offset;
         }
 
         /// <summary>Write an span of bytes to the buffer, the buffer is expand of required, the size
@@ -1301,7 +1308,7 @@ namespace Ice
         {
             int length = span.Length;
             Expand(length);
-            int offset = _position.Offset;
+            int offset = _tail.Offset;
             int remaining = _currentSegment.Length - offset;
             if (remaining > 0)
             {
@@ -1314,13 +1321,13 @@ namespace Ice
                 {
                     span.CopyTo(_currentSegment.AsSpan(offset, length));
                 }
-                _position.Offset += sz;
+                _tail.Offset += sz;
                 length -= sz;
             }
 
             if (length > 0)
             {
-                _currentSegment = _segmentList[++_position.Segment];
+                _currentSegment = _segmentList[++_tail.Segment];
                 if (remaining == 0)
                 {
                     span.CopyTo(_currentSegment.AsSpan(0, length));
@@ -1329,13 +1336,13 @@ namespace Ice
                 {
                     span.Slice(remaining, length).CopyTo(_currentSegment.AsSpan(0, length));
                 }
-                _position.Offset = length;
+                _tail.Offset = length;
             }
         }
 
         /// <summary>Expand the stream to accept more data.</summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
-        internal void Expand(int n)
+        private void Expand(int n)
         {
             Size += n;
             if (Size > _capacity)
@@ -1352,20 +1359,20 @@ namespace Ice
         {
             int length = Buffer.ByteLength(arr);
             Expand(length);
-            int offset = _position.Offset;
+            int offset = _tail.Offset;
             int remaining = Math.Min(_currentSegment.Length - offset, length);
             if (remaining > 0)
             {
                 Buffer.BlockCopy(arr, 0, _currentSegment, offset, remaining);
-                _position.Offset += remaining;
+                _tail.Offset += remaining;
                 length -= remaining;
             }
 
             if (length > 0)
             {
-                _currentSegment = _segmentList[++_position.Segment];
+                _currentSegment = _segmentList[++_tail.Segment];
                 Buffer.BlockCopy(arr, remaining, _currentSegment, 0, length);
-                _position.Offset = length;
+                _tail.Offset = length;
             }
         }
 
@@ -1394,7 +1401,7 @@ namespace Ice
             (Size, other.Size) = (other.Size, Size);
             (_capacity, other._capacity) = (other._capacity, _capacity);
             (_currentSegment, other._currentSegment) = (other._currentSegment, _currentSegment);
-            (_position, other._position) = (other._position, _position);
+            (_tail, other._tail) = (other._tail, _tail);
             (Encoding, other.Encoding) = (other.Encoding, Encoding);
 
             // Swap is never called for streams that have encapsulations being written. However,
@@ -1411,7 +1418,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             Protocol.checkSupportedEncoding(encoding);
 
-            _endpointEncaps = new Encaps(Encoding, _format, _position);
+            _endpointEncaps = new Encaps(Encoding, _format, _tail);
             Encoding = encoding;
             // We didn't change _format, so no need to restore it.
 

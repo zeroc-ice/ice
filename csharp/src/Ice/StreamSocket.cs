@@ -303,7 +303,7 @@ namespace IceInternal
             {
                 int count = buffer.GetBytesCount();
                 int remaining = count - offset;
-                buffer.GetSegments(offset, count, _sendSegments, Math.Min(remaining, _maxSendPacketSize));
+                buffer.FillSegments(offset, _sendSegments, Math.Min(remaining, _maxSendPacketSize));
                 _writeCallback = callback;
                 _writeEventArgs.UserToken = state;
                 _writeEventArgs.BufferList = _sendSegments;
@@ -471,7 +471,7 @@ namespace IceInternal
             {
                 try
                 {
-                    buffer.GetSegments(offset + sent, count, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
+                    buffer.FillSegments(offset + sent, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
                     int ret = _fd.Send(_sendSegments, SocketFlags.None);
                     _sendSegments.Clear();
                     Debug.Assert(ret > 0);

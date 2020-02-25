@@ -20,18 +20,16 @@ namespace Ice
             return count;
         }
 
-        /// <summary> Fill the segments list with almost legth bytes from the source segment list starting
+        /// <summary>Fill the segment list with at most count bytes from the source segment list starting
         /// at the given offset.</summary>
         /// <param name="src">The source segment list.</param>
-        /// <param name="srcOffset">The zero-based byte offset into the source segments.</param>
-        /// <param name="srcSize">The zie in bytes of the source list.</param>
-        /// <param name="dst">The list of segments to fill with data from the source segments.</param>
+        /// <param name="srcOffset">The zero-based byte offset into the source segment list.</param>
+        /// <param name="dst">The list of segments to fill with data from the source segments list.</param>
         /// <param name="count">The number of bytes to fill the segment lists with.</param>
-        public static void GetSegments(this IList<ArraySegment<byte>> src, int srcOffset, int srcSize,
-            IList<ArraySegment<byte>> dst, int count)
+        public static void FillSegments(this IList<ArraySegment<byte>> src, int srcOffset, IList<ArraySegment<byte>> dst, int count)
         {
-            Debug.Assert(count > 0 && count <= srcSize - srcOffset,
-                $"count: {count} srcSize: {srcSize} srcOffset: {srcOffset}");
+            Debug.Assert(count > 0 && count <= src.GetBytesCount() - srcOffset,
+                $"count: {count} srcSize: {src.GetBytesCount()} srcOffset: {srcOffset}");
             dst.Clear();
 
             int sz = 0;
