@@ -23,7 +23,8 @@ public:
 template<typename Key, typename Value>
 class Cache
 {
-    using ValueMap = std::map<Key, std::shared_ptr<Value>>;
+    using ValueType = std::shared_ptr<Value>;
+    using ValueMap = std::map<Key, ValueType>;
 
 public:
 
@@ -57,7 +58,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value>
+    virtual ValueType
     getImpl(const Key& key) const
     {
         auto p = const_cast<ValueMap&>(_entries).end();
@@ -85,8 +86,8 @@ protected:
         }
     }
 
-    virtual std::shared_ptr<Value>
-    addImpl(const Key& key, const std::shared_ptr<Value>& entry)
+    virtual ValueType
+    addImpl(const Key& key, const ValueType& entry)
     {
         _entriesHint = _entries.insert(_entriesHint, { key, entry });
         return entry;

@@ -19,17 +19,17 @@ namespace
 const string& getReplicaGroupId(const ReplicaGroupDescriptor& desc)
 {
     return desc.id;
-};
+}
 
 const string& getAdapterId(const AdapterDescriptor& desc)
 {
     return desc.id;
-};
+}
 
 const Ice::Identity& getObjectId(const ObjectDescriptor& desc)
 {
     return desc.id;
-};
+}
 
 template <typename GetKeyFunc, typename Seq, typename EqFunc> bool
 isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_to<typename Seq::value_type>())
@@ -95,7 +95,7 @@ bool templateDescriptorEqual(const TemplateDescriptor& lhs, const TemplateDescri
     }
 
     return false;
-};
+}
 
 bool objectDescriptorEqual(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
 {
@@ -112,7 +112,7 @@ bool objectDescriptorEqual(const ObjectDescriptor& lhs, const ObjectDescriptor& 
         return false;
     }
     return true;
-};
+}
 
 bool adapterEqual(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
 {
@@ -153,7 +153,7 @@ bool adapterEqual(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
         return false;
     }
     return true;
-};
+}
 
 bool replicaGroupEqual(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)
 {
@@ -196,7 +196,7 @@ bool replicaGroupEqual(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDesc
     }
 
     return true;
-};
+}
 
 template <typename GetKeyFunc, typename Seq> Seq
 getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)

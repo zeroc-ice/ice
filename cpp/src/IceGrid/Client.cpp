@@ -58,7 +58,7 @@ public:
     shared_ptr<Ice::ObjectPrx>
     getServerProxy(const Ice::Current&) const override
     {
-        return 0;
+        return nullptr;
     }
 
     Ice::ObjectProxySeq

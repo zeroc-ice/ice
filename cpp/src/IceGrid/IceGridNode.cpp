@@ -498,9 +498,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         // Replace Admin facet
         auto origProcess = dynamic_pointer_cast<Process>(communicator()->removeAdminFacet("Process"));
         communicator()->addAdminFacet(make_shared<ProcessI>(_activator, origProcess), "Process");
-
-        Identity adminId = { "NodeAdmin-" + name, instanceName };
-        communicator()->createAdmin(_adapter, move(adminId));
+        communicator()->createAdmin(_adapter, { "NodeAdmin-" + name, instanceName });
     }
 
     //

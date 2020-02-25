@@ -143,8 +143,8 @@ public:
     ServerHelper(const std::shared_ptr<ServerDescriptor>&, bool = false);
     virtual ~ServerHelper() = default;
 
-    virtual bool operator==(const CommunicatorHelper&) const override;
-    virtual bool operator!=(const CommunicatorHelper&) const override;
+    bool operator==(const CommunicatorHelper&) const override;
+    bool operator!=(const CommunicatorHelper&) const override;
 
     std::shared_ptr<ServerDescriptor> getDescriptor() const;
     virtual std::shared_ptr<ServerDescriptor> instantiate(const Resolver&, const PropertyDescriptorSeq&,

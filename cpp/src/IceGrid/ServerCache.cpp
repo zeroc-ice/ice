@@ -19,63 +19,11 @@
 using namespace std;
 using namespace IceGrid;
 
-namespace IceGrid
-{
-
-    struct AddCommunicator
-    {
-        AddCommunicator(ServerCache& serverCache, const shared_ptr<ServerEntry>& entry, const string& application) :
-            _serverCache(serverCache), _entry(entry), _application(application)
-        {
-        }
-
-        void
-        operator()(const shared_ptr<CommunicatorDescriptor>& desc)
-        {
-            _serverCache.addCommunicator(nullptr, desc, _entry, _application);
-        }
-
-        void
-        operator()(const shared_ptr<CommunicatorDescriptor>& oldDesc, const shared_ptr<CommunicatorDescriptor>& newDesc)
-        {
-            _serverCache.addCommunicator(oldDesc, newDesc, _entry, _application);
-        }
-
-        ServerCache& _serverCache;
-        const shared_ptr<ServerEntry> _entry;
-        const string _application;
-    };
-
-    struct RemoveCommunicator
-    {
-        RemoveCommunicator(ServerCache& serverCache, const shared_ptr<ServerEntry>& entry) :
-            _serverCache(serverCache), _entry(entry)
-        {
-        }
-
-        void
-        operator()(const shared_ptr<CommunicatorDescriptor>& desc)
-        {
-            _serverCache.removeCommunicator(desc, nullptr, _entry);
-        }
-
-        void
-        operator()(const shared_ptr<CommunicatorDescriptor>& oldDesc, const shared_ptr<CommunicatorDescriptor>& newDesc)
-        {
-            _serverCache.removeCommunicator(oldDesc, newDesc, _entry);
-        }
-
-        ServerCache& _serverCache;
-        const shared_ptr<ServerEntry> _entry;
-    };
-
-}
-
 CheckUpdateResult::CheckUpdateResult(const string& server,
                                      const string& node,
                                      bool noRestart,
                                      bool remove,
-                                     future<bool> result) :
+                                     future<bool>&& result) :
     _server(server), _node(node), _remove(remove), _noRestart(noRestart), _result(move(result))
 {
 }
@@ -146,7 +94,10 @@ ServerCache::add(const ServerInfo& info)
 
     _nodeCache.get(info.node, true)->addServer(entry);
 
-    forEachCommunicator(AddCommunicator(*this, entry, info.application))(info.descriptor);
+    forEachCommunicator(info.descriptor, [this, entry, application = info.application](const auto& descriptor)
+        {
+            addCommunicator(nullptr, descriptor, entry, application);
+        });
 
     if(_traceLevels && _traceLevels->server > 0)
     {
@@ -186,8 +137,10 @@ ServerCache::remove(const string& id, bool noRestart)
     assert(entry);
 
     ServerInfo info = entry->getInfo();
-    forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
-
+    forEachCommunicator(info.descriptor, [this, entry](const auto& desc)
+        {
+            removeCommunicator(desc, nullptr, entry);
+        });
     _nodeCache.get(info.node)->removeServer(entry);
 
     entry->destroy(noRestart); // This must be done after otherwise some allocatable objects
@@ -214,7 +167,10 @@ ServerCache::preUpdate(const ServerInfo& newInfo, bool noRestart)
     if(!noRestart)
     {
         ServerInfo info = entry->getInfo();
-        forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor, newInfo.descriptor);
+        forEachCommunicator(info.descriptor, newInfo.descriptor, [this, entry](const auto& oldDesc, const auto& newDesc)
+            {
+                removeCommunicator(oldDesc, newDesc, entry);
+            });
         _nodeCache.get(info.node)->removeServer(entry);
     }
 
@@ -243,7 +199,12 @@ ServerCache::postUpdate(const ServerInfo& info, bool noRestart)
     if(!noRestart)
     {
         _nodeCache.get(info.node, true)->addServer(entry);
-        forEachCommunicator(AddCommunicator(*this, entry, info.application))(oldInfo.descriptor, info.descriptor);
+
+        forEachCommunicator(oldInfo.descriptor, info.descriptor,
+            [this, entry, application = info.application](const auto& oldDesc, const auto& newDesc)
+            {
+                addCommunicator(oldDesc, newDesc, entry, application);
+            });
     }
 
     if(_traceLevels && _traceLevels->server > 0)
@@ -822,7 +783,7 @@ ServerEntry::synchronized(exception_ptr ex)
         {
             callback->synchronized(ex);
         }
-        catch(...)
+        catch(const std::exception&)
         {
             assert(false);
         }

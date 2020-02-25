@@ -27,7 +27,7 @@ class CheckUpdateResult final
 {
 public:
 
-    CheckUpdateResult(const std::string&, const std::string&, bool, bool, std::future<bool>);
+    CheckUpdateResult(const std::string&, const std::string&, bool, bool, std::future<bool>&&);
 
     bool getResult();
 

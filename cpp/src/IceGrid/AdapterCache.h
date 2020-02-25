@@ -12,7 +12,6 @@
 #include <optional>
 #include <set>
 
-
 namespace IceGrid
 {
 
@@ -28,8 +27,8 @@ struct LocatorAdapterInfo
 {
     std::string id;
     std::shared_ptr<AdapterPrx> proxy;
-    int activationTimeout;
-    int deactivationTimeout;
+    std::chrono::seconds activationTimeout;
+    std::chrono::seconds deactivationTimeout;
 };
 using LocatorAdapterInfoSeq = std::vector<LocatorAdapterInfo>;
 

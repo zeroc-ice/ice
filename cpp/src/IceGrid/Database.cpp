@@ -319,15 +319,15 @@ Database::getObserverTopic(TopicName name) const
 {
     switch(name)
     {
-    case TopicName::RegistryObserverTopicName:
+    case TopicName::RegistryObserver:
         return _registryObserverTopic;
-    case TopicName::NodeObserverTopicName:
+    case TopicName::NodeObserver:
         return _nodeObserverTopic;
-    case TopicName::ApplicationObserverTopicName:
+    case TopicName::ApplicationObserver:
         return _applicationObserverTopic;
-    case TopicName::AdapterObserverTopicName:
+    case TopicName::AdapterObserver:
         return _adapterObserverTopic;
-    case TopicName::ObjectObserverTopicName:
+    case TopicName::ObjectObserver:
         return _objectObserverTopic;
     default:
         break;
@@ -2396,12 +2396,12 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
     {
         for(p = oldServers.begin(); p != oldServers.end(); ++p)
         {
-            map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
+            auto q = newServers.find(p->first);
             if(q == newServers.end())
             {
                 try
                 {
-                    ServerInfo info = p->second;
+                    auto info = p->second;
                     info.descriptor = 0; // Clear the descriptor to indicate removal.
                     auto result = _serverCache.get(p->first)->checkUpdate(info, true);
                     if(result)
@@ -2424,7 +2424,7 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
 
     for(p = newServers.begin(); p != newServers.end(); ++p)
     {
-        map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
+        auto q = oldServers.find(p->first);
         if(q != oldServers.end() && isServerUpdated(p->second, q->second))
         {
             if(noRestart &&
@@ -2623,7 +2623,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
     //
     {
         lock_guard lock(_mutex);
-        vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), update.descriptor.name);
+        auto p = find(_updating.begin(), _updating.end(), update.descriptor.name);
         assert(p != _updating.end());
         p->markUpdated();
     }

@@ -32,7 +32,7 @@ public:
     {
         int serial = 0;
         _database->syncApplications(move(applications), getSerials(current.ctx, serial));
-        receivedUpdate(TopicName::ApplicationObserverTopicName, serial);
+        receivedUpdate(TopicName::ApplicationObserver, serial);
     }
 
     void
@@ -50,7 +50,7 @@ public:
             os << ex << ":\n" << ex.reason;
             failure = os.str();
         }
-        receivedUpdate(TopicName::ApplicationObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ApplicationObserver, serial, failure);
     }
 
     void
@@ -68,7 +68,7 @@ public:
             os << ex << ":\napplication: " << ex.name;
             failure = os.str();
         }
-        receivedUpdate(TopicName::ApplicationObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ApplicationObserver, serial, failure);
     }
 
     void
@@ -92,7 +92,7 @@ public:
             os << ex << ":\napplication: " << ex.name;
             failure = os.str();
         }
-        receivedUpdate(TopicName::ApplicationObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ApplicationObserver, serial, failure);
     }
 
     void
@@ -100,7 +100,7 @@ public:
     {
         int serial = 0;
         _database->syncAdapters(adapters, getSerials(current.ctx, serial));
-        receivedUpdate(TopicName::AdapterObserverTopicName, serial);
+        receivedUpdate(TopicName::AdapterObserver, serial);
     }
 
     void
@@ -116,7 +116,7 @@ public:
         {
             failure = "adapter `" + info.id + "' already exists and belongs to an application";
         }
-        receivedUpdate(TopicName::AdapterObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::AdapterObserver, serial, failure);
     }
 
     void
@@ -132,7 +132,7 @@ public:
         {
             failure = "adapter `" + info.id + "' already exists and belongs to an application";
         }
-        receivedUpdate(TopicName::AdapterObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::AdapterObserver, serial, failure);
     }
 
     void
@@ -148,7 +148,7 @@ public:
         {
             failure = "adapter `" + id + "' already exists and belongs to an application";
         }
-        receivedUpdate(TopicName::AdapterObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::AdapterObserver, serial, failure);
     }
 
     void
@@ -156,7 +156,7 @@ public:
     {
         int serial = 0;
         _database->syncObjects(move(objects), getSerials(current.ctx, serial));
-        receivedUpdate(TopicName::ObjectObserverTopicName, serial);
+        receivedUpdate(TopicName::ObjectObserver, serial);
     }
 
     void
@@ -175,7 +175,7 @@ public:
             os << "id: " << _database->getCommunicator()->identityToString(info.proxy->ice_getIdentity());
             failure = os.str();
         }
-        receivedUpdate(TopicName::ObjectObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ObjectObserver, serial, failure);
     }
 
     void
@@ -200,7 +200,7 @@ public:
             os << ex << ":\n" << ex.reason;
             failure = os.str();
         }
-        receivedUpdate(TopicName::ObjectObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ObjectObserver, serial, failure);
     }
 
     void
@@ -221,7 +221,7 @@ public:
         catch(const ObjectNotRegisteredException&)
         {
         }
-        receivedUpdate(TopicName::ObjectObserverTopicName, serial, failure);
+        receivedUpdate(TopicName::ObjectObserver, serial, failure);
     }
 
 private:

@@ -5,7 +5,6 @@
 #ifndef ICEGRID_SESSIONI_H
 #define ICEGRID_SESSIONI_H
 
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Session.h>

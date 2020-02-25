@@ -37,7 +37,7 @@ ReplicaSessionI::create(const shared_ptr<Database>& database,
     {
         database->getReplicaCache().add(info->name, replicaSession);
 
-        auto obsv = database->getObserverTopic(TopicName::RegistryObserverTopicName);
+        auto obsv = database->getObserverTopic(TopicName::RegistryObserver);
         static_pointer_cast<RegistryObserverTopic>(obsv)->registryUp(toRegistryInfo(info));
 
         replicaSession->_proxy =
@@ -49,7 +49,7 @@ ReplicaSessionI::create(const shared_ptr<Database>& database,
     }
     catch(const std::exception&)
     {
-        auto obsv = database->getObserverTopic(TopicName::RegistryObserverTopicName);
+        auto obsv = database->getObserverTopic(TopicName::RegistryObserver);
         static_pointer_cast<RegistryObserverTopic>(obsv)->registryDown(info->name);
 
         database->getReplicaCache().remove(info->name, false);
@@ -157,9 +157,9 @@ ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
     int serialAdapterObserver;
     int serialObjectObserver;
 
-    const auto applicationObserver = _database->getObserverTopic(TopicName::ApplicationObserverTopicName);
-    const auto adapterObserver = _database->getObserverTopic(TopicName::AdapterObserverTopicName);
-    const auto objectObserver = _database->getObserverTopic(TopicName::ObjectObserverTopicName);
+    const auto applicationObserver = _database->getObserverTopic(TopicName::ApplicationObserver);
+    const auto adapterObserver = _database->getObserverTopic(TopicName::AdapterObserver);
+    const auto objectObserver = _database->getObserverTopic(TopicName::ObjectObserver);
 
     {
         lock_guard lock(_mutex);
@@ -213,7 +213,7 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
     // are correctly setup when the replica starts accepting requests
     // from clients (if the replica is being started).
     //
-    _database->getObserverTopic(TopicName::ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _info->name);
+    _database->getObserverTopic(TopicName::ObjectObserver)->waitForSyncedSubscribers(serial, _info->name);
 }
 
 void
@@ -312,9 +312,9 @@ ReplicaSessionI::destroyImpl(bool shutdown)
 
     if(_observer)
     {
-        _database->getObserverTopic(TopicName::ApplicationObserverTopicName)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(TopicName::AdapterObserverTopicName)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(TopicName::ObjectObserverTopicName)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::ApplicationObserver)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::AdapterObserver)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::ObjectObserver)->unsubscribe(_observer, _info->name);
     }
 
     // Don't remove the replica proxy from the database if the registry is being shutdown.
@@ -340,7 +340,7 @@ ReplicaSessionI::destroyImpl(bool shutdown)
     //
     // Notify the observer that the registry is down.
     //
-    auto obsv = _database->getObserverTopic(TopicName::RegistryObserverTopicName);
+    auto obsv = _database->getObserverTopic(TopicName::RegistryObserver);
     static_pointer_cast<RegistryObserverTopic>(obsv)->registryDown(_info->name);
 
     //

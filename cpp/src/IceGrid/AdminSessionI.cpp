@@ -153,52 +153,52 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     const auto l = _registry->getLocator();
     if(registryObserver)
     {
-        setupObserverSubscription(TopicName::RegistryObserverTopicName,
+        setupObserverSubscription(TopicName::RegistryObserver,
                                   addForwarder(registryObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
-        setupObserverSubscription(TopicName::RegistryObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
     }
 
     if(nodeObserver)
     {
-        setupObserverSubscription(TopicName::NodeObserverTopicName,
+        setupObserverSubscription(TopicName::NodeObserver,
                                   addForwarder(nodeObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
-        setupObserverSubscription(TopicName::NodeObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::NodeObserver, nullptr);
     }
 
     if(appObserver)
     {
-        setupObserverSubscription(TopicName::ApplicationObserverTopicName,
+        setupObserverSubscription(TopicName::ApplicationObserver,
                                   addForwarder(appObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
-        setupObserverSubscription(TopicName::ApplicationObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
     }
 
     if(adapterObserver)
     {
-        setupObserverSubscription(TopicName::AdapterObserverTopicName,
+        setupObserverSubscription(TopicName::AdapterObserver,
                                   addForwarder(adapterObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
-        setupObserverSubscription(TopicName::AdapterObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
     }
 
     if(objectObserver)
     {
-        setupObserverSubscription(TopicName::ObjectObserverTopicName,
+        setupObserverSubscription(TopicName::ObjectObserver,
                                   addForwarder(objectObserver->ice_timeout(t)->ice_locator(l)));
     }
     else
     {
-        setupObserverSubscription(TopicName::ObjectObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
     }
 }
 
@@ -217,11 +217,11 @@ AdminSessionI::setObserversByIdentity(Ice::Identity registryObserver,
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    setupObserverSubscription(TopicName::RegistryObserverTopicName, addForwarder(registryObserver, current), true);
-    setupObserverSubscription(TopicName::NodeObserverTopicName, addForwarder(nodeObserver, current), true);
-    setupObserverSubscription(TopicName::ApplicationObserverTopicName, addForwarder(appObserver, current), true);
-    setupObserverSubscription(TopicName::AdapterObserverTopicName, addForwarder(adapterObserver, current), true);
-    setupObserverSubscription(TopicName::ObjectObserverTopicName, addForwarder(objectObserver, current), true);
+    setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver, current), true);
+    setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver, current), true);
+    setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver, current), true);
+    setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver, current), true);
+    setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver, current), true);
 }
 
 int
@@ -449,11 +449,11 @@ AdminSessionI::destroyImpl(bool shutdown)
         //
         // Unsubscribe from the topics.
         //
-        setupObserverSubscription(TopicName::RegistryObserverTopicName, nullptr);
-        setupObserverSubscription(TopicName::NodeObserverTopicName, nullptr);
-        setupObserverSubscription(TopicName::ApplicationObserverTopicName, nullptr);
-        setupObserverSubscription(TopicName::AdapterObserverTopicName, nullptr);
-        setupObserverSubscription(TopicName::ObjectObserverTopicName, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
+        setupObserverSubscription(TopicName::NodeObserver, nullptr);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
+        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
+        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
     }
 }
 

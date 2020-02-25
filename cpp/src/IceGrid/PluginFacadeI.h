@@ -32,11 +32,11 @@ public:
 
     std::string getPropertyForAdapter(const std::string&, const std::string&) const override;
 
-    void addReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) ICE_NOEXCEPT override;
-    bool removeReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) ICE_NOEXCEPT override;
+    void addReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
+    bool removeReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
 
-    void addTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) ICE_NOEXCEPT override;
-    bool removeTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) ICE_NOEXCEPT override;
+    void addTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) noexcept override;
+    bool removeTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) noexcept override;
 
     std::vector<std::shared_ptr<ReplicaGroupFilter>> getReplicaGroupFilters(const std::string&) const;
     bool hasReplicaGroupFilters() const;

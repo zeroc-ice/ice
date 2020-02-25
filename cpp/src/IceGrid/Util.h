@@ -48,98 +48,80 @@ void createDirectoryRecursive(const std::string&);
 
 int secondsToInt(const std::chrono::seconds&);
 
-template<class Function>
-struct ForEachCommunicator
+inline void
+forEachCommunicator(const std::shared_ptr<CommunicatorDescriptor>& descriptor,
+                    std::function<void(const std::shared_ptr<CommunicatorDescriptor>&)> callback)
 {
-    ForEachCommunicator(Function f) : _function(std::move(f))
+    callback(descriptor);
+    auto iceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(descriptor);
+    if(iceBox)
     {
-    }
-
-    void
-    operator()(const ServiceInstanceDescriptor& descriptor)
-    {
-        assert(descriptor.descriptor);
-        operator()(descriptor.descriptor);
-    }
-
-    void
-    operator()(const std::shared_ptr<CommunicatorDescriptor>& descriptor)
-    {
-        _function(descriptor);
-        auto iceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(descriptor);
-        if(iceBox)
+        for(const auto& service : iceBox->services)
         {
-            for_each(iceBox->services.begin(), iceBox->services.end(), forEachCommunicator(_function));
+            forEachCommunicator(service.descriptor, callback);
         }
     }
+}
 
-    void
-    operator()(const std::shared_ptr<CommunicatorDescriptor>& oldDesc,
-               const std::shared_ptr<CommunicatorDescriptor>& newDesc)
-    {
-        _function(oldDesc, newDesc);
-
-        auto oldIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(oldDesc);
-        auto newIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(newDesc);
-
-        if(oldIceBox && !newIceBox)
-        {
-            for(const auto& service : oldIceBox->services)
-            {
-                _function(service.descriptor, nullptr);
-            }
-        }
-        else if(!oldIceBox && newIceBox)
-        {
-            for(const auto& service: newIceBox->services)
-            {
-                _function(nullptr, service.descriptor);
-            }
-        }
-        else if(oldIceBox && newIceBox)
-        {
-            for(const auto& oldService : oldIceBox->services)
-            {
-                ServiceInstanceDescriptorSeq::const_iterator q;
-                for(q = newIceBox->services.begin(); q != newIceBox->services.end(); ++q)
-                {
-                    if(oldService.descriptor->name == q->descriptor->name)
-                    {
-                        _function(oldService.descriptor, q->descriptor);
-                        break;
-                    }
-                }
-                if(q == newIceBox->services.end())
-                {
-                    _function(oldService.descriptor, nullptr);
-                }
-            }
-            for(const auto& newService : newIceBox->services)
-            {
-                ServiceInstanceDescriptorSeq::const_iterator q;
-                for(q = oldIceBox->services.begin(); q != oldIceBox->services.end(); ++q)
-                {
-                    if(newService.descriptor->name == q->descriptor->name)
-                    {
-                        break;
-                    }
-                }
-                if(q == oldIceBox->services.end())
-                {
-                    _function(nullptr, newService.descriptor);
-                }
-            }
-        }
-    }
-
-    Function _function;
-};
-
-template<typename Function>
-inline ForEachCommunicator<Function>
-forEachCommunicator(Function function)
+inline void
+forEachCommunicator(const std::shared_ptr<CommunicatorDescriptor>& oldDescriptor,
+                    const std::shared_ptr<CommunicatorDescriptor>& newDescriptor,
+                    std::function<void(const std::shared_ptr<CommunicatorDescriptor>&,
+                                       const std::shared_ptr<CommunicatorDescriptor>&)> callback)
 {
-    return ForEachCommunicator<Function>(function);
+    callback(oldDescriptor, newDescriptor);
+
+    auto oldIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(oldDescriptor);
+    auto newIceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(newDescriptor);
+
+    if(oldIceBox && !newIceBox)
+    {
+        for(const auto& service : oldIceBox->services)
+        {
+            callback(service.descriptor, nullptr);
+        }
+    }
+    else if(!oldIceBox && newIceBox)
+    {
+        for(const auto& service: newIceBox->services)
+        {
+            callback(nullptr, service.descriptor);
+        }
+    }
+    else if(oldIceBox && newIceBox)
+    {
+        for(const auto& oldService : oldIceBox->services)
+        {
+            ServiceInstanceDescriptorSeq::const_iterator q;
+            for(q = newIceBox->services.begin(); q != newIceBox->services.end(); ++q)
+            {
+                if(oldService.descriptor->name == q->descriptor->name)
+                {
+                    callback(oldService.descriptor, q->descriptor);
+                    break;
+                }
+            }
+            if(q == newIceBox->services.end())
+            {
+                callback(oldService.descriptor, nullptr);
+            }
+        }
+        for(const auto& newService : newIceBox->services)
+        {
+            ServiceInstanceDescriptorSeq::const_iterator q;
+            for(q = oldIceBox->services.begin(); q != oldIceBox->services.end(); ++q)
+            {
+                if(newService.descriptor->name == q->descriptor->name)
+                {
+                    break;
+                }
+            }
+            if(q == oldIceBox->services.end())
+            {
+                callback(nullptr, newService.descriptor);
+            }
+        }
+    }
 }
 
 template <class T> std::vector<std::string>

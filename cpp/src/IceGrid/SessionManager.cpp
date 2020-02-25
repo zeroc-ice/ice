@@ -18,7 +18,7 @@ SessionManager::SessionManager(const shared_ptr<Ice::Communicator>& communicator
     {
         Ice::Identity id = { "InternalRegistry-Master", instanceName };
         _master =
-            Ice::uncheckedCast<InternalRegistryPrx>(prx->ice_identity(move(id))->ice_endpoints(Ice::EndpointSeq()));
+            Ice::uncheckedCast<InternalRegistryPrx>(prx->ice_identity(move(id))->ice_endpoints({}));
     }
 }
 

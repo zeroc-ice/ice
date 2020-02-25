@@ -13,7 +13,7 @@
 namespace IceGrid
 {
 
-class ObserverTopic : public virtual Ice::Object
+class ObserverTopic
 {
 public:
 

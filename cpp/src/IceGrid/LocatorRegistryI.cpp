@@ -21,7 +21,7 @@ newSetDirectProxyCB(function<void()> responseCb,
                     const shared_ptr<TraceLevels>& traceLevels, const string& id,
                     const shared_ptr<Ice::ObjectPrx>& proxy)
 {
-    auto response = [=] ()
+    auto response = [traceLevels, id, proxy, responseCb = move(responseCb)] ()
     {
         if(traceLevels->locator > 1)
         {
@@ -32,7 +32,7 @@ newSetDirectProxyCB(function<void()> responseCb,
         responseCb();
     };
 
-    auto exception = [=] (exception_ptr exptr)
+    auto exception = [traceLevels, id, exceptionCb = move(exceptionCb)](auto exptr)
     {
         if(traceLevels->locator > 1)
         {
@@ -262,9 +262,8 @@ LocatorRegistryI::setServerProcessProxyAsync(string id, shared_ptr<Ice::ProcessP
         }
 
         server->setProcessAsync(proxy,
-                                [=]
+                                [id, proxy, response, traceLevels = _database->getTraceLevels()]
                                 {
-                                    auto traceLevels = _database->getTraceLevels();
                                     if(traceLevels->locator > 1)
                                     {
                                         Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
@@ -273,9 +272,8 @@ LocatorRegistryI::setServerProcessProxyAsync(string id, shared_ptr<Ice::ProcessP
                                     }
                                     response();
                                 },
-                                [=] (exception_ptr exptr)
+                                [id, exception, traceLevels = _database->getTraceLevels()] (exception_ptr exptr)
                                 {
-                                    auto traceLevels = _database->getTraceLevels();
                                     if(traceLevels->locator > 1)
                                     {
                                         try

@@ -21,29 +21,6 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-bool replicaLoadComp(const pair<float, std::shared_ptr<ServerAdapterEntry>>& lhs,
-                     const pair<float, std::shared_ptr<ServerAdapterEntry>>& rhs)
-{
-    return lhs.first < rhs.first;
-}
-
-bool replicaPriorityComp(const shared_ptr<ServerAdapterEntry>& lhs, const shared_ptr<ServerAdapterEntry>& rhs)
-{
-    return lhs->getPriority() < rhs->getPriority();
-}
-
-pair<float, shared_ptr<ServerAdapterEntry>>
-transformToReplicaLoad(LoadSample loadSample, const shared_ptr<ServerAdapterEntry>& value)
-{
-    return { value->getLeastLoadedNodeLoad(loadSample), value };
-}
-
-shared_ptr<ServerAdapterEntry>
-transformToReplica(const pair<float, shared_ptr<ServerAdapterEntry>>& value)
-{
-    return value.second;
-}
-
 class ReplicaGroupSyncCallback final : public SynchronizationCallback
 {
 public:
@@ -474,7 +451,7 @@ ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters) const
     chrono::seconds activationTimeout, deactivationTimeout;
     auto proxy = _server->getAdapter(activationTimeout, deactivationTimeout, _id, true);
 
-    LocatorAdapterInfo info = { _id, move(proxy), secondsToInt(activationTimeout), secondsToInt(deactivationTimeout) };
+    LocatorAdapterInfo info = { _id, move(proxy), activationTimeout, deactivationTimeout };
     adapters.push_back(info);
 }
 
@@ -520,7 +497,7 @@ ReplicaGroupEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& ca
 {
     vector<shared_ptr<ServerAdapterEntry>> replicas;
     int nReplicas;
-    int roundRobin = false;
+    bool roundRobin = false;
     {
         lock_guard lock(_mutex);
 
@@ -677,7 +654,11 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         else if(dynamic_pointer_cast<OrderedLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
-            sort(replicas.begin(), replicas.end(), replicaPriorityComp);
+            sort(replicas.begin(), replicas.end(),
+                [](const auto&lhs, const auto&rhs)
+                {
+                    return lhs->getPriority() < rhs->getPriority();
+                });
         }
         else if(dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
         {
@@ -700,12 +681,14 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
             // each adapter and sort the snapshot.
             //
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
-            transform(replicas.begin(), replicas.end(), back_inserter(rl), bind(transformToReplicaLoad,
-                                                                                loadSample,
-                                                                                placeholders::_1));
-            sort(rl.begin(), rl.end(), replicaLoadComp);
+            transform(replicas.begin(), replicas.end(), back_inserter(rl),
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+                {
+                    return { value -> getLeastLoadedNodeLoad(loadSample), value };
+                });
+            sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
-            transform(rl.begin(), rl.end(), back_inserter(replicas), transformToReplica);
+            transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
         }
 
         //
@@ -788,11 +771,17 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     else
     {
         IceUtilInternal::shuffle(replicas.begin(), replicas.end());
-        vector<pair<float, shared_ptr<ServerAdapterEntry>> > rl;
-        transform(replicas.begin(), replicas.end(), back_inserter(rl), bind(transformToReplicaLoad,
-                                                                            loadSample,
-                                                                            placeholders::_1));
-        return min_element(rl.begin(), rl.end(), replicaLoadComp)->first;
+        vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
+        transform(replicas.begin(), replicas.end(), back_inserter(rl),
+            [loadSample] (const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>>
+            {
+                return { value->getLeastLoadedNodeLoad(loadSample), value };
+            });
+        return min_element(rl.begin(), rl.end(),
+            [](const auto& lhs, const auto& rhs)
+            {
+                return lhs.first < rhs.first;
+            })->first;
     }
 }
 

@@ -278,6 +278,6 @@ private:
     std::condition_variable _condVar;
 };
 
-};
+}
 
 #endif

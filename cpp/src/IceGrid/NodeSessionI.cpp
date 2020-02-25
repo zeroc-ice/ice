@@ -117,7 +117,7 @@ shared_ptr<NodeObserverPrx>
 NodeSessionI::getObserver(const Ice::Current&) const
 {
     return dynamic_pointer_cast<NodeObserverTopic>(
-        _database->getObserverTopic(TopicName::NodeObserverTopicName))->getPublisher();
+        _database->getObserverTopic(TopicName::NodeObserver))->getPublisher();
 }
 
 void
@@ -248,7 +248,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     // Next we notify the observer.
     //
     static_pointer_cast<NodeObserverTopic>(
-        _database->getObserverTopic(TopicName::NodeObserverTopicName))->nodeDown(_info->name);
+        _database->getObserverTopic(TopicName::NodeObserver))->nodeDown(_info->name);
 
     //
     // Unsubscribe the node replica observer.

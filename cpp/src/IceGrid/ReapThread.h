@@ -38,13 +38,13 @@ public:
     {
     }
 
-    virtual std::chrono::steady_clock::time_point
+    std::chrono::steady_clock::time_point
     timestamp() const override
     {
         return _session->timestamp();
     }
 
-    virtual void
+    void
     destroy(bool shutdown) override
     {
         try
@@ -135,6 +135,6 @@ private:
     std::thread _thread;
 };
 
-};
+}
 
 #endif

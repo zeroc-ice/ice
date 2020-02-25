@@ -28,8 +28,8 @@ NodeI::Update::send()
     auto self = shared_from_this();
     try
     {
-        _func([=] { _node->dequeueUpdate(_observer, self, false); },
-              [=](exception_ptr) { _node->dequeueUpdate(_observer, self, true); });
+        _func([this, self] { _node->dequeueUpdate(_observer, self, false); },
+              [this, self](exception_ptr) { _node->dequeueUpdate(_observer, self, true); });
 
         return true;
     }
@@ -93,7 +93,7 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
         auto p = Ice::createProperties();
         p->parseCommandLineOptions("", overrides);
         auto propDict = p->getPropertiesForPrefix("");
-        for(const auto prop : propDict)
+        for(const auto& prop : propDict)
         {
             _propertiesOverride.push_back({ prop.first, prop.second });
         }

@@ -934,13 +934,13 @@ Activator::deactivate(const string& name, const shared_ptr<Ice::ProcessPrx>& pro
 
         process->shutdownAsync(nullptr, [self = shared_from_this(), name] (exception_ptr ex)
         {
-            Ice::Warning out(self->_traceLevels->logger);
             try
             {
                 rethrow_exception(ex);
             }
             catch (const std::exception& e)
             {
+                Ice::Warning out(self->_traceLevels->logger);
                 out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << e;
             }
 
@@ -1071,7 +1071,7 @@ void
 Activator::waitForShutdown()
 {
     unique_lock lock(_mutex);
-    _condVar.wait(lock, [&] { return _deactivating; });
+    _condVar.wait(lock, [this] { return _deactivating; });
 }
 
 void

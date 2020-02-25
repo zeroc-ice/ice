@@ -26,13 +26,13 @@ public:
 
     bool canRemove();
 
-    virtual bool isEnabled() const override;
-    virtual void allocated(const std::shared_ptr<SessionI>&) override;
-    virtual void released(const std::shared_ptr<SessionI>&) override;
-    virtual bool canTryAllocate() override;
+    bool isEnabled() const override;
+    void allocated(const std::shared_ptr<SessionI>&) override;
+    void released(const std::shared_ptr<SessionI>&) override;
+    bool canTryAllocate() override;
 
     void  destroy();
-    virtual void checkAllocatable() override;
+    void checkAllocatable() override;
 
 private:
 

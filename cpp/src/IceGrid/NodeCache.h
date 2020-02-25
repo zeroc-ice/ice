@@ -84,6 +84,8 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
+    using ValueType = NodeEntry*;
+
     NodeCache(const std::shared_ptr<Ice::Communicator>&, ReplicaCache&, const std::string&);
 
     std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;

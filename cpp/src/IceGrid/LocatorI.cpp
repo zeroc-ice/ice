@@ -11,6 +11,7 @@
 #include <IceGrid/SynchronizationException.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace IceGrid;
 
 namespace
@@ -950,14 +951,14 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
             request->activating(adapter.id);
         }
 
-        int timeout = adapter.activationTimeout + adapter.deactivationTimeout;
+        int timeout = duration_cast<milliseconds>(adapter.activationTimeout + adapter.deactivationTimeout).count();
         auto self = shared_from_this();
-        Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout * 1000))->activateAsync(
+        Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout))->activateAsync(
             [self, adapter] (auto obj)
             {
                 self->getDirectProxyResponse(adapter, move(obj));
             },
-            [self, adapter] (exception_ptr e)
+            [self, adapter] (auto e)
             {
                 self->getDirectProxyException(adapter, e);
             });

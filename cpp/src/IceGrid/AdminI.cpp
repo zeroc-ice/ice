@@ -19,6 +19,7 @@
 #include <IceGrid/SynchronizationException.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace Ice;
 using namespace IceGrid;
 
@@ -43,18 +44,49 @@ public:
 
     ServerProxyWrapper(const ServerProxyWrapper& wrapper) = default;
 
+    template<typename Func, typename... Args>
+    auto invoke(Func&& f, Args&&... args)
+    {
+        try
+        {
+            return bind(forward<Func>(f), _proxy, forward<Args>(args)..., ::Ice::noExplicitContext)();
+        }
+        catch (const Ice::Exception&)
+        {
+            handleException(current_exception());
+            throw; // keep compiler happy
+        }
+    }
+
+    template<typename Func>
+    auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
+    {
+        auto exceptionWrapper = [this, exception = move(exception)](exception_ptr ex)
+        {
+            try
+            {
+                handleException(ex);
+            }
+            catch(const std::exception&)
+            {
+                exception(current_exception());
+            }
+        };
+        return bind(forward<Func>(f), _proxy, move(response), move(exceptionWrapper), nullptr, Ice::noExplicitContext)();
+    }
+
     void
     useActivationTimeout()
     {
         auto timeout = secondsToInt(_activationTimeout) * 1000;
-        _proxy = uncheckedCast<ServerPrx>(_proxy->ice_invocationTimeout(move(timeout)));
+        _proxy = _proxy->ice_invocationTimeout(timeout);
     }
 
     void
     useDeactivationTimeout()
     {
         auto timeout = secondsToInt(_deactivationTimeout) * 1000;
-        _proxy = uncheckedCast<ServerPrx>(_proxy->ice_invocationTimeout(move(timeout)));
+        _proxy = _proxy->ice_invocationTimeout(timeout);
     }
 
     ServerPrx*
@@ -109,7 +141,6 @@ AdminI::addApplication(ApplicationDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
 
-    using namespace std::chrono;
     auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
     ApplicationInfo info;
@@ -134,7 +165,6 @@ AdminI::updateApplication(ApplicationUpdateDescriptor descriptor, const Current&
 {
     checkIsReadOnly();
 
-    using namespace std::chrono;
     auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
     ApplicationUpdateInfo update;
@@ -157,7 +187,6 @@ AdminI::updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor, 
 {
     checkIsReadOnly();
 
-    using namespace std::chrono;
     auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
     ApplicationUpdateInfo update;
@@ -245,37 +274,21 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(string id, const Current&) const
 {
-    return _database->getServer(id)->getInfo(true);
+    return _database->getServer(move(id))->getInfo(true);
 }
 
 ServerState
 AdminI::getServerState(string id, const Current&) const
 {
     ServerProxyWrapper proxy(_database, move(id));
-    try
-    {
-        return proxy->getState();
-    }
-    catch(const Ice::Exception&)
-    {
-        proxy.handleException(current_exception());
-        return ServerState::Inactive;
-    }
+    return proxy.invoke(&ServerPrx::getState);
 }
 
 int
 AdminI::getServerPid(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        return proxy->getPid();
-    }
-    catch(const Ice::Exception&)
-    {
-        proxy.handleException(current_exception());
-        return 0;
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    return proxy.invoke(&ServerPrx::getPid);
 }
 
 string
@@ -298,21 +311,7 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
     ServerProxyWrapper proxy(_database, move(id));
     proxy.useActivationTimeout();
 
-    //
-    // Since the server might take a while to be activated, we use AMI.
-    //
-    proxy->startAsync(move(response), [proxy, exception = move(exception)] (exception_ptr ex)
-        {
-            try
-            {
-                proxy.handleException(ex);
-                assert(false);
-            }
-            catch(const Ice::Exception&)
-            {
-                exception(current_exception());
-            }
-        });
+    proxy.invokeAsync([](const auto& prx, auto... args) { prx->startAsync(args...); }, move(response), move(exception));
 }
 
 void
@@ -324,36 +323,29 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     //
     // Since the server might take a while to be deactivated, we use AMI.
     //
-    proxy->stopAsync(response, [=] (exception_ptr ex)
-        {
-            try
-            {
-                proxy.handleException(ex);
-                assert(false);
-            }
-            catch(const Ice::TimeoutException&)
-            {
-                response();
-            }
-            catch(const Ice::Exception&)
-            {
-                exception(current_exception());
-            }
-        });
+    proxy.invokeAsync([](const auto &prx, auto... args) { prx->stopAsync(args...); },
+                      response,
+                      [response, exception = move(exception)](exception_ptr ex) {
+                          try
+                          {
+                              rethrow_exception(ex);
+                          }
+                          catch(const Ice::TimeoutException&)
+                          {
+                              response();
+                          }
+                          catch(const Ice::Exception&)
+                          {
+                              exception(current_exception());
+                          }
+                      });
 }
 
 void
 AdminI::sendSignal(string id, string signal, const Current&)
 {
     ServerProxyWrapper proxy(_database, move(id));
-    try
-    {
-        proxy->sendSignal(signal);
-    }
-    catch(const Ice::Exception&)
-    {
-        proxy.handleException(current_exception());
-    }
+    proxy.invoke(&ServerPrx::sendSignal, move(signal));
 }
 
 StringSeq
@@ -366,29 +358,14 @@ void
 AdminI::enableServer(string id, bool enable, const Ice::Current&)
 {
     ServerProxyWrapper proxy(_database, move(id));
-    try
-    {
-        proxy->setEnabled(enable);
-    }
-    catch(const Ice::Exception&)
-    {
-        proxy.handleException(current_exception());
-    }
+    proxy.invoke(&ServerPrx::setEnabled, move(enable));
 }
 
 bool
 AdminI::isServerEnabled(string id, const Ice::Current&) const
 {
     ServerProxyWrapper proxy(_database, move(id));
-    try
-    {
-        return proxy->isEnabled();
-    }
-    catch(const Ice::Exception&)
-    {
-        proxy.handleException(current_exception());
-        return true; // Keeps the compiler happy.
-    }
+    return proxy.invoke(&ServerPrx::isEnabled);
 }
 
 AdapterInfoSeq
