@@ -14,7 +14,7 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                var buffer = new Buffer(str.Buffer.ToArray()); // TODO avoid copy the data
+                var buffer = new Buffer(str.ToArray()); // TODO avoid copy the data
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 
@@ -48,7 +48,7 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                var buffer = new Buffer(str.Buffer.ToArray()); // TODO avoid copy the data
+                var buffer = new Buffer(str.ToArray()); // TODO avoid copy the data
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 

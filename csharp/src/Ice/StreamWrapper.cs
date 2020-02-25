@@ -33,7 +33,6 @@ namespace IceInternal
         public OutputStreamWrapper(Ice.OutputStream s)
         {
             _s = s;
-            _spos = s.Buffer.Pos;
             _bytes = new byte[254];
             _pos = 0;
             _length = 0;
@@ -75,8 +74,7 @@ namespace IceInternal
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.Buffer.Expand(_pos);
-                        _s.Buffer.WriteSpan(_bytes.AsSpan(0, _pos));
+                        _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
@@ -85,7 +83,6 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.Buffer.Expand(count);
                 _s.WriteBlob(array);
                 _pos += count;
             }
@@ -110,15 +107,14 @@ namespace IceInternal
                         return;
                     }
 
-                    _s.WriteSize(255); // Dummy size, until we know how big the stream
-                                       // really is and can patch the size.
+                    _spos = _s.StartSize(); // Dummy size, until we know how big the stream
+                                            // really is and can patch the size.
                     if (_pos > 0)
                     {
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.Buffer.Expand(_pos);
-                        _s.Buffer.WriteSpan(_bytes.AsSpan(0, _pos));
+                        _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
@@ -150,15 +146,11 @@ namespace IceInternal
                 {
                     Debug.Assert(_pos <= _bytes.Length);
                     _s.WriteSize(_pos);
-                    _s.Buffer.Expand(_pos);
-                    _s.Buffer.WriteSpan(_bytes.AsSpan(0, _pos));
+                    _s.WriteSpan(_bytes.AsSpan(0, _pos));
                 }
                 else
                 {
-                    Ice.BufferPosition currentPos = _s.Buffer.Pos;
-                    _s.Buffer.Pos = _spos;
-                    _s.WriteSize(_pos); // Patch previously-written dummy value.
-                    _s.Buffer.Pos = currentPos;
+                    _s.RewriteInt(_pos, _spos); // Patch previously-written dummy value.
                 }
             }
             catch (Exception ex)
@@ -189,7 +181,7 @@ namespace IceInternal
         }
 
         private readonly Ice.OutputStream _s;
-        private readonly Ice.BufferPosition _spos;
+        private Ice.OutputStream.Position _spos;
         private byte[]? _bytes;
         private int _pos;
         private long _length;

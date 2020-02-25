@@ -11,13 +11,13 @@ namespace IceInternal
     public interface ITransceiver
     {
         Socket? Fd();
-        int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData);
+        int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer);
         int Closing(bool initiator, Ice.LocalException? ex);
         void Close();
         void Destroy();
 
         Endpoint Bind();
-        int Write(Ice.VectoredBuffer buffer);
+        int Write(IList<ArraySegment<byte>> buffer, ref int offset);
 
         int Read(Buffer buf, ref bool hasMoreData);
 
@@ -43,8 +43,8 @@ namespace IceInternal
         // will be invoked in the same thread as startWrite. The request
         // will be canceled upon the termination of the thread that calls startWrite.
         //
-        bool StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed);
-        void FinishWrite(Ice.VectoredBuffer buffer);
+        bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
+        void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset);
 
         string Protocol();
         string ToDetailedString();

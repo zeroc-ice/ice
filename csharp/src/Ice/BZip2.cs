@@ -298,14 +298,14 @@ namespace IceInternal
 
         public static bool Supported() => _bzlibInstalled;
 
-        public static Ice.VectoredBuffer? Compress(Ice.VectoredBuffer buf, int headerSize, int compressionLevel)
+        public static Ice.OutputStream? Compress(Ice.OutputStream stream, int headerSize, int compressionLevel)
         {
             Debug.Assert(Supported());
             //
             // Compress the message body, but not the header.
             //
-            int uncompressedLen = buf.Size - headerSize;
-            byte[] data = buf.GetBytes(headerSize, uncompressedLen);
+            int uncompressedLen = stream.Size - headerSize;
+            byte[] data = stream.GetBytes(headerSize, uncompressedLen);
 
             int compressedLen = (int)((uncompressedLen * 1.01) + 600);
             byte[] compressed = new byte[compressedLen];
@@ -334,16 +334,14 @@ namespace IceInternal
             // compressed one.
             //
             byte[] header = new byte[headerSize + 4];
-            var segment = buf.Segments[0];
-            System.Buffer.BlockCopy(segment.Array, 0, header, 0, headerSize);
-            var r = new Ice.VectoredBuffer(header);
+            System.Buffer.BlockCopy(stream.GetBytes(0, headerSize), 0, header, 0, headerSize);
+            var r = new Ice.OutputStream(stream.Communicator, stream.Encoding, header);
             //
             // Add the size of the uncompressed stream before the
             // message body.
             //
-            r.Pos = new Ice.BufferPosition(0, headerSize);
-            r.WriteInt(buf.Size);
-            r.Add(new ArraySegment<byte>(compressed, 0, compressedLen));
+            r.RewriteInt(stream.Size, new Ice.OutputStream.Position(0, headerSize));
+            r.WriteSpan(compressed.AsSpan(0, compressedLen));
             return r;
         }
 

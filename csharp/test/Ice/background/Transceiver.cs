@@ -2,7 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 
@@ -13,12 +16,12 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Fd();
     }
 
-    public int Initialize(IceInternal.Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
+    public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
     {
         _configuration.checkInitializeException();
         if (!_initialized)
         {
-            int status = _transceiver.Initialize(readBuffer, writeBuffer, ref hasMoreData);
+            int status = _transceiver.Initialize(readBuffer, writeBuffer);
             if (status != IceInternal.SocketOperation.None)
             {
                 return status;
@@ -43,15 +46,16 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Bind();
     }
 
-    public int Write(Ice.VectoredBuffer buf)
+    public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {
-        if (!_configuration.writeReady() && buf.Remaining > 0)
+        int remaining = buf.GetBytesCount() - offset;
+        if (!_configuration.writeReady() && remaining > 0)
         {
             return IceInternal.SocketOperation.Write;
         }
 
         _configuration.checkWriteException();
-        return _transceiver.Write(buf);
+        return _transceiver.Write(buf, ref offset);
     }
 
     public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
@@ -183,16 +187,16 @@ internal class Transceiver : IceInternal.ITransceiver
         }
     }
 
-    public bool StartWrite(Ice.VectoredBuffer buf, IceInternal.AsyncCallback callback, object state, out bool completed)
+    public bool StartWrite(IList<ArraySegment<byte>> buf, int offset, IceInternal.AsyncCallback callback, object state, out bool completed)
     {
         _configuration.checkWriteException();
-        return _transceiver.StartWrite(buf, callback, state, out completed);
+        return _transceiver.StartWrite(buf, offset, callback, state, out completed);
     }
 
-    public void FinishWrite(Ice.VectoredBuffer buf)
+    public void FinishWrite(IList<ArraySegment<byte>> buf, ref int offset)
     {
         _configuration.checkWriteException();
-        _transceiver.FinishWrite(buf);
+        _transceiver.FinishWrite(buf, ref offset);
     }
 
     public string Protocol()

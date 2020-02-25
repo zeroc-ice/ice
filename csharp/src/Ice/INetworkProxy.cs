@@ -1,11 +1,11 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using Ice;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -20,8 +20,8 @@ namespace IceInternal
         // with the network proxy server. This is called right after
         // the connection establishment succeeds.
         //
-        void BeginWrite(EndPoint endpoint, Ice.VectoredBuffer buffer);
-        int EndWrite(Ice.VectoredBuffer buffer);
+        void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer);
+        int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred);
 
         //
         // Once the connection request has been sent, this is called
@@ -73,7 +73,7 @@ namespace IceInternal
 
         private SOCKSNetworkProxy(EndPoint address) => _address = address;
 
-        public void BeginWrite(EndPoint endpoint, Ice.VectoredBuffer buffer)
+        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
         {
             if (!(endpoint is IPEndPoint))
             {
@@ -88,21 +88,22 @@ namespace IceInternal
             // SOCKS connect request
             //
             var addr = (IPEndPoint)endpoint;
-            buffer.WriteByte(0x04); // SOCKS version 4.
-            buffer.WriteByte(0x01); // Command, establish a TCP/IP stream connection
+            byte[] data = new byte[9];
+            data[0] = 0x04; // SOCKS version 4.
+            data[1] = 0x01; // Command, establish a TCP/IP stream connection
 
             Debug.Assert(BitConverter.IsLittleEndian);
             short port = BinaryPrimitives.ReverseEndianness((short)addr.Port); // Network byte order (BIG_ENDIAN)
-            buffer.WriteShort(port); // Port
-            buffer.WriteByteSeq(addr.Address.GetAddressBytes()); // IPv4 address
-            buffer.WriteByte(0x00); // User ID.
-            buffer.Prepare();
+            MemoryMarshal.Write(data.AsSpan(2, 2), ref port); // Port
+            System.Buffer.BlockCopy(addr.Address.GetAddressBytes(), 0, data, 4, 4); // IPv4 address
+            data[8] = 0x00; // User ID.
+            buffer.Add(data);
         }
 
-        public int EndWrite(Ice.VectoredBuffer buffer)
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return buffer.Remaining > 0 ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetBytesCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)
@@ -172,7 +173,7 @@ namespace IceInternal
             _protocolSupport = protocolSupport;
         }
 
-        public void BeginWrite(EndPoint endpoint, Ice.VectoredBuffer buffer)
+        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
         {
             string addr = Network.AddrToString(endpoint);
             var str = new StringBuilder();
@@ -183,14 +184,13 @@ namespace IceInternal
             str.Append("\r\n\r\n");
 
             // HTTP connect request
-            buffer.WriteByteSeq(Encoding.ASCII.GetBytes(str.ToString()));
-            buffer.Prepare();
+            buffer.Add(Encoding.ASCII.GetBytes(str.ToString()));
         }
 
-        public int EndWrite(Ice.VectoredBuffer buffer)
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return buffer.Remaining > 0 ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetBytesCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)

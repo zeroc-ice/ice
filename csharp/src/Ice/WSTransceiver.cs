@@ -2,8 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -16,14 +18,14 @@ namespace IceInternal
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             //
             // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
             //
             if (_state == StateInitializeDelegate)
             {
-                int op = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
+                int op = _delegate.Initialize(readBuffer, writeBuffer);
                 if (op != 0)
                 {
                     return op;
@@ -69,9 +71,11 @@ namespace IceInternal
                         _rand.NextBytes(key);
                         _key = Convert.ToBase64String(key);
                         sb.Append(_key + "\r\n\r\n"); // EOM
-                        Debug.Assert(_writeBuffer.Size == 0);
-                        _writeBuffer.WriteByteSeq(_utf8.GetBytes(sb.ToString()));
-                        _writeBuffer.Prepare();
+                        Debug.Assert(_writeBufferSize == 0);
+                        var data = _utf8.GetBytes(sb.ToString());
+                        _writeBuffer.Add(data);
+                        _writeBufferSize = data.Length;
+                        _writeBufferOffset = 0;
                     }
                 }
 
@@ -80,18 +84,19 @@ namespace IceInternal
                 //
                 if (_state == StateUpgradeRequestPending && !_incoming)
                 {
-                    if (_writeBuffer.Remaining > 0)
+                    if (_writeBufferOffset < _writeBufferSize)
                     {
-                        int s = _delegate.Write(_writeBuffer);
-                        if (s != 0)
+                        int socketOperation = _delegate.Write(_writeBuffer, ref _writeBufferOffset);
+                        if (socketOperation != 0)
                         {
-                            return s;
+                            return socketOperation;
                         }
                     }
-                    Debug.Assert(_writeBuffer.Remaining == 0);
+                    Debug.Assert(_writeBufferOffset == _writeBufferSize);
                     _state = StateUpgradeResponsePending;
                 }
 
+                bool hasMoreData = false; // TODO is this required?
                 while (true)
                 {
                     if (_readBuffer.B.HasRemaining())
@@ -154,7 +159,7 @@ namespace IceInternal
                     {
                         if (_parser.Parse(_readBuffer.B, 0, _readBufferPos))
                         {
-                            HandleRequest(_writeBuffer);
+                            HandleRequest();
                             _state = StateUpgradeResponsePending;
                         }
                         else
@@ -167,12 +172,12 @@ namespace IceInternal
                     {
                         if (_incoming)
                         {
-                            if (_writeBuffer.Remaining > 0)
+                            if (_writeBufferOffset < _writeBufferSize)
                             {
-                                int s = _delegate.Write(_writeBuffer);
-                                if (s != 0)
+                                int socketOperation = _delegate.Write(_writeBuffer, ref _writeBufferOffset);
+                                if (socketOperation != 0)
                                 {
-                                    return s;
+                                    return socketOperation;
                                 }
                             }
                         }
@@ -199,8 +204,6 @@ namespace IceInternal
 
                 _state = StateOpened;
                 _nextState = StateOpened;
-
-                hasMoreData = _readBufferPos < _readBuffer.B.Position();
             }
             catch (Ice.LocalException ex)
             {
@@ -313,7 +316,7 @@ namespace IceInternal
 
         public void Destroy() => _delegate.Destroy();
 
-        public int Write(Ice.VectoredBuffer buffer)
+        public int Write(IList<ArraySegment<byte>> buffer, ref int offset)
         {
             if (_writePending)
             {
@@ -324,43 +327,44 @@ namespace IceInternal
             {
                 if (_state < StateConnected)
                 {
-                    return _delegate.Write(buffer);
+                    return _delegate.Write(buffer, ref offset);
                 }
                 else
                 {
-                    return _delegate.Write(_writeBuffer);
+                    return _delegate.Write(_writeBuffer, ref _writeBufferOffset);
                 }
             }
 
-            int s = SocketOperation.None;
+            int socketOperation = SocketOperation.None;
+            int size = buffer.GetBytesCount();
             do
             {
-                if (PreWrite(buffer))
+                if (PreWrite(buffer, size, offset))
                 {
                     if (_writeState == WriteStateFlush)
                     {
                         //
                         // Invoke write() even though there's nothing to write.
                         //
-                        Debug.Assert(buffer.Remaining == 0);
-                        s = _delegate.Write(buffer);
+                        Debug.Assert(size == offset);
+                        socketOperation = _delegate.Write(buffer, ref offset);
                     }
 
-                    if (s == SocketOperation.None && _writeBuffer.Remaining > 0)
+                    if (socketOperation == SocketOperation.None && _writeBufferOffset < _writeBufferSize)
                     {
-                        s = _delegate.Write(_writeBuffer);
+                        socketOperation = _delegate.Write(_writeBuffer, ref _writeBufferOffset);
                     }
-                    else if (s == SocketOperation.None && _incoming && buffer.Size > 0 && _writeState == WriteStatePayload)
+                    else if (socketOperation == SocketOperation.None && _incoming && size > 0 && _writeState == WriteStatePayload)
                     {
-                        s = _delegate.Write(buffer);
+                        socketOperation = _delegate.Write(buffer, ref offset);
                     }
                 }
             }
-            while (PostWrite(buffer, s));
+            while (PostWrite(size, ref offset, socketOperation));
 
-            if (s != SocketOperation.None)
+            if (socketOperation != SocketOperation.None)
             {
-                return s;
+                return socketOperation;
             }
             if (_state == StateClosingResponsePending && !_closingInitiator)
             {
@@ -562,31 +566,32 @@ namespace IceInternal
         }
 
         public bool
-        StartWrite(Ice.VectoredBuffer buf, AsyncCallback callback, object state, out bool completed)
+        StartWrite(IList<ArraySegment<byte>> buf, int offset, AsyncCallback callback, object state, out bool completed)
         {
             _writePending = true;
             if (_state < StateOpened)
             {
                 if (_state < StateConnected)
                 {
-                    return _delegate.StartWrite(buf, callback, state, out completed);
+                    return _delegate.StartWrite(buf, offset, callback, state, out completed);
                 }
                 else
                 {
-                    return _delegate.StartWrite(_writeBuffer, callback, state, out completed);
+                    return _delegate.StartWrite(_writeBuffer, _writeBufferOffset, callback, state, out completed);
                 }
             }
 
-            if (PreWrite(buf))
+            int size = buf.GetBytesCount();
+            if (PreWrite(buf, size, offset))
             {
-                if (_writeBuffer.Remaining > 0)
+                if (_writeBufferOffset < _writeBufferSize)
                 {
-                    return _delegate.StartWrite(_writeBuffer, callback, state, out completed);
+                    return _delegate.StartWrite(_writeBuffer, _writeBufferSize, callback, state, out completed);
                 }
                 else
                 {
                     Debug.Assert(_incoming);
-                    return _delegate.StartWrite(buf, callback, state, out completed);
+                    return _delegate.StartWrite(buf, offset, callback, state, out completed);
                 }
             }
             else
@@ -596,30 +601,31 @@ namespace IceInternal
             }
         }
 
-        public void FinishWrite(Ice.VectoredBuffer buf)
+        public void FinishWrite(IList<ArraySegment<byte>> buf, ref int offset)
         {
             _writePending = false;
             if (_state < StateOpened)
             {
                 if (_state < StateConnected)
                 {
-                    _delegate.FinishWrite(buf);
+                    _delegate.FinishWrite(buf, ref offset);
                 }
                 else
                 {
-                    _delegate.FinishWrite(_writeBuffer);
+                    _delegate.FinishWrite(_writeBuffer, ref _writeBufferOffset);
                 }
                 return;
             }
 
-            if (_writeBuffer.Remaining > 0)
+            int size = buf.GetBytesCount();
+            if (_writeBufferOffset < _writeBufferSize)
             {
-                _delegate.FinishWrite(_writeBuffer);
+                _delegate.FinishWrite(_writeBuffer, ref _writeBufferSize);
             }
-            else if (buf.Remaining > 0)
+            else if (offset < size)
             {
                 Debug.Assert(_incoming);
-                _delegate.FinishWrite(buf);
+                _delegate.FinishWrite(buf, ref offset);
             }
 
             if (_state == StateClosed)
@@ -628,7 +634,7 @@ namespace IceInternal
                 return;
             }
 
-            PostWrite(buf, SocketOperation.None);
+            PostWrite(size, ref offset, SocketOperation.None);
         }
 
         public string Protocol() => _instance.Protocol;
@@ -676,7 +682,7 @@ namespace IceInternal
             _readHeaderLength = 0;
             _readPayloadLength = 0;
             _writeState = WriteStateHeader;
-            _writeBuffer = new Ice.VectoredBuffer();
+            _writeBuffer = new List<ArraySegment<byte>>();
             _readPending = false;
             _finishRead = false;
             _writePending = false;
@@ -695,7 +701,7 @@ namespace IceInternal
             Debug.Assert(_readBufferSize > 256);
         }
 
-        private void HandleRequest(Ice.VectoredBuffer responseBuffer)
+        private void HandleRequest()
         {
             //
             // HTTP/1.1
@@ -820,9 +826,11 @@ namespace IceInternal
             byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
-            responseBuffer.Reset();
-            responseBuffer.WriteByteSeq(_utf8.GetBytes(sb.ToString()));
-            responseBuffer.Prepare();
+            _writeBuffer.Clear();
+            byte[] data = _utf8.GetBytes(sb.ToString());
+            _writeBuffer.Add(data);
+            _writeBufferSize = data.Length;
+            _writeBufferOffset = 0;
         }
 
         private void HandleResponse()
@@ -1250,18 +1258,18 @@ namespace IceInternal
             return buf.B.HasRemaining();
         }
 
-        private bool PreWrite(Ice.VectoredBuffer buf)
+        private bool PreWrite(IList<ArraySegment<byte>> buf, int size, int offset)
         {
             if (_writeState == WriteStateHeader)
             {
                 if (_state == StateOpened)
                 {
-                    if (buf.Size == 0 || buf.Remaining == 0)
+                    if (size == 0 || size - offset == 0)
                     {
                         return false;
                     }
-                    Debug.Assert(buf.Pos.Segment == 0 && buf.Pos.Offset == 0);
-                    PrepareWriteHeader(OP_DATA, buf.Size);
+                    Debug.Assert(offset == 0);
+                    PrepareWriteHeader(OP_DATA, size);
 
                     _writeState = WriteStatePayload;
                 }
@@ -1270,16 +1278,18 @@ namespace IceInternal
                     PrepareWriteHeader(OP_PING, 0); // Don't send any payload
 
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.Prepare();
                 }
                 else if (_state == StatePongPending)
                 {
                     PrepareWriteHeader(OP_PONG, _pingPayload.Length);
-                    _writeBuffer.WriteByteSeq(_pingPayload);
-                    _pingPayload = Array.Empty<byte>();
+                    if (_pingPayload.Length > 0)
+                    {
+                        _writeBuffer.Add(_pingPayload);
+                        _writeBufferSize += _pingPayload.Length;
+                    }
 
+                    _pingPayload = Array.Empty<byte>();
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.Prepare();
                 }
                 else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
                          (_state == StateClosingResponsePending && _closingInitiator))
@@ -1297,9 +1307,9 @@ namespace IceInternal
                         buffer[0] = (byte)(buffer[0] ^ _writeMask[0]);
                         buffer[1] = (byte)(buffer[1] ^ _writeMask[1]);
                     }
-                    _writeBuffer.WriteByteSeq(buffer);
+                    _writeBuffer.Add(buffer);
                     _writeState = WriteStateControlFrame;
-                    _writeBuffer.Prepare();
+                    _writeBufferSize += buffer.Length;
                 }
                 else
                 {
@@ -1320,32 +1330,38 @@ namespace IceInternal
                 // larger, the reminder is sent directly from the message buffer to avoid
                 // copying.
                 //
-                if (!_incoming && (_writePayloadLength == 0 || _writeBuffer.Remaining == 0))
+                if (!_incoming && (_writePayloadLength == 0 || _writeBufferOffset == _writeBufferSize))
                 {
                     int n = 0;
-                    foreach (ArraySegment<byte> segment in buf.Segments)
+                    foreach (ArraySegment<byte> segment in buf)
                     {
+                        byte[] data = new byte[segment.Count];
                         for (int i = 0; i < segment.Count; ++i, ++n)
                         {
-                            _writeBuffer.WriteByte((byte)(segment[i] ^ _writeMask[n % 4]));
+                            data[i] = (byte)(segment[i] ^ _writeMask[n % 4]);
                         }
+                        _writeBuffer.Add(data);
                     }
+                    _writeBufferSize += n;
                     _writePayloadLength = n;
-                    _writeBuffer.Prepare();
                 }
                 else if (_writePayloadLength == 0)
                 {
                     Debug.Assert(_incoming);
-                    int n = buf.Remaining;
-                    _writeBuffer.Prepare();
-                    _writeBuffer.Add(buf.Segments); // Borrow data from the buffer
+                    int n = 0;
+                    foreach (ArraySegment<byte> segment in buf)
+                    {
+                        _writeBuffer.Add(segment); // Borrow data from the buffer
+                        n += segment.Count;
+                    }
+                    _writeBufferSize += n;
                     _writePayloadLength = n;
                 }
                 return true;
             }
             else if (_writeState == WriteStateControlFrame)
             {
-                return _writeBuffer.Remaining > 0;
+                return _writeBufferOffset < _writeBufferSize;
             }
             else
             {
@@ -1354,11 +1370,11 @@ namespace IceInternal
             }
         }
 
-        private bool PostWrite(Ice.VectoredBuffer buffer, int status)
+        private bool PostWrite(int size, ref int offset, int status)
         {
             if (_state > StateOpened && _writeState == WriteStateControlFrame)
             {
-                if (_writeBuffer.Remaining == 0)
+                if (_writeBufferOffset == _writeBufferSize)
                 {
                     if (_state == StatePingPending)
                     {
@@ -1393,7 +1409,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            throw new Ice.ConnectionLostException();
+                            throw new ConnectionLostException();
                         }
                     }
                     else if (_state == StateClosed)
@@ -1411,15 +1427,15 @@ namespace IceInternal
                 }
             }
 
-            if ((!_incoming || (buffer.Pos.Segment == 0 && buffer.Pos.Offset == 0)) && _writePayloadLength > 0)
+            if ((!_incoming || offset == 0) && _writePayloadLength > 0)
             {
-                if (_writeBuffer.Remaining == 0 && buffer.Remaining > 0)
+                if (_writeBufferOffset == _writeBufferSize)
                 {
-                    buffer.Advance(_writePayloadLength);
+                    offset += _writePayloadLength;
                 }
             }
 
-            if (status == SocketOperation.Write && buffer.Remaining == 0 && _writeBuffer.Remaining == 0)
+            if (status == SocketOperation.Write && size == offset && _writeBufferSize == _writeBufferOffset)
             {
                 //
                 // Our buffers are empty but the delegate needs another call to write().
@@ -1427,7 +1443,7 @@ namespace IceInternal
                 _writeState = WriteStateFlush;
                 return false;
             }
-            else if (buffer.Remaining == 0)
+            else if (size == offset)
             {
                 _writeState = WriteStateHeader;
                 if (_state == StatePingPending ||
@@ -1532,9 +1548,9 @@ namespace IceInternal
                 System.Buffer.BlockCopy(_writeMask, 0, buffer, i, _writeMask.Length);
                 i += _writeMask.Length;
             }
-
-            _writeBuffer.Reset();
-            _writeBuffer.WriteSpan(buffer.AsSpan(0, i));
+            _writeBuffer.Add(new ArraySegment<byte>(buffer, 0, i));
+            _writeBufferSize = i;
+            _writeBufferOffset = 0;
         }
 
         private readonly ProtocolInstance _instance;
@@ -1584,7 +1600,9 @@ namespace IceInternal
         private const int WriteStateFlush = 3;
 
         private int _writeState;
-        private readonly Ice.VectoredBuffer _writeBuffer;
+        private readonly IList<ArraySegment<byte>> _writeBuffer;
+        private int _writeBufferSize;
+        private int _writeBufferOffset;
         private readonly byte[] _writeMask;
         private int _writePayloadLength;
 

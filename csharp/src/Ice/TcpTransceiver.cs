@@ -14,7 +14,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _stream.Fd();
 
-        public int Initialize(Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData) =>
+        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer) =>
             _stream.Connect(readBuffer, writeBuffer);
 
         // If we are initiating the connection closure, wait for the peer
@@ -32,7 +32,7 @@ namespace IceInternal
 
         public void Destroy() => _stream.Destroy();
 
-        public int Write(Ice.VectoredBuffer buffer) => _stream.Write(buffer);
+        public int  Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
 
         public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
 
@@ -42,10 +42,11 @@ namespace IceInternal
         public void FinishRead(Buffer buf) => _stream.FinishRead(buf);
 
         public bool
-        StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed) =>
-            _stream.StartWrite(buffer, callback, state, out completed);
+        StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed) =>
+            _stream.StartWrite(buffer, offset, callback, state, out completed);
 
-        public void FinishWrite(Ice.VectoredBuffer buffer) => _stream.FinishWrite(buffer);
+        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
+            _stream.FinishWrite(buffer, ref offset);
 
         public string Protocol() => _instance.Protocol;
 

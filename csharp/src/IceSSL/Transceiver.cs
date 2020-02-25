@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,11 +18,11 @@ namespace IceSSL
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(IceInternal.Buffer readBuffer, Ice.VectoredBuffer writeBuffer, ref bool hasMoreData)
+        public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             if (!_isConnected)
             {
-                int status = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
+                int status = _delegate.Initialize(readBuffer, writeBuffer);
                 if (status != IceInternal.SocketOperation.None)
                 {
                     return status;
@@ -80,7 +81,7 @@ namespace IceSSL
             return IceInternal.SocketOperation.None;
         }
 
-        public int Closing(bool initiator, Ice.LocalException? ex) => _delegate.Closing(initiator, ex);
+        public int Closing(bool initiator, LocalException? ex) => _delegate.Closing(initiator, ex);
 
         public void Close()
         {
@@ -102,8 +103,8 @@ namespace IceSSL
         public void Destroy() => _delegate.Destroy();
 
         // Force caller to use async write.
-        public int Write(Ice.VectoredBuffer buffer) =>
-            buffer.Remaining > 0 ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
+        public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
+            offset < buffer.GetBytesCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
         public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
         {
@@ -133,7 +134,7 @@ namespace IceSSL
             {
                 if (IceInternal.Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
@@ -143,11 +144,11 @@ namespace IceSSL
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
 
@@ -185,7 +186,7 @@ namespace IceSSL
             {
                 if (IceInternal.Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
@@ -195,19 +196,20 @@ namespace IceSSL
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
 
-        public bool StartWrite(Ice.VectoredBuffer buffer, IceInternal.AsyncCallback cb, object state, out bool completed)
+        public bool
+        StartWrite(IList<ArraySegment<byte>> buffer, int offset, IceInternal.AsyncCallback cb, object state, out bool completed)
         {
             if (!_isConnected)
             {
-                return _delegate.StartWrite(buffer, cb, state, out completed);
+                return _delegate.StartWrite(buffer, offset, cb, state, out completed);
             }
 
             Debug.Assert(_sslStream != null);
@@ -221,20 +223,21 @@ namespace IceSSL
             // We limit the packet size for beingWrite to ensure connection timeouts are based
             // on a fixed packet size.
             //
-            int packetSize = GetSendPacketSize(buffer.Remaining);
+            int remaining = buffer.GetBytesCount() - offset;
+            int packetSize = GetSendPacketSize(remaining);
             try
             {
                 _writeCallback = cb;
                 ArraySegment<byte> data = buffer.GetSegment(packetSize);
                 _writeResult = _sslStream.BeginWrite(data.Array, data.Offset, data.Count, WriteCompleted, state);
-                completed = packetSize == buffer.Remaining;
+                completed = packetSize == remaining;
                 return _writeResult.CompletedSynchronously;
             }
             catch (IOException ex)
             {
                 if (IceInternal.Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
@@ -246,24 +249,25 @@ namespace IceSSL
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
 
-        public void FinishWrite(Ice.VectoredBuffer bufffer)
+        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
         {
             if (!_isConnected)
             {
-                _delegate.FinishWrite(bufffer);
+                _delegate.FinishWrite(buffer, ref offset);
                 return;
             }
             else if (_sslStream == null) // Transceiver was closed
             {
-                if (GetSendPacketSize(bufffer.Remaining) == bufffer.Remaining) // Sent last packet
+                int remaining = buffer.GetBytesCount() - offset;
+                if (GetSendPacketSize(remaining) == remaining) // Sent last packet
                 {
-                    bufffer.Advance(bufffer.Remaining); // Assume all the data was sent for at-most-once semantics.
+                    offset = remaining; // Assume all the data was sent for at-most-once semantics.
                 }
                 _writeResult = null;
                 return;
@@ -275,18 +279,17 @@ namespace IceSSL
             }
 
             Debug.Assert(_writeResult != null);
-            int sent = GetSendPacketSize(bufffer.Remaining);
+            int bytesTransferred = GetSendPacketSize(buffer.GetBytesCount() - offset);
             try
             {
                 _sslStream.EndWrite(_writeResult);
-                _writeResult = null;
-                bufffer.Advance(sent);
+                offset += bytesTransferred;
             }
             catch (IOException ex)
             {
                 if (IceInternal.Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
@@ -296,11 +299,11 @@ namespace IceSSL
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
 
@@ -404,9 +407,9 @@ namespace IceSSL
             {
                 throw new Ice.SecurityException(ex.Message, ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
 
             Debug.Assert(_writeResult != null);
@@ -443,11 +446,11 @@ namespace IceSSL
             }
             catch (AuthenticationException ex)
             {
-                throw new Ice.SecurityException(ex.Message, ex);
+                throw new SecurityException(ex.Message, ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
 
@@ -720,7 +723,7 @@ namespace IceSSL
                 {
                     chain.Dispose();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                 }
             }

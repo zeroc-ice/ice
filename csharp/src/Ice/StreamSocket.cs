@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using Ice;
 
 namespace IceInternal
 {
@@ -51,7 +52,7 @@ namespace IceInternal
             {
                 _desc = Network.FdToString(_fd);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Network.CloseSocketNoThrow(_fd);
                 throw;
@@ -83,7 +84,7 @@ namespace IceInternal
             Network.SetBlock(_fd, block);
         }
 
-        public int Connect(Buffer readBuffer, Ice.VectoredBuffer writeBuffer)
+        public int Connect(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             if (_state == StateNeedConnect)
             {
@@ -95,14 +96,14 @@ namespace IceInternal
                 Debug.Assert(_writeEventArgs != null);
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    var ex = new SocketException((int)_writeEventArgs.SocketError);
+                    var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                     if (Network.ConnectionRefused(ex))
                     {
-                        throw new Ice.ConnectionRefusedException(ex);
+                        throw new ConnectionRefusedException(ex);
                     }
                     else
                     {
-                        throw new Ice.ConnectFailedException(ex);
+                        throw new ConnectFailedException(ex);
                     }
                 }
                 Debug.Assert(_fd != null);
@@ -174,27 +175,31 @@ namespace IceInternal
             return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
         }
 
-        public int Write(Ice.VectoredBuffer buffer)
+        public int Write(IList<ArraySegment<byte>> buffer, ref int offset)
         {
+            int count = buffer.GetBytesCount();
             if (_state == StateProxyWrite)
             {
                 Debug.Assert(_proxy != null);
                 while (true)
                 {
-                    int ret = WriteData(buffer);
+                    int ret = WriteData(buffer, offset, count);
                     if (ret == 0)
                     {
                         return SocketOperation.Write;
                     }
-                    _state = ToState(_proxy.EndWrite(buffer));
+                    _state = ToState(_proxy.EndWrite(buffer, ret));
                     if (_state != StateProxyWrite)
                     {
+                        offset += ret;
                         return SocketOperation.None;
                     }
                 }
             }
-            WriteData(buffer);
-            return buffer.Remaining > 0 ? SocketOperation.Write : SocketOperation.None;
+            int remaining = count - offset;
+            int bytesTransferred = WriteData(buffer, offset, count);
+            offset += bytesTransferred;
+            return bytesTransferred < remaining ? SocketOperation.Write : SocketOperation.None;
         }
 
         public bool StartRead(Buffer buf, AsyncCallback callback, object state)
@@ -209,11 +214,11 @@ namespace IceInternal
                 _readEventArgs.SetBuffer(buf.B.RawBytes(), buf.B.Position(), packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 throw new Ice.SocketException(ex);
             }
@@ -231,7 +236,7 @@ namespace IceInternal
             {
                 if (_readEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new SocketException((int)_readEventArgs.SocketError);
+                    throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
                 }
                 int ret = _readEventArgs.BytesTransferred;
                 _readEventArgs.SetBuffer(null, 0, 0);
@@ -250,7 +255,7 @@ namespace IceInternal
                     _state = ToState(_proxy.EndRead(buf));
                 }
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
@@ -260,11 +265,12 @@ namespace IceInternal
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
         }
 
-        public bool StartWrite(Ice.VectoredBuffer buffer, AsyncCallback callback, object state, out bool completed)
+        public bool
+        StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
             if (_state == StateConnectPending)
@@ -287,7 +293,7 @@ namespace IceInternal
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     throw new Ice.SocketException(ex);
                 }
@@ -295,29 +301,31 @@ namespace IceInternal
 
             try
             {
-                buffer.FillSegments(_sendSegments, _maxSendPacketSize);
+                int count = buffer.GetBytesCount();
+                int remaining = count - offset;
+                buffer.GetSegments(offset, count, _sendSegments, Math.Min(remaining, _maxSendPacketSize));
                 _writeCallback = callback;
                 _writeEventArgs.UserToken = state;
                 _writeEventArgs.BufferList = _sendSegments;
                 bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-                completed = _maxSendPacketSize >= buffer.Remaining;
+                completed = _maxSendPacketSize >= remaining;
                 return completedSynchronously;
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 throw new Ice.SocketException(ex);
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
         }
 
-        public void FinishWrite(Ice.VectoredBuffer buffer)
+        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
         {
             if (_writeEventArgs.BufferList != null)
             {
@@ -327,9 +335,10 @@ namespace IceInternal
 
             if (_fd == null) // Transceiver was closed
             {
-                if (buffer.Remaining < _maxSendPacketSize)
+                int remaining = buffer.GetBytesCount() - offset;
+                if (remaining <= _maxSendPacketSize)
                 {
-                    buffer.Advance(buffer.Remaining); // Assume all the data was sent for at-most-once semantics.
+                    offset += remaining; // Assume all the data was sent for at-most-once semantics.
                 }
                 return;
             }
@@ -345,34 +354,33 @@ namespace IceInternal
             {
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new SocketException((int)_writeEventArgs.SocketError);
+                    throw new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
                 if (ret == 0)
                 {
-                    throw new Ice.ConnectionLostException();
+                    throw new ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
-                buffer.Advance(ret);
                 if (_state == StateProxyWrite)
                 {
                     Debug.Assert(_proxy != null);
-                    _state = ToState(_proxy.EndWrite(buffer));
+                    _state = ToState(_proxy.EndWrite(buffer, ret));
                 }
-                return;
+                offset += ret;
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
 
                 throw new Ice.SocketException(ex);
             }
             catch (ObjectDisposedException ex)
             {
-                throw new Ice.ConnectionLostException(ex);
+                throw new ConnectionLostException(ex);
             }
         }
 
@@ -423,7 +431,7 @@ namespace IceInternal
                     read += ret;
                     buf.Position(buf.Position() + ret);
                 }
-                catch (SocketException ex)
+                catch (System.Net.Sockets.SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
@@ -444,7 +452,7 @@ namespace IceInternal
             return read;
         }
 
-        private int WriteData(Ice.VectoredBuffer buffer)
+        private int WriteData(IList<ArraySegment<byte>> buffer, int offset, int count)
         {
             Debug.Assert(_fd != null);
             if (AssemblyUtil.IsMono)
@@ -457,19 +465,19 @@ namespace IceInternal
                 return 0;
             }
 
+            int remaining = count - offset;
             int sent = 0;
-            while (buffer.Remaining > 0)
+            while (remaining - sent > 0)
             {
                 try
                 {
-                    buffer.FillSegments(_sendSegments, _maxSendPacketSize);
+                    buffer.GetSegments(offset, count, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
                     int ret = _fd.Send(_sendSegments, SocketFlags.None);
                     _sendSegments.Clear();
                     Debug.Assert(ret > 0);
                     sent += ret;
-                    buffer.Advance(ret);
                 }
-                catch (SocketException ex)
+                catch (System.Net.Sockets.SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
@@ -477,7 +485,7 @@ namespace IceInternal
                     }
                     else if (Network.ConnectionLost(ex))
                     {
-                        throw new Ice.ConnectionLostException(ex);
+                        throw new ConnectionLostException(ex);
                     }
                     throw new Ice.SocketException(ex);
                 }
