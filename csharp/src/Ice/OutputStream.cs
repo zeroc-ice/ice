@@ -36,9 +36,6 @@ namespace Ice
         public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
 
-        /// <summary>Number of bytes that the stream can hold.</summary>
-        public int Capacity { get; private set; }
-
         /// <summary>
         /// The communicator associated with this stream.
         /// </summary>
@@ -58,16 +55,12 @@ namespace Ice
 
         private const int DefaultSegmentSize = 256;
 
+        // The number of bytes that the stream can hold.
+        private int _capacity;
         // The segment curretnly used by write operations
         private byte[] _currentSegment;
-
-        /// <summary>
-        /// Determines whether the stream is empty.
-        /// </summary>
-        /// <returns>True if no data has been written yet, false otherwise.</returns>
-        internal bool IsEmpty => Size == 0;
-
-        private List<byte[]> _segmentList; // all segments except the last one are full arrays
+        // all segments except the last are fully used
+        private List<byte[]> _segmentList;
 
         // When set, we are writing to a top-level encapsulation.
         private Encaps? _mainEncaps;
@@ -121,14 +114,14 @@ namespace Ice
                 _currentSegment = new byte[DefaultSegmentSize];
                 _segmentList.Add(_currentSegment);
                 Size = 0;
-                Capacity = DefaultSegmentSize;
+                _capacity = DefaultSegmentSize;
             }
             else
             {
                 _currentSegment = buffer;
                 _segmentList.Add(buffer);
                 Size = buffer.Length;
-                Capacity = buffer.Length;
+                _capacity = buffer.Length;
             }
             _position = new Position(0, 0);
         }
@@ -1190,9 +1183,10 @@ namespace Ice
         public void Reset()
         {
             _segmentList.Clear();
-            _segmentList.Add(new byte[DefaultSegmentSize]);
+            _currentSegment = new byte[DefaultSegmentSize];
+            _segmentList.Add(_currentSegment);
             Size = 0;
-            Capacity = DefaultSegmentSize;
+            _capacity = DefaultSegmentSize;
             _position.Offset = 0;
             _position.Segment = 0;
         }
@@ -1344,11 +1338,11 @@ namespace Ice
         internal void Expand(int n)
         {
             Size += n;
-            if (Size > Capacity)
+            if (Size > _capacity)
             {
                 byte[] buffer = new byte[Math.Max(n, _currentSegment.Length * 2)];
                 _segmentList.Add(buffer);
-                Capacity += buffer.Length;
+                _capacity += buffer.Length;
             }
         }
 
@@ -1398,7 +1392,7 @@ namespace Ice
 
             (_segmentList, other._segmentList) = (other._segmentList, _segmentList);
             (Size, other.Size) = (other.Size, Size);
-            (Capacity, other.Capacity) = (other.Capacity, Capacity);
+            (_capacity, other._capacity) = (other._capacity, _capacity);
             (_currentSegment, other._currentSegment) = (other._currentSegment, _currentSegment);
             (_position, other._position) = (other._position, _position);
             (Encoding, other.Encoding) = (other.Encoding, Encoding);

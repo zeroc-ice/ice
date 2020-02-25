@@ -471,7 +471,7 @@ namespace IceInternal
             {
                 try
                 {
-                    buffer.GetSegments(offset, count, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
+                    buffer.GetSegments(offset + sent, count, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
                     int ret = _fd.Send(_sendSegments, SocketFlags.None);
                     _sendSegments.Clear();
                     Debug.Assert(ret > 0);

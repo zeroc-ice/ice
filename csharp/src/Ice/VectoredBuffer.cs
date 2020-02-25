@@ -35,15 +35,15 @@ namespace Ice
             dst.Clear();
 
             int sz = 0;
-            int i;
-            for (i = 0; i < src.Count && sz < count; i++)
+            int i = 0;
+            for (; i < src.Count && srcOffset > 0; i++)
             {
                 ArraySegment<byte> segment = src[i];
                 if (segment.Count > srcOffset)
                 {
-                    int remaining = segment.Count - srcOffset;
-                    dst.Add(segment.Slice(srcOffset, remaining));
-                    sz += remaining;
+                    sz = Math.Min(count, segment.Count - srcOffset);
+                    dst.Add(segment.Slice(srcOffset, sz));
+                    i++;
                     break;
                 }
                 else
@@ -52,7 +52,7 @@ namespace Ice
                 }
             }
 
-            for (i += 1; i < src.Count && sz < count; i++)
+            for (; i < src.Count && sz < count; i++)
             {
                 ArraySegment<byte> segment = src[i];
                 if (segment.Count > count - sz)
