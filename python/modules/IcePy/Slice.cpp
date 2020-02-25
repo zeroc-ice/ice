@@ -5,7 +5,7 @@
 #include <Slice.h>
 #include <Util.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/PythonUtil.h>
+#include <slice2py/PythonUtil.h>
 #include <Slice/Util.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/ConsoleUtil.h>

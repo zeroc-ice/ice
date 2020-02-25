@@ -23,11 +23,11 @@
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Grammar.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Parser.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Preprocessor.cpp" />
-    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Python.cpp" />
-    <ClCompile Include="..\..\..\..\cpp98\src\Slice\PythonUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Scanner.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\SliceUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\slice2py\Python.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\slice2py\PythonUtil.cpp" />
     <ClCompile Include="..\BatchRequestInterceptor.cpp" />
     <ClCompile Include="..\Communicator.cpp" />
     <ClCompile Include="..\Connection.cpp" />
