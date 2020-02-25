@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\CPlusPlusUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Gen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,6 +31,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CPlusPlusUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Gen.h">
       <Filter>Header Files</Filter>
     </ClInclude>

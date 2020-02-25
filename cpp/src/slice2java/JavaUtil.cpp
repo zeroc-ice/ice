@@ -3,7 +3,7 @@
 //
 
 #include <IceUtil/StringUtil.h>
-#include <Slice/JavaUtil.h>
+#include "JavaUtil.h"
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
