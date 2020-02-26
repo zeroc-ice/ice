@@ -377,8 +377,8 @@ namespace Ice
         /// internal data.</summary>
         /// <param name="offset">The zero-based byte offset into the stream.</param>
         /// <param name="count">The number of bytes to retrive.</param>
-        /// <returns></returns>
-        public byte[] GetBytes(int offset, int count)
+        /// <returns>A array of bytes with the requested size</returns>
+        internal byte[] GetBytes(int offset, int count)
         {
             Debug.Assert(count <= offset + Size);
             byte[] data = new byte[count];
