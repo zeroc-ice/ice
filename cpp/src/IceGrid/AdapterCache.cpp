@@ -655,7 +655,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         {
             replicas = _replicas;
             sort(replicas.begin(), replicas.end(),
-                [](const auto&lhs, const auto&rhs)
+                [](const auto& lhs, const auto& rhs)
                 {
                     return lhs->getPriority() < rhs->getPriority();
                 });
