@@ -951,7 +951,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
             request->activating(adapter.id);
         }
 
-        int timeout = duration_cast<milliseconds>(adapter.activationTimeout + adapter.deactivationTimeout).count();
+        int timeout = secondsToInt(adapter.activationTimeout + adapter.deactivationTimeout) * 1000;
         auto self = shared_from_this();
         Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout))->activateAsync(
             [self, adapter] (auto obj)
