@@ -29,24 +29,30 @@
 
 %code top{
 
-// Defines the rule bison uses to reduce token locations. Yes, I know. But bison asks that the
-// macro should be one-line, and treatable as a single statement when followed by a semi-colon.
-#define YYLLOC_DEFAULT(Cur, Rhs, N)                           \
-do                                                            \
-    if(N)                                                     \
-    {                                                         \
-        (Cur).firstLine = (YYRHSLOC((Rhs), 1)).firstLine;     \
-        (Cur).lastLine = (YYRHSLOC((Rhs), N)).lastLine;       \
-        (Cur).firstColumn = (YYRHSLOC((Rhs), 1)).firstColumn; \
-        (Cur).lastColumn = (YYRHSLOC((Rhs), N)).lastColumn;   \
-    }                                                         \
-    else                                                      \
-    {                                                         \
-        (Cur).firstLine = (YYRHSLOC((Rhs), 0)).lastLine;      \
-        (Cur).lastLine = (YYRHSLOC((Rhs), 0)).lastLine;       \
-        (Cur).firstColumn = (YYRHSLOC((Rhs), 0)).lastColumn;  \
-        (Cur).lastColumn = (YYRHSLOC((Rhs), 0)).lastColumn;   \
-    }                                                         \
+// Defines the rule bison uses to reduce token locations. Bison asks that the macro should
+// be one-line, and treatable as a single statement when followed by a semi-colon.
+#define YYLLOC_DEFAULT(Cur, Rhs, N)                               \
+do                                                                \
+    if(N == 1)                                                    \
+    {                                                             \
+        (Cur) = (YYRHSLOC((Rhs), 1));                             \
+    }                                                             \
+    else                                                          \
+    {                                                             \
+        if(N)                                                     \
+        {                                                         \
+            (Cur).firstLine = (YYRHSLOC((Rhs), 1)).firstLine;     \
+            (Cur).firstColumn = (YYRHSLOC((Rhs), 1)).firstColumn; \
+        }                                                         \
+        else                                                      \
+        {                                                         \
+            (Cur).firstLine = (YYRHSLOC((Rhs), 0)).lastLine;      \
+            (Cur).firstColumn = (YYRHSLOC((Rhs), 0)).lastColumn;  \
+        }                                                         \
+        (Cur).filename = (YYRHSLOC((Rhs), N)).filename;           \
+        (Cur).lastLine = (YYRHSLOC((Rhs), N)).lastLine;           \
+        (Cur).lastColumn = (YYRHSLOC((Rhs), N)).lastColumn;       \
+    }                                                             \
 while(0)
 
 }
