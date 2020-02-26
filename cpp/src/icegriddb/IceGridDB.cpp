@@ -277,15 +277,15 @@ run(const Ice::StringSeq& args)
             {
                 communicator->getValueFactoryManager()->add([serverVersion](const string& type)
                     {
-                        assert(type == ServerDescriptorI::ice_staticId());
+                        assert(type == ServerDescriptor::ice_staticId());
                         return make_shared<ServerDescriptorI>(serverVersion);
-                    }, ServerDescriptorI::ice_staticId());
+                    }, ServerDescriptor::ice_staticId());
 
                 communicator->getValueFactoryManager()->add([serverVersion](const string& type)
                     {
-                        assert(type == IceBoxDescriptorI::ice_staticId());
-                        return make_shared<IceBoxDescriptorI>(serverVersion);
-                    }, IceBoxDescriptorI::ice_staticId());
+                        assert(type == IceBoxDescriptor::ice_staticId());
+                        return make_shared<IceBoxDescriptor>(serverVersion);
+                    }, IceBoxDescriptor::ice_staticId());
             }
 
             Ice::InputStream stream(communicator, dbContext.encoding, buf);
