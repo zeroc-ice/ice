@@ -27,8 +27,9 @@ namespace Ice
     /// </summary>
     public class OutputStream
     {
-        /// <summary>Represents a position if a VectoredBuffer, the position is compose of
-        /// the segment index and the relative offset in the segment.</summary>
+        /// <summary>Represents a position in a list of byte arrays, the position
+        /// is compose of the index  of the array in the list and the offset into
+        /// the array.</summary>
         public struct Position
         {
             /// <summary>Creates a new position from the segment and offset values.</summary>

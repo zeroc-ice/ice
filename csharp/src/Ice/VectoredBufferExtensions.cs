@@ -92,7 +92,7 @@ namespace Ice
                 {
                     if (segment.Count - offset >= count)
                     {
-                        // If the requested data is available from a single segment return an Slice 
+                        // If the requested data is available from a single segment return an Slice
                         // of the segment.
                         return segment.Slice(offset, count);
                     }
