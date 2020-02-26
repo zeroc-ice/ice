@@ -158,6 +158,7 @@ slice_error(const char* s)
 %token ICE_METADATA_OPEN
 %token ICE_METADATA_CLOSE
 %token ICE_GLOBAL_METADATA_OPEN
+%token ICE_GLOBAL_METADATA_IGNORE
 %token ICE_GLOBAL_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
@@ -195,6 +196,11 @@ global_meta_data
 : ICE_GLOBAL_METADATA_OPEN string_list ICE_GLOBAL_METADATA_CLOSE
 {
     $$ = $2;
+}
+| ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE
+{
+    unit->error("global metadata must appear before any definitions");
+    $$ = $2; // Dummy
 }
 ;
 
@@ -343,7 +349,6 @@ module_def
 // ----------------------------------------------------------------------
 : ICE_MODULE ICE_IDENTIFIER
 {
-    unit->setSeenDefinition();
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);

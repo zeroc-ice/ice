@@ -188,7 +188,7 @@ Unit* unit;
 // ----------------------------------------------------------------------
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
-    _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
+    _includeLevel(includeLevel), _metaData(metaData)
 {
     initSuppressedWarnings();
 }
@@ -205,22 +205,10 @@ Slice::DefinitionContext::includeLevel() const
     return _includeLevel;
 }
 
-bool
-Slice::DefinitionContext::seenDefinition() const
-{
-    return _seenDefinition;
-}
-
 void
 Slice::DefinitionContext::setFilename(const string& filename)
 {
     _filename = filename;
-}
-
-void
-Slice::DefinitionContext::setSeenDefinition()
-{
-    _seenDefinition = true;
 }
 
 bool
@@ -6176,27 +6164,12 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
-    if(dc->seenDefinition())
-    {
-        error("global metadata must appear before any definitions");
-    }
-    else
-    {
-        //
-        // Append the global metadata to any existing metadata (e.g., default global metadata).
-        //
-        StringList l = dc->getMetaData();
-        copy(metaData.begin(), metaData.end(), back_inserter(l));
-        dc->setMetaData(l);
-    }
-}
-
-void
-Slice::Unit::setSeenDefinition()
-{
-    DefinitionContextPtr dc = currentDefinitionContext();
-    assert(dc);
-    dc->setSeenDefinition();
+    //
+    // Append the global metadata to any existing metadata (e.g., default global metadata).
+    //
+    StringList l = dc->getMetaData();
+    copy(metaData.begin(), metaData.end(), back_inserter(l));
+    dc->setMetaData(l);
 }
 
 void
