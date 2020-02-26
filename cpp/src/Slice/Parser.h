@@ -1136,7 +1136,6 @@ private:
     int _errors;
     std::string _currentComment;
     int _currentIncludeLevel;
-    std::string _currentFile;
     std::string _topLevelFile;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;

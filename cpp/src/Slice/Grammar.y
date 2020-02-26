@@ -208,25 +208,23 @@ meta_data
 // ----------------------------------------------------------------------
 definitions
 // ----------------------------------------------------------------------
-: global_meta_data
+: definitions global_meta_data
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     if(!metaData->v.empty())
     {
         unit->addGlobalMetaData(metaData->v);
     }
 }
-definitions
-| meta_data definition
+| definitions meta_data definition
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    ContainedPtr contained = ContainedPtr::dynamicCast($3);
     if(contained && !metaData->v.empty())
     {
         contained->setMetaData(metaData->v);
     }
 }
-definitions
 | %empty
 {
 }

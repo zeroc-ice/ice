@@ -69,6 +69,7 @@ extern int slice_parse();
 extern int slice_lineno;
 extern FILE* slice_in;
 extern int slice_debug;
+extern int slice__flex_debug;
 
 //
 // Operation attributes
@@ -6443,6 +6444,7 @@ int
 Slice::Unit::parse(const string& filename, FILE* file, bool debug)
 {
     slice_debug = debug ? 1 : 0;
+    slice__flex_debug = debug ? 1 : 0;
 
     assert(!Slice::unit);
     Slice::unit = this;

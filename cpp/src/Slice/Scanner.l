@@ -70,6 +70,8 @@ int checkIdentifier(const string&);
 %option prefix="slice_"
   /* Instructs flex to not suppress any warnings when generating the scanner. */
 %option warn
+  /* Instructs flex to generate a scanner that supports verbose outputting (debug mode). */
+%option debug
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
    * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
 %option nodefault
