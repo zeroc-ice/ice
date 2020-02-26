@@ -275,20 +275,17 @@ run(const Ice::StringSeq& args)
 
             if(!serverVersion.empty())
             {
-                auto factory = [serverVersion](const string& type) -> shared_ptr<Ice::Value>
-                {
-                    if(type == "::IceGrid::ServerDescriptor")
+                communicator->getValueFactoryManager()->add([serverVersion](const string& type)
                     {
+                        assert(type == ServerDescriptorI::ice_staticId());
                         return make_shared<ServerDescriptorI>(serverVersion);
-                    }
-                    else if(type == "::IceGrid::IceBoxDescriptor")
+                    }, ServerDescriptorI::ice_staticId());
+
+                communicator->getValueFactoryManager()->add([serverVersion](const string& type)
                     {
+                        assert(type == IceBoxDescriptorI::ice_staticId());
                         return make_shared<IceBoxDescriptorI>(serverVersion);
-                    }
-                    return nullptr;
-                };
-                communicator->getValueFactoryManager()->add(factory, "::IceGrid::ServerDescriptor");
-                communicator->getValueFactoryManager()->add(factory, "::IceGrid::IceBoxDescriptor");
+                    }, IceBoxDescriptorI::ice_staticId());
             }
 
             Ice::InputStream stream(communicator, dbContext.encoding, buf);
