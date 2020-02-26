@@ -153,7 +153,7 @@ namespace IceInternal
                             throw new Ice.SocketException();
                         }
 
-                        ArraySegment<byte> data = buffer.GetSegment(count);
+                        ArraySegment<byte> data = buffer.GetSegment(0, count);
                         ret = _fd.SendTo(data.Array, 0, data.Count, SocketFlags.None, _peerAddr);
                         Debug.Assert(ret == count);
                     }
@@ -468,7 +468,7 @@ namespace IceInternal
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
-                    ArraySegment<byte> data = buffer.GetSegment(buffer.GetBytesCount());
+                    ArraySegment<byte> data = buffer.GetSegment(0, buffer.GetBytesCount());
                     _writeEventArgs.SetBuffer(data.Array, 0, data.Count);
 
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
@@ -497,7 +497,7 @@ namespace IceInternal
             {
                 int count = buffer.GetBytesCount(); // Assume all the data was sent for at-most-once semantics.
                 _writeEventArgs = null;
-                offset += count;
+                offset = count;
                 return;
             }
 
@@ -552,7 +552,7 @@ namespace IceInternal
 
             Debug.Assert(ret > 0);
             Debug.Assert(ret == buffer.GetBytesCount());
-            offset += ret;
+            offset = ret;
             return;
         }
 

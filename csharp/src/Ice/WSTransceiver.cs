@@ -1326,8 +1326,8 @@ namespace IceInternal
                 //
                 // For an outgoing connection, each message must be masked with a random
                 // 32-bit value, so we copy the entire message into the internal buffer
-                // for writing. For incoming connections, we borrow the segments and add the after
-                // the header.
+                // for writing. For incoming connections we borrow the segments and add
+                // them after the header.
                 //
                 if (_writePayloadLength == 0)
                 {

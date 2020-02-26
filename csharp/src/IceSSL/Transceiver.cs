@@ -228,8 +228,8 @@ namespace IceSSL
             try
             {
                 _writeCallback = cb;
-                ArraySegment<byte> data = buffer.GetSegment(packetSize);
-                _writeResult = _sslStream.BeginWrite(data.Array, data.Offset, data.Count, WriteCompleted, state);
+                ArraySegment<byte> data = buffer.GetSegment(offset, packetSize);
+                _writeResult = _sslStream.BeginWrite(data.Array, 0, data.Count, WriteCompleted, state);
                 completed = packetSize == remaining;
                 return _writeResult.CompletedSynchronously;
             }

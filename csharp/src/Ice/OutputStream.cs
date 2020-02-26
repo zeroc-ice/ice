@@ -27,6 +27,25 @@ namespace Ice
     /// </summary>
     public class OutputStream
     {
+        /// <summary>Represents a position if a VectoredBuffer, the position is compose of
+        /// the segment index and the relative offset in the segment.</summary>
+        public struct Position
+        {
+            /// <summary>Creates a new position from the segment and offset values.</summary>
+            /// <param name="segment">The zero based index of the segment.</param>
+            /// <param name="offset">The offset into the segment.</param>
+            public Position(int segment, int offset)
+            {
+                Segment = segment;
+                Offset = offset;
+            }
+
+            /// <summary>The zero based index of the segment.</summary>
+            public int Segment;
+            /// <summary>The offset into the segment.</summary>
+            public int Offset;
+        }
+
         public static readonly OutputStreamWriter<bool> IceWriterFromBool = (ostr, value) => ostr.WriteBool(value);
         public static readonly OutputStreamWriter<byte> IceWriterFromByte = (ostr, value) => ostr.WriteByte(value);
         public static readonly OutputStreamWriter<short> IceWriterFromShort = (ostr, value) => ostr.WriteShort(value);
@@ -51,7 +70,7 @@ namespace Ice
         /// <summary>Determines the current size of the stream, this correspond
         /// to the number of bytes already writen to the stream.</summary>
         /// <value>The current size.</value>
-        public int Size { get; private set; }
+        internal int Size { get; private set; }
 
         private const int DefaultSegmentSize = 256;
 
@@ -109,7 +128,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="buffer">The intial stream data</param>
+        /// <param name="buffer">The intial stream data.</param>
         public OutputStream(Communicator communicator, EncodingVersion encoding, byte[]? buffer = null)
         {
             Communicator = communicator;
@@ -1188,9 +1207,9 @@ namespace Ice
             Pop(null);
         }
 
-        /// <summary>Reset the buffer to the initial state, after reset the stream it holds a single
-        /// segment of size MinSegmentSize.</summary>
-        public void Reset()
+        /// <summary>Reset the stream to the initial state, after reset the stream holds a single
+        /// segment.</summary>
+        internal void Reset()
         {
             _segmentList.Clear();
             _currentSegment = new byte[DefaultSegmentSize];
@@ -1204,7 +1223,7 @@ namespace Ice
         /// <summary>Write a byte at a given position of the stream.</summary>
         /// <param name="v">The byte to write,</param>
         /// <param name="pos">The position to write to.</param>
-        public void RewriteByte(byte v, Position pos)
+        internal void RewriteByte(byte v, Position pos)
         {
             var segment = _segmentList[pos.Segment];
             if (pos.Offset < segment.Length)
@@ -1276,10 +1295,11 @@ namespace Ice
                 _currentSegment[0] = v;
                 _tail.Offset = 1;
             }
+            Size++;
         }
 
         /// <summary>Returns the distance in bytes from start position to the current position.</summary>
-        /// <param name="start"></param>
+        /// <param name="start">The start position from where to calculate distance to current position.</param>
         /// <returns>The distance in bytes from the current position to the start position.</returns>
         private int Distance(Position start)
         {
@@ -1311,6 +1331,7 @@ namespace Ice
         {
             int length = span.Length;
             Expand(length);
+            Size += length;
             int offset = _tail.Offset;
             int remaining = _currentSegment.Length - offset;
             if (remaining > 0)
@@ -1347,8 +1368,7 @@ namespace Ice
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
-            Size += n;
-            if (Size > _capacity)
+            if (Size + n > _capacity)
             {
                 byte[] buffer = new byte[Math.Max(n, _currentSegment.Length * 2)];
                 _segmentList.Add(buffer);
@@ -1362,6 +1382,7 @@ namespace Ice
         {
             int length = Buffer.ByteLength(arr);
             Expand(length);
+            Size += length;
             int offset = _tail.Offset;
             int remaining = Math.Min(_currentSegment.Length - offset, length);
             if (remaining > 0)
@@ -1616,25 +1637,6 @@ namespace Ice
                 OldFormat = oldFormat;
                 StartPos = startPos;
             }
-        }
-
-        /// <summary>Represents a position if a VectoredBuffer, the position is compose of
-        /// the segment index and the relative offset in the segment.</summary>
-        public struct Position
-        {
-            /// <summary>Creates a new position from the segment and offset values.</summary>
-            /// <param name="segment">The zero based index of the segment.</param>
-            /// <param name="offset">The offset into the segment.</param>
-            public Position(int segment, int offset)
-            {
-                Segment = segment;
-                Offset = offset;
-            }
-
-            /// <summary>The zero based index of the segment.</summary>
-            public int Segment;
-            /// <summary>The offset into the segment.</summary>
-            public int Offset;
         }
     }
 }

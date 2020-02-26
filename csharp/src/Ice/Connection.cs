@@ -892,7 +892,6 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    Debug.Assert(_writeBuffer != null);
                     int remaining = _writeBufferSize - _writeBufferOffset;
                     _transceiver.FinishWrite(_writeBuffer, ref _writeBufferOffset);
                     int bytesTransferred = remaining - (_writeBufferSize - _writeBufferOffset);
@@ -1981,7 +1980,6 @@ namespace Ice
                     }
                     else
                     {
-                        _writeBufferOffset = -1;
                         _readStreamPos = -1;
                     }
                 }
@@ -2129,7 +2127,6 @@ namespace Ice
 
                     if (_writeBufferOffset < _writeBufferSize)
                     {
-                        Debug.Assert(_writeBuffer != null);
                         int op = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
                         if (op != 0)
                         {
