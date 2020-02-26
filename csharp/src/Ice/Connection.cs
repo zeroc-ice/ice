@@ -861,7 +861,6 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    Debug.Assert(_writeBuffer != null);
                     completedSynchronously = _transceiver.StartWrite(_writeBuffer, _writeBufferOffset, cb, this, out bool completed);
                     if (completed && _sendStreams.Count > 0)
                     {
@@ -1430,7 +1429,7 @@ namespace Ice
                     _writeStream.Swap(message.Stream);
                     _writeBufferOffset = 0;
                     _writeBufferSize = 0;
-                    _writeBuffer = null;
+                    _writeBuffer.Clear();
 
                     //
                     // The current message might be sent but not yet removed from _sendStreams. If
@@ -2208,7 +2207,7 @@ namespace Ice
             }
 
             _writeStream.Reset();
-            _writeBuffer = null;
+            _writeBuffer.Clear();
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
 
@@ -2255,7 +2254,7 @@ namespace Ice
                 // Message wasn't sent, empty the _writeStream, we're not going to send more data.
                 OutgoingMessage message = _sendStreams.First.Value;
                 _writeStream.Swap(message.Stream!);
-                _writeBuffer = null;
+                _writeBuffer.Clear();
                 _writeBufferOffset = 0;
                 _writeBufferSize = 0;
                 return SocketOperation.None;
@@ -2271,7 +2270,7 @@ namespace Ice
                     //
                     OutgoingMessage message = _sendStreams.First.Value;
                     _writeStream.Swap(message.Stream!);
-                    _writeBuffer = null;
+                    _writeBuffer.Clear();
                     _writeBufferOffset = 0;
                     _writeBufferSize = 0;
                     if (message.Sent())
@@ -2388,7 +2387,7 @@ namespace Ice
             int op = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
             if (op == 0)
             {
-                _writeBuffer = null;
+                _writeBuffer.Clear();
                 _writeBufferSize = 0;
                 _writeBufferOffset = 0;
                 int status = OutgoingAsyncBase.AsyncStatusSent;
@@ -3000,7 +2999,7 @@ namespace Ice
         private bool _readHeader;
 
         private OutputStream _writeStream;
-        private IList<ArraySegment<byte>>? _writeBuffer;
+        private IList<ArraySegment<byte>> _writeBuffer;
         private int _writeBufferOffset;
         private int _writeBufferSize;
 

@@ -586,7 +586,7 @@ namespace IceInternal
             {
                 if (_writeBufferOffset < _writeBufferSize)
                 {
-                    return _delegate.StartWrite(_writeBuffer, _writeBufferSize, callback, state, out completed);
+                    return _delegate.StartWrite(_writeBuffer, _writeBufferOffset, callback, state, out completed);
                 }
                 else
                 {
@@ -601,14 +601,14 @@ namespace IceInternal
             }
         }
 
-        public void FinishWrite(IList<ArraySegment<byte>> buf, ref int offset)
+        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
         {
             _writePending = false;
             if (_state < StateOpened)
             {
                 if (_state < StateConnected)
                 {
-                    _delegate.FinishWrite(buf, ref offset);
+                    _delegate.FinishWrite(buffer, ref offset);
                 }
                 else
                 {
@@ -617,20 +617,22 @@ namespace IceInternal
                 return;
             }
 
-            int size = buf.GetBytesCount();
+            int size = buffer.GetBytesCount();
             if (_writeBufferOffset < _writeBufferSize)
             {
-                _delegate.FinishWrite(_writeBuffer, ref _writeBufferSize);
+                _delegate.FinishWrite(_writeBuffer, ref _writeBufferOffset);
             }
-            else if (offset < size)
+            else if (size > 0 && offset < size)
             {
                 Debug.Assert(_incoming);
-                _delegate.FinishWrite(buf, ref offset);
+                _delegate.FinishWrite(buffer, ref offset);
             }
 
             if (_state == StateClosed)
             {
                 _writeBuffer.Clear();
+                _writeBufferOffset = 0;
+                _writeBufferSize = 0;
                 return;
             }
 
@@ -1264,7 +1266,7 @@ namespace IceInternal
             {
                 if (_state == StateOpened)
                 {
-                    if (size == 0 || size - offset == 0)
+                    if (size == 0 || size == offset)
                     {
                         return false;
                     }
@@ -1285,7 +1287,6 @@ namespace IceInternal
                     if (_pingPayload.Length > 0)
                     {
                         _writeBuffer.Add(_pingPayload);
-                        _writeBufferSize += _pingPayload.Length;
                     }
 
                     _pingPayload = Array.Empty<byte>();
@@ -1325,37 +1326,38 @@ namespace IceInternal
                 //
                 // For an outgoing connection, each message must be masked with a random
                 // 32-bit value, so we copy the entire message into the internal buffer
-                // for writing. For incoming connections, we just copy the start of the
-                // message in the internal buffer after the hedaer. If the message is
-                // larger, the reminder is sent directly from the message buffer to avoid
-                // copying.
+                // for writing. For incoming connections, we borrow the segments and add the after
+                // the header.
                 //
-                if (!_incoming && (_writePayloadLength == 0 || _writeBufferOffset == _writeBufferSize))
+                if (_writePayloadLength == 0)
                 {
-                    int n = 0;
-                    foreach (ArraySegment<byte> segment in buf)
+                    if (_incoming)
                     {
-                        byte[] data = new byte[segment.Count];
-                        for (int i = 0; i < segment.Count; ++i, ++n)
+                        Debug.Assert(_incoming);
+                        int n = 0;
+                        foreach (ArraySegment<byte> segment in buf)
                         {
-                            data[i] = (byte)(segment[i] ^ _writeMask[n % 4]);
+                            _writeBuffer.Add(segment); // Borrow data from the buffer
+                            n += segment.Count;
                         }
-                        _writeBuffer.Add(data);
+                        _writeBufferSize += n;
+                        _writePayloadLength = n;
                     }
-                    _writeBufferSize += n;
-                    _writePayloadLength = n;
-                }
-                else if (_writePayloadLength == 0)
-                {
-                    Debug.Assert(_incoming);
-                    int n = 0;
-                    foreach (ArraySegment<byte> segment in buf)
+                    else
                     {
-                        _writeBuffer.Add(segment); // Borrow data from the buffer
-                        n += segment.Count;
+                        int n = 0;
+                        foreach (ArraySegment<byte> segment in buf)
+                        {
+                            byte[] data = new byte[segment.Count];
+                            for (int i = 0; i < segment.Count; ++i, ++n)
+                            {
+                                data[i] = (byte)(segment[i] ^ _writeMask[n % 4]);
+                            }
+                            _writeBuffer.Add(data);
+                        }
+                        _writeBufferSize += n;
+                        _writePayloadLength = n;
                     }
-                    _writeBufferSize += n;
-                    _writePayloadLength = n;
                 }
                 return true;
             }
@@ -1427,12 +1429,9 @@ namespace IceInternal
                 }
             }
 
-            if ((!_incoming || offset == 0) && _writePayloadLength > 0)
+            if (_writePayloadLength > 0 && _writeBufferOffset == _writeBufferSize)
             {
-                if (_writeBufferOffset == _writeBufferSize)
-                {
-                    offset += _writePayloadLength;
-                }
+                offset = _writePayloadLength;
             }
 
             if (status == SocketOperation.Write && size == offset && _writeBufferSize == _writeBufferOffset)
@@ -1548,6 +1547,7 @@ namespace IceInternal
                 System.Buffer.BlockCopy(_writeMask, 0, buffer, i, _writeMask.Length);
                 i += _writeMask.Length;
             }
+            _writeBuffer.Clear();
             _writeBuffer.Add(new ArraySegment<byte>(buffer, 0, i));
             _writeBufferSize = i;
             _writeBufferOffset = 0;
