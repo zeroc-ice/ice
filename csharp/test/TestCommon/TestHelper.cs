@@ -31,15 +31,15 @@ namespace Test
     {
         public abstract void run(string[] args);
 
-        public string getTestEndpoint(int num = 0, string protocol = "")
+        public string getTestEndpoint(int num = 0, string transport = "")
         {
-            return getTestEndpoint(_communicator.GetProperties(), num, protocol);
+            return getTestEndpoint(_communicator.GetProperties(), num, transport);
         }
 
-        static public string getTestEndpoint(Dictionary<string, string> properties, int num = 0, string protocol = "")
+        static public string getTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
             string? value;
-            if (protocol == "")
+            if (transport == "")
             {
                 if (!properties.TryGetValue("Ice.Default.Protocol", out value))
                 {
@@ -48,7 +48,7 @@ namespace Test
             }
             else
             {
-                value = protocol;
+                value = transport;
             }
 
             StringBuilder sb = new StringBuilder();
@@ -78,19 +78,19 @@ namespace Test
             return host;
         }
 
-        public string getTestProtocol()
+        public string getTestTransport()
         {
-            return getTestProtocol(_communicator.GetProperties());
+            return getTestTransport(_communicator.GetProperties());
         }
 
-        static public String getTestProtocol(Dictionary<string, string> properties)
+        static public String getTestTransport(Dictionary<string, string> properties)
         {
-            string? protocol;
-            if (!properties.TryGetValue("Ice.Default.Protocol", out protocol))
+            string? transport;
+            if (!properties.TryGetValue("Ice.Default.Protocol", out transport))
             {
-                protocol = "tcp";
+                transport = "tcp";
             }
-            return protocol;
+            return transport;
         }
 
         public int getTestPort(int num)

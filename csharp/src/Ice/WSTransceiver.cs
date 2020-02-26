@@ -210,7 +210,7 @@ namespace IceInternal
                 if (_instance.TraceLevel >= 2)
                 {
                     _instance.Logger.Trace(_instance.TraceCategory,
-                        $"{Protocol()} connection HTTP upgrade request failed\n{this}\n{ex}");
+                        $"{Transport()} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
             }
@@ -220,11 +220,11 @@ namespace IceInternal
                 if (_incoming)
                 {
                     _instance.Logger.Trace(_instance.TraceCategory,
-                        $"accepted {Protocol()} connection HTTP upgrade request\n{this}");
+                        $"accepted {Transport()} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"{Protocol()} connection HTTP upgrade request accepted\n{this}");
+                    _instance.Logger.Trace(_instance.TraceCategory, $"{Transport()} connection HTTP upgrade request accepted\n{this}");
                 }
             }
 
@@ -235,7 +235,7 @@ namespace IceInternal
         {
             if (_instance.TraceLevel >= 1)
             {
-                _instance.Logger.Trace(_instance.TraceCategory, $"gracefully closing {Protocol()} connection\n{this}");
+                _instance.Logger.Trace(_instance.TraceCategory, $"gracefully closing {Transport()} connection\n{this}");
             }
 
             int s = _nextState == StateOpened ? _state : _nextState;
@@ -639,7 +639,7 @@ namespace IceInternal
             PostWrite(size, ref offset, SocketOperation.None);
         }
 
-        public string Protocol() => _instance.Protocol;
+        public string Transport() => _instance.Transport;
 
         public Ice.ConnectionInfo GetInfo()
         {
@@ -658,7 +658,7 @@ namespace IceInternal
         public string ToDetailedString() => _delegate.ToDetailedString();
 
         internal
-        WSTransceiver(ProtocolInstance instance, ITransceiver del, string host, string resource) : this(instance, del)
+        WSTransceiver(TransportInstance instance, ITransceiver del, string host, string resource) : this(instance, del)
         {
             _host = host;
             _resource = resource;
@@ -670,7 +670,7 @@ namespace IceInternal
             Debug.Assert(_readBufferSize > 256);
         }
 
-        internal WSTransceiver(ProtocolInstance instance, ITransceiver del)
+        internal WSTransceiver(TransportInstance instance, ITransceiver del)
         {
             _instance = instance;
             _delegate = del;
@@ -1073,7 +1073,7 @@ namespace IceInternal
                             {
                                 if (_instance.TraceLevel >= 2)
                                 {
-                                    _instance.Logger.Trace(_instance.TraceCategory, "received " + Protocol() +
+                                    _instance.Logger.Trace(_instance.TraceCategory, "received " + Transport() +
                                                              (_readOpCode == OP_DATA ? " data" : " continuation") +
                                                              " frame with payload length of " + _readPayloadLength +
                                                              " bytes\n" + ToString());
@@ -1093,7 +1093,7 @@ namespace IceInternal
                                 if (_instance.TraceLevel >= 2)
                                 {
                                     _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Protocol()} connection close frame\n{this}");
+                                        $"received {Transport()} connection close frame\n{this}");
                                 }
 
                                 _readState = ReadStateControlFrame;
@@ -1129,7 +1129,7 @@ namespace IceInternal
                                 if (_instance.TraceLevel >= 2)
                                 {
                                     _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Protocol()} connection ping frame\n{this}");
+                                        $"received {Transport()} connection ping frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1139,7 +1139,7 @@ namespace IceInternal
                                 if (_instance.TraceLevel >= 2)
                                 {
                                     _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Protocol()} connection pong frame\n{this}");
+                                        $"received {Transport()} connection pong frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1383,7 +1383,7 @@ namespace IceInternal
                         if (_instance.TraceLevel >= 2)
                         {
                             _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Protocol()} connection ping frame\n{this}");
+                                $"sent {Transport()} connection ping frame\n{this}");
                         }
                     }
                     else if (_state == StatePongPending)
@@ -1391,7 +1391,7 @@ namespace IceInternal
                         if (_instance.TraceLevel >= 2)
                         {
                             _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Protocol()} connection pong frame\n{this}");
+                                $"sent {Transport()} connection pong frame\n{this}");
                         }
                     }
                     else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
@@ -1400,7 +1400,7 @@ namespace IceInternal
                         if (_instance.TraceLevel >= 2)
                         {
                             _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Protocol()} connection close frame\n{this}");
+                                $"sent {Transport()} connection close frame\n{this}");
                         }
 
                         if (_state == StateClosingRequestPending && !_closingInitiator)
@@ -1553,7 +1553,7 @@ namespace IceInternal
             _writeBufferOffset = 0;
         }
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly ITransceiver _delegate;
         private readonly string _host;
         private string _resource;

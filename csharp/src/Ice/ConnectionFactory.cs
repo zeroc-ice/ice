@@ -974,7 +974,7 @@ namespace IceInternal
                         if (_factory._communicator.TraceLevels.Network >= 2)
                         {
                             var s = new StringBuilder("trying to establish ");
-                            s.Append(_current.Endpoint.Protocol());
+                            s.Append(_current.Endpoint.Transport());
                             s.Append(" connection to ");
                             s.Append(_current.Connector.ToString());
                             _factory._communicator.Logger.Trace(
@@ -990,7 +990,7 @@ namespace IceInternal
                         {
                             Debug.Assert(_current != null);
                             var s = new StringBuilder("failed to establish ");
-                            s.Append(_current.Endpoint.Protocol());
+                            s.Append(_current.Endpoint.Transport());
                             s.Append(" connection to ");
                             s.Append(_current.Connector.ToString());
                             s.Append("\n");
@@ -1360,7 +1360,7 @@ namespace IceInternal
                         if (_communicator.TraceLevels.Network >= 2)
                         {
                             var s = new StringBuilder("trying to accept ");
-                            s.Append(_endpoint.Protocol());
+                            s.Append(_endpoint.Transport());
                             s.Append(" connection\n");
                             s.Append(transceiver.ToString());
                             _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -1524,7 +1524,7 @@ namespace IceInternal
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         var s = new StringBuilder("attempting to bind to ");
-                        s.Append(_endpoint.Protocol());
+                        s.Append(_endpoint.Transport());
                         s.Append(" socket\n");
                         s.Append(_transceiver.ToString());
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -1597,7 +1597,7 @@ namespace IceInternal
                             if (_communicator.TraceLevels.Network >= 1)
                             {
                                 var s = new StringBuilder("accepting ");
-                                s.Append(_endpoint.Protocol());
+                                s.Append(_endpoint.Transport());
                                 s.Append(" connections at ");
                                 s.Append(_acceptor.ToString());
                                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -1623,7 +1623,7 @@ namespace IceInternal
                             if (_communicator.TraceLevels.Network >= 1)
                             {
                                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                                           $"holding {_endpoint.Protocol()} connections at {_acceptor}");
+                                                           $"holding {_endpoint.Transport()} connections at {_acceptor}");
                             }
                             _adapter!.ThreadPool.Unregister(this, SocketOperation.Read);
                         }
@@ -1677,14 +1677,14 @@ namespace IceInternal
                 if (_communicator.TraceLevels.Network >= 2)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"attempting to bind to {_endpoint.Protocol()} socket {_acceptor}");
+                        $"attempting to bind to {_endpoint.Transport()} socket {_acceptor}");
                 }
                 _endpoint = _acceptor.Listen();
 
                 if (_communicator.TraceLevels.Network >= 1)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"listening for {_endpoint.Protocol()} connections\n{_acceptor.ToDetailedString()}");
+                        $"listening for {_endpoint.Transport()} connections\n{_acceptor.ToDetailedString()}");
                 }
 
                 _adapter.ThreadPool.Initialize(this);
@@ -1713,7 +1713,7 @@ namespace IceInternal
             if (_communicator.TraceLevels.Network >= 1)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"stopping to accept {_endpoint.Protocol()} connections at {_acceptor}");
+                    $"stopping to accept {_endpoint.Transport()} connections at {_acceptor}");
             }
 
             Debug.Assert(!_acceptorStarted);

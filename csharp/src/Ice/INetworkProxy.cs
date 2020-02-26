@@ -43,7 +43,7 @@ namespace IceInternal
         // This is called from the endpoint host resolver thread, so
         // it's safe if this this method blocks.
         //
-        INetworkProxy ResolveHost(int protocolSupport);
+        INetworkProxy ResolveHost(int ipVersion);
 
         //
         // Returns the IP address of the network proxy. This method
@@ -58,9 +58,9 @@ namespace IceInternal
         string GetName();
 
         //
-        // Returns the protocols supported by the proxy.
+        // Returns the IP version(s) supported by the proxy.
         //
-        int GetProtocolSupport();
+        int GetIPVersion();
     }
 
     public sealed class SOCKSNetworkProxy : INetworkProxy
@@ -132,12 +132,12 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int protocolSupport)
+        public INetworkProxy ResolveHost(int ipVersion)
         {
             Debug.Assert(_host != null);
             return new SOCKSNetworkProxy(Network.GetAddresses(_host,
                                                               _port,
-                                                              protocolSupport,
+                                                              ipVersion,
                                                               Ice.EndpointSelectionType.Random,
                                                               false,
                                                               true)[0]);
@@ -151,7 +151,7 @@ namespace IceInternal
 
         public string GetName() => "SOCKS";
 
-        public int GetProtocolSupport() => Network.EnableIPv4;
+        public int GetIPVersion() => Network.EnableIPv4;
 
         private readonly string? _host;
         private readonly int _port;
@@ -164,13 +164,13 @@ namespace IceInternal
         {
             _host = host;
             _port = port;
-            _protocolSupport = Network.EnableBoth;
+            _ipVersion = Network.EnableBoth;
         }
 
-        private HTTPNetworkProxy(EndPoint address, int protocolSupport)
+        private HTTPNetworkProxy(EndPoint address, int ipVersion)
         {
             _address = address;
-            _protocolSupport = protocolSupport;
+            _ipVersion = ipVersion;
         }
 
         public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
@@ -232,16 +232,16 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int protocolSupport)
+        public INetworkProxy ResolveHost(int ipVersion)
         {
             Debug.Assert(_host != null);
             return new HTTPNetworkProxy(Network.GetAddresses(_host,
                                                              _port,
-                                                             protocolSupport,
+                                                             ipVersion,
                                                              Ice.EndpointSelectionType.Random,
                                                              false,
                                                              true)[0],
-                                        protocolSupport);
+                                        ipVersion);
         }
 
         public EndPoint GetAddress()
@@ -252,11 +252,11 @@ namespace IceInternal
 
         public string GetName() => "HTTP";
 
-        public int GetProtocolSupport() => _protocolSupport;
+        public int GetIPVersion() => _ipVersion;
 
         private readonly string? _host;
         private readonly int _port;
         private readonly EndPoint? _address;
-        private readonly int _protocolSupport;
+        private readonly int _ipVersion;
     }
 }

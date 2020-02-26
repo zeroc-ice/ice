@@ -50,21 +50,21 @@ namespace Ice.operations.AMD
         //
         public bool ice_isA(string id, Current current)
         {
-            test(current.Mode == Ice.OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
-        public void IcePing(Current current) => test(current.Mode == OperationMode.Nonmutating);
+        public void IcePing(Current current) => test(current.IsIdempotent);
 
         public string[] ice_ids(Current current)
         {
-            test(current.Mode == OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string ice_id(Current current)
         {
-            test(current.Mode == Ice.OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetIceTypeId();
         }
 
@@ -84,7 +84,7 @@ namespace Ice.operations.AMD
 
         public ValueTask opVoidAsync(Current current)
         {
-            test(current.Mode == OperationMode.Normal);
+            test(!current.IsIdempotent);
 
             while (_opVoidThread != null)
             {
@@ -731,14 +731,14 @@ namespace Ice.operations.AMD
         public ValueTask
         opIdempotentAsync(Current current)
         {
-            test(current.Mode == OperationMode.Idempotent);
+            test(current.IsIdempotent);
             return new ValueTask(Task.CompletedTask);
         }
 
         public ValueTask
         opNonmutatingAsync(Current current)
         {
-            test(current.Mode == OperationMode.Nonmutating);
+            test(current.IsIdempotent);
             return new ValueTask(Task.CompletedTask);
         }
 

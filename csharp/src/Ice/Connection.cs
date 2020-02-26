@@ -906,7 +906,7 @@ namespace Ice
                             s.Append(remaining);
                         }
                         s.Append(" bytes via ");
-                        s.Append(_endpoint.Protocol());
+                        s.Append(_endpoint.Transport());
                         s.Append("\n");
                         s.Append(ToString());
                         _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -936,7 +936,7 @@ namespace Ice
                             s.Append(buf.B.Limit() - start);
                         }
                         s.Append(" bytes via ");
-                        s.Append(_endpoint.Protocol());
+                        s.Append(_endpoint.Transport());
                         s.Append("\n");
                         s.Append(ToString());
                         _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -1380,7 +1380,7 @@ namespace Ice
                     var s = new StringBuilder("failed to ");
                     s.Append(_connector != null ? "establish" : "accept");
                     s.Append(" ");
-                    s.Append(_endpoint.Protocol());
+                    s.Append(_endpoint.Transport());
                     s.Append(" connection\n");
                     s.Append(ToString());
                     s.Append("\n");
@@ -1391,7 +1391,7 @@ namespace Ice
             else if (_communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder("closed ");
-                s.Append(_endpoint.Protocol());
+                s.Append(_endpoint.Transport());
                 s.Append(" connection\n");
                 s.Append(ToString());
 
@@ -1707,7 +1707,7 @@ namespace Ice
             _monitor = monitor;
             _transceiver = transceiver;
             _desc = transceiver.ToString();
-            _type = transceiver.Protocol();
+            _type = transceiver.Transport();
             _connector = connector;
             _endpoint = endpoint;
             _adapter = adapter;
@@ -2223,7 +2223,7 @@ namespace Ice
                     s.Append("starting to ");
                     s.Append(_connector != null ? "send" : "receive");
                     s.Append(" ");
-                    s.Append(_endpoint.Protocol());
+                    s.Append(_endpoint.Transport());
                     s.Append(" messages\n");
                     s.Append(_transceiver.ToDetailedString());
                 }
@@ -2231,7 +2231,7 @@ namespace Ice
                 {
                     s.Append(_connector != null ? "established" : "accepted");
                     s.Append(" ");
-                    s.Append(_endpoint.Protocol());
+                    s.Append(_endpoint.Transport());
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
@@ -2861,7 +2861,7 @@ namespace Ice
                     s.Append(buf.B.Limit() - start);
                 }
                 s.Append(" bytes via ");
-                s.Append(_endpoint.Protocol());
+                s.Append(_endpoint.Transport());
                 s.Append("\n");
                 s.Append(ToString());
                 _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -2884,7 +2884,7 @@ namespace Ice
                     s.Append(remainig);
                 }
                 s.Append(" bytes via ");
-                s.Append(_endpoint.Protocol());
+                s.Append(_endpoint.Transport());
                 s.Append("\n");
                 s.Append(ToString());
                 _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());

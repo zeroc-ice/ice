@@ -13,20 +13,20 @@ namespace Ice
         public Identity Id { get; }
         public string Facet { get; }
         public string Operation { get; }
-        public OperationMode Mode { get; }
+        public bool IsIdempotent { get; }
         public Dictionary<string, string> Context { get; }
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
         public EncodingVersion Encoding { get; }
 
-        internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, OperationMode mode,
+        internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, bool idempotent,
             Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding)
         {
             Adapter = adapter;
             Id = id;
             Facet = facet;
             Operation = operation;
-            Mode = mode;
+            IsIdempotent = idempotent;
             Context = ctx;
             RequestId = requestId;
             Connection = connection;

@@ -46,7 +46,7 @@ namespace IceInternal
         bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
         void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset);
 
-        string Protocol();
+        string Transport();
         string ToDetailedString();
         Ice.ConnectionInfo GetInfo();
         void CheckSendSize(int size);

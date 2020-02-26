@@ -329,22 +329,22 @@ namespace IceInternal
             try
             {
                 byte mode = str.ReadByte();
-                s.Write("\nmode = " + (int)mode + ' ');
-                switch ((Ice.OperationMode)mode)
+                s.Write("\noperation mode = " + (int)mode + ' ');
+                switch (mode)
                 {
-                    case Ice.OperationMode.Normal:
+                    case 0:
                         {
-                            s.Write("(normal)");
+                            s.Write("(non-idempotent)");
                             break;
                         }
 
-                    case Ice.OperationMode.Nonmutating:
+                    case 1:
                         {
-                            s.Write("(nonmutating)");
+                            s.Write("(idempotent/nonmutating)");
                             break;
                         }
 
-                    case Ice.OperationMode.Idempotent:
+                    case 2:
                         {
                             s.Write("(idempotent)");
                             break;

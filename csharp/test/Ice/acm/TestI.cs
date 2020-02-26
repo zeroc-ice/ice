@@ -12,7 +12,7 @@ namespace Ice.acm
         createObjectAdapter(int timeout, int close, int heartbeat, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
-            string protocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            string transport = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
             string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
 
             string name = System.Guid.NewGuid().ToString();
@@ -31,7 +31,7 @@ namespace Ice.acm
                 communicator.SetProperty($"{name}.ACM.Heartbeat", heartbeat.ToString());
             }
             communicator.SetProperty($"{name}.ThreadPool.Size", "2");
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{protocol} -h \"{host}\"");
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{transport} -h \"{host}\"");
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 

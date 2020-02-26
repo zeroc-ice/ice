@@ -30,7 +30,7 @@ namespace IceSSL
 
         public IceInternal.ITransceiver Accept() => new Transceiver(_instance, _delegate.Accept(), _adapterName, true);
 
-        public string Protocol() => _delegate.Protocol();
+        public string Transport() => _delegate.Transport();
 
         public override string ToString() => _delegate.ToString();
 

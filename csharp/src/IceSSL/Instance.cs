@@ -7,10 +7,10 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL
 {
-    internal class Instance : IceInternal.ProtocolInstance
+    internal class Instance : IceInternal.TransportInstance
     {
-        internal Instance(SSLEngine engine, short type, string protocol) :
-            base(engine.Communicator(), type, protocol, true) => _engine = engine;
+        internal Instance(SSLEngine engine, short type, string transport) :
+            base(engine.Communicator(), type, transport, true) => _engine = engine;
 
         internal SSLEngine Engine() => _engine;
 

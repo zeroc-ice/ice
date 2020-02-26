@@ -63,6 +63,7 @@ public class AllTests : Test.AllTests
         {
             Console.Out.Write("testing property inheritance... ");
             Console.Out.Flush();
+
             test(service1.getProperty("Ice.ProgramName") == "IceBox2-Service1");
             test(service1.getProperty("ServerProp") == "1");
             test(service1.getProperty("OverrideMe") == "2");

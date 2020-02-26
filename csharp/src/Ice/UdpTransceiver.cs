@@ -290,7 +290,7 @@ namespace IceInternal
 
                 if (_instance.TraceLevel >= 1)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Protocol()} socket\n{this}");
+                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Transport()} socket\n{this}");
                 }
             }
 
@@ -420,7 +420,7 @@ namespace IceInternal
 
                 if (_instance.TraceLevel >= 1)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Protocol()} socket\n{this}");
+                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Transport()} socket\n{this}");
                 }
             }
 
@@ -556,7 +556,7 @@ namespace IceInternal
             return;
         }
 
-        public string Protocol() => _instance.Protocol;
+        public string Transport() => _instance.Transport;
 
         public ConnectionInfo GetInfo()
         {
@@ -649,13 +649,13 @@ namespace IceInternal
             if (_mcastAddr == null)
             {
                 intfs = Network.GetHostsForEndpointExpand(Network.EndpointAddressToString(_addr),
-                                                          _instance.ProtocolSupport, true);
+                                                          _instance.IPVersion, true);
             }
             else
             {
                 Debug.Assert(_mcastInterface != null);
                 intfs = Network.GetInterfacesForMulticast(_mcastInterface,
-                                                          Network.GetProtocolSupport(_mcastAddr.Address));
+                                                          Network.GetIPVersion(_mcastAddr.Address));
             }
 
             if (intfs.Count != 0)
@@ -671,7 +671,7 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
+        internal UdpTransceiver(TransportInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
                                 int mcastTtl)
         {
             _instance = instance;
@@ -717,7 +717,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(UdpEndpoint endpoint, ProtocolInstance instance, string host, int port,
+        internal UdpTransceiver(UdpEndpoint endpoint, TransportInstance instance, string host, int port,
                                 string mcastInterface, bool connect)
         {
             _endpoint = endpoint;
@@ -729,7 +729,7 @@ namespace IceInternal
 
             try
             {
-                _addr = Network.GetAddressForServer(host, port, instance.ProtocolSupport, instance.PreferIPv6);
+                _addr = Network.GetAddressForServer(host, port, instance.IPVersion, instance.PreferIPv6);
 
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
@@ -739,7 +739,7 @@ namespace IceInternal
                 _writeEventArgs.RemoteEndPoint = _addr;
                 _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
-                _fd = Network.CreateServerSocket(true, _addr.AddressFamily, instance.ProtocolSupport);
+                _fd = Network.CreateServerSocket(true, _addr.AddressFamily, instance.IPVersion);
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
@@ -872,7 +872,7 @@ namespace IceInternal
         }
 
         private UdpEndpoint? _endpoint;
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private int _state;
         private readonly bool _incoming;
         private int _rcvSize;

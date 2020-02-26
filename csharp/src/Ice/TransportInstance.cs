@@ -6,28 +6,28 @@ using System.Net;
 
 namespace IceInternal
 {
-    public class ProtocolInstance
+    public class TransportInstance
     {
-        public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
+        public TransportInstance(Ice.Communicator communicator, short type, string transport, bool secure)
         {
             Communicator = communicator;
             TraceLevel = Communicator.TraceLevels.Network;
             TraceCategory = Communicator.TraceLevels.NetworkCat;
             Logger = Communicator.Logger;
             Type = type;
-            Protocol = protocol;
+            Transport = transport;
             Secure = secure;
         }
 
         public int TraceLevel { get; protected set; }
         public string TraceCategory { get; protected set; }
         public Ice.ILogger Logger { get; protected set; }
-        public string Protocol { get; protected set; }
+        public string Transport { get; protected set; }
         public short Type { get; protected set; }
         public bool Secure { get; protected set; }
         public Ice.Communicator Communicator { get; protected set; }
         public bool PreferIPv6 => Communicator.PreferIPv6;
-        public int ProtocolSupport => Communicator.ProtocolSupport;
+        public int IPVersion => Communicator.IPVersion;
         public string DefaultHost => Communicator.DefaultsAndOverrides.DefaultHost ?? "";
         public EndPoint? DefaultSourceAddress => Communicator.DefaultsAndOverrides.DefaultSourceAddress;
         public Ice.EncodingVersion DefaultEncoding => Communicator.DefaultsAndOverrides.DefaultEncoding;

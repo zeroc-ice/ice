@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    public interface IProtocolPluginFacade
+    public interface ITransportPluginFacade
     {
         //
         // Get the Communicator instance with which this facade is
@@ -28,9 +28,9 @@ namespace IceInternal
         System.Type? FindType(string name);
     }
 
-    public sealed class ProtocolPluginFacade : IProtocolPluginFacade
+    public sealed class TransportPluginFacade : ITransportPluginFacade
     {
-        public ProtocolPluginFacade(Ice.Communicator communicator) => Communicator = communicator;
+        public TransportPluginFacade(Ice.Communicator communicator) => Communicator = communicator;
 
         //
         // Get the Communicator instance with which this facade is

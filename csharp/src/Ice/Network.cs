@@ -15,7 +15,7 @@ namespace IceInternal
 {
     public sealed class Network
     {
-        // ProtocolSupport
+        // Which versions of the Internet Protocol are enabled?
         public const int EnableIPv4 = 0;
         public const int EnableIPv6 = 1;
         public const int EnableBoth = 2;
@@ -237,14 +237,14 @@ namespace IceInternal
             return socket;
         }
 
-        public static Socket CreateServerSocket(bool udp, AddressFamily family, int protocol)
+        public static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
         {
             Socket socket = CreateSocket(udp, family);
-            if (family == AddressFamily.InterNetworkV6 && protocol != EnableIPv4)
+            if (family == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4)
             {
                 try
                 {
-                    int flag = protocol == EnableIPv6 ? 1 : 0;
+                    int flag = ipVersion == EnableIPv6 ? 1 : 0;
                     socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
                 }
                 catch (SocketException ex)
@@ -444,7 +444,7 @@ namespace IceInternal
             try
             {
                 var indexes = new HashSet<int>();
-                foreach (string intf in GetInterfacesForMulticast(iface, GetProtocolSupport(group)))
+                foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
                 {
                     if (group.AddressFamily == AddressFamily.InterNetwork)
                     {
@@ -705,13 +705,13 @@ namespace IceInternal
             }
         }
 
-        public static int GetProtocolSupport(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+        public static int GetIPVersion(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
-        public static EndPoint GetAddressForServer(string host, int port, int protocol, bool preferIPv6)
+        public static EndPoint GetAddressForServer(string host, int port, int ipVersion, bool preferIPv6)
         {
             if (host.Length == 0)
             {
-                if (protocol != EnableIPv4)
+                if (ipVersion != EnableIPv4)
                 {
                     return new IPEndPoint(IPAddress.IPv6Any, port);
                 }
@@ -720,21 +720,21 @@ namespace IceInternal
                     return new IPEndPoint(IPAddress.Any, port);
                 }
             }
-            return GetAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
+            return GetAddresses(host, port, ipVersion, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
         }
 
-        public static List<EndPoint> GetAddresses(string host, int port, int protocol,
+        public static List<EndPoint> GetAddresses(string host, int port, int ipVersion,
                                                   Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
         {
             var addresses = new List<EndPoint>();
             if (host.Length == 0)
             {
-                foreach (IPAddress a in GetLoopbackAddresses(protocol))
+                foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
                 {
                     addresses.Add(new IPEndPoint(a, port));
                 }
 
-                if (protocol == EnableBoth)
+                if (ipVersion == EnableBoth)
                 {
                     if (preferIPv6)
                     {
@@ -760,8 +760,8 @@ namespace IceInternal
                 try
                 {
                     var addr = IPAddress.Parse(host);
-                    if ((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                        (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                    if ((addr.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                        (addr.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                     {
                         addresses.Add(new IPEndPoint(addr, port));
                         return addresses;
@@ -784,8 +784,8 @@ namespace IceInternal
 
                 foreach (IPAddress a in Dns.GetHostAddresses(host))
                 {
-                    if ((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                    if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                       (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                     {
                         addresses.Add(new IPEndPoint(a, port));
                     }
@@ -797,7 +797,7 @@ namespace IceInternal
                     addresses = addresses.OrderBy(x => (endpoint: rnd.Next(), i: x)).ToList();
                 }
 
-                if (protocol == EnableBoth)
+                if (ipVersion == EnableBoth)
                 {
                     if (preferIPv6)
                     {
@@ -832,7 +832,7 @@ namespace IceInternal
             return addresses;
         }
 
-        public static IPAddress[] GetLocalAddresses(int protocol, bool includeLoopback, bool singleAddressPerInterface)
+        public static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
         {
             List<IPAddress> addresses;
             int retry = 5;
@@ -848,8 +848,8 @@ namespace IceInternal
                     UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
                     foreach (UnicastIPAddressInformation uni in uniColl)
                     {
-                        if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                         {
                             if (!addresses.Contains(uni.Address) &&
                                (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
@@ -896,7 +896,7 @@ namespace IceInternal
         }
 
         public static void
-        SetTcpBufSize(Socket socket, ProtocolInstance instance)
+        SetTcpBufSize(Socket socket, TransportInstance instance)
         {
             //
             // By default, on Windows we use a 128KB buffer size. On Unix
@@ -913,7 +913,7 @@ namespace IceInternal
         }
 
         public static void
-        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, ProtocolInstance instance)
+        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, TransportInstance instance)
         {
             if (rcvSize > 0)
             {
@@ -962,12 +962,12 @@ namespace IceInternal
             }
         }
 
-        public static List<string> GetHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
+        public static List<string> GetHostsForEndpointExpand(string host, int ipVersion, bool includeLoopback)
         {
             var hosts = new List<string>();
             if (IsWildcard(host, out bool ipv4Wildcard))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback, false))
+                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, includeLoopback, false))
                 {
                     if (!IsLinklocal(a))
                     {
@@ -977,7 +977,7 @@ namespace IceInternal
                 if (hosts.Count == 0)
                 {
                     // Return loopback if only loopback is available no other local addresses are available.
-                    foreach (IPAddress a in GetLoopbackAddresses(protocol))
+                    foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
                     {
                         hosts.Add(a.ToString());
                     }
@@ -986,12 +986,12 @@ namespace IceInternal
             return hosts;
         }
 
-        public static List<string> GetInterfacesForMulticast(string intf, int protocol)
+        public static List<string> GetInterfacesForMulticast(string intf, int ipVersion)
         {
             var interfaces = new List<string>();
             if (IsWildcard(intf, out bool ipv4Wildcard))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true, true))
+                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, true, true))
                 {
                     interfaces.Add(a.ToString());
                 }
@@ -1320,14 +1320,14 @@ namespace IceInternal
             return false;
         }
 
-        public static List<IPAddress> GetLoopbackAddresses(int protocol)
+        public static List<IPAddress> GetLoopbackAddresses(int ipVersion)
         {
             var addresses = new List<IPAddress>();
-            if (protocol != EnableIPv4)
+            if (ipVersion != EnableIPv4)
             {
                 addresses.Add(IPAddress.IPv6Loopback);
             }
-            if (protocol != EnableIPv6)
+            if (ipVersion != EnableIPv6)
             {
                 addresses.Add(IPAddress.Loopback);
             }

@@ -11,7 +11,7 @@ namespace IceInternal
         bool StartAccept(AsyncCallback callback, object state);
         void FinishAccept();
         ITransceiver Accept();
-        string Protocol();
+        string Transport();
         string ToString();
         string ToDetailedString();
     }

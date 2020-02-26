@@ -72,7 +72,7 @@ namespace Ice
         internal int MessageSizeMax { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
-        internal int ProtocolSupport { get; }
+        internal int IPVersion { get; }
         internal ACMConfig ServerACM { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
@@ -383,25 +383,25 @@ namespace Ice
                 }
                 else if (ipv4 && ipv6)
                 {
-                    ProtocolSupport = Network.EnableBoth;
+                    IPVersion = Network.EnableBoth;
                 }
                 else if (ipv4)
                 {
-                    ProtocolSupport = Network.EnableIPv4;
+                    IPVersion = Network.EnableIPv4;
                 }
                 else
                 {
-                    ProtocolSupport = Network.EnableIPv6;
+                    IPVersion = Network.EnableIPv6;
                 }
                 PreferIPv6 = GetPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-                NetworkProxy = CreateNetworkProxy(ProtocolSupport);
+                NetworkProxy = CreateNetworkProxy(IPVersion);
 
                 _endpointFactories = new List<IEndpointFactory>();
-                AddEndpointFactory(new TcpEndpointFactory(new ProtocolInstance(this, TCPEndpointType.Value, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new ProtocolInstance(this, UDPEndpointType.Value, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSEndpointType.Value, "ws", false), TCPEndpointType.Value));
-                AddEndpointFactory(new WSEndpointFactory(new ProtocolInstance(this, WSSEndpointType.Value, "wss", true), SSLEndpointType.Value));
+                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, TCPEndpointType.Value, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, UDPEndpointType.Value, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSEndpointType.Value, "ws", false), TCPEndpointType.Value));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSSEndpointType.Value, "wss", true), SSLEndpointType.Value));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 

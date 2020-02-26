@@ -10,17 +10,17 @@ namespace IceInternal
     {
         void Initialize();
         short Type();
-        string Protocol();
+        string Transport();
         Endpoint? Create(List<string> args, bool oaEndpoint);
         Endpoint? Read(Ice.InputStream s);
         void Destroy();
 
-        IEndpointFactory Clone(ProtocolInstance instance);
+        IEndpointFactory Clone(TransportInstance instance);
     }
 
     public abstract class EndpointFactoryWithUnderlying : IEndpointFactory
     {
-        public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
+        public EndpointFactoryWithUnderlying(TransportInstance instance, short type)
         {
             Instance = instance;
             _type = type;
@@ -30,7 +30,7 @@ namespace IceInternal
         {
             //
             // Get the endpoint factory for the underlying type and clone it with
-            // our protocol instance.
+            // our transport instance.
             //
             IEndpointFactory? factory = Instance!.GetEndpointFactory(_type);
             if (factory != null)
@@ -42,7 +42,7 @@ namespace IceInternal
 
         public short Type() => Instance!.Type;
 
-        public string Protocol() => Instance!.Protocol;
+        public string Transport() => Instance!.Transport;
 
         public Endpoint? Create(List<string> args, bool oaEndpoint)
         {
@@ -71,14 +71,14 @@ namespace IceInternal
             Instance = null;
         }
 
-        public IEndpointFactory Clone(ProtocolInstance instance) => CloneWithUnderlying(instance, _type);
+        public IEndpointFactory Clone(TransportInstance instance) => CloneWithUnderlying(instance, _type);
 
-        public abstract IEndpointFactory CloneWithUnderlying(ProtocolInstance instance, short type);
+        public abstract IEndpointFactory CloneWithUnderlying(TransportInstance instance, short type);
 
         protected abstract Endpoint CreateWithUnderlying(Endpoint? underlying, List<string> args, bool oaEndpoint);
         protected abstract Endpoint ReadWithUnderlying(Endpoint? underlying, Ice.InputStream s);
 
-        protected ProtocolInstance? Instance;
+        protected TransportInstance? Instance;
 
         private readonly short _type;
         private IEndpointFactory? _underlying;

@@ -152,8 +152,8 @@ namespace IceInternal
 {
     public sealed class Util
     {
-        public static IProtocolPluginFacade GetProtocolPluginFacade(Ice.Communicator communicator) =>
-            new ProtocolPluginFacade(communicator);
+        public static ITransportPluginFacade GetTransportPluginFacade(Ice.Communicator communicator) =>
+            new TransportPluginFacade(communicator);
 
         public static ThreadPriority StringToThreadPriority(string? s)
         {

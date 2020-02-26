@@ -48,7 +48,7 @@ namespace IceInternal
         public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
             _stream.FinishWrite(buffer, ref offset);
 
-        public string Protocol() => _instance.Protocol;
+        public string Transport() => _instance.Transport;
 
         public Ice.ConnectionInfo GetInfo()
         {
@@ -81,13 +81,13 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(ProtocolInstance instance, StreamSocket stream)
+        internal TcpTransceiver(TransportInstance instance, StreamSocket stream)
         {
             _instance = instance;
             _stream = stream;
         }
 
-        private readonly ProtocolInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly StreamSocket _stream;
     }
 }
