@@ -6097,7 +6097,7 @@ Slice::Unit::currentLine() const
     return slice_lineno;
 }
 
-void
+int
 Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
 {
     enum LineType { File, Push, Pop };
@@ -6154,6 +6154,8 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
         dc->setFilename(currentFile);
         _definitionContextMap.insert(make_pair(currentFile, dc));
     }
+
+    return static_cast<int>(type);
 }
 
 int

@@ -53,7 +53,7 @@ int yycolno = 0;
 shared_ptr<string> yyfilename;
 
 static void nextLine(int = 1);
-static void scanPosition(const char*);
+static int scanPosition(const char*);
 static void setLocation(TokenContext*);
 static void startLocation(TokenContext*);
 static void endLocation(TokenContext*);
@@ -146,8 +146,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 ^{preprocessor_lineno}                         |
 ^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
+    switch(scanPosition(yytext))
+    {
+        case 1: // Push: Indicates the scanner has started scanning a new file.
+            yy_push_state(INTIIAL);
+            break;
+        case 2: // Pop: Indicates the scanner has completed scanning a file.
+            yy_pop_state();
+            break;
+    }
     yy_push_state(PREPROCESS);
-    scanPosition(yytext);
 }
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
@@ -586,7 +594,7 @@ void nextLine(int count)
     yycolno = 0;
 }
 
-void scanPosition(const char* s)
+int scanPosition(const char* s)
 {
     string line(s);
     // Skip the leading '#', optional 'line', and any whitespace before the line number.
@@ -604,6 +612,7 @@ void scanPosition(const char* s)
     idx = line.find_first_not_of(" \t\r", idx);
     line.erase(0, idx);
 
+    int lineTypeCode = 0;
     if(!line.empty())
     {
         if(line[0] == '"')
@@ -619,9 +628,10 @@ void scanPosition(const char* s)
                 line = line.substr(1);
             }
         }
-        unit->setCurrentFile(line, yylineno);
+        lineTypeCode = unit->setCurrentFile(line, yylineno);
         yyfilename = make_shared<string>(move(line));
     }
+    return lineTypeCode;
 }
 
 void setLocation(TokenContext* location)
