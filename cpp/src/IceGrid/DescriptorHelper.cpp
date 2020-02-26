@@ -1314,12 +1314,6 @@ ServiceHelper::operator==(const CommunicatorHelper& h) const
     return true;
 }
 
-bool
-ServiceHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
 shared_ptr<ServiceDescriptor>
 ServiceHelper::getDescriptor() const
 {
@@ -1437,12 +1431,6 @@ ServerHelper::operator==(const CommunicatorHelper& h) const
     }
 
     return true;
-}
-
-bool
-ServerHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
 }
 
 shared_ptr<ServerDescriptor>
@@ -1587,12 +1575,6 @@ IceBoxHelper::operator==(const CommunicatorHelper& h) const
     }
 
     return true;
-}
-
-bool
-IceBoxHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
 }
 
 shared_ptr<ServerDescriptor>

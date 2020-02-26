@@ -86,7 +86,7 @@ public:
     CommunicatorHelper(const std::shared_ptr<CommunicatorDescriptor>&, bool = false);
 
     virtual bool operator==(const CommunicatorHelper&) const;
-    virtual bool operator!=(const CommunicatorHelper&) const;
+    bool operator!=(const CommunicatorHelper&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     virtual void getReplicaGroups(std::set<std::string>&) const;
@@ -115,7 +115,6 @@ public:
     ServiceHelper(const std::shared_ptr<ServiceDescriptor>&, bool = false);
 
     bool operator==(const CommunicatorHelper&) const override;
-    bool operator!=(const CommunicatorHelper&) const override;
 
     std::shared_ptr<ServiceDescriptor> getDescriptor() const;
     std::shared_ptr<ServiceDescriptor> instantiate(const Resolver&, const PropertyDescriptorSeq&,
@@ -144,7 +143,6 @@ public:
     virtual ~ServerHelper() = default;
 
     bool operator==(const CommunicatorHelper&) const override;
-    bool operator!=(const CommunicatorHelper&) const override;
 
     std::shared_ptr<ServerDescriptor> getDescriptor() const;
     virtual std::shared_ptr<ServerDescriptor> instantiate(const Resolver&, const PropertyDescriptorSeq&,
@@ -205,7 +203,6 @@ public:
     IceBoxHelper(const std::shared_ptr<IceBoxDescriptor>&, bool = false);
 
     bool operator==(const CommunicatorHelper&) const override;
-    bool operator!=(const CommunicatorHelper&) const override;
 
     std::shared_ptr<ServerDescriptor> instantiate(const Resolver&, const PropertyDescriptorSeq&,
                                             const PropertySetDescriptorDict&) const override;
@@ -266,8 +263,8 @@ public:
 
     NodeHelper(const std::string&, const NodeDescriptor&, const Resolver&, bool);
 
-    virtual bool operator==(const NodeHelper&) const;
-    virtual bool operator!=(const NodeHelper&) const;
+    bool operator==(const NodeHelper&) const;
+    bool operator!=(const NodeHelper&) const;
 
     NodeUpdateDescriptor diff(const NodeHelper&) const;
     NodeDescriptor update(const NodeUpdateDescriptor&, const Resolver&) const;
