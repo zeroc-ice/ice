@@ -366,7 +366,7 @@ RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 {
     unique_lock lock(_mutex);
 
-    _condVar.wait(lock, [&] { return _initDone || _destroyed; } );
+    _condVar.wait(lock, [this] { return _initDone || _destroyed; } );
 
     if(!_destroyed)
     {
@@ -2400,7 +2400,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         resetInterrupt();
         {
             unique_lock lock(_mutex);
-            _condVar.wait(lock, [&] { return _interrupted; });
+            _condVar.wait(lock, [this] { return _interrupted; });
         }
 
         servant->destroy();

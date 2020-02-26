@@ -1340,7 +1340,7 @@ ServerI::adapterDeactivated(const string& id)
     {
         unique_lock lock(_mutex);
         // Wait for activate() to set the state to WaitForActivation
-        _condVar.wait(lock, [&] { return _state != InternalServerState::Activating; });
+        _condVar.wait(lock, [this] { return _state != InternalServerState::Activating; });
 
         if((_state == Active || _state == WaitForActivation) &&
            _serverLifetimeAdapters.find(id) != _serverLifetimeAdapters.end())
@@ -1726,7 +1726,7 @@ ServerI::terminated(const string& msg, int status)
         unique_lock lock(_mutex);
 
          // Wait for activate() to set the state to WaitForActivation
-        _condVar.wait(lock, [&] { return _state != Activating; });
+        _condVar.wait(lock, [this] { return _state != Activating; });
 
         adpts = _adapters;
         _activatedAdapters.clear();

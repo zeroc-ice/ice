@@ -2708,7 +2708,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
 void
 Database::waitForUpdate(unique_lock<mutex>& lock, const string& name)
 {
-    _condVar.wait(lock, [&] { return find(_updating.begin(), _updating.end(), name) == _updating.end(); });
+    _condVar.wait(lock, [this, &name] { return find(_updating.begin(), _updating.end(), name) == _updating.end(); });
 }
 
 void

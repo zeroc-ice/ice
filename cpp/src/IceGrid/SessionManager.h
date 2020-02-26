@@ -201,7 +201,7 @@ public:
     waitForCreate()
     {
         std::unique_lock<std::mutex> lock(_mutex);
-        _condVar.wait(lock, [&] { return _state == Destroyed || _state == Connected; });
+        _condVar.wait(lock, [this] { return _state == Destroyed || _state == Connected; });
         return _state != Destroyed;
     }
 

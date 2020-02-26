@@ -197,7 +197,7 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
         unique_lock lock(_mutex);
         if(!fromRelease)
         {
-            _condVar.wait(lock, [&] { return !_releasing; });
+            _condVar.wait(lock, [this] { return !_releasing; });
             assert(!_releasing);
         }
 
@@ -362,7 +362,7 @@ Allocatable::queueAllocationAttemptFromChild(const shared_ptr<Allocatable>& allo
     }
 
     lock_guard lock(_mutex);
-    _requests.push_back( { allocatable, nullptr });
+    _requests.push_back({ allocatable, nullptr });
 }
 
 shared_ptr<Allocatable>

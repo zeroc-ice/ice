@@ -201,7 +201,7 @@ void
 AdminI::removeApplication(string name, const Current&)
 {
     checkIsReadOnly();
-    _database->removeApplication(name, _session.get());
+    _database->removeApplication(move(name), _session.get());
 }
 
 void

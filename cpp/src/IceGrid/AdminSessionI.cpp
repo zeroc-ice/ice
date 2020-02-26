@@ -558,5 +558,5 @@ AdminSSLSessionManagerI::create(Glacier2::SSLInfo info,
         }
     }
 
-    return _factory->createGlacier2Session(userDN, move(ctl));
+    return _factory->createGlacier2Session(move(userDN), move(ctl));
 }
