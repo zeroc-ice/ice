@@ -17,23 +17,22 @@ namespace Ice.invoke
             var oneway = cl.Clone(oneway: true);
 
             var output = helper.getWriter();
-            output.Write("testing ice_invoke... ");
+            output.Write("testing Invoke... ");
             output.Flush();
 
             {
-                byte[] inEncaps, outEncaps;
-                if (!oneway.Invoke("opOneway", idempotent: false, null, out outEncaps))
+                var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
+                byte[] outEncaps;
+                if (!oneway.Invoke(requestFrame, out outEncaps))
                 {
                     test(false);
                 }
 
-                OutputStream outS = new OutputStream(communicator);
-                outS.StartEncapsulation();
-                outS.WriteString(testString);
-                outS.EndEncapsulation();
-                inEncaps = outS.Finished();
+                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                requestFrame.WriteString(testString);
+                requestFrame.EndParameters();
 
-                if (cl.Invoke("opString", idempotent: false, inEncaps, out outEncaps))
+                if (cl.Invoke(requestFrame, out outEncaps))
                 {
                     InputStream inS = new InputStream(communicator, outEncaps);
                     inS.StartEncapsulation();
@@ -59,7 +58,9 @@ namespace Ice.invoke
                     ctx["raise"] = "";
                 }
 
-                if (cl.Invoke("opException", idempotent: false, null, out outEncaps, ctx))
+                var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false, context: ctx);
+
+                if (cl.Invoke(requestFrame, out outEncaps))
                 {
                     test(false);
                 }
@@ -84,27 +85,25 @@ namespace Ice.invoke
 
             output.WriteLine("ok");
 
-            output.Write("testing asynchronous ice_invoke with Async Task API... ");
+            output.Write("testing InvokeAsync... ");
             output.Flush();
 
             {
+                var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
                 try
                 {
-                    oneway.InvokeAsync("opOneway", idempotent: false, null).Wait();
+                    oneway.InvokeAsync(requestFrame).Wait();
                 }
                 catch (Exception)
                 {
                     test(false);
                 }
 
-                OutputStream outS = new OutputStream(communicator);
-                outS.StartEncapsulation();
-                outS.WriteString(testString);
-                outS.EndEncapsulation();
-                byte[] inEncaps = outS.Finished();
+                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                requestFrame.WriteString(testString);
+                requestFrame.EndParameters();
 
-                // begin_ice_invoke with no callback
-                var result = cl.InvokeAsync("opString", idempotent: false, inEncaps).Result;
+                var result = cl.InvokeAsync(requestFrame).Result;
                 if (result.ReturnValue)
                 {
                     InputStream inS = new InputStream(communicator, result.OutEncaps);
@@ -122,7 +121,8 @@ namespace Ice.invoke
             }
 
             {
-                var result = cl.InvokeAsync("opException", idempotent: false, null).Result;
+                var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false);
+                var result = cl.InvokeAsync(requestFrame).Result;
                 if (result.ReturnValue)
                 {
                     test(false);

@@ -993,6 +993,22 @@ namespace Ice
             }
         }
 
+        public static bool Invoke(this IObjectPrx prx,
+                                  OutgoingRequestFrame requestFrame,
+                                  out byte[]? outEncaps)
+        {
+            try
+            {
+                Object_Ice_invokeResult result = prx.IceI_ice_invokeAsync(requestFrame, null, CancellationToken.None, true).Result;
+                outEncaps = result.OutEncaps;
+                return result.ReturnValue;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
         /// <summary>
         /// Invokes an operation dynamically.
         /// </summary>
@@ -1014,6 +1030,13 @@ namespace Ice
                     CancellationToken cancel = new CancellationToken()) =>
             prx.IceI_ice_invokeAsync(operation, idempotent, inEncaps, context, progress, cancel, false);
 
+        public static Task<Object_Ice_invokeResult>
+        InvokeAsync(this IObjectPrx prx,
+                    OutgoingRequestFrame requestFrame,
+                    IProgress<bool>? progress = null,
+                    CancellationToken cancel = new CancellationToken()) =>
+            prx.IceI_ice_invokeAsync(requestFrame, progress, cancel, false);
+
         private static Task<Object_Ice_invokeResult>
         IceI_ice_invokeAsync(this IObjectPrx prx,
                              string operation,
@@ -1029,6 +1052,18 @@ namespace Ice
             return completed.Task;
         }
 
+        private static Task<Object_Ice_invokeResult>
+        IceI_ice_invokeAsync(this IObjectPrx prx,
+                             OutgoingRequestFrame requestFrame,
+                             IProgress<bool>? progress,
+                             CancellationToken cancel,
+                             bool synchronous)
+        {
+            var completed = new InvokeTaskCompletionCallback(progress, cancel);
+            prx.IceI_ice_invoke(requestFrame, completed, synchronous);
+            return completed.Task;
+        }
+
         private static void IceI_ice_invoke(this IObjectPrx prx,
                                      string operation,
                                      bool idempotent,
@@ -1037,5 +1072,11 @@ namespace Ice
                                      IOutgoingAsyncCompletionCallback completed,
                                      bool synchronous) =>
             new InvokeOutgoingAsyncT(prx, completed).Invoke(operation, idempotent, inEncaps, context, synchronous);
+
+        private static void IceI_ice_invoke(this IObjectPrx prx,
+                                     OutgoingRequestFrame requestFrame,
+                                     IOutgoingAsyncCompletionCallback completed,
+                                     bool synchronous) =>
+            new InvokeOutgoingAsyncT(prx, completed, requestFrame).Invoke(synchronous);
     }
 }
