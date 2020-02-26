@@ -39,27 +39,30 @@ namespace Slice
 {
 
 // Definitions for the case-insensitive keyword-token map.
-static std::map<std::string, int> keywordMap;
+static map<string, int> keywordMap;
 
-// Stores the scanner's current column position. Flex also automatically
-// defines 'yylineno', which stores the scanner's current line number.
-int yycolno = 0;
-shared_ptr<std::string> yyfilename;
-
-void initScanner();
-void preAction();
-void nextLine(int = 1);
-void scanPosition(const char*);
-void setLocation(TokenContext*);
-void startLocation(TokenContext*);
-void endLocation(TokenContext*);
-static void yynoreturn fatalError(const char* msg);
-
-int checkKeyword(string&);
-int checkIdentifier(const string&);
+static int checkKeyword(string&);
+static int checkIdentifier(const string&);
 
 }
 
+// Stores the scanner's current column position. Flex also automatically
+// generates 'yylineno', which stores the scanner's current line number.
+int yycolno = 0;
+// Stores a copy of the filename that the scanner is currently scanning.
+shared_ptr<string> yyfilename;
+
+static void nextLine(int = 1);
+static void scanPosition(const char*);
+static void setLocation(TokenContext*);
+static void startLocation(TokenContext*);
+static void endLocation(TokenContext*);
+
+static void initScanner();
+static void preAction();
+static void yynoreturn fatalError(const char* msg);
+
+// Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
@@ -79,7 +82,7 @@ int checkIdentifier(const string&);
    * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
 %option bison-bridge bison-locations
 
-  /* Enables the use of flex's built int start-condition state stack. */
+  /* Enables the use of flex's built in start-condition state stack. */
 %option stack
   /* Ensures flex generates a scanner that supports reading 8-bit characters. */
 %option 8bit
@@ -116,18 +119,14 @@ int checkIdentifier(const string&);
 oct                 [0-7]
 dec                 [0-9]
 hex                 [0-9a-fA-F]
-
+bom                 "\357\273\277"
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
-
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
-
 integer_constant    (\+|-)?((0{oct}+)|(0x{hex}+)|({dec}+))
 fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
 exponent_part       (e|E)(\+|-)?{dec}+
 floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
-
-bom                 "\357\273\277"
 
 %%
 
@@ -139,7 +138,7 @@ bom                 "\357\273\277"
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
-^{preprocessor_prefix}line[[:blank:]]* {
+^{preprocessor_prefix}line {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
 }
@@ -152,7 +151,7 @@ bom                 "\357\273\277"
 }
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
-   * found while scanning the directive. */
+   * found while scanning a preprocessor directive. */
 <PREPROCESS>[^[:space:]]+ {
     unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
@@ -201,7 +200,7 @@ bom                 "\357\273\277"
     unit->setComment(comment.substr(0, (comment.length() - 2)));
 }
 
-  /* Matches EOF, but only while parsing a C style comment. */
+  /* Matches EOF, but only while scanning a C style comment. */
 <C_COMMENT><<EOF>> {
     yy_pop_state();
     unit->warning(All, "encountered EOF while scanning a comment");
@@ -482,139 +481,8 @@ bom                 "\357\273\277"
 
 %%
 
-namespace Slice {
-
-// This function is always called once, right before scanning begins.
-void initScanner()
+namespace Slice
 {
-    // Ensure the scanner starts at line number 1.
-    yylineno = 1;
-
-    keywordMap = {
-        {"module", ICE_MODULE},
-        {"class", ICE_CLASS},
-        {"interface", ICE_INTERFACE},
-        {"exception", ICE_EXCEPTION},
-        {"struct", ICE_STRUCT},
-        {"sequence", ICE_SEQUENCE},
-        {"dictionary", ICE_DICTIONARY},
-        {"enum", ICE_ENUM},
-        {"out", ICE_OUT},
-        {"extends", ICE_EXTENDS},
-        {"implements", ICE_IMPLEMENTS},
-        {"throws", ICE_THROWS},
-        {"void", ICE_VOID},
-        {"byte", ICE_BYTE},
-        {"bool", ICE_BOOL},
-        {"short", ICE_SHORT},
-        {"int", ICE_INT},
-        {"long", ICE_LONG},
-        {"float", ICE_FLOAT},
-        {"double", ICE_DOUBLE},
-        {"string", ICE_STRING},
-        {"Object", ICE_OBJECT},
-        {"const", ICE_CONST},
-        {"false", ICE_FALSE},
-        {"true", ICE_TRUE},
-        {"idempotent", ICE_IDEMPOTENT},
-        {"tag", ICE_TAG},
-        // 'optional' is kept as an alias for 'tag' for backwards compatability.
-        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
-        {"optional", ICE_OPTIONAL},
-        {"Value", ICE_VALUE}
-    };
-}
-
-// This function is always called directly after a match has been made, but directly before it's action block is run.
-void preAction()
-{
-    yycolno += yyleng;
-
-    // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
-    // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
-    if(YY_START == INITIAL)
-    {
-        BEGIN(SLICE);
-    }
-}
-
-void nextLine(int count)
-{
-    yylineno += count;
-    yycolno = 0;
-}
-
-void scanPosition(const char* s)
-{
-    string line(s);
-    // Skip the leading '#', optional 'line', and any whitespace before the line number.
-    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
-    if(line.find("line", idx) == idx)
-    {
-        idx = line.find_first_not_of(" \t\r", (idx + 4));
-    }
-    line.erase(0, idx);
-
-    // Read the line number
-    yylineno = stoi(line.c_str(), &idx) - 1;
-
-    // Scan the remainder of the line for a filename.
-    idx = line.find_first_not_of(" \t\r", idx);
-    line.erase(0, idx);
-
-    if(!line.empty())
-    {
-        if(line[0] == '"')
-        {
-            string::size_type edx = line.rfind('"');
-            if(edx != string::npos)
-            {
-                line = line.substr(1, edx - 1);
-            }
-            else
-            {
-                unit->error("mismatched quotations in line directive");
-                line = line.substr(1);
-            }
-        }
-        unit->setCurrentFile(line, yylineno);
-        yyfilename = make_shared<string>(move(line));
-    }
-}
-
-void setLocation(TokenContext* location)
-{
-    location->firstLine = yylineno;
-    location->lastLine = yylineno;
-    location->firstColumn = yycolno - yyleng;
-    location->lastColumn = yycolno;
-    location->filename = yyfilename;
-}
-
-void startLocation(TokenContext* location)
-{
-    location->firstLine = yylineno;
-    location->firstColumn = yycolno - yyleng;
-}
-
-void endLocation(TokenContext* location)
-{
-    location->lastLine = yylineno;
-    location->lastColumn = yycolno - yyleng;
-    location->filename = yyfilename;
-}
-
-// This function is called whenever the scanner encounters an unrecoverable error.
-static void yynoreturn fatalError(const char* msg)
-{
-    cerr << msg << endl
-         << "\tlast matched text: `" << yytext << "'" << endl
-         << "\tfile = " << unit->currentFile()
-         << ", line = " << to_string(yylineno)
-         << ", column = " << to_string(yycolno) << endl;
-    exit(YY_EXIT_FAILURE);
-}
 
 // Check if an identifier looks like a keyword.
 // If the identifier is a keyword, return the
@@ -708,6 +576,136 @@ int checkIdentifier(const string& id)
     }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
+}
+
+}
+
+void nextLine(int count)
+{
+    yylineno += count;
+    yycolno = 0;
+}
+
+void scanPosition(const char* s)
+{
+    string line(s);
+    // Skip the leading '#', optional 'line', and any whitespace before the line number.
+    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
+    if(line.find("line", idx) == idx)
+    {
+        idx = line.find_first_not_of(" \t\r", (idx + 4));
+    }
+    line.erase(0, idx);
+
+    // Read the line number
+    yylineno = stoi(line.c_str(), &idx) - 1;
+
+    // Scan the remainder of the line for a filename.
+    idx = line.find_first_not_of(" \t\r", idx);
+    line.erase(0, idx);
+
+    if(!line.empty())
+    {
+        if(line[0] == '"')
+        {
+            string::size_type edx = line.rfind('"');
+            if(edx != string::npos)
+            {
+                line = line.substr(1, edx - 1);
+            }
+            else
+            {
+                unit->error("mismatched quotations in line directive");
+                line = line.substr(1);
+            }
+        }
+        unit->setCurrentFile(line, yylineno);
+        yyfilename = make_shared<string>(move(line));
+    }
+}
+
+void setLocation(TokenContext* location)
+{
+    startLocation(location);
+    endLocation(location);
+}
+
+void startLocation(TokenContext* location)
+{
+    location->firstLine = yylineno;
+    // The string has already been scanned, so the scanner is positioned at the end of it.
+    location->firstColumn = yycolno - yyleng;
+    location->filename = yyfilename;
+}
+
+void endLocation(TokenContext* location)
+{
+    location->lastLine = yylineno;
+    location->lastColumn = yycolno;
+}
+
+// This function is always called once, right before scanning begins.
+void initScanner()
+{
+    // Ensure the scanner starts at line number 1, column position 0.
+    yylineno = 1;
+
+    keywordMap = {
+        {"module", ICE_MODULE},
+        {"class", ICE_CLASS},
+        {"interface", ICE_INTERFACE},
+        {"exception", ICE_EXCEPTION},
+        {"struct", ICE_STRUCT},
+        {"sequence", ICE_SEQUENCE},
+        {"dictionary", ICE_DICTIONARY},
+        {"enum", ICE_ENUM},
+        {"out", ICE_OUT},
+        {"extends", ICE_EXTENDS},
+        {"implements", ICE_IMPLEMENTS},
+        {"throws", ICE_THROWS},
+        {"void", ICE_VOID},
+        {"byte", ICE_BYTE},
+        {"bool", ICE_BOOL},
+        {"short", ICE_SHORT},
+        {"int", ICE_INT},
+        {"long", ICE_LONG},
+        {"float", ICE_FLOAT},
+        {"double", ICE_DOUBLE},
+        {"string", ICE_STRING},
+        {"Object", ICE_OBJECT},
+        {"const", ICE_CONST},
+        {"false", ICE_FALSE},
+        {"true", ICE_TRUE},
+        {"idempotent", ICE_IDEMPOTENT},
+        {"tag", ICE_TAG},
+        // 'optional' is kept as an alias for 'tag' for backwards compatability.
+        // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        {"optional", ICE_OPTIONAL},
+        {"Value", ICE_VALUE}
+    };
+}
+
+// This function is always called directly after a match has been made, but directly before it's action block is run.
+void preAction()
+{
+    yycolno += yyleng;
+
+    // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
+    // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
+    if(YY_START == INITIAL)
+    {
+        BEGIN(SLICE);
+    }
+}
+
+// This function is called whenever the scanner encounters an unrecoverable error.
+void yynoreturn fatalError(const char* msg)
+{
+    cerr << *yyfilename << ":" << yylineno << ":" << yycolno << ": fatal  error: " << msg << endl
+         << "\tlast matched text: `" << yytext << "'" << endl
+         << "\tlast scanner state: `" << YY_STATE << "'" << endl;
+    exit(YY_EXIT_FAILURE);
 }
 
 }
