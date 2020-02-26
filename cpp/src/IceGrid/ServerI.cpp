@@ -315,7 +315,10 @@ private:
 
         auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
         p->setPropertiesAsync(props,
-                              bind(&ResetPropertiesCB::next, shared_from_this()),
+                              [self = shared_from_this()]
+                              {
+                                  self->next();
+                              },
                               [server = _server, desc = _desc](exception_ptr ex)
                               {
                                   server->updateRuntimePropertiesCallback(ex, desc);
@@ -359,7 +362,7 @@ string environmentEval(const std::string& value)
         string valstr = (ret > 0 && ret < buf.size()) ? Ice::wstringToString(&buf[0]) : string("");
         v.replace(beg, end - beg + 1, valstr);
         beg += valstr.size();
-        }
+    }
 #else
     while((beg = v.find("$", beg)) != string::npos && beg < v.size() - 1)
     {
@@ -391,8 +394,7 @@ string environmentEval(const std::string& value)
     }
 #endif
     return value.substr(0, assignment) + "=" + v;
-
-};
+}
 
 }
 
