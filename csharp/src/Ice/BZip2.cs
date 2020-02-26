@@ -333,8 +333,7 @@ namespace IceInternal
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            byte[] header = new byte[headerSize + 4];
-            System.Buffer.BlockCopy(stream.GetBytes(0, headerSize), 0, header, 0, headerSize);
+            byte[] header = stream.GetBytes(0, headerSize + 4);
             var r = new Ice.OutputStream(stream.Communicator, stream.Encoding, header);
             //
             // Add the size of the uncompressed stream before the

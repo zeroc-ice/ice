@@ -121,6 +121,7 @@ namespace Ice
                 _segmentList.Add(_currentSegment);
                 Size = 0;
                 _capacity = DefaultSegmentSize;
+                _tail = new Position(0, 0);
             }
             else
             {
@@ -128,8 +129,8 @@ namespace Ice
                 _segmentList.Add(buffer);
                 Size = buffer.Length;
                 _capacity = buffer.Length;
+                _tail = new Position(0, buffer.Length);
             }
-            _tail = new Position(0, 0);
         }
 
         /// <summary>
@@ -352,38 +353,40 @@ namespace Ice
         }
 
         /// <summary>Get an array of bytes from the stream contents starting at the given
-        /// offset and with the given length. This method always returns a copy of the internals
-        /// stream data.</summary>
+        /// offset and with the given length. This method always returns a copy of the
+        /// internal data.</summary>
         /// <param name="offset">The zero-based byte offset into the stream.</param>
-        /// <param name="length">The number of bytes to retrive.</param>
+        /// <param name="count">The number of bytes to retrive.</param>
         /// <returns></returns>
-        public byte[] GetBytes(int offset, int length)
+        public byte[] GetBytes(int offset, int count)
         {
-            Debug.Assert(length <= offset + Size);
-            byte[] data = new byte[length];
-            int i;
-            for (i = 0; i < _segmentList.Count; ++i)
+            Debug.Assert(count <= offset + Size);
+            byte[] data = new byte[count];
+            int i = 0;
+            int remaining = 0;
+            for (; i < _segmentList.Count && offset > 0; i++)
             {
                 ArraySegment<byte> segment = _segmentList[i];
-                if (segment.Count < offset)
+                if (segment.Count > offset)
                 {
-                    offset -= segment.Count;
+                    remaining = Math.Min(count, segment.Count - offset);
+                    Buffer.BlockCopy(segment.Array, offset, data, 0, remaining);
+                    i++;
+                    break;
                 }
                 else
                 {
-                    int remaining = Math.Min(length, segment.Count - offset);
-                    Buffer.BlockCopy(segment.Array, offset, data, 0, remaining);
-                    length -= remaining;
-                    break;
+                    offset -= segment.Count;
                 }
             }
 
-            for (i += 1; i < _segmentList.Count && length > 0; ++i)
+            offset = remaining;
+            for (; i < _segmentList.Count && offset < count; i++)
             {
                 ArraySegment<byte> segment = _segmentList[i];
-                int remaining = Math.Min(length, segment.Count);
-                Buffer.BlockCopy(segment.Array, 0, data, data.Length - length, remaining);
-                length -= remaining;
+                remaining = Math.Min(segment.Count, count - offset);
+                Buffer.BlockCopy(segment.Array, 0, data, offset, remaining);
+                offset += remaining;
             }
             return data;
         }
