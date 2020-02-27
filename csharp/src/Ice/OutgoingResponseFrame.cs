@@ -14,10 +14,6 @@ namespace Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutputStream
     {
-        /// <summary>An OutputStream is sealed when it can no longer be written into, in particular the payload
-        /// is complete and the context (if available) is written.</summary>
-        public bool IsSealed { get; private set; } = false; // TODO: move to OutputStream with protected set
-
         /// <summary>The ID for this request. With Ice1, a 0 value corresponds to a oneway request.</summary>
         public int RequestId { get; }
 
@@ -72,7 +68,6 @@ namespace Ice
                 // provide an efficient API to build such a response frame.
                 WriteBlob(payload.Array);
             }
-            IsSealed = true;
         }
 
         /// <summary>Creates a new outgoing response frame with the given payload and reply status OK.</summary>
@@ -177,7 +172,6 @@ namespace Ice
                 WriteByte((byte)ReplyStatus.UnknownException);
                 WriteString(ex.ToString());
             }
-            IsSealed = true;
         }
 
         private OutgoingResponseFrame(Communicator communicator, int requestId)

@@ -29,10 +29,6 @@ namespace Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Context Context { get; }
 
-        /// <summary>An OutputStream is sealed when it can no longer be written into, in particular the payload
-        /// is complete and the context is written. Modidying Context once IsSealed is true has no effect.</summary>
-        public bool IsSealed { get; private set; } = false; // TODO: move to OutputStream with protected set
-
         /// <summary>Creates a new outgoing request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
@@ -49,7 +45,6 @@ namespace Ice
             StartEncapsulation(proxy.EncodingVersion, format);
             payloadWriter(this);
             EndEncapsulation();
-            IsSealed = true;
         }
 
         /// <summary>Creates a new outgoing request frame with a null format.</summary>
@@ -88,7 +83,6 @@ namespace Ice
                 // TODO: works only because we know how payload is created!
                 WriteBlob(payload.Value.Array);
             }
-            IsSealed = true;
         }
 
         private OutgoingRequestFrame(Communicator communicator, Identity identity, string facet, string operation,
