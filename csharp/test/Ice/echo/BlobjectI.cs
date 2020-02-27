@@ -17,10 +17,10 @@ public class BlobjectI : IObject
         var prx = current.Connection.CreateProxy(current.Id, IObjectPrx.Factory).Clone(facet: current.Facet,
             oneway: current.IsOneway);
 
-        var requestFrame = OutgoingRequestFrame.Create(prx, current.Operation,
-            current.IsIdempotent, incomingRequestFrame.TakePayload(), current.Context);
+        var requestFrame = new OutgoingRequestFrame(prx, current.Operation, current.IsIdempotent, current.Context,
+            incomingRequestFrame.TakePayload());
 
         IncomingResponseFrame responseFrame = await prx.InvokeAsync(requestFrame);
-        return OutgoingResponseFrame.Create(responseFrame.ReplyStatus, responseFrame.TakePayload(), current);
+        return new OutgoingResponseFrame(current, responseFrame.ReplyStatus, responseFrame.TakePayload());
     }
 }

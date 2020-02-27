@@ -81,7 +81,7 @@ namespace Ice
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.
-            return IceFromResult(OutgoingResponseFrame.Empty(current));
+            return IceFromResult(new OutgoingResponseFrame(current));
         }
 
         protected ValueTask<OutputStream> IceD_ice_pingAsync(InputStream istr, Current current)
@@ -98,9 +98,8 @@ namespace Ice
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var responseFrame = OutgoingResponseFrame.Start(current);
-            responseFrame.WriteBool(ret);
-            responseFrame.EndPayload();
+            var responseFrame = new OutgoingResponseFrame(current, format: null,
+                outputStream => outputStream.WriteBool(ret));
             return IceFromResult(responseFrame);
         }
 
@@ -109,9 +108,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var responseFrame = OutgoingResponseFrame.Start(current);
-            responseFrame.WriteString(ret);
-            responseFrame.EndPayload();
+            var responseFrame = new OutgoingResponseFrame(current, format: null,
+                outputStream => outputStream.WriteString(ret));
             return IceFromResult(responseFrame);
         }
 
@@ -120,9 +118,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var responseFrame = OutgoingResponseFrame.Start(current);
-            responseFrame.WriteStringSeq(ret);
-            responseFrame.EndPayload();
+            var responseFrame = new OutgoingResponseFrame(current, format: null,
+                outputStream => outputStream.WriteStringSeq(ret));
             return IceFromResult(responseFrame);
         }
     }

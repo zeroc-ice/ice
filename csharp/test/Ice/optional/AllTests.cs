@@ -375,12 +375,15 @@ namespace Ice.optional
 
             initial.opVoid();
 
-            var requestFrame = OutgoingRequestFrame.Start(initial, "opVoid", idempotent: false);
-            requestFrame.WriteOptional(1, OptionalFormat.F4);
-            requestFrame.WriteInt(15);
-            requestFrame.WriteOptional(1, OptionalFormat.VSize);
-            requestFrame.WriteString("test");
-            requestFrame.EndPayload();
+            var requestFrame = new OutgoingRequestFrame(initial, "opVoid", idempotent: false, context: null,
+                outputStream =>
+                {
+                    outputStream.WriteOptional(1, OptionalFormat.F4);
+                    outputStream.WriteInt(15);
+                    outputStream.WriteOptional(1, OptionalFormat.VSize);
+                    outputStream.WriteString("test");
+                });
+
             test(initial.Invoke(requestFrame).ReplyStatus == 0);
 
             output.WriteLine("ok");
@@ -511,69 +514,6 @@ namespace Ice.optional
             }
             output.WriteLine("ok");
 
-            if (communicator.GetPropertyAsInt("Default.SlicedFormat") > 0)
-            {
-                /*
-                output.Write("testing marshaling with unknown class slices... ");
-                output.Flush();
-                {
-                    Test.C c = new Test.C();
-                    c.ss = "test";
-                    c.ms = "testms";
-
-                    requestFrame.WriteClass(c);
-                    requestFrame.EndParameters();
-                    factory.setEnabled(true);
-                    test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
-
-                    responseFrame.InputStream.StartEncapsulation();
-                    responseFrame.InputStream.ReadClass(cb.invoke);
-                    responseFrame.InputStream.EndEncapsulation();
-                    test(cb.obj is CClassReader);
-                    factory.setEnabled(false);
-
-                    factory.setEnabled(true);
-                    os = new OutputStream(communicator);
-                    os.StartEncapsulation();
-                    AnyClass d = new DClassWriter();
-                    os.WriteClass(d);
-                    os.EndEncapsulation();
-                    inEncaps = os.Finished();
-                    test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
-
-                    responseFrame.InputStream.StartEncapsulation();
-                    responseFrame.InputStream.ReadClass(cb.invoke);
-                    responseFrame.InputStream.EndEncapsulation();
-                    test(cb.obj != null && cb.obj is DClassReader);
-                    ((DClassReader)cb.obj).check();
-                    factory.setEnabled(false);
-                }
-                output.WriteLine("ok");
-                */
-
-                /*
-                output.Write("testing optionals with unknown classes...");
-                output.Flush();
-                {
-                    Test.A a = new Test.A();
-
-                    os = new OutputStream(communicator);
-                    os.StartEncapsulation();
-                    os.WriteClass(a);
-                    os.WriteOptional(1, OptionalFormat.Class);
-                    os.WriteClass(new DClassWriter());
-                    os.EndEncapsulation();
-                    inEncaps = os.Finished();
-                    test(var responseFrame = initial.Invoke(requestFrame);ClassAndUnknownOptional", idempotent: false, inEncaps,
-                                            out outEncaps));
-
-                    responseFrame.InputStream.StartEncapsulation();
-                    responseFrame.InputStream.EndEncapsulation();
-                }
-                output.WriteLine("ok");
-                */
-            }
-
             output.Write("testing tagged parameters... ");
             output.Flush();
             {
@@ -596,9 +536,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opByte(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opByte", idempotent: false);
-                requestFrame.WriteByte(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opByte", idempotent: false, context: null,
+                    outputStream => outputStream.WriteByte(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadByte(1) == 56);
@@ -629,9 +569,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opBool(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opBool", idempotent: false);
-                requestFrame.WriteBool(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opBool", idempotent: false, context: null,
+                    outputStream => outputStream.WriteBool(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadBool(1) == true);
@@ -662,9 +602,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opShort(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opShort", idempotent: false);
-                requestFrame.WriteShort(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opShort", idempotent: false, context: null,
+                    outputStream => outputStream.WriteShort(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadShort(1) == 56);
@@ -695,9 +635,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opInt(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opInt", idempotent: false);
-                requestFrame.WriteInt(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opInt", idempotent: false, context: null,
+                    outputStream => outputStream.WriteInt(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadInt(1) == 56);
@@ -728,9 +668,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opLong(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opLong", idempotent: false);
-                requestFrame.WriteLong(1, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opLong", idempotent: false, context: null,
+                    outputStream => outputStream.WriteLong(1, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadLong(2) == 56);
@@ -761,9 +701,8 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloat(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opFloat", idempotent: false);
-                requestFrame.WriteFloat(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opFloat", idempotent: false, context: null,
+                    outputStream => outputStream.WriteFloat(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -795,9 +734,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opDouble(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opDouble", idempotent: false);
-                requestFrame.WriteDouble(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opDouble", idempotent: false, context: null,
+                    outputStream => outputStream.WriteDouble(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadDouble(1) == 1.0);
@@ -830,9 +769,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opString(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opString", idempotent: false);
-                requestFrame.WriteString(2, p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opString", idempotent: false, context: null,
+                    outputStream => outputStream.WriteString(2, p1));
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadString(1) == "test");
@@ -863,10 +802,9 @@ namespace Ice.optional
                 (p2, p3) = initial.opMyEnum(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opMyEnum", idempotent: false);
+                requestFrame = new OutgoingRequestFrame(initial, "opMyEnum", idempotent: false, context: null,
+                    outputStream => outputStream.WriteEnum(2, (int?)p1));
 
-                requestFrame.WriteEnum(2, (int?)p1);
-                requestFrame.EndPayload();
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.Size));
@@ -899,11 +837,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opSmallStruct", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(1);
-                p1.Value.IceWrite(requestFrame);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opSmallStruct", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(1);
+                        p1.Value.IceWrite(outputStream);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -940,11 +881,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opFixedStruct", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(4);
-                p1.Value.IceWrite(requestFrame);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opFixedStruct", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(4);
+                        p1.Value.IceWrite(outputStream);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -986,12 +930,15 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opVarStruct", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                p1.Value.IceWrite(requestFrame);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opVarStruct", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        p1.Value.IceWrite(outputStream);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
@@ -1050,10 +997,13 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptional(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opOneOptional", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.Class);
-                requestFrame.WriteClass(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opOneOptional", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.Class);
+                        outputStream.WriteClass(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.Class));
@@ -1086,12 +1036,15 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptionalProxy(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opOneOptionalProxy", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                requestFrame.WriteProxy(p1);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opOneOptionalProxy", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        outputStream.WriteProxy(p1);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(IObjectPrx.Equals(responseFrame.InputStream.ReadProxy(1, IObjectPrx.Factory), p1));
@@ -1122,11 +1075,13 @@ namespace Ice.optional
                 (p2, p3) = initial.opByteSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opByteSeq", idempotent: false);
+                requestFrame = new OutgoingRequestFrame(initial, "opByteSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteByteSeq(p1);
+                    });
 
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteByteSeq(p1);
-                requestFrame.EndPayload();
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1159,10 +1114,13 @@ namespace Ice.optional
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opBoolSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteBoolSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opBoolSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteBoolSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1196,11 +1154,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opShortSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opShortSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.WriteShortSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opShortSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.WriteShortSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1235,11 +1196,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opIntSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.WriteIntSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opIntSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.WriteIntSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1274,11 +1238,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opLongSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opLongSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.WriteLongSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opLongSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.WriteLongSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1313,11 +1280,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloatSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opFloatSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.WriteFloatSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opFloatSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.WriteFloatSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1352,11 +1322,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opDoubleSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opDoubleSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.WriteDoubleSeq(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opDoubleSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.WriteDoubleSeq(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1391,12 +1364,15 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opStringSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                requestFrame.WriteStringSeq(p1);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opStringSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        outputStream.WriteStringSeq(p1);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
@@ -1431,11 +1407,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opSmallStructSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                requestFrame.Write(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opSmallStructSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
+                        outputStream.Write(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1476,11 +1455,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opSmallStructList", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
-                requestFrame.Write(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opSmallStructList", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
+                        outputStream.Write(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1517,11 +1499,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opFixedStructSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
-                requestFrame.Write(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opFixedStructSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                        outputStream.Write(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1562,11 +1547,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opFixedStructList", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
-                requestFrame.Write(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opFixedStructList", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
+                        outputStream.Write(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1603,12 +1591,15 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opVarStructSeq", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                requestFrame.Write(p1);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opVarStructSeq", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        outputStream.Write(p1);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
@@ -1646,10 +1637,13 @@ namespace Ice.optional
                 (p2, p3) = initial.opSerializable(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opSerializable", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSerializable(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opSerializable", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSerializable(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1686,11 +1680,14 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opIntIntDict", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.VSize);
-                requestFrame.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
-                requestFrame.Write(p1);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opIntIntDict", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.VSize);
+                        outputStream.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
+                        outputStream.Write(p1);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
@@ -1729,12 +1726,15 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opStringIntDict", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                requestFrame.Write(p1);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opStringIntDict", idempotent: false, context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        outputStream.Write(p1);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
@@ -1773,12 +1773,16 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntOneOptionalDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.Start(initial, "opIntOneOptionalDict", idempotent: false);
-                requestFrame.WriteOptional(2, OptionalFormat.FSize);
-                int pos = requestFrame.StartSize();
-                requestFrame.Write(p1);
-                requestFrame.EndSize(pos);
-                requestFrame.EndPayload();
+                requestFrame = new OutgoingRequestFrame(initial, "opIntOneOptionalDict", idempotent: false,
+                    context: null,
+                    outputStream =>
+                    {
+                        outputStream.WriteOptional(2, OptionalFormat.FSize);
+                        int pos = outputStream.StartSize();
+                        outputStream.Write(p1);
+                        outputStream.EndSize(pos);
+                    });
+
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
                 test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));

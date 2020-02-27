@@ -52,7 +52,7 @@ namespace IceLocatorDiscovery
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                var requestFrame = OutgoingRequestFrame.Create(l, _operation, _idempotent, _payload, _context);
+                var requestFrame = new OutgoingRequestFrame(l, _operation, _idempotent, _context, _payload);
 
                 l.InvokeAsync(requestFrame).ContinueWith(
                     task =>
@@ -207,8 +207,9 @@ namespace IceLocatorDiscovery
             var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.TakePayload(),
                 current.Context);
             Invoke(null, request);
-            IncomingResponseFrame incoming = await request.Task.ConfigureAwait(false);
-            return OutgoingResponseFrame.Create(incoming.ReplyStatus, incoming.TakePayload(), current);
+            IncomingResponseFrame incomingResponseFrame = await request.Task.ConfigureAwait(false);
+            return new OutgoingResponseFrame(current, incomingResponseFrame.ReplyStatus,
+                incomingResponseFrame.TakePayload());
         }
 
         public List<Ice.ILocatorPrx>

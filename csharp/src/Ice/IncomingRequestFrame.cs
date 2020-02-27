@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    using Context = Dictionary<string, string>;
-
     /// <summary>Represents a request protocol frame received by the application.</summary>
     // TODO: IncomingRequestFrame should derive from InputStream
     public sealed class IncomingRequestFrame

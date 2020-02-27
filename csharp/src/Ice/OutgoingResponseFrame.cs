@@ -27,75 +27,70 @@ namespace Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Context? Context { get; }
 
-        /// <summary>Creates a new outgoing response frame and starts the payload (encapsulation) that will hold the
-        /// return value in that frame. This frame encodes a "success" response.</summary>
+        /// <summary>Creates a new "success" outgoing response frame.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
         /// <param name="format">The Slice format (Compact or Sliced) used by the encapsulation.</param>
-        /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame Start(Current current, FormatType? format = null)
+        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
+        public OutgoingResponseFrame(Current current, FormatType? format, Action<OutputStream> payloadWriter)
+            : this(current.Adapter.Communicator, current.RequestId)
         {
-            var frame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                ReplyStatus.OK);
-            frame.StartEncapsulation(current.Encoding, format);
-            return frame;
+            WriteByte((byte)ReplyStatus.OK);
+            StartEncapsulation(current.Encoding, format);
+            payloadWriter(this);
+            EndEncapsulation();
         }
 
-        /// <summary>Creates a new outgoing response frame and the payload (encapsulation) that will hold the exception
-        /// in that frame. This frame encodes a "failure" response.</summary>
+        /// <summary>Creates a new "success" outgoing response frame with a null format</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
-        /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame StartFailure(Current current)
+        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
+        public OutgoingResponseFrame(Current current, Action<OutputStream> payloadWriter)
+            : this(current, format: null, payloadWriter)
         {
-            var frame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                ReplyStatus.UserException);
-            frame.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
-            return frame;
         }
 
         /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
-        /// <param name="replyStatus">The reply status.</param>
-        /// <param name="payload">The payload for this response frame.</param>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
-        /// <returns>A new OutgoingResponseFrame.</returns>
+        /// <param name="replyStatus">The reply status.</param>
+        /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        public static OutgoingResponseFrame Create(ReplyStatus replyStatus, ArraySegment<byte> payload, Current current)
-        {
-            var frame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId, replyStatus);
+        public OutgoingResponseFrame(Current current, ReplyStatus replyStatus, ArraySegment<byte> payload)
+            : this(current.Adapter.Communicator, current.RequestId)
 
-            if (payload.Count == 0)
+        {
+            WriteByte((byte)replyStatus);
+
+            if (payload.Count == 0 && (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException))
             {
-                frame.WriteEmptyEncapsulation(current.Encoding);
+                WriteEmptyEncapsulation(current.Encoding);
             }
             else
             {
                 // TODO: this works only because we know this segment matches the array (for now). OutputStream should
                 // provide an efficient API to build such a response frame.
-                frame.WriteBlob(payload.Array);
+                WriteBlob(payload.Array);
             }
-            frame.IsSealed = true;
-            return frame;
+            IsSealed = true;
         }
 
-        /// <summary>Creates a new outgoing response frame with a OK reply status and an empty payload.</summary>
+        /// <summary>Creates a new outgoing response frame with the given payload and reply status OK.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
-        /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame Empty(Current current)
-            => Create(ReplyStatus.OK, ArraySegment<byte>.Empty, current);
-
-        /// <summary>Creates a response frame that represents "failure" and contains an exception. The returned frame is
-        /// complete and no additional data can be included in its payload.</summary>
-        /// <param name="exception">The exception to store into the frame's payload.</param>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame CreateFailure(System.Exception exception, Current current)
+        /// <param name="payload">The payload for this response frame. Null is equivalent to an empty payload</param>
+        public OutgoingResponseFrame(Current current, ArraySegment<byte>? payload = null)
+            : this(current, ReplyStatus.OK, payload ?? ArraySegment<byte>.Empty)
         {
-            OutgoingResponseFrame responseFrame;
+        }
 
+        /// <summary>Creates a response frame that represents "failure" and contains an exception.</summary>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request for which this constructor creates a response.</param>
+        /// <param name="exception">The exception to store into the frame's payload.</param>
+        public OutgoingResponseFrame(Current current, System.Exception exception)
+            : this(current.Adapter.Communicator, current.RequestId)
+        {
             try
             {
                 throw exception;
@@ -136,77 +131,62 @@ namespace Ice
                     Debug.Assert(false);
                 }
 
-                responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId, replyStatus);
-                ex.Id.IceWrite(responseFrame);
+                WriteByte((byte)replyStatus);
+                ex.Id.IceWrite(this);
 
                 // For compatibility with the old FacetPath.
                 if (ex.Facet == null || ex.Facet.Length == 0)
                 {
-                    responseFrame.WriteStringSeq(Array.Empty<string>());
+                    WriteStringSeq(Array.Empty<string>());
                 }
                 else
                 {
-                    string[] facetPath = { ex.Facet };
-                    responseFrame.WriteStringSeq(facetPath);
+                    WriteStringSeq(new string[]{ ex.Facet });
                 }
-                responseFrame.WriteString(ex.Operation);
+                WriteString(ex.Operation);
             }
             catch (UnknownLocalException ex)
             {
-                responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                    ReplyStatus.UnknownLocalException);
-                responseFrame.WriteString(ex.Unknown);
+                WriteByte((byte)ReplyStatus.UnknownLocalException);
+                WriteString(ex.Unknown);
             }
             catch (UnknownUserException ex)
             {
-                responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                    ReplyStatus.UnknownUserException);
-                responseFrame.WriteString(ex.Unknown);
+                WriteByte((byte)ReplyStatus.UnknownUserException);
+                WriteString(ex.Unknown);
             }
             catch (UnknownException ex)
             {
-               responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                    ReplyStatus.UnknownException);
-                responseFrame.WriteString(ex.Unknown);
+                WriteByte((byte)ReplyStatus.UnknownException);
+                WriteString(ex.Unknown);
             }
             catch (UserException ex)
             {
-                responseFrame = StartFailure(current);
-                responseFrame.WriteException(ex);
-                responseFrame.EndPayload();
+                WriteByte((byte)ReplyStatus.UserException);
+                StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
+                WriteException(ex);
+                EndEncapsulation();
             }
             catch (Ice.Exception ex)
             {
-                responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                    ReplyStatus.UnknownLocalException);
-                responseFrame.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
+                WriteByte((byte)ReplyStatus.UnknownLocalException);
+                WriteString(ex.ice_id() + "\n" + ex.StackTrace);
             }
             catch (System.Exception ex)
             {
-                responseFrame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                    ReplyStatus.UnknownException);
-                responseFrame.WriteString(ex.ToString());
+                WriteByte((byte)ReplyStatus.UnknownException);
+                WriteString(ex.ToString());
             }
-            return responseFrame;
-        }
-
-        /// <summary>Marks the end of the payload of this outgoing response frame.</summary>
-        public void EndPayload()
-        {
-            Debug.Assert(!IsSealed);
-            EndEncapsulation();
             IsSealed = true;
         }
 
-        private OutgoingResponseFrame(Communicator communicator, int requestId, ReplyStatus replyStatus)
+        private OutgoingResponseFrame(Communicator communicator, int requestId)
             : base(communicator, Util.CurrentProtocolEncoding)
         {
             RequestId = requestId;
-            ReplyStatus = replyStatus;
 
             WriteBlob(Protocol.replyHdr);
             WriteInt(requestId);
-            WriteByte((byte)replyStatus);
         }
     }
 }
