@@ -23,14 +23,14 @@ namespace Ice.invoke
             {
                 var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
                 var responseFrame = oneway.Invoke(requestFrame);
-                test(responseFrame.ReplyStatus == 0);
+                test(responseFrame.ReplyStatus == ReplyStatus.OK);
 
                 requestFrame = OutgoingRequestFrame.Start(cl, "opString", idempotent: false);
                 requestFrame.WriteString(testString);
                 requestFrame.EndPayload();
 
                 responseFrame = cl.Invoke(requestFrame);
-                test(responseFrame.ReplyStatus == 0);
+                test(responseFrame.ReplyStatus == ReplyStatus.OK);
                 responseFrame.InputStream.StartEncapsulation();
                 string s = responseFrame.InputStream.ReadString();
                 test(s.Equals(testString));
@@ -121,5 +121,4 @@ namespace Ice.invoke
             return cl;
         }
     }
-
 }
