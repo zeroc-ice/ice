@@ -575,12 +575,12 @@ namespace Ice
             }
             if (done)
             {
-                SetResult(new IncomingResponseFrame(og.GetIs(), ReplyStatus.OK));
+                SetResult(new IncomingResponseFrame(ReplyStatus.OK, og.GetIs()));
             }
         }
 
         public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
-            SetResult(new IncomingResponseFrame(og.GetIs(), ok ? ReplyStatus.OK : ReplyStatus.UserException));
+            SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ namespace IceLocatorDiscovery
         private readonly string _operation;
         private readonly bool _idempotent;
         private readonly Dictionary<string, string>? _context;
-        private readonly InputStream _incomingRequestFrame;
+        private readonly ArraySegment<byte> _payload;
 
         private ILocatorPrx? _locatorPrx;
         private System.Exception? _exception;
@@ -37,14 +37,13 @@ namespace IceLocatorDiscovery
         internal Request(LocatorI locator,
                        string operation,
                        bool idempotent,
-                       InputStream incomingRequestFrame,
+                       ArraySegment<byte> payload,
                        Dictionary<string, string>? context)
         {
             _locator = locator;
             _operation = operation;
             _idempotent = idempotent;
-            // TODO: make sure the incomingRequestFrame's payload is not released before we call Invoke below.
-            _incomingRequestFrame = incomingRequestFrame;
+            _payload = payload;
             _context = context;
         }
 
@@ -53,9 +52,7 @@ namespace IceLocatorDiscovery
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                _incomingRequestFrame.RestartEncapsulation();
-                var requestFrame =
-                    OutgoingRequestFrame.FromIncoming(_incomingRequestFrame, l, _operation, _idempotent, _context);
+                var requestFrame = OutgoingRequestFrame.Create(l, _operation, _idempotent, _payload, _context);
 
                 l.InvokeAsync(requestFrame).ContinueWith(
                     task =>
@@ -204,12 +201,14 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public async ValueTask<OutputStream> DispatchAsync(InputStream requestFrame, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(InputStream inputStream, Current current)
         {
-            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame, current.Context);
+            var requestFrame = new IncomingRequestFrame(inputStream, current);
+            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.TakePayload(),
+                current.Context);
             Invoke(null, request);
             IncomingResponseFrame incoming = await request.Task.ConfigureAwait(false);
-            return OutgoingResponseFrame.FromIncoming(incoming, current);
+            return OutgoingResponseFrame.Create(incoming.ReplyStatus, incoming.TakePayload(), current);
         }
 
         public List<Ice.ILocatorPrx>

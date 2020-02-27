@@ -35,8 +35,42 @@ namespace Ice
         }
     }
 
-     /// <summary>Represents a request protocol frame sent by the application.</summary>
-     public sealed class OutgoingRequestFrame : OutputStream
+    /// <summary>Represents a request protocol frame received by the application.</summary>
+    // TODO: IncomingRequestFrame should derive from InputStream
+    public sealed class IncomingRequestFrame
+    {
+        public InputStream InputStream { get; }
+
+        // TODO: combine Current and RequestFrameHeader in some way?
+        public Current Current { get; }
+
+        /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
+        /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
+        // TODO: describe how long this payload remains valid once we add memory pooling.
+        public ArraySegment<byte> Payload { get; }
+
+        /// <summary>Take the payload from this response frame. After calling this method, the payload can no longer
+        /// be read.</summary>
+        public ArraySegment<byte> TakePayload()
+        {
+            // TODO: make this method destructive with memory pooling.
+            return Payload;
+        }
+
+        public IncomingRequestFrame(InputStream inputStream, Current current)
+        {
+            InputStream = inputStream;
+            Current = current;
+
+            // TODO: works only when Payload called first before reading anything. Need a better version!
+            // TODO: not efficient to create an array here
+            InputStream.Pos -= 6;
+            Payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out EncodingVersion _));
+        }
+    }
+
+    /// <summary>Represents a request protocol frame sent by the application.</summary>
+    public sealed class OutgoingRequestFrame : OutputStream
     {
         public RequestFrameHeader Header { get; }
 
@@ -56,14 +90,7 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         /// <returns>A new OutgoingRequestFrame with an empty payload.</returns>
         public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
-            Context? context = null)
-        {
-            var frame = new OutgoingRequestFrame(proxy.Communicator, proxy.Identity, proxy.Facet, operation,
-                idempotent, proxy.Context, context);
-            frame.WriteEmptyEncapsulation(proxy.EncodingVersion);
-            frame.IsSealed = true;
-            return frame;
-        }
+            Context? context = null) => Create(proxy, operation, idempotent, ArraySegment<byte>.Empty, context);
 
         /// <summary>Creates a new outgoing request frame and starts the payload (encapsulation) that will hold the
         /// in-parameters in that frame.</summary>
@@ -86,29 +113,36 @@ namespace Ice
 
         /// <summary>Creates a new outgoing request frame with for in-parameters payload the in-parameters of an
         /// incoming request frame.</summary>
-        /// <param name="incoming">An incoming request frame.</param>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
+        /// </params>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        public static OutgoingRequestFrame FromIncoming(InputStream incoming, IObjectPrx proxy,
-            string operation, bool idempotent, Context? context = null)
+        public static OutgoingRequestFrame Create(IObjectPrx proxy, string operation, bool idempotent,
+            ArraySegment<byte> payload, Context? context = null)
         {
             var frame = new OutgoingRequestFrame(proxy.Communicator, proxy.Identity, proxy.Facet, operation, idempotent,
                 proxy.Context, context);
 
-            incoming.RestartEncapsulation();
-            incoming.Pos -= 6; // TODO: make cleaner
-            frame.WriteBlob(incoming.ReadEncapsulation(out EncodingVersion _));
+            if (payload.Count == 0)
+            {
+                frame.WriteEmptyEncapsulation(proxy.EncodingVersion);
+            }
+            else
+            {
+                // TODO: works only because we know how payload is created!
+                frame.WriteBlob(payload.Array);
+            }
             frame.IsSealed = true;
             return frame;
         }
 
          /// <summary>Marks the end of the in-parameters for this request frame.</summary>
-        public void EndParameters()
+        public void EndPayload()
         {
             Debug.Assert(!IsSealed); // TODO: throw an exception
             EndEncapsulation();

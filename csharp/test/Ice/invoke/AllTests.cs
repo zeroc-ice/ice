@@ -27,7 +27,7 @@ namespace Ice.invoke
 
                 requestFrame = OutgoingRequestFrame.Start(cl, "opString", idempotent: false);
                 requestFrame.WriteString(testString);
-                requestFrame.EndParameters();
+                requestFrame.EndPayload();
 
                 responseFrame = cl.Invoke(requestFrame);
                 test(responseFrame.ReplyStatus == 0);
@@ -85,7 +85,7 @@ namespace Ice.invoke
 
                 requestFrame = OutgoingRequestFrame.Start(cl, "opString", idempotent: false);
                 requestFrame.WriteString(testString);
-                requestFrame.EndParameters();
+                requestFrame.EndPayload();
 
                 var responseFrame = cl.InvokeAsync(requestFrame).Result;
                 test(responseFrame.ReplyStatus == 0);

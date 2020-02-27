@@ -38,10 +38,45 @@ namespace Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Context? Context { get; }
 
-        internal IncomingResponseFrame(InputStream inputStream, ReplyStatus replyStatus)
+        /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
+        /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
+        // TODO: describe how long this payload remains valid once we add memory pooling.
+        public ArraySegment<byte> Payload
         {
-            InputStream = inputStream;
+            get
+            {
+                if (_payload == null)
+                {
+                    if (InputStream.IsEmpty) // TODO, it should never be empty, but currently it is when fulfilled by Sent.
+                    {
+                        _payload = ArraySegment<byte>.Empty;
+                    }
+                    else
+                    {
+                        // TODO: works only when Payload called first before reading anything. Need a better version!
+                        // TODO: not efficient to create an array here
+                        // TODO: provide Encoding property
+                        _payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out EncodingVersion _));
+                    }
+                }
+                return _payload.Value;
+            }
+        }
+
+        private ArraySegment<byte>? _payload;
+
+        /// <summary>Take the payload from this response frame. After calling this method, the payload can no longer
+        /// be read.</summary>
+        public ArraySegment<byte> TakePayload()
+        {
+            // TODO: make this method destructive with memory pooling.
+            return Payload;
+        }
+
+        internal IncomingResponseFrame(ReplyStatus replyStatus, InputStream inputStream)
+        {
             ReplyStatus = replyStatus;
+            InputStream = inputStream;
         }
     }
 
@@ -88,17 +123,27 @@ namespace Ice
             return frame;
         }
 
-        /// <summary>Creates a new outgoing response frame with the reply status and payload of an incoming response
-        /// frame.</summary>
-        /// <param name="incoming">An incoming response frame.</param>
+        /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
+        /// <param name="replyStatus">The reply status.</param>
+        /// <param name="payload">The payload for this response frame.</param>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame FromIncoming(IncomingResponseFrame incoming, Current current)
+        // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
+        public static OutgoingResponseFrame Create(ReplyStatus replyStatus, ArraySegment<byte> payload, Current current)
         {
-            var frame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId,
-                incoming.ReplyStatus);
-            frame.WriteBlob(incoming.InputStream.ReadEncapsulation(out EncodingVersion _));
+            var frame = new OutgoingResponseFrame(current.Adapter.Communicator, current.RequestId, replyStatus);
+
+            if (payload.Count == 0)
+            {
+                frame.WriteEmptyEncapsulation(current.Encoding);
+            }
+            else
+            {
+                // TODO: this works only because we know this segment matches the array (for now). OutputStream should
+                // provide an efficient API to build such a response frame.
+                frame.WriteBlob(payload.Array);
+            }
             frame.IsSealed = true;
             return frame;
         }
