@@ -48,7 +48,7 @@ internal class Transceiver : IceInternal.ITransceiver
 
     public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {
-        int remaining = buf.GetBytesCount() - offset;
+        int remaining = buf.GetByteCount() - offset;
         if (!_configuration.writeReady() && remaining > 0)
         {
             return IceInternal.SocketOperation.Write;

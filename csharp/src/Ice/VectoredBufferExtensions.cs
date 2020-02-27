@@ -14,7 +14,7 @@ namespace Ice
         /// source segment list.</summary>
         /// <param name="src">The source segment list.</param>
         /// <returns>The byte count of the segment list.</returns>
-        public static int GetBytesCount(this IList<ArraySegment<byte>> src)
+        public static int GetByteCount(this IList<ArraySegment<byte>> src)
         {
             int count = 0;
             foreach (ArraySegment<byte> segment in src)
@@ -35,8 +35,8 @@ namespace Ice
         public static void
         FillSegments(this IList<ArraySegment<byte>> src, int srcOffset, IList<ArraySegment<byte>> dst, int count)
         {
-            Debug.Assert(count > 0 && count <= src.GetBytesCount() - srcOffset,
-                $"count: {count} srcSize: {src.GetBytesCount()} srcOffset: {srcOffset}");
+            Debug.Assert(count > 0 && count <= src.GetByteCount() - srcOffset,
+                $"count: {count} srcSize: {src.GetByteCount()} srcOffset: {srcOffset}");
             dst.Clear();
 
             int sz = 0;
@@ -83,9 +83,9 @@ namespace Ice
         /// <returns>A segment with the requested size.</returns>
         public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int offset, int count)
         {
-            Debug.Assert(src.GetBytesCount() >= offset + count,
+            Debug.Assert(src.GetByteCount() >= offset + count,
                 $"requested {count} bytes starting at offset {offset} but there is only " +
-                $"{src.GetBytesCount() - offset} bytes remaining.");
+                $"{src.GetByteCount() - offset} bytes remaining.");
 
             // Skip offset bytes into the source segment list
             int remaining;

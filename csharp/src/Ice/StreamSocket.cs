@@ -186,7 +186,7 @@ namespace IceInternal
         /// data to write in the buffer.</returns>
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset)
         {
-            int count = buffer.GetBytesCount();
+            int count = buffer.GetByteCount();
             if (_state == StateProxyWrite)
             {
                 Debug.Assert(_proxy != null);
@@ -323,7 +323,7 @@ namespace IceInternal
 
             try
             {
-                int count = buffer.GetBytesCount();
+                int count = buffer.GetByteCount();
                 int remaining = count - offset;
                 buffer.FillSegments(offset, _sendSegments, Math.Min(remaining, _maxSendPacketSize));
                 _writeCallback = callback;
@@ -362,7 +362,7 @@ namespace IceInternal
 
             if (_fd == null) // Transceiver was closed
             {
-                int remaining = buffer.GetBytesCount() - offset;
+                int remaining = buffer.GetByteCount() - offset;
                 if (remaining <= _maxSendPacketSize)
                 {
                     offset += remaining; // Assume all the data was sent for at-most-once semantics.

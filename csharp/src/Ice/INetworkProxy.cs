@@ -103,7 +103,7 @@ namespace IceInternal
         public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetBytesCount() ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)
@@ -190,7 +190,7 @@ namespace IceInternal
         public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetBytesCount() ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)

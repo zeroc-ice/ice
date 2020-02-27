@@ -2087,7 +2087,7 @@ namespace Ice
             if (s != SocketOperation.None)
             {
                 _writeBufferOffset = 0;
-                _writeBufferSize = _writeBuffer.GetBytesCount();
+                _writeBufferSize = _writeBuffer.GetByteCount();
                 ScheduleTimeout(s);
                 ThreadPool.Update(this, operation, s);
                 return false;

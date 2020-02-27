@@ -336,7 +336,7 @@ namespace IceInternal
             }
 
             int socketOperation = SocketOperation.None;
-            int size = buffer.GetBytesCount();
+            int size = buffer.GetByteCount();
             do
             {
                 if (PreWrite(buffer, size, offset))
@@ -581,7 +581,7 @@ namespace IceInternal
                 }
             }
 
-            int size = buf.GetBytesCount();
+            int size = buf.GetByteCount();
             if (PreWrite(buf, size, offset))
             {
                 if (_writeBufferOffset < _writeBufferSize)
@@ -617,7 +617,7 @@ namespace IceInternal
                 return;
             }
 
-            int size = buffer.GetBytesCount();
+            int size = buffer.GetByteCount();
             if (_writeBufferOffset < _writeBufferSize)
             {
                 _delegate.FinishWrite(_writeBuffer, ref _writeBufferOffset);

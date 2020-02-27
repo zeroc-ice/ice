@@ -125,7 +125,7 @@ namespace IceInternal
 
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset)
         {
-            int count = buffer.GetBytesCount();
+            int count = buffer.GetByteCount();
             int remaining = count - offset;
             if (remaining == 0)
             {
@@ -448,7 +448,7 @@ namespace IceInternal
             }
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buffer.GetBytesCount());
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= buffer.GetByteCount());
 
             try
             {
@@ -468,7 +468,7 @@ namespace IceInternal
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
-                    ArraySegment<byte> data = buffer.GetSegment(0, buffer.GetBytesCount());
+                    ArraySegment<byte> data = buffer.GetSegment(0, buffer.GetByteCount());
                     _writeEventArgs.SetBuffer(data.Array, 0, data.Count);
 
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
@@ -495,7 +495,7 @@ namespace IceInternal
             Debug.Assert(offset == 0);
             if (_fd == null)
             {
-                int count = buffer.GetBytesCount(); // Assume all the data was sent for at-most-once semantics.
+                int count = buffer.GetByteCount(); // Assume all the data was sent for at-most-once semantics.
                 _writeEventArgs = null;
                 offset = count;
                 return;
@@ -551,7 +551,7 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-            Debug.Assert(ret == buffer.GetBytesCount());
+            Debug.Assert(ret == buffer.GetByteCount());
             offset = ret;
             return;
         }

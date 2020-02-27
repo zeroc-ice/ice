@@ -104,7 +104,7 @@ namespace IceSSL
 
         // Force caller to use async write.
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
-            offset < buffer.GetBytesCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
+            offset < buffer.GetByteCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
         public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
         {
@@ -223,7 +223,7 @@ namespace IceSSL
             // We limit the packet size for beingWrite to ensure connection timeouts are based
             // on a fixed packet size.
             //
-            int remaining = buffer.GetBytesCount() - offset;
+            int remaining = buffer.GetByteCount() - offset;
             int packetSize = GetSendPacketSize(remaining);
             try
             {
@@ -264,7 +264,7 @@ namespace IceSSL
             }
             else if (_sslStream == null) // Transceiver was closed
             {
-                int remaining = buffer.GetBytesCount() - offset;
+                int remaining = buffer.GetByteCount() - offset;
                 if (GetSendPacketSize(remaining) == remaining) // Sent last packet
                 {
                     offset = remaining; // Assume all the data was sent for at-most-once semantics.
@@ -279,7 +279,7 @@ namespace IceSSL
             }
 
             Debug.Assert(_writeResult != null);
-            int bytesTransferred = GetSendPacketSize(buffer.GetBytesCount() - offset);
+            int bytesTransferred = GetSendPacketSize(buffer.GetByteCount() - offset);
             try
             {
                 _sslStream.EndWrite(_writeResult);
