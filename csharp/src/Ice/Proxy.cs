@@ -575,7 +575,7 @@ namespace Ice
             }
             if (done)
             {
-                SetResult(new IncomingResponseFrame(og.GetIs(), (byte)0));
+                SetResult(new IncomingResponseFrame(og.GetIs(), ReplyStatus.OK));
             }
         }
 

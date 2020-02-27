@@ -1006,6 +1006,28 @@ namespace Ice.optional
 
                 responseFrame.InputStream.RestartEncapsulation();
                 responseFrame.InputStream.EndEncapsulation();
+
+                // TODO: why are we testing this here?
+                Test.F f = new Test.F();
+                f.af = new Test.A();
+                f.af.requiredA = 56;
+                f.ae = f.af;
+
+                var ostr = new OutputStream(communicator);
+                ostr.StartEncapsulation();
+                ostr.WriteOptional(1, OptionalFormat.Class);
+                ostr.WriteClass(f);
+                ostr.WriteOptional(2, OptionalFormat.Class);
+                ostr.WriteClass(f.ae);
+                ostr.EndEncapsulation();
+                var inEncaps = ostr.Finished();
+
+                var istr = new InputStream(communicator, inEncaps);
+                istr.StartEncapsulation();
+                test(istr.ReadOptional(2, OptionalFormat.Class));
+                var a = istr.ReadClass<Test.A>();
+                istr.EndEncapsulation();
+                test(a != null && a.requiredA == 56);
             }
 
             {
