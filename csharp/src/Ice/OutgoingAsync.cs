@@ -662,13 +662,11 @@ namespace IceInternal
             }
             else
             {
-                string[] facetPath = { facet };
-                Os.WriteStringSeq(facetPath);
+                Os.WriteStringSeq(new string[]{ facet });
             }
 
             Os.WriteString(operation);
-
-            Os.WriteByte(idempotent ? (byte)0x2 : (byte)0x0);
+            Os.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
 
             if (context != null)
             {

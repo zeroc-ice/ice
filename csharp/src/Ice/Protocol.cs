@@ -24,13 +24,7 @@ namespace IceInternal
             }
             string facet = facetPath.Length == 0 ? "" : facetPath[0];
             string operation = requestFrame.ReadString();
-            var mode = requestFrame.ReadByte();
-            if (mode > 2)
-            {
-                throw new Ice.MarshalException(
-                    $"received invalid operation mode `{mode}' with operation `{operation}'");
-            }
-            bool idempotent = mode > 0;
+            bool idempotent = requestFrame.ReadOperationMode() != OperationMode.Normal;
             var context = requestFrame.ReadContext();
             Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
 

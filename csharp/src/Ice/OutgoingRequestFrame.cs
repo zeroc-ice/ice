@@ -112,7 +112,7 @@ namespace Ice
             }
 
             WriteString(operation);
-            WriteByte(idempotent ? (byte)0x2 : (byte)0x0);
+            this.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
 
             if (context != null)
             {
