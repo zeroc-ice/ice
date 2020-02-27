@@ -1,0 +1,13 @@
+add_subdirectory(application)
+add_subdirectory(attack)
+add_subdirectory(override)
+add_subdirectory(router)
+add_subdirectory(sessionControl)
+add_subdirectory(sessionHelper)
+add_subdirectory(ssl)
+
+if(BUILD_SHARED_LIBS)
+	add_subdirectory(dynamicFiltering)
+else()
+	add_subdirectory(staticFiltering)
+endif()

@@ -1,0 +1,8 @@
+add_subdirectory(federation)
+add_subdirectory(federation2)
+add_subdirectory(persistent)
+add_subdirectory(rep1)
+add_subdirectory(repgrid)
+add_subdirectory(repstress)
+add_subdirectory(single)
+add_subdirectory(stress)
