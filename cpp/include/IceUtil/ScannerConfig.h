@@ -20,6 +20,8 @@
 #   pragma warning(disable:4018)
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 #   pragma warning(disable:4244)
+// unreferenced local function has been removed
+#   pragma warning(disable:4505)
 
 #   if defined(ICE_64)
 // '=' : conversion from 'size_t' to 'int', possible loss of data
@@ -30,6 +32,7 @@
 
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wsign-compare"
+#   pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 #ifdef __SUNPRO_CC

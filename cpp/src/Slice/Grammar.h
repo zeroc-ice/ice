@@ -48,7 +48,7 @@ extern int slice_debug;
 
 
 // Define a custom location type for storing the location (and filename) of matched tokens.
-#define YYLTYPE Slice::TokenLocation
+#define YYLTYPE Slice::TokenContext
 
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
@@ -106,12 +106,13 @@ extern int slice_debug;
     ICE_METADATA_OPEN = 292,
     ICE_METADATA_CLOSE = 293,
     ICE_GLOBAL_METADATA_OPEN = 294,
-    ICE_GLOBAL_METADATA_CLOSE = 295,
-    ICE_IDENT_OPEN = 296,
-    ICE_KEYWORD_OPEN = 297,
-    ICE_TAG_OPEN = 298,
-    ICE_OPTIONAL_OPEN = 299,
-    BAD_CHAR = 300
+    ICE_GLOBAL_METADATA_IGNORE = 295,
+    ICE_GLOBAL_METADATA_CLOSE = 296,
+    ICE_IDENT_OPEN = 297,
+    ICE_KEYWORD_OPEN = 298,
+    ICE_TAG_OPEN = 299,
+    ICE_OPTIONAL_OPEN = 300,
+    BAD_CHAR = 301
   };
 #endif
 

@@ -4,7 +4,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-// Included first to get 'TokenLocation' which we need to define YYLTYPE before flex does.
+// Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
 #include <Slice/GrammarUtil.h>
 
 }
@@ -78,6 +78,8 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #   pragma warning(disable:4065)
 // warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
 #   pragma warning(disable:4244)
+// warning C4127: conditional expression is constant
+#   pragma warning(disable:4127)
 #endif
 
 // Avoid old style cast warnings in generated grammar

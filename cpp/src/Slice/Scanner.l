@@ -89,9 +89,6 @@ static void yynoreturn fatalError(const char* msg);
   /* Directs flex to generate lookup tables that are better aligned in memory to
    * improve access speeds, even if this means allocating larger tables. */
 %option align
-  /* Directs flex to generate it's full lookup tables, instead of compressing them.
-   * this results in improved performance, at the cost of larger tables and file-sizes. */
-%option full
   /* Enables batching for improved performance. */
 %option batch
   /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
@@ -135,7 +132,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
 "\"" {
-    yy_push_state(QUOTED_STRING);
+    yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
     StringTokPtr str = new StringTok;
@@ -177,6 +174,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
         case 'r': ansiCode = '\r'; break;
         case 't': ansiCode = '\t'; break;
         case 'v': ansiCode = '\v'; break;
+        default: ansiCode = '\0'; assert(false);
     }
     str->literal += yytext;
     str->v += ansiCode;
@@ -364,23 +362,23 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Preprocessor Statements ========== */
 
   /* Matches the empty preprocessor directive. */
-^{preprocessor_prefix} {
+<*>^{preprocessor_prefix} {
     yy_push_state(PREPROCESS);
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
-^{preprocessor_prefix}line {
+<*>^{preprocessor_prefix}line {
     yy_push_state(PREPROCESS);
     unit->error("missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
-^{preprocessor_lineno}                         |
-^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
+<*>^{preprocessor_lineno}                         |
+<*>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
     switch(scanPosition(yytext))
     {
         case 1: // Push: Indicates the scanner has started scanning a new file.
-            yy_push_state(INTIIAL);
+            yy_push_state(INITIAL);
             break;
         case 2: // Pop: Indicates the scanner has completed scanning a file.
             yy_pop_state();
@@ -415,17 +413,17 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if(yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_GLOBAL_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_GLOBAL_METADATA_IGNORE;
     }
 }
 
   /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
 <METADATA>"\"" {
-    yy_push_state(QUOTED_STRING);
+    yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
     StringTokPtr str = new StringTok;
@@ -454,7 +452,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-<METADATA>[^[:space:]]* {
+<METADATA>[^[:space:]] {
     unit->error("invalid character between metadata");
 }
 
@@ -767,8 +765,6 @@ void yynoreturn fatalError(const char* msg)
 {
     cerr << *yyfilename << ":" << yylineno << ":" << yycolno << ": fatal  error: " << msg << endl
          << "\tlast matched text: `" << yytext << "'" << endl
-         << "\tlast scanner state: `" << YY_STATE << "'" << endl;
+         << "\tlast scanner state: `" << YY_START << "'" << endl;
     exit(YY_EXIT_FAILURE);
-}
-
 }
