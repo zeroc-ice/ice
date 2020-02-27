@@ -348,14 +348,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    unit->setComment(comment.substr(0, comment.length() - 2));
+    unit->setComment(comment.substr(0, yyleng - 2));
 }
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 <C_COMMENT><<EOF>> {
     yy_pop_state();
 
-    unit->warning(All, "encountered EOF while scanning a comment");
+    unit->error("encountered EOF while scanning a comment");
     unit->setComment(yytext);
 }
 

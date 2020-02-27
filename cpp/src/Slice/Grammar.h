@@ -47,7 +47,7 @@ extern int slice_debug;
 #line 12 "src/Slice/Grammar.y"
 
 
-// Define a custom location type for storing the location (and filename) of matched tokens.
+// Define a custom location type for storing the location (and filename) of tokens.
 #define YYLTYPE Slice::TokenContext
 
 // I must set the initial stack depth to the maximum stack depth to
