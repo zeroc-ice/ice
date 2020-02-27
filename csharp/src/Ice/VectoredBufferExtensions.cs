@@ -10,22 +10,28 @@ namespace Ice
 {
     public static class VectoredBufferExtensions
     {
-        public static int GetBytesCount(this IList<ArraySegment<byte>> segments)
+        /// <summary>Returns the sum of the count of all the array segments in
+        /// source segment list.</summary>
+        /// <param name="src">The source segment list.</param>
+        /// <returns>The byte count of the segment list.</returns>
+        public static int GetBytesCount(this IList<ArraySegment<byte>> src)
         {
             int count = 0;
-            foreach (ArraySegment<byte> segment in segments)
+            foreach (ArraySegment<byte> segment in src)
             {
                 count += segment.Count;
             }
             return count;
         }
 
-        /// <summary>Fill the segment list with at most count bytes from the source segment list starting
-        /// at the given offset.</summary>
-        /// <param name="src">The source segment list.</param>
-        /// <param name="srcOffset">The zero-based byte offset into the source segment list.</param>
-        /// <param name="dst">The list of segments to fill with data from the source segments list.</param>
-        /// <param name="count">The number of bytes to fill the segment lists with.</param>
+        /// <summary>Fill the destination segment list with at most count bytes from the source segment list
+        /// starting at the given offset. The destination list is fill with segments from the source list, or
+        /// with slices of the segments in the source list if the offset is beyong the start of a segment or
+        /// the count is reach before the end of a segment. The underlying arrays are own by the source list.</summary>
+        /// <param name="src">The source list.</param>
+        /// <param name="srcOffset">The zero-based byte offset into the source list.</param>
+        /// <param name="dst">The destination list to fill with array segments from the source list.</param>
+        /// <param name="count">The number of bytes to fill the destination lists with.</param>
         public static void
         FillSegments(this IList<ArraySegment<byte>> src, int srcOffset, IList<ArraySegment<byte>> dst, int count)
         {

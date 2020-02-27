@@ -32,7 +32,7 @@ namespace IceInternal
 
         public void Destroy() => _stream.Destroy();
 
-        public int  Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
+        public int Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
 
         public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
 

@@ -1534,7 +1534,7 @@ namespace Ice
                         throw _exception;
                     }
 
-                    SendMessage(new OutgoingMessage(os, compressionStatus > 0, true));
+                    SendMessage(new OutgoingMessage(os, compressionStatus > 0));
 
                     if (_state == StateClosing && _dispatchCount == 0)
                     {
@@ -2037,7 +2037,7 @@ namespace Ice
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Protocol.headerSize); // Message size.
 
-                if ((SendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
+                if ((SendMessage(new OutgoingMessage(os, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
                 {
                     SetState(StateClosingPending);
 
@@ -2071,7 +2071,7 @@ namespace Ice
                 os.WriteInt(Protocol.headerSize); // Message size.
                 try
                 {
-                    SendMessage(new OutgoingMessage(os, false, false));
+                    SendMessage(new OutgoingMessage(os, false));
                 }
                 catch (LocalException ex)
                 {
@@ -2304,7 +2304,6 @@ namespace Ice
                     // Otherwise, prepare the next message stream for writing.
                     //
                     message = _sendStreams.First.Value;
-                    Debug.Assert(!message.Prepared);
                     Debug.Assert(message.Stream != null);
                     OutputStream stream = message.Stream;
 
@@ -2356,7 +2355,6 @@ namespace Ice
 
             if (_sendStreams.Count > 0)
             {
-                message.Adopt();
                 _sendStreams.AddLast(message);
                 return OutgoingAsyncBase.AsyncStatusQueued;
             }
@@ -2366,8 +2364,6 @@ namespace Ice
             // asynchronous I/O or we request the caller to call finishSendMessage() outside
             // the synchronization.
             //
-
-            Debug.Assert(!message.Prepared);
             Debug.Assert(message.Stream != null);
             OutputStream stream = message.Stream;
 
@@ -2400,7 +2396,6 @@ namespace Ice
                 return status;
             }
 
-            message.Adopt();
             _writeStream.Swap(message.Stream);
             _sendStreams.AddLast(message);
             ScheduleTimeout(op);
@@ -2896,11 +2891,10 @@ namespace Ice
 
         private class OutgoingMessage
         {
-            internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
+            internal OutgoingMessage(OutputStream stream, bool compress)
             {
                 Stream = stream;
                 Compress = compress;
-                _adopt = adopt;
             }
 
             internal OutgoingMessage(OutgoingAsyncBase outAsync, OutputStream stream, bool compress, int requestId)
@@ -2915,10 +2909,6 @@ namespace Ice
             {
                 Debug.Assert(OutAsync != null); // Only requests can timeout.
                 OutAsync = null;
-            }
-
-            internal void Adopt()
-            {
             }
 
             internal bool Sent()
@@ -2948,8 +2938,6 @@ namespace Ice
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
             internal int RequestId;
-            internal bool _adopt;
-            internal bool Prepared;
             internal bool IsSent;
             internal bool InvokeSent;
             internal bool ReceivedReply;
@@ -2995,7 +2983,7 @@ namespace Ice
         private readonly InputStream _readStream;
         private bool _readHeader;
 
-        private OutputStream _writeStream;
+        private readonly OutputStream _writeStream;
         private IList<ArraySegment<byte>> _writeBuffer;
         private int _writeBufferOffset;
         private int _writeBufferSize;

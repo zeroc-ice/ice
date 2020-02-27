@@ -351,20 +351,18 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Returns the current position and allocates four bytes for a fixed-length (32-bit) size value.
-        /// </summary>
+        /// <summary>Returns the current position and write an int (four bytes) placeholder
+        /// for a fixed-length (32-bit) size value, the position can be used to calculate and
+        /// re-write the size later.</summary>
         public Position StartSize()
         {
-            var pos = _tail;
+            Position pos = _tail;
             WriteInt(0); // Placeholder for 32-bit size
             return pos;
         }
 
-        /// <summary>
-        /// Computes the amount of data written since the previous call to startSize and writes that value
-        /// at the saved position.
-        /// </summary>
+        /// <summary>Computes the amount of data written from the start position to the current position
+        /// and writes that value to the start position.</summary>
         /// <param name="start">The start position.</param>
         public void EndSize(Position start)
         {
@@ -1325,8 +1323,9 @@ namespace Ice
             return size + _tail.Offset;
         }
 
-        /// <summary>Write an span of bytes to the buffer, the buffer is expand of required, the size
-        /// and position are increase according to the spam length.</summary>
+        /// <summary>Write an span of bytes to the buffer, the stream capacity is expand
+        /// if required, the size and tail position are increase according to the spam
+        /// length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
         internal void WriteSpan(Span<byte> span)
         {
@@ -1365,19 +1364,27 @@ namespace Ice
             }
         }
 
-        /// <summary>Expand the stream to accept more data.</summary>
+        /// <summary>Expand the stream to make room for more data, if the stream
+        /// remaining bytes are not enough to hold the given number of bytes allocate
+        /// a new byte array, after this method return the stream has enough free space
+        /// to write the given number of bytes.</summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
-            if (Size + n > _capacity)
+            int remaining = _capacity - Size;
+            if (n > remaining)
             {
-                byte[] buffer = new byte[Math.Max(n, _currentSegment.Length * 2)];
+                int size = Math.Max(DefaultSegmentSize, _currentSegment.Length * 2);
+                size = Math.Max(n - remaining, size);
+                byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
                 _capacity += buffer.Length;
             }
         }
 
-        /// <summary>Helper method used to write an array of numeric types to the stream.</summary>
+        /// <summary>Helper method used to write an array of numeric types to the stream.
+        /// The stream capacity is expand if required, the size and tail position are increase
+        /// according to the length in bytes of the numeric sequence.</summary>
         /// <param name="arr">The numeric array to write to the stream.</param>
         private void WriteNumericSeq(Array arr)
         {
@@ -1410,11 +1417,6 @@ namespace Ice
             MemoryMarshal.Write(data, ref v);
             WriteSpan(data);
         }
-
-        /// <summary>
-        /// Releases any data retained by encapsulations. The reset() method internally calls clear().
-        /// </summary>
-        internal void Clear() => ResetEncapsulation();
 
         /// <summary>Swaps the contents of one stream with another.</summary>
         /// <param name="other">The other stream.</param>
