@@ -11,7 +11,7 @@
 
 %code requires{
 
-// Define a custom location type for storing the location (and filename) of matched tokens.
+// Define a custom location type for storing the location (and filename) of tokens.
 #define YYLTYPE Slice::TokenContext
 
 // I must set the initial stack depth to the maximum stack depth to
@@ -31,6 +31,7 @@
 
 // Defines the rule bison uses to reduce token locations. Bison asks that the macro should
 // be one-line, and treatable as a single statement when followed by a semi-colon.
+// `N` is the number of tokens that are being combined, and (Cur) is their combined location.
 #define YYLLOC_DEFAULT(Cur, Rhs, N)                               \
 do                                                                \
     if(N == 1)                                                    \
@@ -114,8 +115,11 @@ slice_error(const char* s)
 
 %}
 
+// Directs Bison to generate a re-entrant parser.
 %define api.pure
+// Specifies what type to back the tokens with (their semantic values).
 %define api.value.type {Slice::GrammarBasePtr}
+// Enables Bison's token location tracking functionality.
 %locations
 
 // All keyword tokens. Make sure to modify the "keyword" rule in this
