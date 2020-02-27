@@ -15,8 +15,8 @@ IcePy_libs              := mcpp
 IcePy_extra_sources     := $(filter-out %Util.cpp %Ruby.cpp,\
                            $(wildcard $(top_srcdir)/cpp98/src/Slice/*.cpp)) \
                            $(top_srcdir)/cpp98/src/Slice/SliceUtil.cpp \
-                           $(top_srcdir)/cpp98/src/Slice/PythonUtil.cpp \
                            $(top_srcdir)/cpp98/src/Slice/StringLiteralUtil.cpp \
+                           $(top_srcdir)/cpp98/src/slice2py/PythonUtil.cpp \
 
 #
 # On the default platform, always write the module in the python directory.

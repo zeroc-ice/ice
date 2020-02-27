@@ -7,7 +7,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <Ice/UUID.h>
-#include <Slice/PythonUtil.h>
+#include <slice2py/PythonUtil.h>
 #include <compile.h>
 #include <frameobject.h>
 

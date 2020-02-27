@@ -4,7 +4,7 @@
 
 #include "Gen.h"
 #include <Slice/Util.h>
-#include <Slice/CPlusPlusUtil.h>
+#include "CPlusPlusUtil.h"
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>

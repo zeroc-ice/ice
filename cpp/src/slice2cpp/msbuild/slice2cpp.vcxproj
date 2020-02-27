@@ -102,6 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\Gen.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
@@ -109,6 +110,7 @@
     <ResourceCompile Include="..\Slice2Cpp.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\Gen.h" />
   </ItemGroup>
   <ItemGroup>
