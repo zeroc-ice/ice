@@ -714,18 +714,18 @@ namespace IceInternal
                 ChildObserver = null;
             }
 
-            byte replyStatus;
+            ReplyStatus replyStatus;
             try
             {
-                replyStatus = Is.ReadByte();
+                replyStatus = (ReplyStatus)Is.ReadByte();
 
                 switch (replyStatus)
                 {
-                    case ReplyStatus.replyOK:
+                    case ReplyStatus.OK:
                         {
                             break;
                         }
-                    case ReplyStatus.replyUserException:
+                    case ReplyStatus.UserException:
                         {
                             if (Observer != null)
                             {
@@ -734,9 +734,9 @@ namespace IceInternal
                             break;
                         }
 
-                    case ReplyStatus.replyObjectNotExist:
-                    case ReplyStatus.replyFacetNotExist:
-                    case ReplyStatus.replyOperationNotExist:
+                    case ReplyStatus.ObjectNotExistException:
+                    case ReplyStatus.FacetNotExistException:
+                    case ReplyStatus.OperationNotExistException:
                         {
                             var ident = new Ice.Identity(Is);
 
@@ -763,19 +763,19 @@ namespace IceInternal
                             Ice.RequestFailedException ex;
                             switch (replyStatus)
                             {
-                                case ReplyStatus.replyObjectNotExist:
+                                case ReplyStatus.ObjectNotExistException:
                                     {
                                         ex = new Ice.ObjectNotExistException();
                                         break;
                                     }
 
-                                case ReplyStatus.replyFacetNotExist:
+                                case ReplyStatus.FacetNotExistException:
                                     {
                                         ex = new Ice.FacetNotExistException();
                                         break;
                                     }
 
-                                case ReplyStatus.replyOperationNotExist:
+                                case ReplyStatus.OperationNotExistException:
                                     {
                                         ex = new Ice.OperationNotExistException();
                                         break;
@@ -794,28 +794,28 @@ namespace IceInternal
                             throw ex;
                         }
 
-                    case ReplyStatus.replyUnknownException:
-                    case ReplyStatus.replyUnknownLocalException:
-                    case ReplyStatus.replyUnknownUserException:
+                    case ReplyStatus.UnknownException:
+                    case ReplyStatus.UnknownLocalException:
+                    case ReplyStatus.UnknownUserException:
                         {
                             string unknown = Is.ReadString();
 
                             Ice.UnknownException ex;
                             switch (replyStatus)
                             {
-                                case ReplyStatus.replyUnknownException:
+                                case ReplyStatus.UnknownException:
                                     {
                                         ex = new Ice.UnknownException();
                                         break;
                                     }
 
-                                case ReplyStatus.replyUnknownLocalException:
+                                case ReplyStatus.UnknownLocalException:
                                     {
                                         ex = new Ice.UnknownLocalException();
                                         break;
                                     }
 
-                                case ReplyStatus.replyUnknownUserException:
+                                case ReplyStatus.UnknownUserException:
                                     {
                                         ex = new Ice.UnknownUserException();
                                         break;
@@ -838,7 +838,7 @@ namespace IceInternal
                         }
                 }
 
-                return ResponseImpl(false, replyStatus == ReplyStatus.replyOK, true);
+                return ResponseImpl(false, replyStatus == ReplyStatus.OK, true);
             }
             catch (Ice.Exception ex)
             {

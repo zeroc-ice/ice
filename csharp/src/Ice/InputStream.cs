@@ -26,7 +26,7 @@ namespace Ice
     /// <summary>
     /// Interface for input streams used to extract Slice types from a sequence of bytes.
     /// </summary>
-    public class InputStream
+    public sealed class InputStream
     {
         public static readonly InputStreamReader<bool> IceReaderIntoBool = (istr) => istr.ReadBool();
         public static readonly InputStreamReader<byte> IceReaderIntoByte = (istr) => istr.ReadByte();

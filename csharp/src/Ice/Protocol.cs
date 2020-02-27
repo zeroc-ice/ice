@@ -23,7 +23,7 @@ namespace IceInternal
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
             ostr.WriteInt(current.RequestId);
-            ostr.WriteByte(ReplyStatus.replyOK);
+            ostr.WriteByte((byte)ReplyStatus.OK);
             ostr.StartEncapsulation(current.Encoding, format);
             return ostr;
         }
@@ -38,7 +38,7 @@ namespace IceInternal
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
             ostr.WriteInt(current.RequestId);
-            ostr.WriteByte(ReplyStatus.replyOK);
+            ostr.WriteByte((byte)ReplyStatus.OK);
             ostr.WriteEmptyEncapsulation(current.Encoding);
             return ostr;
         }
@@ -53,7 +53,7 @@ namespace IceInternal
             var ostr = new Ice.OutputStream(current.Adapter.Communicator, Ice.Util.CurrentProtocolEncoding);
             ostr.WriteBlob(Protocol.replyHdr);
             ostr.WriteInt(current.RequestId);
-            ostr.WriteByte(ReplyStatus.replyUserException);
+            ostr.WriteByte((byte)ReplyStatus.UserException);
             // Exceptions are always marshaled in the sliced format:
             ostr.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
             return ostr;
@@ -94,15 +94,15 @@ namespace IceInternal
 
                 if (ex is Ice.ObjectNotExistException)
                 {
-                    ostr.WriteByte(ReplyStatus.replyObjectNotExist);
+                    ostr.WriteByte((byte)ReplyStatus.ObjectNotExistException);
                 }
                 else if (ex is Ice.FacetNotExistException)
                 {
-                    ostr.WriteByte(ReplyStatus.replyFacetNotExist);
+                    ostr.WriteByte((byte)ReplyStatus.FacetNotExistException);
                 }
                 else if (ex is Ice.OperationNotExistException)
                 {
-                    ostr.WriteByte(ReplyStatus.replyOperationNotExist);
+                    ostr.WriteByte((byte)ReplyStatus.OperationNotExistException);
                 }
                 else
                 {
@@ -124,22 +124,22 @@ namespace IceInternal
             }
             catch (Ice.UnknownLocalException ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUnknownLocalException);
+                ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
                 ostr.WriteString(ex.Unknown);
             }
             catch (Ice.UnknownUserException ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUnknownUserException);
+                ostr.WriteByte((byte)ReplyStatus.UnknownUserException);
                 ostr.WriteString(ex.Unknown);
             }
             catch (Ice.UnknownException ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUnknownException);
+                ostr.WriteByte((byte)ReplyStatus.UnknownException);
                 ostr.WriteString(ex.Unknown);
             }
             catch (Ice.UserException ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUserException);
+                ostr.WriteByte((byte)ReplyStatus.UserException);
                 // Exceptions are always marshaled in the sliced format:
                 ostr.StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
                 ostr.WriteException(ex);
@@ -147,12 +147,12 @@ namespace IceInternal
             }
             catch (Ice.Exception ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUnknownLocalException);
+                ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
                 ostr.WriteString(ex.ice_id() + "\n" + ex.StackTrace);
             }
             catch (System.Exception ex)
             {
-                ostr.WriteByte(ReplyStatus.replyUnknownException);
+                ostr.WriteByte((byte)ReplyStatus.UnknownException);
                 ostr.WriteString(ex.ToString());
             }
             return ostr;

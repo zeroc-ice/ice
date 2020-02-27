@@ -22,35 +22,25 @@ namespace Ice.invoke
 
             {
                 var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
-                byte[] outEncaps;
-                if (!oneway.Invoke(requestFrame, out outEncaps))
-                {
-                    test(false);
-                }
+                var responseFrame = oneway.Invoke(requestFrame);
+                test(responseFrame.ReplyStatus == 0);
 
-                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                requestFrame = OutgoingRequestFrame.Start(cl, "opString", idempotent: false);
                 requestFrame.WriteString(testString);
                 requestFrame.EndParameters();
 
-                if (cl.Invoke(requestFrame, out outEncaps))
-                {
-                    InputStream inS = new InputStream(communicator, outEncaps);
-                    inS.StartEncapsulation();
-                    string s = inS.ReadString();
-                    test(s.Equals(testString));
-                    s = inS.ReadString();
-                    inS.EndEncapsulation();
-                    test(s.Equals(testString));
-                }
-                else
-                {
-                    test(false);
-                }
+                responseFrame = cl.Invoke(requestFrame);
+                test(responseFrame.ReplyStatus == 0);
+                responseFrame.InputStream.StartEncapsulation();
+                string s = responseFrame.InputStream.ReadString();
+                test(s.Equals(testString));
+                s = responseFrame.InputStream.ReadString();
+                responseFrame.InputStream.EndEncapsulation();
+                test(s.Equals(testString));
             }
 
             for (int i = 0; i < 2; ++i)
             {
-                byte[] outEncaps;
                 Dictionary<string, string> ctx = null;
                 if (i == 1)
                 {
@@ -60,26 +50,20 @@ namespace Ice.invoke
 
                 var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false, context: ctx);
 
-                if (cl.Invoke(requestFrame, out outEncaps))
+                var responseFrame = cl.Invoke(requestFrame);
+                test(responseFrame.ReplyStatus == ReplyStatus.UserException);
+                responseFrame.InputStream.StartEncapsulation();
+                try
+                {
+                    responseFrame.InputStream.ThrowException();
+                }
+                catch (Test.MyException)
+                {
+                    responseFrame.InputStream.EndEncapsulation();
+                }
+                catch (Exception)
                 {
                     test(false);
-                }
-                else
-                {
-                    InputStream inS = new InputStream(communicator, outEncaps);
-                    inS.StartEncapsulation();
-                    try
-                    {
-                        inS.ThrowException();
-                    }
-                    catch (Test.MyException)
-                    {
-                        inS.EndEncapsulation();
-                    }
-                    catch (Exception)
-                    {
-                        test(false);
-                    }
                 }
             }
 
@@ -99,50 +83,37 @@ namespace Ice.invoke
                     test(false);
                 }
 
-                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                requestFrame = OutgoingRequestFrame.Start(cl, "opString", idempotent: false);
                 requestFrame.WriteString(testString);
                 requestFrame.EndParameters();
 
-                var result = cl.InvokeAsync(requestFrame).Result;
-                if (result.ReturnValue)
-                {
-                    InputStream inS = new InputStream(communicator, result.OutEncaps);
-                    inS.StartEncapsulation();
-                    string s = inS.ReadString();
-                    test(s.Equals(testString));
-                    s = inS.ReadString();
-                    inS.EndEncapsulation();
-                    test(s.Equals(testString));
-                }
-                else
-                {
-                    test(false);
-                }
+                var responseFrame = cl.InvokeAsync(requestFrame).Result;
+                test(responseFrame.ReplyStatus == 0);
+                responseFrame.InputStream.StartEncapsulation();
+                string s = responseFrame.InputStream.ReadString();
+                test(s.Equals(testString));
+                s = responseFrame.InputStream.ReadString();
+                responseFrame.InputStream.EndEncapsulation();
+                test(s.Equals(testString));
             }
 
             {
                 var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false);
-                var result = cl.InvokeAsync(requestFrame).Result;
-                if (result.ReturnValue)
+                var responseFrame = cl.InvokeAsync(requestFrame).Result;
+                test(responseFrame.ReplyStatus == ReplyStatus.UserException);
+
+                responseFrame.InputStream.StartEncapsulation();
+                try
+                {
+                    responseFrame.InputStream.ThrowException();
+                }
+                catch (Test.MyException)
+                {
+                    responseFrame.InputStream.EndEncapsulation();
+                }
+                catch (Exception)
                 {
                     test(false);
-                }
-                else
-                {
-                    InputStream inS = new InputStream(communicator, result.OutEncaps);
-                    inS.StartEncapsulation();
-                    try
-                    {
-                        inS.ThrowException();
-                    }
-                    catch (Test.MyException)
-                    {
-                        inS.EndEncapsulation();
-                    }
-                    catch (Exception)
-                    {
-                        test(false);
-                    }
                 }
             }
 
