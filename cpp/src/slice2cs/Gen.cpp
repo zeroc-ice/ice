@@ -2789,10 +2789,9 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     if(operation->hasMarshaledResult())
     {
         _out << sp;
-        _out << nl << "public struct " << opName << "MarshaledReturnValue : "
-             << getUnqualified("Ice.IMarshaledReturnValue", ns);
+        _out << nl << "public struct " << opName << "MarshaledReturnValue";
         _out << sb;
-        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " OutputStream { get; }";
+        _out << nl << "public " << getUnqualified("Ice.OutgoingResponseFrame", ns) << " ResponseFrame { get; }";
 
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(outParams, [](const auto& p)
@@ -2802,14 +2801,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "OutputStream = global::IceInternal.Protocol.StartResponseFrame(current";
+        _out << nl << "ResponseFrame = global::Ice.OutgoingResponseFrame.Start(current";
         if (operation->format() != DefaultFormat)
         {
             _out << ", " << opFormatTypeToString(operation, ns);
         }
         _out << ");";
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "OutputStream");
-        _out << nl << "OutputStream.EndEncapsulation();";
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ResponseFrame");
+        _out << nl << "ResponseFrame.EndPayload();";
         _out << eb;
 
         _out << eb;
@@ -2904,12 +2903,12 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "var result = await this." << name << spar << getNames(inParams) << "current" << epar
                 << ".ConfigureAwait(false);";
-            _out << nl << "return result.OutputStream;";
+            _out << nl << "return result.ResponseFrame;";
         }
         else
         {
             _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
-                << "current" << epar << ".OutputStream);";
+                << "current" << epar << ".ResponseFrame);";
         }
         _out << eb;
     }
@@ -2939,7 +2938,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             if (amd)
             {
-                _out << nl << "return global::IceInternal.Protocol.CreateEmptyResponseFrame(current);";
+                _out << nl << "return global::Ice.OutgoingResponseFrame.Empty(current);";
             }
             else
             {
@@ -2948,21 +2947,21 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var ostr = global::IceInternal.Protocol.StartResponseFrame(current";
+            _out << nl << "var responseFrame = global::Ice.OutgoingResponseFrame.Start(current";
             if (operation->format() != DefaultFormat)
             {
                 _out << ", " << opFormatTypeToString(operation, ns);
             }
             _out << ");";
-            writeMarshalParams(operation, requiredOutParams, taggedOutParams);
-            _out << nl << "ostr.EndEncapsulation();";
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "responseFrame");
+            _out << nl << "responseFrame.EndPayload();";
             if (amd)
             {
-                _out << nl << "return ostr;";
+                _out << nl << "return responseFrame;";
             }
             else
             {
-                _out << nl << "return IceFromResult(ostr);";
+                _out << nl << "return IceFromResult(responseFrame);";
             }
         }
         _out << eb;

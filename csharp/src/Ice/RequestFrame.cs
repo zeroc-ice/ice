@@ -118,7 +118,7 @@ namespace Ice
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
-        /// </params>
+        /// </param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <returns>A new OutgoingRequestFrame.</returns>

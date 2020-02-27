@@ -15,16 +15,16 @@ namespace Ice.invoke
             {
                 Debug.Assert(current.IsOneway);
                 // TODO: replace by OutputStream.Empty
-                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
+                return OutgoingResponseFrame.Empty(current);
             }
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var ostr = IceInternal.Protocol.StartResponseFrame(current);
-                ostr.WriteString(s);
-                ostr.WriteString(s);
-                ostr.EndEncapsulation();
-                return ostr;
+                var responseFrame = OutgoingResponseFrame.Start(current);
+                responseFrame.WriteString(s);
+                responseFrame.WriteString(s);
+                responseFrame.EndPayload();
+                return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
             {
@@ -33,30 +33,30 @@ namespace Ice.invoke
                     throw new Test.MyException();
                 }
                 var ex = new Test.MyException();
-                var ostr = IceInternal.Protocol.StartFailureResponseFrame(current);
-                ostr.WriteException(ex);
-                ostr.EndEncapsulation();
-                return ostr;
+                var responseFrame = OutgoingResponseFrame.StartFailure(current);
+                responseFrame.WriteException(ex);
+                responseFrame.EndPayload();
+                return responseFrame;
             }
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return IceInternal.Protocol.CreateEmptyResponseFrame(current);
+                return OutgoingResponseFrame.Empty(current);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var ostr = IceInternal.Protocol.StartResponseFrame(current);
+                var responseFrame = OutgoingResponseFrame.Start(current);
                 if (s.Equals("::Test::MyClass"))
                 {
-                    ostr.WriteBool(true);
+                    responseFrame.WriteBool(true);
                 }
                 else
                 {
-                    ostr.WriteBool(false);
+                    responseFrame.WriteBool(false);
                 }
-                ostr.EndEncapsulation();
-                return ostr;
+                responseFrame.EndPayload();
+                return responseFrame;
             }
             else
             {

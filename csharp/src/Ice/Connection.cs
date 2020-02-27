@@ -2729,7 +2729,7 @@ namespace Ice
                     if (requestId != 0)
                     {
                         Incoming.ReportException(ex, dispatchObserver, current);
-                        responseFrame = Protocol.CreateFailureResponseFrame(ex, current);
+                        responseFrame = OutgoingResponseFrame.CreateFailure(ex, current);
                     }
                 }
 
