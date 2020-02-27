@@ -2139,15 +2139,32 @@ namespace Ice
 
         private sealed class Enumerator<T> : IEnumerator<T>
         {
-            public T Current { get; private set; }
+            public T Current
+            {
+                get
+                {
+                    if (_pos == 0 || _pos > _size)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    return _current;
+                }
+            }
+
             object IEnumerator.Current => Current!;
 
+            private T _current;
             private readonly InputStream _ins;
             private readonly InputStreamReader<T> _read;
             private int _pos;
             private readonly int _size;
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+            // Disabled this warning as the _current field is never read until it is initialized
+            // in MoveNext. The Current property accessor warrants it. Declared the field as nullable
+            // is not an option for a generic that can be used with reference and value types.
             public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             {
                 _ins = ins;
                 _read = read;
@@ -2157,14 +2174,14 @@ namespace Ice
 
             public bool MoveNext()
             {
-                if (_pos >= _size)
+                if (++_pos > _size)
                 {
+                    _pos = _size + 1;
                     return false;
                 }
                 else
                 {
-                    Current = _read(_ins);
-                    _pos++;
+                    _current = _read(_ins);
                     return true;
                 }
             }
