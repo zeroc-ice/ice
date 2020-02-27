@@ -2139,7 +2139,6 @@ namespace Ice
 
         private sealed class Enumerator<T> : IEnumerator<T>
         {
-            private T _current;
             public T Current
             {
                 get
@@ -2151,8 +2150,10 @@ namespace Ice
                     return _current;
                 }
             }
+
             object IEnumerator.Current => Current!;
 
+            private T _current;
             private readonly InputStream _ins;
             private readonly InputStreamReader<T> _read;
             private int _pos;
@@ -2175,6 +2176,7 @@ namespace Ice
             {
                 if (++_pos > _size)
                 {
+                    _pos = _size + 1;
                     return false;
                 }
                 else
