@@ -305,6 +305,9 @@ namespace IceInternal
             // Compress the message body, but not the header.
             //
             int uncompressedLen = stream.Size - headerSize;
+
+            // TODO: Avoid copy the data using bzip2 low level API, feeding segments instead of allocating
+            // a new array to hold the whole input.
             byte[] data = stream.GetBytes(headerSize, uncompressedLen);
 
             int compressedLen = (int)((uncompressedLen * 1.01) + 600);

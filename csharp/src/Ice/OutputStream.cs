@@ -135,22 +135,18 @@ namespace Ice
             Communicator = communicator;
             Encoding = encoding;
             _segmentList = new List<byte[]>();
+            _currentSegment = buffer ?? new byte[DefaultSegmentSize];
+            _segmentList.Add(_currentSegment);
+            _capacity = _currentSegment.Length;
             if (buffer == null)
             {
-                _currentSegment = new byte[DefaultSegmentSize];
-                _segmentList.Add(_currentSegment);
                 Size = 0;
-                _capacity = DefaultSegmentSize;
-                _tail = new Position(0, 0);
             }
             else
             {
-                _currentSegment = buffer;
-                _segmentList.Add(buffer);
                 Size = buffer.Length;
-                _capacity = buffer.Length;
-                _tail = new Position(0, buffer.Length);
             }
+            _tail = new Position(0, Size);
         }
 
         /// <summary>
@@ -1220,7 +1216,7 @@ namespace Ice
         }
 
         /// <summary>Write a byte at a given position of the stream.</summary>
-        /// <param name="v">The byte to write,</param>
+        /// <param name="v">The byte value to write.</param>
         /// <param name="pos">The position to write to.</param>
         internal void RewriteByte(byte v, Position pos)
         {
@@ -1236,8 +1232,8 @@ namespace Ice
             }
         }
 
-        // <summary>Write a byte at a given position of the stream.</summary>
-        /// <param name="v">The int to write.</param>
+        // <summary>Write an integer number (4 bytes) at a given position of the stream.</summary>
+        /// <param name="v">The integer value to write.</param>
         /// <param name="pos">The position to write to.</param>
         internal void RewriteInt(int v, Position pos)
         {
@@ -1323,8 +1319,8 @@ namespace Ice
             return size + _tail.Offset;
         }
 
-        /// <summary>Write an span of bytes to the buffer, the stream capacity is expand
-        /// if required, the size and tail position are increase according to the spam
+        /// <summary>Write an span of bytes to the stream, the stream capacity is expanded
+        /// if required, the size and tail position are increased according to the spam
         /// length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
         internal void WriteSpan(Span<byte> span)
@@ -1383,7 +1379,7 @@ namespace Ice
         }
 
         /// <summary>Helper method used to write an array of numeric types to the stream.
-        /// The stream capacity is expand if required, the size and tail position are increase
+        /// The stream capacity is expanded if required, the size and tail position are increased
         /// according to the length in bytes of the numeric sequence.</summary>
         /// <param name="arr">The numeric array to write to the stream.</param>
         private void WriteNumericSeq(Array arr)
@@ -1608,7 +1604,7 @@ namespace Ice
             // The following fields are used and reused for all the slices of a class or exception instance.
             internal byte SliceFlags = 0;
 
-            // Position of the first data member in the slice, just after the optional slice size.
+            // Position of the optional slice size.
             internal Position SliceSizePos = new Position(0, 0);
 
             // Position of the first data member in the slice, just after the optional slice size.
