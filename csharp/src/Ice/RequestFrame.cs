@@ -11,30 +11,6 @@ namespace Ice
 {
     using Context = Dictionary<string, string>;
 
-    /// <summary>Holds header information for request frames.</summary>
-    public readonly struct RequestFrameHeader
-    {
-        /// <summary>The identity of the target Ice object.</summary>
-        public readonly Identity Identity;
-
-        /// <summary>The facet of the target Ice object.</summary>
-        public readonly string Facet;
-
-        /// <summary>The operation called on the Ice object.</summary>
-        public readonly string Operation;
-
-         /// <summary>When true, the operation is idempotent.</summary>
-        public readonly bool IsIdempotent;
-
-        public RequestFrameHeader(Identity identity, string facet, string operation, bool idempotent)
-        {
-            Identity = identity;
-            Facet = facet;
-            Operation = operation;
-            IsIdempotent = idempotent;
-        }
-    }
-
     /// <summary>Represents a request protocol frame received by the application.</summary>
     // TODO: IncomingRequestFrame should derive from InputStream
     public sealed class IncomingRequestFrame
@@ -72,7 +48,17 @@ namespace Ice
     /// <summary>Represents a request protocol frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutputStream
     {
-        public RequestFrameHeader Header { get; }
+        /// <summary>The identity of the target Ice object.</summary>
+        public Identity Identity { get; }
+
+        /// <summary>The facet of the target Ice object.</summary>
+        public string Facet { get; }
+
+        /// <summary>The operation called on the Ice object.</summary>
+        public string Operation { get; }
+
+         /// <summary>When true, the operation is idempotent.</summary>
+        public bool IsIdempotent { get; }
 
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Context Context { get; }
@@ -154,7 +140,10 @@ namespace Ice
             bool idempotent, Context? prxContext, Context? context)
             : base(communicator)
         {
-            Header = new RequestFrameHeader(identity, facet, operation, idempotent);
+            Identity = identity;
+            Facet = facet;
+            Operation = operation;
+            IsIdempotent = idempotent;
 
             WriteBlob(Protocol.requestHdr);
             identity.IceWrite(this);
