@@ -23,7 +23,7 @@ namespace Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-         /// <summary>When true, the operation is idempotent.</summary>
+        /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
 
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
@@ -68,7 +68,7 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-         /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
+        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
         /// </param>
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null,
                                     ArraySegment<byte>? payload = null)
