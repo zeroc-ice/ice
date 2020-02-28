@@ -44,7 +44,7 @@ namespace IceInternal
         public override void StreamWrite(Ice.OutputStream s)
         {
             s.StartEndpointEncapsulation(_rawEncoding);
-            s.WriteBlob(_rawBytes);
+            s.WriteSpan(_rawBytes.AsSpan());
             s.EndEndpointEncapsulation();
         }
 

@@ -298,14 +298,18 @@ namespace IceInternal
 
         public static bool Supported() => _bzlibInstalled;
 
-        public static Buffer? Compress(Buffer buf, int headerSize, int compressionLevel)
+        public static Ice.OutputStream? Compress(Ice.OutputStream stream, int headerSize, int compressionLevel)
         {
             Debug.Assert(Supported());
             //
             // Compress the message body, but not the header.
             //
-            int uncompressedLen = buf.Size() - headerSize;
-            byte[] data = buf.B.RawBytes(headerSize, uncompressedLen);
+            int uncompressedLen = stream.Size - headerSize;
+
+            // TODO: Avoid copy the data using bzip2 low level API, feeding segments instead of allocating
+            // a new array to hold the whole input.
+            byte[] data = stream.GetBytes(headerSize, uncompressedLen);
+
             int compressedLen = (int)((uncompressedLen * 1.01) + 600);
             byte[] compressed = new byte[compressedLen];
 
@@ -316,9 +320,7 @@ namespace IceInternal
             }
             else if (rc < 0)
             {
-                var ex = new Ice.CompressionException("BZ2_bzBuffToBuffCompress failed");
-                ex.Reason = GetBZ2Error(rc);
-                throw ex;
+                throw new Ice.CompressionException($"BZ2_bzBuffToBuffCompress failed {GetBZ2Error(rc)}");
             }
 
             //
@@ -330,27 +332,18 @@ namespace IceInternal
                 return null;
             }
 
-            var r = new Buffer();
-            r.Resize(headerSize + 4 + compressedLen, false);
-            r.B.Position(0);
-
             //
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            r.B.Put(buf.B.RawBytes(0, headerSize));
-
+            byte[] header = stream.GetBytes(0, headerSize + 4);
+            var r = new Ice.OutputStream(stream.Communicator, stream.Encoding, header);
             //
             // Add the size of the uncompressed stream before the
             // message body.
             //
-            r.B.PutInt(buf.Size());
-
-            //
-            // Add the compressed message body.
-            //
-            r.B.Put(compressed, 0, compressedLen);
-
+            r.RewriteInt(stream.Size, new Ice.OutputStream.Position(0, headerSize));
+            r.WriteSpan(compressed.AsSpan(0, compressedLen));
             return r;
         }
 
@@ -389,7 +382,6 @@ namespace IceInternal
             r.B.Position(0);
             r.B.Put(buf.B.RawBytes(), 0, headerSize);
             r.B.Put(uncompressed);
-
             return r;
         }
 

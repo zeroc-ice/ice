@@ -934,7 +934,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         p1.Value.IceWrite(outputStream);
                         outputStream.EndSize(pos);
                     });
@@ -967,7 +967,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.Class);
                 ostr.WriteClass(f.ae);
                 ostr.EndEncapsulation();
-                var inEncaps = ostr.Finished();
+                var inEncaps = ostr.ToArray();
 
                 var istr = new InputStream(communicator, inEncaps);
                 istr.StartEncapsulation();
@@ -1040,7 +1040,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         outputStream.WriteProxy(p1);
                         outputStream.EndSize(pos);
                     });
@@ -1368,7 +1368,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         outputStream.WriteStringSeq(p1);
                         outputStream.EndSize(pos);
                     });
@@ -1595,7 +1595,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         outputStream.Write(p1);
                         outputStream.EndSize(pos);
                     });
@@ -1730,7 +1730,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         outputStream.Write(p1);
                         outputStream.EndSize(pos);
                     });
@@ -1778,7 +1778,7 @@ namespace Ice.optional
                     outputStream =>
                     {
                         outputStream.WriteOptional(2, OptionalFormat.FSize);
-                        int pos = outputStream.StartSize();
+                        OutputStream.Position pos = outputStream.StartSize();
                         outputStream.Write(p1);
                         outputStream.EndSize(pos);
                     });

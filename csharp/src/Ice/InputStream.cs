@@ -1449,6 +1449,7 @@ namespace Ice
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
             int sz = ReadInt();
+            Debug.Assert(sz >= 6);
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
@@ -1816,7 +1817,7 @@ namespace Ice
             _current.Slices ??= new List<SliceInfo>();
             var info = new SliceInfo(_current.SliceTypeId,
                                      _current.SliceCompactId,
-                                     Array.AsReadOnly(bytes),
+                                     new ReadOnlyMemory<byte>(bytes),
                                      Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
                                      hasOptionalMembers,
                                      (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);

@@ -343,7 +343,6 @@ namespace Ice
                 }
                 else
                 {
-                    _writeStreamPos = -1;
                     _readStreamPos = -1;
                 }
             }
@@ -372,7 +371,7 @@ namespace Ice
                 // called every (timeout / 2) period.
                 //
                 if (acm.Heartbeat == ACMHeartbeat.HeartbeatAlways ||
-                   (acm.Heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.IsEmpty &&
+                   (acm.Heartbeat != ACMHeartbeat.HeartbeatOff && _writeBufferSize == 0 &&
                     now >= (_acmLastActivity + (acm.Timeout / 4))))
                 {
                     if (acm.Heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
@@ -381,7 +380,7 @@ namespace Ice
                     }
                 }
 
-                if (_readStream.Size > Protocol.headerSize || !_writeStream.IsEmpty)
+                if (_readStream.Size > Protocol.headerSize || _writeBufferSize > 0)
                 {
                     //
                     // If writing or reading, nothing to do, the connection
@@ -418,7 +417,6 @@ namespace Ice
         internal int SendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response)
         {
             OutputStream os = og.GetOs();
-
             lock (this)
             {
                 //
@@ -438,7 +436,7 @@ namespace Ice
                 // Ensure the message isn't bigger than what we can send with the
                 // transport.
                 //
-                _transceiver.CheckSendSize(os.GetBuffer());
+                _transceiver.CheckSendSize(os.Size);
 
                 //
                 // Notify the request that it's cancelable with this connection.
@@ -461,8 +459,7 @@ namespace Ice
                     //
                     // Fill in the request ID.
                     //
-                    os.Pos = Protocol.headerSize;
-                    os.WriteInt(requestId);
+                    os.RewriteInt(requestId, new OutputStream.Position(0, Protocol.headerSize));
                 }
 
                 og.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
@@ -576,7 +573,7 @@ namespace Ice
                 try
                 {
                     Debug.Assert(Os != null);
-                    Os.WriteBlob(Protocol.magic);
+                    Os.WriteSpan(Protocol.magic.AsSpan());
                     Os.WriteByte(Util.CurrentProtocol.Major);
                     Os.WriteByte(Util.CurrentProtocol.Minor);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Major);
@@ -701,7 +698,7 @@ namespace Ice
                     return; // The request has already been or will be shortly notified of the failure.
                 }
 
-                OutgoingMessage o = _sendStreams.FirstOrDefault(m => m.OutAsync == outAsync);
+                OutgoingMessage? o = _sendStreams.FirstOrDefault(m => m.OutAsync == outAsync);
                 if (o != null)
                 {
                     if (o.RequestId > 0)
@@ -864,12 +861,7 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    if (_observer != null)
-                    {
-                        ObserverStartWrite(_writeStream.GetBuffer());
-                    }
-
-                    completedSynchronously = _transceiver.StartWrite(_writeStream.GetBuffer(), cb, this, out bool completed);
+                    completedSynchronously = _transceiver.StartWrite(_writeBuffer, _writeBufferOffset, cb, this, out bool completed);
                     if (completed && _sendStreams.Count > 0)
                     {
                         // The whole message is written, assume it's sent now for at-most-once semantics.
@@ -900,17 +892,17 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    IceInternal.Buffer buf = _writeStream.GetBuffer();
-                    int start = buf.B.Position();
-                    _transceiver.FinishWrite(buf);
-                    if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
+                    int remaining = _writeBufferSize - _writeBufferOffset;
+                    _transceiver.FinishWrite(_writeBuffer, ref _writeBufferOffset);
+                    int bytesTransferred = remaining - (_writeBufferSize - _writeBufferOffset);
+                    if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
                     {
                         var s = new StringBuilder("sent ");
-                        s.Append(buf.B.Position() - start);
+                        s.Append(bytesTransferred);
                         if (!_endpoint.Datagram())
                         {
                             s.Append(" of ");
-                            s.Append(buf.B.Limit() - start);
+                            s.Append(remaining);
                         }
                         s.Append(" bytes via ");
                         s.Append(_endpoint.Transport());
@@ -919,9 +911,9 @@ namespace Ice
                         _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                     }
 
-                    if (_observer != null)
+                    if (_observer != null && bytesTransferred > 0)
                     {
-                        ObserverFinishWrite(_writeStream.GetBuffer());
+                        _observer.SentBytes(bytesTransferred);
                     }
                 }
                 else if ((operation & SocketOperation.Read) != 0)
@@ -993,15 +985,7 @@ namespace Ice
                         int readOp = SocketOperation.None;
                         if ((readyOp & SocketOperation.Write) != 0)
                         {
-                            if (_observer != null)
-                            {
-                                ObserverStartWrite(_writeStream.GetBuffer());
-                            }
-                            writeOp = Write(_writeStream.GetBuffer());
-                            if (_observer != null && (writeOp & SocketOperation.Write) == 0)
-                            {
-                                ObserverFinishWrite(_writeStream.GetBuffer());
-                            }
+                            writeOp = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
                         }
 
                         while ((readyOp & SocketOperation.Read) != 0)
@@ -1189,7 +1173,6 @@ namespace Ice
                         }
 
                         _dispatchCount += dispatchCount;
-
                         msg.Completed(ref current);
                     }
                     catch (DatagramLimitException) // Expected.
@@ -1436,15 +1419,16 @@ namespace Ice
 
             if (_sendStreams.Count > 0)
             {
-                if (!_writeStream.IsEmpty)
+                if (_writeBufferSize > 0)
                 {
-                    //
                     // Return the stream to the outgoing call. This is important for
                     // retriable AMI calls which are not marshalled again.
-                    //
                     OutgoingMessage message = _sendStreams.First.Value;
                     Debug.Assert(message.Stream != null);
                     _writeStream.Swap(message.Stream);
+                    _writeBufferOffset = 0;
+                    _writeBufferSize = 0;
+                    _writeBuffer.Clear();
 
                     //
                     // The current message might be sent but not yet removed from _sendStreams. If
@@ -1494,8 +1478,6 @@ namespace Ice
             //
             // Don't wait to be reaped to reclaim memory allocated by read/write streams.
             //
-            _writeStream.Clear();
-            _writeStream.GetBuffer().Clear();
             _readStream.Clear();
             _readStream.GetBuffer().Clear();
 
@@ -1552,7 +1534,7 @@ namespace Ice
                         throw _exception;
                     }
 
-                    SendMessage(new OutgoingMessage(os, compressionStatus > 0, true));
+                    SendMessage(new OutgoingMessage(os, compressionStatus > 0));
 
                     if (_state == StateClosing && _dispatchCount == 0)
                     {
@@ -1752,7 +1734,9 @@ namespace Ice
             _readHeader = false;
             _readStreamPos = -1;
             _writeStream = new OutputStream(communicator, Util.CurrentProtocolEncoding);
-            _writeStreamPos = -1;
+            _writeBuffer = new List<ArraySegment<byte>>();
+            _writeBufferSize = 0;
+            _writeBufferOffset = 0;
             _dispatchCount = 0;
             _state = StateNotInitialized;
 
@@ -1996,7 +1980,6 @@ namespace Ice
                     }
                     else
                     {
-                        _writeStreamPos = -1;
                         _readStreamPos = -1;
                     }
                 }
@@ -2045,7 +2028,7 @@ namespace Ice
                 // Before we shut down, we send a close connection message.
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
-                os.WriteBlob(Protocol.magic);
+                os.WriteSpan(Protocol.magic.AsSpan());
                 os.WriteByte(Util.CurrentProtocol.Major);
                 os.WriteByte(Util.CurrentProtocol.Minor);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
@@ -2054,7 +2037,7 @@ namespace Ice
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Protocol.headerSize); // Message size.
 
-                if ((SendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
+                if ((SendMessage(new OutgoingMessage(os, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
                 {
                     SetState(StateClosingPending);
 
@@ -2088,7 +2071,7 @@ namespace Ice
                 os.WriteInt(Protocol.headerSize); // Message size.
                 try
                 {
-                    SendMessage(new OutgoingMessage(os, false, false));
+                    SendMessage(new OutgoingMessage(os, false));
                 }
                 catch (LocalException ex)
                 {
@@ -2100,9 +2083,11 @@ namespace Ice
 
         private bool Initialize(int operation)
         {
-            int s = _transceiver.Initialize(_readStream.GetBuffer(), _writeStream.GetBuffer(), ref HasMoreData);
+            int s = _transceiver.Initialize(_readStream.GetBuffer(), _writeBuffer, ref HasMoreData);
             if (s != SocketOperation.None)
             {
+                _writeBufferOffset = 0;
+                _writeBufferSize = _writeBuffer.GetByteCount();
                 ScheduleTimeout(s);
                 ThreadPool.Update(this, operation, s);
                 return false;
@@ -2126,7 +2111,7 @@ namespace Ice
                 {
                     if (_writeStream.Size == 0)
                     {
-                        _writeStream.WriteBlob(Protocol.magic);
+                        _writeStream.WriteSpan(Protocol.magic.AsSpan());
                         _writeStream.WriteByte(Util.CurrentProtocol.Major);
                         _writeStream.WriteByte(Util.CurrentProtocol.Minor);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
@@ -2135,28 +2120,20 @@ namespace Ice
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Protocol.headerSize); // Message size.
                         TraceUtil.TraceSend(_writeStream, _logger, _traceLevels);
-                        _writeStream.PrepareWrite();
+                        _writeBuffer = _writeStream.GetUnderlyingBuffer();
+                        _writeBufferOffset = 0;
+                        _writeBufferSize = _writeStream.Size;
                     }
 
-                    if (_observer != null)
+                    if (_writeBufferOffset < _writeBufferSize)
                     {
-                        ObserverStartWrite(_writeStream.GetBuffer());
-                    }
-
-                    if (_writeStream.Pos != _writeStream.Size)
-                    {
-                        int op = Write(_writeStream.GetBuffer());
+                        int op = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
                         if (op != 0)
                         {
                             ScheduleTimeout(op);
                             ThreadPool.Update(this, operation, op);
                             return false;
                         }
-                    }
-
-                    if (_observer != null)
-                    {
-                        ObserverFinishWrite(_writeStream.GetBuffer());
                     }
                 }
                 else // The client side has the passive role for connection validation.
@@ -2226,8 +2203,10 @@ namespace Ice
                 }
             }
 
-            _writeStream.Resize(0);
-            _writeStream.Pos = 0;
+            _writeStream.Reset();
+            _writeBuffer.Clear();
+            _writeBufferSize = 0;
+            _writeBufferOffset = 0;
 
             _readStream.Resize(Protocol.headerSize);
             _readStream.Pos = 0;
@@ -2267,15 +2246,18 @@ namespace Ice
             {
                 return SocketOperation.None;
             }
-            else if (_state == StateClosingPending && _writeStream.Pos == 0)
+            else if (_state == StateClosingPending && _writeBufferOffset == 0)
             {
                 // Message wasn't sent, empty the _writeStream, we're not going to send more data.
                 OutgoingMessage message = _sendStreams.First.Value;
                 _writeStream.Swap(message.Stream!);
+                _writeBuffer.Clear();
+                _writeBufferOffset = 0;
+                _writeBufferSize = 0;
                 return SocketOperation.None;
             }
 
-            Debug.Assert(!_writeStream.IsEmpty && _writeStream.Pos == _writeStream.Size);
+            Debug.Assert(_writeBufferSize > 0 && _writeBufferOffset == _writeBufferSize);
             try
             {
                 while (true)
@@ -2285,6 +2267,9 @@ namespace Ice
                     //
                     OutgoingMessage message = _sendStreams.First.Value;
                     _writeStream.Swap(message.Stream!);
+                    _writeBuffer.Clear();
+                    _writeBufferOffset = 0;
+                    _writeBufferSize = 0;
                     if (message.Sent())
                     {
                         if (callbacks == null)
@@ -2319,35 +2304,27 @@ namespace Ice
                     // Otherwise, prepare the next message stream for writing.
                     //
                     message = _sendStreams.First.Value;
-                    Debug.Assert(!message.Prepared);
                     Debug.Assert(message.Stream != null);
                     OutputStream stream = message.Stream;
 
                     message.Stream = DoCompress(message.Stream, message.Compress);
-                    message.Stream.PrepareWrite();
-                    message.Prepared = true;
 
                     TraceUtil.TraceSend(stream, _logger, _traceLevels);
                     _writeStream.Swap(message.Stream);
+                    _writeBuffer = _writeStream.GetUnderlyingBuffer();
+                    _writeBufferSize = _writeStream.Size;
+                    _writeBufferOffset = 0;
 
                     //
                     // Send the message.
                     //
-                    if (_observer != null)
+                    if (_writeBufferOffset < _writeBufferSize)
                     {
-                        ObserverStartWrite(_writeStream.GetBuffer());
-                    }
-                    if (_writeStream.Pos != _writeStream.Size)
-                    {
-                        int op = Write(_writeStream.GetBuffer());
+                        int op = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
                         if (op != 0)
                         {
                             return op;
                         }
-                    }
-                    if (_observer != null)
-                    {
-                        ObserverFinishWrite(_writeStream.GetBuffer());
                     }
                 }
 
@@ -2378,7 +2355,6 @@ namespace Ice
 
             if (_sendStreams.Count > 0)
             {
-                message.Adopt();
                 _sendStreams.AddLast(message);
                 return OutgoingAsyncBase.AsyncStatusQueued;
             }
@@ -2388,32 +2364,25 @@ namespace Ice
             // asynchronous I/O or we request the caller to call finishSendMessage() outside
             // the synchronization.
             //
-
-            Debug.Assert(!message.Prepared);
             Debug.Assert(message.Stream != null);
             OutputStream stream = message.Stream;
 
             message.Stream = DoCompress(stream, message.Compress);
-            message.Stream.PrepareWrite();
-            message.Prepared = true;
+            _writeBuffer = message.Stream.GetUnderlyingBuffer();
+            _writeBufferSize = message.Stream.Size;
+            _writeBufferOffset = 0;
 
             TraceUtil.TraceSend(stream, _logger, _traceLevels);
 
             //
             // Send the message without blocking.
             //
-            if (_observer != null)
-            {
-                ObserverStartWrite(message.Stream.GetBuffer());
-            }
-            int op = Write(message.Stream.GetBuffer());
+            int op = Write(_writeBuffer, _writeBufferSize, ref _writeBufferOffset);
             if (op == 0)
             {
-                if (_observer != null)
-                {
-                    ObserverFinishWrite(message.Stream.GetBuffer());
-                }
-
+                _writeBuffer.Clear();
+                _writeBufferSize = 0;
+                _writeBufferOffset = 0;
                 int status = OutgoingAsyncBase.AsyncStatusSent;
                 if (message.Sent())
                 {
@@ -2427,8 +2396,6 @@ namespace Ice
                 return status;
             }
 
-            message.Adopt();
-
             _writeStream.Swap(message.Stream);
             _sendStreams.AddLast(message);
             ScheduleTimeout(op);
@@ -2438,53 +2405,30 @@ namespace Ice
 
         private OutputStream DoCompress(OutputStream uncompressed, bool compress)
         {
-            if (_compressionSupported)
+            if (_compressionSupported && compress && uncompressed.Size >= 100)
             {
-                if (compress && uncompressed.Size >= 100)
+                // Do compression.
+                OutputStream? cstream = BZip2.Compress(uncompressed, Protocol.headerSize, _compressionLevel);
+                if (cstream != null)
                 {
-                    //
-                    // Do compression.
-                    //
-                    IceInternal.Buffer? cbuf = BZip2.Compress(uncompressed.GetBuffer(), Protocol.headerSize,
-                                                              _compressionLevel);
-                    if (cbuf != null)
-                    {
-                        var cstream = new OutputStream(uncompressed.Communicator, uncompressed.Encoding, cbuf, true);
+                    // Write the compression status and the size of the compressed
+                    // stream into the header.
+                    cstream.RewriteByte(2, new OutputStream.Position(0, 9));
+                    cstream.RewriteInt(cstream.Size, new OutputStream.Position(0, 10));
 
-                        //
-                        // Set compression status.
-                        //
-                        cstream.Pos = 9;
-                        cstream.WriteByte(2);
-
-                        //
-                        // Write the size of the compressed stream into the header.
-                        //
-                        cstream.Pos = 10;
-                        cstream.WriteInt(cstream.Size);
-
-                        //
-                        // Write the compression status and size of the compressed stream into the header of the
-                        // uncompressed stream -- we need this to trace requests correctly.
-                        //
-                        uncompressed.Pos = 9;
-                        uncompressed.WriteByte(2);
-                        uncompressed.WriteInt(cstream.Size);
-
-                        return cstream;
-                    }
+                    // Write the compression status and size of the compressed stream
+                    // into the header of the uncompressed stream -- we need this to
+                    // trace requests correctly.
+                    uncompressed.RewriteByte(2, new OutputStream.Position(0, 9));
+                    uncompressed.RewriteInt(cstream.Size, new OutputStream.Position(0, 10));
+                    return cstream;
                 }
             }
 
-            uncompressed.Pos = 9;
-            uncompressed.WriteByte((byte)((_compressionSupported && compress) ? 1 : 0));
-
-            //
-            // Not compressed, fill in the message size.
-            //
-            uncompressed.Pos = 10;
-            uncompressed.WriteInt(uncompressed.Size);
-
+            // Write the compression status and the message size.
+            uncompressed.RewriteByte((byte)(_compressionSupported && compress ? 1 : 0),
+                new OutputStream.Position(0, 9));
+            uncompressed.RewriteInt(uncompressed.Size, new OutputStream.Position(0, 10));
             return uncompressed;
         }
 
@@ -2691,7 +2635,7 @@ namespace Ice
             try
             {
                 int start = requestFrame.Pos;
-                var current = Protocol.CreateCurrent(requestId, requestFrame, adapter, this);
+                Current current = Protocol.CreateCurrent(requestId, requestFrame, adapter, this);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = adapter.Communicator.Observer;
@@ -2891,29 +2835,6 @@ namespace Ice
             _readStreamPos = -1;
         }
 
-        private void ObserverStartWrite(IceInternal.Buffer buf)
-        {
-            if (_writeStreamPos >= 0)
-            {
-                Debug.Assert(!buf.Empty());
-                _observer!.SentBytes(buf.B.Position() - _writeStreamPos);
-            }
-            _writeStreamPos = buf.Empty() ? -1 : buf.B.Position();
-        }
-
-        private void ObserverFinishWrite(IceInternal.Buffer buf)
-        {
-            if (_writeStreamPos == -1)
-            {
-                return;
-            }
-            if (buf.B.Position() > _writeStreamPos)
-            {
-                _observer!.SentBytes(buf.B.Position() - _writeStreamPos);
-            }
-            _writeStreamPos = -1;
-        }
-
         private int Read(IceInternal.Buffer buf)
         {
             int start = buf.B.Position();
@@ -2940,18 +2861,19 @@ namespace Ice
             return op;
         }
 
-        private int Write(IceInternal.Buffer buf)
+        private int Write(IList<ArraySegment<byte>> buffer, int size, ref int offset)
         {
-            int start = buf.B.Position();
-            int op = _transceiver.Write(buf);
-            if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
+            int remainig = size - offset;
+            int socketOperation = _transceiver.Write(buffer, ref offset);
+            int bytesTransferred = remainig - (size - offset);
+            if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
             {
                 var s = new StringBuilder("sent ");
-                s.Append(buf.B.Position() - start);
+                s.Append(bytesTransferred);
                 if (!_endpoint.Datagram())
                 {
                     s.Append(" of ");
-                    s.Append(buf.B.Limit() - start);
+                    s.Append(remainig);
                 }
                 s.Append(" bytes via ");
                 s.Append(_endpoint.Transport());
@@ -2959,16 +2881,20 @@ namespace Ice
                 s.Append(ToString());
                 _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
             }
-            return op;
+
+            if (_observer != null && bytesTransferred > 0)
+            {
+                _observer.SentBytes(bytesTransferred);
+            }
+            return socketOperation;
         }
 
         private class OutgoingMessage
         {
-            internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
+            internal OutgoingMessage(OutputStream stream, bool compress)
             {
                 Stream = stream;
                 Compress = compress;
-                _adopt = adopt;
             }
 
             internal OutgoingMessage(OutgoingAsyncBase outAsync, OutputStream stream, bool compress, int requestId)
@@ -2983,17 +2909,6 @@ namespace Ice
             {
                 Debug.Assert(OutAsync != null); // Only requests can timeout.
                 OutAsync = null;
-            }
-
-            internal void Adopt()
-            {
-                if (_adopt)
-                {
-                    var stream = new OutputStream(Stream!.Communicator, Util.CurrentProtocolEncoding);
-                    stream.Swap(Stream);
-                    Stream = stream;
-                    _adopt = false;
-                }
             }
 
             internal bool Sent()
@@ -3023,8 +2938,6 @@ namespace Ice
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
             internal int RequestId;
-            internal bool _adopt;
-            internal bool Prepared;
             internal bool IsSent;
             internal bool InvokeSent;
             internal bool ReceivedReply;
@@ -3069,12 +2982,15 @@ namespace Ice
 
         private readonly InputStream _readStream;
         private bool _readHeader;
+
         private readonly OutputStream _writeStream;
+        private IList<ArraySegment<byte>> _writeBuffer;
+        private int _writeBufferOffset;
+        private int _writeBufferSize;
 
         private ICommunicatorObserver? _communicatorObserver;
         private IConnectionObserver? _observer;
         private int _readStreamPos;
-        private int _writeStreamPos;
 
         private int _dispatchCount;
 

@@ -2,7 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 
@@ -13,7 +16,7 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Fd();
     }
 
-    public int Initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
+    public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
     {
         _configuration.checkInitializeException();
         if (!_initialized)
@@ -43,15 +46,16 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Bind();
     }
 
-    public int Write(IceInternal.Buffer buf)
+    public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {
-        if (!_configuration.writeReady() && buf.B.HasRemaining())
+        int remaining = buf.GetByteCount() - offset;
+        if (!_configuration.writeReady() && remaining > 0)
         {
             return IceInternal.SocketOperation.Write;
         }
 
         _configuration.checkWriteException();
-        return _transceiver.Write(buf);
+        return _transceiver.Write(buf, ref offset);
     }
 
     public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
@@ -183,16 +187,16 @@ internal class Transceiver : IceInternal.ITransceiver
         }
     }
 
-    public bool StartWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state, out bool completed)
+    public bool StartWrite(IList<ArraySegment<byte>> buf, int offset, IceInternal.AsyncCallback callback, object state, out bool completed)
     {
         _configuration.checkWriteException();
-        return _transceiver.StartWrite(buf, callback, state, out completed);
+        return _transceiver.StartWrite(buf, offset, callback, state, out completed);
     }
 
-    public void FinishWrite(IceInternal.Buffer buf)
+    public void FinishWrite(IList<ArraySegment<byte>> buf, ref int offset)
     {
         _configuration.checkWriteException();
-        _transceiver.FinishWrite(buf);
+        _transceiver.FinishWrite(buf, ref offset);
     }
 
     public string Transport()
@@ -215,9 +219,9 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.ToDetailedString();
     }
 
-    public void CheckSendSize(IceInternal.Buffer buf)
+    public void CheckSendSize(int sz)
     {
-        _transceiver.CheckSendSize(buf);
+        _transceiver.CheckSendSize(sz);
     }
 
     public void SetBufferSize(int rcvSize, int sndSize)

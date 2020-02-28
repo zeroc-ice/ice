@@ -12,8 +12,15 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                using var communicator = initialize(ref args);
-                AllTests.allTests(this);
+                try
+                {
+                    using var communicator = initialize(ref args);
+                    AllTests.allTests(this);
+                }
+                catch(Exception ex)
+                {
+                    System.Console.WriteLine(ex.ToString());
+                }
             }
 
             public static int Main(string[] args) => TestDriver.runTest<Client>(args);

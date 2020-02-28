@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -12,7 +14,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _stream.Fd();
 
-        public int Initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
+        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData) =>
             _stream.Connect(readBuffer, writeBuffer);
 
         // If we are initiating the connection closure, wait for the peer
@@ -25,12 +27,12 @@ namespace IceInternal
         public Endpoint Bind()
         {
             Debug.Assert(false);
-            throw new System.InvalidOperationException();
+            throw new InvalidOperationException();
         }
 
         public void Destroy() => _stream.Destroy();
 
-        public int Write(Buffer buf) => _stream.Write(buf);
+        public int Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
 
         public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
 
@@ -39,10 +41,12 @@ namespace IceInternal
 
         public void FinishRead(Buffer buf) => _stream.FinishRead(buf);
 
-        public bool StartWrite(Buffer buf, AsyncCallback callback, object state, out bool completed) =>
-            _stream.StartWrite(buf, callback, state, out completed);
+        public bool
+        StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed) =>
+            _stream.StartWrite(buffer, offset, callback, state, out completed);
 
-        public void FinishWrite(Buffer buf) => _stream.FinishWrite(buf);
+        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
+            _stream.FinishWrite(buffer, ref offset);
 
         public string Transport() => _instance.Transport;
 
@@ -64,7 +68,7 @@ namespace IceInternal
             return info;
         }
 
-        public void CheckSendSize(Buffer buf)
+        public void CheckSendSize(int size)
         {
         }
 

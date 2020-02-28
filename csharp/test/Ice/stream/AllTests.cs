@@ -78,7 +78,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.WriteBool(true);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
 
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
@@ -107,7 +107,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteBool(true);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadBool());
             }
@@ -115,7 +115,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteByte(1);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadByte() == 1);
             }
@@ -123,7 +123,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteShort(2);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadShort() == 2);
             }
@@ -131,7 +131,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteInt(3);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadInt() == 3);
             }
@@ -139,7 +139,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteLong(4);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadLong() == 4);
             }
@@ -147,7 +147,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteFloat((float)5.0);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadFloat() == (float)5.0);
             }
@@ -155,7 +155,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteDouble(6.0);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadDouble() == 6.0);
             }
@@ -163,7 +163,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.WriteString("hello world");
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 test(istr.ReadString().Equals("hello world"));
             }
@@ -176,7 +176,7 @@ namespace Ice.stream
             {
                 ostr = new OutputStream(communicator);
                 ostr.Write(MyEnum.enum3);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 MyEnum e = istr.ReadMyEnum();
                 test(e == MyEnum.enum3);
@@ -196,7 +196,7 @@ namespace Ice.stream
                 s.e = MyEnum.enum2;
                 s.p = IMyInterfacePrx.Parse("test:default", communicator);
                 ostr.WriteStruct(s);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 var s2 = new SmallStruct(new InputStream(communicator, data));
                 test(s2.Equals(s));
             }
@@ -212,7 +212,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.WriteClass(o);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var o2 = istr.ReadClass<Test.OptionalClass>();
@@ -227,7 +227,7 @@ namespace Ice.stream
                 bool[] arr = { true, false, true, false };
                 ostr = new OutputStream(communicator);
                 ostr.WriteBoolSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadBoolArray();
                 test(Compare(arr2, arr));
@@ -235,7 +235,7 @@ namespace Ice.stream
                 bool[][] arrS = { arr, new bool[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadBoolSS();
                 test(Compare(arr2S, arrS));
@@ -245,7 +245,7 @@ namespace Ice.stream
                 byte[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 ostr = new OutputStream(communicator);
                 ostr.WriteByteSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadByteArray();
                 test(Compare(arr2, arr));
@@ -253,7 +253,7 @@ namespace Ice.stream
                 byte[][] arrS = { arr, new byte[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadByteSS();
                 test(Compare(arr2S, arrS));
@@ -264,7 +264,7 @@ namespace Ice.stream
                 small.i = 99;
                 ostr = new OutputStream(communicator);
                 ostr.WriteSerializable(small);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var small2 = (Serialize.Small)istr.ReadSerializable();
                 test(small2.i == 99);
@@ -274,7 +274,7 @@ namespace Ice.stream
                 short[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 ostr = new OutputStream(communicator);
                 ostr.WriteShortSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadShortArray();
                 test(Compare(arr2, arr));
@@ -282,7 +282,7 @@ namespace Ice.stream
                 short[][] arrS = { arr, new short[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadShortSS();
                 test(Compare(arr2S, arrS));
@@ -292,7 +292,7 @@ namespace Ice.stream
                 int[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 ostr = new OutputStream(communicator);
                 ostr.WriteIntSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadIntArray();
                 test(Compare(arr2, arr));
@@ -300,7 +300,7 @@ namespace Ice.stream
                 int[][] arrS = { arr, new int[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadIntSS();
                 test(Compare(arr2S, arrS));
@@ -310,7 +310,7 @@ namespace Ice.stream
                 long[] arr = { 0x01, 0x11, 0x12, 0x22 };
                 ostr = new OutputStream(communicator);
                 ostr.WriteLongSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadLongArray();
                 test(Compare(arr2, arr));
@@ -318,7 +318,7 @@ namespace Ice.stream
                 long[][] arrS = { arr, new long[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadLongSS();
                 test(Compare(arr2S, arrS));
@@ -328,7 +328,7 @@ namespace Ice.stream
                 float[] arr = { 1, 2, 3, 4 };
                 ostr = new OutputStream(communicator);
                 ostr.WriteFloatSeq(arr);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 float[] arr2 = istr.ReadFloatArray();
                 test(Compare(arr2, arr));
@@ -336,7 +336,7 @@ namespace Ice.stream
                 float[][] arrS = { arr, new float[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadFloatSS();
                 test(Compare(arr2S, arrS));
@@ -352,7 +352,7 @@ namespace Ice.stream
                     };
                 ostr = new OutputStream(communicator);
                 ostr.WriteDoubleSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadDoubleArray();
                 test(Compare(arr2, arr));
@@ -360,7 +360,7 @@ namespace Ice.stream
                 double[][] arrS = { arr, new double[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadDoubleSS();
                 test(Compare(arr2S, arrS));
@@ -370,7 +370,7 @@ namespace Ice.stream
                 string[] arr = { "string1", "string2", "string3", "string4" };
                 ostr = new OutputStream(communicator);
                 ostr.WriteStringSeq(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadStringArray();
                 test(Compare(arr2, arr));
@@ -378,7 +378,7 @@ namespace Ice.stream
                 string[][] arrS = { arr, new string[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadStringSS();
                 test(Compare(arr2S, arrS));
@@ -393,7 +393,7 @@ namespace Ice.stream
                 };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arr);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2 = istr.ReadMyEnumS();
                 test(Compare(arr2, arr));
@@ -401,7 +401,7 @@ namespace Ice.stream
                 Test.MyEnum[][] arrS = { arr, new Test.MyEnum[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var arr2S = istr.ReadMyEnumSS();
                 test(Compare(arr2S, arrS));
@@ -450,7 +450,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.Write(myClassArray);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var arr2 = istr.ReadMyClassS();
@@ -479,7 +479,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.Write(arrS);
                 ostr.EndEncapsulation();
-                data = ostr.Finished();
+                data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var arr2S = istr.ReadMyClassSS();
@@ -518,7 +518,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.WriteClass(obj);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var robj = istr.ReadClass<Test.MyClass>();
@@ -554,7 +554,7 @@ namespace Ice.stream
 
                 ostr.WriteException(ex);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
 
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
@@ -589,7 +589,7 @@ namespace Ice.stream
                 dict.Add(1, false);
                 ostr = new OutputStream(communicator);
                 ostr.Write(dict);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadByteBoolD();
                 test(global::Test.Collections.Equals(dict2, dict));
@@ -601,7 +601,7 @@ namespace Ice.stream
                 dict.Add(4, 8);
                 ostr = new OutputStream(communicator);
                 ostr.Write(dict);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadShortIntD();
                 test(global::Test.Collections.Equals(dict2, dict));
@@ -613,7 +613,7 @@ namespace Ice.stream
                 dict.Add(123809829, 0.56f);
                 ostr = new OutputStream(communicator);
                 ostr.Write(dict);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadLongFloatD();
                 test(global::Test.Collections.Equals(dict2, dict));
@@ -625,7 +625,7 @@ namespace Ice.stream
                 dict.Add("key2", "value2");
                 ostr = new OutputStream(communicator);
                 StringStringDHelper.Write(ostr, dict);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadStringStringD();
                 test(global::Test.Collections.Equals(dict2, dict));
@@ -645,7 +645,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.Write(dict);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var dict2 = istr.ReadStringMyClassD();
@@ -662,7 +662,7 @@ namespace Ice.stream
                 ostr.StartEncapsulation();
                 ostr.WriteBoolSeq(l);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var l2 = new List<bool>(istr.ReadBoolArray());
@@ -675,7 +675,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<byte>(arr);
                 ostr.WriteByteSeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new List<byte>(istr.ReadByteArray());
                 test(Compare(l2, l));
@@ -686,7 +686,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<MyEnum>(arr);
                 ostr.Write(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadMyEnumList();
                 test(Compare(l2, l));
@@ -696,7 +696,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<SmallStruct>(smallStructArray);
                 ostr.Write(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadSmallStructList();
                 test(l2.Count == l.Count);
@@ -712,7 +712,7 @@ namespace Ice.stream
                 var l = new List<MyClass>(myClassArray);
                 ostr.Write(l);
                 ostr.EndEncapsulation();
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
                 var l2 = istr.ReadMyClassList();
@@ -744,7 +744,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<IObjectPrx>(arr);
                 ostr.Write(arr);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new List<IObjectPrx>(istr.ReadObjectProxySeq());
                 test(Compare(l2, l));
@@ -757,7 +757,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<Test.IMyInterfacePrx>(arr);
                 ostr.WriteProxySeq(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadMyInterfaceProxyList();
                 test(Compare(l2, l));
@@ -768,7 +768,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new LinkedList<short>(arr);
                 ostr.WriteShortSeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new LinkedList<short>(istr.ReadShortArray());
                 test(Compare(l2, l));
@@ -779,7 +779,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new LinkedList<int>(arr);
                 ostr.WriteIntSeq(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new LinkedList<int>(istr.ReadIntArray());
                 test(Compare(l2, l));
@@ -790,7 +790,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new LinkedList<Test.MyEnum>(arr);
                 ostr.Write(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadMyEnumLinkedList();
                 test(Compare(l2, l));
@@ -800,7 +800,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new LinkedList<SmallStruct>(smallStructArray);
                 ostr.Write(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadSmallStructLinkedList();
                 test(l2.Count == l.Count);
@@ -817,7 +817,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Stack<long>(arr);
                 ostr.WriteLongSeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new Stack<long>(istr.ReadLongArray().Reverse());
                 test(Compare(l2, l));
@@ -828,7 +828,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Stack<float>(arr);
                 ostr.WriteFloatSeq(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new Stack<float>(istr.ReadFloatArray().Reverse());
                 test(Compare(l2, l));
@@ -838,7 +838,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Stack<Test.SmallStruct>(smallStructArray);
                 ostr.Write(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadSmallStructStack();
                 test(l2.Count == l.Count);
@@ -857,7 +857,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Stack<Test.IMyInterfacePrx>(arr);
                 ostr.WriteProxySeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadMyInterfaceProxyStack();
                 test(Compare(l2, l));
@@ -868,7 +868,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Queue<double>(arr);
                 ostr.WriteDoubleSeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new Queue<double>(istr.ReadDoubleArray());
                 test(Compare(l2, l));
@@ -879,7 +879,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Queue<string>(arr);
                 ostr.WriteStringSeq(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = new Queue<string>(istr.ReadStringCollection());
                 test(Compare(l2, l));
@@ -889,7 +889,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Queue<Test.SmallStruct>(smallStructArray);
                 ostr.Write(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadSmallStructQueue();
                 test(l2.Count == l.Count);
@@ -907,7 +907,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new List<string[]>(arrS);
                 ostr.Write(l);
-                byte[] data = ostr.Finished();
+                byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadStringSList();
                 test(Compare(l2, l));
@@ -919,7 +919,7 @@ namespace Ice.stream
                 ostr = new OutputStream(communicator);
                 var l = new Stack<string[]>(arrS);
                 ostr.Write(l);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var l2 = istr.ReadStringSStack();
                 test(Compare(l2, l));
@@ -931,7 +931,7 @@ namespace Ice.stream
                 dict.Add("key2", "value2");
                 ostr = new OutputStream(communicator);
                 ostr.Write(dict);
-                var data = ostr.Finished();
+                var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadSortedStringStringD();
                 test(global::Test.Collections.Equals(dict2, dict));

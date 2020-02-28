@@ -73,22 +73,22 @@ namespace Ice.enums
 
             ostr = new OutputStream(communicator);
             ostr.Write(ByteEnum.benum11);
-            bytes = ostr.Finished();
+            bytes = ostr.ToArray();
             test(bytes.Length == 1); // ByteEnum should require one byte
 
             ostr = new OutputStream(communicator);
             ostr.Write(ShortEnum.senum11);
-            bytes = ostr.Finished();
+            bytes = ostr.ToArray();
             test(bytes.Length == 5);
 
             ostr = new OutputStream(communicator);
             ostr.Write(IntEnum.ienum11);
-            bytes = ostr.Finished();
+            bytes = ostr.ToArray();
             test(bytes.Length == 5);
 
             ostr = new OutputStream(communicator);
             ostr.Write(SimpleEnum.blue);
-            bytes = ostr.Finished();
+            bytes = ostr.ToArray();
             test(bytes.Length == 1); // SimpleEnum should require one byte
 
             output.WriteLine("ok");

@@ -1,9 +1,14 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using Ice;
+using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace IceInternal
@@ -15,8 +20,8 @@ namespace IceInternal
         // with the network proxy server. This is called right after
         // the connection establishment succeeds.
         //
-        void BeginWrite(EndPoint endpoint, Buffer buf);
-        int EndWrite(Buffer buf);
+        void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer);
+        int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred);
 
         //
         // Once the connection request has been sent, this is called
@@ -30,7 +35,7 @@ namespace IceInternal
         // read. The proxy should copy the extra read data (if any) in the
         // given byte vector.
         //
-        void Finish(Buffer readBuffer, Buffer writeBuffer);
+        void Finish(Buffer readBuffer);
 
         //
         // If the proxy host needs to be resolved, this should return
@@ -68,7 +73,7 @@ namespace IceInternal
 
         private SOCKSNetworkProxy(EndPoint address) => _address = address;
 
-        public void BeginWrite(EndPoint endpoint, Buffer buf)
+        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
         {
             if (!(endpoint is IPEndPoint))
             {
@@ -83,24 +88,22 @@ namespace IceInternal
             // SOCKS connect request
             //
             var addr = (IPEndPoint)endpoint;
-            buf.Resize(9, false);
-            ByteBuffer.ByteOrder order = buf.B.Order();
-            buf.B.Order(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order.
-            buf.B.Position(0);
-            buf.B.Put(0x04); // SOCKS version 4.
-            buf.B.Put(0x01); // Command, establish a TCP/IP stream connection
-            buf.B.PutShort((short)addr.Port); // Port
-            buf.B.Put(addr.Address.GetAddressBytes()); // IPv4 address
-            buf.B.Put(0x00); // User ID.
-            buf.B.Position(0);
-            buf.B.Limit(buf.Size());
-            buf.B.Order(order);
+            byte[] data = new byte[9];
+            data[0] = 0x04; // SOCKS version 4.
+            data[1] = 0x01; // Command, establish a TCP/IP stream connection
+
+            Debug.Assert(BitConverter.IsLittleEndian);
+            short port = BinaryPrimitives.ReverseEndianness((short)addr.Port); // Network byte order (BIG_ENDIAN)
+            MemoryMarshal.Write(data.AsSpan(2, 2), ref port); // Port
+            System.Buffer.BlockCopy(addr.Address.GetAddressBytes(), 0, data, 4, 4); // IPv4 address
+            data[8] = 0x00; // User ID.
+            buffer.Add(data);
         }
 
-        public int EndWrite(Buffer buf)
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return buf.B.HasRemaining() ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)
@@ -118,7 +121,7 @@ namespace IceInternal
             return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
         }
 
-        public void Finish(Buffer readBuffer, Buffer writeBuffer)
+        public void Finish(Buffer readBuffer)
         {
             readBuffer.B.Position(0);
             byte b1 = readBuffer.B.Get();
@@ -170,7 +173,7 @@ namespace IceInternal
             _ipVersion = ipVersion;
         }
 
-        public void BeginWrite(EndPoint endpoint, Buffer buf)
+        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
         {
             string addr = Network.AddrToString(endpoint);
             var str = new StringBuilder();
@@ -179,22 +182,15 @@ namespace IceInternal
             str.Append(" HTTP/1.1\r\nHost: ");
             str.Append(addr);
             str.Append("\r\n\r\n");
-            byte[] b = System.Text.Encoding.ASCII.GetBytes(str.ToString());
 
-            //
             // HTTP connect request
-            //
-            buf.Resize(b.Length, false);
-            buf.B.Position(0);
-            buf.B.Put(b);
-            buf.B.Position(0);
-            buf.B.Limit(buf.Size());
+            buffer.Add(Encoding.ASCII.GetBytes(str.ToString()));
         }
 
-        public int EndWrite(Buffer buf)
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
         {
             // Once the request is sent, read the response
-            return buf.B.HasRemaining() ? SocketOperation.Write : SocketOperation.Read;
+            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
         public void BeginRead(Buffer buf)
@@ -226,7 +222,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public void Finish(Buffer readBuffer, Buffer writeBuffer)
+        public void Finish(Buffer readBuffer)
         {
             var parser = new HttpParser();
             parser.Parse(readBuffer.B, 0, readBuffer.B.Position());

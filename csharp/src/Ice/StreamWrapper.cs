@@ -1,6 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -32,7 +33,6 @@ namespace IceInternal
         public OutputStreamWrapper(Ice.OutputStream s)
         {
             _s = s;
-            _spos = s.Pos;
             _bytes = new byte[254];
             _pos = 0;
             _length = 0;
@@ -74,8 +74,7 @@ namespace IceInternal
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.Expand(_pos);
-                        _s.GetBuffer().B.Put(_bytes, 0, _pos);
+                        _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
@@ -84,11 +83,10 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.Expand(count);
-                _s.GetBuffer().B.Put(array, offset, count);
+                _s.WriteSpan(array.AsSpan());
                 _pos += count;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new IOException("could not write to stream", ex);
             }
@@ -109,15 +107,14 @@ namespace IceInternal
                         return;
                     }
 
-                    _s.WriteSize(255); // Dummy size, until we know how big the stream
-                                       // really is and can patch the size.
+                    _spos = _s.StartSize(); // Dummy size, until we know how big the stream
+                                            // really is and can patch the size.
                     if (_pos > 0)
                     {
                         //
                         // Write the current contents of _bytes.
                         //
-                        _s.Expand(_pos);
-                        _s.GetBuffer().B.Put(_bytes, 0, _pos);
+                        _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
@@ -126,11 +123,10 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.Expand(1);
-                _s.GetBuffer().B.Put(value);
+                _s.WriteByte(value);
                 _pos += 1;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new IOException("could not write to stream", ex);
             }
@@ -149,20 +145,15 @@ namespace IceInternal
                 if (_bytes != null)
                 {
                     Debug.Assert(_pos <= _bytes.Length);
-                    _s.Pos = _spos;
                     _s.WriteSize(_pos);
-                    _s.Expand(_pos);
-                    _s.GetBuffer().B.Put(_bytes, 0, _pos);
+                    _s.WriteSpan(_bytes.AsSpan(0, _pos));
                 }
                 else
                 {
-                    int currentPos = _s.Pos;
-                    _s.Pos = _spos;
-                    _s.WriteSize(_pos); // Patch previously-written dummy value.
-                    _s.Pos = currentPos;
+                    _s.RewriteInt(_pos, _spos); // Patch previously-written dummy value.
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new IOException("could not flush stream", ex);
             }
@@ -190,7 +181,7 @@ namespace IceInternal
         }
 
         private readonly Ice.OutputStream _s;
-        private readonly int _spos;
+        private Ice.OutputStream.Position _spos;
         private byte[]? _bytes;
         private int _pos;
         private long _length;

@@ -110,7 +110,8 @@ namespace Ice
                     var os = new OutputStream(this, Util.CurrentProtocolEncoding);
                     os.WriteShort(ue.Type());
                     ue.StreamWrite(os);
-                    var iss = new InputStream(this, Util.CurrentProtocolEncoding, os.GetBuffer(), true);
+                    // TODO avoid copy OutputStream buffers
+                    var iss = new InputStream(this, Util.CurrentProtocolEncoding, new Buffer(os.ToArray()), true);
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
