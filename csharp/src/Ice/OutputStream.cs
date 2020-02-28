@@ -1313,7 +1313,7 @@ namespace Ice
             return size + _tail.Offset;
         }
 
-        /// <summary>Write an span of bytes to the stream, the stream capacity is expanded
+        /// <summary>Write a span of bytes to the stream. The stream capacity is expanded
         /// if required, the size and tail position are increased according to the span
         /// length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
