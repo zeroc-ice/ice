@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -216,102 +217,10 @@ namespace IceInternal
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
 
-            byte replyStatus = str.ReadByte();
-            s.Write("\nreply status = " + (int)replyStatus + ' ');
+            ReplyStatus replyStatus = (ReplyStatus)str.ReadByte();
+            s.Write($"\nreply status = {replyStatus}");
 
-            switch (replyStatus)
-            {
-                case ReplyStatus.replyOK:
-                    {
-                        s.Write("(ok)");
-                        break;
-                    }
-
-                case ReplyStatus.replyUserException:
-                    {
-                        s.Write("(user exception)");
-                        break;
-                    }
-
-                case ReplyStatus.replyObjectNotExist:
-                case ReplyStatus.replyFacetNotExist:
-                case ReplyStatus.replyOperationNotExist:
-                    {
-                        switch (replyStatus)
-                        {
-                            case ReplyStatus.replyObjectNotExist:
-                                {
-                                    s.Write("(object not exist)");
-                                    break;
-                                }
-
-                            case ReplyStatus.replyFacetNotExist:
-                                {
-                                    s.Write("(facet not exist)");
-                                    break;
-                                }
-
-                            case ReplyStatus.replyOperationNotExist:
-                                {
-                                    s.Write("(operation not exist)");
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    Debug.Assert(false);
-                                    break;
-                                }
-                        }
-
-                        PrintIdentityFacetOperation(s, str);
-                        break;
-                    }
-
-                case ReplyStatus.replyUnknownException:
-                case ReplyStatus.replyUnknownLocalException:
-                case ReplyStatus.replyUnknownUserException:
-                    {
-                        switch (replyStatus)
-                        {
-                            case ReplyStatus.replyUnknownException:
-                                {
-                                    s.Write("(unknown exception)");
-                                    break;
-                                }
-
-                            case ReplyStatus.replyUnknownLocalException:
-                                {
-                                    s.Write("(unknown local exception)");
-                                    break;
-                                }
-
-                            case ReplyStatus.replyUnknownUserException:
-                                {
-                                    s.Write("(unknown user exception)");
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    Debug.Assert(false);
-                                    break;
-                                }
-                        }
-
-                        string unknown = str.ReadString();
-                        s.Write("\nunknown = " + unknown);
-                        break;
-                    }
-
-                default:
-                    {
-                        s.Write("(unknown)");
-                        break;
-                    }
-            }
-
-            if (replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
+            if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
                 Ice.EncodingVersion v = str.SkipEncapsulation();
                 if (!v.Equals(Ice.Util.Encoding_1_0))

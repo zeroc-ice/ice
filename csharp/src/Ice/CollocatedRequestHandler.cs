@@ -214,7 +214,7 @@ namespace IceInternal
                     {
                         // For now, marshal it
                         // TODO: revisit during exception refactoring.
-                        var responseFrame = Protocol.CreateFailureResponseFrame(ex, current);
+                        var responseFrame = new Ice.OutgoingResponseFrame(current, ex);
                         dispatchObserver?.Reply(responseFrame.Size - Protocol.headerSize - 4);
                         SendResponse(requestId, responseFrame, amd);
                     }

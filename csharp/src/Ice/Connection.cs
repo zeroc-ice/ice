@@ -2673,7 +2673,7 @@ namespace Ice
                     if (requestId != 0)
                     {
                         Incoming.ReportException(ex, dispatchObserver, current);
-                        responseFrame = Protocol.CreateFailureResponseFrame(ex, current);
+                        responseFrame = new OutgoingResponseFrame(current, ex);
                     }
                 }
 

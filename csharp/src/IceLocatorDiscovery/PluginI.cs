@@ -23,29 +23,39 @@ namespace IceLocatorDiscovery
         List<ILocatorPrx> GetLocators(string instanceName, int waitTime);
     }
 
-    internal class Request : TaskCompletionSource<Object_Ice_invokeResult>
+    internal class Request : TaskCompletionSource<IncomingResponseFrame>
     {
-        public Request(LocatorI locator,
+        private readonly LocatorI _locator;
+        private readonly string _operation;
+        private readonly bool _idempotent;
+        private readonly Dictionary<string, string>? _context;
+        private readonly ArraySegment<byte> _payload;
+
+        private ILocatorPrx? _locatorPrx;
+        private System.Exception? _exception;
+
+        internal Request(LocatorI locator,
                        string operation,
                        bool idempotent,
-                       byte[] inParams,
+                       ArraySegment<byte> payload,
                        Dictionary<string, string>? context)
         {
             _locator = locator;
             _operation = operation;
             _idempotent = idempotent;
-            _inParams = inParams;
+            _payload = payload;
             _context = context;
         }
 
-        public void
-        Invoke(ILocatorPrx l)
+        internal void Invoke(ILocatorPrx l)
         {
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                l.InvokeAsync(_operation, _idempotent, _inParams, _context).ContinueWith(
-                    (task) =>
+                var requestFrame = new OutgoingRequestFrame(l, _operation, _idempotent, _context, _payload);
+
+                l.InvokeAsync(requestFrame).ContinueWith(
+                    task =>
                     {
                         try
                         {
@@ -65,8 +75,7 @@ namespace IceLocatorDiscovery
             }
         }
 
-        private void
-        Exception(System.Exception ex)
+        private void Exception(System.Exception ex)
         {
             try
             {
@@ -98,15 +107,6 @@ namespace IceLocatorDiscovery
                 _locator.Invoke(_locatorPrx, this); // Retry with new locator proxy
             }
         }
-
-        private readonly LocatorI _locator;
-        private readonly string _operation;
-        private readonly bool _idempotent;
-        private readonly Dictionary<string, string>? _context;
-        private readonly byte[] _inParams;
-
-        private ILocatorPrx? _locatorPrx;
-        private System.Exception? _exception;
     }
 
     internal class VoidLocatorI : ILocator
@@ -126,10 +126,10 @@ namespace IceLocatorDiscovery
         public ILocatorRegistryPrx? GetRegistry(Current current) => null;
     }
 
-    internal class LocatorI : BlobjectAsync, IceInternal.ITimerTask
+    internal class LocatorI : IObject, IceInternal.ITimerTask
     {
-        public
-        LocatorI(string name, ILookupPrx lookup, Communicator communicator, string instanceName, ILocatorPrx voidLocator)
+        public LocatorI(string name, ILookupPrx lookup, Communicator communicator, string instanceName,
+            ILocatorPrx voidLocator)
         {
             _lookup = lookup;
             _timeout = communicator.GetPropertyAsInt($"{name}.Timeout") ?? 300;
@@ -171,8 +171,7 @@ namespace IceLocatorDiscovery
             Debug.Assert(_lookups.Count > 0);
         }
 
-        public void
-        SetLookupReply(ILookupReplyPrx lookupReply)
+        public void SetLookupReply(ILookupReplyPrx lookupReply)
         {
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
@@ -202,15 +201,15 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public override Task<Ice.Object_Ice_invokeResult>
-        IceInvokeAsync(byte[] inParams, Current current)
+        public async ValueTask<OutputStream> DispatchAsync(InputStream inputStream, Current current)
         {
-            lock (this)
-            {
-                var request = new Request(this, current.Operation, current.IsIdempotent, inParams, current.Context);
-                Invoke(null, request);
-                return request.Task;
-            }
+            var requestFrame = new IncomingRequestFrame(inputStream, current);
+            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.TakePayload(),
+                current.Context);
+            Invoke(null, request);
+            IncomingResponseFrame incomingResponseFrame = await request.Task.ConfigureAwait(false);
+            return new OutgoingResponseFrame(current, incomingResponseFrame.ReplyStatus,
+                incomingResponseFrame.TakePayload());
         }
 
         public List<Ice.ILocatorPrx>
