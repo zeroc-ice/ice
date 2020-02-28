@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -345,7 +346,7 @@ namespace IceInternal
 
         private bool _doneInSent;
         private bool _alreadySent;
-        private Exception? _ex;
+        private Ice.Exception? _ex;
         private LocalException? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
@@ -636,7 +637,7 @@ namespace IceInternal
                 case Ice.InvocationMode.Oneway:
                 case Ice.InvocationMode.Datagram:
                     {
-                        Os.WriteBlob(Protocol.requestHdr);
+                        Os.WriteSpan(Protocol.requestHdr.AsSpan());
                         break;
                     }
 

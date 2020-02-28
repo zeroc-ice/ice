@@ -80,8 +80,7 @@ namespace Ice
             }
             else
             {
-                // TODO: works only because we know how payload is created!
-                WriteBlob(payload.Value.Array);
+                WritePayload(payload.Value);
             }
         }
 
@@ -94,7 +93,7 @@ namespace Ice
             Operation = operation;
             IsIdempotent = idempotent;
 
-            WriteBlob(Protocol.requestHdr);
+            WriteSpan(Protocol.requestHdr.AsSpan());
             identity.IceWrite(this);
             if (facet.Length == 0)
             {
