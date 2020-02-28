@@ -5,12 +5,10 @@
 using IceInternal;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
-    using Context = Dictionary<string, string>;
-
     /// <summary>Represents a request protocol frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutputStream
     {
@@ -93,11 +91,11 @@ namespace Ice
             Operation = operation;
             IsIdempotent = idempotent;
 
-            WriteSpan(Protocol.requestHdr.AsSpan());
+            WriteSpan(Protocol.RequestHeader.AsSpan());
             identity.IceWrite(this);
             if (facet.Length == 0)
             {
-                WriteStringSeq(System.Array.Empty<string>());
+                WriteStringSeq(Array.Empty<string>());
             }
             else
             {

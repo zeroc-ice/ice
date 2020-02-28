@@ -170,7 +170,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Protocol.headerSize - 4;
+                int size = Os!.Size - Protocol.HeaderSize - 4;
                 ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -184,7 +184,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Protocol.headerSize - 4;
+                int size = Os!.Size - Protocol.HeaderSize - 4;
                 ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -618,14 +618,14 @@ namespace IceInternal
                              Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
-            Encoding = Protocol.getCompatibleEncoding(Proxy.IceReference.GetEncoding());
+            Encoding = Protocol.GetCompatibleEncoding(Proxy.IceReference.GetEncoding());
             Synchronous = false;
         }
 
         public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(Proxy.IceReference.GetProtocol()));
+            Protocol.CheckSupportedProtocol(Protocol.GetCompatibleProtocol(Proxy.IceReference.GetProtocol()));
 
             IsIdempotent = idempotent;
 
@@ -637,7 +637,7 @@ namespace IceInternal
                 case Ice.InvocationMode.Oneway:
                 case Ice.InvocationMode.Datagram:
                     {
-                        Os.WriteSpan(Protocol.requestHdr.AsSpan());
+                        Os.WriteSpan(Protocol.RequestHeader.AsSpan());
                         break;
                     }
 
@@ -708,7 +708,7 @@ namespace IceInternal
 
             if (ChildObserver != null)
             {
-                ChildObserver.Reply(Is.Size - Protocol.headerSize - 4);
+                ChildObserver.Reply(Is.Size - Protocol.HeaderSize - 4);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }

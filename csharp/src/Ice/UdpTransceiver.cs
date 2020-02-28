@@ -798,7 +798,7 @@ namespace IceInternal
                 //
                 // Check for sanity.
                 //
-                if (sizeRequested < (UdpOverhead + IceInternal.Protocol.headerSize))
+                if (sizeRequested < (UdpOverhead + IceInternal.Protocol.HeaderSize))
                 {
                     _instance.Logger.Warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
                     sizeRequested = dfltSize;

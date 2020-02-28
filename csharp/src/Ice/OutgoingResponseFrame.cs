@@ -6,11 +6,10 @@ using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
-    using Context = Dictionary<string, string>;
-
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutputStream
     {
@@ -177,7 +176,7 @@ namespace Ice
         {
             RequestId = requestId;
 
-            WriteSpan(Protocol.replyHdr.AsSpan());
+            WriteSpan(Protocol.ReplyHeader.AsSpan());
             WriteInt(requestId);
         }
     }

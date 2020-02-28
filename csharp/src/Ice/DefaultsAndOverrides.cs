@@ -173,7 +173,7 @@ namespace IceInternal
 
             val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.EncodingVersionToString(Ice.Util.CurrentEncoding);
             DefaultEncoding = Ice.Util.StringToEncodingVersion(val);
-            Protocol.checkSupportedEncoding(DefaultEncoding);
+            Protocol.CheckSupportedEncoding(DefaultEncoding);
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
             DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;

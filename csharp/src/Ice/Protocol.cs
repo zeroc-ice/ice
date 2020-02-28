@@ -25,7 +25,7 @@ namespace IceInternal
             string facet = facetPath.Length == 0 ? "" : facetPath[0];
             string operation = requestFrame.ReadString();
             bool idempotent = requestFrame.ReadOperationMode() != OperationMode.Normal;
-            var context = requestFrame.ReadContext();
+            Dictionary<string, string> context = requestFrame.ReadContext();
             Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
 
             return new Ice.Current(adapter, identity, facet, operation, idempotent, context,
@@ -44,97 +44,97 @@ namespace IceInternal
         // Compression status (Byte)
         // Message size (Int)
         //
-        internal const int headerSize = 14;
+        internal const int HeaderSize = 14;
 
         //
         // The magic number at the front of each message
         //
-        internal static readonly byte[] magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
+        internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 
         //
         // The current Ice protocol and encoding version
         //
-        internal const byte protocolMajor = 1;
-        internal const byte protocolMinor = 0;
-        internal const byte protocolEncodingMajor = 1;
-        internal const byte protocolEncodingMinor = 0;
+        internal const byte ProtocolMajor = 1;
+        internal const byte ProtocolMinor = 0;
+        internal const byte ProtocolEncodingMajor = 1;
+        internal const byte ProtocolEncodingMinor = 0;
 
-        internal const byte encodingMajor = 1;
-        internal const byte encodingMinor = 1;
+        internal const byte EncodingMajor = 1;
+        internal const byte EncodingMinor = 1;
 
         public const byte OPTIONAL_END_MARKER = 0xFF;
 
-        public const byte FLAG_HAS_TYPE_ID_STRING = (1 << 0);
-        public const byte FLAG_HAS_TYPE_ID_INDEX = (1 << 1);
-        public const byte FLAG_HAS_TYPE_ID_COMPACT = (1 << 1 | 1 << 0);
-        public const byte FLAG_HAS_OPTIONAL_MEMBERS = (1 << 2);
-        public const byte FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
-        public const byte FLAG_HAS_SLICE_SIZE = (1 << 4);
-        public const byte FLAG_IS_LAST_SLICE = (1 << 5);
+        public const byte FLAG_HAS_TYPE_ID_STRING = 1 << 0;
+        public const byte FLAG_HAS_TYPE_ID_INDEX = 1 << 1;
+        public const byte FLAG_HAS_TYPE_ID_COMPACT = (1 << 1) | (1 << 0);
+        public const byte FLAG_HAS_OPTIONAL_MEMBERS = 1 << 2;
+        public const byte FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
+        public const byte FLAG_HAS_SLICE_SIZE = 1 << 4;
+        public const byte FLAG_IS_LAST_SLICE = 1 << 5;
 
         //
         // The Ice protocol message types
         //
-        internal const byte requestMsg = 0;
-        internal const byte requestBatchMsg = 1;
-        internal const byte replyMsg = 2;
-        internal const byte validateConnectionMsg = 3;
-        internal const byte closeConnectionMsg = 4;
+        internal const byte RequestMessage = 0;
+        internal const byte RequestBatchMessage = 1;
+        internal const byte ReplyMessage = 2;
+        internal const byte ValidateConnectionMessage = 3;
+        internal const byte CloseConnectionMessage = 4;
 
-        internal static readonly byte[] requestHdr = new byte[]
+        internal static readonly byte[] RequestHeader = new byte[]
         {
-            magic[0], magic[1], magic[2], magic[3],
-            protocolMajor, protocolMinor,
-            protocolEncodingMajor, protocolEncodingMinor,
-            requestMsg,
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolMajor, ProtocolMinor,
+            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            RequestMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Request ID (placeholder).
         };
 
-        internal static readonly byte[] requestBatchHdr = new byte[]
+        internal static readonly byte[] RequestBatchHeader = new byte[]
         {
-            magic[0], magic[1], magic[2], magic[3],
-            protocolMajor, protocolMinor,
-            protocolEncodingMajor, protocolEncodingMinor,
-            requestBatchMsg,
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolMajor, ProtocolMinor,
+            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            RequestBatchMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Number of requests in batch (placeholder).
         };
 
-        internal static readonly byte[] replyHdr = new byte[]
+        internal static readonly byte[] ReplyHeader = new byte[]
         {
-            magic[0], magic[1], magic[2], magic[3],
-            protocolMajor, protocolMinor,
-            protocolEncodingMajor, protocolEncodingMinor,
-            replyMsg,
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolMajor, ProtocolMinor,
+            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            ReplyMessage,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).
         };
 
         internal static void
-        checkSupportedProtocol(Ice.ProtocolVersion v)
+        CheckSupportedProtocol(Ice.ProtocolVersion v)
         {
-            if (v.Major != protocolMajor || v.Minor > protocolMinor)
+            if (v.Major != ProtocolMajor || v.Minor > ProtocolMinor)
             {
                 throw new Ice.UnsupportedProtocolException("", v, Ice.Util.CurrentProtocol);
             }
         }
 
         public static void
-        checkSupportedProtocolEncoding(Ice.EncodingVersion v)
+        CheckSupportedProtocolEncoding(Ice.EncodingVersion v)
         {
-            if (v.Major != protocolEncodingMajor || v.Minor > protocolEncodingMinor)
+            if (v.Major != ProtocolEncodingMajor || v.Minor > ProtocolEncodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.CurrentProtocolEncoding);
             }
         }
 
         internal static void
-        checkSupportedEncoding(Ice.EncodingVersion v)
+        CheckSupportedEncoding(Ice.EncodingVersion v)
         {
-            if (v.Major != encodingMajor || v.Minor > encodingMinor)
+            if (v.Major != EncodingMajor || v.Minor > EncodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.CurrentEncoding);
             }
@@ -145,7 +145,7 @@ namespace IceInternal
         // supported protocol otherwise.
         //
         internal static Ice.ProtocolVersion
-        getCompatibleProtocol(Ice.ProtocolVersion v)
+        GetCompatibleProtocol(Ice.ProtocolVersion v)
         {
             if (v.Major != Ice.Util.CurrentProtocol.Major)
             {
@@ -170,7 +170,7 @@ namespace IceInternal
         // supported encoding otherwise.
         //
         internal static Ice.EncodingVersion
-        getCompatibleEncoding(Ice.EncodingVersion v)
+        GetCompatibleEncoding(Ice.EncodingVersion v)
         {
             if (v.Major != Ice.Util.CurrentEncoding.Major)
             {
@@ -191,11 +191,11 @@ namespace IceInternal
         }
 
         internal static bool
-        isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
+        IsSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
 
         internal static bool
-        isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
+        IsSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 

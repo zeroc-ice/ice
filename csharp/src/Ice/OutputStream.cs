@@ -162,7 +162,7 @@ namespace Ice
         public void StartEncapsulation(EncodingVersion encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            Protocol.checkSupportedEncoding(encoding);
+            Protocol.CheckSupportedEncoding(encoding);
 
             _mainEncaps = new Encaps(Encoding, _format, _tail);
 
@@ -1214,7 +1214,7 @@ namespace Ice
         /// <param name="pos">The position to write to.</param>
         internal void RewriteByte(byte v, Position pos)
         {
-            var segment = _segmentList[pos.Segment];
+            ArraySegment<byte> segment = _segmentList[pos.Segment];
             if (pos.Offset < segment.Count)
             {
                 segment[pos.Offset] = v;
@@ -1238,7 +1238,7 @@ namespace Ice
             MemoryMarshal.Write(data, ref v);
 
             int offset = pos.Offset;
-            var segment = _segmentList[pos.Segment];
+            ArraySegment<byte> segment = _segmentList[pos.Segment];
             int remaining = Math.Min(4, segment.Count - offset);
             if (remaining > 0)
             {
@@ -1462,7 +1462,7 @@ namespace Ice
         internal void StartEndpointEncapsulation(EncodingVersion encoding)
         {
             Debug.Assert(_endpointEncaps == null);
-            Protocol.checkSupportedEncoding(encoding);
+            Protocol.CheckSupportedEncoding(encoding);
 
             _endpointEncaps = new Encaps(Encoding, _format, _tail);
             Encoding = encoding;
@@ -1489,7 +1489,7 @@ namespace Ice
         /// <param name="encoding">The encoding version of the encapsulation.</param>
         internal void WriteEmptyEncapsulation(EncodingVersion encoding)
         {
-            Protocol.checkSupportedEncoding(encoding);
+            Protocol.CheckSupportedEncoding(encoding);
             WriteEncapsulationHeader(6, encoding);
         }
 

@@ -19,12 +19,10 @@ namespace IceInternal
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 
-                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                {
-                    byte type = PrintMessage(s, iss);
+                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                byte type = PrintMessage(s, iss);
 
-                    logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
-                }
+                logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
             }
         }
 
@@ -53,13 +51,11 @@ namespace IceInternal
                 var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
                 iss.Pos = 0;
 
-                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                {
-                    s.Write(heading);
-                    PrintMessage(s, iss);
+                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                s.Write(heading);
+                PrintMessage(s, iss);
 
-                    logger.Trace(tl.ProtocolCat, s.ToString());
-                }
+                logger.Trace(tl.ProtocolCat, s.ToString());
             }
         }
 
@@ -217,7 +213,7 @@ namespace IceInternal
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
 
-            ReplyStatus replyStatus = (ReplyStatus)str.ReadByte();
+            var replyStatus = (ReplyStatus)str.ReadByte();
             s.Write($"\nreply status = {replyStatus}");
 
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
@@ -362,26 +358,26 @@ namespace IceInternal
 
             switch (type)
             {
-                case Protocol.closeConnectionMsg:
-                case Protocol.validateConnectionMsg:
+                case Protocol.CloseConnectionMessage:
+                case Protocol.ValidateConnectionMessage:
                     {
                         // We're done.
                         break;
                     }
 
-                case Protocol.requestMsg:
+                case Protocol.RequestMessage:
                     {
                         PrintRequest(s, str);
                         break;
                     }
 
-                case Protocol.requestBatchMsg:
+                case Protocol.RequestBatchMessage:
                     {
                         PrintBatchRequest(s, str);
                         break;
                     }
 
-                case Protocol.replyMsg:
+                case Protocol.ReplyMessage:
                     {
                         PrintReply(s, str);
                         break;
@@ -419,11 +415,11 @@ namespace IceInternal
         {
             return type switch
             {
-                Protocol.requestMsg => "request",
-                Protocol.requestBatchMsg => "batch request",
-                Protocol.replyMsg => "reply",
-                Protocol.closeConnectionMsg => "close connection",
-                Protocol.validateConnectionMsg => "validate connection",
+                Protocol.RequestMessage => "request",
+                Protocol.RequestBatchMessage => "batch request",
+                Protocol.ReplyMessage => "reply",
+                Protocol.CloseConnectionMessage => "close connection",
+                Protocol.ValidateConnectionMessage => "validate connection",
                 _ => "unknown",
             };
         }

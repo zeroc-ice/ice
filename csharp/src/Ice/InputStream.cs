@@ -214,7 +214,7 @@ namespace Ice
 
         /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
         /// Throws Ice.UnsupportedEncodingException if it cannot.</summary>
-        public void CheckIsReadable() => Protocol.checkSupportedEncoding(Encoding);
+        public void CheckIsReadable() => Protocol.CheckSupportedEncoding(Encoding);
 
         /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
         public void SkipCurrentEncapsulation()

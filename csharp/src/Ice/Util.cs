@@ -129,14 +129,14 @@ namespace Ice
         private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
         public static readonly ProtocolVersion CurrentProtocol =
-            new ProtocolVersion(IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor);
+            new ProtocolVersion(IceInternal.Protocol.ProtocolMajor, IceInternal.Protocol.ProtocolMinor);
 
         public static readonly EncodingVersion CurrentProtocolEncoding =
-            new EncodingVersion(IceInternal.Protocol.protocolEncodingMajor,
-                                IceInternal.Protocol.protocolEncodingMinor);
+            new EncodingVersion(IceInternal.Protocol.ProtocolEncodingMajor,
+                                IceInternal.Protocol.ProtocolEncodingMinor);
 
         public static readonly EncodingVersion CurrentEncoding =
-            new EncodingVersion(IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor);
+            new EncodingVersion(IceInternal.Protocol.EncodingMajor, IceInternal.Protocol.EncodingMinor);
 
         public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
 
