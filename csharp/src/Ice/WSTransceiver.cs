@@ -18,14 +18,14 @@ namespace IceInternal
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
+        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
         {
             //
             // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
             //
             if (_state == StateInitializeDelegate)
             {
-                int op = _delegate.Initialize(readBuffer, writeBuffer);
+                int op = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
                 if (op != 0)
                 {
                     return op;
@@ -96,7 +96,6 @@ namespace IceInternal
                     _state = StateUpgradeResponsePending;
                 }
 
-                bool hasMoreData = false; // TODO is this required?
                 while (true)
                 {
                     if (_readBuffer.B.HasRemaining())
@@ -204,6 +203,7 @@ namespace IceInternal
 
                 _state = StateOpened;
                 _nextState = StateOpened;
+                hasMoreData = _readBufferPos < _readBuffer.B.Position();
             }
             catch (Ice.LocalException ex)
             {

@@ -38,7 +38,7 @@ namespace IceInternal
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd)) / 2;
+            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
         }
 
@@ -180,7 +180,8 @@ namespace IceInternal
         /// SocketOperation.None if all the data was wrote otherwise returns
         /// SocketOperation.Write.</summary>
         /// <param name="buffer">The data to write to the socket as a list of byte array segments.</param>
-        /// <param name="offset">The zero based byte offset into the buffer.</param>
+        /// <param name="offset">The zero based byte offset into the buffer. The offset is increased
+        /// by the amount of bytes written.</param>
         /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
         /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
         /// data to write in the buffer.</returns>
@@ -288,9 +289,7 @@ namespace IceInternal
         /// <param name="state">A state object that is asocciated with the asynchronous operation.</param>
         /// <param name="completed">True if the write operation accounts for the buffer remaining data, from
         /// offset to the end of the buffer.</param>
-        /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
-        /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
-        /// data to write in the buffer.</returns>
+        /// <returns>True if the asynchronous operation compled synchronously otherwise false.</returns>
         public bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state,
             out bool completed)
         {
@@ -492,13 +491,27 @@ namespace IceInternal
                 return 0;
             }
 
+            int packetSize = _maxSendPacketSize;
+            if (AssemblyUtil.IsWindows)
+            {
+                //
+                // On Windows, limiting the buffer size is important to prevent
+                // poor throughput performances when transfering large amount of
+                // data. See Microsoft KB article KB823764.
+                //
+                if (_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
+                {
+                    packetSize = _maxSendPacketSize / 2;
+                }
+            }
+
             int remaining = count - offset;
             int sent = 0;
             while (remaining - sent > 0)
             {
                 try
                 {
-                    buffer.FillSegments(offset + sent, _sendSegments, Math.Min(remaining - sent, _maxSendPacketSize));
+                    buffer.FillSegments(offset + sent, _sendSegments, Math.Min(remaining - sent, packetSize));
                     int ret = _fd.Send(_sendSegments, SocketFlags.None);
                     _sendSegments.Clear();
                     Debug.Assert(ret > 0);

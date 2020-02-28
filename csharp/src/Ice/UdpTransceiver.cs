@@ -16,7 +16,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _fd;
 
-        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
+        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
         {
             Debug.Assert(_fd != null);
             if (_state == StateNeedConnect)

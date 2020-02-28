@@ -2083,7 +2083,7 @@ namespace Ice
 
         private bool Initialize(int operation)
         {
-            int s = _transceiver.Initialize(_readStream.GetBuffer(), _writeBuffer);
+            int s = _transceiver.Initialize(_readStream.GetBuffer(), _writeBuffer, ref HasMoreData);
             if (s != SocketOperation.None)
             {
                 _writeBufferOffset = 0;

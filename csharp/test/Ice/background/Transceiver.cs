@@ -16,12 +16,12 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Fd();
     }
 
-    public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
+    public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
     {
         _configuration.checkInitializeException();
         if (!_initialized)
         {
-            int status = _transceiver.Initialize(readBuffer, writeBuffer);
+            int status = _transceiver.Initialize(readBuffer, writeBuffer, ref hasMoreData);
             if (status != IceInternal.SocketOperation.None)
             {
                 return status;

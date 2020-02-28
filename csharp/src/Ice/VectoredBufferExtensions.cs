@@ -78,28 +78,29 @@ namespace Ice
         /// an slice of the segment without copying the data, otherwise the data is copied into
         /// a byte array and the segment is created from the copied data.</summary>
         /// <param name="src">The source segment list.</param>
-        /// <param name="offset">The zero-based byte offset into the source segment list.</param>
+        /// <param name="srcOffset">The zero-based byte offset into the source segment list.</param>
         /// <param name="count">The size in bytes of the returned segment.</param>
         /// <returns>A segment with the requested size.</returns>
-        public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int offset, int count)
+        public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int srcOffset, int count)
         {
-            Debug.Assert(src.GetByteCount() >= offset + count,
-                $"requested {count} bytes starting at offset {offset} but there is only " +
-                $"{src.GetByteCount() - offset} bytes remaining.");
+            Debug.Assert(src.GetByteCount() >= srcOffset + count,
+                $"requested {count} bytes starting at offset {srcOffset} but there is only " +
+                $"{src.GetByteCount() - srcOffset} bytes remaining.");
 
             // Skip offset bytes into the source segment list
-            int i = 0;
+            int srcIndex = 0;
+            int dstOffset = 0;
             byte[]? data = null;
-            for (; i < src.Count; i++)
+            for (; srcIndex < src.Count; srcIndex++)
             {
-                ArraySegment<byte> segment = src[i];
-                if (segment.Count > offset)
+                ArraySegment<byte> segment = src[srcIndex];
+                if (segment.Count > srcOffset)
                 {
-                    if (segment.Count - offset >= count)
+                    if (segment.Count - srcOffset >= count)
                     {
                         // If the requested data is available from a single segment return an Slice
                         // of the segment.
-                        return segment.Slice(offset, count);
+                        return segment.Slice(srcOffset, count);
                     }
                     else
                     {
@@ -107,26 +108,26 @@ namespace Ice
                         // size and copy the data into it. We first copy the remainig of the current segment
                         // here and the rest of the data is copied in the loop bellow.
                         data = new byte[count];
-                        int remaining = segment.Count - offset;
-                        Buffer.BlockCopy(segment.Array, offset + segment.Offset, data, 0, remaining);
-                        offset = remaining;
-                        i++;
+                        int remaining = segment.Count - srcOffset;
+                        Buffer.BlockCopy(segment.Array, srcOffset + segment.Offset, data, 0, remaining);
+                        dstOffset = remaining;
+                        srcIndex++;
                         break;
                     }
                 }
                 else
                 {
-                    offset -= segment.Count;
+                    srcOffset -= segment.Count;
                 }
             }
 
             Debug.Assert(data != null);
-            for (; i < src.Count && count - offset > 0; i++)
+            for (; srcIndex < src.Count && count - dstOffset > 0; srcIndex++)
             {
-                ArraySegment<byte> segment = src[i];
-                int remaining = Math.Min(count - offset, segment.Count);
-                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, remaining);
-                offset += remaining;
+                ArraySegment<byte> segment = src[srcIndex];
+                int remaining = Math.Min(count - dstOffset, segment.Count);
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, dstOffset, remaining);
+                dstOffset += remaining;
             }
             return data;
         }

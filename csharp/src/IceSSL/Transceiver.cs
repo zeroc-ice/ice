@@ -18,11 +18,11 @@ namespace IceSSL
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
+        public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
         {
             if (!_isConnected)
             {
-                int status = _delegate.Initialize(readBuffer, writeBuffer);
+                int status = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
                 if (status != IceInternal.SocketOperation.None)
                 {
                     return status;
