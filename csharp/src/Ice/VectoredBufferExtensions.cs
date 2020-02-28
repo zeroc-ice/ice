@@ -109,7 +109,7 @@ namespace Ice
                         // here and the rest of the data is copied in the loop bellow.
                         data = new byte[count];
                         remaining = segment.Count - offset;
-                        Buffer.BlockCopy(segment.Array, offset, data, 0, remaining);
+                        Buffer.BlockCopy(segment.Array, offset, data, segment.Offset, remaining);
                         offset = remaining;
                         i++;
                         break;
@@ -126,7 +126,7 @@ namespace Ice
             {
                 ArraySegment<byte> segment = src[i];
                 remaining = Math.Min(count - offset, segment.Count);
-                Buffer.BlockCopy(segment.Array, 0, data, offset, remaining);
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, remaining);
                 offset += remaining;
             }
             return data;

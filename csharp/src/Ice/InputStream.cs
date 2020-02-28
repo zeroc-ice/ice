@@ -1817,7 +1817,7 @@ namespace Ice
             _current.Slices ??= new List<SliceInfo>();
             var info = new SliceInfo(_current.SliceTypeId,
                                      _current.SliceCompactId,
-                                     Array.AsReadOnly(bytes),
+                                     new ReadOnlyMemory<byte>(bytes),
                                      Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
                                      hasOptionalMembers,
                                      (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);

@@ -83,7 +83,7 @@ namespace IceInternal
                 //
                 // Write data passed by caller.
                 //
-                _s.WriteBlob(array);
+                _s.WriteSpan(array.AsSpan());
                 _pos += count;
             }
             catch (Exception ex)

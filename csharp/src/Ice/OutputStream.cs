@@ -27,8 +27,8 @@ namespace Ice
     /// </summary>
     public class OutputStream
     {
-        /// <summary>Represents a position in a list of byte arrays, the position
-        /// is compose of the index  of the array in the list and the offset into
+        /// <summary>Represents a position in a list of array segments, the position
+        /// is compose of the index  of the segment in the list and the offset into
         /// the array.</summary>
         public struct Position
         {
@@ -81,9 +81,9 @@ namespace Ice
         // the segment list but it can occasionally be one before last after expanding the list.
         // The tail Position always points to this segment, and the tail offset indicates how much
         // of the segment has been used.
-        private byte[] _currentSegment;
+        private ArraySegment<byte> _currentSegment;
         // all segments before the the tail segment are fully used
-        private List<byte[]> _segmentList;
+        private List<ArraySegment<byte>> _segmentList;
 
         // When set, we are writing to a top-level encapsulation.
         private Encaps? _mainEncaps;
@@ -134,10 +134,10 @@ namespace Ice
         {
             Communicator = communicator;
             Encoding = encoding;
-            _segmentList = new List<byte[]>();
+            _segmentList = new List<ArraySegment<byte>>();
             _currentSegment = buffer ?? new byte[DefaultSegmentSize];
             _segmentList.Add(_currentSegment);
-            _capacity = _currentSegment.Length;
+            _capacity = _currentSegment.Count;
             if (buffer == null)
             {
                 Size = 0;
@@ -181,10 +181,10 @@ namespace Ice
             var buffer = new List<ArraySegment<byte>>();
             for (int i = 0; i < _segmentList.Count; i++)
             {
-                byte[] segment = _segmentList[i];
+                ArraySegment<byte> segment = _segmentList[i];
                 if (i == _tail.Segment)
                 {
-                    buffer.Add(new ArraySegment<byte>(segment, 0, _tail.Offset));
+                    buffer.Add(segment.Slice(0, _tail.Offset));
                     break;
                 }
                 else
@@ -384,7 +384,7 @@ namespace Ice
                 if (segment.Count > offset)
                 {
                     remaining = Math.Min(count, segment.Count - offset);
-                    Buffer.BlockCopy(segment.Array, offset, data, 0, remaining);
+                    Buffer.BlockCopy(segment.Array, segment.Offset + offset, data, 0, remaining);
                     i++;
                     break;
                 }
@@ -399,17 +399,11 @@ namespace Ice
             {
                 ArraySegment<byte> segment = _segmentList[i];
                 remaining = Math.Min(segment.Count, count - offset);
-                Buffer.BlockCopy(segment.Array, 0, data, offset, remaining);
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, remaining);
                 offset += remaining;
             }
             return data;
         }
-
-        /// <summary>
-        /// Writes a blob of bytes to the stream.
-        /// </summary>
-        /// <param name="v">The byte array to be written. All of the bytes in the array are written.</param>
-        public void WriteBlob(byte[] v) => WriteSpan(v.AsSpan());
 
         /// <summary>
         /// Write the header information for an optional value.
@@ -1221,7 +1215,7 @@ namespace Ice
         internal void RewriteByte(byte v, Position pos)
         {
             var segment = _segmentList[pos.Segment];
-            if (pos.Offset < segment.Length)
+            if (pos.Offset < segment.Count)
             {
                 segment[pos.Offset] = v;
             }
@@ -1238,14 +1232,14 @@ namespace Ice
         internal void RewriteInt(int v, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
-            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Length),
-                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Length)}");
+            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
+                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
             Span<byte> data = stackalloc byte[4];
             MemoryMarshal.Write(data, ref v);
 
             int offset = pos.Offset;
             var segment = _segmentList[pos.Segment];
-            int remaining = Math.Min(4, segment.Length - offset);
+            int remaining = Math.Min(4, segment.Count - offset);
             if (remaining > 0)
             {
                 data.Slice(0, remaining).CopyTo(segment.AsSpan(offset, remaining));
@@ -1266,7 +1260,7 @@ namespace Ice
             int offset = 0;
             foreach (ArraySegment<byte> segment in _segmentList)
             {
-                Buffer.BlockCopy(segment.Array, 0, data, offset, Math.Min(segment.Count, Size - offset));
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, Math.Min(segment.Count, Size - offset));
                 offset += segment.Count;
             }
             return data;
@@ -1279,7 +1273,7 @@ namespace Ice
         {
             Expand(1);
             int offset = _tail.Offset;
-            if (offset < _currentSegment.Length)
+            if (offset < _currentSegment.Count)
             {
                 _currentSegment[offset] = v;
                 _tail.Offset++;
@@ -1310,26 +1304,29 @@ namespace Ice
             // If start and end position are in different segments we need to acumulate the
             // size from start offset to the end of the start segment, the size of the intermediary
             // segments, and the current offset into the last segment.
-            byte[] segment = _segmentList[start.Segment];
-            int size = segment.Length - start.Offset;
+            ArraySegment<byte> segment = _segmentList[start.Segment];
+            int size = segment.Count - start.Offset;
             for (int i = start.Segment + 1; i < _tail.Segment; ++i)
             {
-                size += _segmentList[i].Length;
+                size += _segmentList[i].Count;
             }
             return size + _tail.Offset;
         }
+
+        // TODO Remove use WriteSpan directly
+        public void WriteBlob(byte[] v) => WriteSpan(v.AsSpan());
 
         /// <summary>Write an span of bytes to the stream, the stream capacity is expanded
         /// if required, the size and tail position are increased according to the spam
         /// length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
-        internal void WriteSpan(Span<byte> span)
+        public void WriteSpan(ReadOnlySpan<byte> span)
         {
             int length = span.Length;
             Expand(length);
             Size += length;
             int offset = _tail.Offset;
-            int remaining = _currentSegment.Length - offset;
+            int remaining = _currentSegment.Count - offset;
             if (remaining > 0)
             {
                 int sz = Math.Min(length, remaining);
@@ -1360,6 +1357,35 @@ namespace Ice
             }
         }
 
+        /// <summary>Appends an array segment to the segment list, no data is copied. If the
+        /// current segment is not fully written it is first sliced to the written size, this
+        /// ensures there is no gaps, the size and capacity of the stream are adjusted to the
+        /// sum of all segment counts, and the tail is advanced to the end of the new segment.</summary>
+        /// <param name="payload">The array segment payload to write into the stream.</param>
+        protected void WritePayload(ArraySegment<byte> payload)
+        {
+            Debug.Assert(_tail.Segment == _segmentList.Count - 1, "Current segment is not the last segment");
+
+            // If current segment is not fully written slice it to is written size
+            // and adjust the stream capacity.
+            if (_tail.Offset < _currentSegment.Count)
+            {
+                _capacity -= _currentSegment.Count;
+                _currentSegment = _currentSegment.Slice(0, _tail.Offset);
+                _capacity += _currentSegment.Count;
+                _segmentList[_tail.Segment] = _currentSegment;
+            }
+
+            Debug.Assert(Size == _capacity);
+
+            _segmentList.Add(payload);
+            _capacity += payload.Count;
+            Size = _capacity;
+            _currentSegment = payload;
+            _tail.Segment++;
+            _tail.Offset = _currentSegment.Count;
+        }
+
         /// <summary>Expand the stream to make room for more data, if the stream
         /// remaining bytes are not enough to hold the given number of bytes allocate
         /// a new byte array, after this method return the stream has enough free space
@@ -1370,7 +1396,7 @@ namespace Ice
             int remaining = _capacity - Size;
             if (n > remaining)
             {
-                int size = Math.Max(DefaultSegmentSize, _currentSegment.Length * 2);
+                int size = Math.Max(DefaultSegmentSize, _currentSegment.Count * 2);
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
@@ -1388,10 +1414,10 @@ namespace Ice
             Expand(length);
             Size += length;
             int offset = _tail.Offset;
-            int remaining = Math.Min(_currentSegment.Length - offset, length);
+            int remaining = Math.Min(_currentSegment.Count - offset, length);
             if (remaining > 0)
             {
-                Buffer.BlockCopy(arr, 0, _currentSegment, offset, remaining);
+                Buffer.BlockCopy(arr, 0, _currentSegment.Array, _currentSegment.Offset + offset, remaining);
                 _tail.Offset += remaining;
                 length -= remaining;
             }
@@ -1399,7 +1425,7 @@ namespace Ice
             if (length > 0)
             {
                 _currentSegment = _segmentList[++_tail.Segment];
-                Buffer.BlockCopy(arr, remaining, _currentSegment, 0, length);
+                Buffer.BlockCopy(arr, remaining, _currentSegment.Array, _currentSegment.Offset, length);
                 _tail.Offset = length;
             }
         }
@@ -1502,10 +1528,8 @@ namespace Ice
                 IceStartSlice(info.TypeId ?? "", firstSlice, null, info.CompactId);
                 firstSlice = false;
 
-                // Write the bytes associated with this slice. TODO: need better write bytes API
-                byte[] sliceBytes = new byte[info.Bytes.Count];
-                info.Bytes.CopyTo(sliceBytes, 0);
-                WriteBlob(sliceBytes);
+                // Write the bytes associated with this slice.
+                WriteSpan(info.Bytes.Span);
 
                 if (info.HasOptionalMembers)
                 {

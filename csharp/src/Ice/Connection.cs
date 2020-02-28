@@ -573,7 +573,7 @@ namespace Ice
                 try
                 {
                     Debug.Assert(Os != null);
-                    Os.WriteBlob(Protocol.magic);
+                    Os.WriteSpan(Protocol.magic.AsSpan());
                     Os.WriteByte(Util.CurrentProtocol.Major);
                     Os.WriteByte(Util.CurrentProtocol.Minor);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Major);
@@ -2028,7 +2028,7 @@ namespace Ice
                 // Before we shut down, we send a close connection message.
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
-                os.WriteBlob(Protocol.magic);
+                os.WriteSpan(Protocol.magic.AsSpan());
                 os.WriteByte(Util.CurrentProtocol.Major);
                 os.WriteByte(Util.CurrentProtocol.Minor);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
@@ -2111,7 +2111,7 @@ namespace Ice
                 {
                     if (_writeStream.Size == 0)
                     {
-                        _writeStream.WriteBlob(Protocol.magic);
+                        _writeStream.WriteSpan(Protocol.magic.AsSpan());
                         _writeStream.WriteByte(Util.CurrentProtocol.Major);
                         _writeStream.WriteByte(Util.CurrentProtocol.Minor);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
