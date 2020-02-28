@@ -1314,7 +1314,7 @@ namespace Ice
         }
 
         /// <summary>Write an span of bytes to the stream, the stream capacity is expanded
-        /// if required, the size and tail position are increased according to the spam
+        /// if required, the size and tail position are increased according to the span
         /// length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
         public void WriteSpan(ReadOnlySpan<byte> span)
