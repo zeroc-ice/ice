@@ -64,9 +64,7 @@ namespace Ice
             }
             else
             {
-                // TODO: this works only because we know this segment matches the array (for now). OutputStream should
-                // provide an efficient API to build such a response frame.
-                WriteBlob(payload.Array);
+                WritePayload(payload);
             }
         }
 
@@ -179,7 +177,7 @@ namespace Ice
         {
             RequestId = requestId;
 
-            WriteBlob(Protocol.replyHdr);
+            WriteSpan(Protocol.replyHdr.AsSpan());
             WriteInt(requestId);
         }
     }

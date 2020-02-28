@@ -2061,7 +2061,7 @@ namespace Ice
             if (!_endpoint.Datagram())
             {
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
-                os.WriteBlob(Protocol.magic);
+                os.WriteSpan(Protocol.magic.AsSpan());
                 os.WriteByte(Util.CurrentProtocol.Major);
                 os.WriteByte(Util.CurrentProtocol.Minor);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
