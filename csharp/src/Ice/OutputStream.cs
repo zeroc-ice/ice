@@ -1407,17 +1407,17 @@ namespace Ice
         /// <summary>Helper method used to write an array of numeric types to the stream.
         /// The stream capacity is expanded if required, the size and tail position are increased
         /// according to the length in bytes of the numeric sequence.</summary>
-        /// <param name="arr">The numeric array to write to the stream.</param>
-        private void WriteNumericSeq(Array arr)
+        /// <param name="array">The numeric array to write to the stream.</param>
+        private void WriteNumericSeq(Array array)
         {
-            int length = Buffer.ByteLength(arr);
+            int length = Buffer.ByteLength(array);
             Expand(length);
             Size += length;
             int offset = _tail.Offset;
             int remaining = Math.Min(_currentSegment.Count - offset, length);
             if (remaining > 0)
             {
-                Buffer.BlockCopy(arr, 0, _currentSegment.Array, _currentSegment.Offset + offset, remaining);
+                Buffer.BlockCopy(array, 0, _currentSegment.Array, _currentSegment.Offset + offset, remaining);
                 _tail.Offset += remaining;
                 length -= remaining;
             }
@@ -1425,7 +1425,7 @@ namespace Ice
             if (length > 0)
             {
                 _currentSegment = _segmentList[++_tail.Segment];
-                Buffer.BlockCopy(arr, remaining, _currentSegment.Array, _currentSegment.Offset, length);
+                Buffer.BlockCopy(array, remaining, _currentSegment.Array, _currentSegment.Offset, length);
                 _tail.Offset = length;
             }
         }

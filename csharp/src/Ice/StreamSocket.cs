@@ -291,8 +291,8 @@ namespace IceInternal
         /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
         /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
         /// data to write in the buffer.</returns>
-        public bool
-        StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed)
+        public bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state,
+            out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
             if (_state == StateConnectPending)

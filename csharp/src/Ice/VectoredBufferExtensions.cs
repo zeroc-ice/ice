@@ -32,23 +32,23 @@ namespace Ice
         /// <param name="srcOffset">The zero-based byte offset into the source list.</param>
         /// <param name="dst">The destination list to fill with array segments from the source list.</param>
         /// <param name="count">The number of bytes to fill the destination lists with.</param>
-        public static void
-        FillSegments(this IList<ArraySegment<byte>> src, int srcOffset, IList<ArraySegment<byte>> dst, int count)
+        public static void FillSegments(this IList<ArraySegment<byte>> src, int srcOffset,
+            IList<ArraySegment<byte>> dst, int count)
         {
             Debug.Assert(count > 0 && count <= src.GetByteCount() - srcOffset,
                 $"count: {count} srcSize: {src.GetByteCount()} srcOffset: {srcOffset}");
             dst.Clear();
 
-            int sz = 0;
-            int i = 0;
-            for (; i < src.Count && srcOffset > 0; i++)
+            int dstCount = 0;
+            int srcIndex = 0;
+            for (; srcIndex < src.Count && srcOffset > 0; srcIndex++)
             {
-                ArraySegment<byte> segment = src[i];
+                ArraySegment<byte> segment = src[srcIndex];
                 if (segment.Count > srcOffset)
                 {
-                    sz = Math.Min(count, segment.Count - srcOffset);
-                    dst.Add(segment.Slice(srcOffset, sz));
-                    i++;
+                    dstCount = Math.Min(count, segment.Count - srcOffset);
+                    dst.Add(segment.Slice(srcOffset, dstCount));
+                    srcIndex++;
                     break;
                 }
                 else
@@ -57,18 +57,18 @@ namespace Ice
                 }
             }
 
-            for (; i < src.Count && sz < count; i++)
+            for (; srcIndex < src.Count && dstCount < count; srcIndex++)
             {
-                ArraySegment<byte> segment = src[i];
-                if (segment.Count > count - sz)
+                ArraySegment<byte> segment = src[srcIndex];
+                if (segment.Count > count - dstCount)
                 {
-                    dst.Add(segment.Slice(0, count - sz));
+                    dst.Add(segment.Slice(0, count - dstCount));
                     break;
                 }
                 else
                 {
                     dst.Add(segment);
-                    sz += segment.Count;
+                    dstCount += segment.Count;
                 }
             }
         }
@@ -88,7 +88,6 @@ namespace Ice
                 $"{src.GetByteCount() - offset} bytes remaining.");
 
             // Skip offset bytes into the source segment list
-            int remaining;
             int i = 0;
             byte[]? data = null;
             for (; i < src.Count; i++)
@@ -104,12 +103,12 @@ namespace Ice
                     }
                     else
                     {
-                        // The requested data spams serveral segments, allocate an array of the requested
+                        // The requested data spans serveral segments, allocate an array of the requested
                         // size and copy the data into it. We first copy the remainig of the current segment
                         // here and the rest of the data is copied in the loop bellow.
                         data = new byte[count];
-                        remaining = segment.Count - offset;
-                        Buffer.BlockCopy(segment.Array, offset, data, segment.Offset, remaining);
+                        int remaining = segment.Count - offset;
+                        Buffer.BlockCopy(segment.Array, offset + segment.Offset, data, 0, remaining);
                         offset = remaining;
                         i++;
                         break;
@@ -125,7 +124,7 @@ namespace Ice
             for (; i < src.Count && count - offset > 0; i++)
             {
                 ArraySegment<byte> segment = src[i];
-                remaining = Math.Min(count - offset, segment.Count);
+                int remaining = Math.Min(count - offset, segment.Count);
                 Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, remaining);
                 offset += remaining;
             }
