@@ -10,11 +10,8 @@ namespace Ice.objects
     {
         public async ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
         {
-            var ostr = IceInternal.Protocol.StartResponseFrame(current);
             var ae = new Test.AlsoEmpty();
-            ostr.WriteClass(ae);
-            ostr.EndEncapsulation();
-            return ostr;
+            return new OutgoingResponseFrame(current, outputStream => outputStream.WriteClass(ae));
         }
     }
 }

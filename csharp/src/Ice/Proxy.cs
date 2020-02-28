@@ -559,83 +559,7 @@ namespace Ice
         }
     }
 
-    /// <summary>
-    /// Represent the result of the ice_invokeAsync operation
-    /// </summary>
-    public struct Object_Ice_invokeResult
-    {
-        public Object_Ice_invokeResult(bool returnValue, byte[]? outEncaps)
-        {
-            ReturnValue = returnValue;
-            OutEncaps = outEncaps;
-        }
-
-        /// <summary>
-        /// If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outEncaps
-        /// contains the encoded user exception.
-        /// </summary>
-        public bool ReturnValue;
-
-        /// <summary>
-        /// The encoded out-paramaters and return value for the operation.
-        /// The return value follows any out-parameters. If returnValue is
-        /// false it contains the encoded user exception.
-        /// </summary>
-        public byte[]? OutEncaps;
-    };
-
-    internal class InvokeOutgoingAsyncT : OutgoingAsync
-    {
-        public InvokeOutgoingAsyncT(IObjectPrx prx,
-                                    IOutgoingAsyncCompletionCallback completionCallback,
-                                    OutputStream? os = null,
-                                    InputStream? iss = null) : base(prx, completionCallback, os, iss)
-        {
-        }
-
-        public void Invoke(string operation, bool idempotent, byte[] inParams,
-                           Dictionary<string, string>? context, bool synchronous)
-        {
-            try
-            {
-                Debug.Assert(Os != null);
-                Prepare(operation, idempotent, context);
-                if (inParams == null || inParams.Length == 0)
-                {
-                    Os.WriteEmptyEncapsulation(Encoding);
-                }
-                else
-                {
-                    Os.WriteEncapsulation(inParams);
-                }
-                Invoke(synchronous);
-            }
-            catch (Exception ex)
-            {
-                Abort(ex);
-            }
-        }
-
-        public Object_Ice_invokeResult
-        GetResult(bool ok)
-        {
-            var ret = new Object_Ice_invokeResult();
-            if (Proxy.IceReference.GetMode() == InvocationMode.Twoway)
-            {
-                ret.OutEncaps = Is!.ReadEncapsulation(out EncodingVersion _);
-            }
-            else
-            {
-                ret.OutEncaps = null;
-            }
-            ret.ReturnValue = ok;
-            return ret;
-        }
-    }
-
-    internal class InvokeTaskCompletionCallback : TaskCompletionCallback<Object_Ice_invokeResult>
+    internal class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
     {
         public InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken) :
             base(progress, cancellationToken)
@@ -651,12 +575,12 @@ namespace Ice
             }
             if (done)
             {
-                SetResult(new Object_Ice_invokeResult(true, null));
+                SetResult(new IncomingResponseFrame(ReplyStatus.OK, og.GetIs()));
             }
         }
 
         public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
-            SetResult(((InvokeOutgoingAsyncT)og).GetResult(ok));
+            SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
     }
 
     /// <summary>
@@ -959,33 +883,17 @@ namespace Ice
             return null;
         }
 
-        /// <summary>
-        /// Invokes an operation dynamically.
-        /// </summary>
-        /// <param name="prx">The proxy to invoke the operation.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="idempotent">True if this operation is idempotent, and false otherwise.</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <param name="outEncaps">The encoded out-paramaters and return value
-        /// for the operation. The return value follows any out-parameters.</param>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns>If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outEncaps
-        /// contains the encoded user exception. If the operation raises a run-time exception,
-        /// it throws it directly.</returns>
-        public static bool Invoke(this IObjectPrx prx,
-                                  string operation,
-                                  bool idempotent,
-                                  byte[] inEncaps,
-                                  out byte[]? outEncaps,
-                                  Dictionary<string, string>? context = null)
+        /// <summary>Sends a request synchronously.</summary>
+        /// <param name="prx">The proxy for the target Ice object.</param>
+        /// <param name="requestFrame">The request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example prx can have
+        /// different endpoints.</param>
+        /// <returns>The response frame.</returns>
+        public static IncomingResponseFrame Invoke(this IObjectPrx prx, OutgoingRequestFrame requestFrame)
         {
             try
             {
-                Object_Ice_invokeResult result = prx.IceI_ice_invokeAsync(operation, idempotent, inEncaps, context, null, CancellationToken.None, true).Result;
-                outEncaps = result.OutEncaps;
-                return result.ReturnValue;
+                return prx.InvokeAsync(requestFrame, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -993,49 +901,29 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Invokes an operation dynamically.
-        /// </summary>
-        /// <param name="prx">The proxy to invoke the operation.</param>
-        /// <param name="operation">The name of the operation to invoke.</param>
-        /// <param name="idempotent">True if this operation is idempotent, and false otherwise.</param>
-        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <summary>Sends a request asynchronously.</summary>
+        /// <param name="prx">The proxy for the target Ice object.</param>
+        /// <param name="requestFrame">The request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example prx can have
+        /// different endpoints.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The task object representing the asynchronous operation.</returns>
-        public static Task<Object_Ice_invokeResult>
-        InvokeAsync(this IObjectPrx prx,
-                    string operation,
-                    bool idempotent,
-                    byte[] inEncaps,
-                    Dictionary<string, string>? context = null,
-                    IProgress<bool>? progress = null,
-                    CancellationToken cancel = new CancellationToken()) =>
-            prx.IceI_ice_invokeAsync(operation, idempotent, inEncaps, context, progress, cancel, false);
+        /// <returns>A task holding the response frame.</returns>
+        public static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx prx,
+                                                              OutgoingRequestFrame requestFrame,
+                                                              IProgress<bool>? progress = null,
+                                                              CancellationToken cancel = default)
+            => prx.InvokeAsync(requestFrame, progress, cancel, false);
 
-        private static Task<Object_Ice_invokeResult>
-        IceI_ice_invokeAsync(this IObjectPrx prx,
-                             string operation,
-                             bool idempotent,
-                             byte[] inEncaps,
-                             Dictionary<string, string>? context,
-                             IProgress<bool>? progress,
-                             CancellationToken cancel,
-                             bool synchronous)
+        private static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx prx,
+                                                               OutgoingRequestFrame requestFrame,
+                                                               IProgress<bool>? progress,
+                                                               CancellationToken cancel,
+                                                               bool synchronous)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            prx.IceI_ice_invoke(operation, idempotent, inEncaps, context, completed, synchronous);
+            new OutgoingAsync(prx, completed, requestFrame).Invoke(synchronous);
             return completed.Task;
         }
-
-        private static void IceI_ice_invoke(this IObjectPrx prx,
-                                     string operation,
-                                     bool idempotent,
-                                     byte[] inEncaps,
-                                     Dictionary<string, string>? context,
-                                     IOutgoingAsyncCompletionCallback completed,
-                                     bool synchronous) =>
-            new InvokeOutgoingAsyncT(prx, completed).Invoke(operation, idempotent, inEncaps, context, synchronous);
     }
 }

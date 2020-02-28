@@ -2,17 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace Ice
 {
-    internal static class ReplyStatus
+    /// <summary>The reply status used in Ice1 response frames (known as reply messages).</summary>
+    public enum ReplyStatus : byte
     {
-        public const byte replyOK = 0;
-        public const byte replyUserException = 1;
-        public const byte replyObjectNotExist = 2;
-        public const byte replyFacetNotExist = 3;
-        public const byte replyOperationNotExist = 4;
-        public const byte replyUnknownLocalException = 5;
-        public const byte replyUnknownUserException = 6;
-        public const byte replyUnknownException = 7;
+        OK = 0,
+        UserException = 1,
+        ObjectNotExistException = 2,
+        FacetNotExistException = 3,
+        OperationNotExistException = 4,
+        UnknownLocalException = 5,
+        UnknownUserException = 6,
+        UnknownException = 7
     }
 }
