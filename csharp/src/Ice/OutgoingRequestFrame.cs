@@ -80,7 +80,6 @@ namespace Ice
             }
             else
             {
-                // TODO: works only because we know how payload is created!
                 WritePayload(payload.Value);
             }
         }
