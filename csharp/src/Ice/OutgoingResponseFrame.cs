@@ -22,27 +22,23 @@ namespace Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Context? Context { get; }
 
-        /// <summary>Creates a new "success" outgoing response frame.</summary>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        /// <param name="format">The Slice format (Compact or Sliced) used by the encapsulation.</param>
-        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
-        public OutgoingResponseFrame(Current current, FormatType? format, Action<OutputStream> payloadWriter)
-            : this(current.Adapter.Communicator, current.RequestId)
-        {
-            WriteByte((byte)ReplyStatus.OK);
-            StartEncapsulation(current.Encoding, format);
-            payloadWriter(this);
-            EndEncapsulation();
-        }
+        private EncodingVersion _payloadEncoding; // TODO: move to OutputStream
 
-        /// <summary>Creates a new "success" outgoing response frame with a null format</summary>
+        /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
+        public static OutgoingResponseFrame Empty(Current current)
+            => new OutgoingResponseFrame(current, ReplyStatus.OK, ArraySegment<byte>.Empty);
+
+        /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
+        /// written later on with StartReturnValue/EndReturnValue.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
-        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
-        public OutgoingResponseFrame(Current current, Action<OutputStream> payloadWriter)
-            : this(current, format: null, payloadWriter)
+        public OutgoingResponseFrame(Current current) : base(current.Adapter.Communicator, Util.CurrentProtocolEncoding)
         {
+            RequestId = current.RequestId;
+            _payloadEncoding = current.Encoding;
+
+            WriteSpan(Protocol.ReplyHeader.AsSpan());
+            WriteInt(RequestId);
         }
 
         /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
@@ -52,8 +48,7 @@ namespace Ice
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         public OutgoingResponseFrame(Current current, ReplyStatus replyStatus, ArraySegment<byte> payload)
-            : this(current.Adapter.Communicator, current.RequestId)
-
+            : this(current)
         {
             WriteByte((byte)replyStatus);
 
@@ -67,21 +62,12 @@ namespace Ice
             }
         }
 
-        /// <summary>Creates a new outgoing response frame with the given payload and reply status OK.</summary>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        /// <param name="payload">The payload for this response frame. Null is equivalent to an empty payload</param>
-        public OutgoingResponseFrame(Current current, ArraySegment<byte>? payload = null)
-            : this(current, ReplyStatus.OK, payload ?? ArraySegment<byte>.Empty)
-        {
-        }
-
         /// <summary>Creates a response frame that represents "failure" and contains an exception.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(Current current, System.Exception exception)
-            : this(current.Adapter.Communicator, current.RequestId)
+            : this(current)
         {
             try
             {
@@ -171,13 +157,18 @@ namespace Ice
             }
         }
 
-        private OutgoingResponseFrame(Communicator communicator, int requestId)
-            : base(communicator, Util.CurrentProtocolEncoding)
+        /// <summary>Starts writing the return value for a successful response.</summary>
+        /// <param name="format">The format for the payload, SlicedFormat or CompactFormat.</param>
+        public void StartReturnValue(FormatType? format = null)
         {
-            RequestId = requestId;
+            WriteByte((byte)ReplyStatus.OK);
+            StartEncapsulation(_payloadEncoding, format);
+        }
 
-            WriteSpan(Protocol.ReplyHeader.AsSpan());
-            WriteInt(requestId);
+        /// <summary>Marks the end of the return value.</summary>
+        public void EndReturnValue()
+        {
+            EndEncapsulation();
         }
     }
 }
