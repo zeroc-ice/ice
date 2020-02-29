@@ -25,6 +25,8 @@ namespace Ice
         private EncodingVersion _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
+        /// <param name="current">The current parameter holds decoded header data and other information about the
+        /// request for which this method creates a response.</param>
         public static OutgoingResponseFrame Empty(Current current)
             => new OutgoingResponseFrame(current, ReplyStatus.OK, ArraySegment<byte>.Empty);
 

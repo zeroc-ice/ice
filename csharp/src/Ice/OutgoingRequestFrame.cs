@@ -30,6 +30,12 @@ namespace Ice
         private EncodingVersion _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
         public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
                                                  Context? context = null)
             => new OutgoingRequestFrame(proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
@@ -122,7 +128,7 @@ namespace Ice
             StartEncapsulation(_payloadEncoding, format);
         }
 
-         /// <summary>Marks the end of the parameters.</summary>
+        /// <summary>Marks the end of the parameters.</summary>
         public void EndParameters()
         {
             EndEncapsulation();

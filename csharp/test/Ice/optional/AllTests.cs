@@ -1724,7 +1724,6 @@ namespace Ice.optional
 
                 requestFrame = new OutgoingRequestFrame(initial, "opStringIntDict", idempotent: false);
                 requestFrame.StartParameters();
-
                 requestFrame.WriteOptional(2, OptionalFormat.FSize);
                 OutputStream.Position pos = requestFrame.StartSize();
                 requestFrame.Write(p1);
