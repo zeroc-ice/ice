@@ -940,8 +940,8 @@ namespace Ice.proxy
                 // Server 2.0 proxy doesn't support 1.0 version.
             }
 
-            // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-            // call will use the 1.1 protocol
+            // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
+            // call will use the 1.0 protocol
             ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
             cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             cl13.IcePing();

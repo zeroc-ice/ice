@@ -424,7 +424,7 @@ namespace Ice.ami
                     i.IceIsAAsync("::Test::TestIntf").Wait();
                     test(false);
                 }
-                catch (AggregateException)
+                catch (Ice.NoEndpointException)
                 {
                 }
 
@@ -618,7 +618,14 @@ namespace Ice.ami
                         t1 = p.IcePingAsync(cancel: cs1.Token);
                         t2 = p.IcePingAsync(cancel: cs2.Token);
                         cs3.Cancel();
-                        t3 = p.IcePingAsync(cancel: cs3.Token);
+                        try
+                        {
+                            t3 = p.IcePingAsync(cancel: cs3.Token);
+                        }
+                        catch (InvocationCanceledException)
+                        {
+                            // expected
+                        }
                         cs1.Cancel();
                         cs2.Cancel();
                         try
@@ -645,20 +652,6 @@ namespace Ice.ami
                                 return ex is InvocationCanceledException;
                             });
                         }
-
-                        try
-                        {
-                            t3.Wait();
-                            test(false);
-                        }
-                        catch (AggregateException ae)
-                        {
-                            ae.Handle(ex =>
-                            {
-                                return ex is InvocationCanceledException;
-                            });
-                        }
-
                     }
                     finally
                     {
