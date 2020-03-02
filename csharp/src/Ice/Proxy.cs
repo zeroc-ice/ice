@@ -62,7 +62,7 @@ namespace Ice
         {
             try
             {
-                return IceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
+                return IceIsAAsync(id, context, null, CancellationToken.None, synchronous: true).Result;
             }
             catch (AggregateException ex)
             {
@@ -81,28 +81,35 @@ namespace Ice
         public Task<bool> IceIsAAsync(string id,
                                       Dictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
-                                      CancellationToken cancel = new CancellationToken()) =>
-            IceI_ice_isAAsync(id, context, progress, cancel, false);
+                                      CancellationToken cancel = default) =>
+            IceIsAAsync(id, context, progress, cancel, synchronous: false);
 
-        private Task<bool>
-        IceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
-                          bool synchronous)
+        private Task<bool> IceIsAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress,
+                                       CancellationToken cancel, bool synchronous)
         {
             IceCheckTwowayOnly("ice_isA");
-            var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
-            IceI_ice_isA(id, context, completed, synchronous);
-            return completed.Task;
-        }
 
-        private void IceI_ice_isA(string id, Dictionary<string, string>? context,
-                                  IOutgoingAsyncCompletionCallback completed,
-                                  bool synchronous)
-        {
-            IceCheckAsyncTwowayOnly("ice_isA");
-            var os = new OutgoingAsyncT<bool>(this, completed);
-            os.Invoke("ice_isA", idempotent: true, null, context, synchronous,
-                write: (OutputStream os) => os.WriteString(id),
-                read: (InputStream iss) => iss.ReadBool());
+            var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
+            request.StartParameters();
+            request.WriteString(id);
+            request.EndParameters();
+            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
+
+            static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)
+            {
+                try
+                {
+                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                    bool returnValue = istr.ReadBool();
+                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                    return returnValue;
+                }
+                catch (UserException userException)
+                {
+                    // TODO: remove this try/catch block once we eliminate checked exceptions.
+                    throw new UnknownUserException(userException);
+                }
+            }
         }
 
         /// <summary>
@@ -113,7 +120,7 @@ namespace Ice
         {
             try
             {
-                IceI_IcePingAsync(context, null, CancellationToken.None, true).Wait();
+                IcePingAsync(context, null, CancellationToken.None, synchronous: true).Wait();
             }
             catch (AggregateException ex)
             {
@@ -130,20 +137,28 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task IcePingAsync(Dictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
-                                 CancellationToken cancel = new CancellationToken()) => IceI_IcePingAsync(context, progress, cancel, false);
+                                 CancellationToken cancel = default)
+            => IcePingAsync(context, progress, cancel, synchronous: false);
 
-        private Task
-        IceI_IcePingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        private Task IcePingAsync(Dictionary<string, string>? context, IProgress<bool>? progress,
+                                  CancellationToken cancel, bool synchronous)
         {
-            var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
-            IceI_IcePing(context, completed, synchronous);
-            return completed.Task;
-        }
+            var request = OutgoingRequestFrame.Empty(this, "ice_ping", idempotent: true, context);
+            var task = IceInvokeAsync(request, progress, cancel, synchronous);
+            return IsOneway ? task : AwaitResponseAsync(task);
 
-        private void IceI_IcePing(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
-        {
-            var os = new OutgoingAsyncT<object>(this, completed);
-            os.Invoke("ice_ping", idempotent: true, null, context, synchronous);
+            static async Task AwaitResponseAsync(Task<IncomingResponseFrame> task)
+            {
+                try
+                {
+                    (await task.ConfigureAwait(false)).ReadVoidReturnValue();
+                }
+                catch (UserException userException)
+                {
+                    // TODO: remove this try/catch block once we eliminate checked exceptions.
+                    throw new UnknownUserException(userException);
+                }
+            }
         }
 
         /// <summary>
@@ -156,7 +171,7 @@ namespace Ice
         {
             try
             {
-                return IceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
+                return IceIdsAsync(context, null, CancellationToken.None, synchronous: true).Result;
             }
             catch (AggregateException ex)
             {
@@ -171,31 +186,33 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string[]>
-        IceIdsAsync(Dictionary<string, string>? context = null,
-                    IProgress<bool>? progress = null,
-                    CancellationToken cancel = new CancellationToken()) => IceI_ice_idsAsync(context, progress, cancel, false);
+        public Task<string[]> IceIdsAsync(Dictionary<string, string>? context = null,
+                                          IProgress<bool>? progress = null,
+                                          CancellationToken cancel = default)
+            => IceIdsAsync(context, progress, cancel, synchronous: false);
 
-        private Task<string[]> IceI_ice_idsAsync(Dictionary<string, string>? context,
-                                                 IProgress<bool>? progress,
-                                                 CancellationToken cancel,
-                                                 bool synchronous)
+        private Task<string[]> IceIdsAsync(Dictionary<string, string>? context, IProgress<bool>? progress,
+                                           CancellationToken cancel, bool synchronous)
         {
             IceCheckTwowayOnly("ice_ids");
-            var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
-            IceI_ice_ids(context, completed, synchronous);
-            return completed.Task;
-        }
+            var request = OutgoingRequestFrame.Empty(this, "ice_ids", idempotent: true, context);
+            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
 
-        private void IceI_ice_ids(Dictionary<string, string>? context, IOutgoingAsyncCompletionCallback completed, bool synchronous)
-        {
-            IceCheckAsyncTwowayOnly("ice_ids");
-            new OutgoingAsyncT<string[]>(this, completed).Invoke("ice_ids",
-                                                         idempotent: true,
-                                                         null,
-                                                         context,
-                                                         synchronous,
-                                                         read: (InputStream iss) => iss.ReadStringArray());
+            static async Task<string[]> AwaitResponseAsync(Task<IncomingResponseFrame> task)
+            {
+                try
+                {
+                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                    string[] returnValue = istr.ReadStringArray();
+                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                    return returnValue;
+                }
+                catch (UserException userException)
+                {
+                    // TODO: remove this try/catch block once we eliminate checked exceptions.
+                    throw new UnknownUserException(userException);
+                }
+            }
         }
 
         /// <summary>
@@ -206,7 +223,7 @@ namespace Ice
         {
             try
             {
-                return IceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
+                return IceIdAsync(context, null, CancellationToken.None, synchronous: true).Result;
             }
             catch (AggregateException ex)
             {
@@ -224,24 +241,30 @@ namespace Ice
         public Task<string> IceIdAsync(Dictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
                                        CancellationToken cancel = new CancellationToken()) =>
-            IceI_ice_idAsync(context, progress, cancel, false);
+            IceIdAsync(context, progress, cancel, synchronous: false);
 
-        private Task<string>
-        IceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        private Task<string> IceIdAsync(Dictionary<string, string>? context, IProgress<bool>? progress,
+                                        CancellationToken cancel, bool synchronous)
         {
             IceCheckTwowayOnly("ice_id");
-            var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
-            IceI_ice_id(context, completed, synchronous);
-            return completed.Task;
-        }
+            var request = OutgoingRequestFrame.Empty(this, "ice_id", idempotent: true, context);
+            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
 
-        private void IceI_ice_id(Dictionary<string, string>? context,
-                                 IOutgoingAsyncCompletionCallback completed,
-                                 bool synchronous)
-        {
-            var os = new OutgoingAsyncT<string>(this, completed);
-            os.Invoke("ice_id", idempotent: true, null, context, synchronous,
-                      read: (InputStream iss) => iss.ReadString());
+            static async Task<string> AwaitResponseAsync(Task<IncomingResponseFrame> task)
+            {
+                try
+                {
+                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                    string returnValue = istr.ReadString();
+                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                    return returnValue;
+                }
+                catch (UserException userException)
+                {
+                    // TODO: remove this try/catch block once we eliminate checked exceptions.
+                    throw new UnknownUserException(userException);
+                }
+            }
         }
 
         /// <summary>
@@ -387,6 +410,18 @@ namespace Ice
         public bool IsFixed => IceReference is FixedReference;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public Task<IncomingResponseFrame> IceInvokeAsync(OutgoingRequestFrame request,
+                                                          IProgress<bool>? progress,
+                                                          CancellationToken cancel,
+                                                          bool synchronous)
+        {
+            var completed = new InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(this, completed, request).Invoke(request.Operation, request.Context,
+                synchronous);
+            return completed.Task;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream os)
         {
             IceReference.GetIdentity().IceWrite(os);
@@ -430,30 +465,11 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceCheckTwowayOnly(string name)
+        protected void IceCheckTwowayOnly(string name)
         {
-            //
-            // No mutex lock necessary, there is nothing mutable in this
-            // operation.
-            //
-
             if (IsOneway)
             {
                 throw new TwowayOnlyException(name);
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceCheckAsyncTwowayOnly(string name)
-        {
-            //
-            // No mutex lock necessary, there is nothing mutable in this
-            // operation.
-            //
-
-            if (IsOneway)
-            {
-                throw new ArgumentException($"`{name}' can only be called with a twoway proxy");
             }
         }
 
@@ -884,16 +900,16 @@ namespace Ice
         }
 
         /// <summary>Sends a request synchronously.</summary>
-        /// <param name="prx">The proxy for the target Ice object.</param>
-        /// <param name="requestFrame">The request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example prx can have
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
         /// different endpoints.</param>
         /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(this IObjectPrx prx, OutgoingRequestFrame requestFrame)
+        public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request)
         {
             try
             {
-                return prx.InvokeAsync(requestFrame, null, CancellationToken.None, true).Result;
+                return proxy.IceInvokeAsync(request, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -902,28 +918,36 @@ namespace Ice
         }
 
         /// <summary>Sends a request asynchronously.</summary>
-        /// <param name="prx">The proxy for the target Ice object.</param>
-        /// <param name="requestFrame">The request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example prx can have
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
         /// different endpoints.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx prx,
-                                                              OutgoingRequestFrame requestFrame,
+        public static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
+                                                              OutgoingRequestFrame request,
                                                               IProgress<bool>? progress = null,
                                                               CancellationToken cancel = default)
-            => prx.InvokeAsync(requestFrame, progress, cancel, false);
+            => proxy.IceInvokeAsync(request, progress, cancel, false);
 
-        private static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx prx,
-                                                               OutgoingRequestFrame requestFrame,
-                                                               IProgress<bool>? progress,
-                                                               CancellationToken cancel,
-                                                               bool synchronous)
+        /// <summary>Forwards an incoming request to another Ice object.</summary>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The incoming request frame.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A task holding the response frame.</returns>
+        public static async ValueTask<OutputStream> ForwardAsync(this IObjectPrx proxy,
+                                                                 IncomingRequestFrame request,
+                                                                 IProgress<bool>? progress = null,
+                                                                 CancellationToken cancel = default)
         {
-            var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(prx, completed, requestFrame).Invoke(synchronous);
-            return completed.Task;
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Current.Operation,
+                request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
+
+            IncomingResponseFrame response =
+                await proxy.InvokeAsync(forwardedRequest, progress, cancel).ConfigureAwait(false);
+            return new OutgoingResponseFrame(request.Current, response.ReplyStatus, response.TakePayload());
         }
     }
 }

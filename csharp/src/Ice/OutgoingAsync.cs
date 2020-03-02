@@ -871,7 +871,14 @@ namespace IceInternal
             base.Abort(ex);
         }
 
-        protected internal void Invoke(bool synchronous)
+        // Called by IceInvokeAsync
+        internal void Invoke(string operation, Dictionary<string, string>? context, bool synchronous)
+        {
+            Observer = ObserverHelper.get(Proxy, operation, context);
+            Invoke(synchronous);
+        }
+
+        protected void Invoke(bool synchronous)
         {
             Synchronous = synchronous;
             Ice.InvocationMode mode = Proxy.IceReference.GetMode();

@@ -21,44 +21,44 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
-                var responseFrame = oneway.Invoke(requestFrame);
-                test(responseFrame.ReplyStatus == ReplyStatus.OK);
+                var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
+                var response = oneway.Invoke(request);
+                test(response.ReplyStatus == ReplyStatus.OK);
 
-                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                requestFrame.StartParameters();
-                requestFrame.WriteString(testString);
-                requestFrame.EndParameters();
-                responseFrame = cl.Invoke(requestFrame);
-                test(responseFrame.ReplyStatus == ReplyStatus.OK);
-                responseFrame.InputStream.StartEncapsulation();
-                string s = responseFrame.InputStream.ReadString();
+                request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                request.StartParameters();
+                request.WriteString(testString);
+                request.EndParameters();
+                response = cl.Invoke(request);
+                var result = response.ReadResult();
+                test(result.ResultType == ResultType.Success);
+                string s = result.InputStream.ReadString();
                 test(s.Equals(testString));
-                s = responseFrame.InputStream.ReadString();
-                responseFrame.InputStream.EndEncapsulation();
+                s = result.InputStream.ReadString();
+                result.InputStream.EndEncapsulation();
                 test(s.Equals(testString));
             }
 
             for (int i = 0; i < 2; ++i)
             {
-                Dictionary<string, string> ctx = null;
+                Dictionary<string, string>? ctx = null;
                 if (i == 1)
                 {
                     ctx = new Dictionary<string, string>();
                     ctx["raise"] = "";
                 }
 
-                var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false, context: ctx);
-                var responseFrame = cl.Invoke(requestFrame);
-                test(responseFrame.ReplyStatus == ReplyStatus.UserException);
-                responseFrame.InputStream.StartEncapsulation();
+                var request = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false, context: ctx);
+                var response = cl.Invoke(request);
+                var result = response.ReadResult();
+                test(result.ResultType == ResultType.Failure);
                 try
                 {
-                    responseFrame.InputStream.ThrowException();
+                    result.InputStream.ThrowException();
                 }
                 catch (Test.MyException)
                 {
-                    responseFrame.InputStream.EndEncapsulation();
+                    result.InputStream.EndEncapsulation();
                 }
                 catch (Exception)
                 {
@@ -72,44 +72,44 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var requestFrame = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
                 try
                 {
-                    oneway.InvokeAsync(requestFrame).Wait();
+                    oneway.InvokeAsync(request).Wait();
                 }
                 catch (Exception)
                 {
                     test(false);
                 }
 
-                requestFrame = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                requestFrame.StartParameters();
-                requestFrame.WriteString(testString);
-                requestFrame.EndParameters();
+                request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
+                request.StartParameters();
+                request.WriteString(testString);
+                request.EndParameters();
 
-                var responseFrame = cl.InvokeAsync(requestFrame).Result;
-                test(responseFrame.ReplyStatus == 0);
-                responseFrame.InputStream.StartEncapsulation();
-                string s = responseFrame.InputStream.ReadString();
+                var response = cl.InvokeAsync(request).Result;
+                var result = response.ReadResult();
+                test(result.ResultType == ResultType.Success);
+                string s = result.InputStream.ReadString();
                 test(s.Equals(testString));
-                s = responseFrame.InputStream.ReadString();
-                responseFrame.InputStream.EndEncapsulation();
+                s = result.InputStream.ReadString();
+                result.InputStream.EndEncapsulation();
                 test(s.Equals(testString));
             }
 
             {
-                var requestFrame = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false);
-                var responseFrame = cl.InvokeAsync(requestFrame).Result;
-                test(responseFrame.ReplyStatus == ReplyStatus.UserException);
+                var request = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false);
+                var response = cl.InvokeAsync(request).Result;
+                var result = response.ReadResult();
+                test(result.ResultType == ResultType.Failure);
 
-                responseFrame.InputStream.StartEncapsulation();
                 try
                 {
-                    responseFrame.InputStream.ThrowException();
+                    result.InputStream.ThrowException();
                 }
                 catch (Test.MyException)
                 {
-                    responseFrame.InputStream.EndEncapsulation();
+                    result.InputStream.EndEncapsulation();
                 }
                 catch (Exception)
                 {

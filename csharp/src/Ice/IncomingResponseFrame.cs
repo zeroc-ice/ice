@@ -10,16 +10,13 @@ namespace Ice
 {
     using Context = Dictionary<string, string>;
 
+    public enum ResultType : byte { Success, Failure };
+
     /// <summary>Represents a response protocol frame received by the application.</summary>
-    // TODO: IncomingResponseFrame should derive from InputStream
     public sealed class IncomingResponseFrame
     {
-        // TODO: missing RequestId, Connection, Encoding?
-
         public InputStream InputStream { get; }
 
-        /// <summary>The Ice1 reply status. Only meaningful for the Ice1 protocol, always set to OK with Ice2.</summary>
-        // TODO: currently it's only OK or UserException as we "throw" other responses.
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The response context. Always null with Ice1.</summary>
@@ -63,10 +60,47 @@ namespace Ice
             return Payload;
         }
 
+        /// <summary>Starts reading the result carried by this response frame.</summary>
+        /// <returns>The type of the result, either Success or Failure, and an InputStream iterator over this result.
+        /// </returns>
+        public (ResultType ResultType, InputStream InputStream) ReadResult()
+        {
+            InputStream.StartEncapsulation();
+            switch (ReplyStatus)
+            {
+                case ReplyStatus.OK:
+                    return (ResultType.Success, InputStream);
+                case ReplyStatus.UserException:
+                    return (ResultType.Failure, InputStream);
+                default:
+                    throw new InvalidOperationException(); // TODO: better exception and message
+            }
+        }
+
+        /// <summary>Starts reading the return value carried by this response frame. If the response frame carries
+        /// a failure, ReadReturnValue reads and throws this exception.</summary>
+        /// <returns>An InputStream iterator over this return value.</returns>
+        public InputStream ReadReturnValue()
+        {
+            if (ReadResult().ResultType == ResultType.Failure)
+            {
+                // TODO: would be nicer to read then EndEncaps then throw the exception
+                InputStream.ThrowException();
+            }
+            return InputStream;
+        }
+
+        /// <summary>Reads an empty return value from the response frame.</summary>
+        public void ReadVoidReturnValue()
+        {
+            InputStream istr = ReadReturnValue();
+            istr.EndEncapsulation();
+        }
+
         internal IncomingResponseFrame(ReplyStatus replyStatus, InputStream inputStream)
         {
-            ReplyStatus = replyStatus;
             InputStream = inputStream;
+            ReplyStatus = replyStatus;
         }
     }
 }

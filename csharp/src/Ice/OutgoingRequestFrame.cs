@@ -51,11 +51,13 @@ namespace Ice
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null)
             : base(proxy.Communicator)
         {
+            Protocol.CheckSupportedProtocol(Protocol.GetCompatibleProtocol(proxy.IceReference.GetProtocol()));
+
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            _payloadEncoding = proxy.EncodingVersion;
+            _payloadEncoding = Protocol.GetCompatibleEncoding(proxy.EncodingVersion);
 
             WriteSpan(Protocol.RequestHeader.AsSpan());
             Identity.IceWrite(this);
@@ -113,7 +115,7 @@ namespace Ice
         {
             if (payload.Count == 0)
             {
-                WriteEmptyEncapsulation(proxy.EncodingVersion);
+                WriteEmptyEncapsulation(_payloadEncoding);
             }
             else
             {
