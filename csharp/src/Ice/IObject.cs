@@ -81,7 +81,7 @@ namespace Ice
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.
-            return IceFromResult(new OutgoingResponseFrame(current));
+            return IceFromResult(OutgoingResponseFrame.Empty(current));
         }
 
         protected ValueTask<OutputStream> IceD_ice_pingAsync(InputStream istr, Current current)
@@ -98,8 +98,10 @@ namespace Ice
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var responseFrame = new OutgoingResponseFrame(current, format: null,
-                outputStream => outputStream.WriteBool(ret));
+            var responseFrame = new OutgoingResponseFrame(current);
+            responseFrame.StartReturnValue();
+            responseFrame.WriteBool(ret);
+            responseFrame.EndReturnValue();
             return IceFromResult(responseFrame);
         }
 
@@ -108,8 +110,10 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var responseFrame = new OutgoingResponseFrame(current, format: null,
-                outputStream => outputStream.WriteString(ret));
+            var responseFrame = new OutgoingResponseFrame(current);
+            responseFrame.StartReturnValue();
+            responseFrame.WriteString(ret);
+            responseFrame.EndReturnValue();
             return IceFromResult(responseFrame);
         }
 
@@ -118,8 +122,10 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var responseFrame = new OutgoingResponseFrame(current, format: null,
-                outputStream => outputStream.WriteStringSeq(ret));
+            var responseFrame = new OutgoingResponseFrame(current);
+            responseFrame.StartReturnValue();
+            responseFrame.WriteStringSeq(ret);
+            responseFrame.EndReturnValue();
             return IceFromResult(responseFrame);
         }
     }

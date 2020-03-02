@@ -2801,21 +2801,16 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current";
-
+        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current);";
+        _out << nl << "ResponseFrame.StartReturnValue(";
         if (operation->format() != DefaultFormat)
         {
-            _out << ", " << opFormatTypeToString(operation, ns);
+            _out << opFormatTypeToString(operation, ns);
         }
-        _out << ",";
-        _out.inc();
-        _out << nl << "outputStream =>";
-        _out << sb;
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "outputStream");
-        _out << eb;
         _out << ");";
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ResponseFrame");
+        _out << nl << "ResponseFrame.EndReturnValue();";
         _out << eb;
-        _out.dec();
         _out << eb;
     }
 }
@@ -2943,7 +2938,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             if (amd)
             {
-                _out << nl << "return new global::Ice.OutgoingResponseFrame(current);";
+                _out << nl << "return global::Ice.OutgoingResponseFrame.Empty(current);";
             }
             else
             {
@@ -2952,21 +2947,15 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current";
+            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current);";
+            _out << nl << "responseFrame.StartReturnValue(";
             if (operation->format() != DefaultFormat)
             {
-                _out << ", " << opFormatTypeToString(operation, ns);
+                _out << opFormatTypeToString(operation, ns);
             }
-            _out << ",";
-            _out.inc();
-            _out << nl << "outputStream =>";
-            // It's not possible to skip the braces because writeMarshalParams always outputs a semicolon after each
-            // statement.
-            _out << sb;
-            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "outputStream");
-            _out << eb;
             _out << ");";
-            _out.dec();
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "responseFrame");
+            _out << nl << "responseFrame.EndReturnValue();";
             if (amd)
             {
                 _out << nl << "return responseFrame;";

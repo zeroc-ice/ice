@@ -15,17 +15,16 @@ namespace Ice.invoke
             {
                 Debug.Assert(current.IsOneway);
                 // TODO: replace by shared "fake" empty
-                return new OutgoingResponseFrame(current);
+                return OutgoingResponseFrame.Empty(current);
             }
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current,
-                    outputStream =>
-                    {
-                        outputStream.WriteString(s);
-                        outputStream.WriteString(s);
-                    });
+                var responseFrame = new OutgoingResponseFrame(current);
+                responseFrame.StartReturnValue();
+                responseFrame.WriteString(s);
+                responseFrame.WriteString(s);
+                responseFrame.EndReturnValue();
                 return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
@@ -40,23 +39,22 @@ namespace Ice.invoke
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return new OutgoingResponseFrame(current);
+                return OutgoingResponseFrame.Empty(current);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current,
-                    outputStream =>
-                    {
-                        if (s.Equals("::Test::MyClass"))
-                        {
-                            outputStream.WriteBool(true);
-                        }
-                        else
-                        {
-                            outputStream.WriteBool(false);
-                        }
-                    });
+                var responseFrame = new OutgoingResponseFrame(current);
+                responseFrame.StartReturnValue();
+                if (s.Equals("::Test::MyClass"))
+                {
+                    responseFrame.WriteBool(true);
+                }
+                else
+                {
+                    responseFrame.WriteBool(false);
+                }
+                responseFrame.EndReturnValue();
                 return responseFrame;
             }
             else

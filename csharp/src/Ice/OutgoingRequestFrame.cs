@@ -27,79 +27,45 @@ namespace Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Context Context { get; }
 
-        /// <summary>Creates a new outgoing request frame.</summary>
+        private readonly EncodingVersion _payloadEncoding; // TODO: move to OutputStream
+
+        /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="format">The Slice format (Compact or Sliced) used by the encapsulation.</param>
-        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context,
-                                    FormatType? format, Action<OutputStream> payloadWriter)
-            : this(proxy.Communicator, proxy.Identity, proxy.Facet, operation, idempotent, proxy.Context, context)
-        {
-            StartEncapsulation(proxy.EncodingVersion, format);
-            payloadWriter(this);
-            EndEncapsulation();
-        }
+        public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
+                                                 Context? context = null)
+            => new OutgoingRequestFrame(proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
 
-        /// <summary>Creates a new outgoing request frame with a null format.</summary>
+        /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
+        /// provided using StartParameters/EndParameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="payloadWriter">An action that writes the contents of the payload.</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context,
-                                    Action<OutputStream> payloadWriter)
-            : this(proxy, operation, idempotent, context, format:null, payloadWriter)
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null)
+            : base(proxy.Communicator)
         {
-        }
-
-        /// <summary>Creates a new outgoing request frame with the given payload.</summary>
-        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
-        /// and context of this proxy to create the request frame.</param>
-        /// <param name="operation">The operation to invoke on the target Ice object.</param>
-        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
-        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
-        /// proxy and the communicator's current context (if any).</param>
-        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
-        /// </param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null,
-                                    ArraySegment<byte>? payload = null)
-            : this(proxy.Communicator, proxy.Identity, proxy.Facet, operation, idempotent, proxy.Context, context)
-        {
-            if (payload == null || payload.Value.Count == 0)
-            {
-                WriteEmptyEncapsulation(proxy.EncodingVersion);
-            }
-            else
-            {
-                WritePayload(payload.Value);
-            }
-        }
-
-        private OutgoingRequestFrame(Communicator communicator, Identity identity, string facet, string operation,
-                                     bool idempotent, Context? prxContext, Context? context)
-            : base(communicator)
-        {
-            Identity = identity;
-            Facet = facet;
+            Identity = proxy.Identity;
+            Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
+            _payloadEncoding = proxy.EncodingVersion;
 
             WriteSpan(Protocol.RequestHeader.AsSpan());
-            identity.IceWrite(this);
-            if (facet.Length == 0)
+            Identity.IceWrite(this);
+            if (Facet.Length == 0)
             {
                 WriteStringSeq(Array.Empty<string>());
             }
             else
             {
-                WriteStringSeq(new string[]{ facet });
+                WriteStringSeq(new string[]{ Facet });
             }
 
             WriteString(operation);
@@ -112,10 +78,17 @@ namespace Ice
             }
             else
             {
-                 Context = new Context(prxContext) ?? new Dictionary<string, string>();
+                if (proxy.Context != null)
+                {
+                    Context = new Context(proxy.Context);
+                }
+                else
+                {
+                    Context = new Context();
+                }
 
                 // TODO: simplify implicit context
-                var implicitContext = (ImplicitContext?)communicator.GetImplicitContext();
+                var implicitContext = (ImplicitContext?)proxy.Communicator.GetImplicitContext();
                 if (implicitContext != null)
                 {
                     Context = implicitContext.Combine(Context);
@@ -124,5 +97,37 @@ namespace Ice
 
             ContextHelper.Write(this, Context);
         }
+
+        /// <summary>Creates a new outgoing request frame with the given payload.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
+        /// and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
+        /// </param>
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context,
+                                    ArraySegment<byte> payload)
+            : this(proxy, operation, idempotent, context)
+        {
+            if (payload.Count == 0)
+            {
+                WriteEmptyEncapsulation(proxy.EncodingVersion);
+            }
+            else
+            {
+                WritePayload(payload);
+            }
+        }
+
+        /// <summary>Starts writing the parameters for this request.</summary>
+        /// <param name="format">The format for the parameters, null (meaning keep communicator's setting), SlicedFormat
+        /// or CompactFormat.</param>
+        public void StartParameters(FormatType? format = null)
+            => StartEncapsulation(_payloadEncoding, format);
+
+        /// <summary>Marks the end of the parameters.</summary>
+        public void EndParameters() => EndEncapsulation();
     }
 }
