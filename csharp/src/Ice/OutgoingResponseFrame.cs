@@ -22,7 +22,7 @@ namespace Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Context? Context { get; }
 
-        private EncodingVersion _payloadEncoding; // TODO: move to OutputStream
+        private readonly EncodingVersion _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
@@ -160,7 +160,8 @@ namespace Ice
         }
 
         /// <summary>Starts writing the return value for a successful response.</summary>
-        /// <param name="format">The format for the payload, SlicedFormat or CompactFormat.</param>
+        /// <param name="format">The format for the return value, null (meaning keep communicator's setting),
+        /// SlicedFormat or CompactFormat.</param>
         public void StartReturnValue(FormatType? format = null)
         {
             WriteByte((byte)ReplyStatus.OK);
@@ -168,9 +169,6 @@ namespace Ice
         }
 
         /// <summary>Marks the end of the return value.</summary>
-        public void EndReturnValue()
-        {
-            EndEncapsulation();
-        }
+        public void EndReturnValue() => EndEncapsulation();
     }
 }

@@ -27,7 +27,7 @@ namespace Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Context Context { get; }
 
-        private EncodingVersion _payloadEncoding; // TODO: move to OutputStream
+        private readonly EncodingVersion _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
@@ -122,16 +122,12 @@ namespace Ice
         }
 
         /// <summary>Starts writing the parameters for this request.</summary>
-        /// <param name="format">The format for the payload, SlicedFormat or CompactFormat.</param>
+        /// <param name="format">The format for the parameters, null (meaning keep communicator's setting), SlicedFormat
+        /// or CompactFormat.</param>
         public void StartParameters(FormatType? format = null)
-        {
-            StartEncapsulation(_payloadEncoding, format);
-        }
+            => StartEncapsulation(_payloadEncoding, format);
 
         /// <summary>Marks the end of the parameters.</summary>
-        public void EndParameters()
-        {
-            EndEncapsulation();
-        }
+        public void EndParameters() => EndEncapsulation();
     }
 }
