@@ -247,7 +247,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         {
             retry1->ice_fixed(retry1->ice_getCachedConnection())->opIdempotent(4);
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
         }
         testInvocationCount(1);
