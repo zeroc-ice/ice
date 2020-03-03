@@ -234,8 +234,10 @@ public:
 
     std::string filename() const;
     int includeLevel() const;
+    bool seenDefinition() const;
 
     void setFilename(const std::string&);
+    void setSeenDefinition();
 
     bool hasMetaData() const;
     void setMetaData(const StringList&);
@@ -259,6 +261,7 @@ private:
     int _includeLevel;
     StringList _metaData;
     std::string _filename;
+    bool _seenDefinition;
     std::set<WarningCategory> _suppressedWarnings;
 };
 typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
@@ -1066,10 +1069,13 @@ public:
     std::string topLevelFile() const;
     int currentLine() const;
 
-    int setCurrentFile(const std::string&, int);
+    void nextLine();
+    bool scanPosition(const char*);
     int currentIncludeLevel() const;
 
     void addGlobalMetaData(const StringList&);
+
+    void setSeenDefinition();
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
@@ -1130,7 +1136,9 @@ private:
     StringList _defaultGlobalMetaData;
     int _errors;
     std::string _currentComment;
+    int _currentLine;
     int _currentIncludeLevel;
+    std::string _currentFile;
     std::string _topLevelFile;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;

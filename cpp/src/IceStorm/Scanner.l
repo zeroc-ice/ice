@@ -1,17 +1,31 @@
-%top{
+%{
+
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/ScannerConfig.h>
-
-}
-
-%{
-
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
+
+#if defined(_MSC_VER)
+// '<' : signed/unsigned mismatch
+#   pragma warning(disable:4018)
+// 'initializing' : conversion from '__int64' to 'int', possible loss of data
+#   pragma warning(disable:4244)
+
+#   if defined(ICE_64)
+//
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+//
+#       pragma warning(disable:4267)
+#   endif
+#endif
+
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -22,12 +36,16 @@ using namespace IceStorm;
 #      undef yywrap
 #      define yywrap() 1
 #   endif
+#   define YY_NO_UNISTD_H
 #endif
 
 #ifdef __SUNPRO_CC
 #   ifdef yywrap
 #      undef yywrap
 #      define yywrap() 1
+#   endif
+#   ifdef ICE_64
+#       pragma error_messages(off,truncwarn)
 #   endif
 #endif
 
@@ -36,7 +54,8 @@ using namespace IceStorm;
 namespace IceStorm
 {
 
-static std::map<std::string, int> keywordMap;
+typedef std::map<std::string, int> StringTokenMap;
+static StringTokenMap keywordMap;
 
 void initScanner();
 
@@ -196,7 +215,7 @@ keyword [[:alpha:]]*
     yylvalp->clear();
     yylvalp->push_back(s);
 
-    const auto pos = keywordMap.find(s);
+    StringTokenMap::const_iterator pos = keywordMap.find(s);
     return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
 }
 
@@ -211,20 +230,18 @@ namespace IceStorm {
 void
 initScanner()
 {
-    keywordMap = {
-        {"help", ICE_STORM_HELP},
-        {"quit", ICE_STORM_EXIT},
-        {"exit", ICE_STORM_EXIT},
-        {"current", ICE_STORM_CURRENT},
-        {"create", ICE_STORM_CREATE},
-        {"destroy", ICE_STORM_DESTROY},
-        {"link", ICE_STORM_LINK},
-        {"unlink", ICE_STORM_UNLINK},
-        {"links", ICE_STORM_LINKS},
-        {"topics", ICE_STORM_TOPICS},
-        {"replica", ICE_STORM_REPLICA},
-        {"subscribers", ICE_STORM_SUBSCRIBERS},
-    };
+    keywordMap["help"] = ICE_STORM_HELP;
+    keywordMap["quit"] = ICE_STORM_EXIT;
+    keywordMap["exit"] = ICE_STORM_EXIT;
+    keywordMap["current"] = ICE_STORM_CURRENT;
+    keywordMap["create"] = ICE_STORM_CREATE;
+    keywordMap["destroy"] = ICE_STORM_DESTROY;
+    keywordMap["link"] = ICE_STORM_LINK;
+    keywordMap["unlink"] = ICE_STORM_UNLINK;
+    keywordMap["links"] = ICE_STORM_LINKS;
+    keywordMap["topics"] = ICE_STORM_TOPICS;
+    keywordMap["replica"] = ICE_STORM_REPLICA;
+    keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
 }
 
 }

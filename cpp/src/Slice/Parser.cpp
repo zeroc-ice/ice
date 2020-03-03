@@ -64,12 +64,10 @@ Slice::CompilerException::reason() const
     return _reason;
 }
 
-// Forward declare things from Bison and Flex the parser can use.
-extern int slice_parse();
-extern int slice_lineno;
 extern FILE* slice_in;
 extern int slice_debug;
-extern int slice__flex_debug;
+
+int slice_parse();
 
 //
 // Operation attributes
@@ -188,7 +186,7 @@ Unit* unit;
 // ----------------------------------------------------------------------
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
-    _includeLevel(includeLevel), _metaData(metaData)
+    _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
 {
     initSuppressedWarnings();
 }
@@ -205,10 +203,22 @@ Slice::DefinitionContext::includeLevel() const
     return _includeLevel;
 }
 
+bool
+Slice::DefinitionContext::seenDefinition() const
+{
+    return _seenDefinition;
+}
+
 void
 Slice::DefinitionContext::setFilename(const string& filename)
 {
     _filename = filename;
+}
+
+void
+Slice::DefinitionContext::setSeenDefinition()
+{
+    _seenDefinition = true;
 }
 
 bool
@@ -5996,11 +6006,6 @@ Slice::Unit::allowUnderscore() const
 void
 Slice::Unit::setComment(const string& comment)
 {
-    if(comment.empty() || comment[0] != '*')
-    {
-        return;
-    }
-
     _currentComment = "";
 
     string::size_type end = 0;
@@ -6082,21 +6087,67 @@ Slice::Unit::topLevelFile() const
 int
 Slice::Unit::currentLine() const
 {
-    return slice_lineno;
+    return _currentLine;
 }
 
-int
-Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
+void
+Slice::Unit::nextLine()
 {
+    _currentLine++;
+}
+
+bool
+Slice::Unit::scanPosition(const char* s)
+{
+    assert(*s == '#');
+
+    string line(s + 1);                      // Skip leading #
+    eraseWhiteSpace(line);
+    if(line.find("line", 0) == 0)            // Erase optional "line"
+    {
+        line.erase(0, 4);
+        eraseWhiteSpace(line);
+    }
+
+    string::size_type idx;
+
+    _currentLine = atoi(line.c_str()) - 1;   // Read line number
+
+    idx = line.find_first_of(" \t\r");       // Erase line number
+    if(idx != string::npos)
+    {
+        line.erase(0, idx);
+    }
+    eraseWhiteSpace(line);
+
+    string currentFile;
+    if(!line.empty())
+    {
+        if(line[0] == '"')
+        {
+            idx = line.rfind('"');
+            if(idx != string::npos)
+            {
+                currentFile = line.substr(1, idx - 1);
+            }
+        }
+        else
+        {
+            currentFile = line;
+        }
+    }
+
     enum LineType { File, Push, Pop };
 
     LineType type = File;
 
-    if(lineNumber == 0)
+    if(_currentLine == 0)
     {
         if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
             type = Push;
+            line.erase(idx);
+            eraseWhiteSpace(line);
         }
     }
     else
@@ -6105,6 +6156,8 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
         if(dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
         {
             type = Pop;
+            line.erase(idx);
+            eraseWhiteSpace(line);
         }
     }
 
@@ -6143,7 +6196,10 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
         _definitionContextMap.insert(make_pair(currentFile, dc));
     }
 
-    return static_cast<int>(type);
+    //
+    // Return code indicates whether starting parse of a new file.
+    //
+    return _currentLine == 0;
 }
 
 int
@@ -6164,18 +6220,33 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
-    //
-    // Append the global metadata to any existing metadata (e.g., default global metadata).
-    //
-    StringList l = dc->getMetaData();
-    copy(metaData.begin(), metaData.end(), back_inserter(l));
-    dc->setMetaData(l);
+    if(dc->seenDefinition())
+    {
+        error("global metadata must appear before any definitions");
+    }
+    else
+    {
+        //
+        // Append the global metadata to any existing metadata (e.g., default global metadata).
+        //
+        StringList l = dc->getMetaData();
+        copy(metaData.begin(), metaData.end(), back_inserter(l));
+        dc->setMetaData(l);
+    }
+}
+
+void
+Slice::Unit::setSeenDefinition()
+{
+    DefinitionContextPtr dc = currentDefinitionContext();
+    assert(dc);
+    dc->setSeenDefinition();
 }
 
 void
 Slice::Unit::error(const string& s)
 {
-    emitError(currentFile(), currentLine(), s);
+    emitError(currentFile(), _currentLine, s);
     _errors++;
 }
 
@@ -6184,11 +6255,11 @@ Slice::Unit::warning(WarningCategory category, const string& msg) const
 {
     if(_definitionContextStack.empty())
     {
-        emitWarning(currentFile(), currentLine(), msg);
+        emitWarning(currentFile(), _currentLine, msg);
     }
     else
     {
-        _definitionContextStack.top()->warning(category, currentFile(), currentLine(), msg);
+        _definitionContextStack.top()->warning(category, currentFile(), _currentLine, msg);
     }
 }
 
@@ -6419,17 +6490,23 @@ int
 Slice::Unit::parse(const string& filename, FILE* file, bool debug)
 {
     slice_debug = debug ? 1 : 0;
-    slice__flex_debug = debug ? 1 : 0;
 
     assert(!Slice::unit);
     Slice::unit = this;
 
     _currentComment = "";
+    _currentLine = 1;
     _currentIncludeLevel = 0;
     _topLevelFile = fullPath(filename);
     pushContainer(this);
     pushDefinitionContext();
-    setCurrentFile(_topLevelFile, 0);
+
+    //
+    // MCPP Fix: mcpp doesn't always output the first #line when mcpp_lib_main is
+    // called repeatedly. We scan a fake #line here to ensure the top definition
+    // context is correctly initialized.
+    //
+    scanPosition(string("#line 1 " + _topLevelFile).c_str());
 
     slice_in = file;
     int status = slice_parse();
@@ -6520,7 +6597,6 @@ Slice::Unit::addTopLevelModule(const string& file, const string& module)
         i->second.insert(module);
     }
 }
-
 set<string>
 Slice::Unit::getTopLevelModules(const string& file) const
 {
@@ -6545,6 +6621,7 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnder
     _allowUnderscore(allowUnderscore),
     _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0),
+    _currentLine(0),
     _currentIncludeLevel(0)
 
 {
