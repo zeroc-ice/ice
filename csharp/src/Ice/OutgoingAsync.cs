@@ -618,14 +618,14 @@ namespace IceInternal
                              Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
-            Encoding = EncodingDefinitions.GetCompatibleEncoding(Proxy.IceReference.GetEncoding());
+            Encoding = Proxy.IceReference.GetEncoding();
             Synchronous = false;
         }
 
         public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
-            Protocol.CheckSupportedProtocol(Protocol.GetCompatibleProtocol(Proxy.IceReference.GetProtocol()));
+            Protocol.CheckSupportedProtocol(Proxy.IceReference.GetProtocol());
 
             IsIdempotent = idempotent;
 
