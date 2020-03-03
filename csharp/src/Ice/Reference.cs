@@ -24,7 +24,7 @@ namespace IceInternal
 
         public bool GetSecure() => Secure;
 
-        public ProtocolVersion GetProtocol() => _protocol;
+        public Protocol GetProtocol() => _protocol;
 
         public Encoding GetEncoding() => _encoding;
 
@@ -240,12 +240,12 @@ namespace IceInternal
             {
                 //
                 // We only print the protocol if it's not 1.0. It's fine as
-                // long as we don't add Ice.Default.ProtocolVersion, a
+                // long as we don't add Ice.Default.Protocol, a
                 // stringified proxy will convert back to the same proxy with
                 // stringToProxy.
                 //
                 s.Append(" -p ");
-                s.Append(Ice.Util.ProtocolVersionToString(_protocol));
+                s.Append(Ice.Util.ProtocolToString(_protocol));
             }
 
             //
@@ -478,7 +478,7 @@ namespace IceInternal
         private Dictionary<string, string> _context;
         private string _facet;
         protected bool Secure;
-        private ProtocolVersion _protocol;
+        private Protocol _protocol;
         private Encoding _encoding;
         private int _invocationTimeout;
 
@@ -490,7 +490,7 @@ namespace IceInternal
                             string facet,
                             InvocationMode mode,
                             bool secure,
-                            ProtocolVersion protocol,
+                            Protocol protocol,
                             Encoding encoding,
                             int invocationTimeout,
                             Dictionary<string, string>? context)
@@ -529,7 +529,7 @@ namespace IceInternal
                               string facet,
                               InvocationMode mode,
                               bool secure,
-                              ProtocolVersion protocol,
+                              Protocol protocol,
                               Encoding encoding,
                               Connection connection,
                               int invocationTimeout,
@@ -1488,7 +1488,7 @@ namespace IceInternal
                                  string facet,
                                  InvocationMode mode,
                                  bool secure,
-                                 ProtocolVersion protocol,
+                                 Protocol protocol,
                                  Encoding encoding,
                                  Endpoint[] endpoints,
                                  string? adapterId,
