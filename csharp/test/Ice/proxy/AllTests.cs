@@ -543,7 +543,7 @@ namespace Ice.proxy
                 endpointSelectionType: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
-                encodingVersion: new Encoding(1, 0),
+                encoding: new Encoding(1, 0),
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
@@ -913,7 +913,7 @@ namespace Ice.proxy
             {
                 // Send request with bogus 1.2 encoding.
                 Encoding version = new Encoding(1, 2);
-                var prx12 = cl.Clone(encodingVersion: version);
+                var prx12 = cl.Clone(encoding: version);
                 var requestFrame = OutgoingRequestFrame.Empty(prx12, "ice_ping", idempotent: false);
                 prx12.Invoke(requestFrame);
                 test(false);

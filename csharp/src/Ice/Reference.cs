@@ -353,7 +353,7 @@ namespace IceInternal
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
                                        Dictionary<string, string>? context = null,
-                                       Encoding? encodingVersion = null,
+                                       Encoding? encoding = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
                                        Connection? fixedConnection = null,
@@ -423,13 +423,13 @@ namespace IceInternal
                 reference._context = context.Count == 0 ? _emptyContext : new Dictionary<string, string>(context);
             }
 
-            if (encodingVersion is Encoding encodingVersionValue && encodingVersionValue != _encoding)
+            if (encoding is Encoding encodingValue && encodingValue != _encoding)
             {
                 if (reference == this)
                 {
                     reference = Clone();
                 }
-                reference._encoding = encodingVersionValue;
+                reference._encoding = encodingValue;
             }
 
             if (invocationMode is InvocationMode invocationModeValue && invocationModeValue != _mode)
@@ -580,7 +580,7 @@ namespace IceInternal
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
                                         Dictionary<string, string>? context = null,
-                                        Encoding? encodingVersion = null,
+                                        Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
@@ -660,7 +660,7 @@ namespace IceInternal
                                                        facet: facet,
                                                        compress: compress,
                                                        context: context,
-                                                       encodingVersion: encodingVersion,
+                                                       encoding: encoding,
                                                        invocationMode: invocationMode,
                                                        invocationTimeout: invocationTimeout,
                                                        oneway: oneway);
@@ -898,7 +898,7 @@ namespace IceInternal
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
                                         Dictionary<string, string>? context = null,
-                                        Encoding? encodingVersion = null,
+                                        Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
@@ -938,7 +938,7 @@ namespace IceInternal
                                                           facet: facet,
                                                           compress: compress,
                                                           context: context,
-                                                          encodingVersion: encodingVersion,
+                                                          encoding: encoding,
                                                           invocationMode: invocationMode,
                                                           invocationTimeout: invocationTimeout,
                                                           oneway: oneway);
@@ -1029,16 +1029,16 @@ namespace IceInternal
                 reference._overrideTimeout = true;
             }
 
-            if (encodingVersion is Encoding encodingVersionValue)
+            if (encoding is Encoding encodingValue)
             {
-                if (_locatorInfo != null && !_locatorInfo.Locator.Encoding.Equals(encodingVersionValue))
+                if (_locatorInfo != null && !_locatorInfo.Locator.Encoding.Equals(encodingValue))
                 {
                     if (reference == this)
                     {
                         reference = (RoutableReference)Clone();
                     }
                     reference._locatorInfo = Communicator.GetLocatorInfo(
-                        _locatorInfo.Locator.Clone(encodingVersion: encodingVersionValue));
+                        _locatorInfo.Locator.Clone(encoding: encodingValue));
                 }
             }
 
