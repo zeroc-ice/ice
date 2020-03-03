@@ -1052,7 +1052,7 @@ namespace Ice
 
                                 byte major = _readStream.ReadByte();
                                 byte minor = _readStream.ReadByte();
-                                var pv = new ProtocolVersion(major, minor);
+                                var pv = new Protocol(major, minor);
                                 Protocol.CheckSupportedProtocol(pv);
                                 major = _readStream.ReadByte();
                                 minor = _readStream.ReadByte();
@@ -2181,7 +2181,7 @@ namespace Ice
 
                     byte major = _readStream.ReadByte();
                     byte minor = _readStream.ReadByte();
-                    var pv = new ProtocolVersion(major, minor);
+                    var pv = new Protocol(major, minor);
                     Protocol.CheckSupportedProtocol(pv);
                     major = _readStream.ReadByte();
                     minor = _readStream.ReadByte();

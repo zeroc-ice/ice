@@ -4,9 +4,38 @@
 
 namespace Ice
 {
-    internal static class Protocol
+    [System.Serializable]
+    public readonly struct Protocol : System.IEquatable<Protocol>
     {
-        internal static void CheckSupportedProtocol(ProtocolVersion v)
+        public readonly byte Major;
+        public readonly byte Minor;
+
+        public Protocol(byte major, byte minor)
+        {
+            Major = major;
+            Minor = minor;
+        }
+
+        public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
+
+        public bool Equals(Protocol other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
+
+        public override bool Equals(object? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return other is Protocol value && Equals(value);
+        }
+
+        public static bool operator ==(Protocol lhs, Protocol rhs) => Equals(lhs, rhs);
+
+        public static bool operator !=(Protocol lhs, Protocol rhs) => !Equals(lhs, rhs);
+
+        // TODO: move these static methods somewhere else (or remove them).
+
+        internal static void CheckSupportedProtocol(Protocol v)
         {
             if (v.Major != Ice1Definitions.ProtocolMajor || v.Minor > Ice1Definitions.ProtocolMinor)
             {
@@ -26,7 +55,7 @@ namespace Ice
         // Either return the given protocol if not compatible, or the greatest
         // supported protocol otherwise.
         //
-        internal static ProtocolVersion GetCompatibleProtocol(ProtocolVersion v)
+        internal static Protocol GetCompatibleProtocol(Protocol v)
         {
             if (v.Major != Util.CurrentProtocol.Major)
             {
@@ -46,7 +75,7 @@ namespace Ice
             }
         }
 
-        internal static bool IsSupported(ProtocolVersion version, ProtocolVersion supported) =>
+        internal static bool IsSupported(Protocol version, Protocol supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 }

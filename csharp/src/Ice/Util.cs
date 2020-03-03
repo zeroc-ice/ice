@@ -64,10 +64,10 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted protocol version.</returns>
-        public static ProtocolVersion StringToProtocolVersion(string version)
+        public static Protocol StringToProtocol(string version)
         {
             StringToMajorMinor(version, out byte major, out byte minor);
-            return new ProtocolVersion(major, minor);
+            return new Protocol(major, minor);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The protocol version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string ProtocolVersionToString(ProtocolVersion v) => MajorMinorToString(v.Major, v.Minor);
+        public static string ProtocolToString(Protocol v) => MajorMinorToString(v.Major, v.Minor);
 
         /// <summary>
         /// Converts an encoding version to a string.
@@ -128,8 +128,8 @@ namespace Ice
 
         private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
-        public static readonly ProtocolVersion CurrentProtocol =
-            new ProtocolVersion(Ice1Definitions.ProtocolMajor, Ice1Definitions.ProtocolMinor);
+        public static readonly Protocol CurrentProtocol =
+            new Protocol(Ice1Definitions.ProtocolMajor, Ice1Definitions.ProtocolMinor);
 
         public static readonly Encoding CurrentProtocolEncoding =
             new Encoding(Ice1Definitions.ProtocolEncodingMajor,
@@ -138,7 +138,7 @@ namespace Ice
         public static readonly Encoding CurrentEncoding =
             new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
 
-        public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
+        public static readonly Protocol Protocol_1_0 = new Protocol(1, 0);
 
         public static readonly Encoding Encoding_1_0 = new Encoding(1, 0);
         public static readonly Encoding Encoding_1_1 = new Encoding(1, 1);

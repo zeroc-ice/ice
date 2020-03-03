@@ -34,7 +34,7 @@ namespace Ice
         // Either return the given protocol if not compatible, or the greatest
         // supported protocol otherwise.
         //
-        internal static ProtocolVersion GetCompatibleProtocol(ProtocolVersion v)
+        internal static Protocol GetCompatibleProtocol(Protocol v)
         {
             if (v.Major != Util.CurrentProtocol.Major)
             {
