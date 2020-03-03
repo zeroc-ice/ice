@@ -28,8 +28,8 @@ NodeI::Update::send()
     auto self = shared_from_this();
     try
     {
-        _func([this, self] { _node->dequeueUpdate(_observer, self, false); },
-              [this, self](exception_ptr) { _node->dequeueUpdate(_observer, self, true); });
+        _func([self] { self->_node->dequeueUpdate(self->_observer, self, false); },
+              [self](exception_ptr) { self->_node->dequeueUpdate(self->_observer, self, true); });
 
         return true;
     }
