@@ -678,7 +678,7 @@ namespace Ice
             public LocatorKey(ILocatorPrx prx)
             {
                 _id = prx.Identity;
-                _encoding = prx.EncodingVersion;
+                _encoding = prx.Encoding;
             }
 
             public bool Equals(LocatorKey other) => _id.Equals(other._id) && _encoding.Equals(other._encoding);
@@ -688,7 +688,7 @@ namespace Ice
             public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
             private readonly Identity _id;
-            private readonly EncodingVersion _encoding;
+            private readonly Encoding _encoding;
         }
         //
         // Returns locator info for a given locator. Automatically creates

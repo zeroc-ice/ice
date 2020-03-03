@@ -78,7 +78,7 @@ namespace Ice.info
 
                 OpaqueEndpointInfo opaqueEndpoint = (OpaqueEndpointInfo)endps[2].GetInfo();
                 test(opaqueEndpoint.RawBytes.Length > 0);
-                test(opaqueEndpoint.RawEncoding.Equals(new EncodingVersion(1, 8)));
+                test(opaqueEndpoint.RawEncoding.Equals(new Encoding(1, 8)));
             }
             output.WriteLine("ok");
 

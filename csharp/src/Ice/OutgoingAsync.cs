@@ -944,7 +944,7 @@ namespace IceInternal
             }
         }
 
-        protected readonly Ice.EncodingVersion Encoding;
+        protected readonly Ice.Encoding Encoding;
         protected System.Action<Ice.UserException>? UserException;
     }
 

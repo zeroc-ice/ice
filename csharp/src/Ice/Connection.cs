@@ -1056,7 +1056,7 @@ namespace Ice
                                 Protocol.CheckSupportedProtocol(pv);
                                 major = _readStream.ReadByte();
                                 minor = _readStream.ReadByte();
-                                var ev = new EncodingVersion(major, minor);
+                                var ev = new Encoding(major, minor);
                                 Protocol.CheckSupportedProtocolEncoding(ev);
 
                                 _readStream.ReadByte(); // messageType
@@ -2185,7 +2185,7 @@ namespace Ice
                     Protocol.CheckSupportedProtocol(pv);
                     major = _readStream.ReadByte();
                     minor = _readStream.ReadByte();
-                    var ev = new EncodingVersion(major, minor);
+                    var ev = new Encoding(major, minor);
                     Protocol.CheckSupportedProtocolEncoding(ev);
 
                     byte messageType = _readStream.ReadByte();

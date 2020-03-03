@@ -26,7 +26,7 @@ namespace IceInternal
             string operation = requestFrame.ReadString();
             bool idempotent = requestFrame.ReadOperationMode() != OperationMode.Normal;
             Dictionary<string, string> context = requestFrame.ReadContext();
-            Ice.EncodingVersion encoding = requestFrame.StartEncapsulation();
+            Ice.Encoding encoding = requestFrame.StartEncapsulation();
 
             return new Ice.Current(adapter, identity, facet, operation, idempotent, context,
                 requestId, connection, encoding);
@@ -123,7 +123,7 @@ namespace IceInternal
         }
 
         public static void
-        CheckSupportedProtocolEncoding(Ice.EncodingVersion v)
+        CheckSupportedProtocolEncoding(Ice.Encoding v)
         {
             if (v.Major != ProtocolEncodingMajor || v.Minor > ProtocolEncodingMinor)
             {
@@ -132,7 +132,7 @@ namespace IceInternal
         }
 
         internal static void
-        CheckSupportedEncoding(Ice.EncodingVersion v)
+        CheckSupportedEncoding(Ice.Encoding v)
         {
             if (v.Major != EncodingMajor || v.Minor > EncodingMinor)
             {
@@ -169,8 +169,8 @@ namespace IceInternal
         // Either return the given encoding if not compatible, or the greatest
         // supported encoding otherwise.
         //
-        internal static Ice.EncodingVersion
-        GetCompatibleEncoding(Ice.EncodingVersion v)
+        internal static Ice.Encoding
+        GetCompatibleEncoding(Ice.Encoding v)
         {
             if (v.Major != Ice.Util.CurrentEncoding.Major)
             {
@@ -195,7 +195,7 @@ namespace IceInternal
             version.Major == supported.Major && version.Minor <= supported.Minor;
 
         internal static bool
-        IsSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported) =>
+        IsSupported(Ice.Encoding version, Ice.Encoding supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 

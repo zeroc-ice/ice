@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace IceInternal
 {
@@ -176,7 +175,7 @@ namespace IceInternal
         public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
         {
             string addr = Network.AddrToString(endpoint);
-            var str = new StringBuilder();
+            var str = new System.Text.StringBuilder();
             str.Append("CONNECT ");
             str.Append(addr);
             str.Append(" HTTP/1.1\r\nHost: ");
@@ -184,7 +183,7 @@ namespace IceInternal
             str.Append("\r\n\r\n");
 
             // HTTP connect request
-            buffer.Add(Encoding.ASCII.GetBytes(str.ToString()));
+            buffer.Add(System.Text.Encoding.ASCII.GetBytes(str.ToString()));
         }
 
         public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)

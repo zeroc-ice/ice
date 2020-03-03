@@ -325,6 +325,8 @@ generated from the section label.
         <property name="Config" />
         <property name="ConsoleListener" />
         <property name="Default.CollocationOptimized" />
+        <property name="Default.Encoding" />
+        <!-- TODO deprecate Default.EncodingVersion, replaced by Default.Encoding -->
         <property name="Default.EncodingVersion" />
         <property name="Default.EndpointSelection" />
         <property name="Default.Host" />
@@ -338,6 +340,8 @@ generated from the section label.
         <property name="Default.SlicedFormat" />
         <property name="Default.SourceAddress" />
         <property name="Default.Timeout" />
+        <!-- TODO: do we really need a default transport? -->
+        <property name="Default.Transport" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
         <property name="HTTPProxyHost" />

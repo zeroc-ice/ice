@@ -17,10 +17,10 @@ namespace Ice
         public Dictionary<string, string> Context { get; }
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
-        public EncodingVersion Encoding { get; }
+        public Encoding Encoding { get; }
 
         internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, bool idempotent,
-            Dictionary<string, string> ctx, int requestId, Connection? connection, EncodingVersion encoding)
+            Dictionary<string, string> ctx, int requestId, Connection? connection, Encoding encoding)
         {
             Adapter = adapter;
             Id = id;

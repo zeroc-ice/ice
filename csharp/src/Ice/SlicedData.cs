@@ -14,7 +14,7 @@ namespace Ice
         /// The Ice encoding of the "unknown" slices held by this SlicedData. These slices can only be remarshaled
         /// with the same encoding.
         /// </summary>
-        public readonly EncodingVersion Encoding { get; }
+        public readonly Encoding Encoding { get; }
 
         /// <summary>
         /// The "unknown" or unreadable slices from a class or exception instance.
@@ -24,7 +24,7 @@ namespace Ice
         /// <summary>
         /// Constructs a new SlicedData.
         /// </summary>
-        public SlicedData(EncodingVersion encoding, IReadOnlyList<SliceInfo> slices)
+        public SlicedData(Encoding encoding, IReadOnlyList<SliceInfo> slices)
         {
             Encoding = encoding;
             Slices = slices;

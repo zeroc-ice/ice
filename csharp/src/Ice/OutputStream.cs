@@ -66,7 +66,7 @@ namespace Ice
         /// The encoding used when writing from this stream.
         /// </summary>
         /// <value>The encoding.</value>
-        public EncodingVersion Encoding { get; private set; }
+        public Encoding Encoding { get; private set; }
 
         /// <summary>Determines the current size of the stream, this correspond
         /// to the number of bytes already writen to the stream.</summary>
@@ -130,7 +130,7 @@ namespace Ice
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
         /// <param name="buffer">The intial stream data.</param>
-        public OutputStream(Communicator communicator, EncodingVersion encoding, byte[]? buffer = null)
+        public OutputStream(Communicator communicator, Encoding encoding, byte[]? buffer = null)
         {
             Communicator = communicator;
             Encoding = encoding;
@@ -159,7 +159,7 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encoding version of the encapsulation.</param>
         /// <param name="format">Specify the compact or sliced format; when null, keep the stream's format.</param>
-        public void StartEncapsulation(EncodingVersion encoding, FormatType? format = null)
+        public void StartEncapsulation(Encoding encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             Protocol.CheckSupportedEncoding(encoding);
@@ -1459,7 +1459,7 @@ namespace Ice
 
         internal void StartEndpointEncapsulation() => StartEndpointEncapsulation(Encoding);
 
-        internal void StartEndpointEncapsulation(EncodingVersion encoding)
+        internal void StartEndpointEncapsulation(Encoding encoding)
         {
             Debug.Assert(_endpointEncaps == null);
             Protocol.CheckSupportedEncoding(encoding);
@@ -1487,7 +1487,7 @@ namespace Ice
         /// Writes an empty encapsulation using the given encoding version.
         /// </summary>
         /// <param name="encoding">The encoding version of the encapsulation.</param>
-        internal void WriteEmptyEncapsulation(EncodingVersion encoding)
+        internal void WriteEmptyEncapsulation(Encoding encoding)
         {
             Protocol.CheckSupportedEncoding(encoding);
             WriteEncapsulationHeader(6, encoding);
@@ -1546,7 +1546,7 @@ namespace Ice
             return firstSlice == false; // we wrote at least one slice
         }
 
-        private void WriteEncapsulationHeader(int size, EncodingVersion encoding)
+        private void WriteEncapsulationHeader(int size, Encoding encoding)
         {
             WriteInt(size);
             WriteByte(encoding.Major);
@@ -1644,14 +1644,14 @@ namespace Ice
         private readonly struct Encaps
         {
             // Old Encoding
-            internal readonly EncodingVersion OldEncoding;
+            internal readonly Encoding OldEncoding;
 
             // Previous format (Compact or Sliced).
             internal readonly FormatType OldFormat;
 
             internal readonly Position StartPos;
 
-            internal Encaps(EncodingVersion oldEncoding, FormatType oldFormat, Position startPos)
+            internal Encaps(Encoding oldEncoding, FormatType oldFormat, Position startPos)
             {
                 OldEncoding = oldEncoding;
                 OldFormat = oldFormat;
