@@ -41,7 +41,7 @@ namespace Test
             string? value;
             if (transport == "")
             {
-                if (!properties.TryGetValue("Ice.Default.Protocol", out value))
+                if (!properties.TryGetValue("Ice.Default.Transport", out value))
                 {
                     value = "default";
                 }
@@ -86,7 +86,7 @@ namespace Test
         static public String getTestTransport(Dictionary<string, string> properties)
         {
             string? transport;
-            if (!properties.TryGetValue("Ice.Default.Protocol", out transport))
+            if (!properties.TryGetValue("Ice.Default.Transport", out transport))
             {
                 transport = "tcp";
             }

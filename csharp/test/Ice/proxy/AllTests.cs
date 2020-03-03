@@ -1085,8 +1085,8 @@ namespace Ice.proxy
             if ((communicator.GetPropertyAsInt("IPv6") ?? 0) == 0)
             {
                 // Working?
-                bool ssl = communicator.GetProperty("Default.Protocol") == "ssl";
-                bool tcp = communicator.GetProperty("Default.Protocol") == "tcp";
+                bool ssl = communicator.GetProperty("Default.Transport") == "ssl";
+                bool tcp = communicator.GetProperty("Default.Transport") == "tcp";
 
                 // Two legal TCP endpoints expressed as opaque endpoints
                 p1 = IObjectPrx.Parse("test -e 1.1:" + "" +

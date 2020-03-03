@@ -14,8 +14,7 @@ namespace IceInternal
         {
             string? val;
 
-            // TODO: rename property to Ice.Default.Transport, or remove property and always map default to tcp.
-            DefaultTransport = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            DefaultTransport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
 
             DefaultHost = communicator.GetProperty("Ice.Default.Host");
 

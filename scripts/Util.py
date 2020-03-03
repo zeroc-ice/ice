@@ -734,7 +734,9 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.protocol:
+                    # TODO: rename protocol to transport
                     props["Ice.Default.Protocol"] = self.protocol
+                    props["Ice.Default.Transport"] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:

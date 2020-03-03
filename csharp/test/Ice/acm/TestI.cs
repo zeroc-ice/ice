@@ -12,7 +12,7 @@ namespace Ice.acm
         createObjectAdapter(int timeout, int close, int heartbeat, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
-            string transport = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
             string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
 
             string name = System.Guid.NewGuid().ToString();
