@@ -215,8 +215,9 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// TokenContext: custom type for storing the location of matched tokens.
+// TokenContext: stores the location of tokens.
 // ----------------------------------------------------------------------
+
 struct TokenContext
 {
     int firstLine;

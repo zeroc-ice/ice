@@ -39,10 +39,10 @@ namespace Slice
 {
 
 // Definitions for the case-insensitive keyword-token map.
-static map<string, int> keywordMap;
+map<string, int> keywordMap;
 
-static int checkKeyword(string&);
-static int checkIdentifier(const string&);
+int checkKeyword(string&);
+int checkIdentifier(const string&);
 
 }
 
@@ -52,15 +52,20 @@ int yycolno = 0;
 // Stores a copy of the filename that the scanner is currently scanning.
 shared_ptr<string> yyfilename;
 
-static void nextLine(int = 1);
-static int scanPosition(const char*);
-static void setLocation(TokenContext*);
-static void startLocation(TokenContext*);
-static void endLocation(TokenContext*);
+namespace
+{
 
-static void initScanner();
-static void preAction();
-static void yynoreturn fatalError(const char* msg);
+void nextLine(int = 1);
+int scanPosition(const char*);
+void setLocation(TokenContext*);
+void startLocation(TokenContext*);
+void endLocation(TokenContext*);
+
+void initScanner();
+void preAction();
+void yynoreturn fatalError(const char* msg);
+
+}
 
 // Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
