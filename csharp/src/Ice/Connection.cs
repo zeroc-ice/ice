@@ -380,7 +380,7 @@ namespace Ice
                     }
                 }
 
-                if (_readStream.Size > Protocol.HeaderSize || _writeBufferSize > 0)
+                if (_readStream.Size > Ice1Definitions.HeaderSize || _writeBufferSize > 0)
                 {
                     //
                     // If writing or reading, nothing to do, the connection
@@ -459,7 +459,7 @@ namespace Ice
                     //
                     // Fill in the request ID.
                     //
-                    os.RewriteInt(requestId, new OutputStream.Position(0, Protocol.HeaderSize));
+                    os.RewriteInt(requestId, new OutputStream.Position(0, Ice1Definitions.HeaderSize));
                 }
 
                 og.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
@@ -573,14 +573,14 @@ namespace Ice
                 try
                 {
                     Debug.Assert(Os != null);
-                    Os.WriteSpan(Protocol.Magic.AsSpan());
+                    Os.WriteSpan(Ice1Definitions.Magic.AsSpan());
                     Os.WriteByte(Util.CurrentProtocol.Major);
                     Os.WriteByte(Util.CurrentProtocol.Minor);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Major);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Minor);
-                    Os.WriteByte(Protocol.ValidateConnectionMessage);
+                    Os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                     Os.WriteByte(0);
-                    Os.WriteInt(Protocol.HeaderSize); // Message size.
+                    Os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
 
                     int status = _connection.SendAsyncRequest(this, false, false);
 
@@ -1014,7 +1014,7 @@ namespace Ice
 
                                 if (_observer != null)
                                 {
-                                    _observer.ReceivedBytes(Protocol.HeaderSize);
+                                    _observer.ReceivedBytes(Ice1Definitions.HeaderSize);
                                 }
 
                                 //
@@ -1027,7 +1027,7 @@ namespace Ice
                                 _validated = true;
 
                                 int pos = _readStream.Pos;
-                                if (pos < Protocol.HeaderSize)
+                                if (pos < Ice1Definitions.HeaderSize)
                                 {
                                     //
                                     // This situation is possible for small UDP packets.
@@ -1041,8 +1041,8 @@ namespace Ice
                                 m[1] = _readStream.ReadByte();
                                 m[2] = _readStream.ReadByte();
                                 m[3] = _readStream.ReadByte();
-                                if (m[0] != Protocol.Magic[0] || m[1] != Protocol.Magic[1] ||
-                                    m[2] != Protocol.Magic[2] || m[3] != Protocol.Magic[3])
+                                if (m[0] != Ice1Definitions.Magic[0] || m[1] != Ice1Definitions.Magic[1] ||
+                                    m[2] != Ice1Definitions.Magic[2] || m[3] != Ice1Definitions.Magic[3])
                                 {
                                     throw new BadMagicException
                                     {
@@ -1062,7 +1062,7 @@ namespace Ice
                                 _readStream.ReadByte(); // messageType
                                 _readStream.ReadByte(); // compress
                                 int size = _readStream.ReadInt();
-                                if (size < Protocol.HeaderSize)
+                                if (size < Ice1Definitions.HeaderSize)
                                 {
                                     throw new IllegalMessageSizeException();
                                 }
@@ -1181,7 +1181,7 @@ namespace Ice
                         {
                             _logger.Warning(string.Format("maximum datagram size of {0} exceeded", _readStream.Pos));
                         }
-                        _readStream.Resize(Protocol.HeaderSize);
+                        _readStream.Resize(Ice1Definitions.HeaderSize);
                         _readStream.Pos = 0;
                         _readHeader = true;
                         return;
@@ -1199,7 +1199,7 @@ namespace Ice
                             {
                                 _logger.Warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
                             }
-                            _readStream.Resize(Protocol.HeaderSize);
+                            _readStream.Resize(Ice1Definitions.HeaderSize);
                             _readStream.Pos = 0;
                             _readHeader = true;
                         }
@@ -2028,14 +2028,14 @@ namespace Ice
                 // Before we shut down, we send a close connection message.
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
-                os.WriteSpan(Protocol.Magic.AsSpan());
+                os.WriteSpan(Ice1Definitions.Magic.AsSpan());
                 os.WriteByte(Util.CurrentProtocol.Major);
                 os.WriteByte(Util.CurrentProtocol.Minor);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
                 os.WriteByte(Util.CurrentProtocolEncoding.Minor);
-                os.WriteByte(Protocol.CloseConnectionMessage);
+                os.WriteByte(Ice1Definitions.CloseConnectionMessage);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
-                os.WriteInt(Protocol.HeaderSize); // Message size.
+                os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
 
                 if ((SendMessage(new OutgoingMessage(os, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
                 {
@@ -2061,14 +2061,14 @@ namespace Ice
             if (!_endpoint.Datagram())
             {
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
-                os.WriteSpan(Protocol.Magic.AsSpan());
+                os.WriteSpan(Ice1Definitions.Magic.AsSpan());
                 os.WriteByte(Util.CurrentProtocol.Major);
                 os.WriteByte(Util.CurrentProtocol.Minor);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
                 os.WriteByte(Util.CurrentProtocolEncoding.Minor);
-                os.WriteByte(Protocol.ValidateConnectionMessage);
+                os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                 os.WriteByte(0);
-                os.WriteInt(Protocol.HeaderSize); // Message size.
+                os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
                 try
                 {
                     SendMessage(new OutgoingMessage(os, false));
@@ -2111,14 +2111,14 @@ namespace Ice
                 {
                     if (_writeStream.Size == 0)
                     {
-                        _writeStream.WriteSpan(Protocol.Magic.AsSpan());
+                        _writeStream.WriteSpan(Ice1Definitions.Magic.AsSpan());
                         _writeStream.WriteByte(Util.CurrentProtocol.Major);
                         _writeStream.WriteByte(Util.CurrentProtocol.Minor);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Minor);
-                        _writeStream.WriteByte(Protocol.ValidateConnectionMessage);
+                        _writeStream.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
-                        _writeStream.WriteInt(Protocol.HeaderSize); // Message size.
+                        _writeStream.WriteInt(Ice1Definitions.HeaderSize); // Message size.
                         TraceUtil.TraceSend(_writeStream, _logger, _traceLevels);
                         _writeBuffer = _writeStream.GetUnderlyingBuffer();
                         _writeBufferOffset = 0;
@@ -2140,7 +2140,7 @@ namespace Ice
                 {
                     if (_readStream.Size == 0)
                     {
-                        _readStream.Resize(Protocol.HeaderSize);
+                        _readStream.Resize(Ice1Definitions.HeaderSize);
                         _readStream.Pos = 0;
                     }
 
@@ -2167,11 +2167,11 @@ namespace Ice
 
                     _validated = true;
 
-                    Debug.Assert(_readStream.Pos == Protocol.HeaderSize);
+                    Debug.Assert(_readStream.Pos == Ice1Definitions.HeaderSize);
                     _readStream.Pos = 0;
                     byte[] m = _readStream.ReadBlob(4);
-                    if (m[0] != Protocol.Magic[0] || m[1] != Protocol.Magic[1] ||
-                        m[2] != Protocol.Magic[2] || m[3] != Protocol.Magic[3])
+                    if (m[0] != Ice1Definitions.Magic[0] || m[1] != Ice1Definitions.Magic[1] ||
+                        m[2] != Ice1Definitions.Magic[2] || m[3] != Ice1Definitions.Magic[3])
                     {
                         throw new BadMagicException
                         {
@@ -2189,13 +2189,13 @@ namespace Ice
                     Protocol.CheckSupportedProtocolEncoding(ev);
 
                     byte messageType = _readStream.ReadByte();
-                    if (messageType != Protocol.ValidateConnectionMessage)
+                    if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {
                         throw new ConnectionNotValidatedException();
                     }
                     _readStream.ReadByte(); // Ignore compression status for validate connection.
                     int size = _readStream.ReadInt();
-                    if (size != Protocol.HeaderSize)
+                    if (size != Ice1Definitions.HeaderSize)
                     {
                         throw new IllegalMessageSizeException();
                     }
@@ -2208,7 +2208,7 @@ namespace Ice
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
 
-            _readStream.Resize(Protocol.HeaderSize);
+            _readStream.Resize(Ice1Definitions.HeaderSize);
             _readStream.Pos = 0;
             _readHeader = true;
 
@@ -2408,7 +2408,7 @@ namespace Ice
             if (_compressionSupported && compress && uncompressed.Size >= 100)
             {
                 // Do compression.
-                OutputStream? cstream = BZip2.Compress(uncompressed, Protocol.HeaderSize, _compressionLevel);
+                OutputStream? cstream = BZip2.Compress(uncompressed, Ice1Definitions.HeaderSize, _compressionLevel);
                 if (cstream != null)
                 {
                     // Write the compression status and the size of the compressed
@@ -2450,7 +2450,7 @@ namespace Ice
 
             info.Stream = new InputStream(_communicator, Util.CurrentProtocolEncoding);
             _readStream.Swap(info.Stream);
-            _readStream.Resize(Protocol.HeaderSize);
+            _readStream.Resize(Ice1Definitions.HeaderSize);
             _readStream.Pos = 0;
             _readHeader = true;
 
@@ -2468,7 +2468,7 @@ namespace Ice
                 {
                     if (_compressionSupported)
                     {
-                        IceInternal.Buffer ubuf = BZip2.Uncompress(info.Stream.GetBuffer(), Protocol.HeaderSize,
+                        IceInternal.Buffer ubuf = BZip2.Uncompress(info.Stream.GetBuffer(), Ice1Definitions.HeaderSize,
                                                                    _messageSizeMax);
                         info.Stream = new InputStream(info.Stream.Communicator, info.Stream.Encoding, ubuf, true);
                     }
@@ -2478,11 +2478,11 @@ namespace Ice
                         throw new FeatureNotSupportedException($"Cannot uncompress compressed message: {lib} not found");
                     }
                 }
-                info.Stream.Pos = Protocol.HeaderSize;
+                info.Stream.Pos = Ice1Definitions.HeaderSize;
 
                 switch (messageType)
                 {
-                    case Protocol.CloseConnectionMessage:
+                    case Ice1Definitions.CloseConnectionMessage:
                         {
                             TraceUtil.TraceRecv(info.Stream, _logger, _traceLevels);
                             if (_endpoint.Datagram())
@@ -2509,7 +2509,7 @@ namespace Ice
                             break;
                         }
 
-                    case Protocol.RequestMessage:
+                    case Ice1Definitions.RequestMessage:
                         {
                             if (_state >= StateClosing)
                             {
@@ -2528,7 +2528,7 @@ namespace Ice
                             break;
                         }
 
-                    case Protocol.RequestBatchMessage:
+                    case Ice1Definitions.RequestBatchMessage:
                         {
                             if (_state >= StateClosing)
                             {
@@ -2551,7 +2551,7 @@ namespace Ice
                             break;
                         }
 
-                    case Protocol.ReplyMessage:
+                    case Ice1Definitions.ReplyMessage:
                         {
                             TraceUtil.TraceRecv(info.Stream, _logger, _traceLevels);
                             info.RequestId = info.Stream.ReadInt();
@@ -2584,7 +2584,7 @@ namespace Ice
                             break;
                         }
 
-                    case Protocol.ValidateConnectionMessage:
+                    case Ice1Definitions.ValidateConnectionMessage:
                         {
                             TraceUtil.TraceRecv(info.Stream, _logger, _traceLevels);
                             if (_heartbeatCallback != null)
@@ -2635,7 +2635,7 @@ namespace Ice
             try
             {
                 int start = requestFrame.Pos;
-                Current current = Protocol.CreateCurrent(requestId, requestFrame, adapter, this);
+                var current = new Current(requestId, requestFrame, adapter, this);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = adapter.Communicator.Observer;
@@ -2684,7 +2684,7 @@ namespace Ice
                 else
                 {
                     Debug.Assert(responseFrame != null);
-                    dispatchObserver?.Reply(responseFrame.Size - Protocol.HeaderSize - 4);
+                    dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
                     SendResponse(responseFrame, compressionStatus);
                 }
             }

@@ -358,26 +358,26 @@ namespace IceInternal
 
             switch (type)
             {
-                case Protocol.CloseConnectionMessage:
-                case Protocol.ValidateConnectionMessage:
+                case Ice1Definitions.CloseConnectionMessage:
+                case Ice1Definitions.ValidateConnectionMessage:
                     {
                         // We're done.
                         break;
                     }
 
-                case Protocol.RequestMessage:
+                case Ice1Definitions.RequestMessage:
                     {
                         PrintRequest(s, str);
                         break;
                     }
 
-                case Protocol.RequestBatchMessage:
+                case Ice1Definitions.RequestBatchMessage:
                     {
                         PrintBatchRequest(s, str);
                         break;
                     }
 
-                case Protocol.ReplyMessage:
+                case Ice1Definitions.ReplyMessage:
                     {
                         PrintReply(s, str);
                         break;
@@ -415,11 +415,11 @@ namespace IceInternal
         {
             return type switch
             {
-                Protocol.RequestMessage => "request",
-                Protocol.RequestBatchMessage => "batch request",
-                Protocol.ReplyMessage => "reply",
-                Protocol.CloseConnectionMessage => "close connection",
-                Protocol.ValidateConnectionMessage => "validate connection",
+                Ice1Definitions.RequestMessage => "request",
+                Ice1Definitions.RequestBatchMessage => "batch request",
+                Ice1Definitions.ReplyMessage => "reply",
+                Ice1Definitions.CloseConnectionMessage => "close connection",
+                Ice1Definitions.ValidateConnectionMessage => "validate connection",
                 _ => "unknown",
             };
         }

@@ -39,7 +39,7 @@ namespace Ice
             RequestId = current.RequestId;
             _payloadEncoding = current.Encoding;
 
-            WriteSpan(Protocol.ReplyHeader.AsSpan());
+            WriteSpan(Ice1Definitions.ReplyHeader.AsSpan());
             WriteInt(RequestId);
         }
 
