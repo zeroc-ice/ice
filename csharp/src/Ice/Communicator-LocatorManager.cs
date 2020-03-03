@@ -38,7 +38,7 @@ namespace Ice
                 if (proxy != null)
                 {
                     Reference r = proxy.IceReference;
-                    if (_ref.IsWellKnown() && !Protocol.IsSupported(_ref.GetEncoding(), r.GetEncoding()))
+                    if (_ref.IsWellKnown() && !EncodingDefinitions.IsSupported(_ref.GetEncoding(), r.GetEncoding()))
                     {
                         //
                         // If a well-known proxy and the returned
