@@ -336,8 +336,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
    * Flex scans '* /' correctly. Flex prioritizes longer matches over shorter ones, so '* /' will match before '*'. */
-<C_COMMENT>"*"    |
-<C_COMMENT>[^\n*] {
+<C_COMMENT>"*"     |
+<C_COMMENT>[^\n*]+ {
     yymore();
 }
 
