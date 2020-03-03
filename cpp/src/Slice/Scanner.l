@@ -644,6 +644,9 @@ int checkIdentifier(const string& id)
 
 }
 
+namespace
+{
+
 void nextLine(int count)
 {
     yylineno += count;
@@ -772,4 +775,6 @@ void yynoreturn fatalError(const char* msg)
          << "\tlast matched text: `" << yytext << "'" << endl
          << "\tlast scanner state: `" << YY_START << "'" << endl;
     exit(YY_EXIT_FAILURE);
+}
+
 }
