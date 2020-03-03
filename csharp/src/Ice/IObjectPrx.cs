@@ -346,7 +346,7 @@ namespace Ice
 
         /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
         /// <returns>The encoding version.</returns>
-        public EncodingVersion EncodingVersion => IceReference.GetEncoding();
+        public Encoding Encoding => IceReference.GetEncoding();
 
         /// <summary>
         /// Returns whether this proxy prefers secure endpoints.

@@ -22,7 +22,7 @@ namespace Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Context? Context { get; }
 
-        private readonly EncodingVersion _payloadEncoding; // TODO: move to OutputStream
+        private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the

@@ -385,7 +385,7 @@ namespace IceInternal
 
                     Type cli = typeof(Ice.IObjectPrx);
                     Add("facet", cl.GetMethod("GetProxy"), cli.GetProperty("Facet"));
-                    Add("encoding", cl.GetMethod("GetEncodingVersion"));
+                    Add("encoding", cl.GetMethod("GetEncoding"));
                     Add("mode", cl.GetMethod("GetMode"));
                     Add("proxy", cl.GetMethod("GetProxy"));
                 }
@@ -477,7 +477,7 @@ namespace IceInternal
 
         public IObjectPrx? GetProxy() => _proxy;
 
-        public string GetEncodingVersion() => Ice.Util.EncodingVersionToString(_proxy.EncodingVersion);
+        public string GetEncoding() => Ice.Util.EncodingToString(_proxy.Encoding);
 
         public string GetIdentity()
         {

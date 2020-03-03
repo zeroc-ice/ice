@@ -36,12 +36,12 @@ namespace Ice
     }
 
     [System.Serializable]
-    public readonly struct EncodingVersion : System.IEquatable<EncodingVersion>
+    public readonly struct Encoding : System.IEquatable<Encoding>
     {
         public readonly byte Major;
         public readonly byte Minor;
 
-        public EncodingVersion(byte major, byte minor)
+        public Encoding(byte major, byte minor)
         {
             Major = major;
             Minor = minor;
@@ -49,7 +49,7 @@ namespace Ice
 
         public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
 
-        public bool Equals(EncodingVersion other)
+        public bool Equals(Encoding other)
         {
             return Major.Equals(other.Major) &&
                 Minor.Equals(other.Minor);
@@ -61,11 +61,11 @@ namespace Ice
             {
                 return true;
             }
-            return other is EncodingVersion value && Equals(value);
+            return other is Encoding value && Equals(value);
         }
 
-        public static bool operator ==(EncodingVersion lhs, EncodingVersion rhs) => Equals(lhs, rhs);
+        public static bool operator ==(Encoding lhs, Encoding rhs) => Equals(lhs, rhs);
 
-        public static bool operator !=(EncodingVersion lhs, EncodingVersion rhs) => !Equals(lhs, rhs);
+        public static bool operator !=(Encoding lhs, Encoding rhs) => !Equals(lhs, rhs);
     }
 }

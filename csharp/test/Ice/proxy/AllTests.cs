@@ -229,13 +229,13 @@ namespace Ice.proxy
             b1 = IObjectPrx.Parse("test -s", communicator);
             test(b1.IsSecure);
 
-            test(b1.EncodingVersion.Equals(Util.CurrentEncoding));
+            test(b1.Encoding.Equals(Util.CurrentEncoding));
 
             b1 = IObjectPrx.Parse("test -e 1.0", communicator);
-            test(b1.EncodingVersion.Major == 1 && b1.EncodingVersion.Minor == 0);
+            test(b1.Encoding.Major == 1 && b1.Encoding.Minor == 0);
 
             b1 = IObjectPrx.Parse("test -e 6.5", communicator);
-            test(b1.EncodingVersion.Major == 6 && b1.EncodingVersion.Minor == 5);
+            test(b1.Encoding.Major == 6 && b1.Encoding.Minor == 5);
 
             b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
             test(b1.ToString().Equals("test -t -e 1.0"));
@@ -543,7 +543,7 @@ namespace Ice.proxy
                 endpointSelectionType: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
-                encodingVersion: new EncodingVersion(1, 0),
+                encodingVersion: new Encoding(1, 0),
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
@@ -558,7 +558,7 @@ namespace Ice.proxy
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
+                        "locator -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -568,7 +568,7 @@ namespace Ice.proxy
             test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             test(proxyProps["Test.Locator.Router"].Equals(
-                        "router -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
+                        "router -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
             test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));
@@ -912,7 +912,7 @@ namespace Ice.proxy
             try
             {
                 // Send request with bogus 1.2 encoding.
-                EncodingVersion version = new EncodingVersion(1, 2);
+                Encoding version = new Encoding(1, 2);
                 var prx12 = cl.Clone(encodingVersion: version);
                 var requestFrame = OutgoingRequestFrame.Empty(prx12, "ice_ping", idempotent: false);
                 prx12.Invoke(requestFrame);

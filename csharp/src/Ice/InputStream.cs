@@ -53,7 +53,7 @@ namespace Ice
         /// The encoding used when reading from this stream.
         /// </summary>
         /// <value>The encoding.</value>
-        public EncodingVersion Encoding { get; private set; }
+        public Encoding Encoding { get; private set; }
 
         // The position (offset) in the underlying buffer.
         internal int Pos
@@ -149,7 +149,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        public InputStream(Communicator communicator, EncodingVersion encoding)
+        public InputStream(Communicator communicator, Encoding encoding)
             : this(communicator, encoding, new IceInternal.Buffer())
         {
         }
@@ -161,10 +161,10 @@ namespace Ice
 
         /// <summary>Reads the start of an encapsulation.</summary>
         /// <returns>The encoding of the encapsulation.</returns>
-        public EncodingVersion StartEncapsulation()
+        public Encoding StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
             Encoding = encapsHeader.Encoding;
@@ -231,9 +231,9 @@ namespace Ice
         /// Skips an empty encapsulation.
         /// </summary>
         /// <returns>The encapsulation's encoding version.</returns>
-        public EncodingVersion SkipEmptyEncapsulation()
+        public Encoding SkipEmptyEncapsulation()
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             if (encapsHeader.Encoding.Equals(Util.Encoding_1_0))
             {
                 if (encapsHeader.Size != 6)
@@ -256,9 +256,9 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encapsulation's encoding version.</param>
         /// <returns>The encoded encapsulation.</returns>
-        public byte[] ReadEncapsulation(out EncodingVersion encoding)
+        public byte[] ReadEncapsulation(out Encoding encoding)
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _buf.B.Position(_buf.B.Position() - 6);
             encoding = encapsHeader.Encoding;
 
@@ -289,9 +289,9 @@ namespace Ice
         /// Skips over an encapsulation.
         /// </summary>
         /// <returns>The encoding version of the skipped encapsulation.</returns>
-        public EncodingVersion SkipEncapsulation()
+        public Encoding SkipEncapsulation()
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             try
             {
                 _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
@@ -1362,15 +1362,15 @@ namespace Ice
                 Skip(4);
             }
         }
-        internal InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+        internal InputStream(Communicator communicator, Encoding encoding, IceInternal.Buffer buf, bool adopt)
             : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
         {
         }
 
-        internal EncodingVersion StartEndpointEncapsulation()
+        internal Encoding StartEndpointEncapsulation()
         {
             Debug.Assert(_endpointEncaps == null);
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
@@ -1400,7 +1400,7 @@ namespace Ice
             other._buf = _buf;
             _buf = tmpBuf;
 
-            EncodingVersion tmpEncoding = other.Encoding;
+            Encoding tmpEncoding = other.Encoding;
             other.Encoding = Encoding;
             Encoding = tmpEncoding;
 
@@ -1425,7 +1425,7 @@ namespace Ice
         internal IceInternal.Buffer GetBuffer() => _buf;
 
         // Helper constructor used by the other constructors.
-        private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
+        private InputStream(Communicator communicator, Encoding? encoding, IceInternal.Buffer buf)
         {
             Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
             Communicator = communicator;
@@ -1444,7 +1444,7 @@ namespace Ice
             _limit = null;
         }
 
-        private (EncodingVersion Encoding, int Size) ReadEncapsulationHeader()
+        private (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
@@ -1460,7 +1460,7 @@ namespace Ice
             }
             byte major = ReadByte();
             byte minor = ReadByte();
-            var encoding = new EncodingVersion(major, minor);
+            var encoding = new Encoding(major, minor);
             return (encoding, sz);
         }
 
@@ -2073,12 +2073,12 @@ namespace Ice
             internal readonly int? OldLimit;
 
             // Old Encoding
-            internal readonly EncodingVersion OldEncoding;
+            internal readonly Encoding OldEncoding;
 
             // Size of the encaps, as read from the stream
             internal readonly int Size;
 
-            internal Encaps(int? oldLimit, EncodingVersion oldEncoding, int size)
+            internal Encaps(int? oldLimit, Encoding oldEncoding, int size)
             {
                 OldLimit = oldLimit;
                 OldEncoding = oldEncoding;
@@ -2091,10 +2091,10 @@ namespace Ice
             internal readonly Encaps Encaps;
             internal readonly int Pos;
 
-            internal readonly EncodingVersion Encoding;
+            internal readonly Encoding Encoding;
             internal readonly int MinTotalSeqSize;
 
-            internal MainEncapsBackup(Encaps encaps, int pos, EncodingVersion encoding, int minTotalSeqSize)
+            internal MainEncapsBackup(Encaps encaps, int pos, Encoding encoding, int minTotalSeqSize)
             {
                 Encaps = encaps;
                 Pos = pos;

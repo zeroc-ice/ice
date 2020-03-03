@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Globalization;
 using Ice;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace IceInternal
 
         public ProtocolVersion GetProtocol() => _protocol;
 
-        public EncodingVersion GetEncoding() => _encoding;
+        public Encoding GetEncoding() => _encoding;
 
         public Identity GetIdentity() => _identity;
 
@@ -159,7 +158,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            var s = new StringBuilder();
+            var s = new System.Text.StringBuilder();
 
             //
             // If the encoded identity string contains characters which
@@ -252,10 +251,10 @@ namespace IceInternal
             //
             // Always print the encoding version to ensure a stringified proxy
             // will convert back to a proxy with the same encoding with
-            // stringToProxy (and won't use Ice.Default.EncodingVersion).
+            // stringToProxy (and won't use Ice.Default.Encoding).
             //
             s.Append(" -e ");
-            s.Append(Ice.Util.EncodingVersionToString(_encoding));
+            s.Append(Ice.Util.EncodingToString(_encoding));
 
             return s.ToString();
 
@@ -354,7 +353,7 @@ namespace IceInternal
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
                                        Dictionary<string, string>? context = null,
-                                       EncodingVersion? encodingVersion = null,
+                                       Encoding? encodingVersion = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
                                        Connection? fixedConnection = null,
@@ -424,7 +423,7 @@ namespace IceInternal
                 reference._context = context.Count == 0 ? _emptyContext : new Dictionary<string, string>(context);
             }
 
-            if (encodingVersion is EncodingVersion encodingVersionValue && encodingVersionValue != _encoding)
+            if (encodingVersion is Encoding encodingVersionValue && encodingVersionValue != _encoding)
             {
                 if (reference == this)
                 {
@@ -480,7 +479,7 @@ namespace IceInternal
         private string _facet;
         protected bool Secure;
         private ProtocolVersion _protocol;
-        private EncodingVersion _encoding;
+        private Encoding _encoding;
         private int _invocationTimeout;
 
         protected bool OverrideCompress;
@@ -492,7 +491,7 @@ namespace IceInternal
                             InvocationMode mode,
                             bool secure,
                             ProtocolVersion protocol,
-                            EncodingVersion encoding,
+                            Encoding encoding,
                             int invocationTimeout,
                             Dictionary<string, string>? context)
         {
@@ -531,7 +530,7 @@ namespace IceInternal
                               InvocationMode mode,
                               bool secure,
                               ProtocolVersion protocol,
-                              EncodingVersion encoding,
+                              Encoding encoding,
                               Connection connection,
                               int invocationTimeout,
                               Dictionary<string, string>? context,
@@ -581,7 +580,7 @@ namespace IceInternal
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
                                         Dictionary<string, string>? context = null,
-                                        EncodingVersion? encodingVersion = null,
+                                        Encoding? encodingVersion = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
@@ -899,7 +898,7 @@ namespace IceInternal
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
                                         Dictionary<string, string>? context = null,
-                                        EncodingVersion? encodingVersion = null,
+                                        Encoding? encodingVersion = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
                                         Connection? fixedConnection = null,
@@ -1030,9 +1029,9 @@ namespace IceInternal
                 reference._overrideTimeout = true;
             }
 
-            if (encodingVersion is EncodingVersion encodingVersionValue)
+            if (encodingVersion is Encoding encodingVersionValue)
             {
-                if (_locatorInfo != null && !_locatorInfo.Locator.EncodingVersion.Equals(encodingVersionValue))
+                if (_locatorInfo != null && !_locatorInfo.Locator.Encoding.Equals(encodingVersionValue))
                 {
                     if (reference == this)
                     {
@@ -1171,7 +1170,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            var s = new StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append(base.ToString());
 
             if (_endpoints.Length > 0)
@@ -1490,7 +1489,7 @@ namespace IceInternal
                                  InvocationMode mode,
                                  bool secure,
                                  ProtocolVersion protocol,
-                                 EncodingVersion encoding,
+                                 Encoding encoding,
                                  Endpoint[] endpoints,
                                  string? adapterId,
                                  LocatorInfo? locatorInfo,

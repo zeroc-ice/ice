@@ -59,12 +59,12 @@ namespace IceInternal
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(_rawBytes);
-            return "opaque -t " + _type + " -e " + Ice.Util.EncodingVersionToString(_rawEncoding) + " -v " + val;
+            return "opaque -t " + _type + " -e " + Ice.Util.EncodingToString(_rawEncoding) + " -v " + val;
         }
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
-            public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) :
+            public InfoI(short type, Ice.Encoding rawEncoding, byte[] rawBytes) :
                 base(null, -1, false, rawEncoding, rawBytes)
             {
                 _type = type;
@@ -263,7 +263,7 @@ namespace IceInternal
             {
                 s += " -t " + _type;
             }
-            s += " -e " + Ice.Util.EncodingVersionToString(_rawEncoding);
+            s += " -e " + Ice.Util.EncodingToString(_rawEncoding);
             if (_rawBytes.Length > 0)
             {
                 s += " -v " + System.Convert.ToBase64String(_rawBytes);
@@ -404,7 +404,7 @@ namespace IceInternal
 
                         try
                         {
-                            _rawEncoding = Ice.Util.StringToEncodingVersion(argument);
+                            _rawEncoding = Ice.Util.StringToEncoding(argument);
                         }
                         catch (FormatException ex)
                         {
@@ -421,7 +421,7 @@ namespace IceInternal
         }
 
         private short _type;
-        private Ice.EncodingVersion _rawEncoding;
+        private Ice.Encoding _rawEncoding;
         private byte[] _rawBytes;
         private int _hashCode = 0; // 0 is a special value that means not initialized.
     }

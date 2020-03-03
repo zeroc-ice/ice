@@ -75,10 +75,10 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted encoding version.</returns>
-        public static EncodingVersion StringToEncodingVersion(string version)
+        public static Encoding StringToEncoding(string version)
         {
             StringToMajorMinor(version, out byte major, out byte minor);
-            return new EncodingVersion(major, minor);
+            return new Encoding(major, minor);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The encoding version to convert.</param>
         /// <returns>The converted string.</returns>
-        public static string EncodingVersionToString(EncodingVersion v) => MajorMinorToString(v.Major, v.Minor);
+        public static string EncodingToString(Encoding v) => MajorMinorToString(v.Major, v.Minor);
 
         private static void StringToMajorMinor(string str, out byte major, out byte minor)
         {
@@ -131,17 +131,17 @@ namespace Ice
         public static readonly ProtocolVersion CurrentProtocol =
             new ProtocolVersion(IceInternal.Protocol.ProtocolMajor, IceInternal.Protocol.ProtocolMinor);
 
-        public static readonly EncodingVersion CurrentProtocolEncoding =
-            new EncodingVersion(IceInternal.Protocol.ProtocolEncodingMajor,
+        public static readonly Encoding CurrentProtocolEncoding =
+            new Encoding(IceInternal.Protocol.ProtocolEncodingMajor,
                                 IceInternal.Protocol.ProtocolEncodingMinor);
 
-        public static readonly EncodingVersion CurrentEncoding =
-            new EncodingVersion(IceInternal.Protocol.EncodingMajor, IceInternal.Protocol.EncodingMinor);
+        public static readonly Encoding CurrentEncoding =
+            new Encoding(IceInternal.Protocol.EncodingMajor, IceInternal.Protocol.EncodingMinor);
 
         public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
 
-        public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);
-        public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
+        public static readonly Encoding Encoding_1_0 = new Encoding(1, 0);
+        public static readonly Encoding Encoding_1_1 = new Encoding(1, 1);
 
         private static readonly object _processLoggerMutex = new object();
         private static ILogger? _processLogger = null;

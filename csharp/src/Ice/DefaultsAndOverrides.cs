@@ -171,8 +171,8 @@ namespace IceInternal
 
             DefaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-            val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.EncodingVersionToString(Ice.Util.CurrentEncoding);
-            DefaultEncoding = Ice.Util.StringToEncodingVersion(val);
+            val = communicator.GetProperty("Ice.Default.Encoding") ?? Ice.Util.EncodingToString(Ice.Util.CurrentEncoding);
+            DefaultEncoding = Ice.Util.StringToEncoding(val);
             Protocol.CheckSupportedEncoding(DefaultEncoding);
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
@@ -188,7 +188,7 @@ namespace IceInternal
         public int DefaultLocatorCacheTimeout;
         public int DefaultInvocationTimeout;
         public bool DefaultPreferSecure;
-        public Ice.EncodingVersion DefaultEncoding;
+        public Ice.Encoding DefaultEncoding;
         public Ice.FormatType DefaultFormat;
 
         public bool OverrideTimeout;

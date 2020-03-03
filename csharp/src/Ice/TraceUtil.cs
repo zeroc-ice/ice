@@ -218,11 +218,11 @@ namespace IceInternal
 
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
-                Ice.EncodingVersion v = str.SkipEncapsulation();
+                Ice.Encoding v = str.SkipEncapsulation();
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingVersionToString(v));
+                    s.Write(Ice.Util.EncodingToString(v));
                 }
             }
         }
@@ -275,11 +275,11 @@ namespace IceInternal
                     }
                 }
 
-                Ice.EncodingVersion v = str.SkipEncapsulation();
+                Ice.Encoding v = str.SkipEncapsulation();
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingVersionToString(v));
+                    s.Write(Ice.Util.EncodingToString(v));
                 }
             }
             catch (System.IO.IOException)

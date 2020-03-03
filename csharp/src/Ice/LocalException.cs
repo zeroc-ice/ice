@@ -724,28 +724,28 @@ namespace Ice
     /// </summary>
     public class UnsupportedEncodingException : ProtocolException
     {
-        public EncodingVersion Bad;
-        public EncodingVersion Supported;
+        public Encoding Bad;
+        public Encoding Supported;
 
         public UnsupportedEncodingException()
         {
-            Bad = new EncodingVersion();
-            Supported = new EncodingVersion();
+            Bad = new Encoding();
+            Supported = new Encoding();
         }
 
         public UnsupportedEncodingException(System.Exception ex) : base(ex)
         {
-            Bad = new EncodingVersion();
-            Supported = new EncodingVersion();
+            Bad = new Encoding();
+            Supported = new Encoding();
         }
 
-        public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported) : base(reason)
+        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported) : base(reason)
         {
             Bad = bad;
             Supported = supported;
         }
 
-        public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported, System.Exception ex) : base(reason, ex)
+        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported, System.Exception ex) : base(reason, ex)
         {
             Bad = bad;
             Supported = supported;
