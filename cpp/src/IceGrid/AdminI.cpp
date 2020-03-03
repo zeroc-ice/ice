@@ -49,7 +49,7 @@ public:
     {
         try
         {
-            return bind(forward<Func>(f), _proxy, forward<Args>(args)..., ::Ice::noExplicitContext)();
+            return std::invoke(forward<Func>(f), _proxy, forward<Args>(args)..., ::Ice::noExplicitContext);
         }
         catch (const Ice::Exception&)
         {
@@ -72,7 +72,7 @@ public:
                 exception(current_exception());
             }
         };
-        return bind(forward<Func>(f), _proxy, move(response), move(exceptionWrapper), nullptr, Ice::noExplicitContext)();
+        return std::invoke(forward<Func>(f), _proxy, move(response), move(exceptionWrapper), nullptr, Ice::noExplicitContext);
     }
 
     void

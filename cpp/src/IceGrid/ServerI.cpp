@@ -1480,8 +1480,11 @@ ServerI::activate()
             auto session = _node->getMasterNodeSession();
             if(session)
             {
-                auto cb = bind(&ServerI::waitForApplicationUpdateCompleted, shared_from_this());
-                _node->getMasterNodeSession()->waitForApplicationUpdateAsync(desc->uuid, desc->revision, move(cb));
+                _node->getMasterNodeSession()->waitForApplicationUpdateAsync(desc->uuid, desc->revision,
+                    [self = shared_from_this()]
+                    {
+                        self->waitForApplicationUpdateCompleted();
+                    });
                 return;
             }
         }
