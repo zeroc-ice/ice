@@ -30,54 +30,6 @@ namespace Ice
             }
         }
 
-        //
-        // Either return the given protocol if not compatible, or the greatest
-        // supported protocol otherwise.
-        //
-        internal static Protocol GetCompatibleProtocol(Protocol v)
-        {
-            if (v.Major != Util.CurrentProtocol.Major)
-            {
-                return v; // Unsupported protocol, return as is.
-            }
-            else if (v.Minor < Util.CurrentProtocol.Minor)
-            {
-                return v; // Supported protocol.
-            }
-            else
-            {
-                //
-                // Unsupported but compatible, use the currently supported
-                // protocol, that's the best we can do.
-                //
-                return Util.CurrentProtocol;
-            }
-        }
-
-        //
-        // Either return the given encoding if not compatible, or the greatest
-        // supported encoding otherwise.
-        //
-        internal static Encoding GetCompatibleEncoding(Encoding v)
-        {
-            if (v.Major != Util.CurrentEncoding.Major)
-            {
-                return v; // Unsupported encoding, return as is.
-            }
-            else if (v.Minor < Util.CurrentEncoding.Minor)
-            {
-                return v; // Supported encoding.
-            }
-            else
-            {
-                //
-                // Unsupported but compatible, use the currently supported
-                // encoding, that's the best we can do.
-                //
-                return Util.CurrentEncoding;
-            }
-        }
-
         internal static bool IsSupported(Encoding version, Encoding supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }

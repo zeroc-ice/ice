@@ -51,30 +51,6 @@ namespace Ice
             }
         }
 
-        //
-        // Either return the given protocol if not compatible, or the greatest
-        // supported protocol otherwise.
-        //
-        internal static Protocol GetCompatibleProtocol(Protocol v)
-        {
-            if (v.Major != Util.CurrentProtocol.Major)
-            {
-                return v; // Unsupported protocol, return as is.
-            }
-            else if (v.Minor < Util.CurrentProtocol.Minor)
-            {
-                return v; // Supported protocol.
-            }
-            else
-            {
-                //
-                // Unsupported but compatible, use the currently supported
-                // protocol, that's the best we can do.
-                //
-                return Util.CurrentProtocol;
-            }
-        }
-
         internal static bool IsSupported(Protocol version, Protocol supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }

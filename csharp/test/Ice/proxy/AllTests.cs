@@ -885,67 +885,58 @@ namespace Ice.proxy
             }
             output.WriteLine("ok");
 
-            output.Write("testing encoding versioning... ");
-            output.Flush();
-            string ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
-            Test.IMyClassPrx cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
+            string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
+            Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             try
             {
-                cl20.IcePing();
+                cl13.IcePing();
                 test(false);
             }
             catch (UnsupportedEncodingException)
             {
-                // Server 2.0 endpoint doesn't support 1.1 version.
+                // expected
             }
 
-            // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-            // call will use the 1.1 encoding
-            string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-            Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
-            cl13.IcePing();
-            cl13.IcePingAsync().Wait();
-
-            /*
-            // TODO: send a request with an invalid encoding to the server.
-            // The difficulty is how to bypass the local check.
+            output.Write("testing encoding versioning... ");
+            output.Flush();
+            string ref21 = "test -e 2.1:" + helper.getTestEndpoint(0);
+            Test.IMyClassPrx cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
             try
             {
-                // Send request with bogus 1.2 encoding.
-                Encoding version = new Encoding(1, 2);
-                var prx12 = cl.Clone(encoding: version);
-                var requestFrame = OutgoingRequestFrame.Empty(prx12, "ice_ping", idempotent: false);
-                prx12.Invoke(requestFrame);
+                cl21.IcePing();
                 test(false);
             }
-            catch (UnknownLocalException ex)
+            catch (UnsupportedEncodingException)
             {
-                test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
+                // expected
             }
-            */
 
             output.WriteLine("ok");
 
-            output.Write("testing protocol versioning... ");
-            output.Flush();
-            ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
-            cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
+            ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
+            cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             try
             {
-                cl20.IcePing();
+                cl13.IcePing();
+            }
+            catch (UnsupportedProtocolException)
+            {
+                // expected
+            }
+
+            output.Write("testing protocol versioning... ");
+            output.Flush();
+            ref21 = "test -p 2.1:" + helper.getTestEndpoint(0);
+            cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
+            try
+            {
+                cl21.IcePing();
                 test(false);
             }
             catch (UnsupportedProtocolException)
             {
-                // Server 2.0 proxy doesn't support 1.0 version.
+                // expected
             }
-
-            // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
-            // call will use the 1.0 protocol
-            ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-            cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
-            cl13.IcePing();
-            cl13.IcePingAsync().Wait();
             output.WriteLine("ok");
 
             output.Write("testing opaque endpoints... ");
