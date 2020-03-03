@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Net;
-using System.Text;
 
 namespace IceInternal
 {
@@ -41,7 +41,7 @@ namespace IceInternal
                 if (OverrideTimeoutValue < 1 && OverrideTimeoutValue != -1)
                 {
                     OverrideTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.Timeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.Timeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -61,7 +61,7 @@ namespace IceInternal
                 if (OverrideConnectTimeoutValue < 1 && OverrideConnectTimeoutValue != -1)
                 {
                     OverrideConnectTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.ConnectTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -81,7 +81,7 @@ namespace IceInternal
                 if (OverrideCloseTimeoutValue < 1 && OverrideCloseTimeoutValue != -1)
                 {
                     OverrideCloseTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.CloseTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.CloseTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -143,7 +143,7 @@ namespace IceInternal
             if (DefaultTimeout < 1 && DefaultTimeout != -1)
             {
                 DefaultTimeout = 60000;
-                var msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.Timeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.Timeout"));
                 msg.Append("': defaulting to 60000");
                 logger.Warning(msg.ToString());
@@ -153,7 +153,7 @@ namespace IceInternal
             if (DefaultLocatorCacheTimeout < -1)
             {
                 DefaultLocatorCacheTimeout = -1;
-                var msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.LocatorCacheTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.Warning(msg.ToString());
@@ -163,7 +163,7 @@ namespace IceInternal
             if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1 && DefaultInvocationTimeout != -2)
             {
                 DefaultInvocationTimeout = -1;
-                var msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.InvocationTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.Warning(msg.ToString());
@@ -173,7 +173,7 @@ namespace IceInternal
 
             val = communicator.GetProperty("Ice.Default.Encoding") ?? Ice.Util.EncodingToString(Ice.Util.CurrentEncoding);
             DefaultEncoding = Ice.Util.StringToEncoding(val);
-            Protocol.CheckSupportedEncoding(DefaultEncoding);
+            EncodingDefinitions.CheckSupportedEncoding(DefaultEncoding);
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
             DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;

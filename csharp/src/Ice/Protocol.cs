@@ -59,19 +59,6 @@ namespace IceInternal
         internal const byte ProtocolEncodingMajor = 1;
         internal const byte ProtocolEncodingMinor = 0;
 
-        internal const byte EncodingMajor = 1;
-        internal const byte EncodingMinor = 1;
-
-        public const byte OPTIONAL_END_MARKER = 0xFF;
-
-        public const byte FLAG_HAS_TYPE_ID_STRING = 1 << 0;
-        public const byte FLAG_HAS_TYPE_ID_INDEX = 1 << 1;
-        public const byte FLAG_HAS_TYPE_ID_COMPACT = (1 << 1) | (1 << 0);
-        public const byte FLAG_HAS_OPTIONAL_MEMBERS = 1 << 2;
-        public const byte FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
-        public const byte FLAG_HAS_SLICE_SIZE = 1 << 4;
-        public const byte FLAG_IS_LAST_SLICE = 1 << 5;
-
         //
         // The Ice protocol message types
         //
@@ -113,8 +100,7 @@ namespace IceInternal
             0, 0, 0, 0 // Message size (placeholder).
         };
 
-        internal static void
-        CheckSupportedProtocol(Ice.ProtocolVersion v)
+        internal static void CheckSupportedProtocol(Ice.ProtocolVersion v)
         {
             if (v.Major != ProtocolMajor || v.Minor > ProtocolMinor)
             {
@@ -122,8 +108,7 @@ namespace IceInternal
             }
         }
 
-        public static void
-        CheckSupportedProtocolEncoding(Ice.Encoding v)
+        public static void CheckSupportedProtocolEncoding(Ice.Encoding v)
         {
             if (v.Major != ProtocolEncodingMajor || v.Minor > ProtocolEncodingMinor)
             {
@@ -131,21 +116,11 @@ namespace IceInternal
             }
         }
 
-        internal static void
-        CheckSupportedEncoding(Ice.Encoding v)
-        {
-            if (v.Major != EncodingMajor || v.Minor > EncodingMinor)
-            {
-                throw new Ice.UnsupportedEncodingException("", v, Ice.Util.CurrentEncoding);
-            }
-        }
-
         //
         // Either return the given protocol if not compatible, or the greatest
         // supported protocol otherwise.
         //
-        internal static Ice.ProtocolVersion
-        GetCompatibleProtocol(Ice.ProtocolVersion v)
+        internal static Ice.ProtocolVersion GetCompatibleProtocol(Ice.ProtocolVersion v)
         {
             if (v.Major != Ice.Util.CurrentProtocol.Major)
             {
@@ -165,38 +140,7 @@ namespace IceInternal
             }
         }
 
-        //
-        // Either return the given encoding if not compatible, or the greatest
-        // supported encoding otherwise.
-        //
-        internal static Ice.Encoding
-        GetCompatibleEncoding(Ice.Encoding v)
-        {
-            if (v.Major != Ice.Util.CurrentEncoding.Major)
-            {
-                return v; // Unsupported encoding, return as is.
-            }
-            else if (v.Minor < Ice.Util.CurrentEncoding.Minor)
-            {
-                return v; // Supported encoding.
-            }
-            else
-            {
-                //
-                // Unsupported but compatible, use the currently supported
-                // encoding, that's the best we can do.
-                //
-                return Ice.Util.CurrentEncoding;
-            }
-        }
-
-        internal static bool
-        IsSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
-            version.Major == supported.Major && version.Minor <= supported.Minor;
-
-        internal static bool
-        IsSupported(Ice.Encoding version, Ice.Encoding supported) =>
+        internal static bool IsSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported) =>
             version.Major == supported.Major && version.Minor <= supported.Minor;
     }
-
 }

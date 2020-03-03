@@ -57,7 +57,7 @@ namespace Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            _payloadEncoding = Protocol.GetCompatibleEncoding(proxy.Encoding);
+            _payloadEncoding = EncodingDefinitions.GetCompatibleEncoding(proxy.Encoding);
 
             WriteSpan(Protocol.RequestHeader.AsSpan());
             Identity.IceWrite(this);

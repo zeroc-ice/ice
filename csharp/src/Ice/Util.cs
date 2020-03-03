@@ -136,7 +136,7 @@ namespace Ice
                                 IceInternal.Protocol.ProtocolEncodingMinor);
 
         public static readonly Encoding CurrentEncoding =
-            new Encoding(IceInternal.Protocol.EncodingMajor, IceInternal.Protocol.EncodingMinor);
+            new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
 
         public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
 
