@@ -2200,7 +2200,7 @@ namespace Ice
             {
                 if (!_defaultLocator.IceReference.GetEncoding().Equals(encoding))
                 {
-                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encodingVersion: encoding));
+                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encoding: encoding));
                 }
                 else
                 {
@@ -2239,7 +2239,7 @@ namespace Ice
                 {
                     if (!locator.IceReference.GetEncoding().Equals(encoding))
                     {
-                        locatorInfo = GetLocatorInfo(locator.Clone(encodingVersion: encoding));
+                        locatorInfo = GetLocatorInfo(locator.Clone(encoding: encoding));
                     }
                     else
                     {
