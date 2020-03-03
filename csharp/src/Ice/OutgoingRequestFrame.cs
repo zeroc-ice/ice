@@ -59,7 +59,7 @@ namespace Ice
             IsIdempotent = idempotent;
             _payloadEncoding = EncodingDefinitions.GetCompatibleEncoding(proxy.Encoding);
 
-            WriteSpan(Protocol.RequestHeader.AsSpan());
+            WriteSpan(Ice1Definitions.RequestHeader.AsSpan());
             Identity.IceWrite(this);
             if (Facet.Length == 0)
             {

@@ -170,7 +170,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Protocol.HeaderSize - 4;
+                int size = Os!.Size - Ice1Definitions.HeaderSize - 4;
                 ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -184,7 +184,7 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Protocol.HeaderSize - 4;
+                int size = Os!.Size - Ice1Definitions.HeaderSize - 4;
                 ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -637,7 +637,7 @@ namespace IceInternal
                 case Ice.InvocationMode.Oneway:
                 case Ice.InvocationMode.Datagram:
                     {
-                        Os.WriteSpan(Protocol.RequestHeader.AsSpan());
+                        Os.WriteSpan(Ice1Definitions.RequestHeader.AsSpan());
                         break;
                     }
 
@@ -708,7 +708,7 @@ namespace IceInternal
 
             if (ChildObserver != null)
             {
-                ChildObserver.Reply(Is.Size - Protocol.HeaderSize - 4);
+                ChildObserver.Reply(Is.Size - Ice1Definitions.HeaderSize - 4);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }

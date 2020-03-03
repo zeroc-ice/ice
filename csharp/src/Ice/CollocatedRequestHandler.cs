@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -96,7 +97,7 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 _adapter.DecDirectCount();
                 throw;
@@ -158,17 +159,17 @@ namespace IceInternal
                     FillInValue(os, new Ice.OutputStream.Position(0, 10), os.Size);
                     if (requestId > 0)
                     {
-                        FillInValue(os, new Ice.OutputStream.Position(0, Protocol.HeaderSize), requestId);
+                        FillInValue(os, new Ice.OutputStream.Position(0, Ice1Definitions.HeaderSize), requestId);
                     }
                     TraceUtil.TraceSend(os, _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
                 var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.ToArray()), false);
-                requestFrame.Pos = Protocol.RequestHeader.Length;
+                requestFrame.Pos = Ice1Definitions.RequestHeader.Length;
 
                 int start = requestFrame.Pos;
-                Ice.Current current = Protocol.CreateCurrent(requestId, requestFrame, _adapter);
+                var current = new Ice.Current(requestId, requestFrame, _adapter);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
@@ -197,7 +198,7 @@ namespace IceInternal
                     if (requestId != 0)
                     {
                         Ice.OutputStream responseFrame = await vt.ConfigureAwait(false);
-                        dispatchObserver?.Reply(responseFrame.Size - Protocol.HeaderSize - 4);
+                        dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
                         SendResponse(requestId, responseFrame, amd);
                     }
                 }
@@ -215,7 +216,7 @@ namespace IceInternal
                         // For now, marshal it
                         // TODO: revisit during exception refactoring.
                         var responseFrame = new Ice.OutgoingResponseFrame(current, ex);
-                        dispatchObserver?.Reply(responseFrame.Size - Protocol.HeaderSize - 4);
+                        dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
                         SendResponse(requestId, responseFrame, amd);
                     }
                 }
@@ -246,7 +247,7 @@ namespace IceInternal
                 // TODO Avoid copy OutputStream buffer
                 var iss = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.ToArray()), true);
 
-                iss.Pos = Protocol.ReplyHeader.Length + 4;
+                iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
 
                 if (_traceLevels.Protocol >= 1)
                 {
