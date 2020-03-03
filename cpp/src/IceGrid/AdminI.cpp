@@ -323,7 +323,7 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     //
     // Since the server might take a while to be deactivated, we use AMI.
     //
-    proxy.invokeAsync([](const auto &prx, auto... args) { prx->stopAsync(args...); },
+    proxy.invokeAsync([](const auto& prx, auto... args) { prx->stopAsync(args...); },
                       response,
                       [response, exception = move(exception)](exception_ptr ex) {
                           try
