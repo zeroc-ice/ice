@@ -1,7 +1,11 @@
-#include <IceUtil/ScannerConfig.h>
 #line 1 "src/IceStorm/Scanner.cpp"
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
 
-#line 3 "src/IceStorm/Scanner.cpp"
+#include <IceUtil/ScannerConfig.h>
+
+#line 8 "src/IceStorm/Scanner.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -163,7 +167,7 @@ extern FILE *yyin, *yyout;
 #define EOB_ACT_CONTINUE_SCAN 0
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
-
+    
     #define YY_LESS_LINENO(n)
     #define YY_LINENO_REWIND_TO(ptr)
     
@@ -451,34 +455,12 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
 #line 1 "src/IceStorm/Scanner.l"
-#line 2 "src/IceStorm/Scanner.l"
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+#line 11 "src/IceStorm/Scanner.l"
 
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
-
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-#   pragma warning(disable:4244)
-
-#   if defined(ICE_64)
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#       pragma warning(disable:4267)
-#   endif
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -489,16 +471,12 @@ using namespace IceStorm;
 #      undef yywrap
 #      define yywrap() 1
 #   endif
-#   define YY_NO_UNISTD_H
 #endif
 
 #ifdef __SUNPRO_CC
 #   ifdef yywrap
 #      undef yywrap
 #      define yywrap() 1
-#   endif
-#   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)
 #   endif
 #endif
 
@@ -507,16 +485,15 @@ using namespace IceStorm;
 namespace IceStorm
 {
 
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
+static std::map<std::string, int> keywordMap;
 
 void initScanner();
 
 }
 #define         YY_USER_INIT initScanner();
 
-#line 517 "src/IceStorm/Scanner.cpp"
-#line 518 "src/IceStorm/Scanner.cpp"
+#line 495 "src/IceStorm/Scanner.cpp"
+#line 496 "src/IceStorm/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -578,7 +555,7 @@ extern int yywrap ( void );
 #ifndef YY_NO_UNPUT
     
     static void yyunput ( int c, char *buf_ptr  );
-
+    
 #endif
 
 #ifndef yytext_ptr
@@ -733,10 +710,10 @@ YY_DECL
 		}
 
 	{
-#line 74 "src/IceStorm/Scanner.l"
+#line 55 "src/IceStorm/Scanner.l"
 
 
-#line 738 "src/IceStorm/Scanner.cpp"
+#line 716 "src/IceStorm/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -795,7 +772,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 76 "src/IceStorm/Scanner.l"
+#line 57 "src/IceStorm/Scanner.l"
 {
     // C++-style comment
     int c;
@@ -808,7 +785,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 86 "src/IceStorm/Scanner.l"
+#line 67 "src/IceStorm/Scanner.l"
 {
     // C-style comment
     while(true)
@@ -837,7 +814,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 111 "src/IceStorm/Scanner.l"
+#line 92 "src/IceStorm/Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -852,14 +829,14 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 122 "src/IceStorm/Scanner.l"
+#line 103 "src/IceStorm/Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 126 "src/IceStorm/Scanner.l"
+#line 107 "src/IceStorm/Scanner.l"
 {
     // "..."-type strings
     string s;
@@ -906,7 +883,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 170 "src/IceStorm/Scanner.l"
+#line 151 "src/IceStorm/Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -934,7 +911,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 195 "src/IceStorm/Scanner.l"
+#line 176 "src/IceStorm/Scanner.l"
 {
     // Simple strings
     string s;
@@ -958,16 +935,16 @@ YY_RULE_SETUP
     yylvalp->clear();
     yylvalp->push_back(s);
 
-    StringTokenMap::const_iterator pos = keywordMap.find(s);
+    const auto pos = keywordMap.find(s);
     return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 222 "src/IceStorm/Scanner.l"
+#line 203 "src/IceStorm/Scanner.l"
 ECHO;
 	YY_BREAK
-#line 969 "src/IceStorm/Scanner.cpp"
+#line 947 "src/IceStorm/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1110,7 +1087,7 @@ case YY_STATE_EOF(INITIAL):
  */
 static int yy_get_next_buffer (void)
 {
-	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+    	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
 	char *source = (yytext_ptr);
 	int number_to_move, i;
 	int ret_val;
@@ -1281,7 +1258,7 @@ static int yy_get_next_buffer (void)
     static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state )
 {
 	int yy_is_jam;
-	char *yy_cp = (yy_c_buf_p);
+    	char *yy_cp = (yy_c_buf_p);
 
 	YY_CHAR yy_c = 1;
 	if ( yy_accept[yy_current_state] )
@@ -1799,7 +1776,7 @@ static void yynoreturn yy_fatal_error (const char* msg )
  */
 int yyget_lineno  (void)
 {
-
+    
     return yylineno;
 }
 
@@ -1929,7 +1906,7 @@ int yylex_destroy  (void)
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char* s1, const char * s2, int n )
 {
-
+		
 	int i;
 	for ( i = 0; i < n; ++i )
 		s1[i] = s2[i];
@@ -1954,7 +1931,7 @@ void *yyalloc (yy_size_t  size )
 
 void *yyrealloc  (void * ptr, yy_size_t  size )
 {
-
+		
 	/* The cast to (char *) in the following accommodates both
 	 * implementations that use char* generic pointers, and those
 	 * that use void* generic pointers.  It works with the latter
@@ -1972,7 +1949,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 222 "src/IceStorm/Scanner.l"
+#line 203 "src/IceStorm/Scanner.l"
 
 
 namespace IceStorm {
@@ -1984,18 +1961,20 @@ namespace IceStorm {
 void
 initScanner()
 {
-    keywordMap["help"] = ICE_STORM_HELP;
-    keywordMap["quit"] = ICE_STORM_EXIT;
-    keywordMap["exit"] = ICE_STORM_EXIT;
-    keywordMap["current"] = ICE_STORM_CURRENT;
-    keywordMap["create"] = ICE_STORM_CREATE;
-    keywordMap["destroy"] = ICE_STORM_DESTROY;
-    keywordMap["link"] = ICE_STORM_LINK;
-    keywordMap["unlink"] = ICE_STORM_UNLINK;
-    keywordMap["links"] = ICE_STORM_LINKS;
-    keywordMap["topics"] = ICE_STORM_TOPICS;
-    keywordMap["replica"] = ICE_STORM_REPLICA;
-    keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
+    keywordMap = {
+        {"help", ICE_STORM_HELP},
+        {"quit", ICE_STORM_EXIT},
+        {"exit", ICE_STORM_EXIT},
+        {"current", ICE_STORM_CURRENT},
+        {"create", ICE_STORM_CREATE},
+        {"destroy", ICE_STORM_DESTROY},
+        {"link", ICE_STORM_LINK},
+        {"unlink", ICE_STORM_UNLINK},
+        {"links", ICE_STORM_LINKS},
+        {"topics", ICE_STORM_TOPICS},
+        {"replica", ICE_STORM_REPLICA},
+        {"subscribers", ICE_STORM_SUBSCRIBERS},
+    };
 }
 
 }
