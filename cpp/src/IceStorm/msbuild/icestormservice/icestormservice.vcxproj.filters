@@ -201,9 +201,6 @@
     <ClInclude Include="Win32\Debug\IceStorm\IceStormInternal.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceStorm\Instrumentation.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="Win32\Debug\IceStorm\LinkRecord.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -217,9 +214,6 @@
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\IceStorm\IceStormInternal.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\IceStorm\Instrumentation.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\IceStorm\LinkRecord.h">
@@ -237,9 +231,6 @@
     <ClInclude Include="Win32\Release\IceStorm\IceStormInternal.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceStorm\Instrumentation.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="Win32\Release\IceStorm\LinkRecord.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
@@ -253,9 +244,6 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="x64\Release\IceStorm\IceStormInternal.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Release\IceStorm\Instrumentation.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="x64\Release\IceStorm\LinkRecord.h">

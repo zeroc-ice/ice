@@ -13,15 +13,20 @@ using namespace std;
 namespace
 {
 
-class SynchronizationCallbackI : public SynchronizationCallback
+class SynchronizationCallbackI final : public SynchronizationCallback
 {
 public:
 
-    SynchronizationCallbackI(const IceUtil::Handle<RegistryServerAdminRouter>& adminRouter,
-                             const AMD_Object_ice_invokePtr& cb,
+    SynchronizationCallbackI(const shared_ptr<RegistryServerAdminRouter>& adminRouter,
                              const pair<const Byte*, const Byte*>& inParams,
+                             function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                             function<void(exception_ptr)> exception,
                              const Current& current) :
-        _adminRouter(adminRouter), _callback(cb), _inParams(inParams.first, inParams.second), _current(current)
+        _adminRouter(adminRouter),
+        _response(move(response)),
+        _exception(move(exception)),
+        _inParams(inParams.first, inParams.second),
+        _current(current)
     {
     }
 
@@ -30,47 +35,51 @@ public:
         //
         // Retry to forward the call.
         //
-        _adminRouter->ice_invoke_async(_callback, make_pair(&_inParams[0], &_inParams[0] + _inParams.size()), _current);
+        _adminRouter->ice_invokeAsync({ &_inParams[0], &_inParams[0] + _inParams.size() },
+                                      move(_response), move(_exception), _current);
     }
 
-    void synchronized(const Ice::Exception&)
+    void synchronized(exception_ptr)
     {
-        _callback->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
+        _exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
     }
 
 private:
 
-    const IceUtil::Handle<RegistryServerAdminRouter> _adminRouter;
-    const AMD_Object_ice_invokePtr _callback;
+    const shared_ptr<RegistryServerAdminRouter> _adminRouter;
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> _response;
+    function<void(exception_ptr)> _exception;
     const vector<Byte> _inParams;
     const Current _current;
 };
 
 }
 
-IceGrid::RegistryServerAdminRouter::RegistryServerAdminRouter(const DatabasePtr& database) :
+RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>& database) :
     AdminRouter(database->getTraceLevels()),
     _database(database)
 {
 }
 
 void
-IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                                     const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                                     const Current& current)
+RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+                                       function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                       function<void(exception_ptr)> exception,
+                                       const Ice::Current& current)
 {
-    ObjectPrx target = 0;
+    shared_ptr<ObjectPrx> target;
 
     try
     {
-        ServerEntryPtr server = _database->getServer(current.id.name);
+        auto server = _database->getServer(current.id.name);
         try
         {
             target = server->getAdminProxy();
         }
         catch(const SynchronizationException&)
         {
-            server->addSyncCallback(new SynchronizationCallbackI(this, cb, inParams, current));
+            server->addSyncCallback(make_shared<SynchronizationCallbackI>(shared_from_this(), inParams,
+                                                                          move(response), move(exception), current));
             return; // Wait for the server synchronization to complete and retry.
         }
     }
@@ -84,17 +93,17 @@ IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invoke
     {
     }
 
-    if(target == 0)
+    if(target == nullptr)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, cb, inParams, current);
+    invokeOnTarget(target, inParams, move(response), move(exception), current);
 }
 
-IceGrid::RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const DatabasePtr& database) :
+RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database) :
     AdminRouter(database->getTraceLevels()),
     _collocNodeName(collocNodeName),
     _database(database)
@@ -102,11 +111,12 @@ IceGrid::RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNo
 }
 
 void
-IceGrid::RegistryNodeAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                                   const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                                   const Current& current)
+RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+                                       function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                       function<void(exception_ptr)> exception,
+                                       const Ice::Current& current)
 {
-    ObjectPrx target;
+    shared_ptr<ObjectPrx> target;
 
     if(!_collocNodeName.empty() && current.id.name == _collocNodeName)
     {
@@ -140,11 +150,11 @@ IceGrid::RegistryNodeAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePt
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, cb, inParams, current);
+    invokeOnTarget(target, inParams, move(response), move(exception), current);
 }
 
-IceGrid::RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
-                                                                const DatabasePtr& database) :
+RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
+                                                       const shared_ptr<Database>& database) :
     AdminRouter(database->getTraceLevels()),
     _name(name),
     _database(database)
@@ -152,11 +162,12 @@ IceGrid::RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& na
 }
 
 void
-IceGrid::RegistryReplicaAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                                      const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                                      const Current& current)
+RegistryReplicaAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+                                       function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                       function<void(exception_ptr)> exception,
+                                       const Ice::Current& current)
 {
-    ObjectPrx target;
+    shared_ptr<ObjectPrx> target;
 
     if(current.id.name == _name)
     {
@@ -175,7 +186,7 @@ IceGrid::RegistryReplicaAdminRouter::ice_invoke_async(const AMD_Object_ice_invok
         }
     }
 
-    if(target == 0)
+    if(target == nullptr)
     {
         if(_traceLevels->admin > 0)
         {
@@ -188,5 +199,5 @@ IceGrid::RegistryReplicaAdminRouter::ice_invoke_async(const AMD_Object_ice_invok
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, cb, inParams, current);
+    invokeOnTarget(target, inParams, move(response), move(exception), current);
 }

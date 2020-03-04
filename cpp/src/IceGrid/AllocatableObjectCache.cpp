@@ -13,32 +13,24 @@
 using namespace std;
 using namespace IceGrid;
 
-namespace IceGrid
+namespace
 {
 
-struct AllocatableObjectEntryCI : binary_function<AllocatableObjectEntryPtr&, AllocatableObjectEntryPtr&, bool>
+bool compareAllocatableObjectEntry(const shared_ptr<AllocatableObjectEntry>& lhs,
+                                   const shared_ptr<AllocatableObjectEntry>& rhs)
 {
-
-    bool
-    operator()(const AllocatableObjectEntryPtr& lhs, const AllocatableObjectEntryPtr& rhs)
-    {
-        return ::Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
-    }
-};
-
-};
-
-AllocatableObjectCache::TypeEntry::TypeEntry()
-{
+    return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
 }
 
+};
+
 void
-AllocatableObjectCache::TypeEntry::add(const AllocatableObjectEntryPtr& obj)
+AllocatableObjectCache::TypeEntry::add(const shared_ptr<AllocatableObjectEntry>& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, AllocatableObjectEntryCI()), obj);
+    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, compareAllocatableObjectEntry), obj);
     if(!_requests.empty())
     {
         canTryAllocate(obj, false);
@@ -46,28 +38,28 @@ AllocatableObjectCache::TypeEntry::add(const AllocatableObjectEntryPtr& obj)
 }
 
 bool
-AllocatableObjectCache::TypeEntry::remove(const AllocatableObjectEntryPtr& obj)
+AllocatableObjectCache::TypeEntry::remove(const shared_ptr<AllocatableObjectEntry>& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    vector<AllocatableObjectEntryPtr>::iterator q;
-    q = lower_bound(_objects.begin(), _objects.end(), obj, AllocatableObjectEntryCI());
+    vector<shared_ptr<AllocatableObjectEntry>>::iterator q;
+    q = lower_bound(_objects.begin(), _objects.end(), obj, compareAllocatableObjectEntry);
     assert(q->get() == obj.get());
     _objects.erase(q);
 
     if(!_requests.empty() && _objects.empty())
     {
-        for(list<ObjectAllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+        for(const auto& req : _requests)
         {
-            (*p)->cancel(AllocationException("no allocatable objects with type `" + obj->getType() + "' registered"));
+            req->cancel(make_exception_ptr(AllocationException("no allocatable objects with type `" + obj->getType() + "' registered")));
         }
     }
     return _objects.empty();
 }
 
 void
-AllocatableObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& request)
+AllocatableObjectCache::TypeEntry::addAllocationRequest(const shared_ptr<ObjectAllocationRequest>& request)
 {
     //
     // No mutex protection here, this is called with the cache locked.
@@ -79,15 +71,15 @@ AllocatableObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRe
 }
 
 bool
-AllocatableObjectCache::TypeEntry::canTryAllocate(const AllocatableObjectEntryPtr& entry, bool fromRelease)
+AllocatableObjectCache::TypeEntry::canTryAllocate(const shared_ptr<AllocatableObjectEntry>& entry, bool fromRelease)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    list<ObjectAllocationRequestPtr>::iterator p = _requests.begin();
+    auto p = _requests.begin();
     while(p != _requests.end())
     {
-        AllocationRequestPtr request = *p;
+        auto request = *p;
         try
         {
             if(request->isCanceled()) // If the request has been canceled, we just remove it.
@@ -116,17 +108,18 @@ AllocatableObjectCache::TypeEntry::canTryAllocate(const AllocatableObjectEntryPt
     return false;
 }
 
-AllocatableObjectCache::AllocatableObjectCache(const Ice::CommunicatorPtr& communicator) :
+AllocatableObjectCache::AllocatableObjectCache(const shared_ptr<Ice::Communicator>& communicator) :
     _communicator(communicator)
 {
 }
 
 void
-AllocatableObjectCache::add(const ObjectInfo& info, const ServerEntryPtr& parent)
+AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry>& parent)
 {
-    const Ice::Identity& id = info.proxy->ice_getIdentity();
+    auto id = info.proxy->ice_getIdentity();
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
+
     if(getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
@@ -134,7 +127,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const ServerEntryPtr& parent
         return;
     }
 
-    AllocatableObjectEntryPtr entry = new AllocatableObjectEntry(*this, info, parent);
+    auto entry = make_shared<AllocatableObjectEntry>(*this, info, parent);
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
@@ -151,11 +144,12 @@ AllocatableObjectCache::add(const ObjectInfo& info, const ServerEntryPtr& parent
     }
 }
 
-AllocatableObjectEntryPtr
+shared_ptr<AllocatableObjectEntry>
 AllocatableObjectCache::get(const Ice::Identity& id) const
 {
-    Lock sync(*this);
-    AllocatableObjectEntryPtr entry = getImpl(id);
+    lock_guard lock(_mutex);
+
+    auto entry = getImpl(id);
     if(!entry)
     {
         throw ObjectNotRegisteredException(id);
@@ -166,9 +160,10 @@ AllocatableObjectCache::get(const Ice::Identity& id) const
 void
 AllocatableObjectCache::remove(const Ice::Identity& id)
 {
-    AllocatableObjectEntryPtr entry;
+    shared_ptr<AllocatableObjectEntry> entry;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
+
         entry = getImpl(id);
         if(!entry)
         {
@@ -177,7 +172,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         }
         removeImpl(id);
 
-        map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+        auto p = _types.find(entry->getType());
         assert(p != _types.end());
         if(p->second.remove(entry))
         {
@@ -201,26 +196,27 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
 }
 
 void
-AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr& request)
+AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<ObjectAllocationRequest>& request)
 {
-    Lock sync(*this);
-    map<string, TypeEntry>::iterator p = _types.find(type);
+    lock_guard lock(_mutex);
+
+    auto p = _types.find(type);
     if(p == _types.end())
     {
         throw AllocationException("no allocatable objects with type `" + type + "' registered");
     }
 
-    vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
+    vector<shared_ptr<AllocatableObjectEntry>> objects = p->second.getObjects();
     IceUtilInternal::shuffle(objects.begin(), objects.end()); // TODO: OPTIMIZE
     int allocatable = 0;
     try
     {
-        for(vector<AllocatableObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
+        for(const auto& obj : objects)
         {
-            if((*q)->isEnabled())
+            if(obj->isEnabled())
             {
                 ++allocatable;
-                if((*q)->tryAllocate(request))
+                if(obj->tryAllocate(request))
                 {
                     return;
                 }
@@ -239,13 +235,13 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
 }
 
 bool
-AllocatableObjectCache::canTryAllocate(const AllocatableObjectEntryPtr& entry)
+AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>& entry)
 {
     //
     // Notify the type entry that an object was released.
     //
-    Lock sync(*this);
-    map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+    lock_guard lock(_mutex);
+    auto p = _types.find(entry->getType());
     if(p == _types.end())
     {
         return false;
@@ -255,7 +251,7 @@ AllocatableObjectCache::canTryAllocate(const AllocatableObjectEntryPtr& entry)
 
 AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
                                                const ObjectInfo& info,
-                                               const ServerEntryPtr& parent) :
+                                               const shared_ptr<ServerEntry>& parent) :
     Allocatable(true, parent),
     _cache(cache),
     _info(info),
@@ -265,7 +261,7 @@ AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
     assert(_server);
 }
 
-Ice::ObjectPrx
+shared_ptr<Ice::ObjectPrx>
 AllocatableObjectEntry::getProxy() const
 {
     return _info.proxy;
@@ -290,15 +286,15 @@ AllocatableObjectEntry::isEnabled() const
 }
 
 void
-AllocatableObjectEntry::allocated(const SessionIPtr& session)
+AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
 {
     //
     // Add the object allocation to the session. The object will be
     // released once the session is destroyed.
     //
-    session->addAllocation(this);
+    session->addAllocation(shared_from_this());
 
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    auto traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
@@ -306,7 +302,7 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
             << ")";
     }
 
-    Glacier2::IdentitySetPrx identities = session->getGlacier2IdentitySet();
+    auto identities = session->getGlacier2IdentitySet();
     if(identities)
     {
         try
@@ -328,16 +324,16 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
 }
 
 void
-AllocatableObjectEntry::released(const SessionIPtr& session)
+AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
 {
     //
     // Remove the object allocation from the session.
     //
-    session->removeAllocation(this);
+    session->removeAllocation(shared_from_this());
 
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    auto traceLevels = _cache.getTraceLevels();
 
-    Glacier2::IdentitySetPrx identities = session->getGlacier2IdentitySet();
+    auto identities = session->getGlacier2IdentitySet();
     if(identities)
     {
         try
@@ -368,9 +364,9 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
 void
 AllocatableObjectEntry::destroy()
 {
-    SessionIPtr session;
+    shared_ptr<SessionI> session;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _destroyed = true;
         session = _session;
     }
@@ -400,5 +396,5 @@ AllocatableObjectEntry::checkAllocatable()
 bool
 AllocatableObjectEntry::canTryAllocate()
 {
-    return _cache.canTryAllocate(this);
+    return _cache.canTryAllocate(static_pointer_cast<AllocatableObjectEntry>(shared_from_this()));
 }

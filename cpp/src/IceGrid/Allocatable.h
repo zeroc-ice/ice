@@ -5,10 +5,6 @@
 #ifndef ICE_GRID_ALLOCATABLE_H
 #define ICE_GRID_ALLOCATABLE_H
 
-#include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 
 #include <IceGrid/Session.h>
@@ -19,35 +15,33 @@
 namespace IceGrid
 {
 
-class SessionI;
-typedef IceUtil::Handle<SessionI> SessionIPtr;
-
 class Allocatable;
-typedef IceUtil::Handle<Allocatable> AllocatablePtr;
+class SessionI;
 
-class AllocationRequest : public IceUtil::Mutex, public IceUtil::TimerTask
+class AllocationRequest : public IceUtil::TimerTask, public std::enable_shared_from_this<AllocationRequest>
 {
 public:
 
-    virtual ~AllocationRequest();
+    virtual ~AllocationRequest() = default;
 
-    virtual void allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
-    virtual void canceled(const Ice::UserException&) = 0;
+    virtual void allocated(const std::shared_ptr<Allocatable>&, const std::shared_ptr<SessionI>&) = 0;
+    virtual void canceled(std::exception_ptr) = 0;
 
     bool pending();
-    bool allocate(const AllocatablePtr&, const SessionIPtr&);
-    void cancel(const Ice::UserException&);
-    void runTimerTask(); // Implementation of IceUtil::TimerTask::runTimerTask()
+    bool allocate(const std::shared_ptr<Allocatable>&, const std::shared_ptr<SessionI>&);
+    void cancel(std::exception_ptr);
+
+    void runTimerTask() override;
 
     int getTimeout() const { return _timeout; }
-    const SessionIPtr& getSession() const { return _session; }
+    const std::shared_ptr<SessionI>& getSession() const { return _session; }
     bool isCanceled() const;
 
     bool operator<(const AllocationRequest&) const;
 
 protected:
 
-    AllocationRequest(const SessionIPtr&);
+    AllocationRequest(const std::shared_ptr<SessionI>&);
 
 private:
 
@@ -59,53 +53,57 @@ private:
         Allocated
     };
 
-    const SessionIPtr _session;
+    const std::shared_ptr<SessionI> _session;
     const int _timeout;
     State _state;
-};
-typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
-class Allocatable : public virtual IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+    mutable std::mutex _mutex;
+};
+
+class Allocatable: public virtual std::enable_shared_from_this<Allocatable>
 {
 public:
 
-    Allocatable(bool, const AllocatablePtr&);
-    virtual ~Allocatable();
+    Allocatable(bool, const std::shared_ptr<Allocatable>&);
+    virtual ~Allocatable() = default;
 
     virtual void checkAllocatable();
-    virtual bool allocate(const AllocationRequestPtr&, bool = false);
-    virtual bool tryAllocate(const AllocationRequestPtr&, bool = false);
-    virtual void release(const SessionIPtr&, bool = false);
+    virtual bool allocate(const std::shared_ptr<AllocationRequest>&, bool = false);
+    virtual bool tryAllocate(const std::shared_ptr<AllocationRequest>&, bool = false);
+    virtual void release(const std::shared_ptr<SessionI>&, bool = false);
 
     bool isAllocatable() const { return _allocatable; }
-    SessionIPtr getSession() const;
+    std::shared_ptr<SessionI> getSession() const;
 
     virtual bool isEnabled() const = 0;
-    virtual void allocated(const SessionIPtr&) = 0;
-    virtual void released(const SessionIPtr&) = 0;
+    virtual void allocated(const std::shared_ptr<SessionI>&) = 0;
+    virtual void released(const std::shared_ptr<SessionI>&) = 0;
     virtual bool canTryAllocate() { return false; }
 
-    virtual void allocatedNoSync(const SessionIPtr&) { ; }
-    virtual void releasedNoSync(const SessionIPtr&) { ; }
+    virtual void allocatedNoSync(const std::shared_ptr<SessionI>&) {}
+    virtual void releasedNoSync(const std::shared_ptr<SessionI>&) {}
 
     bool operator<(const Allocatable&) const;
 
 protected:
 
-    bool allocate(const AllocationRequestPtr&, bool, bool);
-    void queueAllocationAttemptFromChild(const AllocatablePtr&);
-    bool allocateFromChild(const AllocationRequestPtr&, const AllocatablePtr&, bool, bool);
+    bool allocate(const std::shared_ptr<AllocationRequest>&, bool, bool);
+    void queueAllocationAttemptFromChild(const std::shared_ptr<Allocatable>&);
+    bool allocateFromChild(const std::shared_ptr<AllocationRequest>&, const std::shared_ptr<Allocatable>&, bool, bool);
 
-    void queueAllocationAttempt(const AllocatablePtr&, const AllocationRequestPtr&, bool);
-    AllocatablePtr dequeueAllocationAttempt(AllocationRequestPtr&);
+    void queueAllocationAttempt(const std::shared_ptr<Allocatable>&, const std::shared_ptr<AllocationRequest>&, bool);
+    std::shared_ptr<Allocatable> dequeueAllocationAttempt(std::shared_ptr<AllocationRequest>&);
 
     bool _allocatable;
-    const AllocatablePtr _parent;
+    const std::shared_ptr<Allocatable> _parent;
 
-    std::list<std::pair<AllocatablePtr, AllocationRequestPtr> > _requests;
-    SessionIPtr _session;
+    std::list<std::pair<std::shared_ptr<Allocatable>, std::shared_ptr<AllocationRequest>>> _requests;
+    std::shared_ptr<SessionI> _session;
     int _count;
     bool _releasing;
+
+    mutable std::mutex _mutex;
+    std::condition_variable _condVar;
 };
 
 };

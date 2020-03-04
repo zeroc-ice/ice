@@ -12,6 +12,7 @@
 #include <IceGrid/DBTypes.h>
 #include <IceUtil/DisableWarnings.h>
 
+#include <iterator>
 #include <fstream>
 
 using namespace std;
@@ -64,33 +65,6 @@ private:
     string _serverVersion;
 };
 
-class ValueFactoryI : public Ice::ValueFactory
-{
-public:
-
-    ValueFactoryI(const string& serverVersion) :
-        _serverVersion(serverVersion)
-    {
-    }
-
-    virtual Ice::ObjectPtr create(const string& type)
-    {
-        if(type == "::IceGrid::ServerDescriptor")
-        {
-            return new ServerDescriptorI(_serverVersion);
-        }
-        else if(type == "::IceGrid::IceBoxDescriptor")
-        {
-            return new IceBoxDescriptorI(_serverVersion);
-        }
-        return 0;
-    }
-
-private:
-
-    string _serverVersion;
-};
-
 }
 
 //
@@ -120,7 +94,7 @@ struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
 
 int run(const Ice::StringSeq&);
 
-Ice::CommunicatorPtr communicator;
+shared_ptr<Ice::Communicator> communicator;
 
 void
 destroyCommunicator(int)
@@ -301,9 +275,15 @@ run(const Ice::StringSeq& args)
 
             if(!serverVersion.empty())
             {
-                Ice::ValueFactoryPtr factory = new ValueFactoryI(serverVersion);
-                communicator->getValueFactoryManager()->add(factory, "::IceGrid::ServerDescriptor");
-                communicator->getValueFactoryManager()->add(factory, "::IceGrid::IceBoxDescriptor");
+                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                    {
+                        return make_shared<ServerDescriptorI>(serverVersion);
+                    }, IceGrid::ServerDescriptor::ice_staticId());
+
+                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                    {
+                        return make_shared<IceBoxDescriptorI>(serverVersion);
+                    }, IceGrid::IceBoxDescriptor::ice_staticId());
             }
 
             Ice::InputStream stream(communicator, dbContext.encoding, buf);

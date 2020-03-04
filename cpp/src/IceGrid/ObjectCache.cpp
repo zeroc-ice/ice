@@ -14,57 +14,43 @@
 using namespace std;
 using namespace IceGrid;
 
-pointer_to_unary_function<int, unsigned int> ObjectCache::_rand(IceUtilInternal::random);
-
 namespace IceGrid
 {
 
-struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
+bool compareObjectEntryCI(const shared_ptr<ObjectEntry>& lhs, const shared_ptr<ObjectEntry>& rhs)
 {
-
-    bool
-    operator()(const ObjectEntryPtr& lhs, const ObjectEntryPtr& rhs)
-    {
-        return ::Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
-    }
-};
-
-struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
-{
-    bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
-    {
-        return lhs.second < rhs.second;
-    }
-};
-
-};
-
-ObjectCache::TypeEntry::TypeEntry()
-{
+    return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
 }
 
+bool compareObjectLoadCI(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
+{
+    return lhs.second < rhs.second;
+}
+
+};
+
 void
-ObjectCache::TypeEntry::add(const ObjectEntryPtr& obj)
+ObjectCache::TypeEntry::add(const shared_ptr<ObjectEntry>& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI()), obj);
+    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, compareObjectEntryCI), obj);
 }
 
 bool
-ObjectCache::TypeEntry::remove(const ObjectEntryPtr& obj)
+ObjectCache::TypeEntry::remove(const shared_ptr<ObjectEntry>& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    vector<ObjectEntryPtr>::iterator q = lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI());
+    auto q = lower_bound(_objects.begin(), _objects.end(), obj, compareObjectEntryCI);
     assert(q->get() == obj.get());
     _objects.erase(q);
     return _objects.empty();
 }
 
-ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+ObjectCache::ObjectCache(const shared_ptr<Ice::Communicator>& communicator) : _communicator(communicator)
 {
 }
 
@@ -73,7 +59,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
 {
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
@@ -81,13 +67,13 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
         return;
     }
 
-    ObjectEntryPtr entry = new ObjectEntry(info, application, server);
+    auto entry = make_shared<ObjectEntry>(info, application, server);
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-        p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));
+        p = _types.insert(p, { entry->getType(), TypeEntry() });
     }
     p->second.add(entry);
 
@@ -98,11 +84,11 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
     }
 }
 
-ObjectEntryPtr
+shared_ptr<ObjectEntry>
 ObjectCache::get(const Ice::Identity& id) const
 {
-    Lock sync(*this);
-    ObjectEntryPtr entry = getImpl(id);
+    lock_guard lock(_mutex);
+    shared_ptr<ObjectEntry> entry = getImpl(id);
     if(!entry)
     {
         throw ObjectNotRegisteredException(id);
@@ -113,8 +99,8 @@ ObjectCache::get(const Ice::Identity& id) const
 void
 ObjectCache::remove(const Ice::Identity& id)
 {
-    Lock sync(*this);
-    ObjectEntryPtr entry = getImpl(id);
+    lock_guard lock(_mutex);
+    shared_ptr<ObjectEntry> entry = getImpl(id);
     if(!entry)
     {
         Ice::Error out(_communicator->getLogger());
@@ -137,14 +123,14 @@ ObjectCache::remove(const Ice::Identity& id)
     }
 }
 
-vector<ObjectEntryPtr>
+vector<shared_ptr<ObjectEntry>>
 ObjectCache::getObjectsByType(const string& type)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
     {
-        return vector<ObjectEntryPtr>();
+        return vector<shared_ptr<ObjectEntry>>();
     }
     return p->second.getObjects();
 }
@@ -152,9 +138,9 @@ ObjectCache::getObjectsByType(const string& type)
 ObjectInfoSeq
 ObjectCache::getAll(const string& expression)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     ObjectInfoSeq infos;
-    for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
+    for(auto p = _entries.cbegin(); p != _entries.cend(); ++p)
     {
         if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
         {
@@ -167,7 +153,7 @@ ObjectCache::getAll(const string& expression)
 ObjectInfoSeq
 ObjectCache::getAllByType(const string& type)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     ObjectInfoSeq infos;
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
@@ -175,8 +161,8 @@ ObjectCache::getAllByType(const string& type)
         return infos;
     }
 
-    const vector<ObjectEntryPtr>& objects = p->second.getObjects();
-    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    const vector<shared_ptr<ObjectEntry>>& objects = p->second.getObjects();
+    for(vector<shared_ptr<ObjectEntry>>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
         infos.push_back((*q)->getObjectInfo());
     }
@@ -190,7 +176,7 @@ ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, cons
 {
 }
 
-Ice::ObjectPrx
+shared_ptr<Ice::ObjectPrx>
 ObjectEntry::getProxy() const
 {
     return _info.proxy;

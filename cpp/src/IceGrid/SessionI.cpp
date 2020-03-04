@@ -18,54 +18,50 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-template<class T>
-class AllocateObject : public ObjectAllocationRequest
+class AllocateObject final : public ObjectAllocationRequest
 {
-    typedef IceUtil::Handle<T> TPtr;
 
 public:
 
-    AllocateObject(const SessionIPtr& session, const TPtr& cb) :
-        ObjectAllocationRequest(session), _cb(cb)
+    AllocateObject(const shared_ptr<SessionI>& session,
+                   function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)>&& response,
+                   function<void(exception_ptr)>&& exception) :
+        ObjectAllocationRequest(session), _response(move(response)), _exception(move(exception))
     {
     }
 
-    virtual void
-    response(const Ice::ObjectPrx& proxy)
+    void
+    response(const shared_ptr<Ice::ObjectPrx>& proxy) override
     {
-        assert(_cb);
-        _cb->ice_response(proxy);
-        _cb = 0;
+        assert(_response);
+        _response(proxy);
+        _response = nullptr;
+
     }
 
-    virtual void
-    exception(const Ice::UserException& ex)
+    void
+    exception(exception_ptr ex) override
     {
-        assert(_cb);
-        _cb->ice_exception(ex);
-        _cb = 0;
+        assert(_exception);
+        _exception(ex);
+        _exception = nullptr;
     }
 
 private:
 
-    TPtr _cb;
+    function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> _response;
+    function<void(exception_ptr)> _exception;
 };
 
-template<class T> AllocateObject<T>*
-newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
-{
-    return new AllocateObject<T>(session, cb);
 }
 
-}
-
-BaseSessionI::BaseSessionI(const string& id, const string& prefix, const DatabasePtr& database) :
+BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_ptr<Database>& database) :
     _id(id),
     _prefix(prefix),
     _traceLevels(database->getTraceLevels()),
     _database(database),
     _destroyed(false),
-    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic))
+    _timestamp(chrono::steady_clock::now())
 {
     if(_traceLevels && _traceLevels->session > 0)
     {
@@ -74,20 +70,16 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const Databas
     }
 }
 
-BaseSessionI::~BaseSessionI()
-{
-}
-
 void
 BaseSessionI::keepAlive(const Ice::Current& current)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    _timestamp = chrono::steady_clock::now();
 
     if(_traceLevels->session > 1)
     {
@@ -97,9 +89,9 @@ BaseSessionI::keepAlive(const Ice::Current& current)
 }
 
 void
-BaseSessionI::destroyImpl(bool /*shutdown*/)
+BaseSessionI::destroyImpl(bool)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -113,10 +105,10 @@ BaseSessionI::destroyImpl(bool /*shutdown*/)
     }
 }
 
-IceUtil::Time
+std::chrono::steady_clock::time_point
 BaseSessionI::timestamp() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -130,67 +122,70 @@ BaseSessionI::shutdown()
     destroyImpl(true);
 }
 
-Glacier2::IdentitySetPrx
+shared_ptr<Glacier2::IdentitySetPrx>
 BaseSessionI::getGlacier2IdentitySet()
 {
     assert(_servantManager);
-    return _servantManager->getGlacier2IdentitySet(this);
+    return _servantManager->getGlacier2IdentitySet(shared_from_this());
 }
 
-Glacier2::StringSetPrx
+shared_ptr<Glacier2::StringSetPrx>
 BaseSessionI::getGlacier2AdapterIdSet()
 {
     assert(_servantManager);
-    return _servantManager->getGlacier2AdapterIdSet(this);
+    return _servantManager->getGlacier2AdapterIdSet(shared_from_this());
 }
 
-SessionI::SessionI(const string& id, const DatabasePtr& database, const IceUtil::TimerPtr& timer) :
+SessionI::SessionI(const string& id, const shared_ptr<Database>& database,
+                   const IceUtil::TimerPtr& timer) :
     BaseSessionI(id, "client", database),
     _timer(timer),
     _allocationTimeout(-1)
 {
 }
 
-SessionI::~SessionI()
-{
-}
-
-Ice::ObjectPrx
-SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::ConnectionPtr& con)
+shared_ptr<Ice::ObjectPrx>
+SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, const shared_ptr<Ice::Connection>& con)
 {
     //
     // This is supposed to be called after creation only, no need to synchronize.
     //
     _servantManager = servantManager;
-    return _servantManager->addSession(this, con, "");
+    return _servantManager->addSession(shared_from_this(), con, "");
 }
 
 void
-SessionI::allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr& cb,
-                                   const Ice::Identity& id,
-                                   const Ice::Current&)
+SessionI::allocateObjectByIdAsync(Ice::Identity id,
+                                 function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> response,
+                                 function<void(exception_ptr)> exception,
+                                 const Ice::Current&)
 {
-    _database->getAllocatableObject(id)->allocate(newAllocateObject(this, cb));
+    auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
+                                                       move(response), move(exception));
+    _database->getAllocatableObject(id)->allocate(move(allocatedObject));
 }
 
 void
-SessionI::allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr& cb,
-                                     const string& type,
-                                     const Ice::Current&)
+SessionI::allocateObjectByTypeAsync(string type,
+                                    function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> response,
+                                    function<void(exception_ptr)> exception,
+                                    const Ice::Current&)
 {
-    _database->getAllocatableObjectCache().allocateByType(type, newAllocateObject(this, cb));
+    auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
+                                                       move(response), move(exception));
+    _database->getAllocatableObjectCache().allocateByType(type, move(allocatedObject));
 }
 
 void
-SessionI::releaseObject(const Ice::Identity& id, const Ice::Current&)
+SessionI::releaseObject(Ice::Identity id, const Ice::Current&)
 {
-    _database->getAllocatableObject(id)->release(this);
+    _database->getAllocatableObject(id)->release(static_pointer_cast<SessionI>(shared_from_this()));
 }
 
 void
 SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _allocationTimeout = timeout;
 }
 
@@ -203,14 +198,14 @@ SessionI::destroy(const Ice::Current&)
 int
 SessionI::getAllocationTimeout() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _allocationTimeout;
 }
 
 bool
-SessionI::addAllocationRequest(const AllocationRequestPtr& request)
+SessionI::addAllocationRequest(const shared_ptr<AllocationRequest>& request)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         return false;
@@ -220,9 +215,9 @@ SessionI::addAllocationRequest(const AllocationRequestPtr& request)
 }
 
 void
-SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
+SessionI::removeAllocationRequest(const shared_ptr<AllocationRequest>& request)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         return;
@@ -231,9 +226,9 @@ SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
 }
 
 void
-SessionI::addAllocation(const AllocatablePtr& allocatable)
+SessionI::addAllocation(const shared_ptr<Allocatable>& allocatable)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw SessionDestroyedException();
@@ -242,9 +237,9 @@ SessionI::addAllocation(const AllocatablePtr& allocatable)
 }
 
 void
-SessionI::removeAllocation(const AllocatablePtr& allocatable)
+SessionI::removeAllocation(const shared_ptr<Allocatable>& allocatable)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         return;
@@ -257,25 +252,24 @@ SessionI::destroyImpl(bool shutdown)
 {
     BaseSessionI::destroyImpl(shutdown);
 
-    _servantManager->removeSession(this);
+    _servantManager->removeSession(shared_from_this());
 
     //
     // NOTE: The _requests and _allocations attributes are immutable
     // once the session is destroyed so we don't need mutex protection
     // here to access them.
     //
-
-    for(set<AllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for(const auto& request : _requests)
     {
-        (*p)->cancel(AllocationException("session destroyed"));
+        request->cancel(make_exception_ptr(AllocationException("session destroyed")));
     }
     _requests.clear();
 
-    for(set<AllocatablePtr>::const_iterator q = _allocations.begin(); q != _allocations.end(); ++q)
+    for(const auto& allocation : _allocations)
     {
         try
         {
-            (*q)->release(this);
+            allocation->release(dynamic_pointer_cast<SessionI>(shared_from_this()));
         }
         catch(const AllocationException&)
         {
@@ -284,10 +278,10 @@ SessionI::destroyImpl(bool shutdown)
     _allocations.clear();
 }
 
-ClientSessionFactory::ClientSessionFactory(const SessionServantManagerPtr& servantManager,
-                                           const DatabasePtr& database,
+ClientSessionFactory::ClientSessionFactory(const shared_ptr<SessionServantManager>& servantManager,
+                                           const shared_ptr<Database>& database,
                                            const IceUtil::TimerPtr& timer,
-                                           const ReapThreadPtr& reaper) :
+                                           const shared_ptr<ReapThread>& reaper) :
     _servantManager(servantManager),
     _database(database),
     _timer(timer),
@@ -296,35 +290,31 @@ ClientSessionFactory::ClientSessionFactory(const SessionServantManagerPtr& serva
 {
     if(_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {
-        Ice::PropertiesPtr properties = _database->getCommunicator()->getProperties();
+        auto properties = _database->getCommunicator()->getProperties();
         const_cast<bool&>(_filters) = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionFilters", 0) > 0;
     }
 }
 
-Glacier2::SessionPrx
-ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
+shared_ptr<Glacier2::SessionPrx>
+ClientSessionFactory::createGlacier2Session(const string& sessionId,
+                                            const shared_ptr<Glacier2::SessionControlPrx>& ctl)
 {
     assert(_servantManager);
 
-    SessionIPtr session = createSessionServant(sessionId, ctl);
-    Ice::ObjectPrx proxy = session->_register(_servantManager, 0);
+    auto session = createSessionServant(sessionId, ctl);
+    auto proxy = session->_register(_servantManager, 0);
 
-    int timeout = 0;
+    chrono::seconds timeout = 0s;
     if(ctl)
     {
         try
         {
             if(_filters)
             {
-                Ice::IdentitySeq ids;
-                Ice::Identity queryId;
-                queryId.category = _database->getInstanceName();
-                queryId.name = "Query";
-                ids.push_back(queryId);
-
-                _servantManager->setSessionControl(session, ctl, ids);
+                Ice::Identity queryId = { "Query", _database->getInstanceName() };
+                _servantManager->setSessionControl(session, ctl, { move(queryId) });
             }
-            timeout = ctl->getSessionTimeout();
+            timeout = chrono::seconds(ctl->getSessionTimeout());
         }
         catch(const Ice::LocalException& e)
         {
@@ -337,39 +327,39 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
         }
     }
 
-    _reaper->add(new SessionReapable<SessionI>(_database->getTraceLevels()->logger, session), timeout);
-    return Glacier2::SessionPrx::uncheckedCast(proxy);
+    _reaper->add(make_shared<SessionReapable<SessionI>>(_database->getTraceLevels()->logger, session), timeout);
+    return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }
 
-SessionIPtr
-ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx&)
+shared_ptr<SessionI>
+ClientSessionFactory::createSessionServant(const string& userId, const shared_ptr<Glacier2::SessionControlPrx>&)
 {
-    return new SessionI(userId, _database, _timer);
+    return make_shared<SessionI>(userId, _database, _timer);
 }
 
-const TraceLevelsPtr&
+const shared_ptr<TraceLevels>&
 ClientSessionFactory::getTraceLevels() const
 {
     return _database->getTraceLevels();
 }
 
-ClientSessionManagerI::ClientSessionManagerI(const ClientSessionFactoryPtr& factory) : _factory(factory)
+ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory)
 {
 }
 
-Glacier2::SessionPrx
-ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current&)
+shared_ptr<Glacier2::SessionPrx>
+ClientSessionManagerI::create(string user, shared_ptr<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
 {
-    return _factory->createGlacier2Session(user, ctl);
+    return _factory->createGlacier2Session(move(user), move(ctl));
 }
 
-ClientSSLSessionManagerI::ClientSSLSessionManagerI(const ClientSessionFactoryPtr& factory) : _factory(factory)
+ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory)
 {
 }
 
-Glacier2::SessionPrx
-ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
-                                 const Glacier2::SessionControlPrx& ctl,
+shared_ptr<Glacier2::SessionPrx>
+ClientSSLSessionManagerI::create(Glacier2::SSLInfo info,
+                                 shared_ptr<Glacier2::SessionControlPrx> ctl,
                                  const Ice::Current&)
 {
     string userDN;
@@ -377,7 +367,7 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
     {
         try
         {
-            IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+            auto cert = IceSSL::Certificate::decode(info.certs[0]);
             userDN = cert->getSubjectDN();
         }
         catch(const Ice::Exception& e)

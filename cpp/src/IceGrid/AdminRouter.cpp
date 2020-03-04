@@ -4,89 +4,73 @@
 
 #include <IceGrid/AdminRouter.h>
 
-using namespace Ice;
 using namespace std;
+using namespace IceGrid;
 
-namespace
-{
-
-class CallbackI : public IceUtil::Shared
-{
-public:
-
-    CallbackI(const AMD_Object_ice_invokePtr& cb, const Ice::ObjectPrx& target, const string& operation,
-              const IceGrid::TraceLevelsPtr& traceLevels) :
-        _cb(cb),
-        _target(target),
-        _operation(operation),
-        _traceLevels(traceLevels)
-    {
-    }
-
-    void response(bool ok, const pair<const Byte*, const Byte*>& outParams)
-    {
-        if(_traceLevels->admin > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-
-            out << "operation `" << _operation << "' routed to `" << Ice::identityToString(_target->ice_getIdentity())
-                << " -f " << _target->ice_getFacet() << "' is returning ";
-            if(ok)
-            {
-                out << "successfully";
-            }
-            else
-            {
-                out << "a user exception";
-            }
-        }
-        _cb->ice_response(ok, outParams);
-    }
-
-    void exception(const Ice::Exception& ex)
-    {
-        if(_traceLevels->admin > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-            out << "operation `" << _operation << "' routed to `" << Ice::identityToString(_target->ice_getIdentity())
-                << " -f " << _target->ice_getFacet() << "' failed with " << ex;
-        }
-        // Admin object is unreachable
-        _cb->ice_exception(ObjectNotExistException(__FILE__, __LINE__));
-    }
-
-private:
-    AMD_Object_ice_invokePtr _cb;
-    Ice::ObjectPrx _target;
-    string _operation;
-    const IceGrid::TraceLevelsPtr _traceLevels;
-};
-
-}
-
-IceGrid::AdminRouter::AdminRouter(const TraceLevelsPtr& traceLevels) :
+IceGrid::AdminRouter::AdminRouter(const shared_ptr<TraceLevels>& traceLevels) :
     _traceLevels(traceLevels)
 {
 }
 
 void
-IceGrid::AdminRouter::invokeOnTarget(const Ice::ObjectPrx& target,
-                                     const AMD_Object_ice_invokePtr& cb,
-                                     const pair<const Byte*, const Byte*>& inParams,
-                                     const Current& current)
+IceGrid::AdminRouter::invokeOnTarget(const shared_ptr<Ice::ObjectPrx>& target,
+                                     const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>&& response,
+                                     function<void(exception_ptr)>&& exception,
+                                     const Ice::Current& current)
 {
-    assert(target != 0);
-
-    //
-    // Call with AMI
-    //
-    Callback_Object_ice_invokePtr amiCb = newCallback_Object_ice_invoke(
-        new CallbackI(cb, target, current.operation, _traceLevels), &CallbackI::response, &CallbackI::exception);
+    assert(target);
 
     if(_traceLevels->admin > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
         out << "routing operation `" << current.operation << "' to `" << target->ice_toString() << "'";
     }
-    target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCb);
+
+    target->ice_invokeAsync(current.operation, current.mode, inParams,
+                            [response, operation = current.operation, traceLevels = _traceLevels, target]
+                            (bool ok, auto bytes)
+                            {
+                                if(traceLevels->admin > 0)
+                                {
+                                    Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
+
+                                    out << "operation `" << operation << "' routed to `"
+                                        << Ice::identityToString(target->ice_getIdentity())
+                                        << " -f " << target->ice_getFacet() << "' is returning ";
+
+                                    if(ok)
+                                    {
+                                        out << "successfully";
+                                    }
+                                    else
+                                    {
+                                        out << "a user exception";
+                                    }
+                                }
+
+                                response(move(ok), move(bytes));
+                            },
+                            [exception, operation = current.operation, traceLevels = _traceLevels, target]
+                            (exception_ptr exptr)
+                            {
+                                if(traceLevels->admin > 0)
+                                {
+                                    Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
+                                    try
+                                    {
+                                        rethrow_exception(exptr);
+                                    }
+                                    catch(const std::exception& ex)
+                                    {
+                                        out << "operation `" << operation << "' routed to `"
+                                            << Ice::identityToString(target->ice_getIdentity())
+                                            << " -f " << target->ice_getFacet() << "' failed with " << ex;
+                                    }
+                                }
+
+                                exception(exptr);
+                            },
+                            nullptr,
+                            current.ctx);
 }

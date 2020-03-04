@@ -5,7 +5,6 @@
 #ifndef ICE_GRID_OBJECTCACHE_H
 #define ICE_GRID_OBJECTCACHE_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>
@@ -15,12 +14,12 @@ namespace IceGrid
 
 class ObjectCache;
 
-class ObjectEntry : public IceUtil::Shared
+class ObjectEntry
 {
 public:
 
     ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
-    Ice::ObjectPrx getProxy() const;
+    std::shared_ptr<Ice::ObjectPrx> getProxy() const;
     std::string getType() const;
     std::string getApplication() const;
     std::string getServer() const;
@@ -34,24 +33,23 @@ private:
     const std::string _application;
     const std::string _server;
 };
-typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
 
 class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
 {
 public:
 
-    ObjectCache(const Ice::CommunicatorPtr&);
+    ObjectCache(const std::shared_ptr<Ice::Communicator>&);
 
     void add(const ObjectInfo&, const std::string&, const std::string&);
-    ObjectEntryPtr get(const Ice::Identity&) const;
+    std::shared_ptr<ObjectEntry> get(const Ice::Identity&) const;
     void remove(const Ice::Identity&);
 
-    std::vector<ObjectEntryPtr> getObjectsByType(const std::string&);
+    std::vector<std::shared_ptr<ObjectEntry>> getObjectsByType(const std::string&);
 
     ObjectInfoSeq getAll(const std::string&);
     ObjectInfoSeq getAllByType(const std::string&);
 
-    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
 
 private:
 
@@ -59,22 +57,19 @@ private:
     {
     public:
 
-        TypeEntry();
+        void add(const std::shared_ptr<ObjectEntry>&);
+        bool remove(const std::shared_ptr<ObjectEntry>&);
 
-        void add(const ObjectEntryPtr&);
-        bool remove(const ObjectEntryPtr&);
-
-        const std::vector<ObjectEntryPtr>& getObjects() const { return _objects; }
+        const std::vector<std::shared_ptr<ObjectEntry>>& getObjects() const { return _objects; }
 
     private:
 
-        std::vector<ObjectEntryPtr> _objects;
+        std::vector<std::shared_ptr<ObjectEntry>> _objects;
     };
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     std::map<std::string, TypeEntry> _types;
 
-    static std::pointer_to_unary_function<int, unsigned int> _rand;
 };
 
 };

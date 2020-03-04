@@ -5,27 +5,25 @@
 #ifndef ICE_GRID_FILE_CACHE_H
 #define ICE_GRID_FILE_CACHE_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/CommunicatorF.h>
 
 namespace IceGrid
 {
 
-class FileCache : public IceUtil::Shared
+class FileCache
 {
 public:
 
-    FileCache(const Ice::CommunicatorPtr&);
+    FileCache(const std::shared_ptr<Ice::Communicator>&);
 
-    Ice::Long getOffsetFromEnd(const std::string&, int);
-    bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&);
+    long long  getOffsetFromEnd(const std::string&, int);
+    bool read(const std::string&, long long , int, long long &, Ice::StringSeq&);
 
 private:
 
     const int _messageSizeMax;
 };
-typedef IceUtil::Handle<FileCache> FileCachePtr;
 
 };
 

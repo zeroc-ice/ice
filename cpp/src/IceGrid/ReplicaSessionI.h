@@ -12,60 +12,62 @@ namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
-class WellKnownObjectsManager;
-typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
-
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+class WellKnownObjectsManager;
 
-class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
+class ReplicaSessionI final : public ReplicaSession
 {
 public:
 
-    ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const InternalReplicaInfoPtr&,
-                    const InternalRegistryPrx&, int);
+    static std::shared_ptr<ReplicaSessionI> create(const std::shared_ptr<Database>&,
+                                                   const std::shared_ptr<WellKnownObjectsManager>&,
+                                                   const std::shared_ptr<InternalReplicaInfo>&,
+                                                   const std::shared_ptr<InternalRegistryPrx>&,
+                                                   std::chrono::seconds);
 
-    virtual void keepAlive(const Ice::Current&);
-    virtual int getTimeout(const Ice::Current&) const;
-    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const IceUtil::Optional<StringLongDict>&,
-                                     const Ice::Current&);
-    virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
-    virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
-    virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&,
-                                       const Ice::Current&);
-    virtual void receivedUpdate(TopicName, int, const std::string&, const Ice::Current&);
-    virtual void destroy(const Ice::Current&);
+    void keepAlive(const Ice::Current&) override;
+    int getTimeout(const Ice::Current&) const override;
+    void setDatabaseObserver(std::shared_ptr<DatabaseObserverPrx>, IceUtil::Optional<StringLongDict>,
+                             const Ice::Current&) override;
+    void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
+    void registerWellKnownObjects(ObjectInfoSeq, const Ice::Current&) override;
+    void setAdapterDirectProxy(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
+    void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
+    void destroy(const Ice::Current&) override;
 
-    virtual IceUtil::Time timestamp() const;
-    virtual void shutdown();
+    std::chrono::steady_clock::time_point timestamp() const;
+    void shutdown();
 
-    const InternalRegistryPrx& getInternalRegistry() const;
-    const InternalReplicaInfoPtr& getInfo() const;
-    ReplicaSessionPrx getProxy() const;
+    const std::shared_ptr<InternalRegistryPrx>& getInternalRegistry() const;
+    const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
+    std::shared_ptr<ReplicaSessionPrx> getProxy() const;
 
-    Ice::ObjectPrx getEndpoint(const std::string&);
+    std::shared_ptr<Ice::ObjectPrx> getEndpoint(const std::string&);
     bool isDestroyed() const;
 
 private:
 
+    ReplicaSessionI(const std::shared_ptr<Database>&, const std::shared_ptr<WellKnownObjectsManager>&,
+                    const std::shared_ptr<InternalReplicaInfo>&, const std::shared_ptr<InternalRegistryPrx>&,
+                    std::chrono::seconds);
+
     void destroyImpl(bool);
 
-    const DatabasePtr _database;
-    const WellKnownObjectsManagerPtr _wellKnownObjects;
-    const TraceLevelsPtr _traceLevels;
-    const InternalRegistryPrx _internalRegistry;
-    const InternalReplicaInfoPtr _info;
-    const int _timeout;
-    ReplicaSessionPrx _proxy;
-    DatabaseObserverPrx _observer;
+    const std::shared_ptr<Database> _database;
+    const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
+    const std::shared_ptr<TraceLevels> _traceLevels;
+    const std::shared_ptr<InternalRegistryPrx> _internalRegistry;
+    const std::shared_ptr<InternalReplicaInfo> _info;
+    const std::chrono::seconds _timeout;
+    std::shared_ptr<ReplicaSessionPrx> _proxy;
+    std::shared_ptr<DatabaseObserverPrx> _observer;
     ObjectInfoSeq _replicaWellKnownObjects;
     StringObjectProxyDict _replicaEndpoints;
-    IceUtil::Time _timestamp;
+    std::chrono::steady_clock::time_point _timestamp;
     bool _destroy;
+
+    mutable std::mutex _mutex;
 };
-typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
 
 };
 

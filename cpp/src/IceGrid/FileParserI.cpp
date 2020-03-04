@@ -11,12 +11,12 @@ using namespace std;
 using namespace IceGrid;
 
 ApplicationDescriptor
-FileParserI::parse(const string& file, const AdminPrx& admin, const Ice::Current& current)
+FileParserI::parse(string file, shared_ptr<AdminPrx> admin, const Ice::Current& current)
 {
     try
     {
-        return DescriptorParser::parseDescriptor(file, Ice::StringSeq(), map<string, string>(),
-                                                 current.adapter->getCommunicator(), admin);
+        return DescriptorParser::parseDescriptor(move(file), Ice::StringSeq(), map<string, string>(),
+                                                 current.adapter->getCommunicator(), move(admin));
     }
     catch(const IceXML::ParserException& e)
     {

@@ -5,7 +5,6 @@
 #ifndef ICE_GRID_ALLOCATABLEOBJECTCACHE_H
 #define ICE_GRID_ALLOCATABLEOBJECTCACHE_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Admin.h>
@@ -14,77 +13,73 @@
 namespace IceGrid
 {
 
-class ServerEntry;
-typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
-
 class AllocatableObjectCache;
+class ServerEntry;
 
 class AllocatableObjectEntry : public Allocatable
 {
 public:
 
-    AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const ServerEntryPtr&);
-    Ice::ObjectPrx getProxy() const;
+    AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
+    std::shared_ptr<Ice::ObjectPrx> getProxy() const;
     std::string getType() const;
 
     bool canRemove();
 
-    virtual bool isEnabled() const;
-    virtual void allocated(const SessionIPtr&);
-    virtual void released(const SessionIPtr&);
-    virtual bool canTryAllocate();
+    bool isEnabled() const override;
+    void allocated(const std::shared_ptr<SessionI>&) override;
+    void released(const std::shared_ptr<SessionI>&) override;
+    bool canTryAllocate() override;
 
     void  destroy();
-    virtual void checkAllocatable();
+    void checkAllocatable() override;
 
 private:
 
     AllocatableObjectCache& _cache;
     const ObjectInfo _info;
-    ServerEntryPtr _server;
+    std::shared_ptr<ServerEntry> _server;
     bool _destroyed;
 };
-typedef IceUtil::Handle<AllocatableObjectEntry> AllocatableObjectEntryPtr;
 
 class ObjectAllocationRequest : public AllocationRequest
 {
 public:
 
-    ObjectAllocationRequest(const SessionIPtr& session) : AllocationRequest(session) { }
+    ObjectAllocationRequest(const std::shared_ptr<SessionI>& session) : AllocationRequest(session)
+    {
+    }
 
-    virtual void response(const Ice::ObjectPrx&) = 0;
-    virtual void exception(const Ice::UserException&) = 0;
+    virtual void response(const std::shared_ptr<Ice::ObjectPrx>&) = 0;
+    virtual void exception(std::exception_ptr) = 0;
 
 private:
 
-    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& /*session*/)
+    void allocated(const std::shared_ptr<Allocatable>& allocatable, const std::shared_ptr<SessionI>&) override
     {
-        response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
+        response(std::dynamic_pointer_cast<AllocatableObjectEntry>(allocatable)->getProxy());
     }
 
-    virtual void canceled(const Ice::UserException& ex)
+    void canceled(std::exception_ptr ex) override
     {
         exception(ex);
     }
 };
-typedef IceUtil::Handle<ObjectAllocationRequest> ObjectAllocationRequestPtr;
-
-class AdapterCache;
 
 class AllocatableObjectCache : public Cache<Ice::Identity, AllocatableObjectEntry>
 {
 public:
 
-    AllocatableObjectCache(const Ice::CommunicatorPtr&);
+    AllocatableObjectCache(const std::shared_ptr<Ice::Communicator>&);
 
-    void add(const ObjectInfo&, const ServerEntryPtr&);
-    AllocatableObjectEntryPtr get(const Ice::Identity&) const;
+    void add(const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
+    std::shared_ptr<AllocatableObjectEntry> get(const Ice::Identity&) const;
     void remove(const Ice::Identity&);
 
-    void allocateByType(const std::string&, const ObjectAllocationRequestPtr&);
-    bool canTryAllocate(const AllocatableObjectEntryPtr&);
+    void allocateByType(const std::string&, const std::shared_ptr<ObjectAllocationRequest>&);
+    bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&);
 
-    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    const std::shared_ptr<Ice::Communicator>& getCommunicator() const { return _communicator; }
 
 private:
 
@@ -92,23 +87,21 @@ private:
     {
     public:
 
-        TypeEntry();
+        void add(const std::shared_ptr<AllocatableObjectEntry>&);
+        bool remove(const std::shared_ptr<AllocatableObjectEntry>&);
 
-        void add(const AllocatableObjectEntryPtr&);
-        bool remove(const AllocatableObjectEntryPtr&);
+        void addAllocationRequest(const std::shared_ptr<ObjectAllocationRequest>&);
+        bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&, bool);
 
-        void addAllocationRequest(const ObjectAllocationRequestPtr&);
-        bool canTryAllocate(const AllocatableObjectEntryPtr&, bool);
-
-        const std::vector<AllocatableObjectEntryPtr>& getObjects() const { return _objects; }
+        const std::vector<std::shared_ptr<AllocatableObjectEntry>>& getObjects() const { return _objects; }
 
     private:
 
-        std::vector<AllocatableObjectEntryPtr> _objects;
-        std::list<ObjectAllocationRequestPtr> _requests;
+        std::vector<std::shared_ptr<AllocatableObjectEntry>> _objects;
+        std::list<std::shared_ptr<ObjectAllocationRequest>> _requests;
     };
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     std::map<std::string, TypeEntry> _types;
     std::map<std::string, std::vector<Ice::Identity> > _allocatablesByType;
 };

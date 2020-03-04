@@ -5,50 +5,52 @@
 #ifndef ICE_GRID_SERVER_ADAPTER_I_H
 #define ICE_GRID_SERVER_ADAPTER_I_H
 
-#include <IceUtil/Mutex.h>
 #include <IceGrid/Internal.h>
 
 namespace IceGrid
 {
 
 class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;
-
 class ServerI;
 
-class ServerAdapterI : public Adapter, public IceUtil::Mutex
+class ServerAdapterI : public Adapter
 {
 public:
 
-    ServerAdapterI(const NodeIPtr&, ServerI*, const std::string&, const AdapterPrx&, const std::string&, bool);
-    virtual ~ServerAdapterI();
+    ServerAdapterI(const std::shared_ptr<NodeI>&, ServerI*, const std::string&,
+                   const std::shared_ptr<AdapterPrx>&, const std::string&, bool);
+    ~ServerAdapterI() override;
 
-    virtual void activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&);
-    virtual Ice::ObjectPrx getDirectProxy(const Ice::Current&) const;
-    virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    void activateAsync(std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                       std::function<void(std::exception_ptr)>,
+                       const Ice::Current&) override;
+    std::shared_ptr<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) const override;
+    void setDirectProxy(std::shared_ptr<Ice::ObjectPrx>, const ::Ice::Current&) override;
+
     void destroy();
     void updateEnabled();
     void clear();
     void activationFailed(const std::string&);
     void activationCompleted();
 
-    AdapterPrx getProxy() const;
+    std::shared_ptr<AdapterPrx> getProxy() const;
 
 private:
 
-    const NodeIPtr _node;
-    const AdapterPrx _this;
+    const std::shared_ptr<NodeI> _node;
+    const std::shared_ptr<AdapterPrx> _this;
     const std::string _serverId;
     const std::string _id;
     const std::string _replicaId;
     ServerI* _server;
 
-    Ice::ObjectPrx _proxy;
+    std::shared_ptr<Ice::ObjectPrx> _proxy;
     bool _enabled;
-    std::vector<AMD_Adapter_activatePtr> _activateCB;
+    std::vector<std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>> _activateCB;
     bool _activateAfterDeactivating;
+
+    mutable std::mutex _mutex;
 };
-typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;
 
 }
 

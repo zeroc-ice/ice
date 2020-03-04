@@ -588,17 +588,18 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server2") == IceGrid::ServerState::Inactive);
         auto obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server2"));
+        obj = obj->ice_locatorCacheTimeout(0);
         while(true)
         {
             obj->ice_ping();
             waitForServerState(admin, "server2", IceGrid::ServerState::Active);
-            auto now = std::chrono::system_clock::now();
+            auto now = std::chrono::steady_clock::now();
             obj->fail();
             waitForServerState(admin, "server2", IceGrid::ServerState::Inactive);
             try
             {
                 obj->ice_ping();
-                test(chrono::system_clock::now() - now >= 2s);
+                test(chrono::steady_clock::now() - now >= 2s);
             }
             catch(const Ice::NoEndpointException&)
             {

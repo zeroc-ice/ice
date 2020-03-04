@@ -62,6 +62,9 @@ static_excludes         = test/Ice/library test/Ice/plugin
 cpp98_projects          = %
 cpp98_excludes          = glacier2router \
                           icebridge \
+                          icegridnode icegridregistry icegridadmin  icegriddb \
+                          IceStormService icestormadmin icestormdb \
+                          IceXML \
                           test/Glacier2/% \
                           test/IceBridge/% \
                           test/IceGrid/% \
@@ -70,7 +73,13 @@ cpp98_excludes          = glacier2router \
 #
 # Components and projects which are built with C++11
 #
-cpp11_components        = $(coreandstub_components) glacier2router Glacier2CryptPermissionsVerifier icebox icebridge
+cpp11_components        = $(coreandstub_components) \
+                          glacier2router Glacier2CryptPermissionsVerifier \
+                          icebox icebridge \
+                          IceDB \
+                          IceXML \
+                          icegridnode icegridregistry icegridadmin icegriddb \
+                          IceStormService icestormadmin icestormdb \
 
 cpp11_projects          = test/Common \
                           test/IceUtil/% \
@@ -79,6 +88,7 @@ cpp11_projects          = test/Common \
                           test/IceSSL/% \
                           test/IceDiscovery/% \
                           test/IceBox/% \
+                          test/IceGrid/% \
                           test/IceStorm/% \
                           test/Glacier2/% \
                           test/IceGrid/% \

@@ -54,7 +54,9 @@ public:
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual IceUtil::Exception* ice_cloneImpl() const;
+#else
     virtual LMDBException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -82,7 +84,9 @@ public:
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual IceUtil::Exception* ice_cloneImpl() const;
+#else
     virtual KeyTooLongException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -108,7 +112,9 @@ public:
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual IceUtil::Exception* ice_cloneImpl() const;
+#else
     virtual BadEnvException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -221,7 +227,6 @@ protected:
 
     DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
     DbiBase();
-    ~DbiBase();
 
     // default copy ctor and assignment operator are OK
 
@@ -247,10 +252,6 @@ public:
     }
 
     Dbi()
-    {
-    }
-
-    ~Dbi()
     {
     }
 

@@ -77,8 +77,8 @@ public:
             add("service", &SubscriberHelper::getService);
 
             add("identity", &SubscriberHelper::getIdentity);
-            add("facet", &SubscriberHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
-            add("encoding", &SubscriberHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
+            add("facet", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getFacet);
+            add("encoding", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getEncodingVersion);
             add("mode", &SubscriberHelper::getMode);
             add("proxy", &SubscriberHelper::getProxy);
             add("link", &SubscriberHelper::_link);
@@ -89,13 +89,13 @@ public:
     };
     static Attributes attributes;
 
-    SubscriberHelper(const string& svc, const string& topic, const ::Ice::ObjectPrx& proxy, const IceStorm::QoS& qos,
-                     const IceStorm::TopicPrx& link, SubscriberState state) :
-        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(link), _state(state)
+    SubscriberHelper(const string& svc, const string& topic, const shared_ptr<Ice::ObjectPrx>& proxy,
+                     const IceStorm::QoS& qos, shared_ptr<IceStorm::TopicPrx> link, SubscriberState state) :
+        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(move(link)), _state(state)
     {
     }
 
-    virtual string operator()(const string& attribute) const
+    string operator()(const string& attribute) const override
     {
         return attributes(this, attribute);
     }
@@ -175,7 +175,7 @@ public:
         return _id;
     }
 
-    const ::Ice::ObjectPrx&
+    const shared_ptr<Ice::ObjectPrx>&
     getProxy() const
     {
         return _proxy;
@@ -186,11 +186,11 @@ public:
     {
         switch(_state)
         {
-        case SubscriberStateOnline:
+        case SubscriberState::SubscriberStateOnline:
             return "online";
-        case SubscriberStateOffline:
+        case SubscriberState::SubscriberStateOffline:
             return "offline";
-        case SubscriberStateError:
+        case SubscriberState::SubscriberStateError:
             return "error";
         default:
             assert(false);
@@ -208,9 +208,9 @@ private:
 
     const string& _service;
     const string& _topic;
-    const ::Ice::ObjectPrx& _proxy;
+    const shared_ptr<Ice::ObjectPrx>& _proxy;
     const IceStorm::QoS& _qos;
-    const IceStorm::TopicPrx _link;
+    const shared_ptr<IceStorm::TopicPrx> _link;
     const SubscriberState _state;
     mutable string _id;
 };
@@ -240,7 +240,7 @@ struct QueuedUpdate
     {
     }
 
-    void operator()(const SubscriberMetricsPtr& v)
+    void operator()(const shared_ptr<SubscriberMetrics>& v)
     {
         v->queued += count;
     }
@@ -264,7 +264,7 @@ struct OutstandingUpdate
     {
     }
 
-    void operator()(const SubscriberMetricsPtr& v)
+    void operator()(const shared_ptr<SubscriberMetrics>& v)
     {
         if(v->queued > 0)
         {
@@ -293,7 +293,7 @@ struct DeliveredUpdate
     {
     }
 
-    void operator()(const SubscriberMetricsPtr& v)
+    void operator()(const shared_ptr<SubscriberMetrics>& v)
     {
         if(v->outstanding > 0)
         {
@@ -313,7 +313,7 @@ SubscriberObserverI::delivered(int count)
     forEach(DeliveredUpdate(count));
 }
 
-TopicManagerObserverI::TopicManagerObserverI(const IceInternal::MetricsAdminIPtr& metrics) :
+TopicManagerObserverI::TopicManagerObserverI(const shared_ptr<IceInternal::MetricsAdminI>& metrics) :
     _metrics(metrics),
     _topics(metrics, "Topic"),
     _subscribers(metrics, "Subscriber")
@@ -321,14 +321,14 @@ TopicManagerObserverI::TopicManagerObserverI(const IceInternal::MetricsAdminIPtr
 }
 
 void
-TopicManagerObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
+TopicManagerObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& updater)
 {
     _topics.setUpdater(newUpdater(updater, &ObserverUpdater::updateTopicObservers));
     _subscribers.setUpdater(newUpdater(updater, &ObserverUpdater::updateSubscriberObservers));
 }
 
-TopicObserverPtr
-TopicManagerObserverI::getTopicObserver(const string& service, const string& topic, const TopicObserverPtr& old)
+shared_ptr<TopicObserver>
+TopicManagerObserverI::getTopicObserver(const string& service, const string& topic, const shared_ptr<TopicObserver>& old)
 {
     if(_topics.isEnabled())
     {
@@ -338,21 +338,21 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
         }
         catch(const exception& ex)
         {
-            ::Ice::Error error(_metrics->getLogger());
+            Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return 0;
+    return nullptr;
 }
 
-SubscriberObserverPtr
+shared_ptr<SubscriberObserver>
 TopicManagerObserverI::getSubscriberObserver(const string& svc,
                                              const string& topic,
-                                             const ::Ice::ObjectPrx& proxy,
+                                             const shared_ptr<Ice::ObjectPrx>& proxy,
                                              const IceStorm::QoS& qos,
-                                             const IceStorm::TopicPrx& link,
+                                             const shared_ptr<IceStorm::TopicPrx>& link,
                                              SubscriberState state,
-                                             const SubscriberObserverPtr& old)
+                                             const shared_ptr<SubscriberObserver>& old)
 {
     if(_subscribers.isEnabled())
     {
@@ -362,9 +362,9 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
         }
         catch(const exception& ex)
         {
-            ::Ice::Error error(_metrics->getLogger());
+            Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return 0;
+    return nullptr;
 }

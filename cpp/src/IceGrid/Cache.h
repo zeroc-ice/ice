@@ -5,29 +5,26 @@
 #ifndef ICE_GRID_CACHE_H
 #define ICE_GRID_CACHE_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/TraceLevels.h>
+
+#include <mutex>
 
 namespace IceGrid
 {
 
-class SynchronizationCallback : public virtual IceUtil::Shared
+class SynchronizationCallback
 {
 public:
-
     virtual void synchronized() = 0;
-
-    virtual void synchronized(const Ice::Exception&) = 0;
+    virtual void synchronized(std::exception_ptr) = 0;
 };
-typedef IceUtil::Handle<SynchronizationCallback> SynchronizationCallbackPtr;
 
 template<typename Key, typename Value>
-class Cache : public IceUtil::Monitor<IceUtil::Mutex>
+class Cache
 {
-    typedef IceUtil::Handle<Value> ValuePtr;
-    typedef std::map<Key, ValuePtr> ValueMap;
+    using ValueType = std::shared_ptr<Value>;
+    using ValueMap = std::map<Key, ValueType>;
 
 public:
 
@@ -35,39 +32,36 @@ public:
     {
     }
 
-    virtual
-    ~Cache()
-    {
-    }
+    virtual ~Cache() = default;
 
     bool
     has(const Key& key) const
     {
-        Lock sync(*this);
-        return getImpl(key);
+        std::lock_guard<std::mutex> lock(_mutex);
+        return getImpl(key) != nullptr;
     }
 
     void
     remove(const Key& key)
     {
-        Lock sync(*this);
+        std::lock_guard<std::mutex> lock(_mutex);
         removeImpl(key);
     }
 
     void
-    setTraceLevels(const TraceLevelsPtr& traceLevels)
+    setTraceLevels(const std::shared_ptr<TraceLevels>& traceLevels)
     {
         _traceLevels = traceLevels;
     }
 
-    const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
+    const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
 
 protected:
 
-    virtual ValuePtr
+    virtual ValueType
     getImpl(const Key& key) const
     {
-        typename ValueMap::iterator p = const_cast<ValueMap&>(_entries).end();
+        auto p = const_cast<ValueMap&>(_entries).end();
         if(_entriesHint != p)
         {
             if(_entriesHint->first == key)
@@ -88,22 +82,21 @@ protected:
         }
         else
         {
-            return 0;
+            return nullptr;
         }
     }
 
-    virtual ValuePtr
-    addImpl(const Key& key, const ValuePtr& entry)
+    virtual ValueType
+    addImpl(const Key& key, const ValueType& entry)
     {
-        typename ValueMap::value_type v(key, entry);
-        _entriesHint = _entries.insert(_entriesHint, v);
+        _entriesHint = _entries.insert(_entriesHint, { key, entry });
         return entry;
     }
 
     virtual void
     removeImpl(const Key& key)
     {
-        typename ValueMap::iterator p = _entries.end();
+        auto p = _entries.end();
         if(_entriesHint != _entries.end())
         {
             if(_entriesHint->first == key)
@@ -129,23 +122,24 @@ protected:
         }
     }
 
-    TraceLevelsPtr _traceLevels;
+    std::shared_ptr<TraceLevels> _traceLevels;
     ValueMap _entries;
     typename ValueMap::iterator _entriesHint;
+
+    mutable std::mutex _mutex;
+    std::condition_variable _condVar;
 };
 
 template<typename T>
 class CacheByString : public Cache<std::string, T>
 {
-    typedef IceUtil::Handle<T> TPtr;
-
 public:
 
-    virtual std::vector<std::string>
+    std::vector<std::string>
     getAll(const std::string& expr)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        return getMatchingKeys<std::map<std::string,TPtr> >(Cache<std::string, T>::_entries, expr);
+        std::lock_guard<std::mutex> lock(Cache<std::string, T>::_mutex);
+        return getMatchingKeys<std::map<std::string, std::shared_ptr<T>>>(Cache<std::string, T>::_entries, expr);
     }
 };
 

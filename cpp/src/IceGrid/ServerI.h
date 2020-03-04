@@ -5,10 +5,11 @@
 #ifndef ICE_GRID_SERVER_I_H
 #define ICE_GRID_SERVER_I_H
 
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Internal.h>
+
+#include <optional>
 #include <set>
 
 #ifndef _WIN32
@@ -19,21 +20,14 @@ namespace IceGrid
 {
 
 class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;
 class ServerAdapterI;
-typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;
 class ServerCommand;
-typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
 class DestroyCommand;
-typedef IceUtil::Handle<DestroyCommand> DestroyCommandPtr;
 class StopCommand;
-typedef IceUtil::Handle<StopCommand> StopCommandPtr;
 class StartCommand;
-typedef IceUtil::Handle<StartCommand> StartCommandPtr;
 class LoadCommand;
-typedef IceUtil::Handle<LoadCommand> LoadCommandPtr;
 
-class ServerI : public Server, public IceUtil::Monitor<IceUtil::Mutex>
+class ServerI final : public Server, public std::enable_shared_from_this<ServerI>
 {
 public:
 
@@ -67,34 +61,37 @@ public:
 #   pragma clang diagnostic pop
 #endif
 
-    ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
-    virtual ~ServerI();
+    ServerI(const std::shared_ptr<NodeI>&, const std::shared_ptr<ServerPrx>&,
+            const std::string&, const std::string&, int);
 
-    void waitForApplicationUpdateCompleted(const Ice::AsyncResultPtr&);
+    void waitForApplicationUpdateCompleted();
 
-    virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
-    virtual void stop_async(const AMD_Server_stopPtr&, const ::Ice::Current&);
-    virtual void sendSignal(const std::string&, const ::Ice::Current&);
-    virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
+    void startAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void stopAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void sendSignal(std::string, const Ice::Current&) override;
+    void writeMessage(std::string, int, const Ice::Current&) override;
 
-    virtual ServerState getState(const ::Ice::Current&) const;
-    virtual Ice::Int getPid(const ::Ice::Current&) const;
+    ServerState getState(const Ice::Current&) const override;
+    int getPid(const Ice::Current&) const override;
 
-    virtual void setEnabled(bool, const ::Ice::Current&);
-    virtual bool isEnabled(const ::Ice::Current&) const;
-    virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
+    void setEnabled(bool, const Ice::Current&) override;
+    bool isEnabled(const Ice::Current&) const override;
+    void setProcessAsync(std::shared_ptr<Ice::ProcessPrx>, std::function<void()>,
+                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
-    virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
+    long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, long long, int, long long&, Ice::StringSeq&, const Ice::Current&) const override;
 
     bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;
 
-    void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
-    ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool);
-    bool checkUpdate(const InternalServerDescriptorPtr&, bool, const Ice::Current&);
+    void start(ServerActivation, std::function<void()> = nullptr, std::function<void(std::exception_ptr)> = nullptr);
+    std::shared_ptr<ServerCommand> load(const std::shared_ptr<InternalServerDescriptor>&, const std::string&, bool,
+                          std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>,
+                          std::function<void(std::exception_ptr)>);
+    bool checkUpdate(std::shared_ptr<InternalServerDescriptor>, bool, const Ice::Current&) override;
     void checkRemove(bool, const Ice::Current&);
-    ServerCommandPtr destroy(const AMD_Node_destroyServerPtr&, const std::string&, int, const std::string&, bool);
+    std::shared_ptr<ServerCommand> destroy(const std::string&, int, const std::string &, bool, std::function<void()>);
 
     void adapterActivated(const std::string&);
     void adapterDeactivated(const std::string&);
@@ -111,26 +108,26 @@ public:
     //
     // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
     //
-    Ice::ObjectPrx getProcess() const;
+    std::shared_ptr<Ice::ObjectPrx> getProcess() const;
 
-    PropertyDescriptorSeqDict getProperties(const InternalServerDescriptorPtr&);
+    PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);
 
-    void updateRuntimePropertiesCallback(const InternalServerDescriptorPtr&);
-    void updateRuntimePropertiesCallback(const Ice::Exception&, const InternalServerDescriptorPtr&);
+    void updateRuntimePropertiesCallback(const std::shared_ptr<InternalServerDescriptor>&);
+    void updateRuntimePropertiesCallback(std::exception_ptr, const std::shared_ptr<InternalServerDescriptor>&);
 
 private:
 
-    void updateImpl(const InternalServerDescriptorPtr&);
+    void updateImpl(const std::shared_ptr<InternalServerDescriptor>&);
     void checkRevision(const std::string&, const std::string&, int) const;
-    void checkNoRestart(const InternalServerDescriptorPtr&);
-    void checkAndUpdateUser(const InternalServerDescriptorPtr&, bool);
+    void checkNoRestart(const std::shared_ptr<InternalServerDescriptor>&);
+    void checkAndUpdateUser(const std::shared_ptr<InternalServerDescriptor>&, bool);
     void updateRevision(const std::string&, int);
     bool checkActivation();
     void checkDestroyed() const;
     void disableOnFailure();
 
     void setState(InternalServerState, const std::string& = std::string());
-    ServerCommandPtr nextCommand();
+    std::shared_ptr<ServerCommand> nextCommand();
     void setStateNoSync(InternalServerState, const std::string& = std::string());
 
     ServerState toServerState(InternalServerState) const;
@@ -138,66 +135,68 @@ private:
     ServerDynamicInfo getDynamicInfo() const;
     std::string getFilePath(const std::string&) const;
 
-    const NodeIPtr _node;
-    const ServerPrx _this;
+    const std::shared_ptr<NodeI> _node;
+    const std::shared_ptr<ServerPrx> _this;
     const std::string _id;
-    const Ice::Int _waitTime;
+    const std::chrono::seconds _waitTime;
     const std::string _serverDir;
-    const int _disableOnFailure;
+    const std::chrono::seconds _disableOnFailure;
 
-    InternalServerDescriptorPtr _desc;
+    std::shared_ptr<InternalServerDescriptor> _desc;
 #ifndef _WIN32
     uid_t _uid;
     gid_t _gid;
 #endif
     InternalServerState _state;
     ServerActivation _activation;
-    int _activationTimeout;
-    int _deactivationTimeout;
-    typedef std::map<std::string, ServerAdapterIPtr> ServerAdapterDict;
+    std::chrono::seconds _activationTimeout;
+    std::chrono::seconds _deactivationTimeout;
+    using ServerAdapterDict = std::map<std::string, std::shared_ptr<ServerAdapterI>> ;
     ServerAdapterDict _adapters;
     std::set<std::string> _serverLifetimeAdapters;
-    Ice::ProcessPrx _process;
+    std::shared_ptr<Ice::ProcessPrx> _process;
     std::set<std::string> _activatedAdapters;
-    IceUtil::Time _failureTime;
+    std::optional<std::chrono::steady_clock::time_point> _failureTime;
     ServerActivation _previousActivation;
-    IceUtil::TimerTaskPtr _timerTask;
+    std::shared_ptr<IceUtil::TimerTask>_timerTask;
     bool _waitForReplication;
     std::string _stdErrFile;
     std::string _stdOutFile;
     Ice::StringSeq _logs;
     PropertyDescriptorSeq _properties;
 
-    DestroyCommandPtr _destroy;
-    StopCommandPtr _stop;
-    LoadCommandPtr _load;
-    StartCommandPtr _start;
+    std::shared_ptr<DestroyCommand> _destroy;
+    std::shared_ptr<StopCommand> _stop;
+    std::shared_ptr<LoadCommand> _load;
+    std::shared_ptr<StartCommand> _start;
 
     int _pid;
-};
-typedef IceUtil::Handle<ServerI> ServerIPtr;
 
-class ServerCommand : public IceUtil::SimpleShared
+    mutable std::mutex _mutex;
+    std::condition_variable _condVar;
+};
+
+class ServerCommand
 {
 public:
 
-    ServerCommand(const ServerIPtr&);
-    virtual ~ServerCommand();
+    ServerCommand(const std::shared_ptr<ServerI>&);
+    virtual ~ServerCommand() = default;
 
+    virtual bool canExecute(ServerI::InternalServerState) = 0;
     virtual void execute() = 0;
     virtual ServerI::InternalServerState nextState() = 0;
 
 protected:
 
-    const ServerIPtr _server;
+    const std::shared_ptr<ServerI> _server;
 };
-typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
 
-class TimedServerCommand : public ServerCommand
+class TimedServerCommand : public ServerCommand, public std::enable_shared_from_this<TimedServerCommand>
 {
 public:
 
-    TimedServerCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
+    TimedServerCommand(const std::shared_ptr<ServerI>&, const IceUtil::TimerPtr&, std::chrono::seconds);
     virtual void timeout() = 0;
 
     void startTimer();
@@ -206,22 +205,21 @@ public:
 private:
 
     IceUtil::TimerPtr _timer;
-    IceUtil::TimerTaskPtr _timerTask;
-    int _timeout;
+    std::shared_ptr<IceUtil::TimerTask> _timerTask;
+    std::chrono::seconds _timeout;
 };
-typedef IceUtil::Handle<TimedServerCommand> TimedServerCommandPtr;
 
 class DestroyCommand : public ServerCommand
 {
 public:
 
-    DestroyCommand(const ServerIPtr&, bool, bool);
+    DestroyCommand(const std::shared_ptr<ServerI>&, bool, bool);
 
-    bool canExecute(ServerI::InternalServerState);
-    ServerI::InternalServerState nextState();
-    void execute();
+    bool canExecute(ServerI::InternalServerState) override;
+    ServerI::InternalServerState nextState() override;
+    void execute() override;
 
-    void addCallback(const AMD_Node_destroyServerPtr&);
+    void addCallback(std::function<void()>);
     void finished();
     bool loadFailure() const;
     bool clearDir() const;
@@ -230,29 +228,30 @@ private:
 
     const bool _loadFailure;
     const bool _clearDir;
-    std::vector<AMD_Node_destroyServerPtr> _destroyCB;
+    std::vector<std::function<void()>> _destroyCB;
 };
 
 class StopCommand : public TimedServerCommand
 {
 public:
 
-    StopCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int, bool = true);
+    StopCommand(const std::shared_ptr<ServerI>&, const IceUtil::TimerPtr&, std::chrono::seconds,
+                bool = true);
 
     static bool isStopped(ServerI::InternalServerState);
 
-    bool canExecute(ServerI::InternalServerState);
-    ServerI::InternalServerState nextState();
-    void execute();
-    void timeout();
+    bool canExecute(ServerI::InternalServerState) override;
+    ServerI::InternalServerState nextState() override;
+    void execute() override;
+    void timeout() override;
 
-    void addCallback(const AMD_Server_stopPtr&);
+    void addCallback(std::function<void()>, std::function<void(std::exception_ptr)>);
     void failed(const std::string& reason);
     void finished();
 
 private:
 
-    std::vector<AMD_Server_stopPtr> _stopCB;
+    std::vector<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> _stopCB;
     bool _deactivate;
 };
 
@@ -260,50 +259,53 @@ class StartCommand : public TimedServerCommand
 {
 public:
 
-    StartCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
+    using TimedServerCommand::TimedServerCommand;
 
-    bool canExecute(ServerI::InternalServerState);
-    ServerI::InternalServerState nextState();
-    void execute();
-    void timeout();
+    bool canExecute(ServerI::InternalServerState) override;
+    ServerI::InternalServerState nextState() override;
+    void execute() override;
+    void timeout() override;
 
-    void addCallback(const AMD_Server_startPtr&);
-    void failed(const std::string& reason);
+    void addCallback(std::function<void()>, std::function<void(std::exception_ptr)>);
+    void failed(const std::string&);
     void finished();
 
 private:
 
-    std::vector<AMD_Server_startPtr> _startCB;
+    std::vector<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> _startCB;
 };
 
 class LoadCommand : public ServerCommand
 {
 public:
 
-    LoadCommand(const ServerIPtr&, const InternalServerDescriptorPtr&, const TraceLevelsPtr&);
+    LoadCommand(const std::shared_ptr<ServerI>&, const std::shared_ptr<InternalServerDescriptor>&,
+                const std::shared_ptr<TraceLevels>&);
 
-    bool canExecute(ServerI::InternalServerState);
-    ServerI::InternalServerState nextState();
-    void execute();
+    bool canExecute(ServerI::InternalServerState) override;
+    ServerI::InternalServerState nextState() override;
+    void execute() override;
 
-    void setUpdate(const InternalServerDescriptorPtr&, bool);
+    void setUpdate(const std::shared_ptr<InternalServerDescriptor>&, bool);
     bool clearDir() const;
-    InternalServerDescriptorPtr getInternalServerDescriptor() const;
-    void addCallback(const AMD_Node_loadServerPtr&);
-    void startRuntimePropertiesUpdate(const Ice::ObjectPrx&);
-    bool finishRuntimePropertiesUpdate(const InternalServerDescriptorPtr&, const Ice::ObjectPrx&);
-    void failed(const Ice::Exception&);
-    void finished(const ServerPrx&, const AdapterPrxDict&, int, int);
+    std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
+    void addCallback(std::function<void(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict &, int, int)>,
+                     std::function<void(std::exception_ptr)>);
+    void startRuntimePropertiesUpdate(const std::shared_ptr<Ice::ObjectPrx>&);
+    bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&,
+                                       const std::shared_ptr<Ice::ObjectPrx>&);
+    void failed(std::exception_ptr);
+    void finished(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 
 private:
 
-    std::vector<AMD_Node_loadServerPtr> _loadCB;
+    std::vector<std::pair<std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>,
+                          std::function<void(std::exception_ptr)>>> _loadCB;
     bool _clearDir;
-    InternalServerDescriptorPtr _desc;
-    IceInternal::UniquePtr<DeploymentException> _exception;
-    InternalServerDescriptorPtr _runtime;
+    std::shared_ptr<InternalServerDescriptor> _desc;
+    std::shared_ptr<InternalServerDescriptor> _runtime;
     bool _updating;
-    TraceLevelsPtr _traceLevels;
+    std::shared_ptr<TraceLevels> _traceLevels;
 };
 
 }

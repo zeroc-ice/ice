@@ -12,30 +12,28 @@ namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
 
-class QueryI : public Query, public IceUtil::Mutex
+class QueryI final : public Query
 {
 public:
 
-    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&);
-    virtual ~QueryI();
+    QueryI(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<Database>&);
 
-    virtual Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
+    std::shared_ptr<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
 
-    virtual Ice::ObjectPrx findObjectByType(const ::std::string&, const ::Ice::Current&) const;
+    std::shared_ptr<Ice::ObjectPrx> findObjectByType(std::string, const Ice::Current&) const override;
 
-    virtual Ice::ObjectPrx findObjectByTypeOnLeastLoadedNode(const ::std::string&, LoadSample,
-                                                             const ::Ice::Current&) const;
+    std::shared_ptr<Ice::ObjectPrx> findObjectByTypeOnLeastLoadedNode(std::string, LoadSample,
+                                                                      const Ice::Current&) const override;
 
-    virtual Ice::ObjectProxySeq findAllObjectsByType(const ::std::string&, const ::Ice::Current&) const;
+    Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
 
-    virtual Ice::ObjectProxySeq findAllReplicas(const Ice::ObjectPrx&, const Ice::Current&) const;
+    Ice::ObjectProxySeq findAllReplicas(std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) const override;
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
-    const DatabasePtr _database;
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    const std::shared_ptr<Database> _database;
 };
 
 }

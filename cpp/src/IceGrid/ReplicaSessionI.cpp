@@ -23,58 +23,69 @@ operator==(const ObjectInfo& info, const Ice::Identity& id)
 
 }
 
-ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
-                                 const WellKnownObjectsManagerPtr& wellKnownObjects,
-                                 const InternalReplicaInfoPtr& info,
-                                 const InternalRegistryPrx& proxy,
-                                 int timeout) :
+shared_ptr<ReplicaSessionI>
+ReplicaSessionI::create(const shared_ptr<Database>& database,
+                        const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+                        const shared_ptr<InternalReplicaInfo>& info,
+                        const shared_ptr<InternalRegistryPrx>& proxy,
+                        chrono::seconds timeout)
+{
+
+    shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(database, wellKnownObjects, info, proxy, timeout));
+
+    try
+    {
+        database->getReplicaCache().add(info->name, replicaSession);
+
+        auto obsv = database->getObserverTopic(TopicName::RegistryObserver);
+        static_pointer_cast<RegistryObserverTopic>(obsv)->registryUp(toRegistryInfo(info));
+
+        replicaSession->_proxy =
+            Ice::uncheckedCast<ReplicaSessionPrx>(database->getInternalAdapter()->addWithUUID(replicaSession));
+    }
+    catch(const ReplicaActiveException&)
+    {
+        throw;
+    }
+    catch(const std::exception&)
+    {
+        auto obsv = database->getObserverTopic(TopicName::RegistryObserver);
+        static_pointer_cast<RegistryObserverTopic>(obsv)->registryDown(info->name);
+
+        database->getReplicaCache().remove(info->name, false);
+
+        throw;
+    }
+
+    return replicaSession;
+}
+
+ReplicaSessionI::ReplicaSessionI(const shared_ptr<Database>& database,
+                                 const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+                                 const shared_ptr<InternalReplicaInfo>& info,
+                                 const shared_ptr<InternalRegistryPrx>& proxy,
+                                 chrono::seconds timeout) :
     _database(database),
     _wellKnownObjects(wellKnownObjects),
     _traceLevels(database->getTraceLevels()),
     _internalRegistry(proxy),
     _info(info),
     _timeout(timeout),
-    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
+    _timestamp(chrono::steady_clock::now()),
     _destroy(false)
 {
-    __setNoDelete(true);
-    try
-    {
-        _database->getReplicaCache().add(info->name, this);
-
-        ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-        RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(toRegistryInfo(_info));
-
-        _proxy = ReplicaSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
-    }
-    catch(const ReplicaActiveException&)
-    {
-        __setNoDelete(false);
-        throw;
-    }
-    catch(...)
-    {
-        ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-        RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info->name);
-
-        _database->getReplicaCache().remove(_info->name, false);
-
-        __setNoDelete(false);
-        throw;
-    }
-    __setNoDelete(false);
 }
 
 void
 ReplicaSessionI::keepAlive(const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    _timestamp = chrono::steady_clock::now();
 
     if(_traceLevels->replica > 2)
     {
@@ -86,12 +97,12 @@ ReplicaSessionI::keepAlive(const Ice::Current&)
 int
 ReplicaSessionI::getTimeout(const Ice::Current&) const
 {
-    return _timeout;
+    return secondsToInt(_timeout);
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
-                                     const IceUtil::Optional<StringLongDict>& slaveSerials,
+ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
+                                     IceUtil::Optional<StringLongDict> slaveSerials,
                                      const Ice::Current&)
 {
     //
@@ -146,12 +157,12 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
     int serialAdapterObserver;
     int serialObjectObserver;
 
-    const ObserverTopicPtr applicationObserver = _database->getObserverTopic(ApplicationObserverTopicName);
-    const ObserverTopicPtr adapterObserver = _database->getObserverTopic(AdapterObserverTopicName);
-    const ObserverTopicPtr objectObserver = _database->getObserverTopic(ObjectObserverTopicName);
+    const auto applicationObserver = _database->getObserverTopic(TopicName::ApplicationObserver);
+    const auto adapterObserver = _database->getObserverTopic(TopicName::AdapterObserver);
+    const auto objectObserver = _database->getObserverTopic(TopicName::ObjectObserver);
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -169,25 +180,25 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer,
 }
 
 void
-ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice::Current&)
+ReplicaSessionI::setEndpoints(StringObjectProxyDict endpoints, const Ice::Current&)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        _replicaEndpoints = endpoints;
+        _replicaEndpoints = move(endpoints);
     }
     _wellKnownObjects->updateReplicatedWellKnownObjects();
 }
 
 void
-ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ice::Current&)
+ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Current&)
 {
     int serial;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -202,13 +213,13 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
     // are correctly setup when the replica starts accepting requests
     // from clients (if the replica is being started).
     //
-    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _info->name);
+    _database->getObserverTopic(TopicName::ObjectObserver)->waitForSyncedSubscribers(serial, _info->name);
 }
 
 void
-ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
-                                       const string& replicaGroupId,
-                                       const Ice::ObjectPrx& proxy,
+ReplicaSessionI::setAdapterDirectProxy(string adapterId,
+                                       string replicaGroupId,
+                                       shared_ptr<Ice::ObjectPrx> proxy,
                                        const Ice::Current&)
 {
     if(_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
@@ -219,9 +230,9 @@ ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
 }
 
 void
-ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, const string& failure, const Ice::Current&)
+ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, string failure, const Ice::Current&)
 {
-    ObserverTopicPtr topic = _database->getObserverTopic(topicName);
+    auto topic = _database->getObserverTopic(topicName);
     if(topic)
     {
         topic->receivedUpdate(_info->name, serial, failure);
@@ -234,10 +245,10 @@ ReplicaSessionI::destroy(const Ice::Current&)
     destroyImpl(false);
 }
 
-IceUtil::Time
+chrono::steady_clock::time_point
 ReplicaSessionI::timestamp() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -251,31 +262,31 @@ ReplicaSessionI::shutdown()
     destroyImpl(true);
 }
 
-const InternalRegistryPrx&
+const shared_ptr<InternalRegistryPrx>&
 ReplicaSessionI::getInternalRegistry() const
 {
     return _internalRegistry;
 }
 
-const InternalReplicaInfoPtr&
+const shared_ptr<InternalReplicaInfo>&
 ReplicaSessionI::getInfo() const
 {
     return _info;
 }
 
-ReplicaSessionPrx
+shared_ptr<ReplicaSessionPrx>
 ReplicaSessionI::getProxy() const
 {
     return _proxy;
 }
 
-Ice::ObjectPrx
+shared_ptr<Ice::ObjectPrx>
 ReplicaSessionI::getEndpoint(const std::string& name)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroy)
     {
-        return 0;
+        return nullptr;
     }
     return _replicaEndpoints[name];
 }
@@ -283,7 +294,7 @@ ReplicaSessionI::getEndpoint(const std::string& name)
 bool
 ReplicaSessionI::isDestroyed() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _destroy;
 }
 
@@ -291,7 +302,7 @@ void
 ReplicaSessionI::destroyImpl(bool shutdown)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -301,9 +312,9 @@ ReplicaSessionI::destroyImpl(bool shutdown)
 
     if(_observer)
     {
-        _database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _info->name);
-        _database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::ApplicationObserver)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::AdapterObserver)->unsubscribe(_observer, _info->name);
+        _database->getObserverTopic(TopicName::ObjectObserver)->unsubscribe(_observer, _info->name);
     }
 
     // Don't remove the replica proxy from the database if the registry is being shutdown.
@@ -311,10 +322,8 @@ ReplicaSessionI::destroyImpl(bool shutdown)
     {
         if(shutdown) // Don't remove the replica proxy from the database if the registry is being shutdown.
         {
-            Ice::Identity id;
-            id.category = _internalRegistry->ice_getIdentity().category;
-            id.name = "Registry-" + _info->name;
-            ObjectInfoSeq::iterator p = find(_replicaWellKnownObjects.begin(), _replicaWellKnownObjects.end(), id);
+            Ice::Identity id = { "Registry-" + _info->name, _internalRegistry->ice_getIdentity().category };
+            auto p = find(_replicaWellKnownObjects.begin(), _replicaWellKnownObjects.end(), id);
             if(p != _replicaWellKnownObjects.end())
             {
                 _replicaWellKnownObjects.erase(p);
@@ -331,8 +340,8 @@ ReplicaSessionI::destroyImpl(bool shutdown)
     //
     // Notify the observer that the registry is down.
     //
-    ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info->name);
+    auto obsv = _database->getObserverTopic(TopicName::RegistryObserver);
+    static_pointer_cast<RegistryObserverTopic>(obsv)->registryDown(_info->name);
 
     //
     // Remove the replica from the cache. This must be done last. As

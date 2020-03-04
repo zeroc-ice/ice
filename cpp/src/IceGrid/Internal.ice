@@ -454,7 +454,7 @@ interface NodeSession
 
     /**
      *
-     * Return the node session timeout.
+     * Return the node session timeout (in seconds).
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getTimeout();
@@ -511,11 +511,11 @@ exception ReplicaActiveException
 
 enum TopicName
 {
-    RegistryObserverTopicName,
-    NodeObserverTopicName,
-    ApplicationObserverTopicName,
-    AdapterObserverTopicName,
-    ObjectObserverTopicName
+    RegistryObserver,
+    NodeObserver,
+    ApplicationObserver,
+    AdapterObserver,
+    ObjectObserver
 }
 
 interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver

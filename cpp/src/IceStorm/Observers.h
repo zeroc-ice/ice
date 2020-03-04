@@ -10,25 +10,18 @@
 #include <IceStorm/Election.h>
 #include <IceStorm/Replica.h>
 
-#ifdef __SUNPRO_CC
-#  pragma error_messages(off,hidef)
-#endif
-
 namespace IceStorm
 {
-class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 }
 
 namespace IceStormElection
 {
 
-class Observers : public IceUtil::Shared, public IceUtil::Mutex
+class Observers
 {
 public:
-    Observers(const IceStorm::InstancePtr&);
+    Observers(std::shared_ptr<IceStorm::TraceLevels>);
 
     void setMajority(unsigned int);
 
@@ -47,26 +40,22 @@ private:
 
     void wait(const std::string&);
 
-    const IceStorm::TraceLevelsPtr _traceLevels;
+    const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
     unsigned int _majority;
     struct ObserverInfo
     {
-        ObserverInfo(int i, const ReplicaObserverPrx& o, const Ice::AsyncResultPtr& r = 0) :
-            id(i), observer(o), result (r) {}
         int id;
-        ReplicaObserverPrx observer;
-        ::Ice::AsyncResultPtr result;
+        std::shared_ptr<ReplicaObserverPrx> observer;
+        std::future<void> future;
     };
     std::vector<ObserverInfo> _observers;
-    IceUtil::Mutex _reapedMutex;
+
+    std::mutex _reapedMutex;
     std::vector<int> _reaped;
+
+    std::mutex _mutex;
 };
-typedef IceUtil::Handle<Observers> ObserversPtr;
 
 }
-
-#ifdef __SUNPRO_CC
-#  pragma error_messages(default,hidef)
-#endif
 
 #endif // OBSERVERS_H

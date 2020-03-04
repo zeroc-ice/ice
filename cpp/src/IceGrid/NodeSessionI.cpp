@@ -11,66 +11,74 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionI::NodeSessionI(const DatabasePtr& database,
-                           const NodePrx& node,
-                           const InternalNodeInfoPtr& info,
-                           int timeout,
+shared_ptr<NodeSessionI>
+NodeSessionI::create(const shared_ptr<Database>& database,
+                     const shared_ptr<NodePrx>& node,
+                     const shared_ptr<InternalNodeInfo>& info,
+                     std::chrono::seconds timeout,
+                     const LoadInfo& load)
+{
+    shared_ptr<NodeSessionI> nodeSession(new NodeSessionI(database, node, info, timeout, load));
+    try
+    {
+        database->getNode(info->name, true)->setSession(nodeSession);
+
+        ObjectInfo objInfo = { node, Node::ice_staticId() };
+        database->addInternalObject(objInfo, true); // Add or update previous node proxy.
+
+        nodeSession->_proxy = Ice::uncheckedCast<NodeSessionPrx>(
+            database->getInternalAdapter()->addWithUUID(nodeSession));
+    }
+    catch(const NodeActiveException&)
+    {
+        throw;
+    }
+    catch(const std::exception&)
+    {
+        try
+        {
+            database->removeInternalObject(node->ice_getIdentity());
+        }
+        catch(const ObjectNotRegisteredException&)
+        {
+        }
+
+        database->getNode(info->name)->setSession(nullptr);
+
+        throw;
+    }
+
+    return nodeSession;
+}
+
+NodeSessionI::NodeSessionI(const shared_ptr<Database>& database,
+                           const shared_ptr<NodePrx>& node,
+                           const shared_ptr<InternalNodeInfo>& info,
+                           std::chrono::seconds timeout,
                            const LoadInfo& load) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _node(node),
     _info(info),
     _timeout(timeout),
-    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
+    _timestamp(chrono::steady_clock::now()),
     _load(load),
     _destroy(false)
 {
-    __setNoDelete(true);
-    try
-    {
-        _database->getNode(info->name, true)->setSession(this);
-
-        ObjectInfo objInfo;
-        objInfo.type = Node::ice_staticId();
-        objInfo.proxy = _node;
-        _database->addInternalObject(objInfo, true); // Add or update previous node proxy.
-
-        _proxy = NodeSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
-    }
-    catch(const NodeActiveException&)
-    {
-        __setNoDelete(false);
-        throw;
-    }
-    catch(...)
-    {
-        try
-        {
-            _database->removeInternalObject(_node->ice_getIdentity());
-        }
-        catch(const ObjectNotRegisteredException&)
-        {
-        }
-
-        _database->getNode(info->name)->setSession(0);
-
-        __setNoDelete(false);
-        throw;
-    }
-    __setNoDelete(false);
 }
 
 void
-NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current&)
+NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
+
     if(_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
-    _load = load;
+    _timestamp = chrono::steady_clock::now();
+    _load = move(load);
 
     if(_traceLevels->node > 2)
     {
@@ -81,9 +89,10 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current&)
 }
 
 void
-NodeSessionI::setReplicaObserver(const ReplicaObserverPrx& observer, const Ice::Current&)
+NodeSessionI::setReplicaObserver(shared_ptr<ReplicaObserverPrx> observer, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
+
     if(_destroy)
     {
         return;
@@ -101,17 +110,18 @@ NodeSessionI::setReplicaObserver(const ReplicaObserverPrx& observer, const Ice::
 int
 NodeSessionI::getTimeout(const Ice::Current&) const
 {
-    return _timeout;
+    return secondsToInt(_timeout);
 }
 
-NodeObserverPrx
+shared_ptr<NodeObserverPrx>
 NodeSessionI::getObserver(const Ice::Current&) const
 {
-    return NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->getPublisher();
+    return dynamic_pointer_cast<NodeObserverTopic>(
+        _database->getObserverTopic(TopicName::NodeObserver))->getPublisher();
 }
 
 void
-NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, const Ice::Current&) const
+NodeSessionI::loadServersAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&) const
 {
     //
     // No need to wait for the servers to be loaded. If we were
@@ -119,38 +129,37 @@ NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, con
     // calling this method since each load() call might take time to
     // complete.
     //
-    amdCB->ice_response();
+    response();
 
     //
     // Get the server proxies to load them on the node.
     //
-    ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
-    for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    auto servers = _database->getNode(_info->name)->getServers();
+    for(const auto& server : servers)
     {
-        (*p)->sync();
-        (*p)->waitForSyncNoThrow(1); // Don't wait too long.
+        server->sync();
+        server->waitForSyncNoThrow(1s); // Don't wait too long.
     }
 }
 
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current&) const
 {
-    ServerEntrySeq servers =  _database->getNode(_info->name)->getServers();
+    auto servers =  _database->getNode(_info->name)->getServers();
     Ice::StringSeq names;
-    for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    for(const auto& server : servers)
     {
-        names.push_back((*p)->getId());
+        names.push_back(server->getId());
     }
     return names;
 }
 
 void
-NodeSessionI::waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr& cb,
-                                             const std::string& application,
-                                             int revision,
+NodeSessionI::waitForApplicationUpdateAsync(std::string application, int revision,
+                                            function<void()> response, function<void(exception_ptr)> exception,
                                              const Ice::Current&) const
 {
-    _database->waitForApplicationUpdate(cb, application, revision);
+    _database->waitForApplicationUpdate(move(application), move(revision), move(response), move(exception));
 }
 
 void
@@ -159,10 +168,10 @@ NodeSessionI::destroy(const Ice::Current&)
     destroyImpl(false);
 }
 
-IceUtil::Time
+chrono::steady_clock::time_point
 NodeSessionI::timestamp() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -176,13 +185,13 @@ NodeSessionI::shutdown()
     destroyImpl(true);
 }
 
-const NodePrx&
+const shared_ptr<NodePrx>&
 NodeSessionI::getNode() const
 {
     return _node;
 }
 
-const InternalNodeInfoPtr&
+const shared_ptr<InternalNodeInfo>&
 NodeSessionI::getInfo() const
 {
     return _info;
@@ -191,11 +200,11 @@ NodeSessionI::getInfo() const
 const LoadInfo&
 NodeSessionI::getLoadInfo() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _load;
 }
 
-NodeSessionPrx
+shared_ptr<NodeSessionPrx>
 NodeSessionI::getProxy() const
 {
     return _proxy;
@@ -204,7 +213,7 @@ NodeSessionI::getProxy() const
 bool
 NodeSessionI::isDestroyed() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _destroy;
 }
 
@@ -212,7 +221,7 @@ void
 NodeSessionI::destroyImpl(bool shutdown)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -221,7 +230,10 @@ NodeSessionI::destroyImpl(bool shutdown)
     }
 
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
-    for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::unsync));
+    for(const auto& server : servers)
+    {
+        server->unsync();
+    }
 
     //
     // If the registry isn't being shutdown we remove the node
@@ -235,7 +247,8 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     // Next we notify the observer.
     //
-    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_info->name);
+    static_pointer_cast<NodeObserverTopic>(
+        _database->getObserverTopic(TopicName::NodeObserver))->nodeDown(_info->name);
 
     //
     // Unsubscribe the node replica observer.
@@ -243,7 +256,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     if(_replicaObserver)
     {
         _database->getReplicaCache().unsubscribe(_replicaObserver);
-        _replicaObserver = 0;
+        _replicaObserver = nullptr;
     }
 
     //
@@ -251,7 +264,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     // as the node entry session is set to 0 another session might be
     // created.
     //
-    _database->getNode(_info->name)->setSession(0);
+    _database->getNode(_info->name)->setSession(nullptr);
 
     if(!shutdown)
     {

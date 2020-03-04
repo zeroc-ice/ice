@@ -10,30 +10,25 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionManager::SessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) :
+SessionManager::SessionManager(const shared_ptr<Ice::Communicator>& communicator, const string& instanceName) :
     _communicator(communicator), _instanceName(instanceName)
 {
-    Ice::LocatorPrx prx = communicator->getDefaultLocator();
+    auto prx = communicator->getDefaultLocator();
     if(prx)
     {
-        Ice::Identity id;
-        id.category = instanceName;
-        id.name = "InternalRegistry-Master";
-        _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
+        Ice::Identity id = { "InternalRegistry-Master", instanceName };
+        _master =
+            Ice::uncheckedCast<InternalRegistryPrx>(prx->ice_identity(move(id))->ice_endpoints({}));
     }
 }
 
-SessionManager::~SessionManager()
-{
-}
-
-vector<QueryPrx>
+vector<shared_ptr<QueryPrx>>
 SessionManager::findAllQueryObjects(bool cached)
 {
-    vector<QueryPrx> queryObjects;
-    Ice::LocatorPrx locator;
+    vector<shared_ptr<QueryPrx>> queryObjects;
+    shared_ptr<Ice::LocatorPrx> locator;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_communicator)
         {
             return queryObjects;
@@ -48,14 +43,14 @@ SessionManager::findAllQueryObjects(bool cached)
 
     if(!cached)
     {
-        for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
+        for(const auto& queryObject : queryObjects)
         {
-            Ice::ConnectionPtr connection = (*q)->ice_getCachedConnection();
+            auto connection = queryObject->ice_getCachedConnection();
             if(connection)
             {
                 try
                 {
-                    connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                    connection->close(Ice::ConnectionClose::GracefullyWithWait);
                 }
                 catch(const Ice::LocalException&)
                 {
@@ -67,16 +62,14 @@ SessionManager::findAllQueryObjects(bool cached)
 
     if(queryObjects.empty() && locator)
     {
-        Ice::Identity id;
-        id.category = _instanceName;
-        id.name = "Query";
-        QueryPrx query = QueryPrx::uncheckedCast(locator->ice_identity(id));
-        Ice::EndpointSeq endpoints = query->ice_getEndpoints();
+        Ice::Identity id = { "Query", _instanceName };
+        auto query = Ice::uncheckedCast<QueryPrx>(locator->ice_identity(id));
+        auto endpoints = query->ice_getEndpoints();
         if(endpoints.empty())
         {
             try
             {
-                Ice::ObjectPrx r = locator->findObjectById(id);
+                auto r = locator->findObjectById(id);
                 if(r)
                 {
                     endpoints = r->ice_getEndpoints();
@@ -88,35 +81,32 @@ SessionManager::findAllQueryObjects(bool cached)
             }
         }
 
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        for(const auto& endpoint : endpoints)
         {
-            Ice::EndpointSeq singleEndpoint;
-            singleEndpoint.push_back(*p);
-            queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+            queryObjects.push_back(Ice::uncheckedCast<QueryPrx>(query->ice_endpoints({endpoint})));
         }
     }
 
     //
     // Find all known query objects by querying all the registries we can find.
     //
-    map<Ice::Identity, QueryPrx> proxies;
-    set<QueryPrx> requested;
+    map<Ice::Identity, shared_ptr<QueryPrx>> proxies;
+    set<shared_ptr<QueryPrx>> requested;
     while(true)
     {
-        vector<Ice::AsyncResultPtr> results;
-        for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
+        vector<future<Ice::ObjectProxySeq>> results;
+        for(const auto& queryObject : queryObjects)
         {
-            results.push_back((*q)->begin_findAllObjectsByType(Registry::ice_staticId()));
-            requested.insert(*q);
+            results.push_back(queryObject->findAllObjectsByTypeAsync(Registry::ice_staticId()));
+            requested.insert(queryObject);
         }
         if(results.empty())
         {
             break;
         }
 
-        for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+        for(auto& result : results)
         {
-            QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
             if(isDestroyed())
             {
                 break;
@@ -124,18 +114,17 @@ SessionManager::findAllQueryObjects(bool cached)
 
             try
             {
-                Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
-                for(Ice::ObjectProxySeq::iterator q = prxs.begin(); q != prxs.end(); ++q)
+                auto prxs = result.get();
+                for(const auto& prx : prxs)
                 {
-                    if(proxies.find((*q)->ice_getIdentity()) == proxies.end())
+                    if(proxies.find(prx->ice_getIdentity()) == proxies.end())
                     {
                         //
                         // Add query proxy for each IceGrid registry. The proxy contains the endpoints
                         // of the registry since it's based on the registry interface proxy.
                         //
-                        Ice::Identity id = (*q)->ice_getIdentity();
-                        id.name = "Query";
-                        proxies[(*q)->ice_getIdentity()] = QueryPrx::uncheckedCast((*q)->ice_identity(id));
+                        Ice::Identity id = { "Query", prx->ice_getIdentity().category };
+                        proxies[prx->ice_getIdentity()] = Ice::uncheckedCast<QueryPrx>(prx->ice_identity(move(id)));
                     }
                 }
             }
@@ -146,20 +135,20 @@ SessionManager::findAllQueryObjects(bool cached)
         }
 
         queryObjects.clear();
-        for(map<Ice::Identity, QueryPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+        for(const auto& prx : proxies)
         {
-            if(requested.find(p->second) == requested.end())
+            if(requested.find(prx.second) == requested.end())
             {
-                queryObjects.push_back(p->second);
+                queryObjects.push_back(prx.second);
             }
         }
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _queryObjects.clear();
-    for(map<Ice::Identity, QueryPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for(const auto& prx : proxies)
     {
-        _queryObjects.push_back(p->second);
+        _queryObjects.push_back(prx.second);
     }
     return _queryObjects;
 }

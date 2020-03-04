@@ -19,21 +19,22 @@
 #include <IceGrid/SynchronizationException.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace Ice;
 using namespace IceGrid;
 
-namespace IceGrid
+namespace
 {
 
 class ServerProxyWrapper
 {
 public:
 
-    ServerProxyWrapper(const DatabasePtr& database, const string& id) : _id(id)
+    ServerProxyWrapper(const shared_ptr<Database>& database, const string& id) : _id(id)
     {
         try
         {
-            _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node, false, 5);
+            _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node, false, 5s);
         }
         catch(const SynchronizationException&)
         {
@@ -41,39 +42,65 @@ public:
         }
     }
 
-    ServerProxyWrapper(const ServerProxyWrapper& wrapper) :
-        _id(wrapper._id),
-        _proxy(wrapper._proxy),
-        _activationTimeout(wrapper._activationTimeout),
-        _deactivationTimeout(wrapper._deactivationTimeout),
-        _node(wrapper._node)
+    ServerProxyWrapper(const ServerProxyWrapper& wrapper) = default;
+
+    template<typename Func, typename... Args>
+    auto invoke(Func&& f, Args&&... args)
     {
+        try
+        {
+            return std::invoke(forward<Func>(f), _proxy, forward<Args>(args)..., ::Ice::noExplicitContext);
+        }
+        catch (const Ice::Exception&)
+        {
+            handleException(current_exception());
+            throw; // keep compiler happy
+        }
+    }
+
+    template<typename Func>
+    auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
+    {
+        auto exceptionWrapper = [this, exception = move(exception)](exception_ptr ex)
+        {
+            try
+            {
+                handleException(ex);
+            }
+            catch(const std::exception&)
+            {
+                exception(current_exception());
+            }
+        };
+        return std::invoke(forward<Func>(f), _proxy, move(response), move(exceptionWrapper), nullptr, Ice::noExplicitContext);
     }
 
     void
     useActivationTimeout()
     {
-        _proxy = ServerPrx::uncheckedCast(_proxy->ice_invocationTimeout(_activationTimeout * 1000));
+        auto timeout = secondsToInt(_activationTimeout) * 1000;
+        _proxy = _proxy->ice_invocationTimeout(timeout);
     }
 
     void
     useDeactivationTimeout()
     {
-        _proxy = ServerPrx::uncheckedCast(_proxy->ice_invocationTimeout(_deactivationTimeout * 1000));
+        auto timeout = secondsToInt(_deactivationTimeout) * 1000;
+        _proxy = _proxy->ice_invocationTimeout(timeout);
     }
 
-    IceProxy::IceGrid::Server*
+    ServerPrx*
     operator->() const
     {
         return _proxy.get();
     }
 
     void
-    handleException(const Ice::Exception& ex) const
+    handleException(exception_ptr ex) const
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::UserException&)
         {
@@ -85,24 +112,23 @@ public:
         }
         catch(const Ice::LocalException& e)
         {
-            ostringstream os;
-            os << e;
-            throw NodeUnreachableException(_node, os.str());
+            throw NodeUnreachableException(_node, e.what());
         }
     }
 
 private:
 
     string _id;
-    ServerPrx _proxy;
-    int _activationTimeout;
-    int _deactivationTimeout;
+    shared_ptr<ServerPrx> _proxy;
+    chrono::seconds _activationTimeout;
+    chrono::seconds _deactivationTimeout;
     string _node;
 };
 
 }
 
-AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const AdminSessionIPtr& session) :
+AdminI::AdminI(const shared_ptr<Database>& database, const shared_ptr<RegistryI>& registry,
+               const shared_ptr<AdminSessionI>& session) :
     _database(database),
     _registry(registry),
     _traceLevels(_database->getTraceLevels()),
@@ -110,17 +136,13 @@ AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const 
 {
 }
 
-AdminI::~AdminI()
-{
-}
-
 void
-AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
+AdminI::addApplication(ApplicationDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
 
     ApplicationInfo info;
-    info.createTime = info.updateTime = IceUtil::Time::now().toMilliSeconds();
+    info.createTime = info.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     info.createUser = info.updateUser = _session->getId();
     info.descriptor = descriptor;
     info.revision = 1;
@@ -130,19 +152,19 @@ AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 }
 
 void
-AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
+AdminI::syncApplication(ApplicationDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
     _database->syncApplicationDescriptor(descriptor, false, _session.get());
 }
 
 void
-AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
+AdminI::updateApplication(ApplicationUpdateDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
 
     ApplicationUpdateInfo update;
-    update.updateTime = IceUtil::Time::now().toMilliSeconds();
+    update.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     update.updateUser = _session->getId();
     update.descriptor = descriptor;
     update.revision = -1; // The database will set it.
@@ -150,19 +172,19 @@ AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const C
 }
 
 void
-AdminI::syncApplicationWithoutRestart(const ApplicationDescriptor& descriptor, const Current&)
+AdminI::syncApplicationWithoutRestart(ApplicationDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
     _database->syncApplicationDescriptor(descriptor, true, _session.get());
 }
 
 void
-AdminI::updateApplicationWithoutRestart(const ApplicationUpdateDescriptor& descriptor, const Current&)
+AdminI::updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
 
     ApplicationUpdateInfo update;
-    update.updateTime = IceUtil::Time::now().toMilliSeconds();
+    update.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     update.updateUser = _session->getId();
     update.descriptor = descriptor;
     update.revision = -1; // The database will set it.
@@ -170,29 +192,29 @@ AdminI::updateApplicationWithoutRestart(const ApplicationUpdateDescriptor& descr
 }
 
 void
-AdminI::removeApplication(const string& name, const Current&)
+AdminI::removeApplication(string name, const Current&)
 {
     checkIsReadOnly();
-    _database->removeApplication(name, _session.get());
+    _database->removeApplication(move(name), _session.get());
 }
 
 void
-AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
+AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc, const Current&)
 {
     checkIsReadOnly();
-    _database->instantiateServer(app, node, desc, _session.get());
+    _database->instantiateServer(move(app), move(node), move(desc), _session.get());
 }
 
 ApplicationInfo
-AdminI::getApplicationInfo(const string& name, const Current&) const
+AdminI::getApplicationInfo(string name, const Current&) const
 {
-    return _database->getApplicationInfo(name);
+    return _database->getApplicationInfo(move(name));
 }
 
 ApplicationDescriptor
 AdminI::getDefaultApplicationDescriptor(const Current& current) const
 {
-    Ice::PropertiesPtr properties = current.adapter->getCommunicator()->getProperties();
+    auto properties = current.adapter->getCommunicator()->getProperties();
     string path = properties->getProperty("IceGrid.Registry.DefaultTemplates");
     if(path.empty())
     {
@@ -244,39 +266,23 @@ AdminI::getAllApplicationNames(const Current&) const
 }
 
 ServerInfo
-AdminI::getServerInfo(const string& id, const Current&) const
+AdminI::getServerInfo(string id, const Current&) const
 {
-    return _database->getServer(id)->getInfo(true);
+    return _database->getServer(move(id))->getInfo(true);
 }
 
 ServerState
-AdminI::getServerState(const string& id, const Current&) const
+AdminI::getServerState(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        return proxy->getState();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-        return Inactive;
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    return proxy.invoke(&ServerPrx::getState);
 }
 
-Ice::Int
-AdminI::getServerPid(const string& id, const Current&) const
+int
+AdminI::getServerPid(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        return proxy->getPid();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-        return 0;
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    return proxy.invoke(&ServerPrx::getPid);
 }
 
 string
@@ -285,115 +291,25 @@ AdminI::getServerAdminCategory(const Current&) const
     return _registry->getServerAdminCategory();
 }
 
-ObjectPrx
-AdminI::getServerAdmin(const string& id, const Current& current) const
+shared_ptr<ObjectPrx>
+AdminI::getServerAdmin(string id, const Current& current) const
 {
     ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
 
-    Ice::Identity adminId;
-    adminId.name = id;
-    adminId.category = _registry->getServerAdminCategory();
-    return current.adapter->createProxy(adminId);
-}
-
-namespace
-{
-
-class StartCB : public virtual IceUtil::Shared
-{
-public:
-
-    StartCB(const ServerProxyWrapper& proxy, const AMD_Admin_startServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
-    {
-    }
-
-    virtual void
-    response()
-    {
-        _amdCB->ice_response();
-    }
-
-    virtual void
-    exception(const Ice::Exception& ex)
-    {
-        try
-        {
-            _proxy.handleException(ex);
-            assert(false);
-        }
-        catch(const Ice::Exception& e)
-        {
-            _amdCB->ice_exception(e);
-        }
-    }
-
-private:
-
-    const ServerProxyWrapper _proxy;
-    const AMD_Admin_startServerPtr _amdCB;
-};
-
+    return current.adapter->createProxy({ id, _registry->getServerAdminCategory() });
 }
 
 void
-AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& id, const Current&)
+AdminI::startServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
+    ServerProxyWrapper proxy(_database, move(id));
     proxy.useActivationTimeout();
 
-    //
-    // Since the server might take a while to be activated, we use AMI.
-    //
-    proxy->begin_start(newCallback_Server_start(new StartCB(proxy, amdCB),
-                                                &StartCB::response,
-                                                &StartCB::exception));
-}
-
-namespace
-{
-
-class StopCB : public virtual IceUtil::Shared
-{
-public:
-
-    StopCB(const ServerProxyWrapper& proxy, const AMD_Admin_stopServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
-    {
-    }
-
-    virtual void
-    response()
-    {
-        _amdCB->ice_response();
-    }
-
-    virtual void
-    exception(const Ice::Exception& ex)
-    {
-        try
-        {
-            _proxy.handleException(ex);
-            assert(false);
-        }
-        catch(const Ice::TimeoutException&)
-        {
-            _amdCB->ice_response();
-        }
-        catch(const Ice::Exception& e)
-        {
-            _amdCB->ice_exception(e);
-        }
-    }
-
-private:
-
-    const ServerProxyWrapper _proxy;
-    const AMD_Admin_stopServerPtr _amdCB;
-};
-
+    proxy.invokeAsync([](const auto& prx, auto... args) { prx->startAsync(args...); }, move(response), move(exception));
 }
 
 void
-AdminI::stopServer_async(const AMD_Admin_stopServerPtr& amdCB, const string& id, const Current&)
+AdminI::stopServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useDeactivationTimeout();
@@ -401,23 +317,29 @@ AdminI::stopServer_async(const AMD_Admin_stopServerPtr& amdCB, const string& id,
     //
     // Since the server might take a while to be deactivated, we use AMI.
     //
-    proxy->begin_stop(newCallback_Server_stop(new StopCB(proxy, amdCB),
-                                              &StopCB::response,
-                                              &StopCB::exception));
+    proxy.invokeAsync([](const auto& prx, auto... args) { prx->stopAsync(args...); },
+                      response,
+                      [response, exception = move(exception)](exception_ptr ex) {
+                          try
+                          {
+                              rethrow_exception(ex);
+                          }
+                          catch(const Ice::TimeoutException&)
+                          {
+                              response();
+                          }
+                          catch(const Ice::Exception&)
+                          {
+                              exception(current_exception());
+                          }
+                      });
 }
 
 void
-AdminI::sendSignal(const string& id, const string& signal, const Current&)
+AdminI::sendSignal(string id, string signal, const Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        proxy->sendSignal(signal);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    proxy.invoke(&ServerPrx::sendSignal, move(signal));
 }
 
 StringSeq
@@ -427,42 +349,27 @@ AdminI::getAllServerIds(const Current&) const
 }
 
 void
-AdminI::enableServer(const string& id, bool enable, const Ice::Current&)
+AdminI::enableServer(string id, bool enable, const Ice::Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        proxy->setEnabled(enable);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    proxy.invoke(&ServerPrx::setEnabled, move(enable));
 }
 
 bool
-AdminI::isServerEnabled(const ::std::string& id, const Ice::Current&) const
+AdminI::isServerEnabled(string id, const Ice::Current&) const
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        return proxy->isEnabled();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-        return true; // Keeps the compiler happy.
-    }
+    ServerProxyWrapper proxy(_database, move(id));
+    return proxy.invoke(&ServerPrx::isEnabled);
 }
 
 AdapterInfoSeq
-AdminI::getAdapterInfo(const string& id, const Current&) const
+AdminI::getAdapterInfo(string id, const Current&) const
 {
     return _database->getAdapterInfo(id);
 }
 
 void
-AdminI::removeAdapter(const string& adapterId, const Ice::Current&)
+AdminI::removeAdapter(string adapterId, const Ice::Current&)
 {
     checkIsReadOnly();
     _database->removeAdapter(adapterId);
@@ -475,7 +382,7 @@ AdminI::getAllAdapterIds(const Current&) const
 }
 
 void
-AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
+AdminI::addObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
 {
     checkIsReadOnly();
 
@@ -498,7 +405,7 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 }
 
 void
-AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
+AdminI::updateObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -518,7 +425,7 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
 }
 
 void
-AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
+AdminI::addObjectWithType(shared_ptr<Ice::ObjectPrx> proxy, string type, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -542,7 +449,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
 }
 
 void
-AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
+AdminI::removeObject(Ice::Identity id, const Ice::Current&)
 {
     checkIsReadOnly();
     if(id.category == _database->getInstanceName())
@@ -555,45 +462,42 @@ AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
 }
 
 ObjectInfo
-AdminI::getObjectInfo(const Ice::Identity& id, const Ice::Current&) const
+AdminI::getObjectInfo(Ice::Identity id, const Ice::Current&) const
 {
-    return _database->getObjectInfo(id);
+    return _database->getObjectInfo(move(id));
 }
 
 ObjectInfoSeq
-AdminI::getObjectInfosByType(const string& type, const Ice::Current&) const
+AdminI::getObjectInfosByType(string type, const Ice::Current&) const
 {
-    return _database->getObjectInfosByType(type);
+    return _database->getObjectInfosByType(move(type));
 }
 
 ObjectInfoSeq
-AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
+AdminI::getAllObjectInfos(string expression, const Ice::Current&) const
 {
-    return _database->getAllObjectInfos(expression);
+    return _database->getAllObjectInfos(move(expression));
 }
 
 NodeInfo
-AdminI::getNodeInfo(const string& name, const Ice::Current&) const
+AdminI::getNodeInfo(string name, const Ice::Current&) const
 {
     return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
-ObjectPrx
-AdminI::getNodeAdmin(const string& name, const Current& current) const
+shared_ptr<ObjectPrx>
+AdminI::getNodeAdmin(string name, const Current& current) const
 {
     //
     // Check if the node exists
     //
     _database->getNode(name);
 
-    Ice::Identity adminId;
-    adminId.name = name;
-    adminId.category = _registry->getNodeAdminCategory();
-    return current.adapter->createProxy(adminId);
+    return current.adapter->createProxy({ name, _registry->getNodeAdminCategory() });
 }
 
 bool
-AdminI::pingNode(const string& name, const Current&) const
+AdminI::pingNode(string name, const Current&) const
 {
     try
     {
@@ -615,7 +519,7 @@ AdminI::pingNode(const string& name, const Current&) const
 }
 
 LoadInfo
-AdminI::getNodeLoad(const string& name, const Current&) const
+AdminI::getNodeLoad(string name, const Current&) const
 {
     try
     {
@@ -634,7 +538,7 @@ AdminI::getNodeLoad(const string& name, const Current&) const
 }
 
 int
-AdminI::getNodeProcessorSocketCount(const string& name, const Current&) const
+AdminI::getNodeProcessorSocketCount(string name, const Current&) const
 {
     try
     {
@@ -659,7 +563,7 @@ AdminI::getNodeProcessorSocketCount(const string& name, const Current&) const
 }
 
 void
-AdminI::shutdownNode(const string& name, const Current&)
+AdminI::shutdownNode(string name, const Current&)
 {
     try
     {
@@ -678,7 +582,7 @@ AdminI::shutdownNode(const string& name, const Current&)
 }
 
 string
-AdminI::getNodeHostname(const string& name, const Current&) const
+AdminI::getNodeHostname(string name, const Current&) const
 {
     try
     {
@@ -703,7 +607,7 @@ AdminI::getAllNodeNames(const Current&) const
 }
 
 RegistryInfo
-AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
+AdminI::getRegistryInfo(string name, const Ice::Current&) const
 {
     if(name == _registry->getName())
     {
@@ -715,8 +619,8 @@ AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
     }
 }
 
-ObjectPrx
-AdminI::getRegistryAdmin(const string& name, const Current& current) const
+shared_ptr<ObjectPrx>
+AdminI::getRegistryAdmin(string name, const Current& current) const
 {
     if(name != _registry->getName())
     {
@@ -726,14 +630,11 @@ AdminI::getRegistryAdmin(const string& name, const Current& current) const
         _database->getReplica(name);
     }
 
-    Identity adminId;
-    adminId.name = name;
-    adminId.category = _registry->getReplicaAdminCategory();
-    return current.adapter->createProxy(adminId);
+    return current.adapter->createProxy({ name, _registry->getReplicaAdminCategory() });
 }
 
 bool
-AdminI::pingRegistry(const string& name, const Current&) const
+AdminI::pingRegistry(string name, const Current&) const
 {
     if(name == _registry->getName())
     {
@@ -756,7 +657,7 @@ AdminI::pingRegistry(const string& name, const Current&) const
 }
 
 void
-AdminI::shutdownRegistry(const string& name, const Current&)
+AdminI::shutdownRegistry(string name, const Current&)
 {
     if(name == _registry->getName())
     {
