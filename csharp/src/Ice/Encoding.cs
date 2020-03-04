@@ -18,10 +18,7 @@ namespace Ice
 
         public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
 
-        public bool Equals(Encoding other)
-        {
-            return Major.Equals(other.Major) && Minor.Equals(other.Minor);
-        }
+        public bool Equals(Encoding other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
 
         public override bool Equals(object? other)
         {

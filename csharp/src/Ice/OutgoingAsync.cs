@@ -618,7 +618,7 @@ namespace IceInternal
                              Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
-            Encoding = Proxy.IceReference.GetEncoding();
+            Encoding = Proxy.Encoding;
             Synchronous = false;
         }
 
