@@ -132,7 +132,7 @@ private:
 }
 
 void
-GetAdapterInfoResult::add(const shared_ptr<ServerAdapterEntry>& adapter)
+GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
 {
     AdapterInfo info;
     info.id = adapter->getId();
@@ -424,7 +424,7 @@ shared_ptr<GetAdapterInfoResult>
 ServerAdapterEntry::getAdapterInfoAsync() const
 {
     auto result = make_shared<GetAdapterInfoResult>();
-    result->add(const_pointer_cast<ServerAdapterEntry>(shared_from_this()));
+    result->add(this);
     return result;
 }
 
@@ -819,7 +819,7 @@ ReplicaGroupEntry::getAdapterInfoAsync() const
     }
     for(const auto& replica : replicas)
     {
-        result->add(replica);
+        result->add(replica.get());
     }
     return result;
 }

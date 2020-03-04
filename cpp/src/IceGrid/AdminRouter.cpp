@@ -27,53 +27,49 @@ IceGrid::AdminRouter::invokeOnTarget(const shared_ptr<Ice::ObjectPrx>& target,
         out << "routing operation `" << current.operation << "' to `" << target->ice_toString() << "'";
     }
 
-    auto traceResponse = [operation = current.operation, traceLevels = _traceLevels, target](const auto& ok)
-    {
-        if(traceLevels->admin > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
-
-            out << "operation `" << operation << "' routed to `" << Ice::identityToString(target->ice_getIdentity())
-                << " -f " << target->ice_getFacet() << "' is returning ";
-            if(ok)
-            {
-                out << "successfully";
-            }
-            else
-            {
-                out << "a user exception";
-            }
-        }
-    };
-
-    auto traceException = [operation = current.operation, traceLevels = _traceLevels, target](auto exptr)
-    {
-        if(traceLevels->admin > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
-            try
-            {
-                rethrow_exception(exptr);
-            }
-            catch(const std::exception& ex)
-            {
-                out << "operation `" << operation << "' routed to `"
-                    << Ice::identityToString(target->ice_getIdentity())
-                    << " -f " << target->ice_getFacet() << "' failed with " << ex;
-            }
-        }
-    };
-
     target->ice_invokeAsync(current.operation, current.mode, inParams,
-                            [response, traceResponse = move(traceResponse)] (bool ok, auto bytes)
+                            [response, operation = current.operation, traceLevels = _traceLevels, target]
+                            (bool ok, auto bytes)
                             {
-                                traceResponse(ok);
+                                if(traceLevels->admin > 0)
+                                {
+                                    Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
+
+                                    out << "operation `" << operation << "' routed to `"
+                                        << Ice::identityToString(target->ice_getIdentity())
+                                        << " -f " << target->ice_getFacet() << "' is returning ";
+
+                                    if(ok)
+                                    {
+                                        out << "successfully";
+                                    }
+                                    else
+                                    {
+                                        out << "a user exception";
+                                    }
+                                }
+
                                 response(move(ok), move(bytes));
                             },
-                            [exception, traceException = move(traceException)] (exception_ptr ex)
+                            [exception, operation = current.operation, traceLevels = _traceLevels, target]
+                            (exception_ptr exptr)
                             {
-                                traceException(ex);
-                                exception(ex);
+                                if(traceLevels->admin > 0)
+                                {
+                                    Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
+                                    try
+                                    {
+                                        rethrow_exception(exptr);
+                                    }
+                                    catch(const std::exception& ex)
+                                    {
+                                        out << "operation `" << operation << "' routed to `"
+                                            << Ice::identityToString(target->ice_getIdentity())
+                                            << " -f " << target->ice_getFacet() << "' failed with " << ex;
+                                    }
+                                }
+
+                                exception(exptr);
                             },
                             nullptr,
                             current.ctx);

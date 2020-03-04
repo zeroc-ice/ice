@@ -36,7 +36,7 @@ class GetAdapterInfoResult
 {
 public:
 
-    void add(const std::shared_ptr<ServerAdapterEntry>&);
+    void add(const ServerAdapterEntry*);
     AdapterInfoSeq get();
 
 private:
@@ -72,7 +72,7 @@ protected:
     std::string _application;
 };
 
-class ServerAdapterEntry final : public AdapterEntry, public std::enable_shared_from_this<ServerAdapterEntry>
+class ServerAdapterEntry final : public AdapterEntry
 {
 public:
 

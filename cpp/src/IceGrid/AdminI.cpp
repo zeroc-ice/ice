@@ -141,10 +141,8 @@ AdminI::addApplication(ApplicationDescriptor descriptor, const Current&)
 {
     checkIsReadOnly();
 
-    auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-
     ApplicationInfo info;
-    info.createTime = info.updateTime = time;
+    info.createTime = info.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     info.createUser = info.updateUser = _session->getId();
     info.descriptor = descriptor;
     info.revision = 1;
@@ -165,10 +163,8 @@ AdminI::updateApplication(ApplicationUpdateDescriptor descriptor, const Current&
 {
     checkIsReadOnly();
 
-    auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-
     ApplicationUpdateInfo update;
-    update.updateTime = time;
+    update.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     update.updateUser = _session->getId();
     update.descriptor = descriptor;
     update.revision = -1; // The database will set it.
@@ -187,10 +183,8 @@ AdminI::updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor, 
 {
     checkIsReadOnly();
 
-    auto time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-
     ApplicationUpdateInfo update;
-    update.updateTime = time;
+    update.updateTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     update.updateUser = _session->getId();
     update.descriptor = descriptor;
     update.revision = -1; // The database will set it.
