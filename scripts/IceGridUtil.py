@@ -46,7 +46,7 @@ class IceGridClient(IceGridProcess, Client):
 class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
 
     def __init__(self, replica=None, username="admin1", password="test1", *args, **kargs):
-        IceGridClient.__init__(self, replica=replica, exe="icegridadmin", mapping=Mapping.getByName("cpp"),
+        IceGridClient.__init__(self, replica=replica, exe="icegridadmin++11", mapping=Mapping.getByName("cpp"),
                                *args, **kargs)
         self.username = username
         self.password = password
@@ -64,7 +64,7 @@ class IceGridNode(ProcessFromBinDir, Server):
 
     def __init__(self, name="localnode", *args, **kargs):
 
-        Server.__init__(self, "icegridnode", mapping=Mapping.getByName("cpp"), desc="IceGrid node " + name,
+        Server.__init__(self, "icegridnode++11", mapping=Mapping.getByName("cpp"), desc="IceGrid node " + name,
                         ready="node", *args, **kargs)
         self.name = name
 
@@ -121,7 +121,7 @@ class IceGridNode(ProcessFromBinDir, Server):
 class IceGridRegistry(ProcessFromBinDir, Server):
 
     def __init__(self, name, portnum=20, ready="AdminSessionManager", *args, **kargs):
-        Server.__init__(self, "icegridregistry", mapping=Mapping.getByName("cpp"), desc="IceGrid registry " + name,
+        Server.__init__(self, "icegridregistry++11", mapping=Mapping.getByName("cpp"), desc="IceGrid registry " + name,
                         ready=ready, *args, **kargs)
         self.portnum = portnum
         self.readyCount = -1

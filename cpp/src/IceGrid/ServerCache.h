@@ -5,9 +5,6 @@
 #ifndef ICE_GRID_SERVERCACHE_H
 #define ICE_GRID_SERVERCACHE_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
-#include <Ice/UniquePtr.h>
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Registry.h>
@@ -17,26 +14,20 @@
 namespace IceGrid
 {
 
-class ServerCache;
-class ObjectCache;
 class AdapterCache;
 class AllocatableObjectCache;
-class NodeCache;
-
-class NodeEntry;
-typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
-
 class CheckServerResult;
-typedef IceUtil::Handle<CheckServerResult> CheckServerResultPtr;
-
+class NodeCache;
+class NodeEntry;
 class NodeObserverTopic;
-typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
+class ObjectCache;
+class ServerCache;
 
-class CheckUpdateResult : public IceUtil::Shared
+class CheckUpdateResult final
 {
 public:
 
-    CheckUpdateResult(const std::string&, const std::string&, bool, bool, const Ice::AsyncResultPtr&);
+    CheckUpdateResult(const std::string&, const std::string&, bool, bool, std::future<bool>&&);
 
     bool getResult();
 
@@ -48,30 +39,29 @@ private:
     const std::string _node;
     const bool _remove;
     const bool _noRestart;
-    const Ice::AsyncResultPtr _result;
+    std::future<bool> _result;
 };
-typedef IceUtil::Handle<CheckUpdateResult> CheckUpdateResultPtr;
 
-class ServerEntry : public Allocatable
+class ServerEntry final : public Allocatable
 {
 public:
 
     ServerEntry(ServerCache&, const std::string&);
 
     void sync();
-    void waitForSync(int);
+    void waitForSync(std::chrono::seconds);
     void waitForSync()
     {
-        waitForSync(-1);
+        waitForSync(std::chrono::seconds(-1));
     }
-    void waitForSyncNoThrow(int);
+    void waitForSyncNoThrow(std::chrono::seconds);
     void waitForSyncNoThrow()
     {
-        waitForSyncNoThrow(-1);
+        waitForSyncNoThrow(std::chrono::seconds(-1));
     }
     void unsync();
 
-    bool addSyncCallback(const SynchronizationCallbackPtr&);
+    bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&);
 
     void update(const ServerInfo&, bool);
 
@@ -80,101 +70,104 @@ public:
     ServerInfo getInfo(bool = false) const;
     std::string getId() const;
 
-    ServerPrx getProxy(int&, int&, std::string&, bool = true, int = 0);
-    ServerPrx getProxy(bool = true, int = 0);
-    Ice::ObjectPrx getAdminProxy();
+    std::shared_ptr<ServerPrx> getProxy(std::chrono::seconds&, std::chrono::seconds&, std::string&, bool = true,
+                                        std::chrono::seconds = std::chrono::seconds(0));
+    std::shared_ptr<ServerPrx> getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
+    std::shared_ptr<Ice::ObjectPrx> getAdminProxy();
 
-    AdapterPrx getAdapter(const std::string&, bool);
-    AdapterPrx getAdapter(int&, int&, const std::string&, bool);
+    std::shared_ptr<AdapterPrx> getAdapter(const std::string&, bool);
+    std::shared_ptr<AdapterPrx> getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
     float getLoad(LoadSample) const;
 
     bool canRemove();
-    CheckUpdateResultPtr checkUpdate(const ServerInfo&, bool);
+    std::shared_ptr<CheckUpdateResult> checkUpdate(const ServerInfo&, bool);
     bool isDestroyed();
 
-    void loadCallback(const ServerPrx&, const AdapterPrxDict&, int, int);
+    void loadCallback(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict&, std::chrono::seconds,
+                      std::chrono::seconds);
     void destroyCallback();
-    void exception(const Ice::Exception&);
+    void exception(std::exception_ptr);
 
-    virtual bool isEnabled() const;
-    virtual void allocated(const SessionIPtr&);
-    virtual void allocatedNoSync(const SessionIPtr&);
-    virtual void released(const SessionIPtr&);
-    virtual void releasedNoSync(const SessionIPtr&);
+    bool isEnabled() const override;
+    void allocated(const std::shared_ptr<SessionI>&) override;
+    void allocatedNoSync(const std::shared_ptr<SessionI>&) override;
+    void released(const std::shared_ptr<SessionI>&) override;
+    void releasedNoSync(const std::shared_ptr<SessionI>&) override;
 
 private:
 
     void syncImpl();
-    void waitImpl(int);
+    void waitImpl(std::chrono::seconds);
     void synchronized();
-    void synchronized(const Ice::Exception&);
+    void synchronized(std::exception_ptr);
 
     ServerCache& _cache;
     const std::string _id;
-    IceInternal::UniquePtr<ServerInfo> _loaded;
-    IceInternal::UniquePtr<ServerInfo> _load;
-    IceInternal::UniquePtr<ServerInfo> _destroy;
+    std::unique_ptr<ServerInfo> _loaded;
+    std::unique_ptr<ServerInfo> _load;
+    std::unique_ptr<ServerInfo> _destroy;
 
-    ServerPrx _proxy;
+    std::shared_ptr<ServerPrx> _proxy;
     AdapterPrxDict _adapters;
-    int _activationTimeout;
-    int _deactivationTimeout;
+    std::chrono::seconds _activationTimeout;
+    std::chrono::seconds _deactivationTimeout;
 
     bool _synchronizing;
     bool _updated;
-    IceInternal::UniquePtr<Ice::Exception> _exception;
+    std::exception_ptr _exception;
     bool _noRestart;
-    std::vector<SynchronizationCallbackPtr> _callbacks;
+    std::vector<std::shared_ptr<SynchronizationCallback>> _callbacks;
 
-    SessionIPtr _allocationSession;
+    std::shared_ptr<SessionI> _allocationSession;
+
+    mutable std::mutex _mutex;
+    std::condition_variable _condVar;
 };
-typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
-typedef std::vector<ServerEntryPtr> ServerEntrySeq;
+using ServerEntrySeq = std::vector<std::shared_ptr<ServerEntry>>;
 
 class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-#ifdef __SUNPRO_CC
-    using CacheByString<ServerEntry>::remove;
-#endif
-
-    ServerCache(const Ice::CommunicatorPtr&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&,
+    ServerCache(const std::shared_ptr<Ice::Communicator>&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&,
                 AllocatableObjectCache&);
 
-    ServerEntryPtr add(const ServerInfo&);
-    ServerEntryPtr get(const std::string&) const;
+    std::shared_ptr<ServerEntry> add(const ServerInfo&);
+    std::shared_ptr<ServerEntry> get(const std::string&) const;
     bool has(const std::string&) const;
-    ServerEntryPtr remove(const std::string&, bool);
+    std::shared_ptr<ServerEntry> remove(const std::string&, bool);
 
     void preUpdate(const ServerInfo&, bool);
-    ServerEntryPtr postUpdate(const ServerInfo&, bool);
+    std::shared_ptr<ServerEntry> postUpdate(const ServerInfo&, bool);
 
     void clear(const std::string&);
 
     NodeCache& getNodeCache() const { return _nodeCache; }
-    Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
+    std::shared_ptr<Ice::Communicator> getCommunicator() const { return _communicator; }
     const std::string& getInstanceName() const { return _instanceName; }
 
-    const NodeObserverTopicPtr& getNodeObserverTopic() const { return _nodeObserverTopic; }
-    void setNodeObserverTopic(const NodeObserverTopicPtr&);
+    const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const { return _nodeObserverTopic; }
+    void setNodeObserverTopic(const std::shared_ptr<NodeObserverTopic>&);
 
 private:
 
-    void addCommunicator(const CommunicatorDescriptorPtr&, const CommunicatorDescriptorPtr&, const ServerEntryPtr&,
-                         const std::string&);
-    void removeCommunicator(const CommunicatorDescriptorPtr&, const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
+    void addCommunicator(const std::shared_ptr<CommunicatorDescriptor>&, const std::shared_ptr<CommunicatorDescriptor>&,
+                         const std::shared_ptr<ServerEntry>&, const std::string&);
+    void removeCommunicator(const std::shared_ptr<CommunicatorDescriptor>&,
+                            const std::shared_ptr<CommunicatorDescriptor>&, const std::shared_ptr<ServerEntry>&);
 
     friend struct AddCommunicator;
     friend struct RemoveCommunicator;
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     const std::string _instanceName;
     NodeCache& _nodeCache;
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;
     AllocatableObjectCache& _allocatableObjectCache;
-    NodeObserverTopicPtr _nodeObserverTopic;
+    std::shared_ptr<NodeObserverTopic> _nodeObserverTopic;
+
+    mutable std::mutex _mutex;
 };
 
 };

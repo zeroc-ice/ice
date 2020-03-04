@@ -21,47 +21,43 @@
 using namespace std;
 using namespace IceGrid;
 
-InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
-                                     const DatabasePtr& database,
-                                     const ReapThreadPtr& reaper,
-                                     const WellKnownObjectsManagerPtr& wellKnownObjects,
+InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
+                                     const shared_ptr<Database>& database,
+                                     const shared_ptr<ReapThread>& reaper,
+                                     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
                                      ReplicaSessionManager& session) :
     _registry(registry),
     _database(database),
     _reaper(reaper),
     _wellKnownObjects(wellKnownObjects),
-    _fileCache(new FileCache(database->getCommunicator())),
+    _fileCache(make_shared<FileCache>(database->getCommunicator())),
     _session(session)
 {
-    Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
-    _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
-    _replicaSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
+    auto properties = database->getCommunicator()->getProperties();
+    _nodeSessionTimeout =
+        chrono::seconds(properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30));
+    _replicaSessionTimeout =
+        chrono::seconds(properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30));
     _requireNodeCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireNodeCertCN", 0);
     _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireReplicaCertCN", 0);
 }
 
-InternalRegistryI::~InternalRegistryI()
-{
-}
-
-NodeSessionPrx
-InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
-                                const NodePrx& node,
-                                const LoadInfo& load,
+shared_ptr<NodeSessionPrx>
+InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, shared_ptr<NodePrx> node, LoadInfo load,
                                 const Ice::Current& current)
 {
-    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-    const Ice::LoggerPtr logger = traceLevels->logger;
+    const auto traceLevels = _database->getTraceLevels();
+    const auto logger = traceLevels->logger;
     if(!info || !node)
     {
-        return 0;
+        return nullptr;
     }
 
     if(_requireNodeCertCN)
     {
         try
         {
-            IceSSL::ConnectionInfoPtr sslConnInfo = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
@@ -102,8 +98,8 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
 
     try
     {
-        NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
-        _reaper->add(new SessionReapable<NodeSessionI>(logger, session), _nodeSessionTimeout);
+        auto session = NodeSessionI::create(_database, node, info, _nodeSessionTimeout, load);
+        _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
         return session->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -112,23 +108,23 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
     }
 }
 
-ReplicaSessionPrx
-InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
-                                   const InternalRegistryPrx& prx,
+shared_ptr<ReplicaSessionPrx>
+InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
+                                   shared_ptr<InternalRegistryPrx> prx,
                                    const Ice::Current& current)
 {
-    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-    const Ice::LoggerPtr logger = traceLevels->logger;
+    const auto traceLevels = _database->getTraceLevels();
+    const auto logger = traceLevels->logger;
     if(!info || !prx)
     {
-        return 0;
+        return nullptr;
     }
 
     if(_requireReplicaCertCN)
     {
         try
         {
-            IceSSL::ConnectionInfoPtr sslConnInfo = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
@@ -169,8 +165,8 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
 
     try
     {
-        ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
-        _reaper->add(new SessionReapable<ReplicaSessionI>(logger, s), _replicaSessionTimeout);
+        auto s = ReplicaSessionI::create(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
+        _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
         return s->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -180,9 +176,9 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
 }
 
 void
-InternalRegistryI::registerWithReplica(const InternalRegistryPrx& replica, const Ice::Current&)
+InternalRegistryI::registerWithReplica(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
 {
-    _session.create(replica);
+    _session.create(move(replica));
 }
 
 NodePrxSeq
@@ -192,7 +188,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
     Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-        nodes.push_back(NodePrx::uncheckedCast(*p));
+        nodes.push_back(Ice::uncheckedCast<NodePrx>(*p));
     }
     return nodes;
 }
@@ -204,25 +200,25 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-        replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
+        replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*p));
     }
     return replicas;
 }
 
 ApplicationInfoSeq
-InternalRegistryI::getApplications(Ice::Long& serial, const Ice::Current&) const
+InternalRegistryI::getApplications(long long& serial, const Ice::Current&) const
 {
     return _database->getApplications(serial);
 }
 
 AdapterInfoSeq
-InternalRegistryI::getAdapters(Ice::Long& serial, const Ice::Current&) const
+InternalRegistryI::getAdapters(long long& serial, const Ice::Current&) const
 {
     return _database->getAdapters(serial);
 }
 
 ObjectInfoSeq
-InternalRegistryI::getObjects(Ice::Long& serial, const Ice::Current&) const
+InternalRegistryI::getObjects(long long& serial, const Ice::Current&) const
 {
     return _database->getObjects(serial);
 }
@@ -233,14 +229,14 @@ InternalRegistryI::shutdown(const Ice::Current& /*current*/) const
     _registry->shutdown();
 }
 
-Ice::Long
-InternalRegistryI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) const
+long long
+InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-InternalRegistryI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines,
+InternalRegistryI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
                         const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);

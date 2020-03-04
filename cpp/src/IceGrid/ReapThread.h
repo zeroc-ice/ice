@@ -5,10 +5,6 @@
 #ifndef ICEGRID_REAPER_THREAD_H
 #define ICEGRID_REAPER_THREAD_H
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
-
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
@@ -19,44 +15,37 @@
 namespace IceGrid
 {
 
-class Reapable : public Ice::LocalObject
+class Reapable
 {
 public:
 
-    virtual ~Reapable() { }
+    virtual ~Reapable() = default;
 
     virtual void heartbeat() const { };
 
-    virtual IceUtil::Time timestamp() const = 0;
+    virtual std::chrono::steady_clock::time_point timestamp() const = 0;
     virtual void destroy(bool) = 0;
 
 };
-typedef IceUtil::Handle<Reapable> ReapablePtr;
 
 template<class T>
 class SessionReapable : public Reapable
 {
-    typedef IceUtil::Handle<T> TPtr;
-
 public:
 
-    SessionReapable(const Ice::LoggerPtr& logger, const TPtr& session) :
+    SessionReapable(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session) :
         _logger(logger), _session(session)
     {
     }
 
-    virtual ~SessionReapable()
-    {
-    }
-
-    virtual IceUtil::Time
-    timestamp() const
+    std::chrono::steady_clock::time_point
+    timestamp() const override
     {
         return _session->timestamp();
     }
 
-    virtual void
-    destroy(bool shutdown)
+    void
+    destroy(bool shutdown) override
     {
         try
         {
@@ -81,24 +70,22 @@ public:
 
 protected:
 
-    const Ice::LoggerPtr _logger;
-    const TPtr _session;
+    const std::shared_ptr<Ice::Logger> _logger;
+    const std::shared_ptr<T> _session;
 };
 
 template<class T>
-class SessionReapableWithHeartbeat : public SessionReapable<T>
+class SessionReapableWithHeartbeat final : public SessionReapable<T>
 {
-    typedef IceUtil::Handle<T> TPtr;
-
 public:
 
-    SessionReapableWithHeartbeat(const Ice::LoggerPtr& logger, const TPtr& session) :
+    SessionReapableWithHeartbeat(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session) :
         SessionReapable<T>(logger, session)
     {
     }
 
-    virtual void
-    heartbeat() const
+    void
+    heartbeat() const override
     {
         try
         {
@@ -110,39 +97,44 @@ public:
     }
 };
 
-class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class ReapThread final
 {
 public:
 
     ReapThread();
 
-    virtual void run();
     void terminate();
-    void add(const ReapablePtr&, int, const Ice::ConnectionPtr& = Ice::ConnectionPtr());
+    void join();
+    void add(const std::shared_ptr<Reapable>&, std::chrono::seconds, const std::shared_ptr<Ice::Connection>& = nullptr);
 
-    void connectionHeartbeat(const Ice::ConnectionPtr&);
-    void connectionClosed(const Ice::ConnectionPtr&);
+    void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
+    void connectionClosed(const std::shared_ptr<Ice::Connection>&);
 
 private:
 
+    void run();
+
     bool calcWakeInterval();
 
-    Ice::CloseCallbackPtr _closeCallback;
-    Ice::HeartbeatCallbackPtr _heartbeatCallback;
-    IceUtil::Time _wakeInterval;
+    Ice::CloseCallback _closeCallback;
+    Ice::HeartbeatCallback _heartbeatCallback;
+    std::chrono::milliseconds _wakeInterval;
     bool _terminated;
     struct ReapableItem
     {
-        ReapablePtr item;
-        Ice::ConnectionPtr connection;
-        IceUtil::Time timeout;
+        std::shared_ptr<Reapable> item;
+        std::shared_ptr<Ice::Connection> connection;
+        std::chrono::milliseconds timeout;
     };
     std::list<ReapableItem> _sessions;
 
-    std::map<Ice::ConnectionPtr, std::set<ReapablePtr> > _connections;
-};
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
+    std::map<std::shared_ptr<Ice::Connection>, std::set<std::shared_ptr<Reapable>> > _connections;
 
+    std::mutex _mutex;
+    std::condition_variable _condVar;
+    std::thread _thread;
 };
+
+}
 
 #endif

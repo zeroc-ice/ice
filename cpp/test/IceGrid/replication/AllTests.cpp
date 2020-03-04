@@ -780,7 +780,7 @@ allTests(Test::TestHelper* helper)
     {
         //
         // Add an application which is using Node1. Otherwise, when a
-        // registry restarts it would throw aways the proxy of the nodes
+        // registry restarts it would throw away the proxy of the nodes
         // because the node isn't used by any application.
         //
         ApplicationDescriptor app;

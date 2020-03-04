@@ -5,60 +5,55 @@
 #ifndef ICEGRID_PLUGIN_FACADE_I_H
 #define ICEGRID_PLUGIN_FACADE_I_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Handle.h>
-
 #include <IceGrid/PluginFacade.h>
 
 namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
 
-class RegistryPluginFacadeI : public RegistryPluginFacade, private IceUtil::Mutex
+class RegistryPluginFacadeI : public RegistryPluginFacade
 {
 public:
 
-    RegistryPluginFacadeI();
+    ApplicationInfo getApplicationInfo(const ::std::string&) const override;
 
-    virtual ApplicationInfo getApplicationInfo(const ::std::string&) const;
+    ServerInfo getServerInfo(const std::string&) const override;
 
-    virtual ServerInfo getServerInfo(const std::string&) const;
+    std::string getAdapterServer(const std::string&) const override;
+    std::string getAdapterApplication(const std::string&) const override;
+    std::string getAdapterNode(const std::string&) const override;
+    AdapterInfoSeq getAdapterInfo(const ::std::string&) const override;
 
-    virtual std::string getAdapterServer(const std::string&) const;
-    virtual std::string getAdapterApplication(const std::string&) const;
-    virtual std::string getAdapterNode(const std::string&) const;
-    virtual AdapterInfoSeq getAdapterInfo(const ::std::string&) const;
+    ObjectInfo getObjectInfo(const Ice::Identity&) const override;
 
-    virtual ObjectInfo getObjectInfo(const Ice::Identity&) const;
+    NodeInfo getNodeInfo(const std::string&) const override;
+    LoadInfo getNodeLoad(const std::string&) const override;
 
-    virtual NodeInfo getNodeInfo(const std::string&) const;
-    virtual LoadInfo getNodeLoad(const std::string&) const;
+    std::string getPropertyForAdapter(const std::string&, const std::string&) const override;
 
-    virtual std::string getPropertyForAdapter(const std::string&, const std::string&) const;
+    void addReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
+    bool removeReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
 
-    virtual void addReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&) ICE_NOEXCEPT;
-    virtual bool removeReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&) ICE_NOEXCEPT;
+    void addTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) noexcept override;
+    bool removeTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) noexcept override;
 
-    virtual void addTypeFilter(const std::string&, const TypeFilterPtr&) ICE_NOEXCEPT;
-    virtual bool removeTypeFilter(const std::string&, const TypeFilterPtr&) ICE_NOEXCEPT;
-
-    std::vector<ReplicaGroupFilterPtr> getReplicaGroupFilters(const std::string&) const;
+    std::vector<std::shared_ptr<ReplicaGroupFilter>> getReplicaGroupFilters(const std::string&) const;
     bool hasReplicaGroupFilters() const;
 
-    std::vector<TypeFilterPtr> getTypeFilters(const std::string&) const;
+    std::vector<std::shared_ptr<TypeFilter>> getTypeFilters(const std::string&) const;
     bool hasTypeFilters() const;
 
-    void setDatabase(const DatabasePtr&);
+    void setDatabase(const std::shared_ptr<Database>&);
 
 private:
 
-    DatabasePtr _database;
-    std::map<std::string, std::vector<ReplicaGroupFilterPtr> > _replicaGroupFilters;
-    std::map<std::string, std::vector<TypeFilterPtr> > _typeFilters;
+    std::shared_ptr<Database> _database;
+    std::map<std::string, std::vector<std::shared_ptr<ReplicaGroupFilter>> > _replicaGroupFilters;
+    std::map<std::string, std::vector<std::shared_ptr<TypeFilter>> > _typeFilters;
+
+    mutable std::mutex _mutex;
 };
-typedef IceUtil::Handle<RegistryPluginFacadeI> RegistryPluginFacadeIPtr;
 
 }
 

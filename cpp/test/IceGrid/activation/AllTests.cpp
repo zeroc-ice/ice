@@ -616,19 +616,20 @@ allTests(Test::TestHelper* helper)
     cout << "testing temporary disable on failure... " << flush;
     try
     {
-        test(admin->getServerState("server2") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server2"));
+        test(admin->getServerState("server2") == IceGrid::ServerState::Inactive);
+        auto obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server2"));
+        obj = obj->ice_locatorCacheTimeout(0);
         while(true)
         {
             obj->ice_ping();
-            waitForServerState(admin, "server2", IceGrid::Active);
-            IceUtil::Time now = IceUtil::Time::now();
+            waitForServerState(admin, "server2", IceGrid::ServerState::Active);
+            auto now = std::chrono::steady_clock::now();
             obj->fail();
             waitForServerState(admin, "server2", IceGrid::Inactive);
             try
             {
                 obj->ice_ping();
-                test(IceUtil::Time::now() - now >= IceUtil::Time::seconds(3));
+                test(chrono::steady_clock::now() - now >= 3s);
             }
             catch (const Ice::NoEndpointException&)
             {

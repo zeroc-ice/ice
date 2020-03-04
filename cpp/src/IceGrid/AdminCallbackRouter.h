@@ -21,25 +21,20 @@ class AdminCallbackRouter : public Ice::BlobjectArrayAsync
 {
 public:
 
-    void addMapping(const std::string&, const Ice::ConnectionPtr&);
+    void addMapping(const std::string&, const std::shared_ptr<Ice::Connection>&);
     void removeMapping(const std::string&);
 
-    virtual void invokeResponse(bool,
-                                const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                                const Ice::AMD_Object_ice_invokePtr&);
-
-    virtual void invokeException(const Ice::Exception&, const Ice::AMD_Object_ice_invokePtr&);
-
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                  const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current& current) override;
 
 private:
 
-    IceUtil::Mutex _mutex;
-    std::map<std::string, Ice::ConnectionPtr> _categoryToConnection;
+    std::mutex _mutex;
+    std::map<std::string, std::shared_ptr<Ice::Connection>> _categoryToConnection;
 };
 
-typedef IceUtil::Handle<AdminCallbackRouter> AdminCallbackRouterPtr;
 }
+
 #endif

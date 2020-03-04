@@ -16,13 +16,8 @@ namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
-class WellKnownObjectsManager;
-typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
-
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+class WellKnownObjectsManager;
 
 class ReplicaSessionManager : public SessionManager
 {
@@ -32,26 +27,27 @@ public:
     {
     public:
 
-        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master, const Ice::LoggerPtr& logger) :
+        Thread(ReplicaSessionManager& manager, const std::shared_ptr<InternalRegistryPrx>& master,
+               const std::shared_ptr<Ice::Logger>& logger) :
             SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
             _manager(manager)
         {
         }
 
-        virtual ReplicaSessionPrx
-        createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
+        std::shared_ptr<ReplicaSessionPrx>
+        createSession(std::shared_ptr<InternalRegistryPrx>& master, std::chrono::seconds& timeout) override
         {
             return _manager.createSession(master, timeout);
         }
 
-        virtual void
-        destroySession(const ReplicaSessionPrx& session)
+        void
+        destroySession(const std::shared_ptr<ReplicaSessionPrx>& session) override
         {
             _manager.destroySession(session);
         }
 
-        virtual bool
-        keepAlive(const ReplicaSessionPrx& session)
+        bool
+        keepAlive(const std::shared_ptr<ReplicaSessionPrx>& session) override
         {
             return _manager.keepAlive(session);
         }
@@ -62,19 +58,20 @@ public:
 
         ReplicaSessionManager& _manager;
     };
-    typedef IceUtil::Handle<Thread> ThreadPtr;
 
-    ReplicaSessionManager(const Ice::CommunicatorPtr&, const std::string&);
-    void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&,
-                const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
-    void create(const InternalRegistryPrx&);
+    using SessionManager::SessionManager;
+
+    void create(const std::string&, const std::shared_ptr<InternalReplicaInfo>&, const std::shared_ptr<Database>&,
+                const std::shared_ptr<WellKnownObjectsManager>&, const std::shared_ptr<InternalRegistryPrx>&);
+    void create(const std::shared_ptr<InternalRegistryPrx>&);
+
     NodePrxSeq getNodes(const NodePrxSeq&) const;
     void destroy();
 
     void registerAllWellKnownObjects();
-    ReplicaSessionPrx getSession() const { return _thread ? _thread->getSession() : ReplicaSessionPrx(); }
+    std::shared_ptr<ReplicaSessionPrx> getSession() const { return _thread ? _thread->getSession() : nullptr; }
 
-    IceGrid::InternalRegistryPrx findInternalRegistryForReplica(const Ice::Identity&);
+    std::shared_ptr<InternalRegistryPrx> findInternalRegistryForReplica(const Ice::Identity&);
 
 private:
 
@@ -82,24 +79,24 @@ private:
 
     bool isDestroyed()
     {
-        Lock sync(*this);
+        std::lock_guard<std::mutex> lock(_mutex);
         return !_communicator;
     }
 
-    ReplicaSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
-    ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
-    void destroySession(const ReplicaSessionPrx&);
-    bool keepAlive(const ReplicaSessionPrx&);
+    std::shared_ptr<ReplicaSessionPrx> createSession(std::shared_ptr<InternalRegistryPrx>&, std::chrono::seconds&);
+    std::shared_ptr<ReplicaSessionPrx> createSessionImpl(const std::shared_ptr<InternalRegistryPrx>&, std::chrono::seconds&);
+    void destroySession(const std::shared_ptr<ReplicaSessionPrx>&);
+    bool keepAlive(const std::shared_ptr<ReplicaSessionPrx>&);
 
-    ThreadPtr _thread;
+    std::shared_ptr<Thread> _thread;
     std::string _name;
-    InternalReplicaInfoPtr _info;
-    RegistryPrx _registry;
-    InternalRegistryPrx _internalRegistry;
-    DatabaseObserverPrx _observer;
-    DatabasePtr _database;
-    WellKnownObjectsManagerPtr _wellKnownObjects;
-    TraceLevelsPtr _traceLevels;
+    std::shared_ptr<InternalReplicaInfo> _info;
+    std::shared_ptr<RegistryPrx> _registry;
+    std::shared_ptr<InternalRegistryPrx> _internalRegistry;
+    std::shared_ptr<DatabaseObserverPrx> _observer;
+    std::shared_ptr<Database> _database;
+    std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
+    std::shared_ptr<TraceLevels> _traceLevels;
 };
 
 }

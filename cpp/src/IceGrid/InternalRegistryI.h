@@ -12,61 +12,52 @@ namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
 class FileCache;
-typedef IceUtil::Handle<FileCache> FileCachePtr;
-
-class WellKnownObjectsManager;
-typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
-
 class ReapThread;
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
-
 class RegistryI;
-typedef IceUtil::Handle<RegistryI> RegistryIPtr;
-
 class ReplicaSessionManager;
+class WellKnownObjectsManager;
 
 class InternalRegistryI : public InternalRegistry
 {
 public:
 
-    InternalRegistryI(const RegistryIPtr&, const DatabasePtr&, const ReapThreadPtr&,
-                      const WellKnownObjectsManagerPtr&, ReplicaSessionManager&);
-    virtual ~InternalRegistryI();
+    InternalRegistryI(const std::shared_ptr<RegistryI>&, const std::shared_ptr<Database>&,
+                      const std::shared_ptr<ReapThread>&, const std::shared_ptr<WellKnownObjectsManager>&,
+                      ReplicaSessionManager&);
 
-    virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const LoadInfo&,
-                                        const Ice::Current&);
-    virtual ReplicaSessionPrx registerReplica(const InternalReplicaInfoPtr&, const InternalRegistryPrx&,
-                                              const Ice::Current&);
+    std::shared_ptr<NodeSessionPrx> registerNode(std::shared_ptr<InternalNodeInfo>, std::shared_ptr<NodePrx>, LoadInfo,
+                                                 const Ice::Current&) override;
+    std::shared_ptr<ReplicaSessionPrx> registerReplica(std::shared_ptr<InternalReplicaInfo>,
+                                                       std::shared_ptr<InternalRegistryPrx>,
+                                                       const Ice::Current&) override;
 
-    virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
+    void registerWithReplica(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
 
-    virtual NodePrxSeq getNodes(const Ice::Current&) const;
-    virtual InternalRegistryPrxSeq getReplicas(const Ice::Current&) const;
+    NodePrxSeq getNodes(const Ice::Current&) const override;
+    InternalRegistryPrxSeq getReplicas(const Ice::Current&) const override;
 
-    virtual ApplicationInfoSeq getApplications(Ice::Long&, const Ice::Current&) const;
-    virtual AdapterInfoSeq getAdapters(Ice::Long&, const Ice::Current&) const;
-    virtual ObjectInfoSeq getObjects(Ice::Long&, const Ice::Current&) const;
+    ApplicationInfoSeq getApplications(long long&, const Ice::Current&) const override;
+    AdapterInfoSeq getAdapters(long long&, const Ice::Current&) const override;
+    ObjectInfoSeq getObjects(long long&, const Ice::Current&) const override;
 
-    virtual void shutdown(const Ice::Current&) const;
+    void shutdown(const Ice::Current&) const override;
 
-    virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
-    virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
+    long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, long long, int, long long&, Ice::StringSeq&, const Ice::Current&) const override;
 
 private:
 
     std::string getFilePath(const std::string&) const;
 
-    const RegistryIPtr _registry;
-    const DatabasePtr _database;
-    const ReapThreadPtr _reaper;
-    const WellKnownObjectsManagerPtr _wellKnownObjects;
-    const FileCachePtr _fileCache;
+    const std::shared_ptr<RegistryI> _registry;
+    const std::shared_ptr<Database> _database;
+    const std::shared_ptr<ReapThread> _reaper;
+    const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
+    const std::shared_ptr<FileCache> _fileCache;
     ReplicaSessionManager& _session;
-    int _nodeSessionTimeout;
-    int _replicaSessionTimeout;
+    std::chrono::seconds _nodeSessionTimeout;
+    std::chrono::seconds _replicaSessionTimeout;
     bool _requireNodeCertCN;
     bool _requireReplicaCertCN;
 };

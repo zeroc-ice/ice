@@ -11,23 +11,24 @@ using namespace IceGrid;
 using namespace Ice;
 using namespace std;
 
-IceGrid::NodeServerAdminRouter::NodeServerAdminRouter(const NodeIPtr& node) :
+NodeServerAdminRouter::NodeServerAdminRouter(const shared_ptr<NodeI>& node) :
     AdminRouter(node->getTraceLevels()),
     _node(node)
 {
 }
 
 void
-IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                                 const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                                 const Current& current)
+NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+                                       function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                       function<void(exception_ptr)> exception,
+                                       const Ice::Current& current)
 {
     //
     // First, get the ServerI servant
     //
     Identity serverId = _node->createServerIdentity(current.id.name);
-    ServerIPtr server = ServerIPtr::dynamicCast(_node->getAdapter()->find(serverId));
-    if(server == 0)
+    auto server = dynamic_pointer_cast<ServerI>(_node->getAdapter()->find(serverId));
+    if(server == nullptr)
     {
         if(_traceLevels->admin > 0)
         {
@@ -41,9 +42,9 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
     //
     // Then get a proxy to the Process facet of the real admin object
     //
-    ObjectPrx target = server->getProcess();
+    auto target = server->getProcess();
 
-    if(target == 0)
+    if(target == nullptr)
     {
         if(_traceLevels->admin > 0)
         {
@@ -65,5 +66,5 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
         target = target->ice_facet(current.facet);
     }
 
-    invokeOnTarget(target, cb, inParams, current);
+    invokeOnTarget(target, inParams, move(response), move(exception), current);
 }

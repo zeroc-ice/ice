@@ -341,11 +341,11 @@ exception ReplicaActiveException
 
 enum TopicName
 {
-    RegistryObserverTopicName,
-    NodeObserverTopicName,
-    ApplicationObserverTopicName,
-    AdapterObserverTopicName,
-    ObjectObserverTopicName
+    RegistryObserver,
+    NodeObserver,
+    ApplicationObserver,
+    AdapterObserver,
+    ObjectObserver
 }
 
 interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver

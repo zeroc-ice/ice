@@ -5,10 +5,6 @@
 #ifndef ICE_GRID_NODE_SESSION_MANAGER_H
 #define ICE_GRID_NODE_SESSION_MANAGER_H
 
-#include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
-
 #include <IceGrid/SessionManager.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
@@ -18,40 +14,40 @@ namespace IceGrid
 {
 
 class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;
-
 class NodeSessionManager;
 
 class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
 {
 public:
 
-    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, NodeSessionManager&);
+    NodeSessionKeepAliveThread(const std::shared_ptr<InternalRegistryPrx>&, const std::shared_ptr<NodeI>&,
+                               NodeSessionManager&);
 
-    virtual NodeSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
-    virtual void destroySession(const NodeSessionPrx&);
-    virtual bool keepAlive(const NodeSessionPrx&);
+    virtual std::shared_ptr<NodeSessionPrx> createSession(std::shared_ptr<InternalRegistryPrx>&,
+                                                          std::chrono::seconds&) override;
+    virtual void destroySession(const std::shared_ptr<NodeSessionPrx>&) override;
+    virtual bool keepAlive(const std::shared_ptr<NodeSessionPrx>&) override;
 
-    std::string getName() const { return _name; }
+    std::string getName() const { return "IceGrid session keepalive thread"; }
 
 protected:
 
-    virtual NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
+    std::shared_ptr<NodeSessionPrx> createSessionImpl(const std::shared_ptr<InternalRegistryPrx>&,
+                                                      std::chrono::seconds&);
 
-    const NodeIPtr _node;
+    const std::shared_ptr<NodeI> _node;
     const std::string _replicaName;
     NodeSessionManager& _manager;
 };
-typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;
 
 class NodeSessionManager : public SessionManager
 {
 public:
 
-    NodeSessionManager(const Ice::CommunicatorPtr&, const std::string&);
+    NodeSessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
 
-    void create(const NodeIPtr&);
-    void create(const InternalRegistryPrx&);
+    void create(const std::shared_ptr<NodeI>&);
+    void create(const std::shared_ptr<InternalRegistryPrx>&);
     void activate();
     bool isWaitingForCreate();
     bool waitForCreate();
@@ -59,27 +55,27 @@ public:
     void destroy();
 
     void replicaInit(const InternalRegistryPrxSeq&);
-    void replicaAdded(const InternalRegistryPrx&);
-    void replicaRemoved(const InternalRegistryPrx&);
+    void replicaAdded(const std::shared_ptr<InternalRegistryPrx>&);
+    void replicaRemoved(const std::shared_ptr<InternalRegistryPrx>&);
 
-    NodeSessionPrx getMasterNodeSession() const { return _thread->getSession(); }
-    std::vector<IceGrid::QueryPrx> getQueryObjects() { return findAllQueryObjects(true); }
+    std::shared_ptr<NodeSessionPrx> getMasterNodeSession() const { return _thread->getSession(); }
+    std::vector<std::shared_ptr<IceGrid::QueryPrx>> getQueryObjects() { return findAllQueryObjects(true); }
 
 private:
 
-    NodeSessionKeepAliveThreadPtr addReplicaSession(const InternalRegistryPrx&);
+    std::shared_ptr<NodeSessionKeepAliveThread> addReplicaSession(const std::shared_ptr<InternalRegistryPrx>&);
 
     void reapReplicas();
 
-    void syncServers(const NodeSessionPrx&);
+    void syncServers(const std::shared_ptr<NodeSessionPrx>&);
 
     bool isDestroyed()
     {
-        Lock sync(*this);
+        std::lock_guard<std::mutex> lock(_mutex);
         return _destroyed;
     }
 
-    class Thread : public NodeSessionKeepAliveThread
+    class Thread final : public NodeSessionKeepAliveThread
     {
     public:
 
@@ -87,41 +83,40 @@ private:
         {
         }
 
-        virtual NodeSessionPrx
-        createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
+        std::shared_ptr<NodeSessionPrx>
+        createSession(std::shared_ptr<InternalRegistryPrx>& master, std::chrono::seconds& timeout) override
         {
-            NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
+            auto session = NodeSessionKeepAliveThread::createSession(master, timeout);
             _manager.createdSession(session);
             _manager.reapReplicas();
             return session;
         }
 
-        virtual void
-        destroySession(const NodeSessionPrx& session)
+        void
+        destroySession(const std::shared_ptr<NodeSessionPrx>& session) override
         {
             NodeSessionKeepAliveThread::destroySession(session);
             _manager.reapReplicas();
         }
 
-        virtual bool
-        keepAlive(const NodeSessionPrx& session)
+        bool
+        keepAlive(const std::shared_ptr<NodeSessionPrx>& session) override
         {
             bool alive = NodeSessionKeepAliveThread::keepAlive(session);
             _manager.reapReplicas();
             return alive;
         }
     };
-    typedef IceUtil::Handle<Thread> ThreadPtr;
     friend class Thread;
 
-    void createdSession(const NodeSessionPrx&);
+    void createdSession(const std::shared_ptr<NodeSessionPrx>&);
 
-    const NodeIPtr _node;
-    ThreadPtr _thread;
+    const std::shared_ptr<NodeI> _node;
+    std::shared_ptr<Thread> _thread;
     bool _destroyed;
     bool _activated;
 
-    typedef std::map<Ice::Identity, NodeSessionKeepAliveThreadPtr> NodeSessionMap;
+    using NodeSessionMap = std::map<Ice::Identity, std::shared_ptr<NodeSessionKeepAliveThread>>;
     NodeSessionMap _sessions;
     std::set<Ice::Identity> _replicas;
 };

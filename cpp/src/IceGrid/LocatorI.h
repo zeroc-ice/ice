@@ -14,67 +14,65 @@ namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
-class WellKnownObjectsManager;
-typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
-
 class LocatorI;
-typedef IceUtil::Handle<LocatorI> LocatorIPtr;
-
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+class WellKnownObjectsManager;
 
 struct LocatorAdapterInfo;
 typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
 
-class LocatorI : public Locator, public IceUtil::Mutex
+class LocatorI : public Locator, public std::enable_shared_from_this<LocatorI>
 {
 public:
 
-    class Request : public virtual IceUtil::Shared
+    class Request : public std::enable_shared_from_this<Request>
     {
     public:
-
         virtual void execute() = 0;
         virtual void activating(const std::string&) = 0;
-        virtual void response(const std::string&, const Ice::ObjectPrx&) = 0;
-        virtual void exception(const std::string&, const Ice::Exception&) = 0;
+        virtual void response(const std::string&, const std::shared_ptr<Ice::ObjectPrx>&) = 0;
+        virtual void exception(const std::string&, std::exception_ptr) = 0;
     };
-    typedef IceUtil::Handle<Request> RequestPtr;
 
-    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, const RegistryPrx&,
-             const QueryPrx&);
+    LocatorI(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<Database>&,
+             const std::shared_ptr<WellKnownObjectsManager>&, const std::shared_ptr<RegistryPrx>&,
+             const std::shared_ptr<QueryPrx>&);
 
-    virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&,
-                                      const Ice::Current&) const;
+    void findObjectByIdAsync(Ice::Identity,
+                            std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&) const override;
 
-    virtual void findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&,
-                                       const Ice::Current&) const;
+    void findAdapterByIdAsync(std::string,
+                              std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                              std::function<void(std::exception_ptr)>,
+                              const Ice::Current&) const override;
 
-    virtual Ice::LocatorRegistryPrx getRegistry(const Ice::Current&) const;
-    virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;
-    virtual QueryPrx getLocalQuery(const Ice::Current&) const;
+    std::shared_ptr<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
+    std::shared_ptr<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
+    std::shared_ptr<QueryPrx> getLocalQuery(const Ice::Current&) const override;
 
-    const Ice::CommunicatorPtr& getCommunicator() const;
-    const TraceLevelsPtr& getTraceLevels() const;
+    const std::shared_ptr<Ice::Communicator>& getCommunicator() const;
+    const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
-    bool getDirectProxy(const LocatorAdapterInfo&, const RequestPtr&);
-    void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrx&);
-    void getDirectProxyException(const LocatorAdapterInfo&, const Ice::Exception&);
+    bool getDirectProxy(const LocatorAdapterInfo&, const std::shared_ptr<Request>&);
+    void getDirectProxyResponse(const LocatorAdapterInfo&, const std::shared_ptr<Ice::ObjectPrx>&);
+    void getDirectProxyException(const LocatorAdapterInfo&, std::exception_ptr);
 
 protected:
 
-    const Ice::CommunicatorPtr _communicator;
-    const DatabasePtr _database;
-    const WellKnownObjectsManagerPtr _wellKnownObjects;
-    const RegistryPrx _localRegistry;
-    const QueryPrx _localQuery;
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    const std::shared_ptr<Database> _database;
+    const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
+    const std::shared_ptr<RegistryPrx> _localRegistry;
+    const std::shared_ptr<QueryPrx> _localQuery;
 
-    typedef std::vector<RequestPtr> PendingRequests;
-    typedef std::map<std::string, PendingRequests> PendingRequestsMap;
+    using PendingRequests = std::vector<std::shared_ptr<Request>>;
+    using PendingRequestsMap = std::map<std::string, PendingRequests>;
     PendingRequestsMap _pendingRequests;
     std::set<std::string> _activating;
+
+    std::mutex _mutex;
 };
 
 }

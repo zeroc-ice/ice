@@ -11,51 +11,55 @@
 namespace IceGrid
 {
 
-class RegistryServerAdminRouter : public AdminRouter
+class RegistryServerAdminRouter final : public AdminRouter,
+                                        public std::enable_shared_from_this<RegistryServerAdminRouter>
 {
 public:
 
-    RegistryServerAdminRouter(const DatabasePtr&);
+    RegistryServerAdminRouter(const std::shared_ptr<Database>&);
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                  const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current& current) override;
 
 private:
 
-    const DatabasePtr _database;
+    const std::shared_ptr<Database> _database;
 };
 
-class RegistryNodeAdminRouter : public AdminRouter
+class RegistryNodeAdminRouter final : public AdminRouter
 {
 public:
 
-    RegistryNodeAdminRouter(const std::string&, const DatabasePtr&);
+    RegistryNodeAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                  const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current& current) override;
 
 private:
 
     const std::string _collocNodeName;
-    const DatabasePtr _database;
+    const std::shared_ptr<Database> _database;
 };
 
-class RegistryReplicaAdminRouter : public AdminRouter
+class RegistryReplicaAdminRouter final : public AdminRouter
 {
 public:
 
-    RegistryReplicaAdminRouter(const std::string&, const DatabasePtr&);
+    RegistryReplicaAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                  const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current& current) override;
 
 private:
 
     const std::string _name;
-    const DatabasePtr _database;
+    const std::shared_ptr<Database> _database;
 };
 
 }

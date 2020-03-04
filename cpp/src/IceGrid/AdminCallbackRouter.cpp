@@ -4,42 +4,26 @@
 
 #include <IceGrid/AdminCallbackRouter.h>
 
-using namespace Ice;
 using namespace std;
+using namespace IceGrid;
 
 void
-IceGrid::AdminCallbackRouter::invokeResponse(bool ok,
-                                             const std::pair<const Byte*, const Byte*>& outParams,
-                                             const AMD_Object_ice_invokePtr& amdCB)
+AdminCallbackRouter::addMapping(const string& category, const shared_ptr<Ice::Connection>& con)
 {
-    amdCB->ice_response(ok, outParams);
-}
-
-void
-IceGrid::AdminCallbackRouter::invokeException(const Ice::Exception&, const AMD_Object_ice_invokePtr& amdCB)
-{
-    // Callback object is unreachable.
-    amdCB->ice_exception(ObjectNotExistException(__FILE__, __LINE__));
-}
-
-void
-IceGrid::AdminCallbackRouter::addMapping(const string& category, const ConnectionPtr& con)
-{
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
 
 #ifdef NDEBUG
-    _categoryToConnection.insert(map<string, ConnectionPtr>::value_type(category, con));
+    _categoryToConnection.insert({ category, con });
 #else
-    bool inserted =
-        _categoryToConnection.insert(map<string, ConnectionPtr>::value_type(category, con)).second;
+    bool inserted = _categoryToConnection.insert({ category, con }).second;
     assert(inserted == true);
 #endif
 }
 
 void
-IceGrid::AdminCallbackRouter::removeMapping(const string& category)
+AdminCallbackRouter::removeMapping(const string& category)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
 
 #ifndef NDEBUG
     size_t one =
@@ -50,30 +34,34 @@ IceGrid::AdminCallbackRouter::removeMapping(const string& category)
 }
 
 void
-IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                               const pair<const Byte*, const Byte*>& inParams,
-                                               const Current& current)
+AdminCallbackRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                     function<void(exception_ptr)> exception,
+                                     const Ice::Current& current)
 {
-    ConnectionPtr con;
+    shared_ptr<Ice::Connection> con;
 
     {
-        IceUtil::Mutex::Lock sync(_mutex);
-        map<string, ConnectionPtr>::iterator p = _categoryToConnection.find(current.id.category);
+        lock_guard lock(_mutex);
+        auto p = _categoryToConnection.find(current.id.category);
         if(p == _categoryToConnection.end())
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
         con = p->second;
     }
 
-    ObjectPrx target = con->createProxy(current.id)->ice_facet(current.facet);
+    auto target = con->createProxy(current.id)->ice_facet(current.facet);
 
     //
     // Call with AMI
     //
-    target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx,
-                             newCallback_Object_ice_invoke(this,
-                                                           &AdminCallbackRouter::invokeResponse,
-                                                           &AdminCallbackRouter::invokeException),
-                             cb);
+    target->ice_invokeAsync(current.operation, current.mode, inParams,
+                            move(response),
+                            [exception = move(exception)] (exception_ptr)
+                            {
+                                exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+                            },
+                            nullptr,
+                            current.ctx);
 }

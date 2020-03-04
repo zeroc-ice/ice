@@ -13,7 +13,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+ICEGRID_API void setRegistryPluginFacade(const shared_ptr<RegistryPluginFacade>&);
 
 }
 
@@ -26,23 +26,23 @@ public:
 
     Init()
     {
-        IceGrid::setRegistryPluginFacade(new RegistryPluginFacadeI);
+        IceGrid::setRegistryPluginFacade(make_shared<RegistryPluginFacadeI>());
     }
 
     ~Init()
     {
-        IceGrid::setRegistryPluginFacade(0);
+        IceGrid::setRegistryPluginFacade(nullptr);
     }
 };
 
 Init init;
 
 bool
-hasAdapter(const CommunicatorDescriptorPtr& descriptor, const string& adapterId)
+hasAdapter(const shared_ptr<CommunicatorDescriptor>& descriptor, const string& adapterId)
 {
-    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    for(const auto& adapter : descriptor->adapters)
     {
-        if(p->id == adapterId)
+        if(adapter.id == adapterId)
         {
             return true;
         }
@@ -52,14 +52,10 @@ hasAdapter(const CommunicatorDescriptorPtr& descriptor, const string& adapterId)
 
 }
 
-RegistryPluginFacadeI::RegistryPluginFacadeI()
-{
-}
-
 ApplicationInfo
 RegistryPluginFacadeI::getApplicationInfo(const string& name) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -70,7 +66,7 @@ RegistryPluginFacadeI::getApplicationInfo(const string& name) const
 ServerInfo
 RegistryPluginFacadeI::getServerInfo(const string& serverId) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -81,7 +77,7 @@ RegistryPluginFacadeI::getServerInfo(const string& serverId) const
 AdapterInfoSeq
 RegistryPluginFacadeI::getAdapterInfo(const string& adapterId) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -92,7 +88,7 @@ RegistryPluginFacadeI::getAdapterInfo(const string& adapterId) const
 string
 RegistryPluginFacadeI::getAdapterServer(const string& adapterId) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -103,7 +99,7 @@ RegistryPluginFacadeI::getAdapterServer(const string& adapterId) const
 string
 RegistryPluginFacadeI::getAdapterNode(const string& adapterId) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -114,7 +110,7 @@ RegistryPluginFacadeI::getAdapterNode(const string& adapterId) const
 string
 RegistryPluginFacadeI::getAdapterApplication(const string& adapterId) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -125,7 +121,7 @@ RegistryPluginFacadeI::getAdapterApplication(const string& adapterId) const
 ObjectInfo
 RegistryPluginFacadeI::getObjectInfo(const Ice::Identity& id) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -136,7 +132,7 @@ RegistryPluginFacadeI::getObjectInfo(const Ice::Identity& id) const
 NodeInfo
 RegistryPluginFacadeI::getNodeInfo(const string& name) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -147,7 +143,7 @@ RegistryPluginFacadeI::getNodeInfo(const string& name) const
 LoadInfo
 RegistryPluginFacadeI::getNodeLoad(const string& name) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_database)
     {
         throw RegistryUnreachableException("", "registry not initialized yet");
@@ -166,7 +162,7 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
             return IceGrid::getProperty(info.descriptor->propertySet.properties, name);
         }
 
-        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if(!iceBox)
         {
             return "";
@@ -190,29 +186,29 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
 }
 
 void
-RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) ICE_NOEXCEPT
 {
-    Lock sync(*this);
-    map<string, vector<ReplicaGroupFilterPtr> >::iterator p = _replicaGroupFilters.find(id);
+    lock_guard lock(_mutex);
+    map<string, vector<shared_ptr<ReplicaGroupFilter>> >::iterator p = _replicaGroupFilters.find(id);
     if(p == _replicaGroupFilters.end())
     {
-        p = _replicaGroupFilters.insert(make_pair(id, vector<ReplicaGroupFilterPtr>())).first;
+        p = _replicaGroupFilters.insert(make_pair(id, vector<shared_ptr<ReplicaGroupFilter>>())).first;
     }
     p->second.push_back(filter);
 }
 
 bool
-RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) ICE_NOEXCEPT
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
-    map<string, vector<ReplicaGroupFilterPtr> >::iterator p = _replicaGroupFilters.find(id);
+    map<string, vector<shared_ptr<ReplicaGroupFilter>> >::iterator p = _replicaGroupFilters.find(id);
     if(p == _replicaGroupFilters.end())
     {
         return false;
     }
 
-    vector<ReplicaGroupFilterPtr>::iterator q = find(p->second.begin(), p->second.end(), filter);
+    vector<shared_ptr<ReplicaGroupFilter>>::iterator q = find(p->second.begin(), p->second.end(), filter);
     if(q == p->second.end())
     {
         return false;
@@ -227,29 +223,29 @@ RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const ReplicaG
 }
 
 void
-RegistryPluginFacadeI::addTypeFilter(const string& id, const TypeFilterPtr& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::addTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) ICE_NOEXCEPT
 {
-    Lock sync(*this);
-    map<string, vector<TypeFilterPtr> >::iterator p = _typeFilters.find(id);
+    lock_guard lock(_mutex);
+    map<string, vector<shared_ptr<TypeFilter>> >::iterator p = _typeFilters.find(id);
     if(p == _typeFilters.end())
     {
-        p = _typeFilters.insert(make_pair(id, vector<TypeFilterPtr>())).first;
+        p = _typeFilters.insert(make_pair(id, vector<shared_ptr<TypeFilter>>())).first;
     }
     p->second.push_back(filter);
 }
 
 bool
-RegistryPluginFacadeI::removeTypeFilter(const string& id, const TypeFilterPtr& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::removeTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) ICE_NOEXCEPT
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
-    map<string, vector<TypeFilterPtr> >::iterator p = _typeFilters.find(id);
+    map<string, vector<shared_ptr<TypeFilter>> >::iterator p = _typeFilters.find(id);
     if(p == _typeFilters.end())
     {
         return false;
     }
 
-    vector<TypeFilterPtr>::iterator q = find(p->second.begin(), p->second.end(), filter);
+    vector<shared_ptr<TypeFilter>>::iterator q = find(p->second.begin(), p->second.end(), filter);
     if(q == p->second.end())
     {
         return false;
@@ -263,16 +259,16 @@ RegistryPluginFacadeI::removeTypeFilter(const string& id, const TypeFilterPtr& f
     return true;
 }
 
-vector<ReplicaGroupFilterPtr>
+vector<shared_ptr<ReplicaGroupFilter>>
 RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 {
-    Lock sync(*this);
-    map<string, vector<ReplicaGroupFilterPtr> >::const_iterator p = _replicaGroupFilters.find(id);
+    lock_guard lock(_mutex);
+    map<string, vector<shared_ptr<ReplicaGroupFilter>> >::const_iterator p = _replicaGroupFilters.find(id);
     if(p != _replicaGroupFilters.end())
     {
         return p->second;
     }
-    return vector<ReplicaGroupFilterPtr>();
+    return vector<shared_ptr<ReplicaGroupFilter>>();
 }
 
 bool
@@ -281,16 +277,16 @@ RegistryPluginFacadeI::hasReplicaGroupFilters() const
     return !_replicaGroupFilters.empty();
 }
 
-vector<TypeFilterPtr>
+vector<shared_ptr<TypeFilter>>
 RegistryPluginFacadeI::getTypeFilters(const string& id) const
 {
-    Lock sync(*this);
-    map<string, vector<TypeFilterPtr> >::const_iterator p = _typeFilters.find(id);
+    lock_guard lock(_mutex);
+    map<string, vector<shared_ptr<TypeFilter>> >::const_iterator p = _typeFilters.find(id);
     if(p != _typeFilters.end())
     {
         return p->second;
     }
-    return vector<TypeFilterPtr>();
+    return vector<shared_ptr<TypeFilter>>();
 }
 
 bool
@@ -300,8 +296,8 @@ RegistryPluginFacadeI::hasTypeFilters() const
 }
 
 void
-RegistryPluginFacadeI::setDatabase(const DatabasePtr& database)
+RegistryPluginFacadeI::setDatabase(const shared_ptr<Database>& database)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _database = database;
 }

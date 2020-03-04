@@ -32,56 +32,52 @@ using namespace IceStormElection;
 namespace
 {
 
-class ServiceI : public IceStormInternal::Service
+class ServiceI final : public IceStormInternal::Service
 {
 public:
 
-    ServiceI();
-    virtual ~ServiceI();
+    void start(const std::shared_ptr<Ice::Communicator>&,
+               const std::shared_ptr<Ice::ObjectAdapter>&,
+               const std::shared_ptr<Ice::ObjectAdapter>&,
+               const std::string&,
+               const Ice::Identity&,
+               const std::string&);
 
-    virtual void start(const string&,
-                       const CommunicatorPtr&,
-                       const StringSeq&);
+    std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const override;
 
-    virtual void start(const CommunicatorPtr&,
-                       const ObjectAdapterPtr&,
-                       const ObjectAdapterPtr&,
-                       const string&,
-                       const Ice::Identity&,
-                       const string&);
-
-    virtual TopicManagerPrx getTopicManager() const;
-
-    virtual void stop();
+    void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
+    void stop() override;
 
 private:
 
-    void createDbEnv(const Ice::CommunicatorPtr&);
-    void validateProperties(const string&, const PropertiesPtr&, const LoggerPtr&);
+    void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
+    void validateProperties(const std::string&,
+                            const std::shared_ptr<Ice::Properties>&,
+                            const std::shared_ptr<Ice::Logger>&);
 
-    TopicManagerImplPtr _manager;
-    TransientTopicManagerImplPtr _transientManager;
-    TopicManagerPrx _managerProxy;
-    InstancePtr _instance;
+    std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
+    std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
+    std::shared_ptr<IceStorm::TopicManagerPrx> _managerProxy;
+    std::shared_ptr<IceStorm::Instance> _instance;
 };
 
-class FinderI : public IceStorm::Finder
+class FinderI final : public IceStorm::Finder
 {
 public:
 
-    FinderI(const TopicManagerPrx& topicManager) : _topicManager(topicManager)
+    FinderI(shared_ptr<TopicManagerPrx> topicManager) : _topicManager(move(topicManager))
     {
     }
 
-    virtual TopicManagerPrx
-    getTopicManager(const Ice::Current&)
+    shared_ptr<TopicManagerPrx>
+    getTopicManager(const Ice::Current&) override
     {
         return _topicManager;
     }
 
 private:
 
-    const TopicManagerPrx _topicManager;
+    const shared_ptr<TopicManagerPrx> _topicManager;
 };
 
 }
@@ -90,42 +86,30 @@ extern "C"
 {
 
 ICESTORM_SERVICE_API ::IceBox::Service*
-createIceStorm(CommunicatorPtr)
+createIceStorm(const shared_ptr<Communicator>&)
 {
     return new ServiceI;
 }
 
 }
 
-ServicePtr
-IceStormInternal::Service::create(const CommunicatorPtr& communicator,
-                          const ObjectAdapterPtr& topicAdapter,
-                          const ObjectAdapterPtr& publishAdapter,
-                          const string& name,
-                          const Ice::Identity& id,
-                          const string& dbEnv)
+shared_ptr<IceStormInternal::Service>
+IceStormInternal::Service::create(const shared_ptr<Communicator>& communicator,
+                                  const shared_ptr<ObjectAdapter>& topicAdapter,
+                                  const shared_ptr<ObjectAdapter>& publishAdapter,
+                                  const string& name,
+                                  const Ice::Identity& id,
+                                  const string& dbEnv)
 {
-    ServiceI* service = new ServiceI;
-    ServicePtr svc = service;
+    shared_ptr<ServiceI> service(new ServiceI);
     service->start(communicator, topicAdapter, publishAdapter, name, id, dbEnv);
-    return svc;
-}
-
-ServiceI::ServiceI()
-{
-}
-
-ServiceI::~ServiceI()
-{
+    return service;
 }
 
 void
-ServiceI::start(
-    const string& name,
-    const CommunicatorPtr& communicator,
-    const StringSeq& /*args*/)
+ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator, const StringSeq&)
 {
-    PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     validateProperties(name, properties, communicator->getLogger());
 
@@ -141,24 +125,22 @@ ServiceI::start(
         properties->setProperty(name + ".TopicManager.ThreadPool.SizeMax", "100");
     }
 
-    Ice::ObjectAdapterPtr topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
-    Ice::ObjectAdapterPtr publishAdapter = communicator->createObjectAdapter(name + ".Publish");
+    auto topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
+    auto publishAdapter = communicator->createObjectAdapter(name + ".Publish");
 
     //
     // We use the name of the service for the name of the database environment.
     //
     string instanceName = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    Identity topicManagerId;
-    topicManagerId.category = instanceName;
-    topicManagerId.name = "TopicManager";
+    Identity topicManagerId = { "TopicManager", instanceName };
 
     if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0) > 0)
     {
-        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
+        _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
         try
         {
-            TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
-            _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(manager, topicManagerId));
+            auto manager = make_shared<TransientTopicManagerImpl>(_instance);
+            _managerProxy = Ice::uncheckedCast<TopicManagerPrx>(topicAdapter->add(manager, topicManagerId));
         }
         catch(const Ice::Exception& ex)
         {
@@ -178,12 +160,10 @@ ServiceI::start(
     {
         try
         {
-            PersistentInstancePtr instance =
-                new PersistentInstance(instanceName, name, communicator, publishAdapter, topicAdapter);
-            _instance = instance;
-
-            _manager = new TopicManagerImpl(instance);
-            _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager->getServant(), topicManagerId));
+            auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
+            _manager = TopicManagerImpl::create(instance);
+            _instance = move(instance);
+            _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(_manager->getServant(), topicManagerId));
         }
         catch(const IceUtil::Exception& ex)
         {
@@ -198,9 +178,8 @@ ServiceI::start(
     }
     else
     {
-        // Here we want to create a map of id -> election node
-        // proxies.
-        map<int, NodePrx> nodes;
+        // Here we want to create a map of id -> election node proxies.
+        map<int, shared_ptr<NodePrx>> nodes;
 
         string topicManagerAdapterId = properties->getProperty(name + ".TopicManager.AdapterId");
 
@@ -212,10 +191,18 @@ ServiceI::start(
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if(!props.empty())
         {
-            for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+            for(const auto& prop : props)
             {
-                int nodeid = atoi(p->first.substr(prefix.size()).c_str());
-                nodes[nodeid] = NodePrx::uncheckedCast(communicator->propertyToProxy(p->first));
+                try
+                {
+                    int nodeid = stoi(prop.first.substr(prefix.size()));
+                    nodes[nodeid] = uncheckedCast<NodePrx>(communicator->propertyToProxy(prop.first));
+                }
+                catch(const std::invalid_argument&)
+                {
+                    Ice::Warning warn(communicator->getLogger());
+                    warn << "deployment warning: invalid node id `" << prop.first.substr(prefix.size()) << "'";
+                }
             }
         }
         else
@@ -248,15 +235,15 @@ ServiceI::start(
             // We work out the node id by removing the instance
             // name. The node id must follow.
             //
-            IceGrid::LocatorPrx locator = IceGrid::LocatorPrx::checkedCast(communicator->getDefaultLocator());
+            auto locator = Ice::checkedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator());
             assert(locator);
-            IceGrid::QueryPrx query = locator->getLocalQuery();
-            Ice::ObjectProxySeq replicas = query->findAllReplicas(
-                communicator->stringToProxy(instanceName + "/TopicManager"));
+            auto query = locator->getLocalQuery();
+            auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
 
             for(Ice::ObjectProxySeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+            for(const auto& replica : replicas)
             {
-                string adapterid = (*p)->ice_getAdapterId();
+                string adapterid = replica->ice_getAdapterId();
 
                 // Replace TopicManager with the node endpoint.
                 adapterid = adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node");
@@ -299,7 +286,7 @@ ServiceI::start(
                 ident.category = instanceName;
                 ident.name = os.str();
 
-                nodes[nodeid] = NodePrx::uncheckedCast((*p)->ice_adapterId(adapterid)->ice_identity(ident));
+                nodes[nodeid] = uncheckedCast<NodePrx>((*p)->ice_adapterId(adapterid)->ice_identity(ident));
             }
         }
 
@@ -327,24 +314,22 @@ ServiceI::start(
                 properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
             }
 
-            Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
-
-            PersistentInstancePtr instance =
-                new PersistentInstance(instanceName, name, communicator, publishAdapter, topicAdapter,
-                                       nodeAdapter, nodes[id]);
+            auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
+            auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter,
+                                                            topicAdapter, nodeAdapter, nodes[id]);
             _instance = instance;
 
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
 
             // Trace replication information.
-            TraceLevelsPtr traceLevels = _instance->traceLevels();
+            auto traceLevels = _instance->traceLevels();
             if(traceLevels->election > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->electionCat);
                 out << "I am node " << id << "\n";
-                for(map<int, NodePrx>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+                for(const auto& node : nodes)
                 {
-                    out << "\tnode: " << p->first << " proxy: " << p->second->ice_toString() << "\n";
+                    out << "\tnode: " << node.first << " proxy: " << node.second->ice_toString() << "\n";
                 }
             }
 
@@ -353,16 +338,16 @@ ServiceI::start(
                 // We're not using an IceGrid deployment. Here we need
                 // a proxy which is used to create proxies to the
                 // replicas later.
-                _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId));
+                _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->createProxy(topicManagerId));
             }
             else
             {
                 // If we're using IceGrid deployment we need to create
                 // indirect proxies.
-                _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->createIndirectProxy(topicManagerId));
+                _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->createIndirectProxy(topicManagerId));
             }
 
-            _manager = new TopicManagerImpl(instance);
+            _manager = TopicManagerImpl::create(instance);
             topicAdapter->add(_manager->getServant(), topicManagerId);
 
             ostringstream os; // The node object identity.
@@ -371,7 +356,7 @@ ServiceI::start(
             nodeid.category = instanceName;
             nodeid.name = os.str();
 
-            NodeIPtr node = new NodeI(_instance, _manager, _managerProxy, id, nodes);
+            auto node = make_shared<NodeI>(_instance, _manager, _managerProxy, id, nodes);
             _instance->setNode(node);
             nodeAdapter->add(node, nodeid);
             nodeAdapter->activate();
@@ -390,7 +375,7 @@ ServiceI::start(
         }
     }
 
-    topicAdapter->add(new FinderI(TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId))),
+    topicAdapter->add(make_shared<FinderI>(uncheckedCast<TopicManagerPrx>(topicAdapter->createProxy(topicManagerId))),
                       stringToIdentity("IceStorm/Finder"));
 
     topicAdapter->activate();
@@ -398,12 +383,12 @@ ServiceI::start(
 }
 
 void
-ServiceI::start(const CommunicatorPtr& communicator,
-                const ObjectAdapterPtr& topicAdapter,
-                const ObjectAdapterPtr& publishAdapter,
+ServiceI::start(const shared_ptr<Communicator>& communicator,
+                const shared_ptr<ObjectAdapter>& topicAdapter,
+                const shared_ptr<ObjectAdapter>& publishAdapter,
                 const string& name,
-                const Ice::Identity& id,
-                const string& /*dbEnv*/)
+                const Identity& id,
+                const string&)
 {
     //
     // For IceGrid we don't validate the properties as all sorts of
@@ -414,12 +399,12 @@ ServiceI::start(const CommunicatorPtr& communicator,
     // This is for IceGrid only and as such we use a transient
     // implementation of IceStorm.
     string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
+    _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
 
     try
     {
-        TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
-        _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(manager, id));
+        auto manager = make_shared<TransientTopicManagerImpl>(_instance);
+        _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(manager, id));
     }
     catch(const Ice::Exception& ex)
     {
@@ -432,7 +417,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
     }
 }
 
-TopicManagerPrx
+shared_ptr<TopicManagerPrx>
 ServiceI::getTopicManager() const
 {
     return _managerProxy;
@@ -463,7 +448,7 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(const string& name, const PropertiesPtr& properties, const LoggerPtr& logger)
+ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& properties, const shared_ptr<Logger>& logger)
 {
     static const string suffixes[] =
     {

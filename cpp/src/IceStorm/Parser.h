@@ -5,7 +5,6 @@
 #ifndef ICE_STORM_PARSER_H
 #define ICE_STORM_PARSER_H
 
-#include <IceUtil/Handle.h>
 #include <IceStorm/IceStorm.h>
 #include <list>
 #include <stdio.h>
@@ -37,18 +36,12 @@ YY_DECL;
 namespace IceStorm
 {
 
-//
-// Forward declaration.
-//
-class Parser;
-typedef ::IceUtil::Handle<Parser> ParserPtr;
-
-class Parser : public ::IceUtil::SimpleShared
+class Parser
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const TopicManagerPrx&,
-                                  const std::map<Ice::Identity, TopicManagerPrx>&);
+    Parser(std::shared_ptr<Ice::Communicator>, std::shared_ptr<TopicManagerPrx>,
+           std::map<Ice::Identity, std::shared_ptr<TopicManagerPrx>>);
 
     void usage();
 
@@ -88,17 +81,15 @@ public:
 
 private:
 
-    TopicManagerPrx findManagerById(const std::string&, std::string&) const;
-    TopicManagerPrx findManagerByCategory(const std::string&) const;
-    TopicPrx findTopic(const std::string&) const;
+    std::shared_ptr<TopicManagerPrx> findManagerById(const std::string&, std::string&) const;
+    std::shared_ptr<TopicManagerPrx> findManagerByCategory(const std::string&) const;
+    std::shared_ptr<TopicPrx> findTopic(const std::string&) const;
 
-    Parser(const Ice::CommunicatorPtr&, const TopicManagerPrx&, const std::map<Ice::Identity, TopicManagerPrx>&);
+    void exception(std::exception_ptr, bool = false);
 
-    void exception(const Ice::Exception&, bool = false);
-
-    const Ice::CommunicatorPtr _communicator;
-    TopicManagerPrx _defaultManager;
-    const std::map<Ice::Identity, TopicManagerPrx> _managers;
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    std::shared_ptr<TopicManagerPrx> _defaultManager;
+    const std::map<Ice::Identity, std::shared_ptr<TopicManagerPrx>> _managers;
     std::string _commands;
     bool _continue;
     int _errors;

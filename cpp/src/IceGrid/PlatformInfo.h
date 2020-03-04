@@ -5,7 +5,6 @@
 #ifndef ICE_GRID_PLATFORM_INFO_H
 #define ICE_GRID_PLATFORM_INFO_H
 
-#include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
 
 #ifdef _WIN32
@@ -17,28 +16,26 @@ namespace IceGrid
 {
 
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-NodeInfo toNodeInfo(const InternalNodeInfoPtr&);
-RegistryInfo toRegistryInfo(const InternalReplicaInfoPtr&);
+NodeInfo toNodeInfo(const std::shared_ptr<InternalNodeInfo>&);
+RegistryInfo toRegistryInfo(const std::shared_ptr<InternalReplicaInfo>&);
 
-class PlatformInfo
+class PlatformInfo final
 {
 public:
 
-    PlatformInfo(const std::string&, const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
-    ~PlatformInfo();
+    PlatformInfo(const std::string&, const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<TraceLevels>&);
 
     void start();
     void stop();
 
-    InternalNodeInfoPtr getInternalNodeInfo() const;
-    InternalReplicaInfoPtr getInternalReplicaInfo() const;
+    std::shared_ptr<InternalNodeInfo> getInternalNodeInfo() const;
+    std::shared_ptr<InternalReplicaInfo> getInternalReplicaInfo() const;
 
     NodeInfo getNodeInfo() const;
     RegistryInfo getRegistryInfo() const;
 
-    LoadInfo getLoadInfo();
+    LoadInfo getLoadInfo() const;
     int getProcessorSocketCount() const;
     std::string getHostname() const;
     std::string getDataDir() const;
@@ -50,7 +47,7 @@ public:
 
 private:
 
-    const TraceLevelsPtr _traceLevels;
+    const std::shared_ptr<TraceLevels> _traceLevels;
     std::string _name;
     std::string _os;
     std::string _hostname;
@@ -64,17 +61,16 @@ private:
     int _nProcessorSockets;
 
 #if defined(_WIN32)
-    IceUtil::ThreadPtr _updateUtilizationThread;
-    IceUtil::Monitor<IceUtil::Mutex> _utilizationMonitor;
-    bool _terminated;
     std::deque<int> _usages1;
     std::deque<int> _usages5;
     std::deque<int> _usages15;
     int _last1Total;
     int _last5Total;
     int _last15Total;
-#elif defined(_AIX)
-    int _kmem;
+    bool _terminated;
+    mutable std::mutex _utilizationMutex;
+    std::condition_variable _utilizationCondVar;
+    std::thread _updateUtilizationThread;
 #endif
 
 };

@@ -52,10 +52,7 @@ removeProperty(const CommunicatorDescriptorPtr& communicator, const string& name
 PropertyDescriptor
 createProperty(const string& name, const string& value)
 {
-    PropertyDescriptor prop;
-    prop.name = name;
-    prop.value = value;
-    return prop;
+    return { name, value};
 }
 
 bool

@@ -22,34 +22,23 @@ class RegistryService : public Service
 {
 public:
 
-    RegistryService();
-    ~RegistryService();
-
-    virtual bool shutdown();
+    bool shutdown() override;
 
 protected:
 
-    virtual bool start(int, char*[], int&);
-    virtual void waitForShutdown();
-    virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
+    bool start(int, char*[], int&) override;
+    void waitForShutdown() override;
+    bool stop() override;
+    shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
 private:
 
     void usage(const std::string&);
 
-    RegistryIPtr _registry;
+    shared_ptr<RegistryI> _registry;
 };
 
 } // End of namespace IceGrid
-
-RegistryService::RegistryService()
-{
-}
-
-RegistryService::~RegistryService()
-{
-}
 
 bool
 RegistryService::shutdown()
@@ -111,7 +100,7 @@ RegistryService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    Ice::PropertiesPtr properties = communicator()->getProperties();
+    auto properties = communicator()->getProperties();
 
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
@@ -123,9 +112,9 @@ RegistryService::start(int argc, char* argv[], int& status)
         out << "you should set individual adapter thread pools instead.";
     }
 
-    TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
+    auto traceLevels = make_shared<TraceLevels>(communicator(), "IceGrid.Registry");
 
-    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
+    _registry = make_shared<RegistryI>(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
     if(!_registry->start())
     {
         return false;
@@ -153,7 +142,7 @@ RegistryService::stop()
     return true;
 }
 
-CommunicatorPtr
+shared_ptr<Communicator>
 RegistryService::initializeCommunicator(int& argc, char* argv[],
                                         const InitializationData& initializationData,
                                         int version)

@@ -178,11 +178,11 @@ interface TopicManager
     /// @param name The name of the topic.
     /// @return A proxy to the topic instance.
     /// @throws NoSuchTopic Raised if the topic does not exist.
-    ["nonmutating", "cpp:const"] idempotent Topic* retrieve(string name) throws NoSuchTopic;
+    idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
     /// Retrieve all topics managed by this topic manager.
     /// @return A dictionary of string, topic proxy pairs.
-    ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
+    idempotent TopicDict retrieveAll();
 }
 
 /// This interface is advertised by the IceStorm service through the Ice object with the identity `IceStorm/Finder'.
