@@ -33,6 +33,7 @@
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wsign-compare"
 #   pragma GCC diagnostic ignored "-Wunused-function"
+#   pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #endif
 
 #ifdef __SUNPRO_CC
