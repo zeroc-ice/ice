@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Globalization;
 
 namespace Ice
 {
@@ -38,20 +39,12 @@ namespace Ice
                 case "ice2":
                     return Protocol.Ice2;
                 default:
-                    try
+                    (byte Major, byte Minor)? result = Util.ParseMajorMinorVersion(str, throwOnFailure: false);
+                    if (result != null && result.Value.Minor == 0)
                     {
-                        Util.StringToMajorMinor(str, out byte major, out byte minor);
-                        if (minor == 0)
-                        {
-                            return (Protocol)major;
-                        }
-                        // else invalid format
+                        return (Protocol)result.Value.Major;
                     }
-                    catch (FormatException)
-                    {
-                        // ignored, try again below
-                    }
-                    byte value = byte.Parse(str);
+                    byte value = byte.Parse(str, CultureInfo.InvariantCulture);
                     return (Protocol)value;
             }
         }

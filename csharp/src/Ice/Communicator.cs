@@ -913,7 +913,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            encoding = Util.StringToEncoding(argument);
+                            encoding = Encoding.Parse(argument);
                             break;
                         }
 

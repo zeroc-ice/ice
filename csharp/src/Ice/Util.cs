@@ -59,56 +59,35 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int IntVersion() => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
 
-        /// <summary>
-        /// Converts a string to an encoding version.
-        /// </summary>
-        /// <param name="version">The string to convert.</param>
-        /// <returns>The converted encoding version.</returns>
-        public static Encoding StringToEncoding(string version)
-        {
-            StringToMajorMinor(version, out byte major, out byte minor);
-            return new Encoding(major, minor);
-        }
-
-        /// <summary>
-        /// Converts an encoding version to a string.
-        /// </summary>
-        /// <param name="v">The encoding version to convert.</param>
-        /// <returns>The converted string.</returns>
-        public static string EncodingToString(Encoding v) => MajorMinorToString(v.Major, v.Minor);
-
-        internal static void StringToMajorMinor(string str, out byte major, out byte minor)
+        internal static (byte Major, byte Minor)? ParseMajorMinorVersion(string str, bool throwOnFailure)
         {
             int pos = str.IndexOf('.');
             if (pos == -1)
             {
-                throw new FormatException($"malformed version value `{str}'");
+                if (throwOnFailure)
+                {
+                    throw new FormatException($"malformed major.minor value `{str}'");
+                }
+                return null;
             }
 
             string majStr = str[..pos];
             string minStr = str[(pos + 1)..];
-            int majVersion;
-            int minVersion;
             try
             {
-                majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
-                minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
+                byte major = byte.Parse(majStr, CultureInfo.InvariantCulture);
+                byte minor = byte.Parse(minStr, CultureInfo.InvariantCulture);
+                return (major, minor);
             }
             catch (FormatException)
             {
-                throw new FormatException($"invalid version value `{str}'");
+                if (throwOnFailure)
+                {
+                    throw new FormatException($"malformed major.minor value `{str}'");
+                }
+                return null;
             }
-
-            if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-            {
-                throw new FormatException($"range error in version `{str}'");
-            }
-
-            major = (byte)majVersion;
-            minor = (byte)minVersion;
         }
-
-        private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
         public static readonly Encoding CurrentEncoding =
             new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);

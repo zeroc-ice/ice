@@ -1,6 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+
 using Ice;
 using System;
 using System.Collections.Generic;
@@ -322,7 +323,7 @@ namespace IceInternal
 
                 try
                 {
-                    Ice.Encoding v = Ice.Util.StringToEncoding(argument);
+                    Ice.Encoding v = Encoding.Parse(argument);
                     if (v.Major != 1 || v.Minor != 0)
                     {
                         Instance.Logger.Warning($"deprecated udp endpoint option: {option}");

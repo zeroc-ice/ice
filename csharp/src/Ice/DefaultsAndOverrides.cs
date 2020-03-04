@@ -170,9 +170,16 @@ namespace IceInternal
 
             DefaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-            val = communicator.GetProperty("Ice.Default.Encoding") ?? Ice.Util.EncodingToString(Ice.Util.CurrentEncoding);
-            DefaultEncoding = Ice.Util.StringToEncoding(val);
-            EncodingDefinitions.CheckSupportedEncoding(DefaultEncoding);
+            val = communicator.GetProperty("Ice.Default.Encoding");
+            if (val == null)
+            {
+                DefaultEncoding = Ice.Util.CurrentEncoding;
+            }
+            else
+            {
+                DefaultEncoding = Encoding.Parse(val);
+                EncodingDefinitions.CheckSupportedEncoding(DefaultEncoding);
+            }
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
             DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;

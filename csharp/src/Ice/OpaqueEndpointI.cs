@@ -59,7 +59,7 @@ namespace IceInternal
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(_rawBytes);
-            return "opaque -t " + _type + " -e " + Ice.Util.EncodingToString(_rawEncoding) + " -v " + val;
+            return "opaque -t " + _type + " -e " + _rawEncoding.ToString() + " -v " + val;
         }
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo
@@ -263,7 +263,7 @@ namespace IceInternal
             {
                 s += " -t " + _type;
             }
-            s += " -e " + Ice.Util.EncodingToString(_rawEncoding);
+            s += " -e " + _rawEncoding.ToString();
             if (_rawBytes.Length > 0)
             {
                 s += " -v " + System.Convert.ToBase64String(_rawBytes);
@@ -404,7 +404,7 @@ namespace IceInternal
 
                         try
                         {
-                            _rawEncoding = Ice.Util.StringToEncoding(argument);
+                            _rawEncoding = Ice.Encoding.Parse(argument);
                         }
                         catch (FormatException ex)
                         {

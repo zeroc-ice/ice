@@ -570,7 +570,7 @@ namespace Ice.proxy
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -p ice1 -e " + Util.EncodingToString(Util.CurrentEncoding)));
+                        "locator -t -p ice1 -e " + Util.CurrentEncoding.ToString()));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -580,7 +580,7 @@ namespace Ice.proxy
             test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             test(proxyProps["Test.Locator.Router"].Equals(
-                        "router -t -p ice1 -e " + Util.EncodingToString(Util.CurrentEncoding)));
+                        "router -t -p ice1 -e " + Util.CurrentEncoding.ToString()));
             test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));

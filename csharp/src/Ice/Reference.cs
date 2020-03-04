@@ -254,7 +254,7 @@ namespace IceInternal
             // stringToProxy (and won't use Ice.Default.Encoding).
             //
             s.Append(" -e ");
-            s.Append(Ice.Util.EncodingToString(_encoding));
+            s.Append(_encoding.ToString());
 
             return s.ToString();
 

@@ -222,7 +222,7 @@ namespace IceInternal
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
+                    s.Write(v.ToString());
                 }
             }
         }
@@ -279,7 +279,7 @@ namespace IceInternal
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
+                    s.Write(v.ToString());
                 }
             }
             catch (System.IO.IOException)
