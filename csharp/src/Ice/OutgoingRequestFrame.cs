@@ -27,7 +27,7 @@ namespace Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Context Context { get; }
 
-        private readonly EncodingVersion _payloadEncoding; // TODO: move to OutputStream
+        private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
@@ -51,15 +51,15 @@ namespace Ice
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null)
             : base(proxy.Communicator)
         {
-            Protocol.CheckSupportedProtocol(Protocol.GetCompatibleProtocol(proxy.IceReference.GetProtocol()));
+            Protocol.CheckSupportedProtocol(proxy.IceReference.GetProtocol());
 
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            _payloadEncoding = Protocol.GetCompatibleEncoding(proxy.EncodingVersion);
+            _payloadEncoding = proxy.Encoding;
 
-            WriteSpan(Protocol.RequestHeader.AsSpan());
+            WriteSpan(Ice1Definitions.RequestHeader.AsSpan());
             Identity.IceWrite(this);
             if (Facet.Length == 0)
             {

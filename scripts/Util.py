@@ -715,7 +715,7 @@ class Mapping(object):
         def cloneAndOverrideWith(self, current):
             #
             # Clone this configuration and override options with options from the given configuration
-            # (the parent configuraton). This is usefull when running cross-testing. For example, JS
+            # (the parent configuration). This is usefull when running cross-testing. For example, JS
             # tests don't support all the options so we clone the C++ configuration and override the
             # options that are set on the JS configuration.
             #
@@ -734,7 +734,9 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.protocol:
+                    # TODO: rename protocol to transport
                     props["Ice.Default.Protocol"] = self.protocol
+                    props["Ice.Default.Transport"] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:

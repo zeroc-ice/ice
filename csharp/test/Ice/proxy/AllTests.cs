@@ -229,13 +229,13 @@ namespace Ice.proxy
             b1 = IObjectPrx.Parse("test -s", communicator);
             test(b1.IsSecure);
 
-            test(b1.EncodingVersion.Equals(Util.CurrentEncoding));
+            test(b1.Encoding.Equals(Util.CurrentEncoding));
 
             b1 = IObjectPrx.Parse("test -e 1.0", communicator);
-            test(b1.EncodingVersion.Major == 1 && b1.EncodingVersion.Minor == 0);
+            test(b1.Encoding.Major == 1 && b1.Encoding.Minor == 0);
 
             b1 = IObjectPrx.Parse("test -e 6.5", communicator);
-            test(b1.EncodingVersion.Major == 6 && b1.EncodingVersion.Minor == 5);
+            test(b1.Encoding.Major == 6 && b1.Encoding.Minor == 5);
 
             b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
             test(b1.ToString().Equals("test -t -e 1.0"));
@@ -543,7 +543,7 @@ namespace Ice.proxy
                 endpointSelectionType: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
-                encodingVersion: new EncodingVersion(1, 0),
+                encoding: new Encoding(1, 0),
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
@@ -558,7 +558,7 @@ namespace Ice.proxy
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
+                        "locator -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -568,7 +568,7 @@ namespace Ice.proxy
             test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             test(proxyProps["Test.Locator.Router"].Equals(
-                        "router -t -e " + Util.EncodingVersionToString(Util.CurrentEncoding)));
+                        "router -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
             test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));
@@ -885,67 +885,58 @@ namespace Ice.proxy
             }
             output.WriteLine("ok");
 
-            output.Write("testing encoding versioning... ");
-            output.Flush();
-            string ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
-            Test.IMyClassPrx cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
+            string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
+            Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             try
             {
-                cl20.IcePing();
+                cl13.IcePing();
                 test(false);
             }
             catch (UnsupportedEncodingException)
             {
-                // Server 2.0 endpoint doesn't support 1.1 version.
+                // expected
             }
 
-            // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-            // call will use the 1.1 encoding
-            string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
-            Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
-            cl13.IcePing();
-            cl13.IcePingAsync().Wait();
-
-            /*
-            // TODO: send a request with an invalid encoding to the server.
-            // The difficulty is how to bypass the local check.
+            output.Write("testing encoding versioning... ");
+            output.Flush();
+            string ref21 = "test -e 2.1:" + helper.getTestEndpoint(0);
+            Test.IMyClassPrx cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
             try
             {
-                // Send request with bogus 1.2 encoding.
-                EncodingVersion version = new EncodingVersion(1, 2);
-                var prx12 = cl.Clone(encodingVersion: version);
-                var requestFrame = OutgoingRequestFrame.Empty(prx12, "ice_ping", idempotent: false);
-                prx12.Invoke(requestFrame);
+                cl21.IcePing();
                 test(false);
             }
-            catch (UnknownLocalException ex)
+            catch (UnsupportedEncodingException)
             {
-                test(ex.Unknown.IndexOf("UnsupportedEncodingException") > 0);
+                // expected
             }
-            */
 
             output.WriteLine("ok");
 
-            output.Write("testing protocol versioning... ");
-            output.Flush();
-            ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
-            cl20 = Test.IMyClassPrx.Parse(ref20, communicator);
+            ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
+            cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             try
             {
-                cl20.IcePing();
+                cl13.IcePing();
+            }
+            catch (UnsupportedProtocolException)
+            {
+                // expected
+            }
+
+            output.Write("testing protocol versioning... ");
+            output.Flush();
+            ref21 = "test -p 2.1:" + helper.getTestEndpoint(0);
+            cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
+            try
+            {
+                cl21.IcePing();
                 test(false);
             }
             catch (UnsupportedProtocolException)
             {
-                // Server 2.0 proxy doesn't support 1.0 version.
+                // expected
             }
-
-            // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
-            // call will use the 1.0 protocol
-            ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-            cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
-            cl13.IcePing();
-            cl13.IcePingAsync().Wait();
             output.WriteLine("ok");
 
             output.Write("testing opaque endpoints... ");
@@ -1085,8 +1076,8 @@ namespace Ice.proxy
             if ((communicator.GetPropertyAsInt("IPv6") ?? 0) == 0)
             {
                 // Working?
-                bool ssl = communicator.GetProperty("Default.Protocol") == "ssl";
-                bool tcp = communicator.GetProperty("Default.Protocol") == "tcp";
+                bool ssl = communicator.GetProperty("Default.Transport") == "ssl";
+                bool tcp = communicator.GetProperty("Default.Transport") == "tcp";
 
                 // Two legal TCP endpoints expressed as opaque endpoints
                 p1 = IObjectPrx.Parse("test -e 1.1:" + "" +

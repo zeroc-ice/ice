@@ -175,15 +175,15 @@ namespace Ice
     [System.Serializable]
     public abstract partial class OpaqueEndpointInfo : EndpointInfo
     {
-        public EncodingVersion RawEncoding;
+        public Encoding RawEncoding;
         public byte[]? RawBytes;
 
-        protected OpaqueEndpointInfo() => RawEncoding = new EncodingVersion();
+        protected OpaqueEndpointInfo() => RawEncoding = new Encoding();
 
         protected OpaqueEndpointInfo(EndpointInfo? underlying,
                                      int timeout,
                                      bool compress,
-                                     EncodingVersion rawEncoding,
+                                     Encoding rawEncoding,
                                      byte[] rawBytes) : base(underlying, timeout, compress)
         {
             RawEncoding = rawEncoding;

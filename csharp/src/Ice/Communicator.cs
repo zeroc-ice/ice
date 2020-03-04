@@ -760,8 +760,8 @@ namespace Ice
             string facet = "";
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
-            EncodingVersion encoding = DefaultsAndOverrides.DefaultEncoding;
-            ProtocolVersion protocol = Util.Protocol_1_0;
+            Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
+            Protocol protocol = Util.Protocol_1_0;
             string adapter;
 
             while (true)
@@ -920,7 +920,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            encoding = Util.StringToEncodingVersion(argument);
+                            encoding = Util.StringToEncoding(argument);
                             break;
                         }
 
@@ -931,7 +931,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            protocol = Util.StringToProtocolVersion(argument);
+                            protocol = Util.StringToProtocol(argument);
                             break;
                         }
 
@@ -1117,17 +1117,17 @@ namespace Ice
 
             bool secure = s.ReadBool();
 
-            ProtocolVersion protocol;
-            EncodingVersion encoding;
+            Protocol protocol;
+            Encoding encoding;
             if (!s.Encoding.Equals(Util.Encoding_1_0))
             {
                 byte major = s.ReadByte();
                 byte minor = s.ReadByte();
-                protocol = new ProtocolVersion(major, minor);
+                protocol = new Protocol(major, minor);
 
                 major = s.ReadByte();
                 minor = s.ReadByte();
-                encoding = new EncodingVersion(major, minor);
+                encoding = new Encoding(major, minor);
             }
             else
             {
@@ -2178,8 +2178,8 @@ namespace Ice
             string facet,
             InvocationMode mode,
             bool secure,
-            ProtocolVersion protocol,
-            EncodingVersion encoding,
+            Protocol protocol,
+            Encoding encoding,
             Endpoint[] endpoints,
             string? adapterId,
             string? propertyPrefix)
@@ -2200,7 +2200,7 @@ namespace Ice
             {
                 if (!_defaultLocator.IceReference.GetEncoding().Equals(encoding))
                 {
-                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encodingVersion: encoding));
+                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encoding: encoding));
                 }
                 else
                 {
@@ -2239,7 +2239,7 @@ namespace Ice
                 {
                     if (!locator.IceReference.GetEncoding().Equals(encoding))
                     {
-                        locatorInfo = GetLocatorInfo(locator.Clone(encodingVersion: encoding));
+                        locatorInfo = GetLocatorInfo(locator.Clone(encoding: encoding));
                     }
                     else
                     {

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Net;
-using System.Text;
 
 namespace IceInternal
 {
@@ -14,8 +14,7 @@ namespace IceInternal
         {
             string? val;
 
-            // TODO: rename property to Ice.Default.Transport, or remove property and always map default to tcp.
-            DefaultTransport = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+            DefaultTransport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
 
             DefaultHost = communicator.GetProperty("Ice.Default.Host");
 
@@ -41,7 +40,7 @@ namespace IceInternal
                 if (OverrideTimeoutValue < 1 && OverrideTimeoutValue != -1)
                 {
                     OverrideTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.Timeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.Timeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -61,7 +60,7 @@ namespace IceInternal
                 if (OverrideConnectTimeoutValue < 1 && OverrideConnectTimeoutValue != -1)
                 {
                     OverrideConnectTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.ConnectTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -81,7 +80,7 @@ namespace IceInternal
                 if (OverrideCloseTimeoutValue < 1 && OverrideCloseTimeoutValue != -1)
                 {
                     OverrideCloseTimeoutValue = -1;
-                    var msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
+                    var msg = new System.Text.StringBuilder("invalid value for Ice.Override.CloseTimeout `");
                     msg.Append(communicator.GetProperty("Ice.Override.CloseTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.Warning(msg.ToString());
@@ -143,7 +142,7 @@ namespace IceInternal
             if (DefaultTimeout < 1 && DefaultTimeout != -1)
             {
                 DefaultTimeout = 60000;
-                var msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.Timeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.Timeout"));
                 msg.Append("': defaulting to 60000");
                 logger.Warning(msg.ToString());
@@ -153,7 +152,7 @@ namespace IceInternal
             if (DefaultLocatorCacheTimeout < -1)
             {
                 DefaultLocatorCacheTimeout = -1;
-                var msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.LocatorCacheTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.Warning(msg.ToString());
@@ -163,7 +162,7 @@ namespace IceInternal
             if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1 && DefaultInvocationTimeout != -2)
             {
                 DefaultInvocationTimeout = -1;
-                var msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
+                var msg = new System.Text.StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
                 msg.Append(communicator.GetProperty("Ice.Default.InvocationTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.Warning(msg.ToString());
@@ -171,9 +170,9 @@ namespace IceInternal
 
             DefaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-            val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.EncodingVersionToString(Ice.Util.CurrentEncoding);
-            DefaultEncoding = Ice.Util.StringToEncodingVersion(val);
-            Protocol.CheckSupportedEncoding(DefaultEncoding);
+            val = communicator.GetProperty("Ice.Default.Encoding") ?? Ice.Util.EncodingToString(Ice.Util.CurrentEncoding);
+            DefaultEncoding = Ice.Util.StringToEncoding(val);
+            EncodingDefinitions.CheckSupportedEncoding(DefaultEncoding);
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
             DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
@@ -188,7 +187,7 @@ namespace IceInternal
         public int DefaultLocatorCacheTimeout;
         public int DefaultInvocationTimeout;
         public bool DefaultPreferSecure;
-        public Ice.EncodingVersion DefaultEncoding;
+        public Ice.Encoding DefaultEncoding;
         public Ice.FormatType DefaultFormat;
 
         public bool OverrideTimeout;

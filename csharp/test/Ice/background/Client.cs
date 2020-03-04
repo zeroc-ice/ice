@@ -33,11 +33,11 @@ public class Client : Test.TestHelper
         // Setup the test transport plug-in.
         //
         string? transport;
-        if (!properties.TryGetValue("Ice.Default.Protocol", out transport))
+        if (!properties.TryGetValue("Ice.Default.Transport", out transport))
         {
             transport = "tcp";
         }
-        properties["Ice.Default.Protocol"] = $"test-{transport}";
+        properties["Ice.Default.Transport"] = $"test-{transport}";
 
         using var communicator = initialize(properties);
         Plugin plugin = new Plugin(communicator);

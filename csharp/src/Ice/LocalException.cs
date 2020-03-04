@@ -689,28 +689,28 @@ namespace Ice
     public class UnsupportedProtocolException : ProtocolException
     {
 
-        public ProtocolVersion Bad;
-        public ProtocolVersion Supported;
+        public Protocol Bad;
+        public Protocol Supported;
 
         public UnsupportedProtocolException()
         {
-            Bad = new ProtocolVersion();
-            Supported = new ProtocolVersion();
+            Bad = new Protocol();
+            Supported = new Protocol();
         }
 
         public UnsupportedProtocolException(System.Exception ex) : base(ex)
         {
-            Bad = new ProtocolVersion();
-            Supported = new ProtocolVersion();
+            Bad = new Protocol();
+            Supported = new Protocol();
         }
 
-        public UnsupportedProtocolException(string reason, ProtocolVersion bad, ProtocolVersion supported) : base(reason)
+        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported) : base(reason)
         {
             Bad = bad;
             Supported = supported;
         }
 
-        public UnsupportedProtocolException(string reason, ProtocolVersion bad, ProtocolVersion supported, System.Exception ex) : base(reason, ex)
+        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported, System.Exception ex) : base(reason, ex)
         {
             Bad = bad;
             Supported = supported;
@@ -724,28 +724,28 @@ namespace Ice
     /// </summary>
     public class UnsupportedEncodingException : ProtocolException
     {
-        public EncodingVersion Bad;
-        public EncodingVersion Supported;
+        public Encoding Bad;
+        public Encoding Supported;
 
         public UnsupportedEncodingException()
         {
-            Bad = new EncodingVersion();
-            Supported = new EncodingVersion();
+            Bad = new Encoding();
+            Supported = new Encoding();
         }
 
         public UnsupportedEncodingException(System.Exception ex) : base(ex)
         {
-            Bad = new EncodingVersion();
-            Supported = new EncodingVersion();
+            Bad = new Encoding();
+            Supported = new Encoding();
         }
 
-        public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported) : base(reason)
+        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported) : base(reason)
         {
             Bad = bad;
             Supported = supported;
         }
 
-        public UnsupportedEncodingException(string reason, EncodingVersion bad, EncodingVersion supported, System.Exception ex) : base(reason, ex)
+        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported, System.Exception ex) : base(reason, ex)
         {
             Bad = bad;
             Supported = supported;

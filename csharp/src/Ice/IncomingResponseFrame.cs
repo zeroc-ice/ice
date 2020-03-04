@@ -43,7 +43,7 @@ namespace Ice
                         // TODO: works only when Payload called first before reading anything. Need a better version!
                         // TODO: not efficient to create an array here
                         // TODO: provide Encoding property
-                        _payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out EncodingVersion _));
+                        _payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out Encoding _));
                     }
                 }
                 return _payload.Value;

@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using Protocol = IceInternal.Protocol;
 
 namespace Ice
 {
@@ -53,7 +52,7 @@ namespace Ice
         /// The encoding used when reading from this stream.
         /// </summary>
         /// <value>The encoding.</value>
-        public EncodingVersion Encoding { get; private set; }
+        public Encoding Encoding { get; private set; }
 
         // The position (offset) in the underlying buffer.
         internal int Pos
@@ -149,7 +148,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        public InputStream(Communicator communicator, EncodingVersion encoding)
+        public InputStream(Communicator communicator, Encoding encoding)
             : this(communicator, encoding, new IceInternal.Buffer())
         {
         }
@@ -161,10 +160,10 @@ namespace Ice
 
         /// <summary>Reads the start of an encapsulation.</summary>
         /// <returns>The encoding of the encapsulation.</returns>
-        public EncodingVersion StartEncapsulation()
+        public Encoding StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
             Encoding = encapsHeader.Encoding;
@@ -214,7 +213,7 @@ namespace Ice
 
         /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
         /// Throws Ice.UnsupportedEncodingException if it cannot.</summary>
-        public void CheckIsReadable() => Protocol.CheckSupportedEncoding(Encoding);
+        public void CheckIsReadable() => EncodingDefinitions.CheckSupportedEncoding(Encoding);
 
         /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
         public void SkipCurrentEncapsulation()
@@ -231,9 +230,9 @@ namespace Ice
         /// Skips an empty encapsulation.
         /// </summary>
         /// <returns>The encapsulation's encoding version.</returns>
-        public EncodingVersion SkipEmptyEncapsulation()
+        public Encoding SkipEmptyEncapsulation()
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             if (encapsHeader.Encoding.Equals(Util.Encoding_1_0))
             {
                 if (encapsHeader.Size != 6)
@@ -256,9 +255,9 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encapsulation's encoding version.</param>
         /// <returns>The encoded encapsulation.</returns>
-        public byte[] ReadEncapsulation(out EncodingVersion encoding)
+        public byte[] ReadEncapsulation(out Encoding encoding)
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _buf.B.Position(_buf.B.Position() - 6);
             encoding = encapsHeader.Encoding;
 
@@ -289,9 +288,9 @@ namespace Ice
         /// Skips over an encapsulation.
         /// </summary>
         /// <returns>The encoding version of the skipped encapsulation.</returns>
-        public EncodingVersion SkipEncapsulation()
+        public Encoding SkipEncapsulation()
         {
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             try
             {
                 _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
@@ -357,11 +356,11 @@ namespace Ice
         {
             // Note that IceEndSlice is not called when we call SkipSlice.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 SkipTaggedMembers();
             }
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
                 Pos = _current.PosAfterIndirectionTable.Value;
@@ -479,7 +478,7 @@ namespace Ice
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             // The current slice has no tagged member
-            if (_current != null && (_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+            if (_current != null && (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
             {
                 return false;
             }
@@ -494,7 +493,7 @@ namespace Ice
                 }
 
                 int v = ReadByte();
-                if (v == Protocol.OPTIONAL_END_MARKER)
+                if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
                 {
                     _buf.B.Position(_buf.B.Position() - 1); // Rewind.
                     return false;
@@ -1321,7 +1320,7 @@ namespace Ice
                 // Slice off what we don't understand.
                 SkipSlice();
 
-                if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0)
                 {
                     if (mostDerivedId.StartsWith("::", StringComparison.Ordinal) == true)
                     {
@@ -1362,15 +1361,15 @@ namespace Ice
                 Skip(4);
             }
         }
-        internal InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+        internal InputStream(Communicator communicator, Encoding encoding, IceInternal.Buffer buf, bool adopt)
             : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
         {
         }
 
-        internal EncodingVersion StartEndpointEncapsulation()
+        internal Encoding StartEndpointEncapsulation()
         {
             Debug.Assert(_endpointEncaps == null);
-            (EncodingVersion Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
@@ -1400,7 +1399,7 @@ namespace Ice
             other._buf = _buf;
             _buf = tmpBuf;
 
-            EncodingVersion tmpEncoding = other.Encoding;
+            Encoding tmpEncoding = other.Encoding;
             other.Encoding = Encoding;
             Encoding = tmpEncoding;
 
@@ -1425,7 +1424,7 @@ namespace Ice
         internal IceInternal.Buffer GetBuffer() => _buf;
 
         // Helper constructor used by the other constructors.
-        private InputStream(Communicator communicator, EncodingVersion? encoding, IceInternal.Buffer buf)
+        private InputStream(Communicator communicator, Encoding? encoding, IceInternal.Buffer buf)
         {
             Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
             Communicator = communicator;
@@ -1444,7 +1443,7 @@ namespace Ice
             _limit = null;
         }
 
-        private (EncodingVersion Encoding, int Size) ReadEncapsulationHeader()
+        private (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
@@ -1460,7 +1459,7 @@ namespace Ice
             }
             byte major = ReadByte();
             byte minor = ReadByte();
-            var encoding = new EncodingVersion(major, minor);
+            var encoding = new Encoding(major, minor);
             return (encoding, sz);
         }
 
@@ -1522,7 +1521,7 @@ namespace Ice
                 }
 
                 int v = ReadByte();
-                if (v == Protocol.OPTIONAL_END_MARKER)
+                if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
                 {
                     return true;
                 }
@@ -1615,7 +1614,7 @@ namespace Ice
             {
                 return null;
             }
-            else if (_current != null && (_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            else if (_current != null && (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 // When reading an instance within a slice and there is an
                 // indirection table, we have an index within this indirection table.
@@ -1666,22 +1665,22 @@ namespace Ice
             if (_current.InstanceType == InstanceType.Class)
             {
                 // TYPE_ID_COMPACT must be checked first!
-                if ((_current.SliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
-                    Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT) ==
+                    EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT)
                 {
                     _current.SliceCompactId = ReadSize();
                     _current.SliceTypeId = null;
                 }
                 else if ((_current.SliceFlags &
-                        (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                        (EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX | EncodingDefinitions.FLAG_HAS_TYPE_ID_STRING)) != 0)
                 {
-                    _current.SliceTypeId = ReadTypeId((_current.SliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.SliceTypeId = ReadTypeId((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX) != 0);
                     _current.SliceCompactId = null;
                 }
                 else
                 {
                     // Slice in compact format, without a type ID or compact ID.
-                    Debug.Assert((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) == 0);
+                    Debug.Assert((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) == 0);
                     _current.SliceTypeId = null;
                     _current.SliceCompactId = null;
                 }
@@ -1693,7 +1692,7 @@ namespace Ice
             }
 
             // Read the slice size if necessary.
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 _current.SliceSize = ReadInt();
                 if (_current.SliceSize < 4)
@@ -1719,7 +1718,7 @@ namespace Ice
         private void ReadIndirectionTableIntoCurrent()
         {
             Debug.Assert(_current != null && _current.IndirectionTable == null);
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 int savedPos = Pos;
                 if (_current.SliceSize < 4)
@@ -1755,7 +1754,7 @@ namespace Ice
 
             int start = Pos;
 
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 Debug.Assert(_current.SliceSize >= 4);
                 Skip(_current.SliceSize - 4);
@@ -1782,7 +1781,7 @@ namespace Ice
             }
 
             // Preserve this slice.
-            bool hasOptionalMembers = (_current.SliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+            bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
             IceInternal.ByteBuffer b = GetBuffer().B;
             int end = b.Position();
             int dataEnd = end;
@@ -1799,7 +1798,7 @@ namespace Ice
 
             int startOfIndirectionTable = 0;
 
-            if ((_current.SliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
@@ -1820,7 +1819,7 @@ namespace Ice
                                      new ReadOnlyMemory<byte>(bytes),
                                      Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
                                      hasOptionalMembers,
-                                     (_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
+                                     (_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0);
             _current.Slices.Add(info);
 
             // An exception slice may have an indirection table (saved above). We don't need it anymore
@@ -1861,15 +1860,15 @@ namespace Ice
                     do
                     {
                         sliceFlags = ReadByte();
-                        if ((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT) == EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT)
                         {
                             ReadSize(); // compact type-id
                         }
                         else if ((sliceFlags &
-                            (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                            (EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX | EncodingDefinitions.FLAG_HAS_TYPE_ID_STRING)) != 0)
                         {
                             // This can update the typeIdMap
-                            ReadTypeId((sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                            ReadTypeId((sliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX) != 0);
                         }
                         else
                         {
@@ -1878,7 +1877,7 @@ namespace Ice
                         }
 
                         // Read the slice size, then skip the slice
-                        if ((sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) == 0)
+                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) == 0)
                         {
                             throw new MarshalException("size of slice missing");
                         }
@@ -1890,11 +1889,11 @@ namespace Ice
                         Pos = Pos + sliceSize - 4;
 
                         // If this slice has an indirection table, skip it too
-                        if ((sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
                         {
                             SkipIndirectionTable();
                         }
-                    } while ((sliceFlags & Protocol.FLAG_IS_LAST_SLICE) == 0);
+                    } while ((sliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) == 0);
                     _classGraphDepth--;
                 }
             }
@@ -1983,7 +1982,7 @@ namespace Ice
                 deferredIndirectionTableList.Add(SkipSlice());
 
                 // If this is the last slice, keep the instance as an opaque UnknownSlicedClass object.
-                if ((_current.SliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0)
                 {
                     v = new UnknownSlicedClass();
                     break;
@@ -2073,12 +2072,12 @@ namespace Ice
             internal readonly int? OldLimit;
 
             // Old Encoding
-            internal readonly EncodingVersion OldEncoding;
+            internal readonly Encoding OldEncoding;
 
             // Size of the encaps, as read from the stream
             internal readonly int Size;
 
-            internal Encaps(int? oldLimit, EncodingVersion oldEncoding, int size)
+            internal Encaps(int? oldLimit, Encoding oldEncoding, int size)
             {
                 OldLimit = oldLimit;
                 OldEncoding = oldEncoding;
@@ -2091,10 +2090,10 @@ namespace Ice
             internal readonly Encaps Encaps;
             internal readonly int Pos;
 
-            internal readonly EncodingVersion Encoding;
+            internal readonly Encoding Encoding;
             internal readonly int MinTotalSeqSize;
 
-            internal MainEncapsBackup(Encaps encaps, int pos, EncodingVersion encoding, int minTotalSeqSize)
+            internal MainEncapsBackup(Encaps encaps, int pos, Encoding encoding, int minTotalSeqSize)
             {
                 Encaps = encaps;
                 Pos = pos;

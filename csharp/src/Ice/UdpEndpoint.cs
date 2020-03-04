@@ -321,7 +321,7 @@ namespace IceInternal
 
                 try
                 {
-                    Ice.EncodingVersion v = Ice.Util.StringToEncodingVersion(argument);
+                    Ice.Encoding v = Ice.Util.StringToEncoding(argument);
                     if (v.Major != 1 || v.Minor != 0)
                     {
                         Instance.Logger.Warning($"deprecated udp endpoint option: {option}");
