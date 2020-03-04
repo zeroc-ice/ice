@@ -212,8 +212,8 @@ namespace IceInternal
             _doneInSent = false;
             _alreadySent = false;
             State = 0;
-            Os = os ?? new Ice.OutputStream(communicator, Ice.Util.CurrentProtocolEncoding);
-            Is = iss ?? new Ice.InputStream(communicator, Ice.Util.CurrentProtocolEncoding);
+            Os = os ?? new Ice.OutputStream(communicator, Ice.Ice1Definitions.Encoding);
+            Is = iss ?? new Ice.InputStream(communicator, Ice.Ice1Definitions.Encoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
             {

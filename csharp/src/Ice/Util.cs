@@ -110,8 +110,6 @@ namespace Ice
 
         private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
-        public static readonly Encoding CurrentProtocolEncoding = new Encoding(1, 1);
-
         public static readonly Encoding CurrentEncoding =
             new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
 

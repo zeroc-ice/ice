@@ -1735,10 +1735,10 @@ namespace Ice
             }
             _nextRequestId = 1;
             _messageSizeMax = adapter != null ? adapter.MessageSizeMax : communicator.MessageSizeMax;
-            _readStream = new InputStream(communicator, Util.CurrentProtocolEncoding);
+            _readStream = new InputStream(communicator, Ice1Definitions.Encoding);
             _readHeader = false;
             _readStreamPos = -1;
-            _writeStream = new OutputStream(communicator, Util.CurrentProtocolEncoding);
+            _writeStream = new OutputStream(communicator, Ice1Definitions.Encoding);
             _writeBuffer = new List<ArraySegment<byte>>();
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
@@ -2032,7 +2032,7 @@ namespace Ice
                 //
                 // Before we shut down, we send a close connection message.
                 //
-                var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
+                var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
                 os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                 os.WriteByte(Ice1Definitions.CloseConnectionMessage);
@@ -2062,7 +2062,7 @@ namespace Ice
 
             if (!_endpoint.Datagram())
             {
-                var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
+                var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
                 os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                 os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
@@ -2452,7 +2452,7 @@ namespace Ice
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-            info.Stream = new InputStream(_communicator, Util.CurrentProtocolEncoding);
+            info.Stream = new InputStream(_communicator, Ice1Definitions.Encoding);
             _readStream.Swap(info.Stream);
             _readStream.Resize(Ice1Definitions.HeaderSize);
             _readStream.Pos = 0;

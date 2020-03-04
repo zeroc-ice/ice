@@ -7,6 +7,10 @@ namespace Ice
     // Definitions for the ice1 protocol.
     internal static class Ice1Definitions
     {
+        // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
+        // for the subset of the encoding used by the ice1 headers.
+        internal static readonly Encoding Encoding = new Encoding(1, 1);
+
         // Size of an ice1 frame or message header:
         // Magic number (4 bytes)
         // Post magic (4 bytes)
@@ -20,7 +24,7 @@ namespace Ice
 
         // 4-bytes after magic that provide the protocol version (always 1.0 for an ice1 frame) and the
         // encoding of the frame header (always 1.0 with the an ice1 frame).
-        internal static readonly byte[] PostMagic = new byte[] { 0x01, 0x00, 0x01, 0x00 };
+        internal static readonly byte[] PostMagic = new byte[] { 1, 0, 1, 0 };
 
         // The Ice protocol message types
         internal const byte RequestMessage = 0;
