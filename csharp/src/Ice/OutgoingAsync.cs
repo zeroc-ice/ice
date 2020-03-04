@@ -625,7 +625,7 @@ namespace IceInternal
         public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
-            Protocol.CheckSupportedProtocol(Proxy.IceReference.GetProtocol());
+            Proxy.IceReference.GetProtocol().CheckSupported();
 
             IsIdempotent = idempotent;
 

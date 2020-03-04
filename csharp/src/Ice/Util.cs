@@ -60,17 +60,6 @@ namespace Ice
         public static int IntVersion() => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
 
         /// <summary>
-        /// Converts a string to a protocol version.
-        /// </summary>
-        /// <param name="version">The string to convert.</param>
-        /// <returns>The converted protocol version.</returns>
-        public static Protocol StringToProtocol(string version)
-        {
-            StringToMajorMinor(version, out byte major, out byte minor);
-            return new Protocol(major, minor);
-        }
-
-        /// <summary>
         /// Converts a string to an encoding version.
         /// </summary>
         /// <param name="version">The string to convert.</param>
@@ -82,20 +71,13 @@ namespace Ice
         }
 
         /// <summary>
-        /// Converts a protocol version to a string.
-        /// </summary>
-        /// <param name="v">The protocol version to convert.</param>
-        /// <returns>The converted string.</returns>
-        public static string ProtocolToString(Protocol v) => MajorMinorToString(v.Major, v.Minor);
-
-        /// <summary>
         /// Converts an encoding version to a string.
         /// </summary>
         /// <param name="v">The encoding version to convert.</param>
         /// <returns>The converted string.</returns>
         public static string EncodingToString(Encoding v) => MajorMinorToString(v.Major, v.Minor);
 
-        private static void StringToMajorMinor(string str, out byte major, out byte minor)
+        internal static void StringToMajorMinor(string str, out byte major, out byte minor)
         {
             int pos = str.IndexOf('.');
             if (pos == -1)
@@ -128,17 +110,12 @@ namespace Ice
 
         private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
 
-        public static readonly Protocol CurrentProtocol =
-            new Protocol(Ice1Definitions.ProtocolMajor, Ice1Definitions.ProtocolMinor);
-
         public static readonly Encoding CurrentProtocolEncoding =
             new Encoding(Ice1Definitions.ProtocolEncodingMajor,
                                 Ice1Definitions.ProtocolEncodingMinor);
 
         public static readonly Encoding CurrentEncoding =
             new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
-
-        public static readonly Protocol Protocol_1_0 = new Protocol(1, 0);
 
         public static readonly Encoding Encoding_1_0 = new Encoding(1, 0);
         public static readonly Encoding Encoding_1_1 = new Encoding(1, 1);

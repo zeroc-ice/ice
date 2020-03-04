@@ -1,6 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -256,8 +257,8 @@ namespace IceInternal
             base.StreamWriteImpl(s);
             if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
             {
-                s.WriteByte(Ice.Util.Protocol_1_0.Major);
-                s.WriteByte(Ice.Util.Protocol_1_0.Minor);
+                s.WriteByte((byte)Protocol.Ice1);
+                s.WriteByte(0);
                 s.WriteByte(Ice.Util.Encoding_1_0.Major);
                 s.WriteByte(Ice.Util.Encoding_1_0.Minor);
             }

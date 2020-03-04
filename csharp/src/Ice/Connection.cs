@@ -574,8 +574,8 @@ namespace Ice
                 {
                     Debug.Assert(Os != null);
                     Os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                    Os.WriteByte(Util.CurrentProtocol.Major);
-                    Os.WriteByte(Util.CurrentProtocol.Minor);
+                    Os.WriteByte((byte)Protocol.Ice1);
+                    Os.WriteByte(0);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Major);
                     Os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                     Os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
@@ -1052,12 +1052,20 @@ namespace Ice
 
                                 byte major = _readStream.ReadByte();
                                 byte minor = _readStream.ReadByte();
-                                var pv = new Protocol(major, minor);
-                                Protocol.CheckSupportedProtocol(pv);
+                                if (major != 1 || minor != 0)
+                                {
+                                    // These bytes can only be set to 1.0.
+                                    throw new ProtocolException(
+                                        $"received ice1 protocol frame with protocol set to {major}.{minor}");
+                                }
                                 major = _readStream.ReadByte();
                                 minor = _readStream.ReadByte();
-                                var ev = new Encoding(major, minor);
-                                Protocol.CheckSupportedProtocolEncoding(ev);
+                                if (major != 1 || minor != 0)
+                                {
+                                    // These bytes can only be set to 1.0.
+                                    throw new ProtocolException(
+                                        $"received ice1 protocol frame with protocol encoding set to {major}.{minor}");
+                                }
 
                                 _readStream.ReadByte(); // messageType
                                 _readStream.ReadByte(); // compress
@@ -2029,8 +2037,8 @@ namespace Ice
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte(Util.CurrentProtocol.Major);
-                os.WriteByte(Util.CurrentProtocol.Minor);
+                os.WriteByte((byte)Protocol.Ice1);
+                os.WriteByte(0);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
                 os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                 os.WriteByte(Ice1Definitions.CloseConnectionMessage);
@@ -2062,8 +2070,8 @@ namespace Ice
             {
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte(Util.CurrentProtocol.Major);
-                os.WriteByte(Util.CurrentProtocol.Minor);
+                os.WriteByte((byte)Protocol.Ice1);
+                os.WriteByte(0);
                 os.WriteByte(Util.CurrentProtocolEncoding.Major);
                 os.WriteByte(Util.CurrentProtocolEncoding.Minor);
                 os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
@@ -2112,8 +2120,8 @@ namespace Ice
                     if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                        _writeStream.WriteByte(Util.CurrentProtocol.Major);
-                        _writeStream.WriteByte(Util.CurrentProtocol.Minor);
+                        _writeStream.WriteByte((byte)Protocol.Ice1);
+                        _writeStream.WriteByte(0);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
                         _writeStream.WriteByte(Util.CurrentProtocolEncoding.Minor);
                         _writeStream.WriteByte(Ice1Definitions.ValidateConnectionMessage);
@@ -2181,12 +2189,20 @@ namespace Ice
 
                     byte major = _readStream.ReadByte();
                     byte minor = _readStream.ReadByte();
-                    var pv = new Protocol(major, minor);
-                    Protocol.CheckSupportedProtocol(pv);
+                    if (major != 1 || minor != 0)
+                    {
+                        // These bytes can only be set to 1.0.
+                        throw new ProtocolException(
+                            $"received ice1 protocol frame with protocol set to {major}.{minor}");
+                    }
                     major = _readStream.ReadByte();
                     minor = _readStream.ReadByte();
-                    var ev = new Encoding(major, minor);
-                    Protocol.CheckSupportedProtocolEncoding(ev);
+                    if (major != 1 || minor != 0)
+                    {
+                        // These bytes can only be set to 1.0.
+                        throw new ProtocolException(
+                            $"received ice1 protocol frame with protocol encoding set to {major}.{minor}");
+                    }
 
                     byte messageType = _readStream.ReadByte();
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)

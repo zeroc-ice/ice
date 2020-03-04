@@ -692,18 +692,6 @@ namespace Ice
         public Protocol Bad;
         public Protocol Supported;
 
-        public UnsupportedProtocolException()
-        {
-            Bad = new Protocol();
-            Supported = new Protocol();
-        }
-
-        public UnsupportedProtocolException(System.Exception ex) : base(ex)
-        {
-            Bad = new Protocol();
-            Supported = new Protocol();
-        }
-
         public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported) : base(reason)
         {
             Bad = bad;

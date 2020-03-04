@@ -237,11 +237,23 @@ namespace Ice.proxy
             b1 = IObjectPrx.Parse("test -e 6.5", communicator);
             test(b1.Encoding.Major == 6 && b1.Encoding.Minor == 5);
 
-            b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
-            test(b1.ToString().Equals("test -t -e 1.0"));
+            b1 = IObjectPrx.Parse("test -p ice1 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p ice1 -e 1.0"));
 
-            b1 = IObjectPrx.Parse("test -p 6.5 -e 1.0", communicator);
-            test(b1.ToString().Equals("test -t -p 6.5 -e 1.0"));
+            b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p ice1 -e 1.0"));
+
+            b1 = IObjectPrx.Parse("test -p ice2 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p ice2 -e 1.0"));
+
+            b1 = IObjectPrx.Parse("test -p 2.0 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p ice2 -e 1.0"));
+
+            b1 = IObjectPrx.Parse("test -p 6 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p 6 -e 1.0"));
+
+            b1 = IObjectPrx.Parse("test -p 6.0 -e 1.0", communicator);
+            test(b1.ToString().Equals("test -t -p 6 -e 1.0"));
 
             try
             {
@@ -549,7 +561,7 @@ namespace Ice.proxy
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             test(proxyProps.Count == 21);
 
-            test(proxyProps["Test"].Equals("test -t -e 1.0"));
+            test(proxyProps["Test"].Equals("test -t -p ice1 -e 1.0"));
             test(proxyProps["Test.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.PreferSecure"].Equals("0"));
@@ -558,7 +570,7 @@ namespace Ice.proxy
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
+                        "locator -t -p ice1 -e " + Util.EncodingToString(Util.CurrentEncoding)));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -568,7 +580,7 @@ namespace Ice.proxy
             test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             test(proxyProps["Test.Locator.Router"].Equals(
-                        "router -t -e " + Util.EncodingToString(Util.CurrentEncoding)));
+                        "router -t -p ice1 -e " + Util.EncodingToString(Util.CurrentEncoding)));
             test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));
@@ -913,24 +925,13 @@ namespace Ice.proxy
 
             output.WriteLine("ok");
 
-            ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
-            cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
-            try
-            {
-                cl13.IcePing();
-            }
-            catch (UnsupportedProtocolException)
-            {
-                // expected
-            }
-
             output.Write("testing protocol versioning... ");
             output.Flush();
-            ref21 = "test -p 2.1:" + helper.getTestEndpoint(0);
-            cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
+            string ref3 = "test -p 3:" + helper.getTestEndpoint(0);
+            var cl3 = Test.IMyClassPrx.Parse(ref3, communicator);
             try
             {
-                cl21.IcePing();
+                cl3.IcePing();
                 test(false);
             }
             catch (UnsupportedProtocolException)
@@ -1066,12 +1067,12 @@ namespace Ice.proxy
             var p1 = IObjectPrx.Parse("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                 communicator);
             string pstr = p1.ToString();
-            test(pstr.Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            test(pstr.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
             // Opaque endpoint encoded with 1.1 encoding.
             var p2 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                 communicator);
-            test(p2.ToString().Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            test(p2.ToString().Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
             if ((communicator.GetPropertyAsInt("IPv6") ?? 0) == 0)
             {
@@ -1084,7 +1085,7 @@ namespace Ice.proxy
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
                 pstr = p1.ToString();
-                test(pstr.Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+                test(pstr.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
                 // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
                 p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
@@ -1092,12 +1093,12 @@ namespace Ice.proxy
                 pstr = p1.ToString();
                 if (ssl)
                 {
-                    test(pstr.Equals("test -t -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
+                    test(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
                 }
                 else if (tcp)
                 {
                     test(pstr.Equals(
-                        "test -t -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
+                        "test -t -p ice1 -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
                 }
             }
 

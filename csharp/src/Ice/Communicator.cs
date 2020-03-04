@@ -15,13 +15,6 @@ using System.Threading;
 
 namespace Ice
 {
-    public enum ToStringMode
-    {
-        Unicode,
-        ASCII,
-        Compat
-    }
-
     internal sealed class BufSizeWarnInfo
     {
         // Whether send size warning has been emitted
@@ -761,7 +754,7 @@ namespace Ice
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
             Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
-            Protocol protocol = Util.Protocol_1_0;
+            Protocol protocol = Protocol.Ice1;
             string adapter;
 
             while (true)
@@ -931,7 +924,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            protocol = Util.StringToProtocol(argument);
+                            protocol = ProtocolExtensions.Parse(argument);
                             break;
                         }
 
@@ -1123,7 +1116,11 @@ namespace Ice
             {
                 byte major = s.ReadByte();
                 byte minor = s.ReadByte();
-                protocol = new Protocol(major, minor);
+                if (minor != 0)
+                {
+                    throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
+                }
+                protocol = (Protocol)major;
 
                 major = s.ReadByte();
                 minor = s.ReadByte();
@@ -1131,7 +1128,7 @@ namespace Ice
             }
             else
             {
-                protocol = Util.Protocol_1_0;
+                protocol = Protocol.Ice1;
                 encoding = Util.Encoding_1_0;
             }
 
@@ -1802,7 +1799,7 @@ namespace Ice
                 "", // Facet
                 ((Endpoint)connection.Endpoint).Datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
                 ((Endpoint)connection.Endpoint).Secure(),
-                Util.Protocol_1_0,
+                Protocol.Ice1,
                 DefaultsAndOverrides.DefaultEncoding,
                 connection,
                 -1,

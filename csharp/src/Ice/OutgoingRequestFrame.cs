@@ -51,7 +51,7 @@ namespace Ice
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null)
             : base(proxy.Communicator)
         {
-            Protocol.CheckSupportedProtocol(proxy.IceReference.GetProtocol());
+            proxy.IceReference.GetProtocol().CheckSupported();
 
             Identity = proxy.Identity;
             Facet = proxy.Facet;
