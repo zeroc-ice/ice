@@ -14,7 +14,6 @@
 #include <IceUtil/InputUtil.h>
 
 #include <iomanip>
-#include <memory>
 
 #include <stdlib.h>
 #include <math.h>
@@ -202,7 +201,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches an escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
 <STRING_LITERAL>"\\x"{hex}{1,2} {
     auto value = strtoull((yytext + 2), 0, 16);
-    assert(value >= 0 && value <= 255);
+    assert(value <= 255);
 
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;

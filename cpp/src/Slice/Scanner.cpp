@@ -1,11 +1,11 @@
-#line 1 "src/Slice/Scanner.cpp"
+#line 2 "src/Slice/Scanner.cpp"
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
 #include <IceUtil/ScannerConfig.h>
 
-#line 8 "src/Slice/Scanner.cpp"
+#line 9 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1171,7 +1171,7 @@ void yynoreturn fatalError(const char* msg);
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 1174 "src/Slice/Scanner.cpp"
+#line 1175 "src/Slice/Scanner.cpp"
 #line 78 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
@@ -1198,7 +1198,7 @@ void yynoreturn fatalError(const char* msg);
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1201 "src/Slice/Scanner.cpp"
+#line 1202 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1489,7 +1489,7 @@ YY_DECL
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1492 "src/Slice/Scanner.cpp"
+#line 1493 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1657,7 +1657,7 @@ YY_RULE_SETUP
 #line 203 "src/Slice/Scanner.l"
 {
     auto value = strtoull((yytext + 2), 0, 16);
-    assert(value >= 0 && value <= 255);
+    assert(value <= 255);
 
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
@@ -2116,7 +2116,7 @@ YY_RULE_SETUP
 #line 547 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2119 "src/Slice/Scanner.cpp"
+#line 2120 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(PRE_SLICE):
 case YY_STATE_EOF(SLICE):
