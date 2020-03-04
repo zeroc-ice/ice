@@ -7,36 +7,22 @@ namespace Ice
     // Definitions for the ice1 protocol.
     internal static class Ice1Definitions
     {
-        //
-        // Size of the ice1 protocol header
-        //
+        // Size of an ice1 frame or message header:
         // Magic number (4 bytes)
-        // Protocol version major (Byte)
-        // Protocol version minor (Byte)
-        // Encoding version major (Byte)
-        // Encoding version minor (Byte)
+        // Post magic (4 bytes)
         // Message type (Byte)
         // Compression status (Byte)
-        // Message size (Int)
-        //
+        // Message size (Int - 4 bytes)
         internal const int HeaderSize = 14;
 
-        //
         // The magic number at the front of each message
-        //
         internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 
-        //
-        // The current Ice protocol and encoding version
-        //
-        internal const byte ProtocolMajor = 1;
-        internal const byte ProtocolMinor = 0;
-        internal const byte ProtocolEncodingMajor = 1;
-        internal const byte ProtocolEncodingMinor = 0;
+        // 4-bytes after magic that provide the protocol version (always 1.0 for an ice1 frame) and the
+        // encoding of the frame header (always 1.0 with the an ice1 frame).
+        internal static readonly byte[] PostMagic = new byte[] { 0x01, 0x00, 0x01, 0x00 };
 
-        //
         // The Ice protocol message types
-        //
         internal const byte RequestMessage = 0;
         internal const byte RequestBatchMessage = 1;
         internal const byte ReplyMessage = 2;
@@ -46,8 +32,7 @@ namespace Ice
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
             RequestMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -57,8 +42,7 @@ namespace Ice
         internal static readonly byte[] RequestBatchHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
             RequestBatchMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -68,8 +52,7 @@ namespace Ice
         internal static readonly byte[] ReplyHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
             ReplyMessage,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).

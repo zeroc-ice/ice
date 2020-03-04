@@ -574,10 +574,7 @@ namespace Ice
                 {
                     Debug.Assert(Os != null);
                     Os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                    Os.WriteByte((byte)Protocol.Ice1);
-                    Os.WriteByte(0);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                    Os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                     Os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                     Os.WriteByte(0);
                     Os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2037,10 +2034,7 @@ namespace Ice
                 //
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte((byte)Protocol.Ice1);
-                os.WriteByte(0);
-                os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                 os.WriteByte(Ice1Definitions.CloseConnectionMessage);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2070,10 +2064,7 @@ namespace Ice
             {
                 var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte((byte)Protocol.Ice1);
-                os.WriteByte(0);
-                os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                 os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                 os.WriteByte(0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2120,10 +2111,7 @@ namespace Ice
                     if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                        _writeStream.WriteByte((byte)Protocol.Ice1);
-                        _writeStream.WriteByte(0);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                        _writeStream.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
                         _writeStream.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Ice1Definitions.HeaderSize); // Message size.
