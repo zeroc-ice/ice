@@ -823,12 +823,12 @@ Subscriber::error(bool dec, exception_ptr e)
 void
 Subscriber::shutdown()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    unique_lock<recursive_mutex> lock(_mutex);
 
     _shutdown = true;
     while(_outstanding > 0 && !_events.empty())
     {
-        _condVar.notify_one();
+        _condVar.wait(lock);
     }
 
     _observer.detach();
