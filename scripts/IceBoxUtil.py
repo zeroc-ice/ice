@@ -54,5 +54,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         elif isinstance(platform, AIX) and \
              current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):
             return "iceboxadmin_32"
+        elif isinstance(mapping, CppMapping) and current.config.cpp11:
+            return "iceboxadmin++11"
         else:
-            return "iceboxadmin++11" if current.config.cpp11 else "iceboxadmin"
+            return "iceboxadmin"
