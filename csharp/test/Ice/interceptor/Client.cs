@@ -247,7 +247,7 @@ namespace Ice.interceptor
                     prx.IcePing(ctx);
                     test(false);
                 }
-                catch (UnknownUserException) when (e.kind.Equals("user"))
+                catch (Test.InvalidInputException) when (e.kind.Equals("user"))
                 {
                 }
                 catch (ObjectNotExistException) when (e.kind.Equals("notExist"))

@@ -268,7 +268,7 @@ namespace Ice.exceptions
 
             if (thrower.supportsUndeclaredExceptions())
             {
-                output.Write("catching unknown user exception... ");
+                output.Write("catching undeclared user exception... ");
                 output.Flush();
 
                 try
@@ -276,7 +276,7 @@ namespace Ice.exceptions
                     thrower.throwUndeclaredA(1);
                     test(false);
                 }
-                catch (UnknownUserException)
+                catch (A)
                 {
                 }
                 catch (Exception)
@@ -289,7 +289,7 @@ namespace Ice.exceptions
                     thrower.throwUndeclaredB(1, 2);
                     test(false);
                 }
-                catch (UnknownUserException)
+                catch (B)
                 {
                 }
                 catch (Exception)
@@ -302,7 +302,7 @@ namespace Ice.exceptions
                     thrower.throwUndeclaredC(1, 2, 3);
                     test(false);
                 }
-                catch (UnknownUserException)
+                catch (C)
                 {
                 }
                 catch (Exception)
@@ -519,7 +519,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching exact types with AMI mapping... ");
+            output.Write("catching exact types with AMI... ");
             output.Flush();
 
             {
@@ -640,7 +640,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching derived types with new AMI mapping... ");
+            output.Write("catching derived types with AMI... ");
             output.Flush();
 
             {
@@ -720,7 +720,7 @@ namespace Ice.exceptions
 
             if (thrower.supportsUndeclaredExceptions())
             {
-                output.Write("catching unknown user exception with new AMI mapping... ");
+                output.Write("catching undeclared user exception with AMI... ");
                 output.Flush();
 
                 {
@@ -735,7 +735,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (A)
                         {
                         }
                         catch (Exception)
@@ -757,7 +757,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (B)
                         {
                         }
                         catch (Exception)
@@ -779,7 +779,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (C)
                         {
                         }
                         catch (Exception)
@@ -792,7 +792,7 @@ namespace Ice.exceptions
                 output.WriteLine("ok");
             }
 
-            output.Write("catching object not exist exception with new AMI mapping... ");
+            output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -822,7 +822,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching object not exist exception with new AMI mapping... ");
+            output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -851,7 +851,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching operation not exist exception with new AMI mapping... ");
+            output.Write("catching operation not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -880,7 +880,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown local exception with new AMI mapping... ");
+            output.Write("catching unknown local exception with AMI... ");
             output.Flush();
 
             {
@@ -935,7 +935,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown non-Ice exception with new AMI mapping... ");
+            output.Write("catching unknown non-Ice exception with AMI... ");
             output.Flush();
 
             {
@@ -964,7 +964,7 @@ namespace Ice.exceptions
 
             if (thrower.supportsUndeclaredExceptions())
             {
-                output.Write("catching unknown user exception with new AMI mapping... ");
+                output.Write("catching undeclared user exception with AMI... ");
                 output.Flush();
 
                 {
@@ -979,7 +979,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (A)
                         {
                         }
                         catch (Exception)
@@ -1001,7 +1001,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (B)
                         {
                         }
                         catch (Exception)
@@ -1023,7 +1023,7 @@ namespace Ice.exceptions
                         {
                             throw exc.InnerException;
                         }
-                        catch (UnknownUserException)
+                        catch (C)
                         {
                         }
                         catch (Exception)
@@ -1036,7 +1036,7 @@ namespace Ice.exceptions
                 output.WriteLine("ok");
             }
 
-            output.Write("catching object not exist exception with new AMI mapping... ");
+            output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -1066,7 +1066,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception with new AMI mapping... ");
+            output.Write("catching facet not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -1095,7 +1095,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching operation not exist exception with new AMI mapping... ");
+            output.Write("catching operation not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -1124,7 +1124,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown local exception with new AMI mapping... ");
+            output.Write("catching unknown local exception with AMI... ");
             output.Flush();
 
             {
@@ -1179,7 +1179,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown non-Ice exception with new AMI mapping... ");
+            output.Write("catching unknown non-Ice exception with AMI... ");
             output.Flush();
 
             {
