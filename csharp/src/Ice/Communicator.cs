@@ -1112,7 +1112,7 @@ namespace Ice
 
             Protocol protocol;
             Encoding encoding;
-            if (!s.Encoding.Equals(Util.Encoding_1_0))
+            if (!s.Encoding.Equals(Encoding.V1_0))
             {
                 byte major = s.ReadByte();
                 byte minor = s.ReadByte();
@@ -1129,7 +1129,7 @@ namespace Ice
             else
             {
                 protocol = Protocol.Ice1;
-                encoding = Util.Encoding_1_0;
+                encoding = Encoding.V1_0;
             }
 
             Endpoint[] endpoints;

@@ -9,7 +9,7 @@ namespace Ice
     {
         // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
         // for the subset of the encoding used by the ice1 headers.
-        internal static readonly Encoding Encoding = new Encoding(1, 1);
+        internal static readonly Encoding Encoding = Encoding.V1_1;
 
         // Size of an ice1 frame or message header:
         // Magic number (4 bytes)

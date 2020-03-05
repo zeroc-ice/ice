@@ -717,14 +717,14 @@ namespace Ice
 
         public UnsupportedEncodingException()
         {
-            Bad = new Encoding();
-            Supported = new Encoding();
+            Bad = default;
+            Supported = default;
         }
 
         public UnsupportedEncodingException(System.Exception ex) : base(ex)
         {
-            Bad = new Encoding();
-            Supported = new Encoding();
+            Bad = default;
+            Supported = default;
         }
 
         public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported) : base(reason)

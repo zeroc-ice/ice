@@ -178,7 +178,7 @@ namespace IceInternal
             else
             {
                 DefaultEncoding = Encoding.Parse(val);
-                EncodingDefinitions.CheckSupportedEncoding(DefaultEncoding);
+                DefaultEncoding.CheckSupported();
             }
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;

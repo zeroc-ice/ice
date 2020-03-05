@@ -32,7 +32,7 @@ namespace IceInternal
         public UdpEndpoint(TransportInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
+            if (s.Encoding.Equals(Encoding.V1_0))
             {
                 s.ReadByte();
                 s.ReadByte();
@@ -256,12 +256,12 @@ namespace IceInternal
         public override void StreamWriteImpl(Ice.OutputStream s)
         {
             base.StreamWriteImpl(s);
-            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
+            if (s.Encoding.Equals(Encoding.V1_0))
             {
                 s.WriteByte((byte)Protocol.Ice1);
                 s.WriteByte(0);
-                s.WriteByte(Ice.Util.Encoding_1_0.Major);
-                s.WriteByte(Ice.Util.Encoding_1_0.Minor);
+                s.WriteByte(Encoding.V1_0.Major);
+                s.WriteByte(Encoding.V1_0.Minor);
             }
             // Not transmitted.
             //s.writeBool(_connect);

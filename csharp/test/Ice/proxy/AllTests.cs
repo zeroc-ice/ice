@@ -555,7 +555,7 @@ namespace Ice.proxy
                 endpointSelectionType: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
-                encoding: new Encoding(1, 0),
+                encoding: Encoding.V1_0,
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");

@@ -165,7 +165,7 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
+            Debug.Assert(!encapsHeader.Encoding.Equals(Encoding.V1_0));
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
 
@@ -213,7 +213,7 @@ namespace Ice
 
         /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
         /// Throws Ice.UnsupportedEncodingException if it cannot.</summary>
-        public void CheckIsReadable() => EncodingDefinitions.CheckSupportedEncoding(Encoding);
+        public void CheckIsReadable() => Encoding.CheckSupported();
 
         /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
         public void SkipCurrentEncapsulation()
@@ -233,7 +233,7 @@ namespace Ice
         public Encoding SkipEmptyEncapsulation()
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            if (encapsHeader.Encoding.Equals(Util.Encoding_1_0))
+            if (encapsHeader.Encoding.Equals(Encoding.V1_0))
             {
                 if (encapsHeader.Size != 6)
                 {
@@ -1212,7 +1212,7 @@ namespace Ice
         /// <returns>The enumerator.</returns>
         public int ReadEnum(int maxValue)
         {
-            if (Encoding.Equals(Util.Encoding_1_0))
+            if (Encoding.Equals(Encoding.V1_0))
             {
                 if (maxValue < 127)
                 {

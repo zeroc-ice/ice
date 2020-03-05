@@ -219,7 +219,7 @@ namespace IceInternal
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
+                if (!v.Equals(Encoding.V1_0))
                 {
                     s.Write("\nencoding = ");
                     s.Write(v.ToString());
@@ -276,7 +276,7 @@ namespace IceInternal
                 }
 
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
+                if (!v.Equals(Encoding.V1_0))
                 {
                     s.Write("\nencoding = ");
                     s.Write(v.ToString());

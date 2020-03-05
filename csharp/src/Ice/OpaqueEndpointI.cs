@@ -14,7 +14,7 @@ namespace IceInternal
         public OpaqueEndpointI(List<string> args)
         {
             _type = -1;
-            _rawEncoding = Ice.Util.Encoding_1_0;
+            _rawEncoding = Ice.Encoding.V1_0;
             _rawBytes = System.Array.Empty<byte>();
 
             InitWithOptions(args);

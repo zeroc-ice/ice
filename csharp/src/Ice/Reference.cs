@@ -135,7 +135,7 @@ namespace IceInternal
 
             s.WriteBool(Secure);
 
-            if (!s.Encoding.Equals(Ice.Util.Encoding_1_0))
+            if (!s.Encoding.Equals(Encoding.V1_0))
             {
                 s.WriteByte((byte)_protocol);
                 s.WriteByte(0);
