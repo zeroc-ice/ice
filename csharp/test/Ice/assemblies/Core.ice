@@ -1,8 +1,7 @@
 module Core
 {
-
-exception ArgumentException
-{
-}
-
+    struct Data
+    {
+        int x;
+    }
 }
