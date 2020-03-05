@@ -1960,9 +1960,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     emitGeneratedCodeAttribute();
 
     _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
-    _out << sb;
 
-    _out << nl << "return ";
+    _out.inc();
+    _out << nl << "=> ";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
     {
         string mName = fixId(dataMemberName(*q));
@@ -1979,14 +1979,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(++q != dataMembers.end())
         {
-            _out << " &&" << nl << "       ";
+            _out << " &&" << nl << "   ";
         }
         else
         {
             _out << ";";
         }
     }
-    _out << eb;
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2001,17 +2001,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator==(" << name << "? lhs, " << name << "? rhs)";
-    _out << sb;
-    _out << nl << "return object.Equals(lhs, rhs);";
-    _out << eb;
+    _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
+    _out << " => lhs.Equals(rhs);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator!=(" << name << "? lhs, " << name << "? rhs)";
-    _out << sb;
-    _out << nl << "return !object.Equals(lhs, rhs);";
-    _out << eb;
+    _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs)";
+    _out << " => !lhs.Equals(rhs);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
