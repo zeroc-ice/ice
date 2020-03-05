@@ -555,13 +555,13 @@ namespace Ice.proxy
                 endpointSelectionType: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
-                encoding: Encoding.V1_0,
+                encoding: Encoding.V2_0,
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             test(proxyProps.Count == 21);
 
-            test(proxyProps["Test"].Equals("test -t -p ice1 -e 1.0"));
+            test(proxyProps["Test"].Equals("test -t -p ice1 -e 2.0"));
             test(proxyProps["Test.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.ConnectionCached"].Equals("1"));
             test(proxyProps["Test.PreferSecure"].Equals("0"));
@@ -1064,15 +1064,10 @@ namespace Ice.proxy
             }
 
             // Legal TCP endpoint expressed as opaque endpoint
-            var p1 = IObjectPrx.Parse("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
-                communicator);
-            string pstr = p1.ToString();
-            test(pstr.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
-
             // Opaque endpoint encoded with 1.1 encoding.
-            var p2 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
+            var p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                 communicator);
-            test(p2.ToString().Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            test(p1.ToString().Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
             if ((communicator.GetPropertyAsInt("IPv6") ?? 0) == 0)
             {
@@ -1084,7 +1079,7 @@ namespace Ice.proxy
                 p1 = IObjectPrx.Parse("test -e 1.1:" + "" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
-                pstr = p1.ToString();
+                var pstr = p1.ToString();
                 test(pstr.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
                 // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.

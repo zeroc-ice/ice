@@ -164,8 +164,8 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
+            Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            Debug.Assert(!encapsHeader.Encoding.Equals(Encoding.V1_0));
             Encoding = encapsHeader.Encoding;
             _limit = Pos + encapsHeader.Size - 6;
 
@@ -233,19 +233,10 @@ namespace Ice
         public Encoding SkipEmptyEncapsulation()
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            if (encapsHeader.Encoding.Equals(Encoding.V1_0))
-            {
-                if (encapsHeader.Size != 6)
-                {
-                    throw new EncapsulationException();
-                }
-            }
-            else
-            {
-                // Skip the optional content of the encapsulation if we are expecting an
-                // empty encapsulation.
-                _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
-            }
+            Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
+            // Skip the optional content of the encapsulation if we are expecting an
+            // empty encapsulation.
+            _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
             return encapsHeader.Encoding;
         }
 
@@ -1212,25 +1203,9 @@ namespace Ice
         /// <returns>The enumerator.</returns>
         public int ReadEnum(int maxValue)
         {
-            if (Encoding.Equals(Encoding.V1_0))
-            {
-                if (maxValue < 127)
-                {
-                    return ReadByte();
-                }
-                else if (maxValue < 32767)
-                {
-                    return ReadShort();
-                }
-                else
-                {
-                    return ReadInt();
-                }
-            }
-            else
-            {
-                return ReadSize();
-            }
+            // TODO: eliminate maxValue
+            Debug.Assert(Encoding == Encoding.V1_1); // TODO: temporary
+            return ReadSize();
         }
 
         /// <summary>

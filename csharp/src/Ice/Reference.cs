@@ -135,13 +135,10 @@ namespace IceInternal
 
             s.WriteBool(Secure);
 
-            if (!s.Encoding.Equals(Encoding.V1_0))
-            {
-                s.WriteByte((byte)_protocol);
-                s.WriteByte(0);
-                s.WriteByte(_encoding.Major);
-                s.WriteByte(_encoding.Minor);
-            }
+            s.WriteByte((byte)_protocol);
+            s.WriteByte(0);
+            s.WriteByte(_encoding.Major);
+            s.WriteByte(_encoding.Minor);
 
             // Derived class writes the remainder of the reference.
         }

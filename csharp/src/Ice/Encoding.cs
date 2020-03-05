@@ -14,13 +14,13 @@ namespace Ice
     {
         // The encodings known to the Ice runtime. Don't reference them from other static variables!
 
-        /// <summary>Version 1.0 of the Ice encoding.</summary>
+        /// <summary>Version 1.0 of the Ice encoding, supported by Ice 1.0 to Ice 3.7.</summary>
         public static readonly Encoding V1_0 = new Encoding(1, 0);
 
-        /// <summary>Version 1.1 of the Ice encoding.</summary>
+        /// <summary>Version 1.1 of the Ice encoding, supported since Ice 3.5.</summary>
         public static readonly Encoding V1_1 = new Encoding(1, 1);
 
-        /// <summary>Version 2.0 of the Ice encoding.</summary>
+        /// <summary>Version 2.0 of the Ice encoding, supported since Ice 4.0.</summary>
         public static readonly Encoding V2_0 = new Encoding(2, 0);
 
         /// <summary>The most recent version of the Ice encoding.</summary>
@@ -104,9 +104,8 @@ namespace Ice
 
         internal void CheckSupported()
         {
-            // For now, we claim to support 1.0 and 1.1.
-            // TODO: add 2.0, remove 1.0
-            if (this != V1_0 && this != V1_1)
+            // TODO: add 2.0
+            if (this != V1_1)
             {
                 throw new UnsupportedEncodingException("", this, V1_1);
             }

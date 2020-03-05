@@ -413,12 +413,6 @@ namespace Ice
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
-            if (Encoding.Equals(Encoding.V1_0))
-            {
-                // TODO: eliminate this block and return value
-                return false; // Tagged members aren't supported with the 1.0 encoding.
-            }
-
             int v = (int)format;
             if (tag < 30)
             {

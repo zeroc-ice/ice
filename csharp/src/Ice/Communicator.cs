@@ -1110,27 +1110,17 @@ namespace Ice
 
             bool secure = s.ReadBool();
 
-            Protocol protocol;
-            Encoding encoding;
-            if (!s.Encoding.Equals(Encoding.V1_0))
+            byte major = s.ReadByte();
+            byte minor = s.ReadByte();
+            if (minor != 0)
             {
-                byte major = s.ReadByte();
-                byte minor = s.ReadByte();
-                if (minor != 0)
-                {
-                    throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
-                }
-                protocol = (Protocol)major;
+                throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
+            }
+            var protocol = (Protocol)major;
 
-                major = s.ReadByte();
-                minor = s.ReadByte();
-                encoding = new Encoding(major, minor);
-            }
-            else
-            {
-                protocol = Protocol.Ice1;
-                encoding = Encoding.V1_0;
-            }
+            major = s.ReadByte();
+            minor = s.ReadByte();
+            var encoding = new Encoding(major, minor);
 
             Endpoint[] endpoints;
             string adapterId = "";
