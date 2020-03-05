@@ -59,36 +59,6 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int IntVersion() => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
 
-        internal static (byte Major, byte Minor)? ParseMajorMinorVersion(string str, bool throwOnFailure)
-        {
-            int pos = str.IndexOf('.');
-            if (pos == -1)
-            {
-                if (throwOnFailure)
-                {
-                    throw new FormatException($"malformed major.minor value `{str}'");
-                }
-                return null;
-            }
-
-            string majStr = str[..pos];
-            string minStr = str[(pos + 1)..];
-            try
-            {
-                byte major = byte.Parse(majStr, CultureInfo.InvariantCulture);
-                byte minor = byte.Parse(minStr, CultureInfo.InvariantCulture);
-                return (major, minor);
-            }
-            catch (FormatException)
-            {
-                if (throwOnFailure)
-                {
-                    throw new FormatException($"malformed major.minor value `{str}'");
-                }
-                return null;
-            }
-        }
-
         private static readonly object _processLoggerMutex = new object();
         private static ILogger? _processLogger = null;
     }

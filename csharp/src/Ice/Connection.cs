@@ -574,7 +574,7 @@ namespace Ice
                 {
                     Debug.Assert(Os != null);
                     Os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                    Os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
+                    Os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                     Os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                     Os.WriteByte(0);
                     Os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -1033,36 +1033,8 @@ namespace Ice
                                 }
 
                                 _readStream.Pos = 0;
-                                byte[] m = new byte[4];
-                                m[0] = _readStream.ReadByte();
-                                m[1] = _readStream.ReadByte();
-                                m[2] = _readStream.ReadByte();
-                                m[3] = _readStream.ReadByte();
-                                if (m[0] != Ice1Definitions.Magic[0] || m[1] != Ice1Definitions.Magic[1] ||
-                                    m[2] != Ice1Definitions.Magic[2] || m[3] != Ice1Definitions.Magic[3])
-                                {
-                                    throw new BadMagicException
-                                    {
-                                        BadMagic = m
-                                    };
-                                }
-
-                                byte major = _readStream.ReadByte();
-                                byte minor = _readStream.ReadByte();
-                                if (major != 1 || minor != 0)
-                                {
-                                    // These bytes can only be set to 1.0.
-                                    throw new ProtocolException(
-                                        $"received ice1 protocol frame with protocol set to {major}.{minor}");
-                                }
-                                major = _readStream.ReadByte();
-                                minor = _readStream.ReadByte();
-                                if (major != 1 || minor != 0)
-                                {
-                                    // These bytes can only be set to 1.0.
-                                    throw new ProtocolException(
-                                        $"received ice1 protocol frame with protocol encoding set to {major}.{minor}");
-                                }
+                                byte[] header = _readStream.ReadBlob(8);
+                                Ice1Definitions.CheckHeader(header.AsSpan());
 
                                 _readStream.ReadByte(); // messageType
                                 _readStream.ReadByte(); // compress
@@ -2034,7 +2006,7 @@ namespace Ice
                 //
                 var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
+                os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                 os.WriteByte(Ice1Definitions.CloseConnectionMessage);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2064,7 +2036,7 @@ namespace Ice
             {
                 var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
+                os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                 os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                 os.WriteByte(0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2111,7 +2083,7 @@ namespace Ice
                     if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                        _writeStream.WriteSpan(Ice1Definitions.PostMagic.AsSpan());
+                        _writeStream.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                         _writeStream.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2165,33 +2137,8 @@ namespace Ice
 
                     Debug.Assert(_readStream.Pos == Ice1Definitions.HeaderSize);
                     _readStream.Pos = 0;
-                    byte[] m = _readStream.ReadBlob(4);
-                    if (m[0] != Ice1Definitions.Magic[0] || m[1] != Ice1Definitions.Magic[1] ||
-                        m[2] != Ice1Definitions.Magic[2] || m[3] != Ice1Definitions.Magic[3])
-                    {
-                        throw new BadMagicException
-                        {
-                            BadMagic = m
-                        };
-                    }
-
-                    byte major = _readStream.ReadByte();
-                    byte minor = _readStream.ReadByte();
-                    if (major != 1 || minor != 0)
-                    {
-                        // These bytes can only be set to 1.0.
-                        throw new ProtocolException(
-                            $"received ice1 protocol frame with protocol set to {major}.{minor}");
-                    }
-                    major = _readStream.ReadByte();
-                    minor = _readStream.ReadByte();
-                    if (major != 1 || minor != 0)
-                    {
-                        // These bytes can only be set to 1.0.
-                        throw new ProtocolException(
-                            $"received ice1 protocol frame with protocol encoding set to {major}.{minor}");
-                    }
-
+                    byte[] header = _readStream.ReadBlob(8);
+                    Ice1Definitions.CheckHeader(header.AsSpan());
                     byte messageType = _readStream.ReadByte();
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {

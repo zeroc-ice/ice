@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Globalization;
 
 namespace Ice
 {
@@ -19,7 +20,7 @@ namespace Ice
         /// <summary>Version 1.1 of the Ice encoding.</summary>
         public static readonly Encoding V1_1 = new Encoding(1, 1);
 
-        /// <summary>Version 1.2 of the Ice encoding.</summary>
+        /// <summary>Version 2.0 of the Ice encoding.</summary>
         public static readonly Encoding V2_0 = new Encoding(2, 0);
 
         /// <summary>The most recent version of the Ice encoding.</summary>
@@ -36,8 +37,24 @@ namespace Ice
         /// <returns>A new encoding.</returns>
         public static Encoding Parse(string str)
         {
-            (byte major, byte minor) = Util.ParseMajorMinorVersion(str, throwOnFailure: true)!.Value;
-            return new Encoding(major, minor);
+            int pos = str.IndexOf('.');
+            if (pos == -1)
+            {
+                throw new FormatException($"malformed encoding string `{str}'");
+            }
+
+            string majStr = str[..pos];
+            string minStr = str[(pos + 1)..];
+            try
+            {
+                byte major = byte.Parse(majStr, CultureInfo.InvariantCulture);
+                byte minor = byte.Parse(minStr, CultureInfo.InvariantCulture);
+                return new Encoding(major, minor);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException($"malformed encoding string `{str}'");
+            }
         }
 
         /// <summary>Attempts to parse a string into an Encoding.</summary>
@@ -46,16 +63,16 @@ namespace Ice
         /// <returns>True if the parsing succeeded and encoding contains the result; otherwise, false.</returns>
         public static bool TryParse(string str, out Encoding encoding)
         {
-            var result = Util.ParseMajorMinorVersion(str, throwOnFailure: false);
-            if (result != null)
+            try
             {
-                encoding = new Encoding(result.Value.Major, result.Value.Minor);
+                encoding = Parse(str);
+                return true;
             }
-            else
+            catch (FormatException)
             {
                 encoding = default;
+                return false;
             }
-            return result != null;
         }
 
         public static bool operator ==(Encoding lhs, Encoding rhs) => Equals(lhs, rhs);

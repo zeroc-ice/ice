@@ -45,10 +45,10 @@ namespace Ice
                 case "ice2":
                     return Protocol.Ice2;
                 default:
-                    (byte Major, byte Minor)? result = Util.ParseMajorMinorVersion(str, throwOnFailure: false);
-                    if (result != null && result.Value.Minor == 0)
+                    // Parse as a Major.Minor encoding:
+                    if (Encoding.TryParse(str, out Encoding encoding) && encoding.Minor == 0)
                     {
-                        return (Protocol)result.Value.Major;
+                        return (Protocol)encoding.Major;
                     }
                     byte value = byte.Parse(str, CultureInfo.InvariantCulture);
                     return (Protocol)value;

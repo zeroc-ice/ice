@@ -2,6 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+
 namespace Ice
 {
     // Definitions for the ice1 protocol.
@@ -23,8 +26,8 @@ namespace Ice
         internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 
         // 4-bytes after magic that provide the protocol version (always 1.0 for an ice1 frame) and the
-        // encoding of the frame header (always 1.0 with the an ice1 frame).
-        internal static readonly byte[] PostMagic = new byte[] { 1, 0, 1, 0 };
+        // encoding of the frame header (always set to 1.0 with the an ice1 frame, even though we use 1.1).
+        internal static readonly byte[] ProtocolBytes = new byte[] { 1, 0, 1, 0 };
 
         // The Ice protocol message types
         internal const byte RequestMessage = 0;
@@ -36,7 +39,7 @@ namespace Ice
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             RequestMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -46,7 +49,7 @@ namespace Ice
         internal static readonly byte[] RequestBatchHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             RequestBatchMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -56,10 +59,35 @@ namespace Ice
         internal static readonly byte[] ReplyHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            PostMagic[0], PostMagic[1], PostMagic[2], PostMagic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             ReplyMessage,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).
         };
+
+        // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
+        internal static void CheckHeader(Span<byte> header)
+        {
+            Debug.Assert(header.Length >= 8);
+            if (header[0] != Magic[0] || header[1] != Magic[1] || header[2] != Magic[2] || header[3] != Magic[3])
+            {
+                throw new BadMagicException("Received incorrect magic bytes in ice1 header",
+                    header.Slice(0, 4).ToArray());
+            }
+
+            header = header.Slice(4);
+
+            if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
+            {
+                throw new ProtocolException(
+                    $"received ice1 protocol frame with protocol set to {header[0]}.{header[1]}");
+            }
+
+            if (header[2] != ProtocolBytes[2] || header[3] != ProtocolBytes[3])
+            {
+                throw new ProtocolException(
+                    $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
+            }
+        }
     }
 }
