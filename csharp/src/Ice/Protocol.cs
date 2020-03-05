@@ -11,7 +11,13 @@ namespace Ice
     /// to any of its enumerators, and such protocol is not supported by this Ice runtime. It is possible to marshal
     /// and unmarshal a proxy that uses an unsupported protocol, but it is not possible to call an operation with such
     /// a proxy.</summary>
-    public enum Protocol : byte { Ice1 = 1, Ice2 = 2 }
+    public enum Protocol : byte
+    {
+        /// <summary>The ice1 protocol supported by all Ice versions since Ice 1.0.</summary>
+        Ice1 = 1,
+        /// <summary>The ice2 protocol introduced in Ice 4.0.</summary>
+        Ice2 = 2
+    }
 
     internal static class ProtocolExtensions
     {

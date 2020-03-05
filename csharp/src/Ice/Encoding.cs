@@ -6,23 +6,44 @@ using System;
 
 namespace Ice
 {
+    /// <summary>The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences
+    /// of bytes. An Encoding struct holds a version of the Ice encoding.</summary>
     [System.Serializable]
     public readonly struct Encoding : System.IEquatable<Encoding>
     {
         // The encodings known to the Ice runtime. Don't reference them from other static variables!
 
+        /// <summary>Version 1.0 of the Ice encoding.</summary>
         public static readonly Encoding V1_0 = new Encoding(1, 0);
+
+        /// <summary>Version 1.1 of the Ice encoding.</summary>
         public static readonly Encoding V1_1 = new Encoding(1, 1);
+
+        /// <summary>Version 1.2 of the Ice encoding.</summary>
         public static readonly Encoding V2_0 = new Encoding(2, 0);
 
+        /// <summary>The most recent version of the Ice encoding.</summary>
+        public static readonly Encoding Latest = new Encoding(1, 1); // for now, will upgrade to 2.0
+
+        /// <summary>The major version number of this version of the Ice encoding.</summary>
         public readonly byte Major;
+
+        /// <summary>The minor version number of this version of the Ice encoding.</summary>
         public readonly byte Minor;
 
+        /// <summary>Parses a string into an Encoding.</summary>
+        /// <param name="str">The string to parse.</param>
+        /// <returns>A new encoding.</returns>
         public static Encoding Parse(string str)
         {
             (byte major, byte minor) = Util.ParseMajorMinorVersion(str, throwOnFailure: true)!.Value;
             return new Encoding(major, minor);
         }
+
+        /// <summary>Attempts to parse a string into an Encoding.</summary>
+        /// <param name="str">The string to parse.</param>
+        /// <param name="encoding">The resulting encoding.</param>
+        /// <returns>True if the parsing succeeded and encoding contains the result; otherwise, false.</returns>
         public static bool TryParse(string str, out Encoding encoding)
         {
             var result = Util.ParseMajorMinorVersion(str, throwOnFailure: false);
@@ -40,6 +61,9 @@ namespace Ice
         public static bool operator ==(Encoding lhs, Encoding rhs) => Equals(lhs, rhs);
         public static bool operator !=(Encoding lhs, Encoding rhs) => !Equals(lhs, rhs);
 
+        /// <summary>Constructs a new Encoding.</summary>
+        /// <param name="major">The major version number.</param>
+        /// <param name="minor">The minor version number.</param>
         public Encoding(byte major, byte minor)
         {
             Major = major;
@@ -67,7 +91,7 @@ namespace Ice
             // TODO: add 2.0, remove 1.0
             if (this != V1_0 && this != V1_1)
             {
-                throw new UnsupportedEncodingException("", this, Util.CurrentEncoding);
+                throw new UnsupportedEncodingException("", this, V1_1);
             }
         }
     }

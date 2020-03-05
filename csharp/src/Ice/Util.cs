@@ -89,9 +89,6 @@ namespace Ice
             }
         }
 
-        public static readonly Encoding CurrentEncoding =
-            new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
-
         private static readonly object _processLoggerMutex = new object();
         private static ILogger? _processLogger = null;
     }

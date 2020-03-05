@@ -258,10 +258,7 @@ namespace IceInternal
             base.StreamWriteImpl(s);
             if (s.Encoding.Equals(Encoding.V1_0))
             {
-                s.WriteByte((byte)Protocol.Ice1);
-                s.WriteByte(0);
-                s.WriteByte(Encoding.V1_0.Major);
-                s.WriteByte(Encoding.V1_0.Minor);
+                s.WriteSpan(Ice1Definitions.PostMagic);
             }
             // Not transmitted.
             //s.writeBool(_connect);

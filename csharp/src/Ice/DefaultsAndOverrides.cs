@@ -173,7 +173,7 @@ namespace IceInternal
             val = communicator.GetProperty("Ice.Default.Encoding");
             if (val == null)
             {
-                DefaultEncoding = Ice.Util.CurrentEncoding;
+                DefaultEncoding = Encoding.Latest;
             }
             else
             {
