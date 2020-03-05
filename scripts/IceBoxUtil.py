@@ -55,4 +55,4 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
              current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):
             return "iceboxadmin_32"
         else:
-            return "iceboxadmin"
+            return "iceboxadmin++11" if current.config.cpp11 else "iceboxadmin"

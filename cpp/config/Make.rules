@@ -75,7 +75,7 @@ cpp98_excludes          = glacier2router \
 #
 cpp11_components        = $(coreandstub_components) \
                           glacier2router Glacier2CryptPermissionsVerifier \
-                          icebox icebridge \
+                          icebox iceboxadmin icebridge \
                           IceDB \
                           IceXML \
                           icegridnode icegridregistry icegridadmin icegriddb \
