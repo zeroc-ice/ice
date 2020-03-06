@@ -15,13 +15,6 @@ using System.Threading;
 
 namespace Ice
 {
-    public enum ToStringMode
-    {
-        Unicode,
-        ASCII,
-        Compat
-    }
-
     internal sealed class BufSizeWarnInfo
     {
         // Whether send size warning has been emitted
@@ -761,7 +754,7 @@ namespace Ice
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
             Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
-            Protocol protocol = Util.Protocol_1_0;
+            Protocol protocol = Protocol.Ice1;
             string adapter;
 
             while (true)
@@ -920,7 +913,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            encoding = Util.StringToEncoding(argument);
+                            encoding = Encoding.Parse(argument);
                             break;
                         }
 
@@ -931,7 +924,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            protocol = Util.StringToProtocol(argument);
+                            protocol = ProtocolExtensions.Parse(argument);
                             break;
                         }
 
@@ -1117,23 +1110,17 @@ namespace Ice
 
             bool secure = s.ReadBool();
 
-            Protocol protocol;
-            Encoding encoding;
-            if (!s.Encoding.Equals(Util.Encoding_1_0))
+            byte major = s.ReadByte();
+            byte minor = s.ReadByte();
+            if (minor != 0)
             {
-                byte major = s.ReadByte();
-                byte minor = s.ReadByte();
-                protocol = new Protocol(major, minor);
+                throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
+            }
+            var protocol = (Protocol)major;
 
-                major = s.ReadByte();
-                minor = s.ReadByte();
-                encoding = new Encoding(major, minor);
-            }
-            else
-            {
-                protocol = Util.Protocol_1_0;
-                encoding = Util.Encoding_1_0;
-            }
+            major = s.ReadByte();
+            minor = s.ReadByte();
+            var encoding = new Encoding(major, minor);
 
             Endpoint[] endpoints;
             string adapterId = "";
@@ -1802,7 +1789,7 @@ namespace Ice
                 "", // Facet
                 ((Endpoint)connection.Endpoint).Datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
                 ((Endpoint)connection.Endpoint).Secure(),
-                Util.Protocol_1_0,
+                Protocol.Ice1,
                 DefaultsAndOverrides.DefaultEncoding,
                 connection,
                 -1,

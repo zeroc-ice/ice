@@ -527,7 +527,7 @@ namespace Ice.location
             output.Flush();
             hello = IHelloPrx.Parse("hello", communicator);
             count = locator.getRequestCount();
-            IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encoding: Util.Encoding_1_1).IcePing();
+            IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encoding: Encoding.V1_1).IcePing();
             test(count == locator.getRequestCount());
             output.WriteLine("ok");
 

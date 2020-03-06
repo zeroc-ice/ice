@@ -135,13 +135,10 @@ namespace IceInternal
 
             s.WriteBool(Secure);
 
-            if (!s.Encoding.Equals(Ice.Util.Encoding_1_0))
-            {
-                s.WriteByte(_protocol.Major);
-                s.WriteByte(_protocol.Minor);
-                s.WriteByte(_encoding.Major);
-                s.WriteByte(_encoding.Minor);
-            }
+            s.WriteByte((byte)_protocol);
+            s.WriteByte(0);
+            s.WriteByte(_encoding.Major);
+            s.WriteByte(_encoding.Minor);
 
             // Derived class writes the remainder of the reference.
         }
@@ -236,16 +233,16 @@ namespace IceInternal
                 s.Append(" -s");
             }
 
-            if (!_protocol.Equals(Ice.Util.Protocol_1_0))
+            s.Append(" -p ");
+            if (Communicator.ToStringMode >= ToStringMode.Compat)
             {
-                //
-                // We only print the protocol if it's not 1.0. It's fine as
-                // long as we don't add Ice.Default.Protocol, a
-                // stringified proxy will convert back to the same proxy with
-                // stringToProxy.
-                //
-                s.Append(" -p ");
-                s.Append(Ice.Util.ProtocolToString(_protocol));
+                // x.0 style
+                s.Append(_protocol.ToString("D"));
+                s.Append(".0");
+            }
+            else
+            {
+                s.Append(_protocol.ToString().ToLower());
             }
 
             //
@@ -254,7 +251,7 @@ namespace IceInternal
             // stringToProxy (and won't use Ice.Default.Encoding).
             //
             s.Append(" -e ");
-            s.Append(Ice.Util.EncodingToString(_encoding));
+            s.Append(_encoding.ToString());
 
             return s.ToString();
 

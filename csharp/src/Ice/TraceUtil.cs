@@ -219,11 +219,7 @@ namespace IceInternal
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
-                {
-                    s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
-                }
+                s.Write("\nencoding = ");
             }
         }
 
@@ -276,11 +272,8 @@ namespace IceInternal
                 }
 
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
-                {
-                    s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
-                }
+                s.Write("\nencoding = ");
+                s.Write(v.ToString());
             }
             catch (System.IO.IOException)
             {

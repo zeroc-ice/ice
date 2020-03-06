@@ -6,9 +6,6 @@ namespace Ice
 {
     internal static class EncodingDefinitions
     {
-        internal const byte EncodingMajor = 1;
-        internal const byte EncodingMinor = 1;
-
         internal const byte OPTIONAL_END_MARKER = 0xFF;
 
         // TODO: replace by enum
@@ -19,16 +16,5 @@ namespace Ice
         internal const byte FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
         internal const byte FLAG_HAS_SLICE_SIZE = 1 << 4;
         internal const byte FLAG_IS_LAST_SLICE = 1 << 5;
-
-        internal static void CheckSupportedEncoding(Encoding v)
-        {
-            if (v.Major != EncodingMajor || v.Minor > EncodingMinor)
-            {
-                throw new UnsupportedEncodingException("", v, Util.CurrentEncoding);
-            }
-        }
-
-        internal static bool IsSupported(Encoding version, Encoding supported) =>
-            version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 }

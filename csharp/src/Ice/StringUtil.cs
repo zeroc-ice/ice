@@ -171,7 +171,7 @@ namespace IceUtilInternal
                                     }
                                     sb.Append(octal);
                                 }
-                                else if (i < 32 || i == 127 || toStringMode == Ice.ToStringMode.ASCII)
+                                else if (i < 32 || i == 127 || (toStringMode & Ice.ToStringMode.ASCII) != 0)
                                 {
                                     // append \\unnnn
                                     sb.Append("\\u");
@@ -238,13 +238,13 @@ namespace IceUtilInternal
                 for (int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if (toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
+                    if ((toStringMode & Ice.ToStringMode.Unicode) != 0 || !char.IsSurrogate(c))
                     {
                         EncodeChar(c, result, special, toStringMode);
                     }
                     else
                     {
-                        Debug.Assert(toStringMode == Ice.ToStringMode.ASCII && char.IsSurrogate(c));
+                        Debug.Assert((toStringMode & Ice.ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
                         if (i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("High surrogate without low surrogate");

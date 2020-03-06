@@ -2,56 +2,56 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Globalization;
+
 namespace Ice
 {
-    [System.Serializable]
-    public readonly struct Protocol : System.IEquatable<Protocol>
+    /// <summary>Represents a version of the Ice protocol. A Protocol can hold a byte value that does not correspond
+    /// to any of its enumerators, and such protocol is not supported by this Ice runtime. It is possible to marshal
+    /// and unmarshal a proxy that uses an unsupported protocol, but it is not possible to call an operation with such
+    /// a proxy.</summary>
+    public enum Protocol : byte
     {
-        public readonly byte Major;
-        public readonly byte Minor;
+        /// <summary>The ice1 protocol supported by all Ice versions since Ice 1.0.</summary>
+        Ice1 = 1,
+        /// <summary>The ice2 protocol introduced in Ice 4.0.</summary>
+        Ice2 = 2
+    }
 
-        public Protocol(byte major, byte minor)
+    internal static class ProtocolExtensions
+    {
+        /// <summary>Checks if this protocol is supported by the Ice runtime. If not supported, throws
+        /// UnsupportedProtocolException.</summary>
+        /// <param name="protocol">The protocol.</param>
+        internal static void CheckSupported(this Protocol protocol)
         {
-            Major = major;
-            Minor = minor;
-        }
-
-        public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
-
-        public bool Equals(Protocol other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
-
-        public override bool Equals(object? other)
-        {
-            if (ReferenceEquals(this, other))
+            // For now, we support only ice1
+            if (protocol != Protocol.Ice1)
             {
-                return true;
-            }
-            return other is Protocol value && Equals(value);
-        }
-
-        public static bool operator ==(Protocol lhs, Protocol rhs) => Equals(lhs, rhs);
-
-        public static bool operator !=(Protocol lhs, Protocol rhs) => !Equals(lhs, rhs);
-
-        // TODO: move these static methods somewhere else (or remove them).
-
-        internal static void CheckSupportedProtocol(Protocol v)
-        {
-            if (v.Major != Ice1Definitions.ProtocolMajor || v.Minor > Ice1Definitions.ProtocolMinor)
-            {
-                throw new UnsupportedProtocolException("", v, Util.CurrentProtocol);
+                throw new UnsupportedProtocolException("", protocol, Protocol.Ice1);
             }
         }
 
-        internal static void CheckSupportedProtocolEncoding(Encoding v)
+        /// <summary>Parses a protocol string in the stringified proxy format into a Protocol.</summary>
+        /// <param name="str">The string to parse.</param>
+        /// <returns>The parsed protocol, or throws an exception if the string cannot be parsed.</returns>
+        internal static Protocol Parse(string str)
         {
-            if (v.Major != Ice1Definitions.ProtocolEncodingMajor || v.Minor > Ice1Definitions.ProtocolEncodingMinor)
+            switch (str)
             {
-                throw new UnsupportedEncodingException("", v, Util.CurrentProtocolEncoding);
+                case "ice1":
+                    return Protocol.Ice1;
+                case "ice2":
+                    return Protocol.Ice2;
+                default:
+                    // Parse as a Major.Minor encoding:
+                    if (Encoding.TryParse(str, out Encoding encoding) && encoding.Minor == 0)
+                    {
+                        return (Protocol)encoding.Major;
+                    }
+                    byte value = byte.Parse(str, CultureInfo.InvariantCulture);
+                    return (Protocol)value;
             }
         }
-
-        internal static bool IsSupported(Protocol version, Protocol supported) =>
-            version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 }
