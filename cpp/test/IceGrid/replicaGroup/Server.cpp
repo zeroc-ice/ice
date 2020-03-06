@@ -19,8 +19,8 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::ObjectAdapterPtr adpt = communicator->createObjectAdapter("ReplicatedAdapter");
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto adpt = communicator->createObjectAdapter("ReplicatedAdapter");
+    auto properties = communicator->getProperties();
     auto object = make_shared<TestI>(properties);
     adpt->add(object, Ice::stringToIdentity(properties->getProperty("Ice.ProgramName")));
     adpt->add(object, Ice::stringToIdentity(properties->getProperty("Identity")));
