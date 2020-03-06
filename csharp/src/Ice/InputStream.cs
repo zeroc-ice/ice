@@ -130,16 +130,22 @@ namespace Ice
          // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData? _current;
 
-        /// <summary>
-        /// This constructor uses the given encoding version.
-        /// </summary>
+        /// <summary>This constructor uses the communicator's default encoding version.</summary>
+        /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="buffer">The stream initial data.</param>
+        public InputStream(Communicator communicator, ArraySegment<byte>? buffer = null)
+            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding, buffer)
+        {
+        }
+
+        /// <summary>This constructor uses the given encoding version.</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
         /// <param name="buffer">The stream initial data.</param>
-        public InputStream(Communicator communicator, Encoding? encoding, ArraySegment<byte>? buffer = null)
+        public InputStream(Communicator communicator, Encoding encoding, ArraySegment<byte>? buffer = null)
         {
             Communicator = communicator;
-            Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
+            Encoding = encoding;
             Buffer = buffer ?? ArraySegment<byte>.Empty;
             _tail = 0;
         }

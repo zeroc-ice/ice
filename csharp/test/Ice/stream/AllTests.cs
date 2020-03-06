@@ -99,7 +99,7 @@ namespace Ice.stream
                     istr.ReadBool();
                     test(false);
                 }
-                catch (UnmarshalOutOfBoundsException)
+                catch (System.ArgumentOutOfRangeException)
                 {
                 }
             }

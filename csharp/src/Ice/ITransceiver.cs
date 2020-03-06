@@ -78,7 +78,7 @@ namespace IceInternal
         /// <returns>True if the asynchronous operation compled synchronously otherwise false.</returns>
         bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
 
-        // <summary>Finish an asynchronous write operation, the offset is increase with the
+        /// <summary>Finish an asynchronous write operation, the offset is increase with the
         /// number of bytes wrote to the transport.</summary>
         /// <param name="buffer">The buffer of data to write to the socket.</param>
         /// <param name="offset">The offset at what the write operation starts, the offset is increase
