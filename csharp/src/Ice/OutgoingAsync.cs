@@ -195,7 +195,7 @@ namespace IceInternal
 
         public Ice.OutputStream GetOs() => Os!;
 
-        public Ice.InputStream GetIs() => InputStream!;
+        public Ice.InputStream GetIs() => Is!;
 
         public virtual void ThrowUserException()
         {
@@ -213,7 +213,7 @@ namespace IceInternal
             _alreadySent = false;
             State = 0;
             Os = os ?? new Ice.OutputStream(communicator, Ice.Util.CurrentProtocolEncoding);
-            InputStream = iss ?? new Ice.InputStream(communicator, Ice.Util.CurrentProtocolEncoding);
+            Is = iss ?? new Ice.InputStream(communicator, Ice.Util.CurrentProtocolEncoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
             {
@@ -342,7 +342,7 @@ namespace IceInternal
         protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
         protected OutputStream? Os;
-        protected InputStream? InputStream;
+        protected InputStream? Is;
 
         private bool _doneInSent;
         private bool _alreadySent;
@@ -698,7 +698,7 @@ namespace IceInternal
 
         public override bool Response()
         {
-            Debug.Assert(InputStream != null);
+            Debug.Assert(Is != null);
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke
@@ -708,7 +708,7 @@ namespace IceInternal
 
             if (ChildObserver != null)
             {
-                ChildObserver.Reply(InputStream.Size - Ice1Definitions.HeaderSize - 4);
+                ChildObserver.Reply(Is.Size - Ice1Definitions.HeaderSize - 4);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }
@@ -716,7 +716,7 @@ namespace IceInternal
             ReplyStatus replyStatus;
             try
             {
-                replyStatus = (ReplyStatus)InputStream.ReadByte();
+                replyStatus = (ReplyStatus)Is.ReadByte();
 
                 switch (replyStatus)
                 {
@@ -737,12 +737,12 @@ namespace IceInternal
                     case ReplyStatus.FacetNotExistException:
                     case ReplyStatus.OperationNotExistException:
                         {
-                            var ident = new Ice.Identity(InputStream);
+                            var ident = new Ice.Identity(Is);
 
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = InputStream.ReadStringArray();
+                            string[] facetPath = Is.ReadStringArray();
                             string facet;
                             if (facetPath.Length > 0)
                             {
@@ -757,7 +757,7 @@ namespace IceInternal
                                 facet = "";
                             }
 
-                            string operation = InputStream.ReadString();
+                            string operation = Is.ReadString();
 
                             Ice.RequestFailedException ex;
                             switch (replyStatus)
@@ -797,7 +797,7 @@ namespace IceInternal
                     case ReplyStatus.UnknownLocalException:
                     case ReplyStatus.UnknownUserException:
                         {
-                            string unknown = InputStream.ReadString();
+                            string unknown = Is.ReadString();
 
                             Ice.UnknownException ex;
                             switch (replyStatus)
@@ -927,15 +927,15 @@ namespace IceInternal
 
         public override void ThrowUserException()
         {
-            Debug.Assert(InputStream != null);
+            Debug.Assert(Is != null);
             try
             {
-                InputStream.StartEncapsulation();
-                InputStream.ThrowException();
+                Is.StartEncapsulation();
+                Is.ThrowException();
             }
             catch (Ice.UserException ex)
             {
-                InputStream.EndEncapsulation();
+                Is.EndEncapsulation();
                 if (UserException != null)
                 {
                     UserException.Invoke(ex);
@@ -978,7 +978,7 @@ namespace IceInternal
             {
                 if (Read == null)
                 {
-                    if (InputStream == null || InputStream.Size == 0)
+                    if (Is == null || Is.Size == 0)
                     {
                         //
                         // If there's no response (oneway), we just set the result
@@ -987,16 +987,16 @@ namespace IceInternal
                     }
                     else
                     {
-                        InputStream.SkipEmptyEncapsulation();
+                        Is.SkipEmptyEncapsulation();
                     }
                     return default;
                 }
                 else
                 {
-                    Debug.Assert(InputStream != null);
-                    InputStream.StartEncapsulation();
-                    T r = Read(InputStream);
-                    InputStream.EndEncapsulation();
+                    Debug.Assert(Is != null);
+                    Is.StartEncapsulation();
+                    T r = Read(Is);
+                    Is.EndEncapsulation();
                     return r;
                 }
             }
