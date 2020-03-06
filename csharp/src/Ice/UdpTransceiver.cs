@@ -16,7 +16,7 @@ namespace IceInternal
     {
         public Socket? Fd() => _fd;
 
-        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
+        public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             Debug.Assert(_fd != null);
             if (_state == StateNeedConnect)
@@ -189,19 +189,22 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int Read(Buffer buf, ref bool hasMoreData)
+        public int Read(ref ArraySegment<byte> buffer, ref int offset)
         {
-            if (!buf.B.HasRemaining())
+            if (buffer.Count - offset == 0)
             {
                 return SocketOperation.None;
             }
 
-            Debug.Assert(buf.B.Position() == 0);
+            Debug.Assert(offset == 0);
             Debug.Assert(_fd != null);
 
+            // Allocate a new buffer if the required
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
-            buf.Resize(packetSize, true);
-            buf.B.Position(0);
+            if (packetSize > buffer.Count)
+            {
+                buffer = new byte[packetSize];
+            }
 
             int ret;
             while (true)
@@ -226,11 +229,11 @@ namespace IceInternal
                     if (_state == StateConnected ||
                        (AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                     {
-                        ret = _fd.Receive(buf.B.RawBytes(), 0, buf.B.Limit(), SocketFlags.None);
+                        ret = _fd.Receive(buffer.Array, 0, packetSize, SocketFlags.None);
                     }
                     else
                     {
-                        ret = _fd.ReceiveFrom(buf.B.RawBytes(), 0, buf.B.Limit(), SocketFlags.None, ref peerAddr);
+                        ret = _fd.ReceiveFrom(buffer.Array, 0, packetSize, SocketFlags.None, ref peerAddr);
                         _peerAddr = (IPEndPoint)peerAddr;
                     }
                     break;
@@ -242,7 +245,7 @@ namespace IceInternal
                         // The message was truncated and the whole buffer is filled. We ignore
                         // this error here, it will be detected at the connection level when
                         // the Ice message size is checked against the buffer size.
-                        ret = buf.Size();
+                        ret = buffer.Count;
                         break;
                     }
 
@@ -294,38 +297,37 @@ namespace IceInternal
                 }
             }
 
-            buf.Resize(ret, true);
-            buf.B.Position(ret);
-
+            buffer = buffer.Slice(0, ret);
+            offset = ret;
             return SocketOperation.None;
         }
 
-        public bool StartRead(Buffer buf, AsyncCallback callback, object state)
+        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null);
-            Debug.Assert(buf.B.Position() == 0);
+            Debug.Assert(offset == 0, $"offset: {offset}\n{Environment.StackTrace}");
 
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
-            buf.Resize(packetSize, true);
-            buf.B.Position(0);
+            if (packetSize > buffer.Count)
+            {
+                buffer = new byte[packetSize];
+            }
 
             try
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
+                _readCallback = callback;
+                _readEventArgs.UserToken = state;
+                _readEventArgs.SetBuffer(buffer.Array, 0, packetSize);
                 if (_state == StateConnected ||
                    (AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
-                    _readCallback = callback;
-                    _readEventArgs.UserToken = state;
-                    _readEventArgs.SetBuffer(buf.B.RawBytes(), buf.B.Position(), packetSize);
                     return !_fd.ReceiveAsync(_readEventArgs);
                 }
                 else
                 {
                     Debug.Assert(_incoming);
-                    _readCallback = callback;
-                    _readEventArgs.UserToken = state;
-                    _readEventArgs.SetBuffer(buf.B.RawBytes(), 0, buf.B.Limit());
+
                     return !_fd.ReceiveFromAsync(_readEventArgs);
                 }
             }
@@ -350,7 +352,7 @@ namespace IceInternal
             }
         }
 
-        public void FinishRead(Buffer buf)
+        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
         {
             if (_fd == null)
             {
@@ -379,7 +381,7 @@ namespace IceInternal
                     // The message was truncated and the whole buffer is filled. We ignore
                     // this error here, it will be detected at the connection level when
                     // the Ice message size is checked against the buffer size.
-                    ret = buf.Size();
+                    ret = buffer.Count;
                 }
                 else
                 {
@@ -424,8 +426,8 @@ namespace IceInternal
                 }
             }
 
-            buf.Resize(ret, true);
-            buf.B.Position(ret);
+            buffer = buffer.Slice(0, ret);
+            offset = ret;
         }
 
         public bool

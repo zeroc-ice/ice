@@ -37,12 +37,6 @@ namespace Ice
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
 
         /// <summary>
-        /// Returns the current size of the stream.
-        /// </summary>
-        /// <value>The size of the stream.</value>
-        public int Size => _buf.Size();
-
-        /// <summary>
         /// The communicator associated with this stream.
         /// </summary>
         /// <value>The communicator.</value>
@@ -53,16 +47,6 @@ namespace Ice
         /// </summary>
         /// <value>The encoding.</value>
         public Encoding Encoding { get; private set; }
-
-        // The position (offset) in the underlying buffer.
-        internal int Pos
-        {
-            get => _buf.B.Position();
-            set => _buf.B.Position(value);
-        }
-
-        // True if the internal buffer has no data, false otherwise.
-        internal bool IsEmpty => _buf.Empty();
 
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
@@ -81,8 +65,22 @@ namespace Ice
             }
         }
 
-        // Number of bytes remaining in the underlying buffer.
-        private int Remaining => _limit - Pos ?? _buf.B.Remaining();
+        /// <summary>The position (offset) in the underlying buffer.</summary>
+        internal int Pos
+        {
+            get => _tail;
+            set
+            {
+                if (value < 0 || value > Buffer.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(Pos), "The position value is outside the buffer bounds.");
+                }
+                _tail = value;
+            }
+        }
+
+        /// <summary>Returns the current size of the stream.</summary>
+        internal int Size => Buffer.Count;
 
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
@@ -102,9 +100,8 @@ namespace Ice
         // size.
         private int _minTotalSeqSize = 0;
 
-        private IceInternal.Buffer _buf;
-
-        private byte[]? _stringBytes; // Reusable array for reading strings.
+        public ArraySegment<byte> Buffer { get; private set; }
+        private int _tail;
 
         // TODO: should we cache those per InputStream or per communicator?
         //       should we clear the caches in ResetEncapsulation?
@@ -134,23 +131,17 @@ namespace Ice
         private InstanceData? _current;
 
         /// <summary>
-        /// This constructor uses the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="data">The byte array containing encoded Slice types.</param>
-        public InputStream(Communicator communicator, byte[] data)
-            : this(communicator, null, new IceInternal.Buffer(data))
-        {
-        }
-
-        /// <summary>
         /// This constructor uses the given encoding version.
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        public InputStream(Communicator communicator, Encoding encoding)
-            : this(communicator, encoding, new IceInternal.Buffer())
+        /// <param name="buffer">The stream initial data.</param>
+        public InputStream(Communicator communicator, Encoding? encoding, ArraySegment<byte>? buffer = null)
         {
+            Communicator = communicator;
+            Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
+            Buffer = buffer ?? ArraySegment<byte>.Empty;
+            _tail = 0;
         }
 
         /// <summary>
@@ -167,11 +158,11 @@ namespace Ice
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Debug.Assert(!encapsHeader.Encoding.Equals(Util.Encoding_1_0));
             Encoding = encapsHeader.Encoding;
-            _limit = Pos + encapsHeader.Size - 6;
+            _limit = _tail + encapsHeader.Size - 6;
 
             // _mainEncapsBackup is usually null here, but can be set in the event we are reading a batch request
             // message/frame with multiple main encaps (one per request in the batch).
-            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, Pos, Encoding, _minTotalSeqSize);
+            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, _tail, Encoding, _minTotalSeqSize);
             return encapsHeader.Encoding;
         }
 
@@ -181,7 +172,7 @@ namespace Ice
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             SkipTaggedMembers();
 
-            if (Remaining != 0)
+            if (Buffer.Count - _tail != 0)
             {
                 throw new EncapsulationException();
             }
@@ -205,10 +196,10 @@ namespace Ice
 
             // Restore backup:
             _mainEncaps = _mainEncapsBackup.Value.Encaps;
-            Pos = _mainEncapsBackup.Value.Pos;
+            _tail = _mainEncapsBackup.Value.Pos;
             Encoding = _mainEncapsBackup.Value.Encoding;
             _minTotalSeqSize = _mainEncapsBackup.Value.MinTotalSeqSize;
-            _limit = Pos + _mainEncaps.Value.Size - 6;
+            _limit = _tail + _mainEncaps.Value.Size - 6;
         }
 
         /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
@@ -221,7 +212,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             if (_mainEncaps != null)
             {
-                Pos = _limit!.Value;
+                _tail = _limit!.Value;
                 EndEncapsulation();
             }
         }
@@ -244,7 +235,7 @@ namespace Ice
             {
                 // Skip the optional content of the encapsulation if we are expecting an
                 // empty encapsulation.
-                _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
+                _tail += encapsHeader.Size - 6;
             }
             return encapsHeader.Encoding;
         }
@@ -258,19 +249,12 @@ namespace Ice
         public byte[] ReadEncapsulation(out Encoding encoding)
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            _buf.B.Position(_buf.B.Position() - 6);
+            _tail -= 6;
             encoding = encapsHeader.Encoding;
 
-            byte[] v = new byte[encapsHeader.Size];
-            try
-            {
-                _buf.B.Get(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            byte[] encaps = new byte[encapsHeader.Size];
+            ReadNumericArray(encaps);
+            return encaps;
         }
 
         /// <summary>
@@ -291,14 +275,14 @@ namespace Ice
         public Encoding SkipEncapsulation()
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            try
+
+            int pos = _tail + encapsHeader.Size - 6;
+            if (pos > Buffer.Count)
             {
-                _buf.B.Position(_buf.B.Position() + encapsHeader.Size - 6);
+                Debug.Assert(false);
+                throw new UnmarshalOutOfBoundsException();
             }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            _tail = pos;
             return encapsHeader.Encoding;
         }
 
@@ -363,7 +347,7 @@ namespace Ice
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
-                Pos = _current.PosAfterIndirectionTable.Value;
+                _tail = _current.PosAfterIndirectionTable.Value;
                 _current.PosAfterIndirectionTable = null;
                 _current.IndirectionTable = null;
             }
@@ -375,27 +359,19 @@ namespace Ice
         /// <returns>The extracted size.</returns>
         public int ReadSize()
         {
-            try
+            byte b = ReadByte();
+            if (b < 255)
             {
-                byte b = _buf.B.Get();
-                if (b == 255)
-                {
-                    int v = _buf.B.GetInt();
-                    if (v < 0)
-                    {
-                        throw new UnmarshalOutOfBoundsException();
-                    }
-                    return v;
-                }
-                else
-                {
-                    return b; // byte is unsigned
-                }
+                return b;
             }
-            catch (InvalidOperationException ex)
+
+            int size = ReadInt();
+            if (size < 0)
             {
-                throw new UnmarshalOutOfBoundsException(ex);
+                Debug.Assert(false);
+                throw new UnmarshalOutOfBoundsException();
             }
+            return size;
         }
 
         /// <summary>
@@ -420,22 +396,22 @@ namespace Ice
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
-            if (_buf.B.Position() + minSize > _buf.Size() || _minTotalSeqSize > _buf.Size())
+            if (_tail + minSize > Buffer.Count || _minTotalSeqSize > Buffer.Count)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
             return sz;
         }
 
-        /// <summary>
-        /// Reads a blob of bytes from the stream. The length of the given array determines how many bytes are read.
-        /// </summary>
+        /// <summary>Reads a blob of bytes from the stream. The length of the given array determines
+        /// how many bytes are read.</summary>
         /// <param name="v">Bytes from the stream.</param>
         public void ReadBlob(byte[] v)
         {
             try
             {
-                _buf.B.Get(v);
+                Buffer.Slice(_tail).CopyTo(v);
+                _tail += v.Length;
             }
             catch (InvalidOperationException ex)
             {
@@ -443,32 +419,22 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Reads a blob of bytes from the stream.
-        /// </summary>
+        /// <summary>Reads a blob of bytes from the stream.</summary>
         /// <param name="sz">The number of bytes to read.</param>
         /// <returns>The requested bytes as a byte array.</returns>
         public byte[] ReadBlob(int sz)
         {
-            if (Remaining < sz)
+            if (Buffer.Count - _tail < sz)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
             byte[] v = new byte[sz];
-            try
-            {
-                _buf.B.Get(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            Buffer.Slice(_tail).CopyTo(v);
+            _tail += sz;
+            return v;
         }
 
-        /// <summary>
-        /// Determine if an optional value is available for reading.
-        /// </summary>
+        /// <summary>Determine if an optional value is available for reading.</summary>
         /// <param name="tag">The tag associated with the value.</param>
         /// <param name="expectedFormat">The optional format for the value.</param>
         /// <returns>True if the value is present, false otherwise.</returns>
@@ -487,7 +453,7 @@ namespace Ice
 
             while (true)
             {
-                if (Remaining <= 0)
+                if (Buffer.Count - _tail <= 0)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -495,7 +461,7 @@ namespace Ice
                 int v = ReadByte();
                 if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
                 {
-                    _buf.B.Position(_buf.B.Position() - 1); // Rewind.
+                    _tail--; // Rewind.
                     return false;
                 }
 
@@ -509,7 +475,7 @@ namespace Ice
                 if (tag > requestedTag)
                 {
                     int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
-                    _buf.B.Position(_buf.B.Position() - offset);
+                    _tail -= offset;
                     return false; // No tagged member with the requested tag.
                 }
                 else if (tag < requestedTag)
@@ -527,25 +493,11 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Extracts a byte value from the stream.
-        /// </summary>
+        /// <summary>Extracts a byte value from the stream.</summary>
         /// <returns>The extracted byte.</returns>
-        public byte ReadByte()
-        {
-            try
-            {
-                return _buf.B.Get();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
+        public byte ReadByte() => Buffer[_tail++];
 
-        /// <summary>
-        /// Extracts an optional byte value from the stream.
-        /// </summary>
+        /// <summary>Extracts an optional byte value from the stream.</summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
         public byte? ReadByte(int tag)
@@ -560,28 +512,24 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Extracts a sequence of byte values from the stream.
-        /// </summary>
+        /// <summary>Extracts a sequence of byte values from the stream.</summary>
         /// <returns>The extracted byte sequence.</returns>
         public byte[] ReadByteArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(1);
-                byte[] v = new byte[sz];
-                _buf.B.Get(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            byte[] value = new byte[ReadAndCheckSeqSize(1)];
+            ReadNumericArray(value);
+            return value;
         }
 
-        /// <summary>
-        /// Extracts an optional byte sequence from the stream.
-        /// </summary>
+        public void ReadSpan(Span<byte> span)
+        {
+            int length = span.Length;
+            Debug.Assert(Buffer.Count - _tail >= length);
+            Buffer.AsSpan(_tail, length).CopyTo(span);
+            _tail += length;
+        }
+
+        /// <summary>Extracts an optional byte sequence from the stream.</summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
         public byte[]? ReadByteArray(int tag)
@@ -596,9 +544,7 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Extracts a serializable object from the stream.
-        /// </summary>
+        /// <summary>Extracts a serializable object from the stream.</summary>
         /// <returns>The serializable object.</returns>
         public object? ReadSerializable()
         {
@@ -607,32 +553,15 @@ namespace Ice
             {
                 return null;
             }
-            try
-            {
-                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
-                return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
-            }
-            catch (System.Exception ex)
-            {
-                throw new MarshalException("cannot deserialize object:", ex);
-            }
+            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
+            return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
         }
 
         /// <summary>
         /// Extracts a boolean value from the stream.
         /// </summary>
         /// <returns>The extracted boolean.</returns>
-        public bool ReadBool()
-        {
-            try
-            {
-                return _buf.B.Get() == 1;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-        }
+        public bool ReadBool() => Buffer[_tail++] == 1;
 
         /// <summary>
         /// Extracts an optional boolean value from the stream.
@@ -657,17 +586,9 @@ namespace Ice
         /// <returns>The extracted boolean sequence.</returns>
         public bool[] ReadBoolArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(1);
-                bool[] v = new bool[sz];
-                _buf.B.GetBoolSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            bool[] value = new bool[ReadAndCheckSeqSize(1)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -693,15 +614,12 @@ namespace Ice
         /// <returns>The extracted short.</returns>
         public short ReadShort()
         {
-            try
-            {
-                return _buf.B.GetShort();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            short value = BitConverter.ToInt16(Buffer.Array, Buffer.Offset + _tail);
+            _tail += 2;
+            return value;
         }
+
+        public static short ReadShort(ArraySegment<byte> buffer) => BitConverter.ToInt16(buffer.Array, buffer.Offset);
 
         /// <summary>
         /// Extracts an optional short value from the stream.
@@ -726,17 +644,9 @@ namespace Ice
         /// <returns>The extracted short sequence.</returns>
         public short[] ReadShortArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(2);
-                short[] v = new short[sz];
-                _buf.B.GetShortSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            short[] value = new short[ReadAndCheckSeqSize(2)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -763,15 +673,12 @@ namespace Ice
         /// <returns>The extracted int.</returns>
         public int ReadInt()
         {
-            try
-            {
-                return _buf.B.GetInt();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            int value = BitConverter.ToInt32(Buffer.Array, Buffer.Offset + _tail);
+            _tail += 4;
+            return value;
         }
+
+        public static int ReadInt(ArraySegment<byte> buffer) => BitConverter.ToInt32(buffer.Array, buffer.Offset);
 
         /// <summary>
         /// Extracts an optional int value from the stream.
@@ -796,17 +703,9 @@ namespace Ice
         /// <returns>The extracted int sequence.</returns>
         public int[] ReadIntArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                int[] v = new int[sz];
-                _buf.B.GetIntSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            int[] value = new int[ReadAndCheckSeqSize(4)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -833,15 +732,12 @@ namespace Ice
         /// <returns>The extracted long.</returns>
         public long ReadLong()
         {
-            try
-            {
-                return _buf.B.GetLong();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            long value = BitConverter.ToInt64(Buffer.Array, Buffer.Offset + _tail);
+            _tail += 8;
+            return value;
         }
+
+        public static long ReadLong(ArraySegment<byte> buffer) => BitConverter.ToInt64(buffer.Array, buffer.Offset);
 
         /// <summary>
         /// Extracts an optional long value from the stream.
@@ -866,17 +762,9 @@ namespace Ice
         /// <returns>The extracted long sequence.</returns>
         public long[] ReadLongArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(8);
-                long[] v = new long[sz];
-                _buf.B.GetLongSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            long[] value = new long[ReadAndCheckSeqSize(8)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -903,14 +791,9 @@ namespace Ice
         /// <returns>The extracted float.</returns>
         public float ReadFloat()
         {
-            try
-            {
-                return _buf.B.GetFloat();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            float value = BitConverter.ToSingle(Buffer.Array, Buffer.Offset + _tail);
+            _tail += 4;
+            return value;
         }
 
         /// <summary>
@@ -936,17 +819,9 @@ namespace Ice
         /// <returns>The extracted float sequence.</returns>
         public float[] ReadFloatArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(4);
-                float[] v = new float[sz];
-                _buf.B.GetFloatSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            float[] value = new float[ReadAndCheckSeqSize(4)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -973,14 +848,9 @@ namespace Ice
         /// <returns>The extracted double.</returns>
         public double ReadDouble()
         {
-            try
-            {
-                return _buf.B.GetDouble();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            double value = BitConverter.ToDouble(Buffer.Array, Buffer.Offset + _tail);
+            _tail += 8;
+            return value;
         }
 
         /// <summary>
@@ -1006,17 +876,9 @@ namespace Ice
         /// <returns>The extracted double sequence.</returns>
         public double[] ReadDoubleArray()
         {
-            try
-            {
-                int sz = ReadAndCheckSeqSize(8);
-                double[] v = new double[sz];
-                _buf.B.GetDoubleSeq(v);
-                return v;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
+            double[] value = new double[ReadAndCheckSeqSize(8)];
+            ReadNumericArray(value);
+            return value;
         }
 
         /// <summary>
@@ -1045,42 +907,16 @@ namespace Ice
         /// <returns>The extracted string.</returns>
         public string ReadString()
         {
-            int len = ReadSize();
-
-            if (len == 0)
+            int size = ReadSize();
+            if (size == 0)
             {
                 return "";
             }
-
-            //
-            // Check the buffer has enough bytes to read.
-            //
-            if (Remaining < len)
-            {
-                throw new UnmarshalOutOfBoundsException();
-            }
-
-            try
-            {
-                //
-                // We reuse the _stringBytes array to avoid creating
-                // excessive garbage
-                //
-                if (_stringBytes == null || len > _stringBytes.Length)
-                {
-                    _stringBytes = new byte[len];
-                }
-                _buf.B.Get(_stringBytes, 0, len);
-                return _utf8.GetString(_stringBytes, 0, len);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new UnmarshalOutOfBoundsException(ex);
-            }
-            catch (ArgumentException ex)
-            {
-                throw new MarshalException("Invalid UTF8 string", ex);
-            }
+            Debug.Assert(Buffer.Count - _tail >= size,
+                $"required {size} reamaining: {Buffer.Count - _tail}");
+            string value = _utf8.GetString(Buffer.AsSpan(_tail, size));
+            _tail += size;
+            return value;
         }
 
         /// <summary>
@@ -1343,11 +1179,11 @@ namespace Ice
         /// <param name="size">The number of bytes to skip</param>
         public void Skip(int size)
         {
-            if (size < 0 || size > Remaining)
+            if (size < 0 || size > Buffer.Count - _tail)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            _buf.B.Position(_buf.B.Position() + size);
+            _tail += size;
         }
 
         /// <summary>
@@ -1361,10 +1197,6 @@ namespace Ice
                 Skip(4);
             }
         }
-        internal InputStream(Communicator communicator, Encoding encoding, IceInternal.Buffer buf, bool adopt)
-            : this(communicator, encoding, new IceInternal.Buffer(buf, adopt))
-        {
-        }
 
         internal Encoding StartEndpointEncapsulation()
         {
@@ -1372,7 +1204,7 @@ namespace Ice
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Encoding = encapsHeader.Encoding;
-            _limit = Pos + encapsHeader.Size - 6;
+            _limit = _tail + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
 
@@ -1380,7 +1212,7 @@ namespace Ice
         {
             Debug.Assert(_endpointEncaps != null);
 
-            if (Remaining != 0)
+            if (_limit - _tail != 0)
             {
                 throw new EncapsulationException();
             }
@@ -1395,13 +1227,9 @@ namespace Ice
         {
             Debug.Assert(Communicator == other.Communicator);
 
-            IceInternal.Buffer tmpBuf = other._buf;
-            other._buf = _buf;
-            _buf = tmpBuf;
-
-            Encoding tmpEncoding = other.Encoding;
-            other.Encoding = Encoding;
-            Encoding = tmpEncoding;
+            (Buffer, other.Buffer) = (other.Buffer, Buffer);
+            (Encoding, other.Encoding) = (other.Encoding, Encoding);
+            (_tail, other._tail) = (other._tail, _tail);
 
             // Swap is never called for InputStreams that have encapsulations being read. However,
             // encapsulations might still be set in case un-marshalling failed. We just
@@ -1412,23 +1240,6 @@ namespace Ice
             int tmpMinTotalSeqSize = other._minTotalSeqSize;
             other._minTotalSeqSize = _minTotalSeqSize;
             _minTotalSeqSize = tmpMinTotalSeqSize;
-        }
-
-        // Resizes the stream to a new size.
-        internal void Resize(int sz)
-        {
-            _buf.Resize(sz, true);
-            _buf.B.Position(sz);
-        }
-
-        internal IceInternal.Buffer GetBuffer() => _buf;
-
-        // Helper constructor used by the other constructors.
-        private InputStream(Communicator communicator, Encoding? encoding, IceInternal.Buffer buf)
-        {
-            Encoding = encoding ?? communicator.DefaultsAndOverrides.DefaultEncoding;
-            Communicator = communicator;
-            _buf = buf;
         }
 
         private void ResetEncapsulation()
@@ -1448,12 +1259,13 @@ namespace Ice
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
             int sz = ReadInt();
-            Debug.Assert(sz >= 6);
+
+            Debug.Assert(sz >= 6, $"Invalid encapsulation size: {sz}");
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            if (sz - 4 > Remaining)
+            if (sz - 4 > Buffer.Count - _tail)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -1515,7 +1327,7 @@ namespace Ice
             // Skip remaining unread tagged members.
             while (true)
             {
-                if (Remaining <= 0)
+                if (Buffer.Count - _tail <= 0)
                 {
                     return false; // End of encapsulation also indicates end of tagged members.
                 }
@@ -1557,9 +1369,9 @@ namespace Ice
                 // indirection table and later on when we read it. We only want to add this typeId to the list
                 // and assign it an index when it's the first time we read it, so we save the largest pos we
                 // read to figure out when to add to the list.
-                if (Pos > _posAfterLatestInsertedTypeId)
+                if (_tail > _posAfterLatestInsertedTypeId)
                 {
-                    _posAfterLatestInsertedTypeId = Pos;
+                    _posAfterLatestInsertedTypeId = _tail;
                     _typeIdMap.Add(typeId);
                 }
 
@@ -1720,15 +1532,15 @@ namespace Ice
             Debug.Assert(_current != null && _current.IndirectionTable == null);
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
-                int savedPos = Pos;
+                int savedPos = _tail;
                 if (_current.SliceSize < 4)
                 {
                     throw new MarshalException("invalid slice size");
                 }
-                Pos = savedPos + _current.SliceSize - 4;
+                _tail = savedPos + _current.SliceSize - 4;
                 _current.IndirectionTable = ReadIndirectionTable();
-                _current.PosAfterIndirectionTable = Pos;
-                Pos = savedPos;
+                _current.PosAfterIndirectionTable = _tail;
+                _tail = savedPos;
             }
         }
 
@@ -1752,7 +1564,7 @@ namespace Ice
                 }
             }
 
-            int start = Pos;
+            int start = _tail;
 
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
             {
@@ -1782,8 +1594,7 @@ namespace Ice
 
             // Preserve this slice.
             bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-            IceInternal.ByteBuffer b = GetBuffer().B;
-            int end = b.Position();
+            int end = _tail;
             int dataEnd = end;
             if (hasOptionalMembers)
             {
@@ -1792,9 +1603,7 @@ namespace Ice
                 --dataEnd;
             }
             byte[] bytes = new byte[dataEnd - start];
-            b.Position(start);
-            b.Get(bytes);
-            b.Position(end);
+            Buffer.Slice(start, bytes.Length).CopyTo(bytes);
 
             int startOfIndirectionTable = 0;
 
@@ -1802,14 +1611,14 @@ namespace Ice
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
-                    startOfIndirectionTable = Pos;
+                    startOfIndirectionTable = _tail;
                     SkipIndirectionTable();
                 }
                 else
                 {
                     Debug.Assert(_current.PosAfterIndirectionTable != null);
                     // Move past indirection table
-                    Pos = _current.PosAfterIndirectionTable.Value;
+                    _tail = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
                 }
             }
@@ -1886,7 +1695,7 @@ namespace Ice
                         {
                             throw new MarshalException("invalid slice size");
                         }
-                        Pos = Pos + sliceSize - 4;
+                        _tail = _tail + sliceSize - 4;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -2004,7 +1813,7 @@ namespace Ice
             // Read all the deferred indirection tables now that the instance is inserted in _instanceMap.
             if (deferredIndirectionTableList?.Count > 0)
             {
-                int savedPos = Pos;
+                int savedPos = _tail;
 
                 Debug.Assert(_current.Slices?.Count == deferredIndirectionTableList.Count);
                 for (int i = 0; i < deferredIndirectionTableList.Count; ++i)
@@ -2012,12 +1821,12 @@ namespace Ice
                     int pos = deferredIndirectionTableList[i];
                     if (pos > 0)
                     {
-                        Pos = pos;
+                        _tail = pos;
                         _current.Slices[i].Instances = Array.AsReadOnly(ReadIndirectionTable());
                     }
                     // else remains empty
                 }
-                Pos = savedPos;
+                _tail = savedPos;
             }
 
             // Read the instance.
@@ -2044,6 +1853,16 @@ namespace Ice
         {
             Debug.Assert(_current != null);
             _current = savedInstance;
+        }
+
+        /// <summary>Helper method for read numeric arrays, the array is fill using Buffer.BlockCopy.</summary>
+        /// <param name="dst">The numeric array to read.</param>
+        private void ReadNumericArray(Array dst)
+        {
+            int byteCount = System.Buffer.ByteLength(dst);
+            Debug.Assert(Buffer.Count - _tail >= byteCount);
+            System.Buffer.BlockCopy(Buffer.Array, Buffer.Offset + _tail, dst, 0, byteCount);
+            _tail += byteCount;
         }
 
         private enum InstanceType { Class, Exception }

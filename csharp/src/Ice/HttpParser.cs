@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -49,17 +50,23 @@ namespace IceInternal
             Response
         };
 
-        internal int IsCompleteMessage(ByteBuffer buf, int begin, int end)
+        /// <summary>Check if the buffer contains a complete HTTP message, if the buffer contains
+        /// a complete HTTP message it returns the end index of the HTTP message, otherwise
+        /// it returns -1.</summary>
+        /// <param name="buffer">The buffer to check for HTTP messages.</param>
+        /// <param name="endOffset">The zero-base byte offset at what the message data ends.</param>
+        /// <returns>The last index of the HTTP message if the buffer contains a complete HTTP message,
+        /// otherwise -1.</returns>
+        internal static int IsCompleteMessage(ArraySegment<byte> buffer, int endOffset)
         {
-            byte[] raw = buf.RawBytes();
-            int p = begin;
+            int p = 0;
 
             //
             // Skip any leading CR-LF characters.
             //
-            while (p < end)
+            while (p < endOffset)
             {
-                byte ch = raw[p];
+                byte ch = buffer[p];
                 if (ch != (byte)'\r' && ch != (byte)'\n')
                 {
                     break;
@@ -71,9 +78,9 @@ namespace IceInternal
             // Look for adjacent CR-LF/CR-LF or LF/LF.
             //
             bool seenFirst = false;
-            while (p < end)
+            while (p < endOffset)
             {
-                byte ch = raw[p++];
+                byte ch = buffer[p++];
                 if (ch == (byte)'\n')
                 {
                     if (seenFirst)
@@ -94,10 +101,9 @@ namespace IceInternal
             return -1;
         }
 
-        internal bool Parse(ByteBuffer buf, int begin, int end)
+        internal bool Parse(ArraySegment<byte> buffer)
         {
-            byte[] raw = buf.RawBytes();
-            int p = begin;
+            int p = 0;
             int start = 0;
             const char CR = '\r';
             const char LF = '\n';
@@ -107,9 +113,9 @@ namespace IceInternal
                 _state = State.Init;
             }
 
-            while (p != end && _state != State.Complete)
+            while (p < buffer.Count && _state != State.Complete)
             {
-                char c = (char)raw[p];
+                char c = (char)buffer[p];
 
                 switch (_state)
                 {
@@ -280,7 +286,7 @@ namespace IceInternal
                                     newValue.Append(' ');
                                     for (int i = start; i < p; ++i)
                                     {
-                                        newValue.Append((char)raw[i]);
+                                        newValue.Append((char)buffer[i]);
                                     }
                                     _headers[_headerName] = newValue.ToString();
                                     _state = c == CR ? State.HeaderFieldLF : State.HeaderFieldStart;
@@ -324,7 +330,7 @@ namespace IceInternal
                                 var str = new StringBuilder();
                                 for (int i = start; i < p; ++i)
                                 {
-                                    str.Append((char)raw[i]);
+                                    str.Append((char)buffer[i]);
                                 }
                                 _headerName = str.ToString().ToLower();
                                 //
@@ -391,7 +397,7 @@ namespace IceInternal
                                 var str = new StringBuilder();
                                 for (int i = start; i < p; ++i)
                                 {
-                                    str.Append((char)raw[i]);
+                                    str.Append((char)buffer[i]);
                                 }
 
                                 if (!_headers.TryGetValue(_headerName, out string s) || s.Length == 0)
@@ -622,7 +628,7 @@ namespace IceInternal
                                     var str = new StringBuilder();
                                     for (int i = start; i < p; ++i)
                                     {
-                                        str.Append((char)raw[i]);
+                                        str.Append((char)buffer[i]);
                                     }
                                     _reason = str.ToString();
                                 }
