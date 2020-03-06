@@ -8,7 +8,7 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.0</AppTargetFramework>
+                <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.1</AppTargetFramework>
             </PropertyGroup>
         </Otherwise>
     </Choose>
