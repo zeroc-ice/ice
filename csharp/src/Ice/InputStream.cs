@@ -48,6 +48,9 @@ namespace Ice
         /// <value>The encoding.</value>
         public Encoding Encoding { get; private set; }
 
+        /// <summary>A read only view of the contents of the stream.</summary>
+        public ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array);
+
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
         {
@@ -99,8 +102,6 @@ namespace Ice
         // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
-
-        public ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array);
 
         private ArraySegment<byte> _buffer;
         private int _tail;
