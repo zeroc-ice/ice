@@ -928,24 +928,18 @@ namespace IceInternal
         public override void ThrowUserException()
         {
             Debug.Assert(Is != null);
+            Is.StartEncapsulation();
             try
             {
-                Is.StartEncapsulation();
                 Is.ThrowException();
             }
-            catch (Ice.UserException ex)
+            finally
             {
                 Is.EndEncapsulation();
-                if (UserException != null)
-                {
-                    UserException.Invoke(ex);
-                }
-                throw new Ice.UnknownUserException(ex.ice_id());
             }
         }
 
         protected readonly Ice.Encoding Encoding;
-        protected System.Action<Ice.UserException>? UserException;
     }
 
     public class OutgoingAsyncT<T> : OutgoingAsync
@@ -964,11 +958,9 @@ namespace IceInternal
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
-                           System.Action<Ice.UserException>? userException = null,
                            System.Func<Ice.InputStream, T>? read = null)
         {
             Read = read;
-            UserException = userException;
             base.Invoke(operation, idempotent, format, context, synchronous, write);
         }
 

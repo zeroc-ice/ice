@@ -97,18 +97,10 @@ namespace Ice
 
             static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
-                try
-                {
-                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                    bool returnValue = istr.ReadBool();
-                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                    return returnValue;
-                }
-                catch (UserException userException)
-                {
-                    // TODO: remove this try/catch block once we eliminate checked exceptions.
-                    throw new UnknownUserException(userException);
-                }
+                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                bool returnValue = istr.ReadBool();
+                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                return returnValue;
             }
         }
 
@@ -148,17 +140,7 @@ namespace Ice
             return IsOneway ? task : AwaitResponseAsync(task);
 
             static async Task AwaitResponseAsync(Task<IncomingResponseFrame> task)
-            {
-                try
-                {
-                    (await task.ConfigureAwait(false)).ReadVoidReturnValue();
-                }
-                catch (UserException userException)
-                {
-                    // TODO: remove this try/catch block once we eliminate checked exceptions.
-                    throw new UnknownUserException(userException);
-                }
-            }
+                => (await task.ConfigureAwait(false)).ReadVoidReturnValue();
         }
 
         /// <summary>
@@ -200,18 +182,10 @@ namespace Ice
 
             static async Task<string[]> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
-                try
-                {
-                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                    string[] returnValue = istr.ReadStringArray();
-                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                    return returnValue;
-                }
-                catch (UserException userException)
-                {
-                    // TODO: remove this try/catch block once we eliminate checked exceptions.
-                    throw new UnknownUserException(userException);
-                }
+                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                string[] returnValue = istr.ReadStringArray();
+                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                return returnValue;
             }
         }
 
@@ -252,18 +226,10 @@ namespace Ice
 
             static async Task<string> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
-                try
-                {
-                    InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                    string returnValue = istr.ReadString();
-                    istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                    return returnValue;
-                }
-                catch (UserException userException)
-                {
-                    // TODO: remove this try/catch block once we eliminate checked exceptions.
-                    throw new UnknownUserException(userException);
-                }
+                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
+                string returnValue = istr.ReadString();
+                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
+                return returnValue;
             }
         }
 
