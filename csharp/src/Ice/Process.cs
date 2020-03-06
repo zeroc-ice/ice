@@ -27,6 +27,6 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator _communicator;
+        private readonly Ice.Communicator _communicator;
     }
 }

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System;
-
     internal sealed class OpaqueEndpointI : Endpoint
     {
         public OpaqueEndpointI(List<string> args)
@@ -48,10 +48,7 @@ namespace IceInternal
             s.EndEndpointEncapsulation();
         }
 
-        public override void StreamWriteImpl(Ice.OutputStream s)
-        {
-            Debug.Assert(false);
-        }
+        public override void StreamWriteImpl(Ice.OutputStream s) => Debug.Assert(false);
 
         //
         // Convert the endpoint to its string form
@@ -65,25 +62,13 @@ namespace IceInternal
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
             public InfoI(short type, Ice.Encoding rawEncoding, byte[] rawBytes) :
-                base(null, -1, false, rawEncoding, rawBytes)
-            {
-                _type = type;
-            }
+                base(null, -1, false, rawEncoding, rawBytes) => _type = type;
 
-            public override short Type()
-            {
-                return _type;
-            }
+            public override short Type() => _type;
 
-            public override bool Datagram()
-            {
-                return false;
-            }
+            public override bool Datagram() => false;
 
-            public override bool Secure()
-            {
-                return false;
-            }
+            public override bool Secure() => false;
 
             private readonly short _type;
         }
@@ -91,138 +76,91 @@ namespace IceInternal
         //
         // Return the endpoint information.
         //
-        public override Ice.EndpointInfo GetInfo()
-        {
-            return new InfoI(_type, _rawEncoding, _rawBytes);
-        }
+        public override Ice.EndpointInfo GetInfo() => new InfoI(_type, _rawEncoding, _rawBytes);
 
         //
         // Return the endpoint type
         //
-        public override short Type()
-        {
-            return _type;
-        }
+        public override short Type() => _type;
 
         //
         // Return the transport name;
         //
-        public override string Transport()
-        {
-            return "opaque";
-        }
+        public override string Transport() => "opaque";
 
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
-        public override int Timeout()
-        {
-            return -1;
-        }
+        public override int Timeout() => -1;
 
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        public override Endpoint Timeout(int t)
-        {
-            return this;
-        }
+        public override Endpoint Timeout(int t) => this;
 
-        public override string ConnectionId()
-        {
-            return "";
-        }
+        public override string ConnectionId() => "";
 
         //
         // Return a new endpoint with a different connection id.
         //
-        public override Endpoint ConnectionId(string id)
-        {
-            return this;
-        }
+        public override Endpoint ConnectionId(string id) => this;
 
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
         //
-        public override bool Compress()
-        {
-            return false;
-        }
+        public override bool Compress() => false;
 
         //
         // Return a new endpoint with a different compression value,
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        public override Endpoint Compress(bool compress)
-        {
-            return this;
-        }
+        public override Endpoint Compress(bool compress) => this;
 
         //
         // Return true if the endpoint is datagram-based.
         //
-        public override bool Datagram()
-        {
-            return false;
-        }
+        public override bool Datagram() => false;
 
         //
         // Return true if the endpoint is secure.
         //
-        public override bool Secure()
-        {
-            return false;
-        }
+        public override bool Secure() => false;
 
         //
         // Get the encoded endpoint.
         //
-        public byte[] rawBytes()
-        {
-            return _rawBytes;
-        }
+        public byte[] RawBytes() => _rawBytes;
 
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override ITransceiver? Transceiver()
-        {
-            return null;
-        }
+        public override ITransceiver? Transceiver() => null;
 
         //
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback)
-        {
+        public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback) =>
             callback.Connectors(new List<IConnector>());
-        }
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override IAcceptor? Acceptor(string adapterName)
-        {
-            return null;
-        }
+        public override IAcceptor? Acceptor(string adapterName) => null;
 
         //
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public override List<Endpoint> ExpandIfWildcard()
-        {
-            return new List<Endpoint> { this };
-        }
+        public override List<Endpoint> ExpandIfWildcard() => new List<Endpoint> { this };
 
         public override List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
@@ -233,10 +171,7 @@ namespace IceInternal
         //
         // Check whether the endpoint is equivalent to another one.
         //
-        public override bool Equivalent(Endpoint endpoint)
-        {
-            return false;
-        }
+        public override bool Equivalent(Endpoint endpoint) => false;
 
         public override int GetHashCode()
         {
@@ -281,7 +216,7 @@ namespace IceInternal
                 return Type() < obj.Type() ? -1 : 1;
             }
 
-            OpaqueEndpointI p = (OpaqueEndpointI)obj;
+            var p = (OpaqueEndpointI)obj;
             if (this == p)
             {
                 return 0;

@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+using IceUtilInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using Ice;
 using System.Linq;
-using IceUtilInternal;
 
 namespace IceInternal
 {
@@ -475,7 +475,7 @@ namespace IceInternal
         private Dictionary<string, string> _context;
         private string _facet;
         protected bool Secure;
-        private Protocol _protocol;
+        private readonly Protocol _protocol;
         private Encoding _encoding;
         private int _invocationTimeout;
 

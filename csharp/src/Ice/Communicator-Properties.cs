@@ -76,7 +76,7 @@ namespace Ice
                 if (_properties.TryGetValue(name, out PropertyValue pv))
                 {
                     pv.Used = true;
-                    return IceUtilInternal.StringUtil.splitString(pv.Val, ", \t\r\n");
+                    return IceUtilInternal.StringUtil.SplitString(pv.Val, ", \t\r\n");
                 }
                 return null;
             }
@@ -226,7 +226,7 @@ namespace Ice
                 string prefix = name.Substring(0, dotPos);
                 foreach (IceInternal.Property[] validProps in IceInternal.PropertyNames.validProps)
                 {
-                    string pattern = validProps[0].pattern();
+                    string pattern = validProps[0].Pattern();
                     dotPos = pattern.IndexOf('.');
                     Debug.Assert(dotPos != -1);
                     string propPrefix = pattern.Substring(1, dotPos - 2);
@@ -240,15 +240,15 @@ namespace Ice
                     bool found = false;
                     foreach (IceInternal.Property prop in validProps)
                     {
-                        var r = new Regex(prop.pattern());
+                        var r = new Regex(prop.Pattern());
                         Match m = r.Match(name);
                         found = m.Success;
                         if (found)
                         {
-                            if (prop.deprecated())
+                            if (prop.Deprecated())
                             {
                                 Logger.Warning($"deprecated property: `{name}'");
-                                string? deprecatedBy = prop.deprecatedBy();
+                                string? deprecatedBy = prop.DeprecatedBy();
                                 if (deprecatedBy != null)
                                 {
                                     name = deprecatedBy;
@@ -259,13 +259,13 @@ namespace Ice
 
                         if (!found)
                         {
-                            r = new Regex(prop.pattern().ToUpper());
+                            r = new Regex(prop.Pattern().ToUpper());
                             m = r.Match(name.ToUpper());
                             if (m.Success)
                             {
                                 found = true;
                                 mismatchCase = true;
-                                otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
+                                otherKey = prop.Pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
                                 break;
                             }
                         }

@@ -5,11 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
-    using Context = Dictionary<string, string>;
-
     public enum ResultType : byte { Success, Failure };
 
     /// <summary>Represents a response protocol frame received by the application.</summary>

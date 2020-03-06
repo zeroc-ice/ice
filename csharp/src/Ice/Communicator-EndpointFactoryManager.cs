@@ -29,7 +29,7 @@ namespace Ice
 
         public Endpoint? CreateEndpoint(string str, bool oaEndpoint)
         {
-            string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+            string[]? arr = IceUtilInternal.StringUtil.SplitString(str, " \t\r\n");
             if (arr == null)
             {
                 throw new System.FormatException("mismatched quote");

@@ -719,7 +719,7 @@ namespace Ice
             // or double quotation marks.
             //
             string idstr;
-            end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+            end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
             if (end == -1)
             {
                 throw new FormatException($"mismatched quotes around identity in `{s} '");
@@ -800,7 +800,7 @@ namespace Ice
                     if (ch != '@' && ch != ':' && ch != '-')
                     {
                         beg = argumentBeg;
-                        end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+                        end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
                         if (end == -1)
                         {
                             throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
@@ -836,7 +836,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -f option in `{s}'");
                             }
 
-                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
+                            facet = IceUtilInternal.StringUtil.UnescapeString(argument, 0, argument.Length, "");
                             break;
                         }
 
@@ -1037,7 +1037,7 @@ namespace Ice
                 }
 
                 string adapterstr;
-                end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+                end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
                 if (end == -1)
                 {
                     throw new ArgumentException($"mismatched quotes around adapter id in `{s}'");
@@ -1064,7 +1064,7 @@ namespace Ice
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
+                adapter = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
 
                 if (adapter.Length == 0)
                 {

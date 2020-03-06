@@ -10,7 +10,7 @@ namespace IceInternal
 {
     public sealed class DefaultsAndOverrides
     {
-        internal DefaultsAndOverrides(Ice.Communicator communicator, Ice.ILogger logger)
+        internal DefaultsAndOverrides(Communicator communicator, ILogger logger)
         {
             string? val;
 
@@ -24,7 +24,7 @@ namespace IceInternal
                 DefaultSourceAddress = Network.GetNumericAddress(val);
                 if (DefaultSourceAddress == null)
                 {
-                    throw new Ice.InitializationException($"invalid IP address set for Ice.Default.SourceAddress: `{val}'");
+                    throw new InitializationException($"invalid IP address set for Ice.Default.SourceAddress: `{val}'");
                 }
             }
             else
@@ -131,7 +131,7 @@ namespace IceInternal
             }
             else if (val.Equals("Ordered"))
             {
-                DefaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
+                DefaultEndpointSelection = EndpointSelectionType.Ordered;
             }
             else
             {
@@ -189,13 +189,13 @@ namespace IceInternal
         public EndPoint? DefaultSourceAddress;
         public string DefaultTransport;
         public bool DefaultCollocationOptimization;
-        public Ice.EndpointSelectionType DefaultEndpointSelection;
+        public EndpointSelectionType DefaultEndpointSelection;
         public int DefaultTimeout;
         public int DefaultLocatorCacheTimeout;
         public int DefaultInvocationTimeout;
         public bool DefaultPreferSecure;
-        public Ice.Encoding DefaultEncoding;
-        public Ice.FormatType DefaultFormat;
+        public Encoding DefaultEncoding;
+        public FormatType DefaultFormat;
 
         public bool OverrideTimeout;
         public int OverrideTimeoutValue;
