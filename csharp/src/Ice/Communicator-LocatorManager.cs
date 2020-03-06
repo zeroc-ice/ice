@@ -38,13 +38,10 @@ namespace Ice
                 if (proxy != null)
                 {
                     Reference r = proxy.IceReference;
-                    if (_ref.IsWellKnown() && !EncodingDefinitions.IsSupported(_ref.GetEncoding(), r.GetEncoding()))
+                    if (_ref.IsWellKnown() && _ref.GetEncoding() != r.GetEncoding())
                     {
-                        //
-                        // If a well-known proxy and the returned
-                        // proxy encoding isn't supported, we're done:
+                        // If a well-known proxy and the returned proxy encoding don't match we're done:
                         // there's no compatible endpoint we can use.
-                        //
                     }
                     else if (!r.IsIndirect())
                     {

@@ -16,8 +16,5 @@ namespace Ice
         internal const byte FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
         internal const byte FLAG_HAS_SLICE_SIZE = 1 << 4;
         internal const byte FLAG_IS_LAST_SLICE = 1 << 5;
-
-        internal static bool IsSupported(Encoding version, Encoding supported) =>
-            version.Major == supported.Major && version.Minor <= supported.Minor;
     }
 }

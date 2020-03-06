@@ -411,6 +411,7 @@ namespace Ice
         /// <param name="format">The optional format of the value.</param>
         public bool WriteOptional(int tag, OptionalFormat format)
         {
+            // TODO: eliminate return value, which was used for 1.0 encoding.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             int v = (int)format;
