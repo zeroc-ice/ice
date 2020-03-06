@@ -77,6 +77,7 @@ namespace Ice
                         // Ignore.
                     }
                 }
+                _plugins.Clear();
                 throw;
             }
 
