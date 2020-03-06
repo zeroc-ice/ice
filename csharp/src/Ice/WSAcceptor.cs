@@ -36,7 +36,7 @@ namespace IceInternal
         }
 
         private WSEndpoint _endpoint;
-        private TransportInstance _instance;
+        private readonly TransportInstance _instance;
         private readonly IAcceptor _delegate;
     }
 }

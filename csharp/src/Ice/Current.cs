@@ -42,7 +42,7 @@ namespace Ice
             string[] facetPath = request.ReadStringArray();
             if (facetPath.Length > 1)
             {
-                throw new Ice.MarshalException();
+                throw new MarshalException();
             }
             Facet = facetPath.Length == 0 ? "" : facetPath[0];
             Operation = request.ReadString();

@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using Ice;
 
 namespace IceInternal
 {

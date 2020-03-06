@@ -572,10 +572,7 @@ namespace Ice
                 {
                     Debug.Assert(Os != null);
                     Os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                    Os.WriteByte(Util.CurrentProtocol.Major);
-                    Os.WriteByte(Util.CurrentProtocol.Minor);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                    Os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                    Os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                     Os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                     Os.WriteByte(0);
                     Os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -988,19 +985,7 @@ namespace Ice
                                     throw new IllegalMessageSizeException();
                                 }
 
-                                Span<byte> magic = _readBuffer.AsSpan(0, 4);
-                                if (magic[0] != Ice1Definitions.Magic[0] || magic[1] != Ice1Definitions.Magic[1] ||
-                                    magic[2] != Ice1Definitions.Magic[2] || magic[3] != Ice1Definitions.Magic[3])
-                                {
-                                    throw new BadMagicException
-                                    {
-                                        BadMagic = magic.ToArray()
-                                    };
-                                }
-
-                                Protocol.CheckSupportedProtocol(new Protocol(_readBuffer[4], _readBuffer[5]));
-                                Protocol.CheckSupportedProtocolEncoding(new Encoding(_readBuffer[6], _readBuffer[7]));
-
+                                byte[] header = _readStream.ReadBlob(_readBuffer.AsSpan(0, 8));
                                 int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                                 if (size < Ice1Definitions.HeaderSize)
                                 {
@@ -1676,7 +1661,7 @@ namespace Ice
             _messageSizeMax = adapter != null ? adapter.MessageSizeMax : communicator.MessageSizeMax;
             _readBuffer = ArraySegment<byte>.Empty;
             _readHeader = false;
-            _writeStream = new OutputStream(communicator, Util.CurrentProtocolEncoding);
+            _writeStream = new OutputStream(communicator, Ice1Definitions.Encoding);
             _writeBuffer = new List<ArraySegment<byte>>();
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
@@ -1966,12 +1951,9 @@ namespace Ice
                 //
                 // Before we shut down, we send a close connection message.
                 //
-                var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
+                var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte(Util.CurrentProtocol.Major);
-                os.WriteByte(Util.CurrentProtocol.Minor);
-                os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                 os.WriteByte(Ice1Definitions.CloseConnectionMessage);
                 os.WriteByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -1999,12 +1981,9 @@ namespace Ice
 
             if (!_endpoint.Datagram())
             {
-                var os = new OutputStream(_communicator, Util.CurrentProtocolEncoding);
+                var os = new OutputStream(_communicator, Ice1Definitions.Encoding);
                 os.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                os.WriteByte(Util.CurrentProtocol.Major);
-                os.WriteByte(Util.CurrentProtocol.Minor);
-                os.WriteByte(Util.CurrentProtocolEncoding.Major);
-                os.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                os.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                 os.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                 os.WriteByte(0);
                 os.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2050,10 +2029,7 @@ namespace Ice
                     if (_writeStream.Size == 0)
                     {
                         _writeStream.WriteSpan(Ice1Definitions.Magic.AsSpan());
-                        _writeStream.WriteByte(Util.CurrentProtocol.Major);
-                        _writeStream.WriteByte(Util.CurrentProtocol.Minor);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Major);
-                        _writeStream.WriteByte(Util.CurrentProtocolEncoding.Minor);
+                        _writeStream.WriteSpan(Ice1Definitions.ProtocolBytes.AsSpan());
                         _writeStream.WriteByte(Ice1Definitions.ValidateConnectionMessage);
                         _writeStream.WriteByte(0); // Compression status (always zero for validate connection).
                         _writeStream.WriteInt(Ice1Definitions.HeaderSize); // Message size.
@@ -2096,19 +2072,7 @@ namespace Ice
                     _validated = true;
 
                     Debug.Assert(_readBufferOffset == Ice1Definitions.HeaderSize);
-                    Span<byte> magic = _readBuffer.AsSpan(0, 4);
-                    if (magic[0] != Ice1Definitions.Magic[0] || magic[1] != Ice1Definitions.Magic[1] ||
-                        magic[2] != Ice1Definitions.Magic[2] || magic[3] != Ice1Definitions.Magic[3])
-                    {
-                        throw new BadMagicException
-                        {
-                            BadMagic = magic.ToArray()
-                        };
-                    }
-
-                    Protocol.CheckSupportedProtocol(new Protocol(_readBuffer[4], _readBuffer[5]));
-                    Protocol.CheckSupportedProtocolEncoding(new Encoding(_readBuffer[6], _readBuffer[7]));
-
+                    Ice1Definitions.CheckHeader(_readBuffer.AsSpan(0, 8));
                     byte messageType = _readBuffer[8];
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {
@@ -2367,7 +2331,7 @@ namespace Ice
         private int ParseMessage(ref MessageInfo info)
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
-            info.Stream = new InputStream(_communicator, Util.CurrentProtocolEncoding, _readBuffer);
+            info.Stream = new InputStream(_communicator, Ice1Definitions.Encoding, _readBuffer);
             _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
             _readBufferOffset = 0;
             _readHeader = true;

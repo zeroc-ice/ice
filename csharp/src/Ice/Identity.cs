@@ -50,7 +50,7 @@ namespace Ice
             {
                 try
                 {
-                    name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
+                    name = IceUtilInternal.StringUtil.UnescapeString(s, 0, s.Length, "/");
                 }
                 catch (ArgumentException ex)
                 {
@@ -62,7 +62,7 @@ namespace Ice
             {
                 try
                 {
-                    category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
+                    category = IceUtilInternal.StringUtil.UnescapeString(s, 0, slash, "/");
                 }
                 catch (ArgumentException ex)
                 {
@@ -73,7 +73,7 @@ namespace Ice
                 {
                     try
                     {
-                        name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
+                        name = IceUtilInternal.StringUtil.UnescapeString(s, slash + 1, s.Length, "/");
                     }
                     catch (ArgumentException ex)
                     {

@@ -171,7 +171,7 @@ namespace IceUtilInternal
                                     }
                                     sb.Append(octal);
                                 }
-                                else if (i < 32 || i == 127 || toStringMode == Ice.ToStringMode.ASCII)
+                                else if (i < 32 || i == 127 || (toStringMode & Ice.ToStringMode.ASCII) != 0)
                                 {
                                     // append \\unnnn
                                     sb.Append("\\u");
@@ -238,13 +238,13 @@ namespace IceUtilInternal
                 for (int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if (toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
+                    if ((toStringMode & Ice.ToStringMode.Unicode) != 0 || !char.IsSurrogate(c))
                     {
                         EncodeChar(c, result, special, toStringMode);
                     }
                     else
                     {
-                        Debug.Assert(toStringMode == Ice.ToStringMode.ASCII && char.IsSurrogate(c));
+                        Debug.Assert((toStringMode & Ice.ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
                         if (i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("High surrogate without low surrogate");
@@ -270,7 +270,7 @@ namespace IceUtilInternal
         }
 
         private static char
-        checkChar(string s, int pos)
+        CheckChar(string s, int pos)
         {
             char c = s[pos];
             if (c < 32 || c == 127)
@@ -296,7 +296,7 @@ namespace IceUtilInternal
         // or escape sequence.
         //
         private static int
-        decodeChar(string s, int start, int end, string special, StringBuilder result, UTF8Encoding utf8Encoding)
+        DecodeChar(string s, int start, int end, string special, StringBuilder result, UTF8Encoding utf8Encoding)
         {
             Debug.Assert(start >= 0);
             Debug.Assert(start < end);
@@ -304,7 +304,7 @@ namespace IceUtilInternal
 
             if (s[start] != '\\')
             {
-                result.Append(checkChar(s, start++));
+                result.Append(CheckChar(s, start++));
             }
             else if (start + 1 == end)
             {
@@ -372,13 +372,13 @@ namespace IceUtilInternal
                     case 'U':
                         {
                             int codePoint = 0;
-                            bool inBMP = (c == 'u');
+                            bool inBMP = c == 'u';
                             int size = inBMP ? 4 : 8;
                             ++start;
                             while (size > 0 && start < end)
                             {
                                 c = s[start++];
-                                int charVal = 0;
+                                int charVal;
                                 if (c >= '0' && c <= '9')
                                 {
                                     charVal = c - '0';
@@ -395,7 +395,7 @@ namespace IceUtilInternal
                                 {
                                     break; // while
                                 }
-                                codePoint = codePoint * 16 + charVal;
+                                codePoint = (codePoint * 16) + charVal;
                                 --size;
                             }
                             if (size > 0)
@@ -442,7 +442,7 @@ namespace IceUtilInternal
                                     while (size > 0 && start < end)
                                     {
                                         c = s[start++];
-                                        int charVal = 0;
+                                        int charVal;
                                         if (c >= '0' && c <= '9')
                                         {
                                             charVal = c - '0';
@@ -460,7 +460,7 @@ namespace IceUtilInternal
                                             --start; // move back
                                             break; // while
                                         }
-                                        val = val * 16 + charVal;
+                                        val = (val * 16) + charVal;
                                         --size;
                                     }
                                     if (size == 2)
@@ -479,7 +479,7 @@ namespace IceUtilInternal
                                             Debug.Assert(j != 0); // must be at least one digit
                                             break; // for
                                         }
-                                        val = val * 8 + charVal;
+                                        val = (val * 8) + charVal;
                                     }
                                     if (val > 255)
                                     {
@@ -512,7 +512,7 @@ namespace IceUtilInternal
                             {
                                 result.Append('\\'); // not in special, so we keep the backslash
                             }
-                            result.Append(checkChar(s, start++));
+                            result.Append(CheckChar(s, start++));
                             break;
                         }
                 }
@@ -524,7 +524,7 @@ namespace IceUtilInternal
         // Remove escape sequences added by escapeString. Throws System.ArgumentException
         // for an invalid input string.
         //
-        public static string unescapeString(string s, int start, int end, string special)
+        public static string UnescapeString(string s, int start, int end, string special)
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
 
@@ -543,17 +543,17 @@ namespace IceUtilInternal
                 int p = start;
                 while (p < end)
                 {
-                    checkChar(s, p++);
+                    CheckChar(s, p++);
                 }
-                return s.Substring(start, end - start);
+                return s[start..end];
             }
             else
             {
-                StringBuilder sb = new StringBuilder(end - start);
-                UTF8Encoding utf8Encoding = new UTF8Encoding(false, true);
+                var sb = new StringBuilder(end - start);
+                var utf8Encoding = new UTF8Encoding(false, true);
                 while (start < end)
                 {
-                    start = decodeChar(s, start, end, special, sb, utf8Encoding);
+                    start = DecodeChar(s, start, end, special, sb, utf8Encoding);
                 }
                 return sb.ToString();
             }
@@ -562,9 +562,9 @@ namespace IceUtilInternal
         //
         // Split string helper; returns null for unmatched quotes
         //
-        public static string[]? splitString(string str, string delim)
+        public static string[]? SplitString(string str, string delim)
         {
-            List<string> l = new List<string>();
+            var l = new List<string>();
             char[] arr = new char[str.Length];
             int pos = 0;
 
@@ -623,10 +623,7 @@ namespace IceUtilInternal
             return l.ToArray();
         }
 
-        public static int checkQuote(string s)
-        {
-            return checkQuote(s, 0);
-        }
+        public static int CheckQuote(string s) => CheckQuote(s, 0);
 
         //
         // If a single or double quotation mark is found at the start position,
@@ -634,7 +631,7 @@ namespace IceUtilInternal
         // quotation mark is found at the start position, then 0 is returned.
         // If no matching closing quote is found, then -1 is returned.
         //
-        public static int checkQuote(string s, int start)
+        public static int CheckQuote(string s, int start)
         {
             char quoteChar = s[start];
             if (quoteChar == '"' || quoteChar == '\'')
@@ -655,7 +652,7 @@ namespace IceUtilInternal
             return 0; // Not quoted
         }
 
-        public static bool match(string s, string pat, bool emptyMatch)
+        public static bool Match(string s, string pat, bool emptyMatch)
         {
             Debug.Assert(s.Length > 0);
             Debug.Assert(pat.Length > 0);
@@ -695,8 +692,7 @@ namespace IceUtilInternal
             //
             // Make sure end of the strings match
             //
-            if (!s.Substring(endIndex, s.Length - endIndex).Equals(
-                   pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
+            if (!s[endIndex..].Equals(pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
             {
                 return false;
             }

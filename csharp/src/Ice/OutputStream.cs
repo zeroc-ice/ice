@@ -3,10 +3,10 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -161,7 +161,7 @@ namespace Ice
         public void StartEncapsulation(Encoding encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
 
             _mainEncaps = new Encaps(Encoding, _format, _tail);
 
@@ -411,13 +411,8 @@ namespace Ice
         /// <param name="format">The optional format of the value.</param>
         public bool WriteOptional(int tag, OptionalFormat format)
         {
+            // TODO: eliminate return value, which was used for 1.0 encoding.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-
-            if (Encoding.Equals(Util.Encoding_1_0))
-            {
-                // TODO: eliminate this block and return value
-                return false; // Tagged members aren't supported with the 1.0 encoding.
-            }
 
             int v = (int)format;
             if (tag < 30)
@@ -1461,7 +1456,7 @@ namespace Ice
         internal void StartEndpointEncapsulation(Encoding encoding)
         {
             Debug.Assert(_endpointEncaps == null);
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
 
             _endpointEncaps = new Encaps(Encoding, _format, _tail);
             Encoding = encoding;
@@ -1488,7 +1483,7 @@ namespace Ice
         /// <param name="encoding">The encoding version of the encapsulation.</param>
         internal void WriteEmptyEncapsulation(Encoding encoding)
         {
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
             WriteEncapsulationHeader(6, encoding);
         }
 

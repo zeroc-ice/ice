@@ -2,11 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ice
@@ -74,10 +71,10 @@ namespace Ice
             }
         }
 
-        protected static ValueTask<Ice.OutputStream> IceFromResult(Ice.OutputStream ostr)
-            => new ValueTask<Ice.OutputStream>(ostr);
+        protected static ValueTask<OutputStream> IceFromResult(OutputStream ostr)
+            => new ValueTask<OutputStream>(ostr);
 
-        protected static ValueTask<Ice.OutputStream> IceFromVoidResult(Ice.Current current)
+        protected static ValueTask<OutputStream> IceFromVoidResult(Current current)
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.

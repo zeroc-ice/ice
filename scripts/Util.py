@@ -210,7 +210,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("info : global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "netcoreapp{}".format("3.0" if int(version[0]) >= 3 else "2.1")
+            self.defaultNetCoreFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
         except:
             self.nugetPackageCache = None
 
@@ -3493,8 +3493,9 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = (current.config.testTargetFramework in ["netcoreapp2.1", "netcoreapp2.2"] or
-                        process.isFromBinDir())
+        useDotnetExe = current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir() or \
+            isinstance(platform, Darwin)
+
         command = ""
         if useDotnetExe:
             command += "dotnet "

@@ -29,7 +29,7 @@ namespace Ice
 
         public Endpoint? CreateEndpoint(string str, bool oaEndpoint)
         {
-            string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+            string[]? arr = IceUtilInternal.StringUtil.SplitString(str, " \t\r\n");
             if (arr == null)
             {
                 throw new System.FormatException("mismatched quote");
@@ -107,11 +107,11 @@ namespace Ice
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var os = new OutputStream(this, Util.CurrentProtocolEncoding);
+                    var os = new OutputStream(this, Ice1Definitions.Encoding);
                     os.WriteShort(ue.Type());
                     ue.StreamWrite(os);
                     // TODO avoid copy OutputStream buffers
-                    var iss = new InputStream(this, Util.CurrentProtocolEncoding, os.ToArray());
+                    var iss = new InputStream(this, Ice1Definitions.Encoding, os.ToArray());
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();

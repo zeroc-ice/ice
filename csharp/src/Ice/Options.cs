@@ -14,7 +14,7 @@ namespace IceUtilInternal
         public enum State { Normal, DoubleQuote, SingleQuote, ANSIQuote };
 
         public static string[]
-        split(string line)
+        Split(string line)
         {
             string IFS = " \t\n";
 
@@ -27,7 +27,7 @@ namespace IceUtilInternal
             State state = State.Normal;
 
             string arg = "";
-            List<string> vec = new List<string>();
+            var vec = new List<string>();
 
             for (int i = 0; i < l.Length; ++i)
             {
@@ -255,7 +255,7 @@ namespace IceUtilInternal
                                                     int j;
                                                     for (j = i; j < i + 3 && j < l.Length && octalDigits.IndexOf(c = l[j]) != -1; ++j)
                                                     {
-                                                        s = (short)(s * 8 + c - '0');
+                                                        s = (short)((s * 8) + c - '0');
                                                     }
                                                     i = j - 1;
                                                     arg += (char)s;

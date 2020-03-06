@@ -178,7 +178,7 @@ namespace Ice
         public Encoding RawEncoding;
         public byte[]? RawBytes;
 
-        protected OpaqueEndpointInfo() => RawEncoding = new Encoding();
+        protected OpaqueEndpointInfo() => RawEncoding = default;
 
         protected OpaqueEndpointInfo(EndpointInfo? underlying,
                                      int timeout,

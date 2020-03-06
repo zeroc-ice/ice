@@ -637,7 +637,7 @@ namespace IceInternal
                 bool valid = false;
                 foreach (string suffix in _suffixes)
                 {
-                    if (IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
+                    if (IceUtilInternal.StringUtil.Match(prop, prefix + suffix, false))
                     {
                         valid = true;
                         break;
