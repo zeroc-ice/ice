@@ -985,7 +985,7 @@ namespace Ice
                                     throw new IllegalMessageSizeException();
                                 }
 
-                                byte[] header = _readStream.ReadBlob(_readBuffer.AsSpan(0, 8));
+                                Ice1Definitions.CheckHeader(_readBuffer.AsSpan(0, 8));
                                 int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                                 if (size < Ice1Definitions.HeaderSize)
                                 {

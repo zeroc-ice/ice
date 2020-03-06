@@ -752,7 +752,7 @@ namespace IceInternal
             value = _parser.GetHeader("Sec-WebSocket-Protocol", true);
             if (value != null)
             {
-                string[]? protocols = IceUtilInternal.StringUtil.splitString(value, ",");
+                string[]? protocols = IceUtilInternal.StringUtil.SplitString(value, ",");
                 if (protocols == null)
                 {
                     throw new WebSocketException($"invalid value `{value}' for WebSocket protocol");

@@ -71,14 +71,14 @@ namespace Ice
         /// <summary>The position (offset) in the underlying buffer.</summary>
         internal int Pos
         {
-            get => _tail;
+            get => _pos;
             set
             {
                 if (value < 0 || value > _buffer.Count)
                 {
                     throw new ArgumentOutOfRangeException(nameof(Pos), "The position value is outside the buffer bounds.");
                 }
-                _tail = value;
+                _pos = value;
             }
         }
 
@@ -104,7 +104,7 @@ namespace Ice
         private int _minTotalSeqSize = 0;
 
         private ArraySegment<byte> _buffer;
-        private int _tail;
+        private int _pos;
 
         // TODO: should we cache those per InputStream or per communicator?
         //       should we clear the caches in ResetEncapsulation?
@@ -150,7 +150,7 @@ namespace Ice
             Communicator = communicator;
             Encoding = encoding;
             _buffer = buffer ?? ArraySegment<byte>.Empty;
-            _tail = 0;
+            _pos = 0;
         }
 
         /// <summary>Reads the start of an encapsulation.</summary>
@@ -162,11 +162,11 @@ namespace Ice
             Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
             _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Encoding = encapsHeader.Encoding;
-            _limit = _tail + encapsHeader.Size - 6;
+            _limit = _pos + encapsHeader.Size - 6;
 
             // _mainEncapsBackup is usually null here, but can be set in the event we are reading a batch request
             // message/frame with multiple main encaps (one per request in the batch).
-            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, _tail, Encoding, _minTotalSeqSize);
+            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, _pos, Encoding, _minTotalSeqSize);
             return encapsHeader.Encoding;
         }
 
@@ -176,7 +176,7 @@ namespace Ice
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
             SkipTaggedMembers();
 
-            if (_buffer.Count - _tail != 0)
+            if (_buffer.Count - _pos != 0)
             {
                 throw new EncapsulationException();
             }
@@ -200,10 +200,10 @@ namespace Ice
 
             // Restore backup:
             _mainEncaps = _mainEncapsBackup.Value.Encaps;
-            _tail = _mainEncapsBackup.Value.Pos;
+            _pos = _mainEncapsBackup.Value.Pos;
             Encoding = _mainEncapsBackup.Value.Encoding;
             _minTotalSeqSize = _mainEncapsBackup.Value.MinTotalSeqSize;
-            _limit = _tail + _mainEncaps.Value.Size - 6;
+            _limit = _pos + _mainEncaps.Value.Size - 6;
         }
 
         /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
@@ -216,7 +216,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             if (_mainEncaps != null)
             {
-                _tail = _limit!.Value;
+                _pos = _limit!.Value;
                 EndEncapsulation();
             }
         }
@@ -231,7 +231,7 @@ namespace Ice
             Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
-            _tail += encapsHeader.Size - 6;
+            _pos += encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
 
@@ -244,7 +244,7 @@ namespace Ice
         public byte[] ReadEncapsulation(out Encoding encoding)
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            _tail -= 6;
+            _pos -= 6;
             encoding = encapsHeader.Encoding;
 
             byte[] encaps = new byte[encapsHeader.Size];
@@ -271,13 +271,13 @@ namespace Ice
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
 
-            int pos = _tail + encapsHeader.Size - 6;
+            int pos = _pos + encapsHeader.Size - 6;
             if (pos > _buffer.Count)
             {
                 Debug.Assert(false);
                 throw new UnmarshalOutOfBoundsException();
             }
-            _tail = pos;
+            _pos = pos;
             return encapsHeader.Encoding;
         }
 
@@ -342,7 +342,7 @@ namespace Ice
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
-                _tail = _current.PosAfterIndirectionTable.Value;
+                _pos = _current.PosAfterIndirectionTable.Value;
                 _current.PosAfterIndirectionTable = null;
                 _current.IndirectionTable = null;
             }
@@ -391,7 +391,7 @@ namespace Ice
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
-            if (_tail + minSize > _buffer.Count || _minTotalSeqSize > _buffer.Count)
+            if (_pos + minSize > _buffer.Count || _minTotalSeqSize > _buffer.Count)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -403,13 +403,13 @@ namespace Ice
         /// <returns>The requested bytes as a byte array.</returns>
         public byte[] ReadBlob(int sz)
         {
-            if (_buffer.Count - _tail < sz)
+            if (_buffer.Count - _pos < sz)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
             byte[] v = new byte[sz];
-            _buffer.Slice(_tail).CopyTo(v);
-            _tail += sz;
+            _buffer.Slice(_pos).CopyTo(v);
+            _pos += sz;
             return v;
         }
 
@@ -432,7 +432,7 @@ namespace Ice
 
             while (true)
             {
-                if (_buffer.Count - _tail <= 0)
+                if (_buffer.Count - _pos <= 0)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
@@ -440,7 +440,7 @@ namespace Ice
                 int v = ReadByte();
                 if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
                 {
-                    _tail--; // Rewind.
+                    _pos--; // Rewind.
                     return false;
                 }
 
@@ -454,7 +454,7 @@ namespace Ice
                 if (tag > requestedTag)
                 {
                     int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
-                    _tail -= offset;
+                    _pos -= offset;
                     return false; // No tagged member with the requested tag.
                 }
                 else if (tag < requestedTag)
@@ -474,7 +474,7 @@ namespace Ice
 
         /// <summary>Extracts a byte value from the stream.</summary>
         /// <returns>The extracted byte.</returns>
-        public byte ReadByte() => _buffer[_tail++];
+        public byte ReadByte() => _buffer[_pos++];
 
         /// <summary>Extracts an optional byte value from the stream.</summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -503,9 +503,9 @@ namespace Ice
         public void ReadSpan(Span<byte> span)
         {
             int length = span.Length;
-            Debug.Assert(_buffer.Count - _tail >= length);
-            _buffer.AsSpan(_tail, length).CopyTo(span);
-            _tail += length;
+            Debug.Assert(_buffer.Count - _pos >= length);
+            _buffer.AsSpan(_pos, length).CopyTo(span);
+            _pos += length;
         }
 
         /// <summary>Extracts an optional byte sequence from the stream.</summary>
@@ -540,7 +540,7 @@ namespace Ice
         /// Extracts a boolean value from the stream.
         /// </summary>
         /// <returns>The extracted boolean.</returns>
-        public bool ReadBool() => _buffer[_tail++] == 1;
+        public bool ReadBool() => _buffer[_pos++] == 1;
 
         /// <summary>
         /// Extracts an optional boolean value from the stream.
@@ -593,8 +593,8 @@ namespace Ice
         /// <returns>The extracted short.</returns>
         public short ReadShort()
         {
-            short value = BitConverter.ToInt16(_buffer.Array, _buffer.Offset + _tail);
-            _tail += 2;
+            short value = BitConverter.ToInt16(_buffer.Array, _buffer.Offset + _pos);
+            _pos += 2;
             return value;
         }
 
@@ -652,8 +652,8 @@ namespace Ice
         /// <returns>The extracted int.</returns>
         public int ReadInt()
         {
-            int value = BitConverter.ToInt32(_buffer.Array, _buffer.Offset + _tail);
-            _tail += 4;
+            int value = BitConverter.ToInt32(_buffer.Array, _buffer.Offset + _pos);
+            _pos += 4;
             return value;
         }
 
@@ -711,8 +711,8 @@ namespace Ice
         /// <returns>The extracted long.</returns>
         public long ReadLong()
         {
-            long value = BitConverter.ToInt64(_buffer.Array, _buffer.Offset + _tail);
-            _tail += 8;
+            long value = BitConverter.ToInt64(_buffer.Array, _buffer.Offset + _pos);
+            _pos += 8;
             return value;
         }
 
@@ -770,8 +770,8 @@ namespace Ice
         /// <returns>The extracted float.</returns>
         public float ReadFloat()
         {
-            float value = BitConverter.ToSingle(_buffer.Array, _buffer.Offset + _tail);
-            _tail += 4;
+            float value = BitConverter.ToSingle(_buffer.Array, _buffer.Offset + _pos);
+            _pos += 4;
             return value;
         }
 
@@ -827,8 +827,8 @@ namespace Ice
         /// <returns>The extracted double.</returns>
         public double ReadDouble()
         {
-            double value = BitConverter.ToDouble(_buffer.Array, _buffer.Offset + _tail);
-            _tail += 8;
+            double value = BitConverter.ToDouble(_buffer.Array, _buffer.Offset + _pos);
+            _pos += 8;
             return value;
         }
 
@@ -891,10 +891,10 @@ namespace Ice
             {
                 return "";
             }
-            Debug.Assert(_buffer.Count - _tail >= size,
-                $"required {size} reamaining: {_buffer.Count - _tail}");
-            string value = _utf8.GetString(_buffer.AsSpan(_tail, size));
-            _tail += size;
+            Debug.Assert(_buffer.Count - _pos >= size,
+                $"required {size} reamaining: {_buffer.Count - _pos}");
+            string value = _utf8.GetString(_buffer.AsSpan(_pos, size));
+            _pos += size;
             return value;
         }
 
@@ -1142,11 +1142,11 @@ namespace Ice
         /// <param name="size">The number of bytes to skip</param>
         public void Skip(int size)
         {
-            if (size < 0 || size > _buffer.Count - _tail)
+            if (size < 0 || size > _buffer.Count - _pos)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            _tail += size;
+            _pos += size;
         }
 
         /// <summary>
@@ -1167,7 +1167,7 @@ namespace Ice
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
             Encoding = encapsHeader.Encoding;
-            _limit = _tail + encapsHeader.Size - 6;
+            _limit = _pos + encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
 
@@ -1175,7 +1175,7 @@ namespace Ice
         {
             Debug.Assert(_endpointEncaps != null);
 
-            if (_limit - _tail != 0)
+            if (_limit - _pos != 0)
             {
                 throw new EncapsulationException();
             }
@@ -1192,7 +1192,7 @@ namespace Ice
 
             (_buffer, other._buffer) = (other._buffer, _buffer);
             (Encoding, other.Encoding) = (other.Encoding, Encoding);
-            (_tail, other._tail) = (other._tail, _tail);
+            (_pos, other._pos) = (other._pos, _pos);
 
             // Swap is never called for InputStreams that have encapsulations being read. However,
             // encapsulations might still be set in case un-marshalling failed. We just
@@ -1228,7 +1228,7 @@ namespace Ice
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            if (sz - 4 > _buffer.Count - _tail)
+            if (sz - 4 > _buffer.Count - _pos)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -1290,7 +1290,7 @@ namespace Ice
             // Skip remaining unread tagged members.
             while (true)
             {
-                if (_buffer.Count - _tail <= 0)
+                if (_buffer.Count - _pos <= 0)
                 {
                     return false; // End of encapsulation also indicates end of tagged members.
                 }
@@ -1332,9 +1332,9 @@ namespace Ice
                 // indirection table and later on when we read it. We only want to add this typeId to the list
                 // and assign it an index when it's the first time we read it, so we save the largest pos we
                 // read to figure out when to add to the list.
-                if (_tail > _posAfterLatestInsertedTypeId)
+                if (_pos > _posAfterLatestInsertedTypeId)
                 {
-                    _posAfterLatestInsertedTypeId = _tail;
+                    _posAfterLatestInsertedTypeId = _pos;
                     _typeIdMap.Add(typeId);
                 }
 
@@ -1495,15 +1495,15 @@ namespace Ice
             Debug.Assert(_current != null && _current.IndirectionTable == null);
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
-                int savedPos = _tail;
+                int savedPos = _pos;
                 if (_current.SliceSize < 4)
                 {
                     throw new MarshalException("invalid slice size");
                 }
-                _tail = savedPos + _current.SliceSize - 4;
+                _pos = savedPos + _current.SliceSize - 4;
                 _current.IndirectionTable = ReadIndirectionTable();
-                _current.PosAfterIndirectionTable = _tail;
-                _tail = savedPos;
+                _current.PosAfterIndirectionTable = _pos;
+                _pos = savedPos;
             }
         }
 
@@ -1527,7 +1527,7 @@ namespace Ice
                 }
             }
 
-            int start = _tail;
+            int start = _pos;
 
             if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
             {
@@ -1557,7 +1557,7 @@ namespace Ice
 
             // Preserve this slice.
             bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-            int end = _tail;
+            int end = _pos;
             int dataEnd = end;
             if (hasOptionalMembers)
             {
@@ -1574,14 +1574,14 @@ namespace Ice
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
-                    startOfIndirectionTable = _tail;
+                    startOfIndirectionTable = _pos;
                     SkipIndirectionTable();
                 }
                 else
                 {
                     Debug.Assert(_current.PosAfterIndirectionTable != null);
                     // Move past indirection table
-                    _tail = _current.PosAfterIndirectionTable.Value;
+                    _pos = _current.PosAfterIndirectionTable.Value;
                     _current.PosAfterIndirectionTable = null;
                 }
             }
@@ -1658,7 +1658,7 @@ namespace Ice
                         {
                             throw new MarshalException("invalid slice size");
                         }
-                        _tail = _tail + sliceSize - 4;
+                        _pos = _pos + sliceSize - 4;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -1776,7 +1776,7 @@ namespace Ice
             // Read all the deferred indirection tables now that the instance is inserted in _instanceMap.
             if (deferredIndirectionTableList?.Count > 0)
             {
-                int savedPos = _tail;
+                int savedPos = _pos;
 
                 Debug.Assert(_current.Slices?.Count == deferredIndirectionTableList.Count);
                 for (int i = 0; i < deferredIndirectionTableList.Count; ++i)
@@ -1784,12 +1784,12 @@ namespace Ice
                     int pos = deferredIndirectionTableList[i];
                     if (pos > 0)
                     {
-                        _tail = pos;
+                        _pos = pos;
                         _current.Slices[i].Instances = Array.AsReadOnly(ReadIndirectionTable());
                     }
                     // else remains empty
                 }
-                _tail = savedPos;
+                _pos = savedPos;
             }
 
             // Read the instance.
@@ -1823,9 +1823,9 @@ namespace Ice
         private void ReadNumericArray(Array dst)
         {
             int byteCount = System.Buffer.ByteLength(dst);
-            Debug.Assert(_buffer.Count - _tail >= byteCount);
-            System.Buffer.BlockCopy(_buffer.Array, _buffer.Offset + _tail, dst, 0, byteCount);
-            _tail += byteCount;
+            Debug.Assert(_buffer.Count - _pos >= byteCount);
+            System.Buffer.BlockCopy(_buffer.Array, _buffer.Offset + _pos, dst, 0, byteCount);
+            _pos += byteCount;
         }
 
         private enum InstanceType { Class, Exception }
