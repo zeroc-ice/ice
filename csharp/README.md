@@ -28,7 +28,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
  - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
- - the [.NET Core 3.0 SDK][5], if you use Visual Studio 2019
+ - the [.NET Core 3.1 SDK][5], if you use Visual Studio 2019
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -60,7 +60,7 @@ The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
 `NetStandardBuildDist` targets allow you to build assemblies only for the .NET
 Framework 4.5 or .NET Standard 2.0, with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp3.0` when using Visual
+The iceboxnet and test applications target `netcoreapp3.1` when using Visual
 Studio 2019 and `netcoreapp2.1` when using Visual Studio 2017. You can change
 the target framework by setting the `AppTargetFramework` property to a different
 Target Framework Moniker value, for example:
@@ -116,7 +116,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4] or [.NET Core 3.0 SDK][5] to build
+You need the [.NET Core 2.1 SDK][4] or [.NET Core 3.1 SDK][5] to build
 Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
@@ -139,8 +139,8 @@ You can skip the build of the test suite with the `BuildDist` target:
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The iceboxnet and test applications target `netcoreapp3.0` when using .NET Core
-3.0 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the
+The iceboxnet and test applications target `netcoreapp3.1` when using .NET Core
+3.1 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the
 target framework by setting the `AppTargetFramework` property to a different
 Target Framework Moniker value, for example:
 
@@ -180,9 +180,9 @@ For example to run test build against .NET Framework 4.6.2:
 python allTests.py --framework=net462
 ```
 
-And to run test build against .NET Core 3.0:
+And to run test build against .NET Core 3.1:
 ```
-python allTests.py --dotnetcore --framework=netcoreapp3.0
+python allTests.py --dotnetcore --framework=netcoreapp3.1
 ```
 
 ## NuGet Package
@@ -204,7 +204,7 @@ directory.
 > also includes assemblies for .NET Standard 2.0.
 >
 > If you build with Visual Studio 2019 the NuGet package include iceboxnet
-> executables targeting .NET Framework 4.5, .NET Core 3.0 and .NET Core 2.1.
+> executables targeting .NET Framework 4.5, .NET Core 3.1 and .NET Core 2.1.
 >
 > If you build with Visual Studio 2017 the NuGet package include iceboxnet
 > executables targeting .NET Framework 4.5 and .NET Core 2.1.
@@ -312,5 +312,5 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/ice/4.0/release-notes/supported-platforms-for-ice-4-0-0
 [4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
-[5]: https://dotnet.microsoft.com/download/dotnet-core/3.0
+[5]: https://dotnet.microsoft.com/download/dotnet-core/3.1
 [6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
