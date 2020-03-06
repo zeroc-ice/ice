@@ -19,20 +19,6 @@ namespace Ice
         public bool IsOneway => RequestId == 0;
         public Encoding Encoding { get; }
 
-        internal Current(ObjectAdapter adapter, Identity id, string facet, string operation, bool idempotent,
-            Dictionary<string, string> ctx, int requestId, Connection? connection, Encoding encoding)
-        {
-            Adapter = adapter;
-            Id = id;
-            Facet = facet;
-            Operation = operation;
-            IsIdempotent = idempotent;
-            Context = ctx;
-            RequestId = requestId;
-            Connection = connection;
-            Encoding = encoding;
-        }
-
         internal Current(int requestId, InputStream request, ObjectAdapter adapter, Ice.Connection? connection = null)
         {
             Adapter = adapter;
