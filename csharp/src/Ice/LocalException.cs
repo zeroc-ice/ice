@@ -503,8 +503,6 @@ namespace Ice
         {
         }
 
-        public override string ToString() => base.ToString();
-
         public override string ice_id() => "::Ice::ConnectionLostException";
     }
 

@@ -145,7 +145,7 @@ namespace IceInternal
             return true;
         }
 
-        private async ValueTask InvokeAllAsync(Ice.OutputStream ostr, int requestId)
+        private async ValueTask InvokeAllAsync(Ice.OutputStream os, int requestId)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -155,16 +155,16 @@ namespace IceInternal
             {
                 if (_traceLevels.Protocol >= 1)
                 {
-                    FillInValue(ostr, new Ice.OutputStream.Position(0, 10), ostr.Size);
+                    FillInValue(os, new Ice.OutputStream.Position(0, 10), os.Size);
                     if (requestId > 0)
                     {
-                        FillInValue(ostr, new Ice.OutputStream.Position(0, Ice1Definitions.HeaderSize), requestId);
+                        FillInValue(os, new Ice.OutputStream.Position(0, Ice1Definitions.HeaderSize), requestId);
                     }
-                    TraceUtil.TraceSend(ostr, _logger, _traceLevels);
+                    TraceUtil.TraceSend(os, _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var requestFrame = new Ice.InputStream(ostr.Communicator, ostr.Encoding, ostr.ToArray());
+                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, os.ToArray());
                 requestFrame.Pos = Ice1Definitions.RequestHeader.Length;
 
                 int start = requestFrame.Pos;

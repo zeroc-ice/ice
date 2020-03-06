@@ -412,9 +412,9 @@ namespace Ice
             }
         }
 
-        internal int SendAsyncRequest(OutgoingAsyncBase outgoing, bool compress, bool response)
+        internal int SendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response)
         {
-            OutputStream ostr = outgoing.GetOs();
+            OutputStream os = og.GetOs();
             lock (this)
             {
                 //
@@ -434,13 +434,13 @@ namespace Ice
                 // Ensure the message isn't bigger than what we can send with the
                 // transport.
                 //
-                _transceiver.CheckSendSize(ostr.Size);
+                _transceiver.CheckSendSize(os.Size);
 
                 //
                 // Notify the request that it's cancelable with this connection.
                 // This will throw if the request is canceled.
                 //
-                outgoing.Cancelable(this);
+                og.Cancelable(this);
                 int requestId = 0;
                 if (response)
                 {
@@ -457,15 +457,15 @@ namespace Ice
                     //
                     // Fill in the request ID.
                     //
-                    ostr.RewriteInt(requestId, new OutputStream.Position(0, Ice1Definitions.HeaderSize));
+                    os.RewriteInt(requestId, new OutputStream.Position(0, Ice1Definitions.HeaderSize));
                 }
 
-                outgoing.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
+                og.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
 
                 int status = OutgoingAsyncBase.AsyncStatusQueued;
                 try
                 {
-                    var message = new OutgoingMessage(outgoing, ostr, compress, requestId);
+                    var message = new OutgoingMessage(og, os, compress, requestId);
                     status = SendMessage(message);
                 }
                 catch (LocalException ex)
@@ -480,7 +480,7 @@ namespace Ice
                     //
                     // Add to the async requests map.
                     //
-                    _asyncRequests[requestId] = outgoing;
+                    _asyncRequests[requestId] = og;
                 }
                 return status;
             }

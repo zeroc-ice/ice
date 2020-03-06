@@ -116,7 +116,7 @@ namespace IceInternal
                         //
                         // Check if we have enough data for a complete message.
                         //
-                        int p = HttpParser.IsCompleteMessage(_readBuffer, _readBufferOffset);
+                        int p = HttpParser.IsCompleteMessage(_readBuffer.AsSpan(0, _readBufferOffset));
                         if (p == -1)
                         {
                             if (_readBufferOffset < _readBuffer.Count)
@@ -727,7 +727,7 @@ namespace IceInternal
             }
             else if (value.IndexOf("upgrade") == -1)
             {
-                throw new WebSocketException("invalid value `" + value + "' for Connection field");
+                throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
 
             //
@@ -740,7 +740,7 @@ namespace IceInternal
             }
             else if (!value.Equals("13"))
             {
-                throw new WebSocketException("unsupported WebSocket version `" + value + "'");
+                throw new WebSocketException($"unsupported WebSocket version `{value}'");
             }
 
             //
@@ -758,11 +758,11 @@ namespace IceInternal
                     throw new WebSocketException($"invalid value `{value}' for WebSocket protocol");
                 }
 
-                foreach (string p in protocols)
+                foreach (string protocol in protocols)
                 {
-                    if (!p.Trim().Equals(IceProtocol))
+                    if (!protocol.Trim().Equals(IceProtocol))
                     {
-                        throw new WebSocketException($"unknown value `{p}' for WebSocket protocol");
+                        throw new WebSocketException($"unknown value `{protocol}' for WebSocket protocol");
                     }
                     addProtocol = true;
                 }
@@ -858,14 +858,14 @@ namespace IceInternal
             //  insensitive match for the value "websocket", the client MUST
             //  _Fail the WebSocket Connection_."
             //
-            string? val = _parser.GetHeader("Upgrade", true);
-            if (val == null)
+            string? value = _parser.GetHeader("Upgrade", true);
+            if (value == null)
             {
                 throw new WebSocketException("missing value for Upgrade field");
             }
-            else if (!val.Equals("websocket"))
+            else if (!value.Equals("websocket"))
             {
-                throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
+                throw new WebSocketException($"invalid value `{value}' for Upgrade field");
             }
 
             //
@@ -874,14 +874,14 @@ namespace IceInternal
             //  ASCII case-insensitive match for the value "Upgrade", the client
             //  MUST _Fail the WebSocket Connection_."
             //
-            val = _parser.GetHeader("Connection", true);
-            if (val == null)
+            value = _parser.GetHeader("Connection", true);
+            if (value == null)
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (val.IndexOf("upgrade") == -1)
+            else if (value.IndexOf("upgrade") == -1)
             {
-                throw new WebSocketException("invalid value `" + val + "' for Connection field");
+                throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
 
             //
@@ -891,10 +891,10 @@ namespace IceInternal
             //  subprotocol not requested by the client), the client MUST _Fail
             //  the WebSocket Connection_."
             //
-            val = _parser.GetHeader("Sec-WebSocket-Protocol", true);
-            if (val != null && !val.Equals(IceProtocol))
+            value = _parser.GetHeader("Sec-WebSocket-Protocol", true);
+            if (value != null && !value.Equals(IceProtocol))
             {
-                throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+                throw new WebSocketException($"invalid value `{value}' for WebSocket protocol");
             }
 
             //
@@ -906,8 +906,8 @@ namespace IceInternal
             //  trailing whitespace, the client MUST _Fail the WebSocket
             //  Connection_."
             //
-            val = _parser.GetHeader("Sec-WebSocket-Accept", false);
-            if (val == null)
+            value = _parser.GetHeader("Sec-WebSocket-Accept", false);
+            if (value == null)
             {
                 throw new WebSocketException("missing value for Sec-WebSocket-Accept");
             }
@@ -916,9 +916,9 @@ namespace IceInternal
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
-            if (!val.Equals(Convert.ToBase64String(hash)))
+            if (!value.Equals(Convert.ToBase64String(hash)))
             {
-                throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
+                throw new WebSocketException($"invalid value `{value}' for Sec-WebSocket-Accept");
             }
         }
 
@@ -1139,7 +1139,7 @@ namespace IceInternal
                             }
                         default:
                             {
-                                throw new ProtocolException("unsupported opcode: " + _readOpCode);
+                                throw new ProtocolException($"unsupported opcode: {_readOpCode}");
                             }
                     }
                 }

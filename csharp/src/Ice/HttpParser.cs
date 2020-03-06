@@ -54,17 +54,16 @@ namespace IceInternal
         /// a complete HTTP message it returns the end index of the HTTP message, otherwise
         /// it returns -1.</summary>
         /// <param name="buffer">The buffer to check for HTTP messages.</param>
-        /// <param name="endOffset">The zero-base byte offset at what the message data ends.</param>
         /// <returns>The last index of the HTTP message if the buffer contains a complete HTTP message,
         /// otherwise -1.</returns>
-        internal static int IsCompleteMessage(ArraySegment<byte> buffer, int endOffset)
+        internal static int IsCompleteMessage(ReadOnlySpan<byte> buffer)
         {
             int p = 0;
 
             //
             // Skip any leading CR-LF characters.
             //
-            while (p < endOffset)
+            while (p < buffer.Length)
             {
                 byte ch = buffer[p];
                 if (ch != (byte)'\r' && ch != (byte)'\n')
@@ -78,7 +77,7 @@ namespace IceInternal
             // Look for adjacent CR-LF/CR-LF or LF/LF.
             //
             bool seenFirst = false;
-            while (p < endOffset)
+            while (p < buffer.Length)
             {
                 byte ch = buffer[p++];
                 if (ch == (byte)'\n')
@@ -101,7 +100,7 @@ namespace IceInternal
             return -1;
         }
 
-        internal bool Parse(ArraySegment<byte> buffer)
+        internal bool Parse(ReadOnlySpan<byte> buffer)
         {
             int p = 0;
             int start = 0;
@@ -113,7 +112,7 @@ namespace IceInternal
                 _state = State.Init;
             }
 
-            while (p < buffer.Count && _state != State.Complete)
+            while (p < buffer.Length && _state != State.Complete)
             {
                 char c = (char)buffer[p];
 

@@ -196,7 +196,7 @@ namespace IceInternal
             // Check if we received the full HTTP response, if not, continue
             // reading otherwise we're done.
             //
-            int end = HttpParser.IsCompleteMessage(buffer, offset);
+            int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, offset));
             if (end < 0 && offset == buffer.Count)
             {
                 //

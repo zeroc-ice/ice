@@ -199,7 +199,6 @@ namespace IceInternal
             Debug.Assert(offset == 0);
             Debug.Assert(_fd != null);
 
-            // Allocate a new buffer if the required
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
             if (packetSize > buffer.Count)
             {
