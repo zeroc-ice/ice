@@ -350,7 +350,7 @@ namespace IceInternal
         public static Ice.InputStream Uncompress(Ice.InputStream compressed, int headerSize, int messageSizeMax)
         {
             Debug.Assert(Supported());
-            int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4));
+            int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4).Span);
             if (uncompressedSize <= headerSize)
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");

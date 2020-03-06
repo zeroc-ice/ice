@@ -33,9 +33,7 @@ namespace IceInternal
         {
             _type = type;
             _rawEncoding = s.Encoding;
-            int sz = s.GetEncapsulationSize();
-            _rawBytes = new byte[sz];
-            s.ReadBlob(_rawBytes);
+            _rawBytes = s.ReadBlob(s.GetEncapsulationSize());
         }
 
         //
