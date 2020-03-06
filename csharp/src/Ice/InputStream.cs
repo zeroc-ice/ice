@@ -231,7 +231,7 @@ namespace Ice
             Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
-            _tail += (encapsHeader.Size - 6);
+            _tail += encapsHeader.Size - 6;
             return encapsHeader.Encoding;
         }
 
