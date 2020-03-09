@@ -79,7 +79,7 @@ namespace Ice.retry
                 retry2.op(true);
                 test(false);
             }
-            catch (UnknownLocalException)
+            catch (UnhandledException)
             {
                 // Expected with collocation
             }
@@ -115,7 +115,7 @@ namespace Ice.retry
             catch (System.AggregateException ex)
             {
                 test(ex.InnerException is ConnectionLostException ||
-                        ex.InnerException is UnknownLocalException);
+                        ex.InnerException is UnhandledException);
             }
 
             Instrumentation.testInvocationCount(1);
@@ -148,7 +148,7 @@ namespace Ice.retry
                 {
                     retry1.Clone(fixedConnection: retry1.GetCachedConnection()).opIdempotent(4);
                 }
-                catch (Ice.Exception)
+                catch (Ice.UnhandledException)
                 {
                 }
                 Instrumentation.testInvocationCount(1);
@@ -157,7 +157,7 @@ namespace Ice.retry
                 test(retry1.opIdempotent(4) == 4);
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
-                // It suceeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+                // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
                 Instrumentation.testRetryCount(3);
                 output.WriteLine("ok");
             }
@@ -168,7 +168,7 @@ namespace Ice.retry
                 retry1.opNotIdempotent();
                 test(false);
             }
-            catch (Ice.LocalException)
+            catch (Ice.UnhandledException)
             {
             }
             Instrumentation.testInvocationCount(1);
@@ -181,43 +181,38 @@ namespace Ice.retry
             }
             catch (System.AggregateException ex)
             {
-                test(ex.InnerException is LocalException);
+                test(ex.InnerException is UnhandledException);
             }
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(1);
             Instrumentation.testRetryCount(0);
             output.WriteLine("ok");
 
-            if (retry1.GetConnection() == null)
+            output.Write("testing system exception... "); // it's just a regular remote exception
+            try
             {
-                Instrumentation.testInvocationCount(1);
-
-                output.Write("testing system exception... ");
-                try
-                {
-                    retry1.opSystemException();
-                    test(false);
-                }
-                catch (SystemFailure)
-                {
-                }
-                Instrumentation.testInvocationCount(1);
-                Instrumentation.testFailureCount(1);
-                Instrumentation.testRetryCount(0);
-                try
-                {
-                    retry1.opSystemExceptionAsync().Wait();
-                    test(false);
-                }
-                catch (System.AggregateException ex)
-                {
-                    test(ex.InnerException is SystemFailure);
-                }
-                Instrumentation.testInvocationCount(1);
-                Instrumentation.testFailureCount(1);
-                Instrumentation.testRetryCount(0);
-                output.WriteLine("ok");
+                retry1.opSystemException();
+                test(false);
             }
+            catch (Test.SystemFailure)
+            {
+            }
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(0);
+            Instrumentation.testRetryCount(0);
+            try
+            {
+                retry1.opSystemExceptionAsync().Wait();
+                test(false);
+            }
+            catch (System.AggregateException ex)
+            {
+                test(ex.InnerException is Test.SystemFailure);
+            }
+            Instrumentation.testInvocationCount(1);
+            Instrumentation.testFailureCount(0);
+            Instrumentation.testRetryCount(0);
+            output.WriteLine("ok");
 
             {
                 output.Write("testing invocation timeout and retries... ");

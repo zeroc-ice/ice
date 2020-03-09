@@ -73,8 +73,10 @@ namespace Ice
             {
                 throw exception;
             }
-            catch (RequestFailedException ex)
+            catch (DispatchException ex)
             {
+                // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
+
                 if (ex.Id.Name == null || ex.Id.Name.Length == 0)
                 {
                     ex.Id = current.Id;
@@ -95,10 +97,6 @@ namespace Ice
                 if (ex is ObjectNotExistException)
                 {
                     replyStatus = ReplyStatus.ObjectNotExistException;
-                }
-                else if (ex is FacetNotExistException)
-                {
-                    replyStatus = ReplyStatus.FacetNotExistException;
                 }
                 else if (ex is OperationNotExistException)
                 {
@@ -123,22 +121,19 @@ namespace Ice
                 }
                 WriteString(ex.Operation);
             }
-            catch (UnknownLocalException ex)
+            catch (RequestFailedException ex)
             {
                 WriteByte((byte)ReplyStatus.UnknownLocalException);
-                WriteString(ex.Unknown);
+                if (ex.IceMessage.Length > 0)
+                {
+                    WriteString(ex.IceMessage);
+                }
+                else
+                {
+                    WriteString(ex.ToString());
+                }
             }
-            catch (UnknownUserException ex)
-            {
-                WriteByte((byte)ReplyStatus.UnknownUserException);
-                WriteString(ex.Unknown);
-            }
-            catch (UnknownException ex)
-            {
-                WriteByte((byte)ReplyStatus.UnknownException);
-                WriteString(ex.Unknown);
-            }
-            catch (UserException ex)
+            catch (RemoteException ex)
             {
                 WriteByte((byte)ReplyStatus.UserException);
                 StartEncapsulation(current.Encoding, FormatType.SlicedFormat);

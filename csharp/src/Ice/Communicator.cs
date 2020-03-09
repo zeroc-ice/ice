@@ -1612,7 +1612,7 @@ namespace Ice
             }
         }
 
-        internal int CheckRetryAfterException(LocalException ex, Reference reference, ref int cnt)
+        internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)
         {
             ILogger logger = Logger;
 
@@ -1650,8 +1650,7 @@ namespace Ice
 
                     if (TraceLevels.Retry >= 1)
                     {
-                        string s = "retrying operation call to add proxy to router\n" + ex;
-                        logger.Trace(TraceLevels.RetryCat, s);
+                        logger.Trace(TraceLevels.RetryCat, $"retrying operation call to add proxy to router\n {ex}");
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
@@ -1674,10 +1673,6 @@ namespace Ice
                     //
                     throw ex;
                 }
-            }
-            else if (ex is RequestFailedException)
-            {
-                throw ex;
             }
 
             //

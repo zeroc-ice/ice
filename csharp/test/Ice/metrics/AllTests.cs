@@ -814,7 +814,7 @@ public class AllTests : Test.AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch (Ice.LocalException)
+        catch (Ice.UnhandledException)
         {
         }
         try
@@ -822,7 +822,7 @@ public class AllTests : Test.AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch (Ice.UnknownException)
+        catch (Ice.UnhandledException)
         {
         }
         if (!collocated)
@@ -855,8 +855,8 @@ public class AllTests : Test.AllTests
         test(dm1.Size == 39 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
         dm1 = (IceMX.DispatchMetrics)map["opWithRequestFailedException"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
-        checkFailure(serverMetrics, "Dispatch", dm1.Id, "::Ice::ObjectNotExistException", 1, output);
+        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
+        // checkFailure(serverMetrics, "Dispatch", dm1.Id, "::Ice::ObjectNotExistException", 1, output);
         test(dm1.Size == 47 && dm1.ReplySize == 40);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUnknownException"];
@@ -962,7 +962,7 @@ public class AllTests : Test.AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch (Ice.LocalException)
+        catch (Ice.UnhandledException)
         {
         }
         try
@@ -972,7 +972,7 @@ public class AllTests : Test.AllTests
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is Ice.LocalException);
+            test(ex.InnerException is Ice.UnhandledException);
         }
 
         try
@@ -980,7 +980,7 @@ public class AllTests : Test.AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch (Ice.UnknownException)
+        catch (Ice.UnhandledException)
         {
         }
 
@@ -991,7 +991,7 @@ public class AllTests : Test.AllTests
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is Ice.UnknownException);
+            test(ex.InnerException is Ice.UnhandledException);
         }
 
         if (!collocated)
@@ -1042,7 +1042,7 @@ public class AllTests : Test.AllTests
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
         test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
         test(rim1.Size == 78 && rim1.ReplySize > 7);
-        checkFailure(clientMetrics, "Invocation", im1.Id, "::Ice::UnknownLocalException", 2, output);
+        checkFailure(clientMetrics, "Invocation", im1.Id, "::Ice::UnhandledException", 2, output);
 
         im1 = (IceMX.InvocationMetrics)map["opWithRequestFailedException"];
         test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
@@ -1058,7 +1058,7 @@ public class AllTests : Test.AllTests
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
         test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
         test(rim1.Size == 82 && rim1.ReplySize > 7);
-        checkFailure(clientMetrics, "Invocation", im1.Id, "::Ice::UnknownException", 2, output);
+        checkFailure(clientMetrics, "Invocation", im1.Id, "::Ice::UnhandledException", 2, output);
 
         if (!collocated)
         {

@@ -49,6 +49,8 @@ public class AllTests : Test.AllTests
             ex.p2 = ex.p1;
             throw ex;
         }
+
+        public void clientPrivateException(Ice.Current current) => throw new ClientPrivateException("ClientPrivate");
     }
 
     public static ITestIntfPrx allTests(Test.TestHelper helper, bool collocated)
@@ -717,12 +719,29 @@ public class AllTests : Test.AllTests
                 // Exceptions are always marshaled in sliced format; format:compact applies only to in-parameters and
                 // return values.
             }
-            catch (Ice.UnknownUserException)
+            catch (Ice.OperationNotExistException)
+            {
+            }
+            catch (System.Exception)
             {
                 test(false);
             }
-            catch (Ice.OperationNotExistException)
+        }
+        output.WriteLine("ok");
+
+        output.Write("completely unknown server-private exception... ");
+        output.Flush();
+        {
+            try
             {
+                testPrx.serverPrivateException();
+                test(false);
+            }
+            catch (RemoteException ex)
+            {
+                SlicedData slicedData = ex.GetSlicedData()!.Value;
+                test(slicedData.Slices.Count == 1);
+                test(slicedData.Slices[0].TypeId! == "::Test::ServerPrivateException");
             }
             catch (System.Exception)
             {
@@ -846,6 +865,20 @@ public class AllTests : Test.AllTests
             }
             catch (Ice.OperationNotExistException)
             {
+            }
+            catch (System.Exception)
+            {
+                test(false);
+            }
+
+            try
+            {
+                testPrx.relayClientPrivateException(relay);
+                test(false);
+            }
+            catch (ClientPrivateException ex)
+            {
+                test(ex.cpe == "ClientPrivate");
             }
             catch (System.Exception)
             {

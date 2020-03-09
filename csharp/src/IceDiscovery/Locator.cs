@@ -86,7 +86,7 @@ namespace IceDiscovery
                         prx.Clone(adapterId: entry.Key).IcePing();
                         adapterIds.Add(entry.Key);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                     }
                 }
@@ -99,7 +99,7 @@ namespace IceDiscovery
                             prx.Clone(adapterId: entry.Key).IcePing();
                             adapterIds.Add(entry.Key);
                         }
-                        catch (Exception)
+                        catch (System.Exception)
                         {
                         }
                     }

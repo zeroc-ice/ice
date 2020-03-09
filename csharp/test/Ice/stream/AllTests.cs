@@ -576,7 +576,7 @@ namespace Ice.stream
                     test(Compare(ex1.c.seq8, c.seq8));
                     test(Compare(ex1.c.seq9, c.seq9));
                 }
-                catch (UserException)
+                catch (RemoteException)
                 {
                     test(false);
                 }

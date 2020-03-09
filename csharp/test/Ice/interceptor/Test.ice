@@ -26,19 +26,14 @@ interface MyObject
     int addWithRetry(int x, int y);
 
     //
-    // Raise user exception
+    // Throws remote exception
     //
-    int badAdd(int x, int y) throws InvalidInputException;
+    int badAdd(int x, int y);
 
     //
-    // Raise ONE
+    // Throws ONE
     //
     int notExistAdd(int x, int y);
-
-    //
-    // Raise system exception
-    //
-    int badSystemAdd(int x, int y);
 
     //
     // AMD version of the above:
@@ -55,20 +50,13 @@ interface MyObject
     ["amd"] int amdAddWithRetry(int x, int y);
 
     //
-    // Raise user exception
+    // Throws remote exception
     //
-    ["amd"] int amdBadAdd(int x, int y) throws InvalidInputException;
+    ["amd"] int amdBadAdd(int x, int y);
 
     //
-    // Raise ONE
+    // Throws ONE
     //
     ["amd"] int amdNotExistAdd(int x, int y);
-
-    //
-    // Raise system exception
-    //
-    ["amd"] int amdBadSystemAdd(int x, int y);
-
 }
-
 }

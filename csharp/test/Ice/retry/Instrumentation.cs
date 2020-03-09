@@ -45,7 +45,7 @@ namespace Ice.retry
             }
 
             public void
-            UserException()
+            RemoteException()
             {
             }
 

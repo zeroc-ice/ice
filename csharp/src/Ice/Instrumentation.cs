@@ -75,7 +75,7 @@ namespace Ice
 
         public partial interface IDispatchObserver : IObserver
         {
-            void UserException();
+            void RemoteException();
 
             /// <summary>
             /// Reply notification.
@@ -104,7 +104,7 @@ namespace Ice
         public partial interface IInvocationObserver : IObserver
         {
             void Retried();
-            void UserException();
+            void RemoteException();
 
             /// <summary>
             /// Get a remote observer for this invocation.

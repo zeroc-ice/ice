@@ -6,12 +6,6 @@ using System.Threading.Tasks;
 
 namespace Ice.interceptor
 {
-    class MySystemException : SystemException
-    {
-        override public string
-        ice_id() => "::MySystemException";
-    };
-
     class MyObject : Test.IMyObject
     {
         protected static void
@@ -42,9 +36,6 @@ namespace Ice.interceptor
         public int
         notExistAdd(int x, int y, Current current) => throw new ObjectNotExistException();
 
-        public int
-        badSystemAdd(int x, int y, Current current) => throw new MySystemException();
-
         //
         // AMD
         //
@@ -69,25 +60,16 @@ namespace Ice.interceptor
             }
         }
 
-        public async ValueTask<int>
-        amdBadAddAsync(int x, int y, Current current)
+        public async ValueTask<int> amdBadAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new Test.InvalidInputException();
         }
 
-        public async ValueTask<int>
-        amdNotExistAddAsync(int x, int y, Current current)
+        public async ValueTask<int> amdNotExistAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new ObjectNotExistException();
-        }
-
-        public async ValueTask<int>
-        amdBadSystemAddAsync(int x, int y, Current current)
-        {
-            await Task.Delay(10);
-            throw new MySystemException();
         }
     }
 }

@@ -27,7 +27,6 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 }
 
-["preserve-slice"]
 exception KnownPreserved extends Base
 {
     string kp;
@@ -52,6 +51,8 @@ interface Relay
 
     void unknownPreservedAsBase() throws Base;
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void clientPrivateException();
 }
 
 ["format:sliced"]
@@ -78,6 +79,8 @@ interface TestIntf
     void knownPreservedAsBase() throws Base;
     void knownPreservedAsKnownPreserved() throws KnownPreserved;
 
+    void serverPrivateException();
+
     void relayKnownPreservedAsBase(Relay* r) throws Base;
     void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
 
@@ -86,6 +89,8 @@ interface TestIntf
 
     void relayUnknownPreservedAsBase(Relay* r) throws Base;
     void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+
+    void relayClientPrivateException(Relay* r);
 
     void shutdown();
 }

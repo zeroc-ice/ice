@@ -440,35 +440,29 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public int IceHandleException(Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
+        public int IceHandleException(System.Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
             IceUpdateRequestHandler(handler, null); // Clear the request handler
 
+            // We only retry after failing with a RequestFailedException or a local exception.
             //
-            // We only retry local exception, system exceptions aren't retried.
+            // A CloseConnectionException indicates graceful server shutdown, and is therefore always repeatable without
+            // violating "at-most-once". That's because by sending a close connection message, the server guarantees
+            // that all outstanding requests can safely be repeated.
             //
-            // A CloseConnectionException indicates graceful server shutdown, and is therefore
-            // always repeatable without violating "at-most-once". That's because by sending a
-            // close connection message, the server guarantees that all outstanding requests
-            // can safely be repeated.
+            // An ObjectNotExistException can always be retried as well without violating "at-most-once" (see the
+            // implementation of the checkRetryAfterException method of the ProxyFactory class for the reasons why it
+            // can be useful).
             //
-            // An ObjectNotExistException can always be retried as well without violating
-            // "at-most-once" (see the implementation of the checkRetryAfterException method
-            //  of the ProxyFactory class for the reasons why it can be useful).
-            //
-            // If the request didn't get sent or if it's non-mutating or idempotent it can
-            // also always be retried if the retry count isn't reached.
-            //
-            if (ex is LocalException && (!sent ||
-                                        idempotent ||
-                                        ex is CloseConnectionException ||
-                                        ex is ObjectNotExistException))
+            // If the request was not sent or the operation is idempotent it can also always be retried if the retry
+            // count isn't reached.
+            if (ex is ObjectNotExistException || ex is CloseConnectionException ||
+                ((ex is RequestFailedException || ex is LocalException) && (!sent || idempotent)))
             {
                 try
                 {
-                    return IceReference.GetCommunicator().CheckRetryAfterException((LocalException)ex, IceReference,
-                        ref cnt);
+                    return IceReference.GetCommunicator().CheckRetryAfterException(ex, IceReference, ref cnt);
                 }
                 catch (CommunicatorDestroyedException)
                 {

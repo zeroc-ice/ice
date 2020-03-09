@@ -2623,8 +2623,17 @@ namespace Ice
                 {
                     if (requestId != 0)
                     {
-                        Incoming.ReportException(ex, dispatchObserver, current);
-                        responseFrame = new OutgoingResponseFrame(current, ex);
+                        Ice.RemoteException actualEx;
+                        if (ex is Ice.RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                        {
+                            actualEx = remoteEx;
+                        }
+                        else
+                        {
+                            actualEx = new UnhandledException(current.Id, current.Facet, current.Operation, ex);
+                        }
+                        Incoming.ReportException(actualEx, dispatchObserver, current);
+                        responseFrame = new OutgoingResponseFrame(current, actualEx);
                     }
                 }
 

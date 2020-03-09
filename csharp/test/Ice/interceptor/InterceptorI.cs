@@ -26,17 +26,13 @@ namespace Ice.interceptor
         {
             if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
             {
-                if (context.Equals("user"))
+                if (context.Equals("invalidInput"))
                 {
                     throw new Test.InvalidInputException();
                 }
                 else if (context.Equals("notExist"))
                 {
                     throw new Ice.ObjectNotExistException();
-                }
-                else if (context.Equals("system"))
-                {
-                    throw new MySystemException();
                 }
             }
 
@@ -77,17 +73,13 @@ namespace Ice.interceptor
 
             if (current.Context.TryGetValue("raiseAfterDispatch", out context))
             {
-                if (context.Equals("user"))
+                if (context.Equals("invalidInput"))
                 {
                     throw new Test.InvalidInputException();
                 }
                 else if (context.Equals("notExist"))
                 {
                     throw new Ice.ObjectNotExistException();
-                }
-                else if (context.Equals("system"))
-                {
-                    throw new MySystemException();
                 }
             }
 

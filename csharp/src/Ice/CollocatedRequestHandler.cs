@@ -201,20 +201,22 @@ namespace IceInternal
                         SendResponse(requestId, responseFrame, amd);
                     }
                 }
-                catch (Ice.SystemException ex)
-                {
-                    Incoming.ReportException(ex, dispatchObserver, current);
-                    // Forward the exception to the caller without marshaling
-                    HandleException(requestId, ex, amd);
-                }
                 catch (System.Exception ex)
                 {
-                    Incoming.ReportException(ex, dispatchObserver, current);
                     if (requestId != 0)
                     {
-                        // For now, marshal it
-                        // TODO: revisit during exception refactoring.
-                        var responseFrame = new Ice.OutgoingResponseFrame(current, ex);
+                        Ice.RemoteException actualEx;
+                        if (ex is Ice.RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                        {
+                            actualEx = remoteEx;
+                        }
+                        else
+                        {
+                            actualEx = new UnhandledException(current.Id, current.Facet, current.Operation, ex);
+                        }
+
+                        Incoming.ReportException(actualEx, dispatchObserver, current);
+                        var responseFrame = new Ice.OutgoingResponseFrame(current, actualEx);
                         dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
                         SendResponse(requestId, responseFrame, amd);
                     }

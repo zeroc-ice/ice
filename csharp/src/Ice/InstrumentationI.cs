@@ -769,12 +769,12 @@ namespace IceInternal
         Ice.Instrumentation.IDispatchObserver
     {
         public void
-        UserException()
+        RemoteException()
         {
-            ForEach(UserException);
+            ForEach(RemoteException);
             if (Delegate != null)
             {
-                Delegate.UserException();
+                Delegate.RemoteException();
             }
         }
 
@@ -787,7 +787,7 @@ namespace IceInternal
             }
         }
 
-        private void UserException(DispatchMetrics v) => ++v.UserException;
+        private void RemoteException(DispatchMetrics v) => ++v.UserException;
     }
 
     public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, Ice.Instrumentation.IRemoteObserver>,
@@ -820,12 +820,12 @@ namespace IceInternal
         Ice.Instrumentation.IInvocationObserver
     {
         public void
-        UserException()
+        RemoteException()
         {
-            ForEach(UserException);
+            ForEach(RemoteException);
             if (Delegate != null)
             {
-                Delegate.UserException();
+                Delegate.RemoteException();
             }
         }
 
@@ -870,7 +870,7 @@ namespace IceInternal
 
         private void IncrementRetry(InvocationMetrics v) => ++v.Retry;
 
-        private void UserException(InvocationMetrics v) => ++v.UserException;
+        private void RemoteException(InvocationMetrics v) => ++v.UserException;
     }
 
     public class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, Ice.Instrumentation.IThreadObserver>,

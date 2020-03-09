@@ -74,7 +74,7 @@ namespace Ice
                 }
             }
 
-            public void Exception(LocatorInfo locatorInfo, Exception exc)
+            public void Exception(LocatorInfo locatorInfo, System.Exception exc)
             {
                 try
                 {
@@ -96,7 +96,7 @@ namespace Ice
             protected readonly Reference Ref;
 
             private readonly List<RequestCallback> _callbacks = new List<RequestCallback>();
-            private Exception? _exception;
+            private System.Exception? _exception;
             private IObjectPrx? _proxy;
             private bool _response;
             private bool _sent;
@@ -158,11 +158,11 @@ namespace Ice
                 }
             }
 
-            internal void Exception(Exception ex)
+            internal void Exception(System.Exception ex)
             {
                 lock (this)
                 {
-                    LocatorInfo.FinishRequest(Ref, _wellKnownRefs, null, ex is UserException);
+                    LocatorInfo.FinishRequest(Ref, _wellKnownRefs, null, ex is RemoteException);
                     _exception = ex;
                     Monitor.PulseAll(this);
                 }
@@ -195,12 +195,11 @@ namespace Ice
                             }
                             catch (AggregateException ex)
                             {
-                                Debug.Assert(ex.InnerException is Ice.Exception);
-                                Exception((Ice.Exception)ex.InnerException);
+                                Exception(ex.InnerException);
                             }
                         });
                 }
-                catch (Ice.Exception ex)
+                catch (System.Exception ex)
                 {
                     Exception(ex);
                 }
@@ -227,12 +226,11 @@ namespace Ice
                             }
                             catch (AggregateException ex)
                             {
-                                Debug.Assert(ex.InnerException is Ice.Exception);
-                                Exception((Ice.Exception)ex.InnerException);
+                                Exception(ex.InnerException);
                             }
                         });
                 }
-                catch (Ice.Exception ex)
+                catch (System.Exception ex)
                 {
                     Exception(ex);
                 }

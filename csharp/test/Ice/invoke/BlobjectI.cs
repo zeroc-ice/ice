@@ -59,7 +59,7 @@ namespace Ice.invoke
             }
             else
             {
-                throw new OperationNotExistException(current.Id, current.Facet, current.Operation);
+                throw new OperationNotExistException(current.Id, current.Facet, current.Operation, "");
             }
         }
     }

@@ -26,12 +26,6 @@ namespace Ice
                 }
 
                 public ValueTask<bool>
-                supportsUndeclaredExceptionsAsync(Ice.Current current)
-                {
-                    return new ValueTask<bool>(true);
-                }
-
-                public ValueTask<bool>
                 supportsAssertExceptionAsync(Ice.Current current)
                 {
                     return new ValueTask<bool>(false);
@@ -152,6 +146,13 @@ namespace Ice
                     // Only supported with callback based AMD API
                     throw new Test.A();
                     //throw new Exception();
+                }
+
+                public ValueTask throwAConvertedToUnhandledAsync(Ice.Current current)
+                {
+                    var a = new Test.A();
+                    a.ConvertToUnhandled = true;
+                    throw a;
                 }
             }
         }

@@ -2,8 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using Ice;
+using System.Diagnostics;
+using Test;
 
 public sealed class TestIntf : ITestIntf
 {
@@ -63,17 +64,56 @@ public sealed class TestIntf : ITestIntf
     public void knownPreservedAsKnownPreserved(Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
 
-    public void relayKnownPreservedAsBase(IRelayPrx r, Current current)
+    public void serverPrivateException(Current current) => throw new ServerPrivateException("ServerPrivate");
+
+    public void relayKnownPreservedAsBase(IRelayPrx? r, Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.knownPreservedAsBase();
+        try
+        {
+            p.knownPreservedAsBase();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
     }
 
-    public void relayKnownPreservedAsKnownPreserved(IRelayPrx r, Current current)
+    public void relayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.knownPreservedAsKnownPreserved();
+        try
+        {
+            p.knownPreservedAsKnownPreserved();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
+        test(false);
+    }
+
+    public void relayClientPrivateException(IRelayPrx? r, Current current)
+    {
+        Debug.Assert(r != null);
+        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        try
+        {
+            p.clientPrivateException();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
     }
 
@@ -99,17 +139,37 @@ public sealed class TestIntf : ITestIntf
         throw ex;
     }
 
-    public void relayUnknownPreservedAsBase(IRelayPrx r, Current current)
+    public void relayUnknownPreservedAsBase(IRelayPrx? r, Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.unknownPreservedAsBase();
+        try
+        {
+            p.unknownPreservedAsBase();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
     }
 
-    public void relayUnknownPreservedAsKnownPreserved(IRelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Ice.Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.unknownPreservedAsKnownPreserved();
+        try
+        {
+            p.unknownPreservedAsKnownPreserved();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
     }
 }
