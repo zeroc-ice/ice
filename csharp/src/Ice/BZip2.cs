@@ -414,10 +414,12 @@ namespace IceInternal
                 return null;
             }
 
-            // Copy the header from the uncompressed stream to the compressed one.
-            byte[] header = stream.GetBytes(0, headerSize + 4);
-            var r = new Ice.OutputStream(stream.Communicator, stream.Encoding, header);
-
+            // Copy the header from the uncompressed stream to the compressed one,
+            // we use headerSize + 4 to ensure there is room for the size of the
+            // uncompressed stream in the first segment.
+            Debug.Assert(data.Count > 0 && data[0].Count > headerSize + 4);
+            var r = new Ice.OutputStream(stream.Communicator, stream.Encoding,
+                data[0].Slice(0, headerSize + 4).ToArray());
             // Add the size of the uncompressed stream before the message body.
             r.RewriteInt(stream.Size, new Ice.OutputStream.Position(0, headerSize));
             r.WritePayload(new ArraySegment<byte>(compressed, 0, compressedLen));
