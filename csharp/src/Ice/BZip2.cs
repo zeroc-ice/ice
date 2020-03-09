@@ -314,7 +314,7 @@ namespace IceInternal
                         rc = "BZ_UNEXPECTED_EOF";
                         break;
                     }
-                case BzOutbufFull:
+                case BzOutbuffFull:
                     {
                         rc = "BZ_OUTBUFF_FULL";
                         break;
@@ -399,7 +399,7 @@ namespace IceInternal
             int compressedLen = compressed.Length - (int)bzStream.AvailOut;
             compressedHandle.Free();
             _compressEnd(ref bzStream);
-            if (rc == BzOutbufFull)
+            if (rc == BzOutbuffFull)
             {
                 return null;
             }
@@ -478,7 +478,7 @@ namespace IceInternal
         private const int BzDataErrorMagic = -5;
         private const int BzIoError = -6;
         private const int BzUnexpectedEof = -7;
-        private const int BzOutbufFull = -8;
+        private const int BzOutbuffFull = -8;
         private const int BzConfigError = -9;
     }
 
