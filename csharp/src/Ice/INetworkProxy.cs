@@ -26,7 +26,7 @@ namespace IceInternal
         // Once the connection request has been sent, this is called
         // to prepare and read the response from the proxy server.
         //
-        void BeginRead(ref ArraySegment<byte> buffer);
+        ArraySegment<byte> BeginRead();
         int EndRead(ref ArraySegment<byte> buffer, int offset);
 
         //
@@ -106,7 +106,7 @@ namespace IceInternal
         }
 
         // Read the SOCKS4 response whose size is 8 bytes.
-        public void BeginRead(ref ArraySegment<byte> buffer) => buffer = new ArraySegment<byte>(new byte[8]);
+        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[8]);
 
         public int EndRead(ref ArraySegment<byte> buffer, int offset)
         {
@@ -183,15 +183,12 @@ namespace IceInternal
             return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
-        public void BeginRead(ref ArraySegment<byte> buffer)
-        {
-            // Read the HTTP response, reserve enough space for reading at
-            // least HTTP1.1
-            buffer = new ArraySegment<byte>(new byte[256], 0, 7);
-        }
+        // Read the HTTP response, reserve enough space for reading at least HTTP1.1
+        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[256], 0, 7);
 
         public int EndRead(ref ArraySegment<byte> buffer, int offset)
         {
+            Debug.Assert(buffer.Offset == 0);
             //
             // Check if we received the full HTTP response, if not, continue
             // reading otherwise we're done.

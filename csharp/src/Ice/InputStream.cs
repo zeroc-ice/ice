@@ -891,8 +891,6 @@ namespace Ice
             {
                 return "";
             }
-            Debug.Assert(_buffer.Count - _pos >= size,
-                $"required {size} reamaining: {_buffer.Count - _pos}");
             string value = _utf8.GetString(_buffer.AsSpan(_pos, size));
             _pos += size;
             return value;
@@ -1222,8 +1220,6 @@ namespace Ice
             // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
             // for ease of marshaling.
             int sz = ReadInt();
-
-            Debug.Assert(sz >= 6, $"Invalid encapsulation size: {sz}");
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();

@@ -121,7 +121,7 @@ namespace IceInternal
             else if (_state == StateProxyRead)
             {
                 Debug.Assert(_proxy != null);
-                _proxy.BeginRead(ref readBuffer);
+                readBuffer = _proxy.BeginRead();
                 return SocketOperation.Read;
             }
             else if (_state == StateProxyConnected)
@@ -222,7 +222,7 @@ namespace IceInternal
             {
                 _readCallback = callback;
                 _readEventArgs.UserToken = state;
-                _readEventArgs.SetBuffer(buffer.Array, offset, packetSize);
+                _readEventArgs.SetBuffer(buffer.Array, buffer.Offset + offset, packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
             }
             catch (System.Net.Sockets.SocketException ex)
@@ -446,11 +446,12 @@ namespace IceInternal
             }
 
             int bytesTransferred = 0;
+            int bufferOffset = buffer.Offset + offset;
             while (buffer.Count - (offset + bytesTransferred) > 0)
             {
                 try
                 {
-                    int ret = _fd.Receive(buffer.Array, offset + bytesTransferred,
+                    int ret = _fd.Receive(buffer.Array, bufferOffset + bytesTransferred,
                         GetRecvPacketSize(buffer.Count - (offset + bytesTransferred)),
                         SocketFlags.None);
                     if (ret == 0)

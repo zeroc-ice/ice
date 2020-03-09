@@ -200,10 +200,8 @@ namespace IceInternal
             Debug.Assert(_fd != null);
 
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
-            if (packetSize > buffer.Count)
-            {
-                buffer = new byte[packetSize];
-            }
+            Debug.Assert(buffer.Count == 0);
+            buffer = new byte[packetSize];
 
             int ret;
             while (true)
@@ -307,10 +305,8 @@ namespace IceInternal
             Debug.Assert(offset == 0, $"offset: {offset}\n{Environment.StackTrace}");
 
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
-            if (packetSize > buffer.Count)
-            {
-                buffer = new byte[packetSize];
-            }
+            Debug.Assert(buffer.Count == 0);
+            buffer = new byte[packetSize];
 
             try
             {

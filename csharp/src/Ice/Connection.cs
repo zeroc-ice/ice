@@ -867,7 +867,10 @@ namespace Ice
                 {
                     int start = _readBufferOffset;
                     completedSynchronously = _transceiver.StartRead(ref _readBuffer, ref _readBufferOffset, cb, this);
-                    TraceReceivedAndUpdateObserver(_readBuffer, start, _readBufferOffset);
+                    if (start != _readBufferOffset)
+                    {
+                        TraceReceivedAndUpdateObserver(_readBuffer.Count, start, _readBufferOffset);
+                    }
                 }
             }
             catch (LocalException ex)
@@ -884,35 +887,21 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    int remaining = _writeBufferSize - _writeBufferOffset;
+                    int start = _writeBufferOffset;
                     _transceiver.FinishWrite(_writeBuffer, ref _writeBufferOffset);
-                    int bytesTransferred = remaining - (_writeBufferSize - _writeBufferOffset);
-                    if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
+                    if (start != _writeBufferOffset)
                     {
-                        var s = new StringBuilder("sent ");
-                        s.Append(bytesTransferred);
-                        if (!_endpoint.Datagram())
-                        {
-                            s.Append(" of ");
-                            s.Append(remaining);
-                        }
-                        s.Append(" bytes via ");
-                        s.Append(_endpoint.Transport());
-                        s.Append("\n");
-                        s.Append(ToString());
-                        _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
-                    }
-
-                    if (_observer != null && bytesTransferred > 0)
-                    {
-                        _observer.SentBytes(bytesTransferred);
+                        TraceSentAndUpdateObserver(_writeBufferSize, start, _writeBufferOffset);
                     }
                 }
                 else if ((operation & SocketOperation.Read) != 0)
                 {
                     int start = _readBufferOffset;
                     _transceiver.FinishRead(ref _readBuffer, ref _readBufferOffset);
-                    TraceReceivedAndUpdateObserver(_readBuffer, start, _readBufferOffset);
+                    if (start != _readBufferOffset)
+                    {
+                        TraceReceivedAndUpdateObserver(_readBuffer.Count, start, _readBufferOffset);
+                    }
                 }
             }
             catch (LocalException ex)
@@ -1116,7 +1105,7 @@ namespace Ice
                         {
                             _logger.Warning(string.Format("maximum datagram size of {0} exceeded", _readBufferOffset));
                         }
-                        _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+                        _readBuffer = ArraySegment<byte>.Empty;
                         _readBufferOffset = 0;
                         _readHeader = true;
                         return;
@@ -1134,8 +1123,7 @@ namespace Ice
                             {
                                 _logger.Warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
                             }
-
-                            _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+                            _readBuffer = ArraySegment<byte>.Empty;
                             _readBufferOffset = 0;
                             _readHeader = true;
                         }
@@ -2092,7 +2080,11 @@ namespace Ice
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
 
-            _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+            // For datagram connections the buffer is allocated by the datagram transport
+            if (!_endpoint.Datagram())
+            {
+                _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+            }
             _readBufferOffset = 0;
             _readHeader = true;
 
@@ -2332,7 +2324,10 @@ namespace Ice
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
             info.Stream = new InputStream(_communicator, Ice1Definitions.Encoding, _readBuffer);
-            _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+
+            // For datagram connections the buffer is allocated by the datagram transport
+            _readBuffer = _endpoint.Datagram() ?
+                ArraySegment<byte>.Empty : new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
             _readBufferOffset = 0;
             _readHeader = true;
 
@@ -2696,12 +2691,43 @@ namespace Ice
         {
             int start = offset;
             int op = _transceiver.Read(ref buffer, ref offset);
-            TraceReceivedAndUpdateObserver(buffer, start, offset);
+            Debug.Assert(op != 0 || buffer.Count == offset);
+            if (start != offset)
+            {
+                TraceReceivedAndUpdateObserver(buffer.Count, start, offset);
+            }
             return op;
         }
 
-        private void TraceReceivedAndUpdateObserver(ArraySegment<byte> buffer, int start, int end)
+        private void TraceSentAndUpdateObserver(int length, int start, int end)
         {
+            int remaining = length - start;
+            int bytesTransferred = end - start;
+            if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
+            {
+                var s = new StringBuilder("sent ");
+                s.Append(bytesTransferred);
+                if (!_endpoint.Datagram())
+                {
+                    s.Append(" of ");
+                    s.Append(remaining);
+                }
+                s.Append(" bytes via ");
+                s.Append(_endpoint.Transport());
+                s.Append("\n");
+                s.Append(ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+            }
+
+            if (_observer != null && bytesTransferred > 0)
+            {
+                _observer.SentBytes(bytesTransferred);
+            }
+        }
+
+        private void TraceReceivedAndUpdateObserver(int length, int start, int end)
+        {
+            int remaining = length - start;
             int bytesTransferred = end - start;
 
             if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
@@ -2709,13 +2735,13 @@ namespace Ice
                 var s = new StringBuilder("received ");
                 if (_endpoint.Datagram())
                 {
-                    s.Append(buffer.Count);
+                    s.Append(remaining);
                 }
                 else
                 {
                     s.Append(bytesTransferred);
                     s.Append(" of ");
-                    s.Append(buffer.Count - start);
+                    s.Append(remaining);
                 }
                 s.Append(" bytes via ");
                 s.Append(_endpoint.Transport());
@@ -2732,28 +2758,11 @@ namespace Ice
 
         private int Write(IList<ArraySegment<byte>> buffer, int size, ref int offset)
         {
-            int remainig = size - offset;
+            int start = offset;
             int socketOperation = _transceiver.Write(buffer, ref offset);
-            int bytesTransferred = remainig - (size - offset);
-            if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
+            if (start != offset)
             {
-                var s = new StringBuilder("sent ");
-                s.Append(bytesTransferred);
-                if (!_endpoint.Datagram())
-                {
-                    s.Append(" of ");
-                    s.Append(remainig);
-                }
-                s.Append(" bytes via ");
-                s.Append(_endpoint.Transport());
-                s.Append("\n");
-                s.Append(ToString());
-                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
-            }
-
-            if (_observer != null && bytesTransferred > 0)
-            {
-                _observer.SentBytes(bytesTransferred);
+                TraceSentAndUpdateObserver(size, start, offset);
             }
             return socketOperation;
         }

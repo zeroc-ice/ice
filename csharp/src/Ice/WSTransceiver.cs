@@ -4,7 +4,6 @@
 
 using Ice;
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -1018,8 +1017,7 @@ namespace IceInternal
                     if (_readPayloadLength == 126)
                     {
                         // Uses network byte order
-                        Debug.Assert(BitConverter.IsLittleEndian);
-                        _readPayloadLength = BinaryPrimitives.ReverseEndianness(
+                        _readPayloadLength = System.Net.IPAddress.NetworkToHostOrder(
                             InputStream.ReadShort(_readBuffer.Slice(_readBufferPos, 2)));
                         if (_readPayloadLength < 0)
                         {
@@ -1030,14 +1028,14 @@ namespace IceInternal
                     else if (_readPayloadLength == 127)
                     {
                         // Uses network byte order.
-                        long legnth = BinaryPrimitives.ReverseEndianness(
+                        long length = System.Net.IPAddress.NetworkToHostOrder(
                             InputStream.ReadLong(_readBuffer.Slice(_readBufferPos, 8)));
                         _readBufferPos += 8;
-                        if (legnth < 0 || legnth > int.MaxValue)
+                        if (length < 0 || length > int.MaxValue)
                         {
-                            throw new ProtocolException($"invalid WebSocket payload length: {legnth}");
+                            throw new ProtocolException($"invalid WebSocket payload length: {length}");
                         }
-                        _readPayloadLength = (int)legnth;
+                        _readPayloadLength = (int)length;
                     }
 
                     //
@@ -1287,8 +1285,7 @@ namespace IceInternal
                     PrepareWriteHeader(OP_CLOSE, 2);
                     byte[] buffer = new byte[2];
 
-                    Debug.Assert(BitConverter.IsLittleEndian);
-                    short reason = BinaryPrimitives.ReverseEndianness((short)_closingReason);
+                    short reason = System.Net.IPAddress.HostToNetworkOrder((short)_closingReason);
                     // Write closing reason
                     MemoryMarshal.Write(buffer.AsSpan(0, 2), ref reason);
 
@@ -1449,28 +1446,32 @@ namespace IceInternal
             return false;
         }
 
-        private bool ReadBuffered(int sz)
+        private bool ReadBuffered(int size)
         {
             if (_readBufferPos == _readBufferOffset)
             {
-                _readBuffer = new byte[_readBufferSize];
                 _readBufferPos = 0;
                 _readBufferOffset = 0;
             }
             else
             {
                 int available = _readBufferOffset - _readBufferPos;
-                if (available < sz)
+                if (available < size)
                 {
-                    byte[] tmpBuffer = new byte[Math.Max(_readBufferSize, sz)];
-                    _readBuffer.Slice(_readBufferPos, available).CopyTo(tmpBuffer);
-                    _readBuffer = tmpBuffer;
+                    if (_readBufferPos > 0)
+                    {
+                        _readBuffer.Slice(_readBufferPos, available).CopyTo(_readBuffer);
+                    }
+                    // The size should be always smaller than _readBufferSize,
+                    // All control frames MUST have a payload length of 125 bytes
+                    // or less https://tools.ietf.org/html/rfc6455#section-5.5
+                    Debug.Assert(size < _readBufferSize);
                     _readBufferPos = 0;
                     _readBufferOffset = available;
                 }
             }
             _readStart = _readBufferOffset;
-            if (_readBufferPos + sz > _readBufferOffset)
+            if (_readBufferPos + size > _readBufferOffset)
             {
                 return false; // Not enough read.
             }
@@ -1502,8 +1503,7 @@ namespace IceInternal
                 // Use an extra 16 bits to encode the payload length.
                 //
                 buffer[i++] = 126;
-                Debug.Assert(BitConverter.IsLittleEndian);
-                short length = BinaryPrimitives.ReverseEndianness((short)payloadLength);
+                short length = System.Net.IPAddress.HostToNetworkOrder((short)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 2), ref length);
                 i += 2;
             }
@@ -1513,8 +1513,7 @@ namespace IceInternal
                 // Use an extra 64 bits to encode the payload length.
                 //
                 buffer[i++] = 127;
-                Debug.Assert(BitConverter.IsLittleEndian);
-                long length = BinaryPrimitives.ReverseEndianness((long)payloadLength);
+                long length = System.Net.IPAddress.HostToNetworkOrder((long)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 8), ref length);
                 i += 8;
             }
