@@ -1353,7 +1353,7 @@ namespace Ice
         /// ensures there is no gaps, the size and capacity of the stream are adjusted to the
         /// sum of all segment counts, and the tail is advanced to the end of the new segment.</summary>
         /// <param name="payload">The array segment payload to write into the stream.</param>
-        protected void WritePayload(ArraySegment<byte> payload)
+        internal void WritePayload(ArraySegment<byte> payload)
         {
             Debug.Assert(_tail.Segment == _segmentList.Count - 1, "Current segment is not the last segment");
 
