@@ -3548,8 +3548,8 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = (current.config.dotnetcore and
-                        (current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir() or isinstance(platform, Darwin)))
+        useDotnetExe = current.config.dotnetcore and \
+                        (current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir())
         command = ""
         if useDotnetExe:
             command += "dotnet "

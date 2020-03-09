@@ -4,6 +4,7 @@
   <PropertyGroup>
     <AssemblyName>serveramd</AssemblyName>
     <OutputType>Exe</OutputType>
+    <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

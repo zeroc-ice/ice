@@ -3,6 +3,7 @@
   <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <UseAppHost>true</UseAppHost>
     <AssemblyName>iceboxnet</AssemblyName>
     <Version>$(IceVersion)</Version>
     <OutputPath>../../../../../bin</OutputPath>
