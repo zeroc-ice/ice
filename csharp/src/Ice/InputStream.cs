@@ -1293,7 +1293,6 @@ namespace Ice
                     // Create and throw a plain RemoteException with the SlicedData.
                     Debug.Assert(SlicedData != null);
                     remoteEx = new RemoteException(SlicedData.Value);
-
                     remoteEx.ConvertToUnhandled = true;
                     throw remoteEx;
                 }

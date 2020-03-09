@@ -103,21 +103,6 @@ getEscapedParamName(const OperationPtr& p, const string& name)
     return name;
 }
 
-/*
-string
-getEscapedParamName(const DataMemberList& params, const string& name)
-{
-    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        if((*i)->name() == name)
-        {
-            return name + "_";
-        }
-    }
-    return name;
-}
-*/
-
 bool
 hasDataMemberWithName(const DataMemberList& dataMembers, const string& name)
 {
@@ -1586,18 +1571,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    /*
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << "(global::System.Exception ex) : base(ex)";
-    _out << sb;
-    if(hasDataMemberInitializers)
-    {
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
-    }
-    _out << eb;
-    */
-
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
@@ -1699,33 +1672,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
         }
         _out << eb;
-
-        /*
-
-        string exParam = getEscapedParamName(allDataMembers, "ex");
-        vector<string> exceptionParam;
-        exceptionParam.push_back(exParam);
-        vector<string> exceptionDecl;
-        exceptionDecl.push_back("global::System.Exception " + exParam);
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << allParamDecl << exceptionDecl << epar << " : base" << spar;
-        if(p->base() && allDataMembers.size() != dataMembers.size())
-        {
-            _out << baseParamNames;
-        }
-        _out << exceptionParam << epar;
-        _out << sb;
-        if(!dataMembers.empty())
-        {
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
-                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
-            }
-        }
-        _out << eb;
-        */
     }
 
     if(!dataMembers.empty())

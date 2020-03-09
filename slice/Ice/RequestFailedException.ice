@@ -20,12 +20,13 @@
 
 module Ice
 {
+#ifdef __SLICE2CS__
     exception RequestFailedException
     {
         Identity id;
         string facet;
         string operation;
-        string message;     // TODO: switch to string?
+        string message; // TODO: switch to an optional string
     }
 
     // A dispatch exception is an exception that occurs during the server-side request dispatch before the operation
@@ -51,4 +52,5 @@ module Ice
     exception UnhandledException : RequestFailedException
     {
     }
+#endif
 }

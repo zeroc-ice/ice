@@ -103,6 +103,7 @@ SliceCompile.command.*.log
 
 **/netstandard2.1/*
 **/netcoreapp3.0/*
+**/netcoreapp3.1/*
 Resource.designer.cs
 *.apk
 *.apk.mSYM
