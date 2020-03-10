@@ -25,10 +25,10 @@ module IceMX
     /// Provides information on Glacier2 sessions.
     class SessionMetrics extends Metrics
     {
-        /// Number of client requests forwared.
+        /// Number of client requests forwarded.
         int forwardedClient = 0;
 
-        /// Number of server requests forwared.
+        /// Number of server requests forwarded.
         int forwardedServer = 0;
 
         /// The size of the routing table.
