@@ -14,8 +14,8 @@ namespace IceInternal
     {
         public Socket? Fd() => _stream.Fd();
 
-        public int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData) =>
-            _stream.Connect(readBuffer, writeBuffer);
+        public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>
+            _stream.Connect(ref readBuffer, writeBuffer);
 
         // If we are initiating the connection closure, wait for the peer
         // to close the TCP/IP connection. Otherwise, close immediately.
@@ -34,12 +34,14 @@ namespace IceInternal
 
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
 
-        public int Read(Buffer buf, ref bool hasMoreData) => _stream.Read(buf);
+        public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
+             _stream.Read(ref buffer, ref offset);
 
-        public bool StartRead(Buffer buf, AsyncCallback callback, object state) =>
-            _stream.StartRead(buf, callback, state);
+        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state) =>
+            _stream.StartRead(buffer, offset, callback, state);
 
-        public void FinishRead(Buffer buf) => _stream.FinishRead(buf);
+        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset) =>
+            _stream.FinishRead(ref buffer, ref offset);
 
         public bool
         StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed) =>

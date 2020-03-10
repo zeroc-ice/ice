@@ -26,15 +26,15 @@ namespace IceInternal
         // Once the connection request has been sent, this is called
         // to prepare and read the response from the proxy server.
         //
-        void BeginRead(Buffer buf);
-        int EndRead(Buffer buf);
+        ArraySegment<byte> BeginRead();
+        int EndRead(ref ArraySegment<byte> buffer, int offset);
 
         //
         // This is called when the response from the proxy has been
         // read. The proxy should copy the extra read data (if any) in the
         // given byte vector.
         //
-        void Finish(Buffer readBuffer);
+        void Finish(ArraySegment<byte> readBuffer);
 
         //
         // If the proxy host needs to be resolved, this should return
@@ -94,7 +94,7 @@ namespace IceInternal
             Debug.Assert(BitConverter.IsLittleEndian);
             short port = BinaryPrimitives.ReverseEndianness((short)addr.Port); // Network byte order (BIG_ENDIAN)
             MemoryMarshal.Write(data.AsSpan(2, 2), ref port); // Port
-            System.Buffer.BlockCopy(addr.Address.GetAddressBytes(), 0, data, 4, 4); // IPv4 address
+            Buffer.BlockCopy(addr.Address.GetAddressBytes(), 0, data, 4, 4); // IPv4 address
             data[8] = 0x00; // User ID.
             buffer.Add(data);
         }
@@ -105,27 +105,18 @@ namespace IceInternal
             return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
-        public void BeginRead(Buffer buf)
-        {
-            //
-            // Read the SOCKS4 response whose size is 8 bytes.
-            //
-            buf.Resize(8, true);
-            buf.B.Position(0);
-        }
+        // Read the SOCKS4 response whose size is 8 bytes.
+        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[8]);
 
-        public int EndRead(Buffer buf)
+        public int EndRead(ref ArraySegment<byte> buffer, int offset)
         {
             // We're done once we read the response
-            return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
+            return offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
         }
 
-        public void Finish(Buffer readBuffer)
+        public void Finish(ArraySegment<byte> buffer)
         {
-            readBuffer.B.Position(0);
-            byte b1 = readBuffer.B.Get();
-            byte b2 = readBuffer.B.Get();
-            if (b1 != 0x00 || b2 != 0x5a)
+            if (buffer[0] != 0x00 || buffer[1] != 0x5a)
             {
                 throw new Ice.ConnectFailedException();
             }
@@ -137,7 +128,7 @@ namespace IceInternal
             return new SOCKSNetworkProxy(Network.GetAddresses(_host,
                                                               _port,
                                                               ipVersion,
-                                                              Ice.EndpointSelectionType.Random,
+                                                              EndpointSelectionType.Random,
                                                               false,
                                                               true)[0]);
         }
@@ -192,42 +183,47 @@ namespace IceInternal
             return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
         }
 
-        public void BeginRead(Buffer buf)
-        {
-            //
-            // Read the HTTP response
-            //
-            buf.Resize(7, true); // Enough space for reading at least HTTP1.1
-            buf.B.Position(0);
-        }
+        // Read the HTTP response, reserve enough space for reading at least HTTP1.1
+        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[256], 0, 7);
 
-        public int EndRead(Buffer buf)
+        public int EndRead(ref ArraySegment<byte> buffer, int offset)
         {
+            Debug.Assert(buffer.Offset == 0);
             //
             // Check if we received the full HTTP response, if not, continue
             // reading otherwise we're done.
             //
-            int end = new HttpParser().IsCompleteMessage(buf.B, 0, buf.B.Position());
-            if (end < 0 && !buf.B.HasRemaining())
+            int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, offset));
+            if (end < 0 && offset == buffer.Count)
             {
                 //
                 // Read one more byte, we can't easily read bytes in advance
                 // since the transport implenentation might be be able to read
                 // the data from the memory instead of the socket.
                 //
-                buf.Resize(buf.Size() + 1, true);
+                if (offset == buffer.Array.Length)
+                {
+                    // We need to allocate a new buffer
+                    var newBuffer = new ArraySegment<byte>(new byte[buffer.Array.Length * 2], 0, offset + 1);
+                    Buffer.BlockCopy(buffer.Array, 0, newBuffer.Array, 0, offset);
+                    buffer = newBuffer;
+                }
+                else
+                {
+                    buffer = new ArraySegment<byte>(buffer.Array, 0, offset + 1);
+                }
                 return SocketOperation.Read;
             }
             return SocketOperation.None;
         }
 
-        public void Finish(Buffer readBuffer)
+        public void Finish(ArraySegment<byte> readBuffer)
         {
             var parser = new HttpParser();
-            parser.Parse(readBuffer.B, 0, readBuffer.B.Position());
+            parser.Parse(readBuffer);
             if (parser.Status() != 200)
             {
-                throw new Ice.ConnectFailedException();
+                throw new ConnectFailedException();
             }
         }
 

@@ -20,10 +20,9 @@ namespace IceInternal
         /// </summary>
         /// <param name="readBuffer">An empty buffer used for read operations</param>
         /// <param name="writeBuffer">An empty buffer used for write operations</param>
-        /// <param name="hasMoreData">Unused</param>
         /// <returns>Returns SocketOperation.Write, SocketOperation.Read or SocketOperation.None indicating
         /// whenever the operation needs to write more data, read more data or it is done.</returns>
-        int Initialize(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData);
+        int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
         int Closing(bool initiator, Ice.LocalException? ex);
         void Close();
         void Destroy();
@@ -41,7 +40,7 @@ namespace IceInternal
         /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
         /// data to write in the buffer.</returns>
         int Write(IList<ArraySegment<byte>> buffer, ref int offset);
-        int Read(Buffer buf, ref bool hasMoreData);
+        int Read(ref ArraySegment<byte> buffer, ref int offset);
 
         //
         // Read data asynchronously.
@@ -55,8 +54,8 @@ namespace IceInternal
         // calls startRead, or when the socket is closed. In this case finishRead
         // raises ReadAbortedException.
         //
-        bool StartRead(Buffer buf, AsyncCallback callback, object state);
-        void FinishRead(Buffer buf);
+        bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state);
+        void FinishRead(ref ArraySegment<byte> buffer, ref int offset);
 
         //
         // Write data asynchronously.
@@ -79,7 +78,7 @@ namespace IceInternal
         /// <returns>True if the asynchronous operation compled synchronously otherwise false.</returns>
         bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
 
-        // <summary>Finish an asynchronous write operation, the offset is increase with the
+        /// <summary>Finish an asynchronous write operation, the offset is increase with the
         /// number of bytes wrote to the transport.</summary>
         /// <param name="buffer">The buffer of data to write to the socket.</param>
         /// <param name="offset">The offset at what the write operation starts, the offset is increase

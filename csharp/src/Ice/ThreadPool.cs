@@ -72,8 +72,8 @@ namespace IceInternal
         public void Completed(ref ThreadPoolCurrent current)
         {
             //
-            // Call finishMessage once IO is completed only if serialization is not enabled.
-            // Otherwise, finishMessage will be called when the event handler is done with
+            // Call FinishMessage once IO is completed only if serialization is not enabled.
+            // Otherwise, FinishMessage will be called when the event handler is done with
             // the message (it will be called from destroy below).
             //
             Debug.Assert(_finishWithIO);
@@ -91,7 +91,7 @@ namespace IceInternal
                 //
                 // A ThreadPoolMessage instance must be created outside the synchronization
                 // of the event handler. We need to lock the event handler here to call
-                // finishMessage.
+                // FinishMessage.
                 //
                 lock (_mutex)
                 {
@@ -267,7 +267,6 @@ namespace IceInternal
             handler.Pending = 0;
             handler.Started = 0;
             handler.Finish = false;
-            handler.HasMoreData = false;
             handler.Registered = 0;
         }
 
@@ -645,8 +644,7 @@ namespace IceInternal
             }
             catch (System.Exception ex)
             {
-                string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current.Handler.ToString();
-                _communicator.Logger.Error(s);
+                _communicator.Logger.Error($"exception in `{_prefix}':\n{ex}\nevent handler:{current.Handler}");
             }
         }
 
