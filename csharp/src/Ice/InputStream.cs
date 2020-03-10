@@ -49,7 +49,7 @@ namespace Ice
         public Encoding Encoding { get; private set; }
 
         /// <summary>A read only view of the contents of the stream.</summary>
-        public ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array);
+        internal ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array, 0, _buffer.Count);
 
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
