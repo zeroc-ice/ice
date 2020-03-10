@@ -27,6 +27,24 @@ namespace IceInternal
         internal IntPtr BzAlloc;
         internal IntPtr BzFree;
         internal IntPtr Opaque;
+
+        public BZStream(IntPtr nextOut, uint availOut)
+        {
+            NextIn = IntPtr.Zero;
+            AvailIn = 0;
+            TotalInLo32 = 0;
+            TotalInHi32 = 0;
+
+            NextOut = nextOut;
+            AvailOut = availOut;
+            TotalOutLo32 = 0;
+            TotalOutHi32 = 0;
+
+            State = IntPtr.Zero;
+            BzAlloc = IntPtr.Zero;
+            BzFree = IntPtr.Zero;
+            Opaque = IntPtr.Zero;
+        }
     }
 
     internal static class SafeNativeMethods
@@ -140,9 +158,9 @@ namespace IceInternal
         private const int BzRun = 0;
         private const int BzFinish = 2;
 
-        private const int BzOk = 0;
         private const int BzRunOk = 1;
         private const int BzFinishOk = 3;
+        private const int BzStreamEnd = 4;
 
         static BZip2()
         {
@@ -338,12 +356,7 @@ namespace IceInternal
         public static Ice.OutputStream? Compress(Ice.OutputStream stream, int headerSize, int compressionLevel)
         {
             Debug.Assert(Supported());
-            var bzStream = new BZStream();
-            bzStream.BzAlloc = IntPtr.Zero;
-            bzStream.BzFree = IntPtr.Zero;
-            bzStream.Opaque = IntPtr.Zero;
 
-            _compressInit(ref bzStream, compressionLevel, 0, 0);
             // Compress the message body, but not the header.
             int uncompressedLen = stream.Size - headerSize;
 
@@ -352,78 +365,73 @@ namespace IceInternal
             // Prevent GC from moving the byte array, this allow to take the object address
             // and pass it to bzip2 calls.
             var compressedHandle = GCHandle.Alloc(compressed, GCHandleType.Pinned);
-            bzStream.NextOut = compressedHandle.AddrOfPinnedObject();
-            bzStream.AvailOut = (uint) compressed.Length;
-            System.Collections.Generic.IList<ArraySegment<byte>> data = stream.GetUnderlyingBuffer();
+            var bzStream = new BZStream(compressedHandle.AddrOfPinnedObject(), (uint)compressed.Length);
 
-            int rc = BzOk;
-            for (int i = 0; i < data.Count; ++i)
+            try
             {
-                ArraySegment<byte> segment = data[i];
-                var outHandle = GCHandle.Alloc(segment.Array, GCHandleType.Pinned);
+                _compressInit(ref bzStream, compressionLevel, 0, 0);
 
-                if (i == 0)
+                System.Collections.Generic.IList<ArraySegment<byte>> data = stream.GetUnderlyingBuffer();
+                Debug.Assert(data[0].Offset == 0);
+                data[0] = data[0].Slice(headerSize);
+
+                int rc = BzRunOk;
+                for (int i = 0; rc == BzRunOk && i < data.Count; i++)
                 {
-                    bzStream.NextIn = outHandle.AddrOfPinnedObject() + headerSize;
-                    bzStream.AvailIn = (uint)(segment.Count - headerSize);
-                }
-                else
-                {
-                    bzStream.NextIn = outHandle.AddrOfPinnedObject();
+                    ArraySegment<byte> segment = data[i];
+                    var segmentHandle = GCHandle.Alloc(segment.Array, GCHandleType.Pinned);
+                    bzStream.NextIn = segmentHandle.AddrOfPinnedObject() + segment.Offset;
                     bzStream.AvailIn = (uint)segment.Count;
+                    Debug.Assert(bzStream.AvailIn > 0);
+
+                    do
+                    {
+                        rc = _compress(ref bzStream, BzRun);
+                    }
+                    while (rc == BzRunOk && bzStream.AvailIn > 0);
+                    segmentHandle.Free();
                 }
-                Debug.Assert(bzStream.AvailIn > 0);
+
+                if (rc != BzRunOk)
+                {
+                    throw new Ice.CompressionException($"Bzip2 compress run failed {GetBZ2Error(rc)}");
+                }
 
                 do
                 {
-                    rc = _compress(ref bzStream, BzRun);
+                    rc = _compress(ref bzStream, BzFinish);
                 }
-                while (rc == BzRunOk && bzStream.AvailIn > 0);
+                while (rc == BzFinishOk);
 
-                if (rc == BzRunOk && i + 1 == data.Count)
+                if (rc != BzStreamEnd)
                 {
-                    do
-                    {
-                        rc = _compress(ref bzStream, BzFinish);
-                    }
-                    while (rc == BzFinishOk);
+                    throw new Ice.CompressionException($"Bzip2 compress finish failed {GetBZ2Error(rc)}");
                 }
-                outHandle.Free();
 
-                if (rc < 0)
+                int compressedLen = compressed.Length - (int)bzStream.AvailOut;
+
+                // Don't bother if the compressed data is larger than the uncompressed data.
+                if (compressedLen >= uncompressedLen)
                 {
-                    break;
+                    return null;
                 }
-            }
 
-            int compressedLen = compressed.Length - (int)bzStream.AvailOut;
-            compressedHandle.Free();
-            _compressEnd(ref bzStream);
-            if (rc == BzOutbuffFull)
-            {
-                return null;
+                // Copy the header from the uncompressed stream to the compressed one,
+                // we use headerSize + 4 to ensure there is room for the size of the
+                // uncompressed stream in the first segment.
+                Debug.Assert(data.Count > 0 && data[0].Count > headerSize + 4);
+                var r = new Ice.OutputStream(stream.Communicator, stream.Encoding,
+                    data[0].Array.AsSpan(0, headerSize + 4).ToArray());
+                // Add the size of the uncompressed stream before the message body.
+                r.RewriteInt(stream.Size, new Ice.OutputStream.Position(0, headerSize));
+                r.WritePayload(new ArraySegment<byte>(compressed, 0, compressedLen));
+                return r;
             }
-            else if (rc < 0)
+            finally
             {
-                throw new Ice.CompressionException($"Bzip2 compress failed {GetBZ2Error(rc)}");
+                _compressEnd(ref bzStream);
+                compressedHandle.Free();
             }
-
-            // Don't bother if the compressed data is larger than the uncompressed data.
-            if (compressedLen >= uncompressedLen)
-            {
-                return null;
-            }
-
-            // Copy the header from the uncompressed stream to the compressed one,
-            // we use headerSize + 4 to ensure there is room for the size of the
-            // uncompressed stream in the first segment.
-            Debug.Assert(data.Count > 0 && data[0].Count > headerSize + 4);
-            var r = new Ice.OutputStream(stream.Communicator, stream.Encoding,
-                data[0].Slice(0, headerSize + 4).ToArray());
-            // Add the size of the uncompressed stream before the message body.
-            r.RewriteInt(stream.Size, new Ice.OutputStream.Position(0, headerSize));
-            r.WritePayload(new ArraySegment<byte>(compressed, 0, compressedLen));
-            return r;
         }
 
         public static Buffer Uncompress(Buffer buf, int headerSize, int messageSizeMax)
