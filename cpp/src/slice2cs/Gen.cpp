@@ -1755,8 +1755,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << eb;
     _out << nl << "else";
     _out << sb;
-    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId"
-        << "false" << epar << ";";
+    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "false" << epar << ";";
     _out << eb;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)

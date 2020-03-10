@@ -11,8 +11,8 @@ namespace Ice
     public partial class RequestFailedException
     {
         protected virtual string DefaultIceMessage
-            => Facet.Length == 0 ? $"Request for operation `{Operation}' on Ice object `{Id}' failed."
-                : $"Request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}' failed.";
+            => Facet.Length == 0 ? $"request for operation `{Operation}' on Ice object `{Id}' failed"
+                : $"request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}' failed";
 
         public override string Message => IceMessage.Length > 0 ? IceMessage : DefaultIceMessage;
 
@@ -30,8 +30,8 @@ namespace Ice
     public partial class ObjectNotExistException
     {
         protected override string DefaultIceMessage
-            => $"Could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
-                $" while attempting to call operation `{Operation}'.";
+            => $"could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
+                $" while attempting to call operation `{Operation}'";
 
         public ObjectNotExistException(Identity id, string facet, string operation)
             : base(id, facet, operation, "")
@@ -42,8 +42,8 @@ namespace Ice
     public partial class OperationNotExistException
     {
         protected override string DefaultIceMessage
-            => $"Could not find operation `{Operation}' for Ice object `{Id}'" +
-                (Facet.Length > 0 ? $" with facet `{Facet}'." : ".");
+            => $"could not find operation `{Operation}' for Ice object `{Id}'" +
+                (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
 
         public OperationNotExistException(Identity id, string facet, string operation)
             : base(id, facet, operation, "")
@@ -56,7 +56,7 @@ namespace Ice
         public UnhandledException(Identity id, string facet, string operation, System.Exception innerException)
             : base(id, facet, operation, innerException)
         {
-            IceMessage =  $"Unhandled exception while calling `{Operation}' on Ice object `{Id}'";
+            IceMessage =  $"unhandled exception while calling `{Operation}' on Ice object `{Id}'";
             if (Facet.Length > 0)
             {
                 IceMessage += $" with facet `{Facet}'";

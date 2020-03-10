@@ -457,6 +457,8 @@ namespace Ice
             //
             // If the request was not sent or the operation is idempotent it can also always be retried if the retry
             // count isn't reached.
+            //
+            // TODO: revisit retry logic
             if (ex is ObjectNotExistException || ex is CloseConnectionException ||
                 ((ex is RequestFailedException || ex is LocalException) && (!sent || idempotent)))
             {
@@ -466,9 +468,7 @@ namespace Ice
                 }
                 catch (CommunicatorDestroyedException)
                 {
-                    //
                     // The communicator is already destroyed, so we cannot retry.
-                    //
                     throw ex;
                 }
             }

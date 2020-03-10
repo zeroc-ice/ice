@@ -16,13 +16,12 @@ namespace IceInternal
         void Init(OutgoingAsyncBase og);
 
         bool HandleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
-        bool HandleException(Ice.Exception ex, OutgoingAsyncBase og);
-        bool HandleException(Ice.RemoteException ex, OutgoingAsyncBase og);
+        bool HandleException(System.Exception ex, OutgoingAsyncBase og);
+
         bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
         void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
-        void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og);
-        void HandleInvokeException(Ice.RemoteException ex, OutgoingAsyncBase og);
+        void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og);
         void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
     }
 
@@ -30,12 +29,11 @@ namespace IceInternal
     {
         public virtual bool Sent() => SentImpl(true);
 
-        public virtual bool Exception(Ice.Exception ex) => ExceptionImpl(ex); // TODO: temporary
-        public virtual bool Exception(Ice.RemoteException ex) => ExceptionImpl(ex);
+        public virtual bool Exception(System.Exception ex) => ExceptionImpl(ex);
 
         public virtual bool Response()
         {
-            Debug.Assert(false); // Must be overriden by request that can handle responses
+            Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
         }
 
@@ -95,14 +93,7 @@ namespace IceInternal
             Debug.Assert(_ex != null);
             try
             {
-                if (_ex is RemoteException uex)
-                {
-                     _completionCallback.HandleInvokeException(uex, this);
-                }
-                else
-                {
-                    _completionCallback.HandleInvokeException((Ice.Exception)_ex, this);
-                }
+                _completionCallback.HandleInvokeException(_ex, this);
             }
             catch (System.Exception ex)
             {
@@ -130,23 +121,16 @@ namespace IceInternal
                 {
                     _completionCallback.HandleInvokeResponse((State & StateOK) != 0, this);
                 }
-                catch (Ice.Exception ex)
-                {
-                    if (_completionCallback.HandleException(ex, this))
-                    {
-                        _completionCallback.HandleInvokeException(ex, this);
-                    }
-                }
-                catch (Ice.RemoteException ex)
-                {
-                    if (_completionCallback.HandleException(ex, this))
-                    {
-                        _completionCallback.HandleInvokeException(ex, this);
-                    }
-                }
                 catch (System.AggregateException ex)
                 {
                     throw ex.InnerException;
+                }
+                catch (System.Exception ex)
+                {
+                    if (_completionCallback.HandleException(ex, this))
+                    {
+                        _completionCallback.HandleInvokeException(ex, this);
+                    }
                 }
             }
             catch (System.Exception ex)
@@ -265,14 +249,26 @@ namespace IceInternal
             }
         }
 
-        protected virtual bool ExceptionImpl(Ice.Exception ex)
+        protected virtual bool ExceptionImpl(System.Exception ex)
         {
             lock (this)
             {
                 _ex = ex;
+
+                string typeId;
+                if (ex is RemoteException remoteException)
+                {
+                    typeId = remoteException.TypeId;
+                }
+                else
+                {
+                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
+                    typeId = ((Ice.LocalException)ex).ice_id();
+                }
+
                 if (ChildObserver != null)
                 {
-                    ChildObserver.Failed(ex.ice_id());
+                    ChildObserver.Failed(typeId);
                     ChildObserver.Detach();
                     ChildObserver = null;
                 }
@@ -280,34 +276,7 @@ namespace IceInternal
 
                 if (Observer != null)
                 {
-                    Observer.Failed(ex.ice_id());
-                }
-                bool invoke = _completionCallback.HandleException(ex, this);
-                if (!invoke && Observer != null)
-                {
-                    Observer.Detach();
-                    Observer = null;
-                }
-                return invoke;
-            }
-        }
-
-        protected virtual bool ExceptionImpl(Ice.RemoteException ex)
-        {
-            lock (this)
-            {
-                _ex = ex;
-                if (ChildObserver != null)
-                {
-                    ChildObserver.Failed(ex.TypeId);
-                    ChildObserver.Detach();
-                    ChildObserver = null;
-                }
-                _cancellationHandler = null;
-
-                if (Observer != null)
-                {
-                    Observer.Failed(ex.TypeId);
+                    Observer.Failed(typeId);
                 }
                 bool invoke = _completionCallback.HandleException(ex, this);
                 if (!invoke && Observer != null)
@@ -334,12 +303,7 @@ namespace IceInternal
                 {
                     invoke &= _completionCallback.HandleResponse(userThread, ok, this);
                 }
-                catch (Ice.Exception ex)
-                {
-                    _ex = ex;
-                    invoke = _completionCallback.HandleException(ex, this);
-                }
-                catch (Ice.RemoteException ex)
+                catch (System.Exception ex)
                 {
                     _ex = ex;
                     invoke = _completionCallback.HandleException(ex, this);
@@ -423,11 +387,22 @@ namespace IceInternal
         public abstract int InvokeRemote(Ice.Connection connection, bool compress, bool response);
         public abstract int InvokeCollocated(CollocatedRequestHandler handler);
 
-        public override bool Exception(Ice.Exception exc)
+        public override bool Exception(System.Exception exc)
         {
             if (ChildObserver != null)
             {
-                ChildObserver.Failed(exc.ice_id());
+                string typeId;
+                if (exc is RemoteException remoteException)
+                {
+                    typeId = remoteException.TypeId;
+                }
+                else
+                {
+                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
+                    typeId = ((Ice.LocalException)exc).ice_id();
+                }
+
+                ChildObserver.Failed(typeId);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }
@@ -452,50 +427,7 @@ namespace IceInternal
                 Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, IsIdempotent, _sent, ref _cnt));
                 return false;
             }
-            catch (Ice.Exception ex)
-            {
-                return ExceptionImpl(ex); // No retries, we're done
-            }
-            catch (Ice.RemoteException ex)
-            {
-                return ExceptionImpl(ex); // No retries, we're done
-            }
-        }
-
-        public override bool Exception(Ice.RemoteException exc)
-        {
-            if (ChildObserver != null)
-            {
-                ChildObserver.Failed(exc.TypeId);
-                ChildObserver.Detach();
-                ChildObserver = null;
-            }
-
-            CachedConnection = null;
-            if (Proxy.IceReference.GetInvocationTimeout() == -2)
-            {
-                Communicator.Timer().Cancel(this);
-            }
-
-            //
-            // NOTE: at this point, synchronization isn't needed, no other threads should be
-            // calling on the callback.
-            //
-            try
-            {
-                //
-                // It's important to let the retry queue do the retry even if
-                // the retry interval is 0. This method can be called with the
-                // connection locked so we can't just retry here.
-                //
-                Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, IsIdempotent, _sent, ref _cnt));
-                return false;
-            }
-            catch (Ice.Exception ex)
-            {
-                return ExceptionImpl(ex); // No retries, we're done
-            }
-            catch (Ice.RemoteException ex)
+            catch (System.Exception ex)
             {
                 return ExceptionImpl(ex); // No retries, we're done
             }
@@ -534,35 +466,10 @@ namespace IceInternal
                     InvokeExceptionAsync();
                 }
             }
-            catch (Ice.RemoteException ex)
-            {
-                if (Exception(ex))
-                {
-                    InvokeExceptionAsync();
-                }
-            }
         }
 
         public void Retry() => InvokeImpl(false);
         public void Abort(Ice.Exception ex)
-        {
-            Debug.Assert(ChildObserver == null);
-            if (ExceptionImpl(ex))
-            {
-                InvokeExceptionAsync();
-            }
-            else if (ex is Ice.CommunicatorDestroyedException)
-            {
-                //
-                // If it's a communicator destroyed exception, swallow
-                // it but instead notify the user thread. Even if no callback
-                // was provided.
-                //
-                throw ex;
-            }
-        }
-
-        public void Abort(Ice.RemoteException ex)
         {
             Debug.Assert(ChildObserver == null);
             if (ExceptionImpl(ex))
@@ -659,43 +566,9 @@ namespace IceInternal
                             Observer.Retried();
                         }
                     }
-                    catch (Ice.RemoteException ex)
-                    {
-                        if (ChildObserver != null)
-                        {
-                            ChildObserver.Failed(ex.TypeId);
-                            ChildObserver.Detach();
-                            ChildObserver = null;
-                        }
-                        int interval = Proxy.IceHandleException(ex, Handler, IsIdempotent, _sent, ref _cnt);
-                        if (interval > 0)
-                        {
-                            Communicator.AddRetryTask(this, interval);
-                            return;
-                        }
-                        else if (Observer != null)
-                        {
-                            Observer.Retried();
-                        }
-                    }
                 }
             }
             catch (Ice.Exception ex)
-            {
-                //
-                // If called from the user thread we re-throw, the exception
-                // will be catch by the caller and abort() will be called.
-                //
-                if (userThread)
-                {
-                    throw;
-                }
-                else if (ExceptionImpl(ex)) // No retries, we're done
-                {
-                    InvokeExceptionAsync();
-                }
-            }
-            catch (Ice.RemoteException ex)
             {
                 //
                 // If called from the user thread we re-throw, the exception
@@ -723,16 +596,7 @@ namespace IceInternal
             }
             return base.SentImpl(done);
         }
-        protected override bool ExceptionImpl(Ice.Exception ex)
-        {
-            if (Proxy.IceReference.GetInvocationTimeout() != -1)
-            {
-                Communicator.Timer().Cancel(this);
-            }
-            return base.ExceptionImpl(ex);
-        }
-
-        protected override bool ExceptionImpl(Ice.RemoteException ex)
+        protected override bool ExceptionImpl(System.Exception ex)
         {
             if (Proxy.IceReference.GetInvocationTimeout() != -1)
             {
@@ -944,13 +808,9 @@ namespace IceInternal
 
                 return ResponseImpl(false, replyStatus == ReplyStatus.OK, true);
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 return Exception(ex);
-            }
-            catch (Ice.RemoteException ex)
-            {
-                return Exception (ex);
             }
         }
 
@@ -972,15 +832,6 @@ namespace IceInternal
         }
 
         public new void Abort(Ice.Exception ex)
-        {
-            Ice.InvocationMode mode = Proxy.IceReference.GetMode();
-
-            Debug.Assert(mode != Ice.InvocationMode.BatchOneway &&
-                         mode != Ice.InvocationMode.BatchDatagram); // not implemented
-            base.Abort(ex);
-        }
-
-        public new void Abort(Ice.RemoteException ex)
         {
             Ice.InvocationMode mode = Proxy.IceReference.GetMode();
 
@@ -1038,10 +889,6 @@ namespace IceInternal
                 Invoke(synchronous);
             }
             catch (Ice.Exception ex)
-            {
-                Abort(ex);
-            }
-            catch (Ice.RemoteException ex)
             {
                 Abort(ex);
             }
@@ -1190,25 +1037,7 @@ namespace IceInternal
             return done || (Progress != null && !alreadySent); // Invoke the sent callback only if not already invoked.
         }
 
-        public bool HandleException(Ice.Exception ex, OutgoingAsyncBase og)
-        {
-            //
-            // If this is a synchronous call, we can notify the task from this thread to avoid
-            // the thread context switch. We know there aren't any continuations setup with the
-            // task.
-            //
-            if (og.IsSynchronous())
-            {
-                HandleInvokeException(ex, og);
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        public bool HandleException(Ice.RemoteException ex, OutgoingAsyncBase og)
+        public bool HandleException(System.Exception ex, OutgoingAsyncBase og)
         {
             //
             // If this is a synchronous call, we can notify the task from this thread to avoid
@@ -1256,8 +1085,7 @@ namespace IceInternal
             }
         }
 
-        public void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
-         public void HandleInvokeException(Ice.RemoteException ex, OutgoingAsyncBase og) => SetException(ex);
+        public void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
         public abstract void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
 
