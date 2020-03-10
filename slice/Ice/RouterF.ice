@@ -18,7 +18,5 @@
 
 module Ice
 {
-
-interface Router;
-
+    interface Router;
 }

@@ -18,7 +18,5 @@
 
 module Ice
 {
-
-interface Process;
-
+    interface Process;
 }
