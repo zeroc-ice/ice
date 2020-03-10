@@ -326,6 +326,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* ========== Comments ========== */
 
+  /* Matches and records a triple-slash style doc comment. */
+<*>"///".* {
+    unit->addToComment(comment.substr(3, yyleng - 3));
+}
+
   /* Matches and consumes a C++ style comment. */
 <*>"//".* {}
 

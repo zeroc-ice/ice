@@ -6051,6 +6051,16 @@ Slice::Unit::setComment(const string& comment)
     }
 }
 
+void
+Slice::Unit::addToComment(const string& comment)
+{
+    if(!_currentComment.empty())
+    {
+        _currentComment += '\n';
+    }
+    _currentComment += comment;
+}
+
 string
 Slice::Unit::currentComment()
 {

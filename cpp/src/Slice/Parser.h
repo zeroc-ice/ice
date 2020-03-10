@@ -1061,6 +1061,7 @@ public:
     bool allowUnderscore() const;
 
     void setComment(const std::string&);
+    void addToComment(const std::string&);
     std::string currentComment(); // Not const, as this function removes the current comment.
     std::string currentFile() const;
     std::string topLevelFile() const;
