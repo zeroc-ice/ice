@@ -25,8 +25,6 @@
 ["objc:prefix:ICE"]
 module Ice
 {
-
-interface Locator;
-interface LocatorRegistry;
-
+    interface Locator;
+    interface LocatorRegistry;
 }

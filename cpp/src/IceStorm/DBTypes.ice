@@ -11,17 +11,16 @@
 
 module IceStormElection
 {
-dictionary<string, LogUpdate> StringLogUpdateDict;
+    dictionary<string, LogUpdate> StringLogUpdateDict;
 }
 
 module IceStorm
 {
-dictionary<SubscriberRecordKey, SubscriberRecord> SubscriberRecordDict;
+    dictionary<SubscriberRecordKey, SubscriberRecord> SubscriberRecordDict;
 
-struct AllData
-{
-    IceStormElection::StringLogUpdateDict llus;
-    IceStorm::SubscriberRecordDict subscribers;
-}
-
+    struct AllData
+    {
+        IceStormElection::StringLogUpdateDict llus;
+        IceStorm::SubscriberRecordDict subscribers;
+    }
 }
