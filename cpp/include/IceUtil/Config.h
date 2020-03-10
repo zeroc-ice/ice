@@ -257,22 +257,14 @@
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
-#   ifdef ICE_CPP11_MAPPING
-#      if defined(_DEBUG)
-#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
-#      else
-#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
-#      endif
-#   else
-#      if defined(_DEBUG)
-#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
-#      else
-#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
-#      endif
-#   endif
+#if defined(_DEBUG)
+#    define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
+#else
+#    define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
+#endif
 
 //
-//  Automatically link with Ice[D|++11|++11D].lib
+//  Automatically link with Ice[D].lib
 //
 #   if !defined(ICE_BUILDING_ICE) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #      pragma comment(lib, ICE_LIBNAME("Ice"))

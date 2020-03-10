@@ -29,7 +29,9 @@ public:
 #endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual CompilerException* ice_cloneImpl() const;
+#else
     virtual CompilerException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
@@ -166,7 +168,7 @@ typedef std::list<EnumeratorPtr> EnumeratorList;
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
 
-class CICompare : public std::binary_function<std::string, std::string, bool>
+class CICompare 
 {
 public:
 
@@ -182,7 +184,7 @@ bool cICompare(const std::string&, const std::string&);
 // most-derived to least-derived order.
 // ----------------------------------------------------------------------
 
-class DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
+class DerivedToBaseCompare
 {
 public:
 

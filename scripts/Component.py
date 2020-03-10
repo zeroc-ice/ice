@@ -58,7 +58,6 @@ class Ice(Component):
                     ["Ice/background",
                      "Ice/echo",
                      "Ice/faultTolerance",
-                     "Ice/gc",
                      "Ice/library",
                      "Ice/logger",
                      "Ice/properties",
@@ -127,16 +126,6 @@ class Ice(Component):
                     return False
                 if testId == "IceStorm/repgrid":
                     return False
-
-        if isinstance(mapping, CppMapping) and current.config.cpp11:
-            if parent in ["IceGrid"] and testId in ["IceGrid/replicaGroup"]:
-                return False
-
-
-        # No C++98 tests for IceBridge, IceGrid, IceStorm and Glacier2
-        if isinstance(mapping, CppMapping) and not current.config.cpp11:
-            if parent in ["IceBridge", "IceGrid", "IceStorm", "Glacier2"]:
-                return False
 
         if current.config.xamarin and not current.config.uwp:
             #

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
     <IceBuildingSrc>yes</IceBuildingSrc>
-    <IceCppMapping>cpp98</IceCppMapping>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
 </Project>

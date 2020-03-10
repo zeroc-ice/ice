@@ -1314,7 +1314,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");

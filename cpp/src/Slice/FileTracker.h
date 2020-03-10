@@ -21,7 +21,9 @@ public:
 #endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    virtual FileException* ice_cloneImpl() const;
+#else
     virtual FileException* ice_clone() const;
 #endif
     virtual void ice_throw() const;
