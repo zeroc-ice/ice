@@ -168,7 +168,7 @@ typedef std::list<EnumeratorPtr> EnumeratorList;
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
 
-class CICompare 
+class CICompare
 {
 public:
 
