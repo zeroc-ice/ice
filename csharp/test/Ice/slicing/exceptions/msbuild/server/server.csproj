@@ -3,6 +3,7 @@
   <PropertyGroup>
     <AssemblyName>server</AssemblyName>
     <OutputType>Exe</OutputType>
+    <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemDefinitionGroup>
