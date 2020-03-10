@@ -77,6 +77,7 @@ namespace Ice
                         // Ignore.
                     }
                 }
+                _plugins.Clear();
                 throw;
             }
 
@@ -316,7 +317,7 @@ namespace Ice
             // precedence over the the entryPoint specified in the plugin
             // property value.
             //
-            if (!_pluginFactories.TryGetValue(name, out IPluginFactory pluginFactory))
+            if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
             {
                 //
                 // Extract the assembly name and the class name.

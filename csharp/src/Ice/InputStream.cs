@@ -335,11 +335,11 @@ namespace Ice
         {
             // Note that IceEndSlice is not called when we call SkipSlice.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
                 SkipTaggedMembers();
             }
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable.HasValue && _current.IndirectionTable != null);
                 _pos = _current.PosAfterIndirectionTable.Value;
@@ -369,7 +369,7 @@ namespace Ice
             return size;
         }
 
-        /// <summary>
+        /// <summary>
         /// Reads a sequence size and make sure there is enough space in the underlying buffer to read the sequence.
         /// This validation is performed to make sure we do not allocate a large container based on an invalid encoded
         /// size.
@@ -423,7 +423,7 @@ namespace Ice
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             // The current slice has no tagged member
-            if (_current != null && (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+            if (_current != null && (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) == 0)
             {
                 return false;
             }
@@ -438,7 +438,7 @@ namespace Ice
                 }
 
                 int v = ReadByte();
-                if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
+                if (v == EncodingDefinitions.TaggedEndMarker)
                 {
                     _pos--; // Rewind.
                     return false;
@@ -1117,7 +1117,7 @@ namespace Ice
                 // Slice off what we don't understand.
                 SkipSlice();
 
-                if ((_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0)
                 {
                     if (mostDerivedId.StartsWith("::", StringComparison.Ordinal) == true)
                     {
@@ -1292,7 +1292,7 @@ namespace Ice
                 }
 
                 int v = ReadByte();
-                if (v == EncodingDefinitions.OPTIONAL_END_MARKER)
+                if (v == EncodingDefinitions.TaggedEndMarker)
                 {
                     return true;
                 }
@@ -1385,7 +1385,7 @@ namespace Ice
             {
                 return null;
             }
-            else if (_current != null && (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            else if (_current != null && (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 // When reading an instance within a slice and there is an
                 // indirection table, we have an index within this indirection table.
@@ -1428,7 +1428,7 @@ namespace Ice
         {
             Debug.Assert(_current != null);
 
-            _current.SliceFlags = ReadByte();
+            _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
 
             // Read the type ID. For class slices, the type ID is encoded as a
             // string or as an index or as a compact ID, for exceptions it's always encoded as a
@@ -1436,22 +1436,22 @@ namespace Ice
             if (_current.InstanceType == InstanceType.Class)
             {
                 // TYPE_ID_COMPACT must be checked first!
-                if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT) ==
-                    EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT)
+                if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTypeIdCompact) ==
+                    EncodingDefinitions.SliceFlags.HasTypeIdCompact)
                 {
                     _current.SliceCompactId = ReadSize();
                     _current.SliceTypeId = null;
                 }
                 else if ((_current.SliceFlags &
-                        (EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX | EncodingDefinitions.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                        (EncodingDefinitions.SliceFlags.HasTypeIdIndex | EncodingDefinitions.SliceFlags.HasTypeIdString)) != 0)
                 {
-                    _current.SliceTypeId = ReadTypeId((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.SliceTypeId = ReadTypeId((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTypeIdIndex) != 0);
                     _current.SliceCompactId = null;
                 }
                 else
                 {
                     // Slice in compact format, without a type ID or compact ID.
-                    Debug.Assert((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) == 0);
+                    Debug.Assert((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0);
                     _current.SliceTypeId = null;
                     _current.SliceCompactId = null;
                 }
@@ -1463,7 +1463,7 @@ namespace Ice
             }
 
             // Read the slice size if necessary.
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
                 _current.SliceSize = ReadInt();
                 if (_current.SliceSize < 4)
@@ -1489,7 +1489,7 @@ namespace Ice
         private void ReadIndirectionTableIntoCurrent()
         {
             Debug.Assert(_current != null && _current.IndirectionTable == null);
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 int savedPos = _pos;
                 if (_current.SliceSize < 4)
@@ -1525,7 +1525,7 @@ namespace Ice
 
             int start = _pos;
 
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
                 Debug.Assert(_current.SliceSize >= 4);
                 Skip(_current.SliceSize - 4);
@@ -1552,7 +1552,7 @@ namespace Ice
             }
 
             // Preserve this slice.
-            bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+            bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0;
             int end = _pos;
             int dataEnd = end;
             if (hasOptionalMembers)
@@ -1566,7 +1566,7 @@ namespace Ice
 
             int startOfIndirectionTable = 0;
 
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
@@ -1587,7 +1587,7 @@ namespace Ice
                                      new ReadOnlyMemory<byte>(bytes),
                                      Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
                                      hasOptionalMembers,
-                                     (_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0);
+                                     (_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0);
             _current.Slices.Add(info);
 
             // An exception slice may have an indirection table (saved above). We don't need it anymore
@@ -1624,19 +1624,19 @@ namespace Ice
                     }
 
                     // Read/skip this instance
-                    byte sliceFlags;
+                    EncodingDefinitions.SliceFlags sliceFlags;
                     do
                     {
-                        sliceFlags = ReadByte();
-                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT) == EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT)
+                        sliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
+                        if ((sliceFlags & EncodingDefinitions.SliceFlags.HasTypeIdCompact) == EncodingDefinitions.SliceFlags.HasTypeIdCompact)
                         {
                             ReadSize(); // compact type-id
                         }
                         else if ((sliceFlags &
-                            (EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX | EncodingDefinitions.FLAG_HAS_TYPE_ID_STRING)) != 0)
+                            (EncodingDefinitions.SliceFlags.HasTypeIdIndex | EncodingDefinitions.SliceFlags.HasTypeIdString)) != 0)
                         {
                             // This can update the typeIdMap
-                            ReadTypeId((sliceFlags & EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                            ReadTypeId((sliceFlags & EncodingDefinitions.SliceFlags.HasTypeIdIndex) != 0);
                         }
                         else
                         {
@@ -1645,7 +1645,7 @@ namespace Ice
                         }
 
                         // Read the slice size, then skip the slice
-                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) == 0)
+                        if ((sliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0)
                         {
                             throw new MarshalException("size of slice missing");
                         }
@@ -1657,11 +1657,11 @@ namespace Ice
                         _pos = _pos + sliceSize - 4;
 
                         // If this slice has an indirection table, skip it too
-                        if ((sliceFlags & EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                        if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
                         {
                             SkipIndirectionTable();
                         }
-                    } while ((sliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) == 0);
+                    } while ((sliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) == 0);
                     _classGraphDepth--;
                 }
             }
@@ -1750,7 +1750,7 @@ namespace Ice
                 deferredIndirectionTableList.Add(SkipSlice());
 
                 // If this is the last slice, keep the instance as an opaque UnknownSlicedClass object.
-                if ((_current.SliceFlags & EncodingDefinitions.FLAG_IS_LAST_SLICE) != 0)
+                if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0)
                 {
                     v = new UnknownSlicedClass();
                     break;
@@ -1835,7 +1835,7 @@ namespace Ice
             internal List<SliceInfo>? Slices; // Preserved slices.
 
             // Slice attributes
-            internal byte SliceFlags = 0;
+            internal EncodingDefinitions.SliceFlags SliceFlags = default;
             internal int SliceSize = 0;
             internal string? SliceTypeId;
             internal int? SliceCompactId;
