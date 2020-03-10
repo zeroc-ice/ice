@@ -4,121 +4,117 @@
 
 module Test
 {
+    module Common
+    {
+        sequence<bool> BoolSeq;
+        sequence<string> StringSeq;
 
-module Common
-{
+        class Config
+        {
+        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
+            optional(1) string protocol;
+            optional(2) bool mx;
+            optional(3) bool serialize;
+            optional(4) bool compress;
+            optional(5) bool ipv6;
+            optional(6) StringSeq cprops;
+            optional(7) StringSeq sprops;
+        #else
+            tag(1) string protocol;
+            tag(2) bool mx;
+            tag(3) bool serialize;
+            tag(4) bool compress;
+            tag(5) bool ipv6;
+            tag(6) StringSeq cprops;
+            tag(7) StringSeq sprops;
+        #endif
+        }
 
-sequence<bool> BoolSeq;
-sequence<string> StringSeq;
+        class OptionOverrides
+        {
+        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
+            optional(1) StringSeq protocol;
+            optional(2) BoolSeq mx;
+            optional(3) BoolSeq serialize;
+            optional(4) BoolSeq compress;
+            optional(5) BoolSeq ipv6;
+        #else
+            tag(1) StringSeq protocol;
+            tag(2) BoolSeq mx;
+            tag(3) BoolSeq serialize;
+            tag(4) BoolSeq compress;
+            tag(5) BoolSeq ipv6;
+        #endif
+        }
 
-class Config
-{
-#ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
-    optional(1) string protocol;
-    optional(2) bool mx;
-    optional(3) bool serialize;
-    optional(4) bool compress;
-    optional(5) bool ipv6;
-    optional(6) StringSeq cprops;
-    optional(7) StringSeq sprops;
-#else
-    tag(1) string protocol;
-    tag(2) bool mx;
-    tag(3) bool serialize;
-    tag(4) bool compress;
-    tag(5) bool ipv6;
-    tag(6) StringSeq cprops;
-    tag(7) StringSeq sprops;
-#endif
-}
+        exception TestCaseNotExistException
+        {
+            string reason;
+        }
 
-class OptionOverrides
-{
-#ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
-    optional(1) StringSeq protocol;
-    optional(2) BoolSeq mx;
-    optional(3) BoolSeq serialize;
-    optional(4) BoolSeq compress;
-    optional(5) BoolSeq ipv6;
-#else
-    tag(1) StringSeq protocol;
-    tag(2) BoolSeq mx;
-    tag(3) BoolSeq serialize;
-    tag(4) BoolSeq compress;
-    tag(5) BoolSeq ipv6;
-#endif
-}
+        exception TestCaseFailedException
+        {
+            string output;
+        }
 
-exception TestCaseNotExistException
-{
-    string reason;
-}
+        interface TestCase
+        {
+            string startServerSide(Config config)
+                throws TestCaseFailedException;
 
-exception TestCaseFailedException
-{
-    string output;
-}
+            string stopServerSide(bool success)
+                throws TestCaseFailedException;
 
-interface TestCase
-{
-    string startServerSide(Config config)
-        throws TestCaseFailedException;
+            string runClientSide(string host, Config config)
+                throws TestCaseFailedException;
 
-    string stopServerSide(bool success)
-        throws TestCaseFailedException;
+            void destroy();
+        }
 
-    string runClientSide(string host, Config config)
-        throws TestCaseFailedException;
+        interface Controller
+        {
+            TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
+                throws TestCaseNotExistException;
 
-    void destroy();
-}
+            OptionOverrides getOptionOverrides();
 
-interface Controller
-{
-    TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
-        throws TestCaseNotExistException;
+            StringSeq getTestSuites(string mapping);
 
-    OptionOverrides getOptionOverrides();
+            string getHost(string protocol, bool ipv6);
+        }
 
-    StringSeq getTestSuites(string mapping);
+        exception ProcessFailedException
+        {
+            string reason;
+        }
 
-    string getHost(string protocol, bool ipv6);
-}
+        interface Process
+        {
+            void waitReady(int timeout)
+                throws ProcessFailedException;
 
-exception ProcessFailedException
-{
-    string reason;
-}
+            int waitSuccess(int timeout)
+                throws ProcessFailedException;
 
-interface Process
-{
-    void waitReady(int timeout)
-        throws ProcessFailedException;
+            string terminate();
+        }
 
-    int waitSuccess(int timeout)
-        throws ProcessFailedException;
+        interface ProcessController
+        {
+            Process* start(string testsuite, string exe, StringSeq args)
+                throws ProcessFailedException;
 
-    string terminate();
-}
+            string getHost(string protocol, bool ipv6);
+        }
 
-interface ProcessController
-{
-    Process* start(string testsuite, string exe, StringSeq args)
-        throws ProcessFailedException;
+        interface BrowserProcessController extends ProcessController
+        {
+            void redirect(string url);
+        }
 
-    string getHost(string protocol, bool ipv6);
-}
-
-interface BrowserProcessController extends ProcessController
-{
-    void redirect(string url);
-}
-
-interface ProcessControllerRegistry
-{
-    void setProcessController(ProcessController* controller);
-}
-
-}
-
+        interface ProcessControllerRegistry
+        {
+            void setProcessController(ProcessController* controller);
+        }
+    }
 }
