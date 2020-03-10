@@ -4,6 +4,7 @@
         <AssemblyName>iceboxnet</AssemblyName>
         <Title>IceBox .NET Server</Title>
         <OutputType>Exe</OutputType>
+        <UseAppHost>true</UseAppHost>
         <OutputPath>../../bin</OutputPath>
         <TargetFramework>$(AppTargetFramework)</TargetFramework>
     </PropertyGroup>

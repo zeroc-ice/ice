@@ -477,7 +477,7 @@ namespace IceInternal
 
         public IObjectPrx? GetProxy() => _proxy;
 
-        public string GetEncoding() => Ice.Util.EncodingToString(_proxy.Encoding);
+        public string GetEncoding() => _proxy.Encoding.ToString();
 
         public string GetIdentity()
         {

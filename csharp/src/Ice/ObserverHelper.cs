@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using Ice.Instrumentation;
+
 namespace IceInternal
 {
-    using System.Collections.Generic;
-    using Ice.Instrumentation;
-
     public sealed class ObserverHelper
     {
         public static IInvocationObserver? get(Ice.Communicator communicator, string op)
@@ -24,10 +24,7 @@ namespace IceInternal
             return null;
         }
 
-        public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op)
-        {
-            return get(proxy, op, null);
-        }
+        public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op) => get(proxy, op, null);
 
         public static IInvocationObserver? get(Ice.IObjectPrx proxy, string op, Dictionary<string, string>? context)
         {
@@ -52,6 +49,6 @@ namespace IceInternal
             return null;
         }
 
-        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
     }
 }

@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildThisFileDirectory)../msbuild/ice.test.props" />
     <PropertyGroup>
-        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.0</AppTargetFramework>
+        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.1</AppTargetFramework>
     </PropertyGroup>
     <Choose>
         <When Condition="'$(ICE_BIN_DIST)' == 'all'">

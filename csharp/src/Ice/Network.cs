@@ -3,12 +3,12 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace IceInternal

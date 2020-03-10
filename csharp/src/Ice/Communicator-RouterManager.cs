@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System.Collections.Generic;
 using System.Diagnostics;
-using IceInternal;
 
 namespace Ice
 {
@@ -59,8 +59,8 @@ namespace Ice
                 }
             }
 
-            var (proxy, hasRoutingTable) = Router.GetClientProxy();
-            return SetClientEndpoints(proxy!, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+            (IObjectPrx? proxy, bool? hasRoutingTable) = Router.GetClientProxy();
+            return SetClientEndpoints(proxy!, hasRoutingTable ?? true);
         }
 
         public void GetClientEndpoints(GetClientEndpointsCallback callback)

@@ -44,7 +44,13 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+Slice::CompilerException*
+Slice::CompilerException::ice_cloneImpl() const
+{
+    return new CompilerException(*this);
+}
+#else
 Slice::CompilerException*
 Slice::CompilerException::ice_clone() const
 {
@@ -1100,7 +1106,10 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
-    for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&SyntaxTreeBase::destroy));
+    for(const auto& content: _contents)
+    {
+        content->destroy();
+    }
     _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();
@@ -4072,7 +4081,7 @@ Slice::ClassDef::ids() const
 {
     StringList ids;
     ClassList bases = allBases();
-    transform(bases.begin(), bases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+    transform(bases.begin(), bases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
     StringList other;
     other.push_back(scoped());
     other.push_back("::Ice::Object");

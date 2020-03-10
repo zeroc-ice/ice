@@ -27,7 +27,7 @@ namespace Ice.operations
             }
             catch (LocalException)
             {
-                Console.Out.WriteLine("ok");
+                 Console.Out.WriteLine("ok");
             }
         }
 

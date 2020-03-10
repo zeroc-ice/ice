@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Context = System.Collections.Generic.Dictionary<string, string>;
 
@@ -34,7 +32,7 @@ namespace Ice
         /// written later on with StartReturnValue/EndReturnValue.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this method creates a response.</param>
-        public OutgoingResponseFrame(Current current) : base(current.Adapter.Communicator, Util.CurrentProtocolEncoding)
+        public OutgoingResponseFrame(Current current) : base(current.Adapter.Communicator, Ice1Definitions.Encoding)
         {
             RequestId = current.RequestId;
             _payloadEncoding = current.Encoding;

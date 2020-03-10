@@ -2,41 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+
 namespace Ice
 {
     // Definitions for the ice1 protocol.
     internal static class Ice1Definitions
     {
-        //
-        // Size of the ice1 protocol header
-        //
+        // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
+        // for the subset of the encoding used by the ice1 headers.
+        internal static readonly Encoding Encoding = Encoding.V1_1;
+
+        // Size of an ice1 frame or message header:
         // Magic number (4 bytes)
-        // Protocol version major (Byte)
-        // Protocol version minor (Byte)
-        // Encoding version major (Byte)
-        // Encoding version minor (Byte)
+        // Post magic (4 bytes)
         // Message type (Byte)
         // Compression status (Byte)
-        // Message size (Int)
-        //
+        // Message size (Int - 4 bytes)
         internal const int HeaderSize = 14;
 
-        //
         // The magic number at the front of each message
-        //
         internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 
-        //
-        // The current Ice protocol and encoding version
-        //
-        internal const byte ProtocolMajor = 1;
-        internal const byte ProtocolMinor = 0;
-        internal const byte ProtocolEncodingMajor = 1;
-        internal const byte ProtocolEncodingMinor = 0;
+        // 4-bytes after magic that provide the protocol version (always 1.0 for an ice1 frame) and the
+        // encoding of the frame header (always set to 1.0 with the an ice1 frame, even though we use 1.1).
+        internal static readonly byte[] ProtocolBytes = new byte[] { 1, 0, 1, 0 };
 
-        //
         // The Ice protocol message types
-        //
         internal const byte RequestMessage = 0;
         internal const byte RequestBatchMessage = 1;
         internal const byte ReplyMessage = 2;
@@ -46,8 +39,7 @@ namespace Ice
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             RequestMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -57,8 +49,7 @@ namespace Ice
         internal static readonly byte[] RequestBatchHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             RequestBatchMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
@@ -68,11 +59,35 @@ namespace Ice
         internal static readonly byte[] ReplyHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolMajor, ProtocolMinor,
-            ProtocolEncodingMajor, ProtocolEncodingMinor,
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             ReplyMessage,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).
         };
+
+        // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
+        internal static void CheckHeader(Span<byte> header)
+        {
+            Debug.Assert(header.Length >= 8);
+            if (header[0] != Magic[0] || header[1] != Magic[1] || header[2] != Magic[2] || header[3] != Magic[3])
+            {
+                throw new BadMagicException("Received incorrect magic bytes in ice1 header",
+                    header.Slice(0, 4).ToArray());
+            }
+
+            header = header.Slice(4);
+
+            if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
+            {
+                throw new ProtocolException(
+                    $"received ice1 protocol frame with protocol set to {header[0]}.{header[1]}");
+            }
+
+            if (header[2] != ProtocolBytes[2] || header[3] != ProtocolBytes[3])
+            {
+                throw new ProtocolException(
+                    $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
+            }
+        }
     }
 }

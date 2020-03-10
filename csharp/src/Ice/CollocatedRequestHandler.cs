@@ -164,7 +164,7 @@ namespace IceInternal
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.ToArray()), false);
+                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, os.ToArray());
                 requestFrame.Pos = Ice1Definitions.RequestHeader.Length;
 
                 int start = requestFrame.Pos;
@@ -244,7 +244,7 @@ namespace IceInternal
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var iss = new Ice.InputStream(os.Communicator, os.Encoding, new Buffer(os.ToArray()), true);
+                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.ToArray());
 
                 iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
 

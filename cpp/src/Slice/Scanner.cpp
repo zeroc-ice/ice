@@ -1927,14 +1927,14 @@ case 31:
 YY_RULE_SETUP
 #line 388 "src/Slice/Scanner.l"
 {
-    switch(scanPosition(yytext))
+    int includeAction = scanPosition(yytext);
+    if(yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
-        case 1: // Push: Indicates the scanner has started scanning a new file.
-            yy_push_state(INITIAL);
-            break;
-        case 2: // Pop: Indicates the scanner has completed scanning a file.
-            yy_pop_state();
-            break;
+        yy_push_state(INITIAL);
+    }
+    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a new file.
+    {
+        yy_pop_state();
     }
     yy_push_state(PREPROCESS);
 }

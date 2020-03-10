@@ -3,15 +3,13 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace IceInternal
 {
     internal static class Incoming
     {
-        internal static void ReportException(System.Exception exc,
+        internal static void ReportException(Exception exc,
             Ice.Instrumentation.IDispatchObserver? dispatchObserver, Ice.Current current)
         {
             bool userException = exc is Ice.UserException;
@@ -42,7 +40,7 @@ namespace IceInternal
             }
         }
 
-        private static void Warning(System.Exception ex, Ice.Current current)
+        private static void Warning(Exception ex, Ice.Current current)
         {
             Debug.Assert(current.Adapter.Communicator != null);
 

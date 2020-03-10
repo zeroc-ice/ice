@@ -11,7 +11,7 @@ module Test
 
         class Config
         {
-        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
+        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp17 mapping.
             optional(1) string protocol;
             optional(2) bool mx;
             optional(3) bool serialize;
@@ -32,7 +32,7 @@ module Test
 
         class OptionOverrides
         {
-        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp11 mapping.
+        #ifdef __SLICE2PY__ // Temporary workaround until python is ported to use the cpp17 mapping.
             optional(1) StringSeq protocol;
             optional(2) BoolSeq mx;
             optional(3) BoolSeq serialize;

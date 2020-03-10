@@ -729,7 +729,7 @@ namespace IceBox
 
                 try
                 {
-                    Args = IceUtilInternal.Options.split(value);
+                    Args = IceUtilInternal.Options.Split(value);
                 }
                 catch (FormatException ex)
                 {

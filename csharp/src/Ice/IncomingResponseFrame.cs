@@ -5,11 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
-    using Context = Dictionary<string, string>;
-
     public enum ResultType : byte { Success, Failure };
 
     /// <summary>Represents a response protocol frame received by the application.</summary>
@@ -31,7 +30,7 @@ namespace Ice
                 if (_payload == null)
                 {
                     // TODO, it should never be empty, but currently it is when fulfilled by Sent
-                    if (InputStream.IsEmpty)
+                    if (InputStream.Size == 0)
                     {
                         _payload = ArraySegment<byte>.Empty;
                     }

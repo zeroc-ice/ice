@@ -15,8 +15,8 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                var buffer = new Buffer(str.ToArray()); // TODO avoid copy the data
-                var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
+                var buffer = str.ToArray(); // TODO avoid copy the data
+                var iss = new InputStream(str.Communicator, str.Encoding, buffer);
                 iss.Pos = 0;
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
@@ -47,8 +47,8 @@ namespace IceInternal
         {
             if (tl.Protocol >= 1)
             {
-                var buffer = new Buffer(str.ToArray()); // TODO avoid copy the data
-                var iss = new Ice.InputStream(str.Communicator, str.Encoding, buffer, false);
+                var buffer = str.ToArray(); // TODO avoid copy the data
+                var iss = new InputStream(str.Communicator, str.Encoding, buffer);
                 iss.Pos = 0;
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
@@ -89,73 +89,6 @@ namespace IceInternal
                     s.Write("unknown " + kind + " type `" + typeId + "'");
                     logger.Trace(slicingCat, s.ToString());
                 }
-            }
-        }
-
-        public static void DumpStream(Ice.InputStream stream)
-        {
-            int pos = stream.Pos;
-            stream.Pos = 0;
-
-            byte[] data = new byte[stream.Size];
-            stream.ReadBlob(data);
-            DumpOctets(data);
-
-            stream.Pos = pos;
-        }
-
-        public static void DumpOctets(byte[] data)
-        {
-            const int inc = 8;
-
-            for (int i = 0; i < data.Length; i += inc)
-            {
-                for (int j = i; j - i < inc; j++)
-                {
-                    if (j < data.Length)
-                    {
-                        int n = data[j];
-                        if (n < 0)
-                        {
-                            n += 256;
-                        }
-                        string s;
-                        if (n < 10)
-                        {
-                            s = "  " + n;
-                        }
-                        else if (n < 100)
-                        {
-                            s = " " + n;
-                        }
-                        else
-                        {
-                            s = "" + n;
-                        }
-                        System.Console.Out.Write(s + " ");
-                    }
-                    else
-                    {
-                        System.Console.Out.Write("    ");
-                    }
-                }
-
-                System.Console.Out.Write('"');
-
-                for (int j = i; j < data.Length && j - i < inc; j++)
-                {
-                    // TODO: this needs fixing
-                    if (data[j] >= 32 && data[j] < 127)
-                    {
-                        System.Console.Out.Write((char)data[j]);
-                    }
-                    else
-                    {
-                        System.Console.Out.Write('.');
-                    }
-                }
-
-                System.Console.Out.WriteLine('"');
             }
         }
 
@@ -219,11 +152,7 @@ namespace IceInternal
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
-                {
-                    s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
-                }
+                s.Write("\nencoding = ");
             }
         }
 
@@ -276,11 +205,8 @@ namespace IceInternal
                 }
 
                 Ice.Encoding v = str.SkipEncapsulation();
-                if (!v.Equals(Ice.Util.Encoding_1_0))
-                {
-                    s.Write("\nencoding = ");
-                    s.Write(Ice.Util.EncodingToString(v));
-                }
+                s.Write("\nencoding = ");
+                s.Write(v.ToString());
             }
             catch (System.IO.IOException)
             {

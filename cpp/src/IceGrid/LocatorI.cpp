@@ -203,7 +203,7 @@ public:
                 return;
             }
 
-            if(!_exception)
+            if(!_exptr)
             {
                 _exptr = exptr;
             }

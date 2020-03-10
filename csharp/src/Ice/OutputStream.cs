@@ -3,10 +3,10 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -161,7 +161,7 @@ namespace Ice
         public void StartEncapsulation(Encoding encoding, FormatType? format = null)
         {
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
 
             _mainEncaps = new Encaps(Encoding, _format, _tail);
 
@@ -230,12 +230,12 @@ namespace Ice
                 } // else we didn't write anything and it's still the first slice
             }
 
-            _current.SliceFlags = 0;
+            _current.SliceFlags = default;
 
             if (_format == FormatType.SlicedFormat)
             {
                 // Encode the slice size if using the sliced format.
-                _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_SLICE_SIZE;
+                _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasSliceSize;
             }
 
             _current.SliceFlagsPos = _tail;
@@ -253,7 +253,7 @@ namespace Ice
                 {
                     if (compactId.HasValue)
                     {
-                        _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_TYPE_ID_COMPACT;
+                        _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdCompact;
                         WriteSize(compactId.Value);
                     }
                     else
@@ -261,12 +261,12 @@ namespace Ice
                         int index = RegisterTypeId(typeId);
                         if (index < 0)
                         {
-                            _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_TYPE_ID_STRING;
+                            _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdString;
                             WriteString(typeId);
                         }
                         else
                         {
-                            _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_TYPE_ID_INDEX;
+                            _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdIndex;
                             WriteSize(index);
                         }
                     }
@@ -277,7 +277,7 @@ namespace Ice
                 WriteString(typeId);
             }
 
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
                 _current.SliceSizePos = _tail;
                 WriteInt(0); // Placeholder for the slice length.
@@ -295,18 +295,18 @@ namespace Ice
 
             if (lastSlice)
             {
-                _current.SliceFlags |= EncodingDefinitions.FLAG_IS_LAST_SLICE;
+                _current.SliceFlags |= EncodingDefinitions.SliceFlags.IsLastSlice;
             }
 
             // Write the tagged member end marker if some tagged members were encoded. Note that the optional members
             // are encoded before the indirection table and are included in the slice size.
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
-                WriteByte(EncodingDefinitions.OPTIONAL_END_MARKER);
+                WriteByte(EncodingDefinitions.TaggedEndMarker);
             }
 
             // Write the slice size if necessary.
-            if ((_current.SliceFlags & EncodingDefinitions.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
                 RewriteInt(Distance(_current.SliceSizePos), _current.SliceSizePos);
             }
@@ -314,7 +314,7 @@ namespace Ice
             if (_current.IndirectionTable?.Count > 0)
             {
                 Debug.Assert(_format == FormatType.SlicedFormat);
-                _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_INDIRECTION_TABLE;
+                _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasIndirectionTable;
 
                 WriteSize(_current.IndirectionTable.Count);
                 foreach (AnyClass v in _current.IndirectionTable)
@@ -326,7 +326,7 @@ namespace Ice
             }
 
             // Update SliceFlags in case they were updated.
-            RewriteByte(_current.SliceFlags, _current.SliceFlagsPos);
+            RewriteByte((byte)_current.SliceFlags, _current.SliceFlagsPos);
         }
 
         /// <summary>
@@ -411,13 +411,8 @@ namespace Ice
         /// <param name="format">The optional format of the value.</param>
         public bool WriteOptional(int tag, OptionalFormat format)
         {
+            // TODO: eliminate return value, which was used for 1.0 encoding.
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
-
-            if (Encoding.Equals(Util.Encoding_1_0))
-            {
-                // TODO: eliminate this block and return value
-                return false; // Tagged members aren't supported with the 1.0 encoding.
-            }
 
             int v = (int)format;
             if (tag < 30)
@@ -433,7 +428,7 @@ namespace Ice
             }
             if (_current != null)
             {
-                _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS;
+                _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTaggedMembers;
             }
             return true;
         }
@@ -1461,7 +1456,7 @@ namespace Ice
         internal void StartEndpointEncapsulation(Encoding encoding)
         {
             Debug.Assert(_endpointEncaps == null);
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
 
             _endpointEncaps = new Encaps(Encoding, _format, _tail);
             Encoding = encoding;
@@ -1488,7 +1483,7 @@ namespace Ice
         /// <param name="encoding">The encoding version of the encapsulation.</param>
         internal void WriteEmptyEncapsulation(Encoding encoding)
         {
-            EncodingDefinitions.CheckSupportedEncoding(encoding);
+            encoding.CheckSupported();
             WriteEncapsulationHeader(6, encoding);
         }
 
@@ -1529,7 +1524,7 @@ namespace Ice
 
                 if (info.HasOptionalMembers)
                 {
-                    _current.SliceFlags |= EncodingDefinitions.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTaggedMembers;
                 }
 
                 // Make sure to also re-write the instance indirection table.
@@ -1622,7 +1617,7 @@ namespace Ice
             internal readonly InstanceType InstanceType;
 
             // The following fields are used and reused for all the slices of a class or exception instance.
-            internal byte SliceFlags = 0;
+            internal EncodingDefinitions.SliceFlags SliceFlags = default;
 
             // Position of the optional slice size.
             internal Position SliceSizePos = new Position(0, 0);

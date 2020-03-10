@@ -1,6 +1,8 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
+
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -30,13 +32,6 @@ namespace IceInternal
         public UdpEndpoint(TransportInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
-            {
-                s.ReadByte();
-                s.ReadByte();
-                s.ReadByte();
-                s.ReadByte();
-            }
             // Not transmitted.
             //_connect = s.readBool();
             _connect = false;
@@ -254,13 +249,6 @@ namespace IceInternal
         public override void StreamWriteImpl(Ice.OutputStream s)
         {
             base.StreamWriteImpl(s);
-            if (s.Encoding.Equals(Ice.Util.Encoding_1_0))
-            {
-                s.WriteByte(Ice.Util.Protocol_1_0.Major);
-                s.WriteByte(Ice.Util.Protocol_1_0.Minor);
-                s.WriteByte(Ice.Util.Encoding_1_0.Major);
-                s.WriteByte(Ice.Util.Encoding_1_0.Minor);
-            }
             // Not transmitted.
             //s.writeBool(_connect);
             s.WriteBool(_compress);
@@ -321,7 +309,7 @@ namespace IceInternal
 
                 try
                 {
-                    Ice.Encoding v = Ice.Util.StringToEncoding(argument);
+                    Ice.Encoding v = Encoding.Parse(argument);
                     if (v.Major != 1 || v.Minor != 0)
                     {
                         Instance.Logger.Warning($"deprecated udp endpoint option: {option}");

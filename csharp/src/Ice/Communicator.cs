@@ -15,13 +15,6 @@ using System.Threading;
 
 namespace Ice
 {
-    public enum ToStringMode
-    {
-        Unicode,
-        ASCII,
-        Compat
-    }
-
     internal sealed class BufSizeWarnInfo
     {
         // Whether send size warning has been emitted
@@ -726,7 +719,7 @@ namespace Ice
             // or double quotation marks.
             //
             string idstr;
-            end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+            end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
             if (end == -1)
             {
                 throw new FormatException($"mismatched quotes around identity in `{s} '");
@@ -761,7 +754,7 @@ namespace Ice
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
             Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
-            Protocol protocol = Util.Protocol_1_0;
+            Protocol protocol = Protocol.Ice1;
             string adapter;
 
             while (true)
@@ -807,7 +800,7 @@ namespace Ice
                     if (ch != '@' && ch != ':' && ch != '-')
                     {
                         beg = argumentBeg;
-                        end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+                        end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
                         if (end == -1)
                         {
                             throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
@@ -843,7 +836,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -f option in `{s}'");
                             }
 
-                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
+                            facet = IceUtilInternal.StringUtil.UnescapeString(argument, 0, argument.Length, "");
                             break;
                         }
 
@@ -920,7 +913,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            encoding = Util.StringToEncoding(argument);
+                            encoding = Encoding.Parse(argument);
                             break;
                         }
 
@@ -931,7 +924,7 @@ namespace Ice
                                 throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            protocol = Util.StringToProtocol(argument);
+                            protocol = ProtocolExtensions.Parse(argument);
                             break;
                         }
 
@@ -1044,7 +1037,7 @@ namespace Ice
                 }
 
                 string adapterstr;
-                end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+                end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
                 if (end == -1)
                 {
                     throw new ArgumentException($"mismatched quotes around adapter id in `{s}'");
@@ -1071,7 +1064,7 @@ namespace Ice
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
+                adapter = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
 
                 if (adapter.Length == 0)
                 {
@@ -1117,23 +1110,17 @@ namespace Ice
 
             bool secure = s.ReadBool();
 
-            Protocol protocol;
-            Encoding encoding;
-            if (!s.Encoding.Equals(Util.Encoding_1_0))
+            byte major = s.ReadByte();
+            byte minor = s.ReadByte();
+            if (minor != 0)
             {
-                byte major = s.ReadByte();
-                byte minor = s.ReadByte();
-                protocol = new Protocol(major, minor);
+                throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
+            }
+            var protocol = (Protocol)major;
 
-                major = s.ReadByte();
-                minor = s.ReadByte();
-                encoding = new Encoding(major, minor);
-            }
-            else
-            {
-                protocol = Util.Protocol_1_0;
-                encoding = Util.Encoding_1_0;
-            }
+            major = s.ReadByte();
+            minor = s.ReadByte();
+            var encoding = new Encoding(major, minor);
 
             Endpoint[] endpoints;
             string adapterId = "";
@@ -1802,7 +1789,7 @@ namespace Ice
                 "", // Facet
                 ((Endpoint)connection.Endpoint).Datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
                 ((Endpoint)connection.Endpoint).Secure(),
-                Util.Protocol_1_0,
+                Protocol.Ice1,
                 DefaultsAndOverrides.DefaultEncoding,
                 connection,
                 -1,

@@ -8,7 +8,6 @@ using System.Threading;
 
 namespace IceInternal
 {
-
     public class AsyncIOThread
     {
         internal AsyncIOThread(Ice.Communicator communicator)

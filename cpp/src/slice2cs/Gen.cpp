@@ -1960,9 +1960,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     emitGeneratedCodeAttribute();
 
     _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
-    _out << sb;
 
-    _out << nl << "return ";
+    _out.inc();
+    _out << nl << "=> ";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
     {
         string mName = fixId(dataMemberName(*q));
@@ -1979,14 +1979,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(++q != dataMembers.end())
         {
-            _out << " &&" << nl << "       ";
+            _out << " &&" << nl << "   ";
         }
         else
         {
             _out << ";";
         }
     }
-    _out << eb;
+    _out.dec();
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2001,17 +2001,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator==(" << name << "? lhs, " << name << "? rhs)";
-    _out << sb;
-    _out << nl << "return object.Equals(lhs, rhs);";
-    _out << eb;
+    _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
+    _out << " => lhs.Equals(rhs);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator!=(" << name << "? lhs, " << name << "? rhs)";
-    _out << sb;
-    _out << nl << "return !object.Equals(lhs, rhs);";
-    _out << eb;
+    _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs)";
+    _out << " => !lhs.Equals(rhs);";
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2383,16 +2379,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string cancel = getEscapedParamName(operation, "cancel");
     string progress = getEscapedParamName(operation, "progress");
 
-    ExceptionList throws = operation->throws();
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings and resulting in the base exception
-    // being marshaled instead of the derived exception.
-    //
-    throws.sort(Slice::DerivedToBaseCompare());
-    throws.unique();
-
     {
         //
         // Write the synchronous version of the operation.
@@ -2485,31 +2471,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
             _out << sb;
             writeMarshalParams(operation, requiredInParams, taggedInParams);
-            _out << eb;
-        }
-
-        if(throws.size() > 0)
-        {
-            _out << ",";
-            _out << nl << "userException: (" << getUnqualified("Ice.UserException", ns) << " ex) =>";
-            _out << sb;
-            _out << nl << "try";
-            _out << sb;
-            _out << nl << "throw ex;";
-            _out << eb;
-
-            for(const auto& ex : throws)
-            {
-                _out << nl << "catch(" << getUnqualified(ex, ns) << ")";
-                _out << sb;
-                _out << nl << "throw;";
-                _out << eb;
-            }
-
-            _out << nl << "catch(" << getUnqualified("Ice.UserException", ns) << ")";
-            _out << sb;
-            _out << eb;
-
             _out << eb;
         }
 

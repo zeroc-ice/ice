@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
-using System.Collections.Generic;
 using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
@@ -51,7 +49,7 @@ namespace Ice
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, Context? context = null)
             : base(proxy.Communicator)
         {
-            Protocol.CheckSupportedProtocol(proxy.IceReference.GetProtocol());
+            proxy.IceReference.GetProtocol().CheckSupported();
 
             Identity = proxy.Identity;
             Facet = proxy.Facet;

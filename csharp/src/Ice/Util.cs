@@ -3,8 +3,6 @@
 //
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 
@@ -58,90 +56,6 @@ namespace Ice
         /// </summary>
         /// <returns>The Ice version.</returns>
         public static int IntVersion() => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
-
-        /// <summary>
-        /// Converts a string to a protocol version.
-        /// </summary>
-        /// <param name="version">The string to convert.</param>
-        /// <returns>The converted protocol version.</returns>
-        public static Protocol StringToProtocol(string version)
-        {
-            StringToMajorMinor(version, out byte major, out byte minor);
-            return new Protocol(major, minor);
-        }
-
-        /// <summary>
-        /// Converts a string to an encoding version.
-        /// </summary>
-        /// <param name="version">The string to convert.</param>
-        /// <returns>The converted encoding version.</returns>
-        public static Encoding StringToEncoding(string version)
-        {
-            StringToMajorMinor(version, out byte major, out byte minor);
-            return new Encoding(major, minor);
-        }
-
-        /// <summary>
-        /// Converts a protocol version to a string.
-        /// </summary>
-        /// <param name="v">The protocol version to convert.</param>
-        /// <returns>The converted string.</returns>
-        public static string ProtocolToString(Protocol v) => MajorMinorToString(v.Major, v.Minor);
-
-        /// <summary>
-        /// Converts an encoding version to a string.
-        /// </summary>
-        /// <param name="v">The encoding version to convert.</param>
-        /// <returns>The converted string.</returns>
-        public static string EncodingToString(Encoding v) => MajorMinorToString(v.Major, v.Minor);
-
-        private static void StringToMajorMinor(string str, out byte major, out byte minor)
-        {
-            int pos = str.IndexOf('.');
-            if (pos == -1)
-            {
-                throw new FormatException($"malformed version value `{str}'");
-            }
-
-            string majStr = str[..pos];
-            string minStr = str[(pos + 1)..];
-            int majVersion;
-            int minVersion;
-            try
-            {
-                majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
-                minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException)
-            {
-                throw new FormatException($"invalid version value `{str}'");
-            }
-
-            if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-            {
-                throw new FormatException($"range error in version `{str}'");
-            }
-
-            major = (byte)majVersion;
-            minor = (byte)minVersion;
-        }
-
-        private static string MajorMinorToString(byte major, byte minor) => string.Format("{0}.{1}", major, minor);
-
-        public static readonly Protocol CurrentProtocol =
-            new Protocol(Ice1Definitions.ProtocolMajor, Ice1Definitions.ProtocolMinor);
-
-        public static readonly Encoding CurrentProtocolEncoding =
-            new Encoding(Ice1Definitions.ProtocolEncodingMajor,
-                                Ice1Definitions.ProtocolEncodingMinor);
-
-        public static readonly Encoding CurrentEncoding =
-            new Encoding(EncodingDefinitions.EncodingMajor, EncodingDefinitions.EncodingMinor);
-
-        public static readonly Protocol Protocol_1_0 = new Protocol(1, 0);
-
-        public static readonly Encoding Encoding_1_0 = new Encoding(1, 0);
-        public static readonly Encoding Encoding_1_1 = new Encoding(1, 1);
 
         private static readonly object _processLoggerMutex = new object();
         private static ILogger? _processLogger = null;

@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using Ice;
 
 namespace IceInternal
 {
@@ -84,7 +84,7 @@ namespace IceInternal
             Network.SetBlock(_fd, block);
         }
 
-        public int Connect(Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer)
+        public int Connect(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             if (_state == StateNeedConnect)
             {
@@ -121,7 +121,7 @@ namespace IceInternal
             else if (_state == StateProxyRead)
             {
                 Debug.Assert(_proxy != null);
-                _proxy.BeginRead(readBuffer);
+                readBuffer = _proxy.BeginRead();
                 return SocketOperation.Read;
             }
             else if (_state == StateProxyConnected)
@@ -129,7 +129,8 @@ namespace IceInternal
                 Debug.Assert(_proxy != null);
                 _proxy.Finish(readBuffer);
 
-                readBuffer.Clear();
+                // TODO Return buffers to the pool
+                readBuffer = ArraySegment<byte>.Empty;
                 writeBuffer.Clear();
 
                 _state = StateConnected;
@@ -151,28 +152,28 @@ namespace IceInternal
             Network.SetTcpBufSize(_fd, rcvSize, sndSize, _instance);
         }
 
-        public int Read(Buffer buf)
+        public int Read(ref ArraySegment<byte> buffer, ref int offset)
         {
             if (_state == StateProxyRead)
             {
                 Debug.Assert(_proxy != null);
                 while (true)
                 {
-                    int ret = Read(buf.B);
+                    int ret = ReadData(buffer, offset);
                     if (ret == 0)
                     {
                         return SocketOperation.Read;
                     }
-
-                    _state = ToState(_proxy.EndRead(buf));
+                    offset += ret;
+                    _state = ToState(_proxy.EndRead(ref buffer, offset));
                     if (_state != StateProxyRead)
                     {
                         return SocketOperation.None;
                     }
                 }
             }
-            Read(buf.B);
-            return buf.B.HasRemaining() ? SocketOperation.Read : SocketOperation.None;
+            offset += ReadData(buffer, offset);
+            return offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
         }
 
         /// <summary>Write the buffer data to the socket starting at the given offset,
@@ -212,16 +213,16 @@ namespace IceInternal
             return bytesTransferred < remaining ? SocketOperation.Write : SocketOperation.None;
         }
 
-        public bool StartRead(Buffer buf, AsyncCallback callback, object state)
+        public bool StartRead(ArraySegment<byte> buffer, int offset, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null && _readEventArgs != null);
 
-            int packetSize = GetRecvPacketSize(buf.B.Remaining());
+            int packetSize = GetRecvPacketSize(buffer.Count - offset);
             try
             {
                 _readCallback = callback;
                 _readEventArgs.UserToken = state;
-                _readEventArgs.SetBuffer(buf.B.RawBytes(), buf.B.Position(), packetSize);
+                _readEventArgs.SetBuffer(buffer.Array, buffer.Offset + offset, packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
             }
             catch (System.Net.Sockets.SocketException ex)
@@ -234,7 +235,7 @@ namespace IceInternal
             }
         }
 
-        public void FinishRead(Buffer buf)
+        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
         {
             if (_fd == null) // Transceiver was closed
             {
@@ -253,16 +254,15 @@ namespace IceInternal
 
                 if (ret == 0)
                 {
-                    throw new Ice.ConnectionLostException();
+                    throw new ConnectionLostException();
                 }
 
                 Debug.Assert(ret > 0);
-                buf.B.Position(buf.B.Position() + ret);
-
+                offset += ret;
                 if (_state == StateProxyRead)
                 {
                     Debug.Assert(_proxy != null);
-                    _state = ToState(_proxy.EndRead(buf));
+                    _state = ToState(_proxy.EndRead(ref buffer, offset));
                 }
             }
             catch (System.Net.Sockets.SocketException ex)
@@ -432,7 +432,7 @@ namespace IceInternal
 
         public override string ToString() => _desc;
 
-        private int Read(ByteBuffer buf)
+        private int ReadData(ArraySegment<byte> buffer, int offset)
         {
             Debug.Assert(_fd != null);
             if (AssemblyUtil.IsMono)
@@ -444,24 +444,27 @@ namespace IceInternal
                 //
                 return 0;
             }
-            int read = 0;
-            while (buf.HasRemaining())
+
+            int bytesTransferred = 0;
+            int bufferOffset = buffer.Offset + offset;
+            while (buffer.Count - (offset + bytesTransferred) > 0)
             {
                 try
                 {
-                    int ret = _fd.Receive(buf.RawBytes(), buf.Position(), buf.Remaining(), SocketFlags.None);
+                    int ret = _fd.Receive(buffer.Array, bufferOffset + bytesTransferred,
+                        GetRecvPacketSize(buffer.Count - (offset + bytesTransferred)),
+                        SocketFlags.None);
                     if (ret == 0)
                     {
-                        throw new Ice.ConnectionLostException();
+                        throw new ConnectionLostException();
                     }
-                    read += ret;
-                    buf.Position(buf.Position() + ret);
+                    bytesTransferred += ret;
                 }
                 catch (System.Net.Sockets.SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
-                        return read;
+                        return bytesTransferred;
                     }
                     else if (Network.Interrupted(ex))
                     {
@@ -469,13 +472,13 @@ namespace IceInternal
                     }
                     else if (Network.ConnectionLost(ex))
                     {
-                        throw new Ice.ConnectionLostException(ex);
+                        throw new ConnectionLostException(ex);
                     }
 
                     throw new Ice.SocketException(ex);
                 }
             }
-            return read;
+            return bytesTransferred;
         }
 
         private int WriteData(IList<ArraySegment<byte>> buffer, int offset, int count)

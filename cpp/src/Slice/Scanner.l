@@ -385,14 +385,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 <*>^{preprocessor_lineno}                         |
 <*>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
-    switch(scanPosition(yytext))
+    int includeAction = scanPosition(yytext);
+    if(yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
-        case 1: // Push: Indicates the scanner has started scanning a new file.
-            yy_push_state(INITIAL);
-            break;
-        case 2: // Pop: Indicates the scanner has completed scanning a file.
-            yy_pop_state();
-            break;
+        yy_push_state(INITIAL);
+    }
+    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a new file.
+    {
+        yy_pop_state();
     }
     yy_push_state(PREPROCESS);
 }

@@ -77,6 +77,7 @@ namespace Ice
                         // Ignore.
                     }
                 }
+                _plugins.Clear();
                 throw;
             }
 
@@ -142,8 +143,7 @@ namespace Ice
             foreach (string name in _loadOnInitialization)
             {
                 string key = $"Ice.Plugin.{name}.clr";
-                string? r;
-                plugins.TryGetValue(key, out r);
+                plugins.TryGetValue(key, out string r);
                 if (r == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -192,8 +192,7 @@ namespace Ice
                 }
 
                 string key = $"Ice.Plugin.{name}clr";
-                string? value;
-                plugins.TryGetValue(key, out value);
+                plugins.TryGetValue(key, out string value);
                 if (value == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -280,7 +279,7 @@ namespace Ice
                 //
                 try
                 {
-                    args = IceUtilInternal.Options.split(pluginSpec);
+                    args = IceUtilInternal.Options.Split(pluginSpec);
                 }
                 catch (FormatException ex)
                 {
@@ -318,8 +317,7 @@ namespace Ice
             // precedence over the the entryPoint specified in the plugin
             // property value.
             //
-            IPluginFactory? pluginFactory;
-            if (!_pluginFactories.TryGetValue(name, out pluginFactory))
+            if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
             {
                 //
                 // Extract the assembly name and the class name.

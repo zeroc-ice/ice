@@ -210,7 +210,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("info : global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "netcoreapp{}".format("3.0" if int(version[0]) >= 3 else "2.1")
+            self.defaultNetCoreFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
         except:
             self.nugetPackageCache = None
 
@@ -3153,19 +3153,11 @@ class CppMapping(Mapping):
 
             Mapping.Config.__init__(self, options)
 
-            if self.buildConfig == "Debug":
-                self.buildConfig = "Cpp11-Debug"
-            elif self.buildConfig == "Release":
-                self.buildConfig = "Cpp11-Release"
-            elif self.buildConfig == platform.getDefaultBuildConfig():
+            if self.buildConfig == platform.getDefaultBuildConfig():
                 if isinstance(platform, Windows):
-                    self.buildConfig = "Cpp11-Release"
+                    self.buildConfig = "Release"
                 else:
-                    self.buildConfig = "cpp11-shared"
-
-            # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
-            # tests on the cpp11 value in the testcase options specification
-            self.cpp11 = self.buildConfig.lower().find("cpp11") >= 0
+                    self.buildConfig = "shared"
 
             parseOptions(self, options, { "cpp-config" : "buildConfig",
                                           "cpp-platform" : "buildPlatform",
@@ -3271,11 +3263,11 @@ class CppMapping(Mapping):
 
     def getIOSControllerIdentity(self, current):
         category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
-        mapping = "Cpp11" if current.config.cpp11 else "Cpp98"
+        mapping = "Cpp"
         return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
 
     def getIOSAppFullPath(self, current):
-        appName = "C++11 Test Controller.app" if current.config.cpp11 else "C++98 Test Controller.app"
+        appName = "C++ Test Controller.app"
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(path, "build-{0}-{1}".format(current.config.buildPlatform, current.config.buildConfig))
         build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
@@ -3493,8 +3485,8 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = (current.config.testTargetFramework in ["netcoreapp2.1", "netcoreapp2.2"] or
-                        process.isFromBinDir())
+        useDotnetExe = current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir()
+
         command = ""
         if useDotnetExe:
             command += "dotnet "
@@ -3540,44 +3532,6 @@ class CSharpMapping(Mapping):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.iOS", "bin", "iPhoneSimulator",
                             current.config.buildConfig, "controller.iOS.app")
 
-class Cpp98BasedMapping(Mapping):
-
-    class Config(Mapping.Config):
-
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", [self.mappingName + "-config=", self.mappingName + "-platform=", "openssl"])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print(self.mappingDesc + " mapping options:")
-            print("--{0}-config=<config>     {1} build configuration for native executables (overrides --config)."
-                .format(self.mappingName, self.mappingDesc))
-            print("--{0}-platform=<platform> {1} build platform for native executables (overrides --platform)."
-                .format(self.mappingName, self.mappingDesc))
-            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-            parseOptions(self, options,
-                { self.mappingName + "-config" : "buildConfig",
-                  self.mappingName + "-platform" : "buildPlatform" })
-
-    def getSSLProps(self, process, current):
-        return Mapping.getByName("cpp98").getSSLProps(process, current)
-
-    def getPluginEntryPoint(self, plugin, process, current):
-        return Mapping.getByName("cpp98").getPluginEntryPoint(plugin, process, current)
-
-    def getEnv(self, process, current):
-        env = Mapping.getEnv(self, process, current)
-        if self.component.getInstallDir(self, current) != platform.getInstallDir():
-            # If not installed in the default platform installation directory, add
-            # the C++ library directory to the library path
-            env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp98"), current)
-        return env
-
 class CppBasedMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3616,7 +3570,7 @@ class CppBasedMapping(Mapping):
             env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp"), current)
         return env
 
-class PythonMapping(Cpp98BasedMapping):
+class PythonMapping(CppBasedMapping):
 
     class Config(CppBasedMapping.Config):
         mappingName = "python"
@@ -3629,7 +3583,7 @@ class PythonMapping(Cpp98BasedMapping):
                                              args)
 
     def getEnv(self, process, current):
-        env = Cpp98BasedMapping.getEnv(self, process, current)
+        env = CppBasedMapping.getEnv(self, process, current)
         dirs = []
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add

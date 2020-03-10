@@ -18,11 +18,11 @@ namespace IceSSL
     {
         public Socket? Fd() => _delegate.Fd();
 
-        public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
+        public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
         {
             if (!_isConnected)
             {
-                int status = _delegate.Initialize(readBuffer, writeBuffer, ref hasMoreData);
+                int status = _delegate.Initialize(ref readBuffer, writeBuffer);
                 if (status != IceInternal.SocketOperation.None)
                 {
                     return status;
@@ -106,28 +106,24 @@ namespace IceSSL
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
             offset < buffer.GetByteCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
-        public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
-        {
-            //
-            // Force caller to use async read.
-            //
-            return buf.B.HasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
-        }
+        // Force caller to use async read.
+        public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
+            offset < buffer.Count ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
 
-        public bool StartRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
+        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, IceInternal.AsyncCallback callback, object state)
         {
             if (!_isConnected)
             {
-                return _delegate.StartRead(buf, callback, state);
+                return _delegate.StartRead(ref buffer, ref offset, callback, state);
             }
 
             Debug.Assert(_sslStream != null && _sslStream.IsAuthenticated);
 
-            int packetSz = GetRecvPacketSize(buf.B.Remaining());
+            int packetSize = GetRecvPacketSize(buffer.Count - offset);
             try
             {
                 _readCallback = callback;
-                _readResult = _sslStream.BeginRead(buf.B.RawBytes(), buf.B.Position(), packetSz, ReadCompleted, state);
+                _readResult = _sslStream.BeginRead(buffer.Array, buffer.Offset + offset, packetSize, ReadCompleted, state);
                 return _readResult.CompletedSynchronously;
             }
             catch (IOException ex)
@@ -152,11 +148,11 @@ namespace IceSSL
             }
         }
 
-        public void FinishRead(IceInternal.Buffer buf)
+        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
         {
             if (!_isConnected)
             {
-                _delegate.FinishRead(buf);
+                _delegate.FinishRead(ref buffer, ref offset);
                 return;
             }
             else if (_sslStream == null) // Transceiver was closed
@@ -173,12 +169,12 @@ namespace IceSSL
 
                 if (ret == 0)
                 {
-                    throw new Ice.ConnectionLostException();
+                    throw new ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
-                buf.B.Position(buf.B.Position() + ret);
+                offset += ret;
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 throw;
             }

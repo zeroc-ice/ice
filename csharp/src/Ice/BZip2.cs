@@ -347,12 +347,10 @@ namespace IceInternal
             return r;
         }
 
-        public static Buffer Uncompress(Buffer buf, int headerSize, int messageSizeMax)
+        public static Ice.InputStream Uncompress(Ice.InputStream compressed, int headerSize, int messageSizeMax)
         {
             Debug.Assert(Supported());
-
-            buf.B.Position(headerSize);
-            int uncompressedSize = buf.B.GetInt();
+            int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4).Span);
             if (uncompressedSize <= headerSize)
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");
@@ -362,27 +360,28 @@ namespace IceInternal
                 Ex.ThrowMemoryLimitException(uncompressedSize, messageSizeMax);
             }
 
-            int compressedLen = buf.Size() - headerSize - 4;
-            byte[] compressed = buf.B.RawBytes(headerSize + 4, compressedLen);
+            // TODO this is not optimal we copy the compressed data to feed Bzip2 with a single array,
+            // that doesn't include the uncompressed header, then we allocate an array to hold the
+            // uncompressed data and copy the uncompressed data to the uncompressed stream after the
+            // header.
+            int compressedLen = compressed.Size - headerSize - 4;
+            byte[] compressedData = new byte[compressedLen];
+            compressed.Buffer.Slice(headerSize + 4).CopyTo(compressedData);
             int uncompressedLen = uncompressedSize - headerSize;
 
-            byte[] uncompressed = new byte[uncompressedLen];
-            int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
+            byte[] uncompressedData = new byte[uncompressedLen];
+            int rc = _decompressBuffer(uncompressedData, ref uncompressedLen, compressedData, compressedLen, 0, 0);
             if (rc < 0)
             {
                 throw new Ice.CompressionException($"BZ2_bzBuffToBuffDecompress failed\n{GetBZ2Error(rc)}");
             }
 
-            var r = new Buffer();
-            r.Resize(uncompressedSize, false);
-
-            //
-            // Copy the header from the compressed buffer to the uncompressed one.
-            //
-            r.B.Position(0);
-            r.B.Put(buf.B.RawBytes(), 0, headerSize);
-            r.B.Put(uncompressed);
-            return r;
+            // Copy the header from the compressed buffer to the uncompressed one. We should
+            // avoid the copy see comment above.
+            byte[] uncompressed = new byte[uncompressedSize];
+            compressed.Buffer.Slice(0, headerSize).CopyTo(uncompressed);
+            uncompressedData.AsSpan().CopyTo(uncompressed.AsSpan(headerSize));
+            return new Ice.InputStream(compressed.Communicator, compressed.Encoding, uncompressed);
         }
 
         private static readonly bool _bzlibInstalled;

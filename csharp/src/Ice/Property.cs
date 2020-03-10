@@ -13,26 +13,14 @@ namespace IceInternal
             _deprecatedBy = deprecatedBy;
         }
 
-        public string
-        pattern()
-        {
-            return _pattern;
-        }
+        public string Pattern() => _pattern;
 
-        public bool
-        deprecated()
-        {
-            return _deprecated;
-        }
+        public bool Deprecated() => _deprecated;
 
-        public string?
-        deprecatedBy()
-        {
-            return _deprecatedBy;
-        }
+        public string? DeprecatedBy() => _deprecatedBy;
 
-        private string _pattern;
-        private bool _deprecated;
-        private string? _deprecatedBy;
+        private readonly string _pattern;
+        private readonly bool _deprecated;
+        private readonly string? _deprecatedBy;
     }
 }

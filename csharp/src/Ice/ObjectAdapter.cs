@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
-using IceInternal;
 
 namespace Ice
 {
@@ -950,7 +949,7 @@ namespace Ice
                     // Make sure this router is not already registered with another adapter.
                     if (_routerInfo.Adapter != null)
                     {
-                        var routerStr = router.Identity.ToString(Communicator.ToStringMode);
+                        string routerStr = router.Identity.ToString(Communicator.ToStringMode);
                         throw new ArgumentException($"Router `{routerStr}' already registered with an object adapter",
                             nameof(router));
                     }

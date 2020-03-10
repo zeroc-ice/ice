@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Ice;
 
 namespace IceInternal
 {
@@ -212,8 +212,8 @@ namespace IceInternal
             _doneInSent = false;
             _alreadySent = false;
             State = 0;
-            Os = os ?? new Ice.OutputStream(communicator, Ice.Util.CurrentProtocolEncoding);
-            Is = iss ?? new Ice.InputStream(communicator, Ice.Util.CurrentProtocolEncoding);
+            Os = os ?? new Ice.OutputStream(communicator, Ice.Ice1Definitions.Encoding);
+            Is = iss ?? new Ice.InputStream(communicator, Ice.Ice1Definitions.Encoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
             {
@@ -625,7 +625,7 @@ namespace IceInternal
         public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
-            Protocol.CheckSupportedProtocol(Proxy.IceReference.GetProtocol());
+            Proxy.IceReference.GetProtocol().CheckSupported();
 
             IsIdempotent = idempotent;
 
@@ -928,24 +928,18 @@ namespace IceInternal
         public override void ThrowUserException()
         {
             Debug.Assert(Is != null);
+            Is.StartEncapsulation();
             try
             {
-                Is.StartEncapsulation();
                 Is.ThrowException();
             }
-            catch (Ice.UserException ex)
+            finally
             {
                 Is.EndEncapsulation();
-                if (UserException != null)
-                {
-                    UserException.Invoke(ex);
-                }
-                throw new Ice.UnknownUserException(ex.ice_id());
             }
         }
 
         protected readonly Ice.Encoding Encoding;
-        protected System.Action<Ice.UserException>? UserException;
     }
 
     public class OutgoingAsyncT<T> : OutgoingAsync
@@ -964,11 +958,9 @@ namespace IceInternal
                            Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
-                           System.Action<Ice.UserException>? userException = null,
                            System.Func<Ice.InputStream, T>? read = null)
         {
             Read = read;
-            UserException = userException;
             base.Invoke(operation, idempotent, format, context, synchronous, write);
         }
 
@@ -978,7 +970,7 @@ namespace IceInternal
             {
                 if (Read == null)
                 {
-                    if (Is == null || Is.IsEmpty)
+                    if (Is == null || Is.Size == 0)
                     {
                         //
                         // If there's no response (oneway), we just set the result
