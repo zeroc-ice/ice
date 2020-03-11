@@ -48,7 +48,7 @@ namespace Ice.operations.AMD
         //
         // Override the Object "pseudo" operations to verify the operation mode.
         //
-        public bool ice_isA(string id, Current current)
+        public bool IceIsA(string id, Current current)
         {
             test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
@@ -56,13 +56,13 @@ namespace Ice.operations.AMD
 
         public void IcePing(Current current) => test(current.IsIdempotent);
 
-        public string[] ice_ids(Current current)
+        public string[] IceIds(Current current)
         {
             test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
-        public string ice_id(Current current)
+        public string IceId(Current current)
         {
             test(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetIceTypeId();

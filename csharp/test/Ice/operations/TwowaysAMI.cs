@@ -108,29 +108,6 @@ namespace Ice.operations
                 _d = d;
             }
 
-            public void IcePing()
-            {
-                called();
-            }
-
-            public void ice_isA(bool r)
-            {
-                test(r);
-                called();
-            }
-
-            public void ice_ids(string[] ids)
-            {
-                test(ids.Length == 3);
-                called();
-            }
-
-            public void ice_id(string id)
-            {
-                test(id.Equals("::Test::MyDerivedClass"));
-                called();
-            }
-
             public void opVoid()
             {
                 called();

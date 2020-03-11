@@ -255,20 +255,9 @@ namespace IceInternal
             {
                 _ex = ex;
 
-                string typeId;
-                if (ex is RemoteException remoteException)
-                {
-                    typeId = remoteException.TypeId;
-                }
-                else
-                {
-                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
-                    typeId = ((Ice.LocalException)ex).ice_id();
-                }
-
                 if (ChildObserver != null)
                 {
-                    ChildObserver.Failed(typeId);
+                    ChildObserver.Failed(ex.GetType().FullName);
                     ChildObserver.Detach();
                     ChildObserver = null;
                 }
@@ -276,7 +265,7 @@ namespace IceInternal
 
                 if (Observer != null)
                 {
-                    Observer.Failed(typeId);
+                    Observer.Failed(ex.GetType().FullName);
                 }
                 bool invoke = _completionCallback.HandleException(ex, this);
                 if (!invoke && Observer != null)
@@ -391,18 +380,7 @@ namespace IceInternal
         {
             if (ChildObserver != null)
             {
-                string typeId;
-                if (exc is RemoteException remoteException)
-                {
-                    typeId = remoteException.TypeId;
-                }
-                else
-                {
-                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
-                    typeId = ((Ice.LocalException)exc).ice_id();
-                }
-
-                ChildObserver.Failed(typeId);
+                ChildObserver.Failed(exc.GetType().FullName);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }
@@ -551,7 +529,7 @@ namespace IceInternal
                     {
                         if (ChildObserver != null)
                         {
-                            ChildObserver.Failed(ex.ice_id());
+                            ChildObserver.Failed(ex.GetType().FullName);
                             ChildObserver.Detach();
                             ChildObserver = null;
                         }
