@@ -66,6 +66,22 @@
                 <DefaultBuild>x64|Release</DefaultBuild>
             </PropertyGroup>
 
+            <!-- Ice for C++ configurations -->
+            <ItemGroup>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Debug;Platform=Win32</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Debug;Platform=x64</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=Win32</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=x64</Properties>
+                </DistSolution>
+            </ItemGroup>
+
             <ItemGroup>
                 <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
@@ -101,6 +117,13 @@
             <PropertyGroup>
                 <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
             </PropertyGroup>
+
+            <!-- Ice for C++ configurations -->
+            <ItemGroup>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+                </DistSolution>
+            </ItemGroup>
 
             <ItemGroup>
                 <TestSolution Include="$(IceTestSolution)">
