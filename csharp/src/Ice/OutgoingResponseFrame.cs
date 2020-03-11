@@ -66,89 +66,79 @@ namespace Ice
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
-        public OutgoingResponseFrame(Current current, System.Exception exception)
+        public OutgoingResponseFrame(Current current, RemoteException exception)
             : this(current)
         {
-            try
+            if (exception is RequestFailedException requestFailedException)
             {
-                throw exception;
-            }
-            catch (DispatchException ex)
-            {
-                // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
-
-                if (ex.Id.Name == null || ex.Id.Name.Length == 0)
+                if (requestFailedException is DispatchException dispatchException)
                 {
-                    ex.Id = current.Id;
-                }
+                    // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
 
-                if (ex.Facet == null || ex.Facet.Length == 0)
-                {
-                    ex.Facet = current.Facet;
-                }
+                    if (dispatchException.Id.Name == null || dispatchException.Id.Name.Length == 0)
+                    {
+                        dispatchException.Id = current.Id;
+                    }
 
-                if (ex.Operation == null || ex.Operation.Length == 0)
-                {
-                    ex.Operation = current.Operation;
-                }
+                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    {
+                        dispatchException.Facet = current.Facet;
+                    }
 
-                ReplyStatus replyStatus = default;
+                    if (dispatchException.Operation == null || dispatchException.Operation.Length == 0)
+                    {
+                        dispatchException.Operation = current.Operation;
+                    }
 
-                if (ex is ObjectNotExistException)
-                {
-                    replyStatus = ReplyStatus.ObjectNotExistException;
-                }
-                else if (ex is OperationNotExistException)
-                {
-                    replyStatus = ReplyStatus.OperationNotExistException;
+                    ReplyStatus replyStatus = default;
+
+                    if (dispatchException is ObjectNotExistException)
+                    {
+                        replyStatus = ReplyStatus.ObjectNotExistException;
+                    }
+                    else if (dispatchException is OperationNotExistException)
+                    {
+                        replyStatus = ReplyStatus.OperationNotExistException;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                    }
+
+                    WriteByte((byte)replyStatus);
+                    dispatchException.Id.IceWrite(this);
+
+                    // For compatibility with the old FacetPath.
+                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    {
+                        WriteStringSeq(Array.Empty<string>());
+                    }
+                    else
+                    {
+                        WriteStringSeq(new string[] { dispatchException.Facet });
+                    }
+                    WriteString(dispatchException.Operation);
+
                 }
                 else
                 {
-                    Debug.Assert(false);
-                }
-
-                WriteByte((byte)replyStatus);
-                ex.Id.IceWrite(this);
-
-                // For compatibility with the old FacetPath.
-                if (ex.Facet == null || ex.Facet.Length == 0)
-                {
-                    WriteStringSeq(Array.Empty<string>());
-                }
-                else
-                {
-                    WriteStringSeq(new string[]{ ex.Facet });
-                }
-                WriteString(ex.Operation);
-            }
-            catch (RequestFailedException ex)
-            {
-                WriteByte((byte)ReplyStatus.UnknownLocalException);
-                if (ex.IceMessage.Length > 0)
-                {
-                    WriteString(ex.IceMessage);
-                }
-                else
-                {
-                    WriteString(ex.ToString());
+                    WriteByte((byte)ReplyStatus.UnknownLocalException);
+                    if (requestFailedException.IceMessage.Length > 0)
+                    {
+                        WriteString(requestFailedException.IceMessage);
+                    }
+                    else
+                    {
+                        WriteString(requestFailedException.ToString());
+                    }
                 }
             }
-            catch (RemoteException ex)
+            else
             {
                 WriteByte((byte)ReplyStatus.UserException);
                 StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
-                WriteException(ex);
+                WriteException(exception);
                 EndEncapsulation();
-            }
-            catch (Ice.Exception ex)
-            {
-                WriteByte((byte)ReplyStatus.UnknownLocalException);
-                WriteString(ex.ice_id() + "\n" + ex.StackTrace);
-            }
-            catch (System.Exception ex)
-            {
-                WriteByte((byte)ReplyStatus.UnknownException);
-                WriteString(ex.ToString());
             }
         }
 

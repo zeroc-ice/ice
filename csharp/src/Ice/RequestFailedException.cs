@@ -56,7 +56,7 @@ namespace Ice
         public UnhandledException(Identity id, string facet, string operation, System.Exception innerException)
             : base(id, facet, operation, innerException)
         {
-            IceMessage =  $"unhandled exception while calling `{Operation}' on Ice object `{Id}'";
+            IceMessage = $"unhandled exception while calling `{Operation}' on Ice object `{Id}'";
             if (Facet.Length > 0)
             {
                 IceMessage += $" with facet `{Facet}'";
