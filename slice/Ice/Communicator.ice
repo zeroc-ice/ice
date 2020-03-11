@@ -533,7 +533,7 @@ local interface Communicator
      * If Ice.Admin.ServerId is set and the provided object adapter has a {@link Locator},
      * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * createAdmin call only be called once; subsequent calls raise InitializationException.
+     * createAdmin must only be called once; subsequent calls raise InitializationException.
      *
      * @param adminAdapter The object adapter used to host the Admin object; if null and
      * Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
