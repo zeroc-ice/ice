@@ -1842,7 +1842,7 @@ case 21:
 YY_RULE_SETUP
 #line 331 "src/Slice/Scanner.l"
 {
-    unit->addToComment(comment.substr(3, yyleng - 3));
+    unit->addToComment(yytext + 3);
 }
 	YY_BREAK
 /* Matches and consumes a C++ style comment. */
