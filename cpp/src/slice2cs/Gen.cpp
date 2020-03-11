@@ -392,10 +392,10 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
     if(defaultValues)
     {
-        params.push_back("global::System.Collections.Generic.Dictionary<string, string>?" + context + " = null");
+        params.push_back("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null");
         params.push_back("global::System.IProgress<bool>? " + progress + " = null");
         params.push_back("global::System.Threading.CancellationToken " + cancel +
-                         " = new global::System.Threading.CancellationToken()");
+                         " = default");
     }
     else
     {
