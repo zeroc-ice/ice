@@ -34,7 +34,13 @@ Slice::FileException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+Slice::FileException*
+Slice::FileException::ice_cloneImpl() const
+{
+    return new FileException(*this);
+}
+#else
 Slice::FileException*
 Slice::FileException::ice_clone() const
 {

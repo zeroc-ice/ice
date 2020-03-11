@@ -201,7 +201,8 @@ namespace IceInternal
             Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
             try
             {
-                _s.GetBuffer().B.Get(buffer, offset, count);
+                Span<byte> span = buffer.AsSpan(offset, count);
+                _s.ReadSpan(span);
             }
             catch (System.Exception ex)
             {
@@ -214,7 +215,7 @@ namespace IceInternal
         {
             try
             {
-                return _s.GetBuffer().B.Get();
+                return _s.ReadByte();
             }
             catch (System.Exception ex)
             {

@@ -11,17 +11,14 @@ using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.ITransceiver
 {
-    public Socket? Fd()
-    {
-        return _transceiver.Fd();
-    }
+    public Socket? Fd() => _transceiver.Fd();
 
-    public int Initialize(IceInternal.Buffer readBuffer, IList<ArraySegment<byte>> writeBuffer, ref bool hasMoreData)
+    public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
     {
         _configuration.checkInitializeException();
         if (!_initialized)
         {
-            int status = _transceiver.Initialize(readBuffer, writeBuffer, ref hasMoreData);
+            int status = _transceiver.Initialize(ref readBuffer, writeBuffer);
             if (status != IceInternal.SocketOperation.None)
             {
                 return status;
@@ -31,20 +28,11 @@ internal class Transceiver : IceInternal.ITransceiver
         return IceInternal.SocketOperation.None;
     }
 
-    public int Closing(bool initiator, Ice.LocalException? ex)
-    {
-        return _transceiver.Closing(initiator, ex);
-    }
+    public int Closing(bool initiator, Ice.LocalException? ex) => _transceiver.Closing(initiator, ex);
 
-    public void Close()
-    {
-        _transceiver.Close();
-    }
+    public void Close() => _transceiver.Close();
 
-    public IceInternal.Endpoint Bind()
-    {
-        return _transceiver.Bind();
-    }
+    public IceInternal.Endpoint Bind() => _transceiver.Bind();
 
     public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {
@@ -58,9 +46,9 @@ internal class Transceiver : IceInternal.ITransceiver
         return _transceiver.Write(buf, ref offset);
     }
 
-    public int Read(IceInternal.Buffer buf, ref bool hasMoreData)
+    public int Read(ref ArraySegment<byte> buffer, ref int offset)
     {
-        if (!_configuration.readReady() && buf.B.HasRemaining())
+        if (!_configuration.readReady() && offset < buffer.Count)
         {
             return IceInternal.SocketOperation.Read;
         }
@@ -69,125 +57,112 @@ internal class Transceiver : IceInternal.ITransceiver
 
         if (_buffered)
         {
-            while (buf.B.HasRemaining())
+            while (offset < buffer.Count)
             {
-                if (_readBufferPos == _readBuffer.B.Position())
+                if (_readBufferPos == _readBufferOffset)
                 {
                     _readBufferPos = 0;
-                    _readBuffer.B.Position(0);
-                    _transceiver.Read(_readBuffer, ref hasMoreData);
-                    if (_readBufferPos == _readBuffer.B.Position())
+                    _readBufferOffset = 0;
+                    _transceiver.Read(ref _readBuffer, ref _readBufferOffset);
+                    if (_readBufferPos == _readBufferOffset)
                     {
-                        hasMoreData = false;
                         return IceInternal.SocketOperation.Read;
                     }
                 }
 
-                int pos = _readBuffer.B.Position();
-                Debug.Assert(pos > _readBufferPos);
-                int requested = buf.B.Remaining();
-                int available = pos - _readBufferPos;
+                Debug.Assert(_readBufferOffset > _readBufferPos);
+                int requested = buffer.Count - offset;
+                int available = _readBufferOffset - _readBufferPos;
                 Debug.Assert(available > 0);
                 if (available >= requested)
                 {
                     available = requested;
                 }
-
-                byte[] arr = new byte[available];
-                _readBuffer.B.Position(_readBufferPos);
-                _readBuffer.B.Get(arr);
-                buf.B.Put(arr);
+                _readBuffer.Slice(_readBufferPos, available).CopyTo(buffer.Slice(offset));
+                offset += available;
                 _readBufferPos += available;
-                _readBuffer.B.Position(pos);
             }
-            hasMoreData = _readBufferPos < _readBuffer.B.Position();
             return IceInternal.SocketOperation.None;
         }
         else
         {
-            return _transceiver.Read(buf, ref hasMoreData);
+            return _transceiver.Read(ref buffer, ref offset);
         }
     }
 
-    public bool StartRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
+    public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, IceInternal.AsyncCallback callback,
+        object state)
     {
         if (_configuration.readReady())
         {
             _configuration.checkReadException(); // Only raise if we're configured to read now.
         }
+
         if (_buffered)
         {
-            int pos = _readBuffer.B.Position();
-            int available = pos - _readBufferPos;
+            int available = _readBufferOffset - _readBufferPos;
             if (available > 0)
             {
-                int requested = buf.B.Remaining();
+                int requested = buffer.Count - offset;
                 if (available >= requested)
                 {
                     available = requested;
                 }
 
-                byte[] arr = new byte[available];
-                _readBuffer.B.Position(_readBufferPos);
-                _readBuffer.B.Get(arr);
-                buf.B.Put(arr);
+                _readBuffer.Slice(_readBufferPos, available).CopyTo(buffer.Slice(offset));
+                offset += available;
                 _readBufferPos += available;
-                _readBuffer.B.Position(pos);
             }
 
-            if (_readBufferPos == _readBuffer.B.Position() && buf.B.HasRemaining())
+            if (_readBufferPos == _readBufferOffset && offset < buffer.Count)
             {
                 _readBufferPos = 0;
-                _readBuffer.B.Position(0);
-                return _transceiver.StartRead(_readBuffer, callback, state);
+                _readBufferOffset = 0;
+                return _transceiver.StartRead(ref _readBuffer, ref _readBufferOffset, callback, state);
             }
             else
             {
-                Debug.Assert(!buf.B.HasRemaining());
+                Debug.Assert(offset == buffer.Count);
                 return true; // Completed synchronously
             }
         }
         else
         {
-            return _transceiver.StartRead(buf, callback, state);
+            return _transceiver.StartRead(ref buffer, ref offset, callback, state);
         }
     }
 
-    public void FinishRead(IceInternal.Buffer buf)
+    public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
     {
         _configuration.checkReadException();
         if (_buffered)
         {
-            if (buf.B.HasRemaining())
+            if (offset < buffer.Count)
             {
-                _transceiver.FinishRead(_readBuffer);
+                _transceiver.FinishRead(ref _readBuffer, ref _readBufferOffset);
 
-                int pos = _readBuffer.B.Position();
-                int requested = buf.B.Remaining();
-                int available = pos - _readBufferPos;
+                int requested = buffer.Count - offset;
+                int available = _readBufferOffset - _readBufferPos;
                 if (available > 0)
                 {
                     if (available >= requested)
                     {
                         available = requested;
                     }
-
-                    byte[] arr = new byte[available];
-                    _readBuffer.B.Position(_readBufferPos);
-                    _readBuffer.B.Get(arr);
-                    buf.B.Put(arr);
+                    _readBuffer.Slice(_readBufferPos, available).CopyTo(buffer.Slice(offset));
+                    offset += available;
                     _readBufferPos += available;
-                    _readBuffer.B.Position(pos);
                 }
             }
         }
         else
         {
-            _transceiver.FinishRead(buf);
+            _transceiver.FinishRead(ref buffer, ref offset);
         }
     }
 
-    public bool StartWrite(IList<ArraySegment<byte>> buf, int offset, IceInternal.AsyncCallback callback, object state, out bool completed)
+    public bool StartWrite(IList<ArraySegment<byte>> buf, int offset, IceInternal.AsyncCallback callback,
+        object state, out bool completed)
     {
         _configuration.checkWriteException();
         return _transceiver.StartWrite(buf, offset, callback, state, out completed);
@@ -199,45 +174,21 @@ internal class Transceiver : IceInternal.ITransceiver
         _transceiver.FinishWrite(buf, ref offset);
     }
 
-    public string Transport()
-    {
-        return "test-" + _transceiver.Transport();
-    }
+    public string Transport() => "test-" + _transceiver.Transport();
 
-    public Ice.ConnectionInfo GetInfo()
-    {
-        return _transceiver.GetInfo();
-    }
+    public ConnectionInfo GetInfo() => _transceiver.GetInfo();
 
-    public override string? ToString()
-    {
-        return _transceiver.ToString();
-    }
+    public override string? ToString() => _transceiver.ToString();
 
-    public string ToDetailedString()
-    {
-        return _transceiver.ToDetailedString();
-    }
+    public string ToDetailedString() => _transceiver.ToDetailedString();
 
-    public void CheckSendSize(int sz)
-    {
-        _transceiver.CheckSendSize(sz);
-    }
+    public void CheckSendSize(int sz) => _transceiver.CheckSendSize(sz);
 
-    public void SetBufferSize(int rcvSize, int sndSize)
-    {
-        _transceiver.SetBufferSize(rcvSize, sndSize);
-    }
+    public void SetBufferSize(int rcvSize, int sndSize) => _transceiver.SetBufferSize(rcvSize, sndSize);
 
-    public void Destroy()
-    {
-        _transceiver.Destroy();
-    }
+    public void Destroy() => _transceiver.Destroy();
 
-    public IceInternal.ITransceiver GetDelegate()
-    {
-        return _transceiver;
-    }
+    public IceInternal.ITransceiver GetDelegate() => _transceiver;
 
     //
     // Only for use by Connector, Acceptor
@@ -247,9 +198,8 @@ internal class Transceiver : IceInternal.ITransceiver
         _transceiver = transceiver;
         _configuration = Configuration.getInstance();
         _initialized = false;
-        _readBuffer = new IceInternal.Buffer();
-        _readBuffer.Resize(1024 * 8, true); // 8KB buffer
-        _readBuffer.B.Position(0);
+        _readBuffer = new byte[1024 * 8]; // 8KB buffer
+        _readBufferOffset = 0;
         _readBufferPos = 0;
         _buffered = _configuration.buffered();
     }
@@ -257,7 +207,8 @@ internal class Transceiver : IceInternal.ITransceiver
     private IceInternal.ITransceiver _transceiver;
     private Configuration _configuration;
     private bool _initialized;
-    private IceInternal.Buffer _readBuffer;
+    private ArraySegment<byte> _readBuffer;
+    private int _readBufferOffset;
     private int _readBufferPos;
-    private bool _buffered;
+    private readonly bool _buffered;
 }

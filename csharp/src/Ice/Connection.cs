@@ -114,7 +114,10 @@ namespace Ice
             }
             catch (LocalException ex)
             {
-                Exception(ex);
+                lock (this)
+                {
+                    SetState(StateClosed, ex);
+                }
                 Debug.Assert(_exception != null);
                 callback.ConnectionStartFailed(this, _exception);
                 return;
@@ -163,7 +166,10 @@ namespace Ice
             }
             catch (LocalException ex)
             {
-                Exception(ex);
+                lock (this)
+                {
+                    SetState(StateClosed, ex);
+                }
                 WaitUntilFinished();
                 return;
             }
@@ -224,12 +230,8 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Manually close the connection using the specified closure mode.
-        /// </summary>
-        /// <param name="mode">Determines how the connection will be closed.
-        ///
-        /// </param>
+        /// <summary>Manually close the connection using the specified closure mode.</summary>
+        /// <param name="mode">Determines how the connection will be closed.</param>
         public void Close(ConnectionClose mode)
         {
             lock (this)
@@ -341,10 +343,6 @@ namespace Ice
                 {
                     _observer.Attach();
                 }
-                else
-                {
-                    _readStreamPos = -1;
-                }
             }
         }
 
@@ -380,7 +378,7 @@ namespace Ice
                     }
                 }
 
-                if (_readStream.Size > Ice1Definitions.HeaderSize || _writeBufferSize > 0)
+                if (_readBuffer.Count > Ice1Definitions.HeaderSize || _writeBufferSize > 0)
                 {
                     //
                     // If writing or reading, nothing to do, the connection
@@ -867,12 +865,12 @@ namespace Ice
                 }
                 else if ((operation & SocketOperation.Read) != 0)
                 {
-                    if (_observer != null && !_readHeader)
+                    int start = _readBufferOffset;
+                    completedSynchronously = _transceiver.StartRead(ref _readBuffer, ref _readBufferOffset, cb, this);
+                    if (start != _readBufferOffset)
                     {
-                        ObserverStartRead(_readStream.GetBuffer());
+                        TraceReceivedAndUpdateObserver(_readBuffer.Count, start, _readBufferOffset);
                     }
-
-                    completedSynchronously = _transceiver.StartRead(_readStream.GetBuffer(), cb, this);
                 }
             }
             catch (LocalException ex)
@@ -889,58 +887,20 @@ namespace Ice
             {
                 if ((operation & SocketOperation.Write) != 0)
                 {
-                    int remaining = _writeBufferSize - _writeBufferOffset;
+                    int start = _writeBufferOffset;
                     _transceiver.FinishWrite(_writeBuffer, ref _writeBufferOffset);
-                    int bytesTransferred = remaining - (_writeBufferSize - _writeBufferOffset);
-                    if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
+                    if (start != _writeBufferOffset)
                     {
-                        var s = new StringBuilder("sent ");
-                        s.Append(bytesTransferred);
-                        if (!_endpoint.Datagram())
-                        {
-                            s.Append(" of ");
-                            s.Append(remaining);
-                        }
-                        s.Append(" bytes via ");
-                        s.Append(_endpoint.Transport());
-                        s.Append("\n");
-                        s.Append(ToString());
-                        _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
-                    }
-
-                    if (_observer != null && bytesTransferred > 0)
-                    {
-                        _observer.SentBytes(bytesTransferred);
+                        TraceSentAndUpdateObserver(_writeBufferSize, start, _writeBufferOffset);
                     }
                 }
                 else if ((operation & SocketOperation.Read) != 0)
                 {
-                    IceInternal.Buffer buf = _readStream.GetBuffer();
-                    int start = buf.B.Position();
-                    _transceiver.FinishRead(buf);
-                    if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
+                    int start = _readBufferOffset;
+                    _transceiver.FinishRead(ref _readBuffer, ref _readBufferOffset);
+                    if (start != _readBufferOffset)
                     {
-                        var s = new StringBuilder("received ");
-                        if (_endpoint.Datagram())
-                        {
-                            s.Append(buf.B.Limit());
-                        }
-                        else
-                        {
-                            s.Append(buf.B.Position() - start);
-                            s.Append(" of ");
-                            s.Append(buf.B.Limit() - start);
-                        }
-                        s.Append(" bytes via ");
-                        s.Append(_endpoint.Transport());
-                        s.Append("\n");
-                        s.Append(ToString());
-                        _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
-                    }
-
-                    if (_observer != null && !_readHeader)
-                    {
-                        ObserverFinishRead(_readStream.GetBuffer());
+                        TraceReceivedAndUpdateObserver(_readBuffer.Count, start, _readBufferOffset);
                     }
                 }
             }
@@ -987,32 +947,15 @@ namespace Ice
 
                         while ((readyOp & SocketOperation.Read) != 0)
                         {
-                            IceInternal.Buffer buf = _readStream.GetBuffer();
-
-                            if (_observer != null && !_readHeader)
-                            {
-                                ObserverStartRead(buf);
-                            }
-
-                            readOp = Read(buf);
+                            readOp = Read(ref _readBuffer, ref _readBufferOffset);
                             if ((readOp & SocketOperation.Read) != 0)
                             {
                                 break;
-                            }
-                            if (_observer != null && !_readHeader)
-                            {
-                                Debug.Assert(!buf.B.HasRemaining());
-                                ObserverFinishRead(buf);
                             }
 
                             if (_readHeader) // Read header if necessary.
                             {
                                 _readHeader = false;
-
-                                if (_observer != null)
-                                {
-                                    _observer.ReceivedBytes(Ice1Definitions.HeaderSize);
-                                }
 
                                 //
                                 // Connection is validated on first message. This is only used by
@@ -1023,8 +966,7 @@ namespace Ice
                                 //
                                 _validated = true;
 
-                                int pos = _readStream.Pos;
-                                if (pos < Ice1Definitions.HeaderSize)
+                                if (_readBufferOffset < Ice1Definitions.HeaderSize)
                                 {
                                     //
                                     // This situation is possible for small UDP packets.
@@ -1032,13 +974,8 @@ namespace Ice
                                     throw new IllegalMessageSizeException();
                                 }
 
-                                _readStream.Pos = 0;
-                                byte[] header = _readStream.ReadBlob(8);
-                                Ice1Definitions.CheckHeader(header.AsSpan());
-
-                                _readStream.ReadByte(); // messageType
-                                _readStream.ReadByte(); // compress
-                                int size = _readStream.ReadInt();
+                                Ice1Definitions.CheckHeader(_readBuffer.AsSpan(0, 8));
+                                int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                                 if (size < Ice1Definitions.HeaderSize)
                                 {
                                     throw new IllegalMessageSizeException();
@@ -1048,19 +985,29 @@ namespace Ice
                                 {
                                     Ex.ThrowMemoryLimitException(size, _messageSizeMax);
                                 }
-                                if (size > _readStream.Size)
-                                {
-                                    _readStream.Resize(size);
-                                }
-                                _readStream.Pos = pos;
-                            }
 
-                            if (buf.B.HasRemaining())
-                            {
-                                if (_endpoint.Datagram())
+                                if (_endpoint.Datagram() && size > _readBufferOffset)
                                 {
                                     throw new DatagramLimitException(); // The message was truncated.
                                 }
+
+                                if (size > _readBuffer.Array.Length)
+                                {
+                                    // Allocate a new array and copy the header over
+                                    byte[] readBuffer = new byte[size];
+                                    _readBuffer.AsSpan().CopyTo(readBuffer.AsSpan(0, Ice1Definitions.HeaderSize));
+                                    _readBuffer = readBuffer;
+                                }
+                                else if (size > _readBuffer.Count)
+                                {
+                                    _readBuffer = new ArraySegment<byte>(_readBuffer.Array, 0, size);
+                                }
+                                Debug.Assert(size == _readBuffer.Count);
+                            }
+
+                            if (_readBufferOffset < _readBuffer.Count)
+                            {
+                                Debug.Assert(!_endpoint.Datagram());
                                 continue;
                             }
                             break;
@@ -1156,10 +1103,10 @@ namespace Ice
                     {
                         if (_warnUdp)
                         {
-                            _logger.Warning(string.Format("maximum datagram size of {0} exceeded", _readStream.Pos));
+                            _logger.Warning(string.Format("maximum datagram size of {0} exceeded", _readBufferOffset));
                         }
-                        _readStream.Resize(Ice1Definitions.HeaderSize);
-                        _readStream.Pos = 0;
+                        _readBuffer = ArraySegment<byte>.Empty;
+                        _readBufferOffset = 0;
                         _readHeader = true;
                         return;
                     }
@@ -1176,8 +1123,8 @@ namespace Ice
                             {
                                 _logger.Warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
                             }
-                            _readStream.Resize(Ice1Definitions.HeaderSize);
-                            _readStream.Pos = 0;
+                            _readBuffer = ArraySegment<byte>.Empty;
+                            _readBufferOffset = 0;
                             _readHeader = true;
                         }
                         else
@@ -1455,8 +1402,9 @@ namespace Ice
             //
             // Don't wait to be reaped to reclaim memory allocated by read/write streams.
             //
-            _readStream.Clear();
-            _readStream.GetBuffer().Clear();
+            // TODO reclaim read/write buffers
+            _readBuffer = ArraySegment<byte>.Empty;
+            _readBufferOffset = 0;
 
             if (_closeCallback != null)
             {
@@ -1662,14 +1610,6 @@ namespace Ice
             }
         }
 
-        public void Exception(LocalException ex)
-        {
-            lock (this)
-            {
-                SetState(StateClosed, ex);
-            }
-        }
-
         public IceInternal.ThreadPool ThreadPool { get; }
 
         internal Connection(Communicator communicator,
@@ -1707,9 +1647,8 @@ namespace Ice
             }
             _nextRequestId = 1;
             _messageSizeMax = adapter != null ? adapter.MessageSizeMax : communicator.MessageSizeMax;
-            _readStream = new InputStream(communicator, Ice1Definitions.Encoding);
+            _readBuffer = ArraySegment<byte>.Empty;
             _readHeader = false;
-            _readStreamPos = -1;
             _writeStream = new OutputStream(communicator, Ice1Definitions.Encoding);
             _writeBuffer = new List<ArraySegment<byte>>();
             _writeBufferSize = 0;
@@ -1955,10 +1894,6 @@ namespace Ice
                     {
                         _observer.Attach();
                     }
-                    else
-                    {
-                        _readStreamPos = -1;
-                    }
                 }
                 if (_observer != null && state == StateClosed && _exception != null)
                 {
@@ -2054,7 +1989,7 @@ namespace Ice
 
         private bool Initialize(int operation)
         {
-            int s = _transceiver.Initialize(_readStream.GetBuffer(), _writeBuffer, ref HasMoreData);
+            int s = _transceiver.Initialize(ref _readBuffer, _writeBuffer);
             if (s != SocketOperation.None)
             {
                 _writeBufferOffset = 0;
@@ -2063,7 +1998,6 @@ namespace Ice
                 ThreadPool.Update(this, operation, s);
                 return false;
             }
-
             //
             // Update the connection description once the transceiver is initialized.
             //
@@ -2106,20 +2040,15 @@ namespace Ice
                 }
                 else // The client side has the passive role for connection validation.
                 {
-                    if (_readStream.Size == 0)
+                    if (_readBuffer.Count == 0)
                     {
-                        _readStream.Resize(Ice1Definitions.HeaderSize);
-                        _readStream.Pos = 0;
+                        _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+                        _readBufferOffset = 0;
                     }
 
-                    if (_observer != null)
+                    if (_readBufferOffset < _readBuffer.Count)
                     {
-                        ObserverStartRead(_readStream.GetBuffer());
-                    }
-
-                    if (_readStream.Pos != _readStream.Size)
-                    {
-                        int op = Read(_readStream.GetBuffer());
+                        int op = Read(ref _readBuffer, ref _readBufferOffset);
                         if (op != 0)
                         {
                             ScheduleTimeout(op);
@@ -2128,29 +2057,21 @@ namespace Ice
                         }
                     }
 
-                    if (_observer != null)
-                    {
-                        ObserverFinishRead(_readStream.GetBuffer());
-                    }
-
                     _validated = true;
 
-                    Debug.Assert(_readStream.Pos == Ice1Definitions.HeaderSize);
-                    _readStream.Pos = 0;
-                    byte[] header = _readStream.ReadBlob(8);
-                    Ice1Definitions.CheckHeader(header.AsSpan());
-                    byte messageType = _readStream.ReadByte();
+                    Debug.Assert(_readBufferOffset == Ice1Definitions.HeaderSize);
+                    Ice1Definitions.CheckHeader(_readBuffer.AsSpan(0, 8));
+                    byte messageType = _readBuffer[8];
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {
                         throw new ConnectionNotValidatedException();
                     }
-                    _readStream.ReadByte(); // Ignore compression status for validate connection.
-                    int size = _readStream.ReadInt();
+
+                    int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                     if (size != Ice1Definitions.HeaderSize)
                     {
                         throw new IllegalMessageSizeException();
                     }
-                    TraceUtil.TraceRecv(_readStream, _logger, _traceLevels);
                 }
             }
 
@@ -2159,8 +2080,12 @@ namespace Ice
             _writeBufferSize = 0;
             _writeBufferOffset = 0;
 
-            _readStream.Resize(Ice1Definitions.HeaderSize);
-            _readStream.Pos = 0;
+            // For datagram connections the buffer is allocated by the datagram transport
+            if (!_endpoint.Datagram())
+            {
+                _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+            }
+            _readBufferOffset = 0;
             _readHeader = true;
 
             if (_communicator.TraceLevels.Network >= 1)
@@ -2243,8 +2168,8 @@ namespace Ice
                     // If we are in the closed state or if the close is
                     // pending, don't continue sending.
                     //
-                    // This can occur if parseMessage (called before
-                    // sendNextMessage by message()) closes the connection.
+                    // This can occur if ParseMessage (called before
+                    // SendNextMessage by Message()) closes the connection.
                     //
                     if (_state >= StateClosingPending)
                     {
@@ -2312,7 +2237,7 @@ namespace Ice
 
             //
             // Attempt to send the message without blocking. If the send blocks, we use
-            // asynchronous I/O or we request the caller to call finishSendMessage() outside
+            // asynchronous I/O or we request the caller to call FinishSendMessage() outside
             // the synchronization.
             //
             Debug.Assert(message.Stream != null);
@@ -2398,14 +2323,13 @@ namespace Ice
         private int ParseMessage(ref MessageInfo info)
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
+            info.Stream = new InputStream(_communicator, Ice1Definitions.Encoding, _readBuffer);
 
-            info.Stream = new InputStream(_communicator, Ice1Definitions.Encoding);
-            _readStream.Swap(info.Stream);
-            _readStream.Resize(Ice1Definitions.HeaderSize);
-            _readStream.Pos = 0;
+            // For datagram connections the buffer is allocated by the datagram transport
+            _readBuffer = _endpoint.Datagram() ?
+                ArraySegment<byte>.Empty : new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+            _readBufferOffset = 0;
             _readHeader = true;
-
-            Debug.Assert(info.Stream.Pos == info.Stream.Size);
 
             try
             {
@@ -2419,9 +2343,7 @@ namespace Ice
                 {
                     if (_compressionSupported)
                     {
-                        IceInternal.Buffer ubuf = BZip2.Uncompress(info.Stream.GetBuffer(), Ice1Definitions.HeaderSize,
-                                                                   _messageSizeMax);
-                        info.Stream = new InputStream(info.Stream.Communicator, info.Stream.Encoding, ubuf, true);
+                        info.Stream = BZip2.Uncompress(info.Stream, Ice1Definitions.HeaderSize, _messageSizeMax);
                     }
                     else
                     {
@@ -2581,7 +2503,7 @@ namespace Ice
             Debug.Assert(invokeNum > 0); // invokeNum is usually 1 but can be larger for a batch request.
             Debug.Assert(invokeNum == 1); // TODO: deal with batch requests
 
-            Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
+            IDispatchObserver? dispatchObserver = null;
 
             try
             {
@@ -2589,7 +2511,7 @@ namespace Ice
                 var current = new Current(requestId, requestFrame, adapter, this);
 
                 // Then notify and set dispatch observer, if any.
-                Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = adapter.Communicator.Observer;
+                ICommunicatorObserver? communicatorObserver = adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
                     int encapsSize = requestFrame.GetEncapsulationSize();
@@ -2774,58 +2696,22 @@ namespace Ice
 
         private void Warning(string msg, System.Exception ex) => _logger.Warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 
-        private void ObserverStartRead(IceInternal.Buffer buf)
+        private int Read(ref ArraySegment<byte> buffer, ref int offset)
         {
-            if (_readStreamPos >= 0)
+            int start = offset;
+            int op = _transceiver.Read(ref buffer, ref offset);
+            Debug.Assert(op != 0 || buffer.Count == offset);
+            if (start != offset)
             {
-                Debug.Assert(!buf.Empty());
-                _observer!.ReceivedBytes(buf.B.Position() - _readStreamPos);
-            }
-            _readStreamPos = buf.Empty() ? -1 : buf.B.Position();
-        }
-
-        private void ObserverFinishRead(IceInternal.Buffer buf)
-        {
-            if (_readStreamPos == -1)
-            {
-                return;
-            }
-            Debug.Assert(buf.B.Position() >= _readStreamPos);
-            _observer!.ReceivedBytes(buf.B.Position() - _readStreamPos);
-            _readStreamPos = -1;
-        }
-
-        private int Read(IceInternal.Buffer buf)
-        {
-            int start = buf.B.Position();
-            int op = _transceiver.Read(buf, ref HasMoreData);
-            if (_communicator.TraceLevels.Network >= 3 && buf.B.Position() != start)
-            {
-                var s = new StringBuilder("received ");
-                if (_endpoint.Datagram())
-                {
-                    s.Append(buf.B.Limit());
-                }
-                else
-                {
-                    s.Append(buf.B.Position() - start);
-                    s.Append(" of ");
-                    s.Append(buf.B.Limit() - start);
-                }
-                s.Append(" bytes via ");
-                s.Append(_endpoint.Transport());
-                s.Append("\n");
-                s.Append(ToString());
-                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+                TraceReceivedAndUpdateObserver(buffer.Count, start, offset);
             }
             return op;
         }
 
-        private int Write(IList<ArraySegment<byte>> buffer, int size, ref int offset)
+        private void TraceSentAndUpdateObserver(int length, int start, int end)
         {
-            int remainig = size - offset;
-            int socketOperation = _transceiver.Write(buffer, ref offset);
-            int bytesTransferred = remainig - (size - offset);
+            int remaining = length - start;
+            int bytesTransferred = end - start;
             if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
             {
                 var s = new StringBuilder("sent ");
@@ -2833,7 +2719,7 @@ namespace Ice
                 if (!_endpoint.Datagram())
                 {
                     s.Append(" of ");
-                    s.Append(remainig);
+                    s.Append(remaining);
                 }
                 s.Append(" bytes via ");
                 s.Append(_endpoint.Transport());
@@ -2845,6 +2731,47 @@ namespace Ice
             if (_observer != null && bytesTransferred > 0)
             {
                 _observer.SentBytes(bytesTransferred);
+            }
+        }
+
+        private void TraceReceivedAndUpdateObserver(int length, int start, int end)
+        {
+            int remaining = length - start;
+            int bytesTransferred = end - start;
+
+            if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
+            {
+                var s = new StringBuilder("received ");
+                if (_endpoint.Datagram())
+                {
+                    s.Append(remaining);
+                }
+                else
+                {
+                    s.Append(bytesTransferred);
+                    s.Append(" of ");
+                    s.Append(remaining);
+                }
+                s.Append(" bytes via ");
+                s.Append(_endpoint.Transport());
+                s.Append("\n");
+                s.Append(ToString());
+                _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+            }
+
+            if (_observer != null && bytesTransferred > 0)
+            {
+                _observer.ReceivedBytes(bytesTransferred);
+            }
+        }
+
+        private int Write(IList<ArraySegment<byte>> buffer, int size, ref int offset)
+        {
+            int start = offset;
+            int socketOperation = _transceiver.Write(buffer, ref offset);
+            if (start != offset)
+            {
+                TraceSentAndUpdateObserver(size, start, offset);
             }
             return socketOperation;
         }
@@ -2940,7 +2867,8 @@ namespace Ice
 
         private readonly LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
-        private readonly InputStream _readStream;
+        private ArraySegment<byte> _readBuffer;
+        private int _readBufferOffset;
         private bool _readHeader;
 
         private readonly OutputStream _writeStream;
@@ -2950,7 +2878,6 @@ namespace Ice
 
         private ICommunicatorObserver? _communicatorObserver;
         private IConnectionObserver? _observer;
-        private int _readStreamPos;
 
         private int _dispatchCount;
 

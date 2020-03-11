@@ -16,34 +16,19 @@ namespace Ice.operations
 
         internal static void oneways(global::Test.TestHelper helper, Test.IMyClassPrx p)
         {
-            Communicator communicator = helper.communicator();
             p = p.Clone(oneway: true);
+            p.IcePing();
+            p.opVoid();
+            p.opIdempotent();
+            p.opNonmutating();
 
+            try
             {
-                p.IcePing();
+                p.opByte(0xff, 0x0f);
+                test(false);
             }
-
+            catch (TwowayOnlyException)
             {
-                p.opVoid();
-            }
-
-            {
-                p.opIdempotent();
-            }
-
-            {
-                p.opNonmutating();
-            }
-
-            {
-                try
-                {
-                    var (b1, b2) = p.opByte(0xff, 0x0f);
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
             }
         }
     }

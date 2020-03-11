@@ -608,7 +608,7 @@ Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray
         v.second = reinterpret_cast<Short*>(i);
 #else
 #  ifdef ICE_CPP11_MAPPING
-        auto result = new short[sz];
+        auto result = new short[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
@@ -691,7 +691,7 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<I
 #else
 
 #  ifdef ICE_CPP11_MAPPING
-        auto result = new int[sz];
+        auto result = new int[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
@@ -812,7 +812,7 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<L
 #else
 
 #  ifdef ICE_CPP11_MAPPING
-        auto result = new long long[sz];
+        auto result = new long long[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
@@ -925,7 +925,7 @@ Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray
 #else
 
 #  ifdef ICE_CPP11_MAPPING
-        auto result = new float[sz];
+        auto result = new float[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
@@ -1046,7 +1046,7 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
 #else
 
 #  ifdef ICE_CPP11_MAPPING
-        auto result = new double[sz];
+        auto result = new double[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;

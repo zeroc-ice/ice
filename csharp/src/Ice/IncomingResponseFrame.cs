@@ -30,7 +30,7 @@ namespace Ice
                 if (_payload == null)
                 {
                     // TODO, it should never be empty, but currently it is when fulfilled by Sent
-                    if (InputStream.IsEmpty)
+                    if (InputStream.Size == 0)
                     {
                         _payload = ArraySegment<byte>.Empty;
                     }

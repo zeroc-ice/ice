@@ -31,7 +31,7 @@
 
         <Otherwise>
             <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs"/>
+                <SliceCompilers Include="slice2cs"/>
             </ItemGroup>
         </Otherwise>
     </Choose>

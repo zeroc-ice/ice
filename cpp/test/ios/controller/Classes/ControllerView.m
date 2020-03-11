@@ -18,11 +18,8 @@
     // Load the controller bundle.
     //
     NSString* bundlePath = [[NSBundle mainBundle] privateFrameworksPath];
-#ifdef ICE_CPP11_MAPPING
-    const char* bundle = "Cpp11ControllerBundle.bundle";
-#else
-    const char* bundle = "Cpp98ControllerBundle.bundle";
-#endif
+    const char* bundle = "CppControllerBundle.bundle";
+
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:bundle]];
 
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];

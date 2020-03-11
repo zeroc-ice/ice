@@ -15,7 +15,7 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2py;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
+        <CppDistTargets>slice2py;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />

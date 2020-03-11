@@ -36,7 +36,7 @@ fixDirSeparator(const string& path)
 }
 
 IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFile,
-                                         const CommunicatorPtr& communicator) :
+                                         const shared_ptr<Communicator>& communicator) :
     _serviceType(serviceType),
     _configFile(fixDirSeparator(configFile)),
     _communicator(communicator),
@@ -57,7 +57,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     }
     else
     {
-        Ice::LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(
+        auto defaultLocator = Ice::uncheckedCast<LocatorPrx>(
             _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
         if(defaultLocator != 0)
         {

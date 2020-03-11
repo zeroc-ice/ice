@@ -29,7 +29,6 @@ namespace IceInternal
         internal int Started = 0;
         internal bool Finish = false;
 
-        internal bool HasMoreData = false;
         internal int Registered = 0;
     }
 

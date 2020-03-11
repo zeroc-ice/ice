@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1030"
+   LastUpgradeVersion = "1130"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "148ABA401DFEEAEE00594F70"
-               BuildableName = "C++11 Test Controller.app"
-               BlueprintName = "C++11 Test Controller"
+               BuildableName = "C++ Test Controller.app"
+               BlueprintName = "C++ Test Controller"
                ReferencedContainer = "container:C++ Test Controller.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,17 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "148ABA401DFEEAEE00594F70"
-            BuildableName = "C++11 Test Controller.app"
-            BlueprintName = "C++11 Test Controller"
-            ReferencedContainer = "container:C++ Test Controller.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -56,16 +45,14 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "148ABA401DFEEAEE00594F70"
-            BuildableName = "C++11 Test Controller.app"
-            BlueprintName = "C++11 Test Controller"
+            BuildableName = "C++ Test Controller.app"
+            BlueprintName = "C++ Test Controller"
             ReferencedContainer = "container:C++ Test Controller.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -75,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "148ABA401DFEEAEE00594F70"
-            BuildableName = "C++11 Test Controller.app"
-            BlueprintName = "C++11 Test Controller"
+            BuildableName = "C++ Test Controller.app"
+            BlueprintName = "C++ Test Controller"
             ReferencedContainer = "container:C++ Test Controller.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

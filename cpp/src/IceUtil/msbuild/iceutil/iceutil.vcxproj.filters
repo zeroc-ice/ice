@@ -176,5 +176,8 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

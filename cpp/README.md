@@ -160,11 +160,7 @@ make V=1 -j8 srcs
 ```
 
 The build system supports specifying additional preprocessor, compiler and
-linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables. For
-example, to build the Ice C++98 mapping with `-std=c++11`, you can use:
-```
-make CXXFLAGS=-std=c++11
-```
+linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables.
 
 ### Build configurations and platforms
 
@@ -179,25 +175,13 @@ To build all the supported configurations and platforms:
 make CONFIGS=all PLATFORMS=all -j8
 ```
 
-### C++11 mapping
-
-The C++ source tree supports two different language mappings (C++98 and C++11).
-The default build uses the C++98 mapping. The C++11 mapping is a new mapping
-that uses new language features.
-
-To build the C++11 mapping, use build configurations that are prefixed with
-`cpp11`, for example:
-```
-make CONFIGS=cpp11-shared -j8
-```
 ### Ice Xcode SDK (macOS only)
 
 The build system supports building Xcode SDKs for Ice. These SDKs allow you to
 easily develop Ice applications with Xcode. To build Xcode SDKs, use the
 `xcodesdk` configurations:
 ```
-make CONFIGS=xcodesdk -j8 srcs         # Build the C++98 mapping Xcode SDK
-make CONFIGS=cpp11-xcodesdk -j8 srcs   # Build the C++11 mapping Xcode SDK
+make CONFIGS=xcodesdk -j8 srcs         # Build the C++ mapping Xcode SDK
 ```
 The Xcode SDKs are built into `ice/sdk`.
 
@@ -275,7 +259,7 @@ Using the configuration manager choose the platform and configuration you want
 to build.
 
 The solution provide a project for each Ice component and each component can be
-built separatelly. When you build a component its dependencies are built
+built separately. When you build a component its dependencies are built
 automatically.
 
 For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions
@@ -294,17 +278,14 @@ The test suite is built using separate Visual Studio solutions:
  - Ice OpenSSL Test Suite for Visual Studio 2019, Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component, the
-`Cpp11-Release` and `Cpp11-Debug` build configurations are setup to use the
-C++11 mapping in release and debug mode respectively, and are only supported
-with Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015. The
-`Release` and `Debug` build configurations are setup to use the C++98 mapping in
-release and debug mode respectively.
+`Release` and `Debug` build configurations are setup to use the
+C++ mapping in release and debug mode respectively.
 
 The building of the test uses by default the local source build, and you must
 have built the Ice source with the same platform and configuration than you are
-attemping to build the tests.
+attempting to build the tests.
 
-For example to build the `Cpp11-Release/x64` tests you must have built first the
+For example to build the `Release/x64` tests you must have built first the
 C++11 mapping using `Release/x64`.
 
 It is also possible to build the tests using a C++ binary distribution, to do
@@ -435,7 +416,7 @@ configuration and platform.
 
 To clean the binaries produced for a specific configuration or platform, you
 need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
-`make CONFIGS=cpp11-shared clean` will clean the C++11 mapping build.
+`make CONFIGS=shared clean` will clean the C++ shared mapping build.
 
 To clean the build for all the supported configurations and platforms, run
 `make CONFIGS=all PLATFORMS=all clean`.
@@ -456,24 +437,7 @@ pip install passlib
 
 After a successful source build, you can run the tests as follows:
 ```
-python allTests.py # default config (C++98) and platform
-```
-
-For the C++11 mapping, you need to specify a C++11 config:
-
-* Linux/macOS
-```
- python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
-```
-
-* Windows C++11 debug builds
-```
-python allTests.py --config Cpp11-Debug
-```
-
-* Windows C++11 release builds
-```
-python allTests.py --config Cpp11-Release
+python allTests.py # default config and platform
 ```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
@@ -498,26 +462,18 @@ C++98 Test Controller app or C++11 Test Controller app from Xcode:
  match the configuration(s) selected when building the test suite).
 
 #### iOS Simulator
- - C++98 controller
+ - C++ controller
 ```
 python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
-```
- - C++11 controller
-```
-python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 
 #### iOS Device
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
 
- - Start the C++98 controller on your Mac:
+ - Start the C++ controller on your Mac:
 ```
 python allTests.py --config=xcodesdk --platform=iphoneos
-```
- - Start the C++11 controller on your Mac:
-```
-python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac

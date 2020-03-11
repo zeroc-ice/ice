@@ -315,7 +315,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList allIds;
-    transform(allBases.begin(), allBases.end(), back_inserter(allIds), ::IceUtil::constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(allIds), [](const auto& c) { return c->scoped(); });
     allIds.push_back(p->scoped());
     allIds.push_back("::Ice::Object");
     allIds.sort();
@@ -1527,7 +1527,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     const OperationList allOps = p->allOperations();
 
     StringList allOpNames;
-    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
+    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto& c) { return c->name(); });
 
     allOpNames.push_back("ice_id");
     allOpNames.push_back("ice_ids");

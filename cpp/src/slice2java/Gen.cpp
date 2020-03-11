@@ -967,7 +967,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& contained)
+        {
+            return contained->scoped();
+        });
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -1211,7 +1214,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     if(!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto& op)
+            {
+                return op->name();
+            });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");

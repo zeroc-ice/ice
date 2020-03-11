@@ -939,7 +939,7 @@ namespace IceInternal
             {
                 if (Read == null)
                 {
-                    if (Is == null || Is.IsEmpty)
+                    if (Is == null || Is.Size == 0)
                     {
                         //
                         // If there's no response (oneway), we just set the result
