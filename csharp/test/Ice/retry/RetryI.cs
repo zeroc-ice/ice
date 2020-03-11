@@ -37,7 +37,7 @@ namespace Ice.retry
 
         public void opNotIdempotent(Current current) => throw new ConnectionLostException();
 
-        public void opSystemException(Current c) => throw new SystemFailure();
+        public void opSystemException(Current c) => throw new Test.SystemFailure();
 
         public void sleep(int delay, Current c) => Thread.Sleep(delay);
 

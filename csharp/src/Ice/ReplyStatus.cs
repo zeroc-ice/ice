@@ -4,7 +4,7 @@
 
 namespace Ice
 {
-    /// <summary>The reply status used in Ice1 response frames (known as reply messages).</summary>
+    /// <summary>The reply status used in ice1 response frames (known as reply messages).</summary>
     public enum ReplyStatus : byte
     {
         OK = 0,

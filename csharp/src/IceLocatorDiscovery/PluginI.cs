@@ -85,10 +85,6 @@ namespace IceLocatorDiscovery
             {
                 SetException(exc);
             }
-            catch (Ice.UnknownException exc)
-            {
-                SetException(exc);
-            }
             catch (Ice.NoEndpointException)
             {
                 SetException(new Ice.ObjectNotExistException());

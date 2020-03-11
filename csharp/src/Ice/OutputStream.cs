@@ -1142,11 +1142,15 @@ namespace Ice
         /// Writes a user exception to the stream.
         /// </summary>
         /// <param name="v">The user exception to write.</param>
-        public void WriteException(UserException v)
+        public void WriteException(RemoteException v)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
             Debug.Assert(_format == FormatType.SlicedFormat);
+            Debug.Assert(!(v is ObjectNotExistException)); // temporary
+            Debug.Assert(!(v is OperationNotExistException)); // temporary
+            Debug.Assert(!(v is UnhandledException)); // temporary
             Push(InstanceType.Exception);
+
             v.Write(this);
             Pop(null);
         }

@@ -9,38 +9,39 @@ namespace IceInternal
 {
     internal static class Incoming
     {
-        internal static void ReportException(Exception exc,
-            Ice.Instrumentation.IDispatchObserver? dispatchObserver, Ice.Current current)
+        internal static void ReportException(Ice.RemoteException exc,
+                                             Ice.Instrumentation.IDispatchObserver? dispatchObserver,
+                                             Ice.Current current)
         {
-            bool userException = exc is Ice.UserException;
+            bool unhandledException = exc is Ice.UnhandledException;
 
-            if (!userException && current.Adapter.Communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 0)
+            if (unhandledException && current.Adapter.Communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
-                Warning(exc, current);
+                Warning((Ice.UnhandledException)exc, current);
             }
 
-            if (userException)
+            if (dispatchObserver != null)
             {
-                dispatchObserver?.UserException();
-            }
-            else
-            {
-                if (dispatchObserver != null)
+                if (unhandledException)
                 {
-                    // TODO: temporary, should just use ToString all the time
-                    if (exc is Ice.Exception ex)
+                    System.Exception realEx = exc.InnerException ?? exc;
+                    if (realEx is Ice.LocalException iceLocalEx)
                     {
-                        dispatchObserver.Failed(ex.ice_id());
+                        dispatchObserver.Failed(iceLocalEx.ice_id()); // TODO: refactor
                     }
                     else
                     {
-                        dispatchObserver.Failed(exc.GetType().FullName);
+                        dispatchObserver.Failed(realEx.GetType().FullName);
                     }
+                }
+                else
+                {
+                    dispatchObserver.RemoteException();
                 }
             }
         }
 
-        private static void Warning(Exception ex, Ice.Current current)
+        private static void Warning(Ice.UnhandledException ex, Ice.Current current)
         {
             Debug.Assert(current.Adapter.Communicator != null);
 

@@ -238,12 +238,9 @@ namespace Ice
                         }
                         test(!initial.supportsClassGraphDepthMax());
                     }
-                    catch (Ice.UnknownLocalException)
+                    catch (Ice.UnhandledException)
                     {
-                        // Expected marshal exception from the server(max class graph depth reached)
-                    }
-                    catch (Ice.UnknownException)
-                    {
+                        // Expected marshal exception from the server (max class graph depth reached)
                         // Expected stack overflow from the server(Java only)
                     }
                     initial.setRecursive(new Test.Recursive());

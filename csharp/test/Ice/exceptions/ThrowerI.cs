@@ -10,8 +10,6 @@ namespace Ice.exceptions
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public bool supportsUndeclaredExceptions(Current current) => true;
-
         public bool supportsAssertException(Current current) => false;
 
         public void throwAasA(int a, Current current) => throw new Test.A(a);
@@ -66,5 +64,12 @@ namespace Ice.exceptions
         // Only relevant for AMD.
         //
         public void throwAfterException(Current current) => throw new Test.A();
+
+        public void throwAConvertedToUnhandled(Current current)
+        {
+            var a = new Test.A();
+            a.ConvertToUnhandled = true;
+            throw a;
+        }
     }
 }

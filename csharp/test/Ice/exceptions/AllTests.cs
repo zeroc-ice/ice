@@ -128,7 +128,7 @@ namespace Ice.exceptions
             {
                 test(ex.aMem == 1);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -142,7 +142,7 @@ namespace Ice.exceptions
             {
                 test(ex.dMem == -1);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -157,7 +157,7 @@ namespace Ice.exceptions
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -173,7 +173,7 @@ namespace Ice.exceptions
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -192,7 +192,7 @@ namespace Ice.exceptions
             {
                 test(ex.aMem == 1);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -207,7 +207,7 @@ namespace Ice.exceptions
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -227,7 +227,7 @@ namespace Ice.exceptions
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -243,7 +243,7 @@ namespace Ice.exceptions
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -259,59 +259,56 @@ namespace Ice.exceptions
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
 
             output.WriteLine("ok");
 
-            if (thrower.supportsUndeclaredExceptions())
+            output.Write("catching remote exception... ");
+            output.Flush();
+
+            try
             {
-                output.Write("catching undeclared user exception... ");
-                output.Flush();
-
-                try
-                {
-                    thrower.throwUndeclaredA(1);
-                    test(false);
-                }
-                catch (A)
-                {
-                }
-                catch (Exception)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    thrower.throwUndeclaredB(1, 2);
-                    test(false);
-                }
-                catch (B)
-                {
-                }
-                catch (Exception)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    thrower.throwUndeclaredC(1, 2, 3);
-                    test(false);
-                }
-                catch (C)
-                {
-                }
-                catch (Exception)
-                {
-                    test(false);
-                }
-
-                output.WriteLine("ok");
+                thrower.throwUndeclaredA(1);
+                test(false);
             }
+            catch (A)
+            {
+            }
+            catch (System.Exception)
+            {
+                test(false);
+            }
+
+            try
+            {
+                thrower.throwUndeclaredB(1, 2);
+                test(false);
+            }
+            catch (B)
+            {
+            }
+            catch (System.Exception)
+            {
+                test(false);
+            }
+
+            try
+            {
+                thrower.throwUndeclaredC(1, 2, 3);
+                test(false);
+            }
+            catch (C)
+            {
+            }
+            catch (System.Exception)
+            {
+                test(false);
+            }
+
+            output.WriteLine("ok");
 
             if (thrower.GetConnection() != null)
             {
@@ -325,7 +322,7 @@ namespace Ice.exceptions
                 catch (MemoryLimitException)
                 {
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -338,11 +335,11 @@ namespace Ice.exceptions
                 catch (ConnectionLostException)
                 {
                 }
-                catch (UnknownLocalException)
+                catch (UnhandledException)
                 {
                     // Expected with JS bidir server
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -390,7 +387,7 @@ namespace Ice.exceptions
                 {
                     test(ex.Id.Equals(id));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -414,7 +411,7 @@ namespace Ice.exceptions
                     test(ex.Facet.Equals("no such facet"));
                 }
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -434,14 +431,14 @@ namespace Ice.exceptions
             {
                 test(ex.Operation.Equals("noSuchOperation"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown local exception... ");
+            output.Write("catching unhandled local exception... ");
             output.Flush();
 
             try
@@ -449,10 +446,10 @@ namespace Ice.exceptions
                 thrower.throwLocalException();
                 test(false);
             }
-            catch (UnknownLocalException)
+            catch (UnhandledException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -461,20 +458,17 @@ namespace Ice.exceptions
                 thrower.throwLocalExceptionIdempotent();
                 test(false);
             }
-            catch (UnknownLocalException)
+            catch (UnhandledException)
             {
             }
-            catch (OperationNotExistException)
-            {
-            }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown non-Ice exception... ");
+            output.Write("catching unhandled non-Ice exception... ");
             output.Flush();
 
             try
@@ -482,14 +476,30 @@ namespace Ice.exceptions
                 thrower.throwNonIceException();
                 test(false);
             }
-            catch (UnknownException)
+            catch (UnhandledException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
 
+            output.WriteLine("ok");
+
+            output.Write("catching unhandled remote exception... ");
+            output.Flush();
+            try
+            {
+                thrower.throwAConvertedToUnhandled();
+                test(false);
+            }
+            catch (UnhandledException)
+            {
+            }
+            catch (System.Exception)
+            {
+                test(false);
+            }
             output.WriteLine("ok");
 
             output.Write("testing asynchronous exceptions... ");
@@ -499,7 +509,7 @@ namespace Ice.exceptions
             {
                 thrower.throwAfterResponse();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -512,7 +522,7 @@ namespace Ice.exceptions
             catch (A)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -555,7 +565,7 @@ namespace Ice.exceptions
                     {
                         test(ex.dMem == -1);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -582,7 +592,7 @@ namespace Ice.exceptions
                     {
                         test(ex.dMem == -1);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -606,7 +616,7 @@ namespace Ice.exceptions
                         test(ex.aMem == 1);
                         test(ex.bMem == 2);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -631,7 +641,7 @@ namespace Ice.exceptions
                         test(ex.bMem == 2);
                         test(ex.cMem == 3);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -660,7 +670,7 @@ namespace Ice.exceptions
                         test(ex.aMem == 1);
                         test(ex.bMem == 2);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -684,7 +694,7 @@ namespace Ice.exceptions
                         test(ex.bMem == 2);
                         test(ex.cMem == 3);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -709,7 +719,7 @@ namespace Ice.exceptions
                         test(ex.bMem == 2);
                         test(ex.cMem == 3);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -718,79 +728,76 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            if (thrower.supportsUndeclaredExceptions())
+            output.Write("catching remote exception with AMI... ");
+            output.Flush();
+
             {
-                output.Write("catching undeclared user exception with AMI... ");
-                output.Flush();
-
+                try
+                {
+                    thrower.throwUndeclaredAAsync(1).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
                 {
                     try
                     {
-                        thrower.throwUndeclaredAAsync(1).Wait();
+                        throw exc.InnerException;
+                    }
+                    catch (A)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
                         test(false);
                     }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (A)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
                 }
-
-                {
-                    try
-                    {
-                        thrower.throwUndeclaredBAsync(1, 2).Wait();
-                        test(false);
-                    }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (B)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
-                }
-
-                {
-                    try
-                    {
-                        thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
-                        test(false);
-                    }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (C)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
-                }
-
-                output.WriteLine("ok");
             }
+
+            {
+                try
+                {
+                    thrower.throwUndeclaredBAsync(1, 2).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (B)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+
+            {
+                try
+                {
+                    thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (C)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+
+            output.WriteLine("ok");
 
             output.Write("catching object not exist exception with AMI... ");
             output.Flush();
@@ -813,7 +820,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Id.Equals(id));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -842,7 +849,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -871,7 +878,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -880,7 +887,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown local exception with AMI... ");
+            output.Write("catching unhandled local exception with AMI... ");
             output.Flush();
 
             {
@@ -895,13 +902,10 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownLocalException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (OperationNotExistException)
-                    {
-                    }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -920,13 +924,10 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownLocalException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (OperationNotExistException)
-                    {
-                    }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -935,9 +936,8 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown non-Ice exception with AMI... ");
+            output.Write("catching unhandled non-Ice exception with AMI... ");
             output.Flush();
-
             {
                 try
                 {
@@ -950,10 +950,80 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+            output.WriteLine("ok");
+
+            output.Write("catching remote exception with AMI... ");
+            output.Flush();
+
+            {
+                try
+                {
+                    thrower.throwUndeclaredAAsync(1).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (A)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+
+            {
+                try
+                {
+                    thrower.throwUndeclaredBAsync(1, 2).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (B)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+
+            {
+                try
+                {
+                    thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (C)
+                    {
+                    }
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -961,80 +1031,6 @@ namespace Ice.exceptions
             }
 
             output.WriteLine("ok");
-
-            if (thrower.supportsUndeclaredExceptions())
-            {
-                output.Write("catching undeclared user exception with AMI... ");
-                output.Flush();
-
-                {
-                    try
-                    {
-                        thrower.throwUndeclaredAAsync(1).Wait();
-                        test(false);
-                    }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (A)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
-                }
-
-                {
-                    try
-                    {
-                        thrower.throwUndeclaredBAsync(1, 2).Wait();
-                        test(false);
-                    }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (B)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
-                }
-
-                {
-                    try
-                    {
-                        thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
-                        test(false);
-                    }
-                    catch (AggregateException exc)
-                    {
-                        try
-                        {
-                            throw exc.InnerException;
-                        }
-                        catch (C)
-                        {
-                        }
-                        catch (Exception)
-                        {
-                            test(false);
-                        }
-                    }
-                }
-
-                output.WriteLine("ok");
-            }
 
             output.Write("catching object not exist exception with AMI... ");
             output.Flush();
@@ -1057,7 +1053,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Id.Equals(id));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -1066,7 +1062,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching facet not exist exception with AMI... ");
+            output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
             {
@@ -1086,7 +1082,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Facet.Equals("no such facet"));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -1115,7 +1111,7 @@ namespace Ice.exceptions
                     {
                         test(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -1124,7 +1120,7 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown local exception with AMI... ");
+            output.Write("catching unhandled local exception with AMI... ");
             output.Flush();
 
             {
@@ -1139,13 +1135,10 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownLocalException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (OperationNotExistException)
-                    {
-                    }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -1164,13 +1157,10 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownLocalException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (OperationNotExistException)
-                    {
-                    }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -1179,9 +1169,8 @@ namespace Ice.exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching unknown non-Ice exception with AMI... ");
+            output.Write("catching unhandled non-Ice exception with AMI... ");
             output.Flush();
-
             {
                 try
                 {
@@ -1194,17 +1183,42 @@ namespace Ice.exceptions
                     {
                         throw exc.InnerException;
                     }
-                    catch (UnknownException)
+                    catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
                 }
             }
-
             output.WriteLine("ok");
+
+            output.Write("catching unhandled remote exception with AMI... ");
+            output.Flush();
+            {
+                try
+                {
+                    thrower.throwAConvertedToUnhandledAsync().Wait();
+                    test(false);
+                }
+                catch (AggregateException exc)
+                {
+                    try
+                    {
+                        throw exc.InnerException;
+                    }
+                    catch (UnhandledException)
+                    {
+                    }
+                    catch (System.Exception)
+                    {
+                        test(false);
+                    }
+                }
+            }
+            output.WriteLine("ok");
+
             return thrower;
         }
     }

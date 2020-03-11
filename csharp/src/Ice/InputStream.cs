@@ -15,14 +15,6 @@ namespace Ice
     public delegate T InputStreamReader<T>(InputStream ins);
 
     /// <summary>
-    /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
-    /// If the implementation does not throw an exception, the Ice run time will fall back
-    /// to using its default behavior for instantiating the user exception.
-    /// </summary>
-    /// <param name="id">A Slice type Id corresponding to a Slice user exception.</param>
-    public delegate void UserExceptionFactory(string id);
-
-    /// <summary>
     /// Interface for input streams used to extract Slice types from a sequence of bytes.
     /// </summary>
     public sealed class InputStream
@@ -1077,7 +1069,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Extracts a user exception from the stream and throws it.
+        /// Extracts a remote exception from the stream and throws it.
         /// </summary>
         public void ThrowException()
         {
@@ -1091,14 +1083,14 @@ namespace Ice
 
             while (true)
             {
-                UserException? userEx = null;
+                RemoteException? remoteEx = null;
 
                 try
                 {
                     Type? type = Communicator.ResolveClass(typeId);
                     if (type != null)
                     {
-                        userEx = (UserException?)IceInternal.AssemblyUtil.CreateInstance(type);
+                        remoteEx = (RemoteException?)IceInternal.AssemblyUtil.CreateInstance(type);
                     }
                 }
                 catch (Exception ex)
@@ -1107,12 +1099,12 @@ namespace Ice
                 }
 
                 // We found the exception.
-                if (userEx != null)
+                if (remoteEx != null)
                 {
-                    userEx.Read(this);
+                    remoteEx.ConvertToUnhandled = true;
+                    remoteEx.Read(this);
                     Pop(null);
-                    throw userEx;
-                    // Never reached.
+                    throw remoteEx;
                 }
 
                 // Slice off what we don't understand.
@@ -1120,14 +1112,11 @@ namespace Ice
 
                 if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0)
                 {
-                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal) == true)
-                    {
-                        throw new UnknownUserException(mostDerivedId.Substring(2));
-                    }
-                    else
-                    {
-                        throw new UnknownUserException(mostDerivedId);
-                    }
+                    // Create and throw a plain RemoteException with the SlicedData.
+                    Debug.Assert(SlicedData != null);
+                    remoteEx = new RemoteException(SlicedData.Value);
+                    remoteEx.ConvertToUnhandled = true;
+                    throw remoteEx;
                 }
 
                 typeId = ReadSliceHeaderIntoCurrent()!;
@@ -1541,14 +1530,9 @@ namespace Ice
                 }
                 else
                 {
-                    if (_current.SliceTypeId?.StartsWith("::", StringComparison.Ordinal) == true)
-                    {
-                        throw new UnknownUserException(_current.SliceTypeId!.Substring(2));
-                    }
-                    else
-                    {
-                        throw new UnknownUserException(_current.SliceTypeId ?? "");
-                    }
+                    throw new NoClassFactoryException("no exception factory found and compact format prevents " +
+                                                      "slicing (the sender should use the sliced format " +
+                                                      "instead)", _current.SliceTypeId ?? "");
                 }
             }
 

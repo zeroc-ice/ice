@@ -879,10 +879,15 @@ namespace Ice.binding
                     {
                         prx.Clone(collocationOptimized: false).IcePing();
                     }
-                    catch (LocalException)
+                    catch (DNSException) // TODO: is this really an expected exception?
                     {
                         serverCommunicator.Destroy();
-                        continue; // IP version not supported.
+                        continue;
+                    }
+                    catch (ObjectNotExistException) // TODO: is this really an expected exception?
+                    {
+                        serverCommunicator.Destroy();
+                        continue;
                     }
 
                     string strPrx = prx.ToString();

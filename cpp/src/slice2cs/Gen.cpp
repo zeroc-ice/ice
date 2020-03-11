@@ -103,19 +103,6 @@ getEscapedParamName(const OperationPtr& p, const string& name)
     return name;
 }
 
-string
-getEscapedParamName(const DataMemberList& params, const string& name)
-{
-    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        if((*i)->name() == name)
-        {
-            return name + "_";
-        }
-    }
-    return name;
-}
-
 bool
 hasDataMemberWithName(const DataMemberList& dataMembers, const string& name)
 {
@@ -1520,7 +1507,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        _out << getUnqualified("Ice.UserException", ns);
+        _out << getUnqualified("Ice.RemoteException", ns);
     }
     _out << sb;
     return true;
@@ -1577,16 +1564,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "()";
-    _out << sb;
-    if(hasDataMemberInitializers)
-    {
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
-    }
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << "(global::System.Exception ex) : base(ex)";
     _out << sb;
     if(hasDataMemberInitializers)
     {
@@ -1695,30 +1672,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
         }
         _out << eb;
-
-        string exParam = getEscapedParamName(allDataMembers, "ex");
-        vector<string> exceptionParam;
-        exceptionParam.push_back(exParam);
-        vector<string> exceptionDecl;
-        exceptionDecl.push_back("global::System.Exception " + exParam);
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << allParamDecl << exceptionDecl << epar << " : base" << spar;
-        if(p->base() && allDataMembers.size() != dataMembers.size())
-        {
-            _out << baseParamNames;
-        }
-        _out << exceptionParam << epar;
-        _out << sb;
-        if(!dataMembers.empty())
-        {
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
-                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
-            }
-        }
-        _out << eb;
     }
 
     if(!dataMembers.empty())
@@ -1763,15 +1716,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
 
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
-    }
+    // Remote exceptions are always "preserved".
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -1779,10 +1724,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
          << " iceP_ostr, bool iceP_firstSlice)";
     _out << sb;
     _out << nl << "iceP_ostr.IceStartSlice" << spar << "_iceTypeId" << "iceP_firstSlice";
-    if (preserved || basePreserved)
-    {
-        _out << "iceP_firstSlice ? IceSlicedData : null";
-    }
+    _out << "iceP_firstSlice ? IceSlicedData : null";
     _out << epar << ";";
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1807,21 +1749,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
          << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
     _out << sb;
 
-    if (preserved || basePreserved)
-    {
-        _out << nl << "if (iceP_firstSlice)";
-        _out << sb;
-        _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(\"" << scoped << "\");";
-        _out << eb;
-        _out << "else";
-        _out << sb;
-        _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "false" << epar << ";";
-         _out << eb;
-    }
-    else
-    {
-        _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "iceP_firstSlice" << epar << ";";
-    }
+    _out << nl << "if (iceP_firstSlice)";
+    _out << sb;
+    _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(_iceTypeId);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "false" << epar << ";";
+    _out << eb;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -1833,17 +1768,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "base.IceRead(iceP_istr, false);";
     }
     _out << eb;
-
-    if((!base || (base && !base->usesClasses(false))) && p->usesClasses(false))
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override bool IceUsesClasses()";
-        _out << sb;
-        _out << nl << "return true;";
-        _out << eb;
-    }
-
     _out << eb;
 }
 

@@ -44,4 +44,9 @@ exception SPreserved2 extends SPreserved1
     BaseClass p2;
 }
 
+exception ServerPrivateException
+{
+    string spe;
+}
+
 }

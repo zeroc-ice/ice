@@ -42,7 +42,7 @@ namespace Ice.interceptor
             test(interceptor.getLastOperation()!.Equals("addWithRetry"));
             test(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
-            output.Write("testing user exception... ");
+            output.Write("testing remote exception... ");
             output.Flush();
             try
             {
@@ -69,29 +69,6 @@ namespace Ice.interceptor
                 // expected
             }
             test(interceptor.getLastOperation()!.Equals("notExistAdd"));
-            test(!interceptor.AsyncCompletion);
-            output.WriteLine("ok");
-            output.Write("testing system exception... ");
-            output.Flush();
-            interceptor.clear();
-            try
-            {
-                prx.badSystemAdd(33, 12);
-                test(false);
-            }
-            catch (UnknownException)
-            {
-                test(!prx.IsCollocationOptimized);
-            }
-            catch (MySystemException)
-            {
-                test(prx.IsCollocationOptimized);
-            }
-            catch (Exception)
-            {
-                test(false);
-            }
-            test(interceptor.getLastOperation()!.Equals("badSystemAdd"));
             test(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
@@ -162,30 +139,6 @@ namespace Ice.interceptor
             test(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
-            output.Write("testing system exception... ");
-            output.Flush();
-            interceptor.clear();
-            try
-            {
-                prx.amdBadSystemAdd(33, 12);
-                test(false);
-            }
-            catch (UnknownException)
-            {
-                test(!prx.IsCollocationOptimized);
-            }
-            catch (MySystemException)
-            {
-                test(prx.IsCollocationOptimized);
-            }
-            catch (Exception)
-            {
-                test(false);
-            }
-            test(interceptor.getLastOperation()!.Equals("amdBadSystemAdd"));
-            test(interceptor.AsyncCompletion);
-            output.WriteLine("ok");
-
             output.Write("testing exceptions raised by the interceptor... ");
             output.Flush();
             testInterceptorExceptions(prx);
@@ -232,12 +185,10 @@ namespace Ice.interceptor
         private void testInterceptorExceptions(Test.IMyObjectPrx prx)
         {
             var exceptions = new List<(string operation, string kind)>();
-            exceptions.Add(("raiseBeforeDispatch", "user"));
+            exceptions.Add(("raiseBeforeDispatch", "invalidInput"));
             exceptions.Add(("raiseBeforeDispatch", "notExist"));
-            exceptions.Add(("raiseBeforeDispatch", "system"));
-            exceptions.Add(("raiseAfterDispatch", "user"));
+            exceptions.Add(("raiseAfterDispatch", "invalidInput"));
             exceptions.Add(("raiseAfterDispatch", "notExist"));
-            exceptions.Add(("raiseAfterDispatch", "system"));
             foreach (var e in exceptions)
             {
                 var ctx = new Dictionary<string, string>();
@@ -247,16 +198,10 @@ namespace Ice.interceptor
                     prx.IcePing(ctx);
                     test(false);
                 }
-                catch (Test.InvalidInputException) when (e.kind.Equals("user"))
+                catch (Test.InvalidInputException) when (e.kind.Equals("invalidInput"))
                 {
                 }
                 catch (ObjectNotExistException) when (e.kind.Equals("notExist"))
-                {
-                }
-                catch (UnknownException) when (e.kind.Equals("system")) // non-collocated
-                {
-                }
-                catch (MySystemException) when (e.kind.Equals("system")) // collocated
                 {
                 }
             }

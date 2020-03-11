@@ -24,4 +24,9 @@ exception Preserved2 extends Preserved1
     BaseClass p2;
 }
 
+exception ClientPrivateException
+{
+    string cpe;
+}
+
 }

@@ -140,7 +140,7 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
     }
 
     public void
-    UserException()
+    RemoteException()
     {
         lock (this)
         {
@@ -197,7 +197,7 @@ public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
     }
 
     public void
-    UserException()
+    RemoteException()
     {
         lock (this)
         {

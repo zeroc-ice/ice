@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Test;
 
@@ -83,20 +85,42 @@ public sealed class TestIntf : ITestIntf
     knownPreservedAsKnownPreservedAsync(Ice.Current current) =>
         throw new KnownPreservedDerived("base", "preserved", "derived");
 
+    public ValueTask serverPrivateExceptionAsync(Current current) => throw new ServerPrivateException("ServerPrivate");
+
     public ValueTask
-    relayKnownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
+    relayKnownPreservedAsBaseAsync(IRelayPrx? r, Ice.Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.knownPreservedAsBase();
+        try
+        {
+            p.knownPreservedAsBase();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
         return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask
-    relayKnownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
+    relayKnownPreservedAsKnownPreservedAsync(IRelayPrx? r, Ice.Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.knownPreservedAsKnownPreserved();
+        try
+        {
+            p.knownPreservedAsKnownPreserved();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
         return new ValueTask(Task.CompletedTask);
     }
@@ -125,19 +149,57 @@ public sealed class TestIntf : ITestIntf
     }
 
     public ValueTask
-    relayUnknownPreservedAsBaseAsync(IRelayPrx r, Ice.Current current)
+    relayUnknownPreservedAsBaseAsync(IRelayPrx? r, Ice.Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.unknownPreservedAsBase();
+        try
+        {
+            p.unknownPreservedAsBase();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
         return new ValueTask(Task.CompletedTask);
     }
 
     public ValueTask
-    relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx r, Ice.Current current)
+    relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Ice.Current current)
     {
+        Debug.Assert(r != null);
         IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
-        p.unknownPreservedAsKnownPreserved();
+        try
+        {
+            p.unknownPreservedAsKnownPreserved();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
+        test(false);
+        return new ValueTask(Task.CompletedTask);
+    }
+
+    public ValueTask relayClientPrivateExceptionAsync(IRelayPrx? r, Ice.Current current)
+    {
+        Debug.Assert(r != null);
+        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        try
+        {
+            p.clientPrivateException();
+        }
+        catch (RemoteException ex)
+        {
+            test(ex.ConvertToUnhandled);
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
         test(false);
         return new ValueTask(Task.CompletedTask);
     }

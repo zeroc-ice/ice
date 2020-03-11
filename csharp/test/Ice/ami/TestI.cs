@@ -77,7 +77,15 @@ namespace Ice.ami
             test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
             await Task.Delay(10);
             test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-            await self(current).opWithUEAsync();
+            try
+            {
+                await self(current).opWithUEAsync();
+            }
+            catch (RemoteException ex)
+            {
+                ex.ConvertToUnhandled = false;
+                throw;
+            }
         }
 
         public void pingBiDir(Test.IPingReplyPrx reply, Ice.Current current)

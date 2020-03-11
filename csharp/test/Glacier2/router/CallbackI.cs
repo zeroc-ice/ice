@@ -11,7 +11,18 @@ public sealed class Callback : ICallback
     initiateCallback(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callback(current.Context);
 
     public void
-    initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callbackEx(current.Context);
+    initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current)
+    {
+        try
+        {
+            proxy.callbackEx(current.Context);
+        }
+        catch (Ice.RemoteException ex)
+        {
+            ex.ConvertToUnhandled = false;
+            throw;
+        }
+    }
 
     public void
     shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();

@@ -87,7 +87,6 @@ class PNode
     PNode next;
 }
 
-["preserve-slice"]
 exception PreservedException
 {
 }

@@ -16,11 +16,12 @@ namespace IceInternal
         void Init(OutgoingAsyncBase og);
 
         bool HandleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
-        bool HandleException(Ice.Exception ex, OutgoingAsyncBase og);
+        bool HandleException(System.Exception ex, OutgoingAsyncBase og);
+
         bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
         void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
-        void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og);
+        void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og);
         void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
     }
 
@@ -28,11 +29,11 @@ namespace IceInternal
     {
         public virtual bool Sent() => SentImpl(true);
 
-        public virtual bool Exception(Ice.Exception ex) => ExceptionImpl(ex);
+        public virtual bool Exception(System.Exception ex) => ExceptionImpl(ex);
 
         public virtual bool Response()
         {
-            Debug.Assert(false); // Must be overriden by request that can handle responses
+            Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
         }
 
@@ -120,16 +121,16 @@ namespace IceInternal
                 {
                     _completionCallback.HandleInvokeResponse((State & StateOK) != 0, this);
                 }
-                catch (Ice.Exception ex)
+                catch (System.AggregateException ex)
+                {
+                    throw ex.InnerException;
+                }
+                catch (System.Exception ex)
                 {
                     if (_completionCallback.HandleException(ex, this))
                     {
                         _completionCallback.HandleInvokeException(ex, this);
                     }
-                }
-                catch (System.AggregateException ex)
-                {
-                    throw ex.InnerException;
                 }
             }
             catch (System.Exception ex)
@@ -248,14 +249,26 @@ namespace IceInternal
             }
         }
 
-        protected virtual bool ExceptionImpl(Ice.Exception ex)
+        protected virtual bool ExceptionImpl(System.Exception ex)
         {
             lock (this)
             {
                 _ex = ex;
+
+                string typeId;
+                if (ex is RemoteException remoteException)
+                {
+                    typeId = remoteException.TypeId;
+                }
+                else
+                {
+                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
+                    typeId = ((Ice.LocalException)ex).ice_id();
+                }
+
                 if (ChildObserver != null)
                 {
-                    ChildObserver.Failed(ex.ice_id());
+                    ChildObserver.Failed(typeId);
                     ChildObserver.Detach();
                     ChildObserver = null;
                 }
@@ -263,7 +276,7 @@ namespace IceInternal
 
                 if (Observer != null)
                 {
-                    Observer.Failed(ex.ice_id());
+                    Observer.Failed(typeId);
                 }
                 bool invoke = _completionCallback.HandleException(ex, this);
                 if (!invoke && Observer != null)
@@ -274,6 +287,7 @@ namespace IceInternal
                 return invoke;
             }
         }
+
         protected virtual bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
             lock (this)
@@ -289,7 +303,7 @@ namespace IceInternal
                 {
                     invoke &= _completionCallback.HandleResponse(userThread, ok, this);
                 }
-                catch (Ice.Exception ex)
+                catch (System.Exception ex)
                 {
                     _ex = ex;
                     invoke = _completionCallback.HandleException(ex, this);
@@ -346,7 +360,7 @@ namespace IceInternal
 
         private bool _doneInSent;
         private bool _alreadySent;
-        private Ice.Exception? _ex;
+        private System.Exception? _ex;
         private LocalException? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
@@ -373,11 +387,22 @@ namespace IceInternal
         public abstract int InvokeRemote(Ice.Connection connection, bool compress, bool response);
         public abstract int InvokeCollocated(CollocatedRequestHandler handler);
 
-        public override bool Exception(Ice.Exception exc)
+        public override bool Exception(System.Exception exc)
         {
             if (ChildObserver != null)
             {
-                ChildObserver.Failed(exc.ice_id());
+                string typeId;
+                if (exc is RemoteException remoteException)
+                {
+                    typeId = remoteException.TypeId;
+                }
+                else
+                {
+                    // TODO: we assume all non-RemoteExceptions are LocalExceptions
+                    typeId = ((Ice.LocalException)exc).ice_id();
+                }
+
+                ChildObserver.Failed(typeId);
                 ChildObserver.Detach();
                 ChildObserver = null;
             }
@@ -402,7 +427,7 @@ namespace IceInternal
                 Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, IsIdempotent, _sent, ref _cnt));
                 return false;
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 return ExceptionImpl(ex); // No retries, we're done
             }
@@ -571,7 +596,7 @@ namespace IceInternal
             }
             return base.SentImpl(done);
         }
-        protected override bool ExceptionImpl(Ice.Exception ex)
+        protected override bool ExceptionImpl(System.Exception ex)
         {
             if (Proxy.IceReference.GetInvocationTimeout() != -1)
             {
@@ -728,7 +753,7 @@ namespace IceInternal
                         {
                             if (Observer != null)
                             {
-                                Observer.UserException();
+                                Observer.RemoteException();
                             }
                             break;
                         }
@@ -737,11 +762,9 @@ namespace IceInternal
                     case ReplyStatus.FacetNotExistException:
                     case ReplyStatus.OperationNotExistException:
                         {
-                            var ident = new Ice.Identity(Is);
+                            var identity = new Ice.Identity(Is);
 
-                            //
                             // For compatibility with the old FacetPath.
-                            //
                             string[] facetPath = Is.ReadStringArray();
                             string facet;
                             if (facetPath.Length > 0)
@@ -759,38 +782,14 @@ namespace IceInternal
 
                             string operation = Is.ReadString();
 
-                            Ice.RequestFailedException ex;
-                            switch (replyStatus)
+                            if (replyStatus == ReplyStatus.OperationNotExistException)
                             {
-                                case ReplyStatus.ObjectNotExistException:
-                                    {
-                                        ex = new Ice.ObjectNotExistException();
-                                        break;
-                                    }
-
-                                case ReplyStatus.FacetNotExistException:
-                                    {
-                                        ex = new Ice.FacetNotExistException();
-                                        break;
-                                    }
-
-                                case ReplyStatus.OperationNotExistException:
-                                    {
-                                        ex = new Ice.OperationNotExistException();
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        Debug.Assert(false);
-                                        throw new System.InvalidOperationException();
-                                    }
+                                throw new Ice.OperationNotExistException(identity, facet, operation);
                             }
-
-                            ex.Id = ident;
-                            ex.Facet = facet;
-                            ex.Operation = operation;
-                            throw ex;
+                            else
+                            {
+                                throw new Ice.ObjectNotExistException(identity, facet, operation);
+                            }
                         }
 
                     case ReplyStatus.UnknownException:
@@ -798,37 +797,7 @@ namespace IceInternal
                     case ReplyStatus.UnknownUserException:
                         {
                             string unknown = Is.ReadString();
-
-                            Ice.UnknownException ex;
-                            switch (replyStatus)
-                            {
-                                case ReplyStatus.UnknownException:
-                                    {
-                                        ex = new Ice.UnknownException();
-                                        break;
-                                    }
-
-                                case ReplyStatus.UnknownLocalException:
-                                    {
-                                        ex = new Ice.UnknownLocalException();
-                                        break;
-                                    }
-
-                                case ReplyStatus.UnknownUserException:
-                                    {
-                                        ex = new Ice.UnknownUserException();
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        Debug.Assert(false);
-                                        throw new System.InvalidOperationException();
-                                    }
-                            }
-
-                            ex.Unknown = unknown;
-                            throw ex;
+                            throw new UnhandledException(Ice.Identity.Empty, "", "", unknown);
                         }
 
                     default:
@@ -839,7 +808,7 @@ namespace IceInternal
 
                 return ResponseImpl(false, replyStatus == ReplyStatus.OK, true);
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 return Exception(ex);
             }
@@ -1068,7 +1037,7 @@ namespace IceInternal
             return done || (Progress != null && !alreadySent); // Invoke the sent callback only if not already invoked.
         }
 
-        public bool HandleException(Ice.Exception ex, OutgoingAsyncBase og)
+        public bool HandleException(System.Exception ex, OutgoingAsyncBase og)
         {
             //
             // If this is a synchronous call, we can notify the task from this thread to avoid
@@ -1116,7 +1085,7 @@ namespace IceInternal
             }
         }
 
-        public void HandleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
+        public void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
         public abstract void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
 

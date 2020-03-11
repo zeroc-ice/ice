@@ -8,6 +8,10 @@
 module Test
 {
 
+exception SystemFailure
+{
+}
+
 interface Retry
 {
     void op(bool kill);

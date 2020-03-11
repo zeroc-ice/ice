@@ -223,7 +223,7 @@ namespace IceDiscovery
         public void SetLookupReply(ILookupReplyPrx lookupReply)
         {
             //
-            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
             //
             var single = new Ice.IEndpoint[1];
             foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
