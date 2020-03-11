@@ -365,45 +365,6 @@ namespace Ice
             RewriteInt(Distance(start) - 4, start);
         }
 
-        /// <summary>Get an array of bytes from the stream contents starting at the given
-        /// offset and with the given length. This method always returns a copy of the
-        /// internal data.</summary>
-        /// <param name="offset">The zero-based byte offset into the stream.</param>
-        /// <param name="count">The number of bytes to retrive.</param>
-        /// <returns>A array of bytes with the requested size</returns>
-        internal byte[] GetBytes(int offset, int count)
-        {
-            Debug.Assert(count <= offset + Size);
-            byte[] data = new byte[count];
-            int i = 0;
-            int remaining = 0;
-            for (; i < _segmentList.Count && offset > 0; i++)
-            {
-                ArraySegment<byte> segment = _segmentList[i];
-                if (segment.Count > offset)
-                {
-                    remaining = Math.Min(count, segment.Count - offset);
-                    Buffer.BlockCopy(segment.Array, segment.Offset + offset, data, 0, remaining);
-                    i++;
-                    break;
-                }
-                else
-                {
-                    offset -= segment.Count;
-                }
-            }
-
-            offset = remaining;
-            for (; i < _segmentList.Count && offset < count; i++)
-            {
-                ArraySegment<byte> segment = _segmentList[i];
-                remaining = Math.Min(segment.Count, count - offset);
-                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, remaining);
-                offset += remaining;
-            }
-            return data;
-        }
-
         /// <summary>
         /// Write the header information for an optional value.
         /// </summary>
@@ -1353,7 +1314,7 @@ namespace Ice
         /// ensures there is no gaps, the size and capacity of the stream are adjusted to the
         /// sum of all segment counts, and the tail is advanced to the end of the new segment.</summary>
         /// <param name="payload">The array segment payload to write into the stream.</param>
-        protected void WritePayload(ArraySegment<byte> payload)
+        internal void WritePayload(ArraySegment<byte> payload)
         {
             Debug.Assert(_tail.Segment == _segmentList.Count - 1, "Current segment is not the last segment");
 
