@@ -1012,7 +1012,7 @@ namespace IceInternal
             {
                 if (_observer != null)
                 {
-                    _observer.Failed(ex.ice_id());
+                    _observer.Failed(ex.GetType().FullName);
                     _observer.Detach();
                 }
                 _factory.HandleConnectionException(ex, _hasMore || _iter < _connectors.Count);

@@ -25,14 +25,7 @@ namespace IceInternal
                 if (unhandledException)
                 {
                     System.Exception realEx = exc.InnerException ?? exc;
-                    if (realEx is Ice.LocalException iceLocalEx)
-                    {
-                        dispatchObserver.Failed(iceLocalEx.ice_id()); // TODO: refactor
-                    }
-                    else
-                    {
-                        dispatchObserver.Failed(realEx.GetType().FullName);
-                    }
+                    dispatchObserver.Failed(realEx.GetType().FullName);
                 }
                 else
                 {

@@ -184,7 +184,7 @@ namespace Ice
                 {
                     if (r.Observer != null)
                     {
-                        r.Observer.Failed(ex.ice_id());
+                        r.Observer.Failed(ex.GetType().FullName);
                         r.Observer.Detach();
                     }
                     r.Callback.Exception(ex);
@@ -204,7 +204,7 @@ namespace Ice
                 var ex = new CommunicatorDestroyedException();
                 if (entry.Observer != null)
                 {
-                    entry.Observer.Failed(ex.ice_id());
+                    entry.Observer.Failed(ex.GetType().FullName);
                     entry.Observer.Detach();
                 }
                 entry.Callback.Exception(ex);

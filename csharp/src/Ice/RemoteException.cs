@@ -22,10 +22,6 @@ namespace Ice
         protected SlicedData? IceSlicedData { get; set; }
         internal SlicedData? SlicedData => IceSlicedData;
 
-        // Most derived type Id for this exception
-        internal string TypeId
-            => IceSlicedData != null ? IceSlicedData.Value.Slices[0].TypeId! : GetType().GetIceTypeId()!;
-
         internal RemoteException(SlicedData slicedData) => IceSlicedData = slicedData;
 
         /// <summary>Creates a default-initialized remote exception.</summary>
@@ -66,8 +62,10 @@ namespace Ice
             Debug.Assert(IceSlicedData.HasValue);
             if (!ostr.WriteSlicedData(IceSlicedData.Value))
             {
+                 // Most derived type Id for this exception
+                string typeId = IceSlicedData.Value.Slices[0].TypeId!;
                 throw new MarshalException(
-                    $"Failed to marshal a fully sliced {nameof(RemoteException)} with type ID `{TypeId}'");
+                    $"Failed to marshal a fully sliced {nameof(RemoteException)} with type ID `{typeId}'");
             }
         }
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);

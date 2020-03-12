@@ -1904,7 +1904,7 @@ namespace Ice
                          _exception is ObjectAdapterDeactivatedException ||
                          (_exception is ConnectionLostException && _state >= StateClosing)))
                     {
-                        _observer.Failed(_exception.ice_id());
+                        _observer.Failed(_exception.GetType().FullName);
                     }
                 }
             }

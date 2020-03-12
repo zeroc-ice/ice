@@ -10,7 +10,7 @@ namespace IceInternal
 {
     internal class Ex
     {
-        // UOE = UnknownObjectException as in unknow class. TODO: fix/remove.
+        // UOE = UnknownObjectException as in unknown class. TODO: fix/remove.
         internal static void ThrowUOE(Type expectedType, Ice.AnyClass v)
         {
             // If the object is an unknown sliced object, we didn't find an
@@ -55,9 +55,6 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public Exception(System.Exception ex) : base("", ex) { }
 
-        // TODO: temporary, should be removed:
-        public abstract string ice_id();
-
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
@@ -90,7 +87,6 @@ namespace Ice
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
     }
 }
 
