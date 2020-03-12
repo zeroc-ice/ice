@@ -32,7 +32,7 @@ namespace IceInternal
         }
 
         public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) =>
-            outAsync.InvokeRemote(_connection, _compress, _response);
+            outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex) =>
             _connection.AsyncRequestCanceled(outAsync, ex);
@@ -44,13 +44,12 @@ namespace IceInternal
         public ConnectionRequestHandler(Reference @ref, Ice.Connection connection, bool compress)
         {
             _reference = @ref;
-            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _connection = connection;
             _compress = compress;
         }
 
         private readonly Reference _reference;
-        private readonly bool _response;
+
         private readonly Ice.Connection _connection;
         private readonly bool _compress;
     }

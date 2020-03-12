@@ -1708,8 +1708,14 @@ namespace Ice.operations
                 p.opIdempotentAsync().Wait();
             }
 
+            try
             {
-                p.opNonmutatingAsync().Wait();
+                p.opOnewayAsync().Wait();
+                test(false);
+            }
+            catch (System.AggregateException ex)
+            {
+                test(ex.InnerException is Test.SomeException);
             }
 
             {

@@ -648,7 +648,8 @@ namespace Ice.operations
 
         public void opIdempotent(Current current) => test(current.IsIdempotent);
 
-        public void opNonmutating(Current current) => test(current.IsIdempotent);
+        // "return" exception when called two-way, otherwise succeeds.
+        public void opOneway(Current current) => throw new Test.SomeException();
 
         public void opDerived(Current current)
         {

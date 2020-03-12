@@ -90,6 +90,8 @@ dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
 dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
+exception SomeException {}
+
 ["amd"] interface MyClass
 {
     void shutdown();
@@ -234,7 +236,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
+    void opOneway();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);

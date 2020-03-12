@@ -42,7 +42,7 @@ namespace IceInternal
                 }
             }
             Debug.Assert(_connection != null);
-            return outAsync.InvokeRemote(_connection, _compress, _response);
+            return outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
         }
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
@@ -182,7 +182,6 @@ namespace IceInternal
         public ConnectRequestHandler(Reference @ref, Ice.IObjectPrx proxy)
         {
             _reference = @ref;
-            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _proxy = proxy;
             _initialized = false;
             _flushing = false;
@@ -243,7 +242,7 @@ namespace IceInternal
             {
                 try
                 {
-                    if ((outAsync.InvokeRemote(_connection, _compress, _response) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
+                    if ((outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
                     {
                         outAsync.InvokeSentAsync();
                     }
@@ -303,7 +302,6 @@ namespace IceInternal
         }
 
         private readonly Reference _reference;
-        private readonly bool _response;
 
         private IObjectPrx? _proxy;
         private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();

@@ -473,6 +473,7 @@ namespace IceInternal
         {
             Proxy = prx;
             IsIdempotent = false;
+            IsOneway = false;
             _cnt = 0;
             _sent = false;
         }
@@ -550,7 +551,7 @@ namespace IceInternal
             {
                 //
                 // If called from the user thread we re-throw, the exception
-                // will be catch by the caller and abort() will be called.
+                // will be caught by the caller and abort() will be called.
                 //
                 if (userThread)
                 {
@@ -608,6 +609,9 @@ namespace IceInternal
         protected IRequestHandler? Handler;
         protected bool IsIdempotent;
 
+        // true for a oneway-capable operation called on a oneway proxy, false otherwise
+        protected internal bool IsOneway;
+
         private int _cnt;
         private bool _sent;
     }
@@ -618,19 +622,21 @@ namespace IceInternal
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         public OutgoingAsync(Ice.IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-                             Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
+                             Ice.OutputStream? os = null, Ice.InputStream? iss = null, bool oneway = false) :
             base(prx, completionCallback, os, iss)
         {
             Encoding = Proxy.Encoding;
             Synchronous = false;
+            IsOneway = oneway;
         }
 
-        public void Prepare(string operation, bool idempotent, Dictionary<string, string>? context)
+        public void Prepare(string operation, bool idempotent, bool oneway, Dictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
             Proxy.IceReference.GetProtocol().CheckSupported();
 
             IsIdempotent = idempotent;
+            IsOneway = oneway;
 
             Observer = ObserverHelper.get(Proxy, operation, context);
 
@@ -697,7 +703,7 @@ namespace IceInternal
                 }
             }
         }
-        public override bool Sent() => base.SentImpl(Proxy.IsOneway); // done = true if it's not a two-way proxy
+        public override bool Sent() => base.SentImpl(IsOneway); // done = true
 
         public override bool Response()
         {
@@ -707,7 +713,7 @@ namespace IceInternal
             // with the connection locked. Therefore, it must not invoke
             // any user callbacks.
             //
-            Debug.Assert(!Proxy.IsOneway); // Can only be called for twoways.
+            Debug.Assert(!IsOneway); // Can only be called for twoways.
 
             if (ChildObserver != null)
             {
@@ -801,7 +807,7 @@ namespace IceInternal
         public override int InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if (Proxy.IsOneway || Proxy.IceReference.GetInvocationTimeout() != -1)
+            if (IsOneway || Proxy.IceReference.GetInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
                 State |= StateCachedBuffers;
@@ -835,6 +841,11 @@ namespace IceInternal
                 return;
             }
 
+            if (mode == Ice.InvocationMode.Datagram && !IsOneway)
+            {
+                throw new System.InvalidOperationException("cannot make two-way call on a datagram proxy");
+            }
+
             //
             // NOTE: invokeImpl doesn't throw so this can be called from the
             // try block with the catch block calling abort() in case of an
@@ -845,6 +856,7 @@ namespace IceInternal
 
         public void Invoke(string operation,
                            bool idempotent,
+                           bool oneway,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
@@ -853,7 +865,7 @@ namespace IceInternal
             Debug.Assert(Os != null);
             try
             {
-                Prepare(operation, idempotent, context);
+                Prepare(operation, idempotent, oneway, context);
                 if (write != null)
                 {
                     Os.StartEncapsulation(Encoding, format);
@@ -901,6 +913,7 @@ namespace IceInternal
 
         public void Invoke(string operation,
                            bool idempotent,
+                           bool oneway,
                            Ice.FormatType? format,
                            Dictionary<string, string>? context,
                            bool synchronous,
@@ -908,7 +921,7 @@ namespace IceInternal
                            System.Func<Ice.InputStream, T>? read = null)
         {
             Read = read;
-            base.Invoke(operation, idempotent, format, context, synchronous, write);
+            base.Invoke(operation, idempotent, oneway, format, context, synchronous, write);
         }
 
         public T GetResult(bool ok)
@@ -982,6 +995,9 @@ namespace IceInternal
 
         public void Invoke(string operation, bool synchronous)
         {
+            // GetConnection succeeds for oneway, twoway and datagram proxies, and is not considered two-way only
+            // since it's a local operation.
+            Debug.Assert(!IsOneway); // always constructed with IsOneway set to false
             Synchronous = synchronous;
             Observer = ObserverHelper.get(Proxy, operation, null);
             InvokeImpl(true); // userThread = true

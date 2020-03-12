@@ -13,8 +13,11 @@ namespace Ice.invoke
         {
             if (current.Operation.Equals("opOneway"))
             {
-                Debug.Assert(current.IsOneway);
-                // TODO: replace by shared "fake" empty
+                if (!current.IsOneway)
+                {
+                    // If called two-way, return exception to caller.
+                    throw new Test.MyException();
+                }
                 return OutgoingResponseFrame.Empty(current);
             }
             else if (current.Operation.Equals("opString"))

@@ -735,11 +735,10 @@ namespace Ice.operations.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask
-        opNonmutatingAsync(Current current)
+        public ValueTask opOnewayAsync(Current current)
         {
-            test(current.IsIdempotent);
-            return new ValueTask(Task.CompletedTask);
+            // "return" exception when called two-way, otherwise succeeds.
+            throw new Test.SomeException();
         }
 
         public ValueTask

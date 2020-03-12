@@ -87,13 +87,11 @@ namespace Ice
         private Task<bool> IceIsAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress,
                                        CancellationToken cancel, bool synchronous)
         {
-            IceCheckTwowayOnly("ice_isA");
-
             var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
             request.StartParameters();
             request.WriteString(id);
             request.EndParameters();
-            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
@@ -136,7 +134,7 @@ namespace Ice
                                   CancellationToken cancel, bool synchronous)
         {
             var request = OutgoingRequestFrame.Empty(this, "ice_ping", idempotent: true, context);
-            var task = IceInvokeAsync(request, progress, cancel, synchronous);
+            var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel, synchronous);
             return IsOneway ? task : AwaitResponseAsync(task);
 
             static async Task AwaitResponseAsync(Task<IncomingResponseFrame> task)
@@ -176,9 +174,8 @@ namespace Ice
         private Task<string[]> IceIdsAsync(Dictionary<string, string>? context, IProgress<bool>? progress,
                                            CancellationToken cancel, bool synchronous)
         {
-            IceCheckTwowayOnly("ice_ids");
             var request = OutgoingRequestFrame.Empty(this, "ice_ids", idempotent: true, context);
-            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<string[]> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
@@ -220,9 +217,8 @@ namespace Ice
         private Task<string> IceIdAsync(Dictionary<string, string>? context, IProgress<bool>? progress,
                                         CancellationToken cancel, bool synchronous)
         {
-            IceCheckTwowayOnly("ice_id");
             var request = OutgoingRequestFrame.Empty(this, "ice_id", idempotent: true, context);
-            return AwaitResponseAsync(IceInvokeAsync(request, progress, cancel, synchronous));
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<string> AwaitResponseAsync(Task<IncomingResponseFrame> task)
             {
@@ -377,12 +373,13 @@ namespace Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Task<IncomingResponseFrame> IceInvokeAsync(OutgoingRequestFrame request,
+                                                          bool oneway,
                                                           IProgress<bool>? progress,
                                                           CancellationToken cancel,
                                                           bool synchronous)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(this, completed, request).Invoke(request.Operation, request.Context,
+            new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
                 synchronous);
             return completed.Task;
         }
@@ -428,15 +425,6 @@ namespace Ice
                 return false;
             }
             return true;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void IceCheckTwowayOnly(string name)
-        {
-            if (IsOneway)
-            {
-                throw new TwowayOnlyException(name);
-            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

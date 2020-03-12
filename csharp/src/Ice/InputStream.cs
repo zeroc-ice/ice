@@ -362,7 +362,6 @@ namespace Ice
         }
 
         /// <summary>
-
         /// Reads a sequence size and make sure there is enough space in the underlying buffer to read the sequence.
         /// This validation is performed to make sure we do not allocate a large container based on an invalid encoded
         /// size.

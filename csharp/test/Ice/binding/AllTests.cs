@@ -712,9 +712,11 @@ namespace Ice.binding
                 try
                 {
                     testUDP.getAdapterName();
+                    test(false);
                 }
-                catch (TwowayOnlyException)
+                catch (System.InvalidOperationException)
                 {
+                    // expected
                 }
             }
             output.WriteLine("ok");

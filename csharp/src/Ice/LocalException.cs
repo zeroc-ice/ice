@@ -60,26 +60,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// The operation can only be invoked with a twoway request.
-    /// This exception is raised if an attempt is made to invoke an
-    /// operation with ice_oneway or ice_datagram and the operation has a return value,
-    /// out-parameters, or an exception specification.
-    /// </summary>
-    public class TwowayOnlyException : LocalException
-    {
-        public string Operation;
-
-        public TwowayOnlyException() => Operation = "";
-
-        public TwowayOnlyException(System.Exception ex) : base(ex) => Operation = "";
-
-        public TwowayOnlyException(string operation) => Operation = operation;
-
-        public TwowayOnlyException(string operation, System.Exception ex) : base(ex) => Operation = operation;
-
-    }
-
-    /// <summary>
     /// This exception is raised if the Communicator has been destroyed.
     /// </summary>
     public class CommunicatorDestroyedException : LocalException

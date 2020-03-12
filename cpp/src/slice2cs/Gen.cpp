@@ -2370,11 +2370,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
              << epar;
         _out << sb;
 
-        if(operation->returnsData())
-        {
-            _out << nl << "IceCheckTwowayOnly(\"" << operation->name() << "\");";
-        }
-
         string resultT = resultType(operation, ns, false);
 
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
@@ -2386,6 +2381,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out.inc();
         _out << nl << '"' << operation->name() << '"' << ",";
         _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
+        _out << nl << "oneway: " << (operation->returnsData() ? "false" : "IsOneway") << ",";
         _out << nl << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";

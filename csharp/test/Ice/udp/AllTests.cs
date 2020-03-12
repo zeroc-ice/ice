@@ -68,6 +68,16 @@ namespace Ice.udp
             var obj = ITestIntfPrx.Parse("test:" + helper.getTestEndpoint(0, "udp"),
                                         communicator).Clone(invocationMode: InvocationMode.Datagram);
 
+            try
+            {
+                int val = obj.getValue();
+                test(false);
+            }
+            catch (System.InvalidOperationException)
+            {
+                // expected
+            }
+
             int nRetry = 5;
             bool ret = false;
             while (nRetry-- > 0)
