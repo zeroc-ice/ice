@@ -203,7 +203,7 @@ Client::run(int, char*[])
                         break;
                     }
 
-                    cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
+                    cerr << "could not find `" << expected[i] << "` in `" << actual[i] << "`" << endl;
                     cerr << "Full stack is:\n" << stack << endl;
                     test(false);
                 }
