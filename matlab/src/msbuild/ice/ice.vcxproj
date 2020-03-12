@@ -90,17 +90,17 @@
   </PropertyGroup>
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
-    <Delete Files="$(OutDir)\ice40a0++11$(DebugExtension).dll" />
-    <Delete Files="$(OutDir)\icediscovery40a0++11$(DebugExtension).dll" />
-    <Delete Files="$(OutDir)\icelocatordiscovery40a0++11$(DebugExtension).dll" />
-    <Delete Files="$(OutDir)\icessl40a0++11$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\ice40a0$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icediscovery40a0$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icelocatordiscovery40a0$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icessl40a0$(DebugExtension).dll" />
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(IceBinPath)\ice40a0++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(IceBinPath)\icediscovery40a0++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(IceBinPath)\icelocatordiscovery40a0++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(IceBinPath)\icessl40a0++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\ice40a0$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icediscovery40a0$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icelocatordiscovery40a0$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icessl40a0$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
     <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')" />
