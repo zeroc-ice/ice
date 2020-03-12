@@ -2694,7 +2694,7 @@ namespace Ice
 
         private ConnectionState ToConnectionState(int state) => _connectionStateMap[state];
 
-        private void Warning(string msg, System.Exception ex) => _logger.Warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
+        private void Warning(string msg, System.Exception ex) => _logger.Warning($"{msg}:\n{ex}\n{_transceiver}");
 
         private int Read(ref ArraySegment<byte> buffer, ref int offset)
         {
