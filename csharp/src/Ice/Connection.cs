@@ -2700,7 +2700,6 @@ namespace Ice
         {
             int start = offset;
             int op = _transceiver.Read(ref buffer, ref offset);
-            Debug.Assert(op != 0 || buffer.Count == offset);
             if (start != offset)
             {
                 TraceReceivedAndUpdateObserver(buffer.Count, start, offset);
