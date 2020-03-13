@@ -241,12 +241,15 @@ namespace Ice
         /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
         /// been created using the same proxy, however some differences are acceptable, for example proxy can have
         /// different endpoints.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// two-way request.</param>
         /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request)
+        public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request,
+                                                   bool oneway = false)
         {
             try
             {
-                return proxy.IceInvokeAsync(request, null, CancellationToken.None, true).Result;
+                return proxy.IceInvokeAsync(request, oneway, null, CancellationToken.None, true).Result;
             }
             catch (AggregateException ex)
             {
@@ -259,14 +262,17 @@ namespace Ice
         /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
         /// been created using the same proxy, however some differences are acceptable, for example proxy can have
         /// different endpoints.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// two-way request.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
         public static Task<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
                                                               OutgoingRequestFrame request,
+                                                              bool oneway = false,
                                                               IProgress<bool>? progress = null,
                                                               CancellationToken cancel = default)
-            => proxy.IceInvokeAsync(request, progress, cancel, false);
+            => proxy.IceInvokeAsync(request, oneway, progress, cancel, false);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -283,7 +289,8 @@ namespace Ice
                 request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
 
             IncomingResponseFrame response =
-                await proxy.InvokeAsync(forwardedRequest, progress, cancel).ConfigureAwait(false);
+                await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
+                    .ConfigureAwait(false);
             return new OutgoingResponseFrame(request.Current, response.ReplyStatus, response.TakePayload());
         }
 

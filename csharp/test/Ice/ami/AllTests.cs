@@ -382,15 +382,6 @@ namespace Ice.ami
                     });
                 }
 
-                try
-                {
-                    p.Clone(oneway: true).opWithResultAsync();
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
-
                 //
                 // Check that CommunicatorDestroyedException is raised directly.
                 //

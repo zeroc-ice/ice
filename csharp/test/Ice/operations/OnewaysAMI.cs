@@ -83,38 +83,9 @@ namespace Ice.operations
                 cb.check();
             }
 
-            {
-                try
-                {
-                    p.IceIsAAsync("::Test::MyClass");
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
-            }
-
-            {
-                try
-                {
-                    p.IceIdAsync();
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
-            }
-
-            {
-                try
-                {
-                    p.IceIdsAsync();
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
-            }
+            bool b = p.IceIsAAsync("::Test::MyClass").Result;
+            string id = p.IceIdAsync().Result;
+            string[] ids = p.IceIdsAsync().Result;
 
             {
                 Callback cb = new Callback();
@@ -138,7 +109,7 @@ namespace Ice.operations
 
             {
                 Callback cb = new Callback();
-                p.opNonmutatingAsync(progress: new Progress<bool>(
+                p.opOnewayAsync(progress: new Progress<bool>(
                     sentSynchronously =>
                     {
                         cb.sent(sentSynchronously);
@@ -146,16 +117,7 @@ namespace Ice.operations
                 cb.check();
             }
 
-            {
-                try
-                {
-                    p.opByteAsync(0xff, 0x0f);
-                    test(false);
-                }
-                catch (TwowayOnlyException)
-                {
-                }
-            }
+            var _ = p.opByteAsync(0xff, 0x0f).Result;
         }
     }
 }

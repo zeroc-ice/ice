@@ -236,7 +236,7 @@ interface MyClass
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
+    void opOneway();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);

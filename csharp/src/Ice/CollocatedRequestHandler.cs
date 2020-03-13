@@ -18,7 +18,6 @@ namespace IceInternal
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
-            _response = _reference.GetMode() == Ice.InvocationMode.Twoway;
             _adapter = adapter;
 
             _logger = _reference.GetCommunicator().Logger; // Cached for better performance.
@@ -72,7 +71,7 @@ namespace IceInternal
 
         public Ice.Connection? GetConnection() => null;
 
-        public int InvokeAsyncRequest(OutgoingAsyncBase outAsync, bool synchronous)
+        public int InvokeAsyncRequest(OutgoingAsync outAsync, bool synchronous)
         {
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
@@ -87,7 +86,7 @@ namespace IceInternal
                 {
                     outAsync.Cancelable(this); // This will throw if the request is canceled
 
-                    if (_response)
+                    if (!outAsync.IsOneway)
                     {
                         requestId = ++_requestId;
                         _asyncRequests.Add(requestId, outAsync);
@@ -103,9 +102,10 @@ namespace IceInternal
             }
 
             outAsync.AttachCollocatedObserver(_adapter, requestId);
-            if (!synchronous || !_response || _reference.GetInvocationTimeout() > 0)
+            if (!synchronous || outAsync.IsOneway || _reference.GetInvocationTimeout() > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
+                // TODO: why is oneway included in this list?
                 _adapter.ThreadPool.Dispatch(
                     () =>
                     {
@@ -238,8 +238,6 @@ namespace IceInternal
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                Debug.Assert(_response);
-
                 if (_traceLevels.Protocol >= 1)
                 {
                     FillInValue(os, new Ice.OutputStream.Position(0, 10), os.Size);
@@ -319,7 +317,6 @@ namespace IceInternal
 
         private readonly Reference _reference;
 
-        private readonly bool _response;
         private readonly Ice.ObjectAdapter _adapter;
         private readonly Ice.ILogger _logger;
         private readonly TraceLevels _traceLevels;

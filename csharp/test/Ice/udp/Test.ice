@@ -19,6 +19,7 @@ sequence<byte> ByteSeq;
 
 interface TestIntf
 {
+    int getValue();
     void ping(PingReply* reply);
     void sendByteSeq(ByteSeq seq, PingReply* reply);
     void pingBiDir(Ice::Identity id);

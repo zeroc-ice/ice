@@ -20,16 +20,8 @@ namespace Ice.operations
             p.IcePing();
             p.opVoid();
             p.opIdempotent();
-            p.opNonmutating();
-
-            try
-            {
-                p.opByte(0xff, 0x0f);
-                test(false);
-            }
-            catch (TwowayOnlyException)
-            {
-            }
+            p.opOneway();
+            p.opByte(0xff, 0x0f);
         }
     }
 }

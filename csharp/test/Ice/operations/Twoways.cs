@@ -1477,8 +1477,14 @@ namespace Ice.operations
                 p.opIdempotent();
             }
 
+            try
             {
-                p.opNonmutating();
+                p.opOneway();
+                test(false);
+            }
+            catch (Test.SomeException)
+            {
+                // expected
             }
 
             {

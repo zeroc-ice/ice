@@ -22,8 +22,20 @@ namespace Ice.invoke
 
             {
                 var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
-                var response = oneway.Invoke(request);
+
+                // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
+
+                var response = cl.Invoke(request, oneway: true);
                 test(response.ReplyStatus == ReplyStatus.OK);
+
+                response = cl.Invoke(request, oneway: false);
+                test(response.ReplyStatus == ReplyStatus.UserException);
+
+                response = oneway.Invoke(request, oneway: true);
+                test(response.ReplyStatus == ReplyStatus.OK);
+
+                response = oneway.Invoke(request, oneway: false);
+                test(response.ReplyStatus == ReplyStatus.UserException);
 
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
                 request.StartParameters();
@@ -75,7 +87,7 @@ namespace Ice.invoke
                 var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
                 try
                 {
-                    oneway.InvokeAsync(request).Wait();
+                    oneway.InvokeAsync(request, oneway: true).Wait();
                 }
                 catch (Exception)
                 {
