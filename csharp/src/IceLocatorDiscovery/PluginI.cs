@@ -434,7 +434,7 @@ namespace IceLocatorDiscovery
                             }
                             _timer.Schedule(this, _timeout);
                         }
-                        catch (LocalException ex)
+                        catch (System.Exception ex)
                         {
                             if (_traceLevel > 0)
                             {
@@ -557,7 +557,7 @@ namespace IceLocatorDiscovery
                         _timer.Schedule(this, _timeout);
                         return;
                     }
-                    catch (Ice.LocalException)
+                    catch (System.Exception)
                     {
                     }
                     _pendingRetryCount = 0;

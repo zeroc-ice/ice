@@ -7,16 +7,16 @@ namespace Ice
     /// <summary>
     /// This exception is raised when a failure occurs during initialization.
     /// </summary>
-    public class InitializationException : LocalException
+    public class InitializationException : System.Exception
     {
         public string Reason;
 
         public InitializationException() => Reason = "";
 
-        public InitializationException(System.Exception ex) : base(ex) => Reason = "";
+        public InitializationException(System.Exception ex) : base("", ex) => Reason = "";
         public InitializationException(string reason) => Reason = reason;
 
-        public InitializationException(string reason, System.Exception ex) : base(ex) => Reason = reason;
+        public InitializationException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ namespace Ice
     /// adapter when resolving an indirect proxy or when an object adapter
     /// is activated.
     /// </summary>
-    public class NotRegisteredException : LocalException
+    public class NotRegisteredException : System.Exception
     {
         public string KindOfObject;
         public string Id;
@@ -40,7 +40,7 @@ namespace Ice
             Id = "";
         }
 
-        public NotRegisteredException(System.Exception ex) : base(ex)
+        public NotRegisteredException(System.Exception ex) : base("", ex)
         {
             KindOfObject = "";
             Id = "";
@@ -52,7 +52,7 @@ namespace Ice
             Id = id;
         }
 
-        public NotRegisteredException(string kindOfObject, string id, System.Exception ex) : base(ex)
+        public NotRegisteredException(string kindOfObject, string id, System.Exception ex) : base("", ex)
         {
             KindOfObject = kindOfObject;
             Id = id;
@@ -62,13 +62,13 @@ namespace Ice
     /// <summary>
     /// This exception is raised if the Communicator has been destroyed.
     /// </summary>
-    public class CommunicatorDestroyedException : LocalException
+    public class CommunicatorDestroyedException : System.Exception
     {
         public CommunicatorDestroyedException()
         {
         }
 
-        public CommunicatorDestroyedException(System.Exception ex) : base(ex)
+        public CommunicatorDestroyedException(System.Exception ex) : base("", ex)
         {
         }
     }
@@ -77,17 +77,17 @@ namespace Ice
     /// This exception is raised if an attempt is made to use a deactivated
     /// ObjectAdapter.
     /// </summary>
-    public class ObjectAdapterDeactivatedException : LocalException
+    public class ObjectAdapterDeactivatedException : System.Exception
     {
         public string Name;
 
         public ObjectAdapterDeactivatedException() => Name = "";
 
-        public ObjectAdapterDeactivatedException(System.Exception ex) : base(ex) => Name = "";
+        public ObjectAdapterDeactivatedException(System.Exception ex) : base("", ex) => Name = "";
 
         public ObjectAdapterDeactivatedException(string name) => Name = name;
 
-        public ObjectAdapterDeactivatedException(string name, System.Exception ex) : base(ex) => Name = name;
+        public ObjectAdapterDeactivatedException(string name, System.Exception ex) : base("", ex) => Name = name;
 
     }
 
@@ -96,33 +96,33 @@ namespace Ice
     /// This happens if the Locator detects another active ObjectAdapter with
     /// the same adapter id.
     /// </summary>
-    public class ObjectAdapterIdInUseException : LocalException
+    public class ObjectAdapterIdInUseException : System.Exception
     {
         public string Id;
 
         public ObjectAdapterIdInUseException() => Id = "";
 
-        public ObjectAdapterIdInUseException(System.Exception ex) : base(ex) => Id = "";
+        public ObjectAdapterIdInUseException(System.Exception ex) : base("", ex) => Id = "";
 
         public ObjectAdapterIdInUseException(string id) => Id = id;
 
-        public ObjectAdapterIdInUseException(string id, System.Exception ex) : base(ex) => Id = id;
+        public ObjectAdapterIdInUseException(string id, System.Exception ex) : base("", ex) => Id = id;
     }
 
     /// <summary>
     /// This exception is raised if no suitable endpoint is available.
     /// </summary>
-    public class NoEndpointException : LocalException
+    public class NoEndpointException : System.Exception
     {
         public string Proxy;
 
         public NoEndpointException() => Proxy = "";
 
-        public NoEndpointException(System.Exception ex) : base(ex) => Proxy = "";
+        public NoEndpointException(System.Exception ex) : base("", ex) => Proxy = "";
 
         public NoEndpointException(string proxy) => Proxy = proxy;
 
-        public NoEndpointException(string proxy, System.Exception ex) : base(ex) => Proxy = proxy;
+        public NoEndpointException(string proxy, System.Exception ex) : base("", ex) => Proxy = proxy;
 
     }
 
@@ -133,17 +133,17 @@ namespace Ice
     /// exception. For details on the cause, SyscallException.error
     /// should be inspected.
     /// </summary>
-    public class SyscallException : LocalException
+    public class SyscallException : System.Exception
     {
         public int Error;
 
         public SyscallException() => Error = 0;
 
-        public SyscallException(System.Exception ex) : base(ex) => Error = 0;
+        public SyscallException(System.Exception ex) : base("", ex) => Error = 0;
 
         public SyscallException(int error) => Error = error;
 
-        public SyscallException(int error, System.Exception ex) : base(ex) => Error = error;
+        public SyscallException(int error, System.Exception ex) : base("", ex) => Error = error;
 
     }
 
@@ -258,7 +258,7 @@ namespace Ice
     /// For details on the cause,
     /// DNSException.error should be inspected.
     /// </summary>
-    public class DNSException : LocalException
+    public class DNSException : System.Exception
     {
         public int Error;
         public string Host;
@@ -269,7 +269,7 @@ namespace Ice
             Host = "";
         }
 
-        public DNSException(System.Exception ex) : base(ex)
+        public DNSException(System.Exception ex) : base("", ex)
         {
             Error = 0;
             Host = "";
@@ -281,7 +281,7 @@ namespace Ice
             Host = host;
         }
 
-        public DNSException(int error, string host, System.Exception ex) : base(ex)
+        public DNSException(int error, string host, System.Exception ex) : base("", ex)
         {
             Error = error;
             Host = host;
@@ -291,13 +291,13 @@ namespace Ice
     /// <summary>
     /// This exception indicates a timeout condition.
     /// </summary>
-    public class TimeoutException : LocalException
+    public class TimeoutException : System.Exception
     {
         public TimeoutException()
         {
         }
 
-        public TimeoutException(System.Exception ex) : base(ex)
+        public TimeoutException(System.Exception ex) : base("", ex)
         {
         }
     }
@@ -367,13 +367,13 @@ namespace Ice
     /// This exception indicates that an asynchronous invocation failed
     /// because it was canceled explicitly by the user.
     /// </summary>
-    public class InvocationCanceledException : LocalException
+    public class InvocationCanceledException : System.Exception
     {
         public InvocationCanceledException()
         {
         }
 
-        public InvocationCanceledException(System.Exception ex) : base(ex)
+        public InvocationCanceledException(System.Exception ex) : base("", ex)
         {
         }
     }
@@ -382,17 +382,17 @@ namespace Ice
     /// A generic exception base for all kinds of protocol error
     /// conditions.
     /// </summary>
-    public class ProtocolException : LocalException
+    public class ProtocolException : System.Exception
     {
         public string Reason;
 
         public ProtocolException() => Reason = "";
 
-        public ProtocolException(System.Exception ex) : base(ex) => Reason = "";
+        public ProtocolException(System.Exception ex) : base("", ex) => Reason = "";
 
         public ProtocolException(string reason) => Reason = reason;
 
-        public ProtocolException(string reason, System.Exception ex) : base(ex) => Reason = reason;
+        public ProtocolException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
     }
 
     /// <summary>
@@ -591,7 +591,7 @@ namespace Ice
     /// This exception is raised by an operation call if the application
     /// closes the connection locally using Connection.close.
     /// </summary>
-    public class ConnectionManuallyClosedException : LocalException
+    public class ConnectionManuallyClosedException : System.Exception
     {
         public bool Graceful;
 
@@ -599,13 +599,13 @@ namespace Ice
         {
         }
 
-        public ConnectionManuallyClosedException(System.Exception ex) : base(ex)
+        public ConnectionManuallyClosedException(System.Exception ex) : base("", ex)
         {
         }
 
         public ConnectionManuallyClosedException(bool graceful) => Graceful = graceful;
 
-        public ConnectionManuallyClosedException(bool graceful, System.Exception ex) : base(ex) => Graceful = graceful;
+        public ConnectionManuallyClosedException(bool graceful, System.Exception ex) : base("", ex) => Graceful = graceful;
     }
 
     /// <summary>
@@ -852,17 +852,17 @@ namespace Ice
     /// unsupported feature string contains the name of the unsupported
     /// feature
     /// </summary>
-    public class FeatureNotSupportedException : LocalException
+    public class FeatureNotSupportedException : System.Exception
     {
         public string UnsupportedFeature;
 
         public FeatureNotSupportedException() => UnsupportedFeature = "";
 
-        public FeatureNotSupportedException(System.Exception ex) : base(ex) => UnsupportedFeature = "";
+        public FeatureNotSupportedException(System.Exception ex) : base("", ex) => UnsupportedFeature = "";
 
         public FeatureNotSupportedException(string unsupportedFeature) => UnsupportedFeature = unsupportedFeature;
 
-        public FeatureNotSupportedException(string unsupportedFeature, System.Exception ex) : base(ex) =>
+        public FeatureNotSupportedException(string unsupportedFeature, System.Exception ex) : base("", ex) =>
             UnsupportedFeature = unsupportedFeature;
     }
 
@@ -870,16 +870,16 @@ namespace Ice
     /// This exception indicates a failure in a security subsystem,
     /// such as the IceSSL plug-in.
     /// </summary>
-    public class SecurityException : LocalException
+    public class SecurityException : System.Exception
     {
         public string Reason;
 
         public SecurityException() => Reason = "";
 
-        public SecurityException(System.Exception ex) : base(ex) => Reason = "";
+        public SecurityException(System.Exception ex) : base("", ex) => Reason = "";
 
         public SecurityException(string reason) => Reason = reason;
 
-        public SecurityException(string reason, System.Exception ex) : base(ex) => Reason = reason;
+        public SecurityException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
     }
 }

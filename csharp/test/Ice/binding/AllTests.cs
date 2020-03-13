@@ -241,7 +241,7 @@ namespace Ice.binding
                         {
                             proxies[i].IcePing();
                         }
-                        catch (LocalException)
+                        catch (System.Exception)
                         {
                         }
                     }
@@ -265,7 +265,7 @@ namespace Ice.binding
                         {
                             a.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
                         }
-                        catch (LocalException)
+                        catch (System.Exception)
                         {
                             // Expected if adapter is down.
                         }

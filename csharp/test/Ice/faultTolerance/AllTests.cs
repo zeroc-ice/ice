@@ -226,7 +226,7 @@ public class AllTests : Test.AllTests
             obj.IcePing();
             test(false);
         }
-        catch (Ice.LocalException)
+        catch (System.Exception)
         {
             output.WriteLine("ok");
         }

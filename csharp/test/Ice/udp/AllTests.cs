@@ -143,7 +143,7 @@ namespace Ice.udp
                 catch (DatagramLimitException)
                 {
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.Out.WriteLine(ex);
                     test(false);

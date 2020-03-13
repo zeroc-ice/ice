@@ -59,7 +59,7 @@ public class AllTests : Test.AllTests
                 testPrx.IcePing();
                 test(false);
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
             }
         }

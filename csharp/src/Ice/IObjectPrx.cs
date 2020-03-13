@@ -447,8 +447,7 @@ namespace Ice
             // count isn't reached.
             //
             // TODO: revisit retry logic
-            if (ex is ObjectNotExistException || ex is CloseConnectionException ||
-                ((ex is RequestFailedException || ex is LocalException) && (!sent || idempotent)))
+            if (ex is ObjectNotExistException || ex is CloseConnectionException || !sent || idempotent)
             {
                 try
                 {

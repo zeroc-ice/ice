@@ -343,7 +343,7 @@ public class Client : Test.TestHelper
                   }
                   // If we use the glacier router, the exact exception reason gets
                   // lost.
-                  catch(Ice.UnknownLocalException ex)
+                  catch(Ice.UnknownSystem.Exception ex)
                   {
                   Console.Out.WriteLine("ok");
                   }
@@ -357,7 +357,7 @@ public class Client : Test.TestHelper
                 {
                     router.DestroySession();
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -422,7 +422,7 @@ public class Client : Test.TestHelper
                     process.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     Console.Out.WriteLine("ok");
                 }

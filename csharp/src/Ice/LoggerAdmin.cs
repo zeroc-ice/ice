@@ -91,13 +91,12 @@ namespace IceInternal
                         }
                         catch (AggregateException ae)
                         {
-                            Debug.Assert(ae.InnerException is LocalException);
-                            DeadRemoteLogger(remoteLogger, _logger, (LocalException)ae.InnerException, "init");
+                            DeadRemoteLogger(remoteLogger, _logger, ae.InnerException, "init");
                         }
                     },
                     System.Threading.Tasks.TaskScheduler.Current);
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 DeadRemoteLogger(remoteLogger, _logger, ex, "init");
                 throw;
@@ -289,7 +288,7 @@ namespace IceInternal
             }
         }
 
-        internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, LocalException ex,
+        internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, System.Exception ex,
                                        string operation)
         {
             //

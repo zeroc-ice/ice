@@ -73,7 +73,7 @@ namespace Ice
         public interface IStartCallback
         {
             void ConnectionStartCompleted(Connection connection);
-            void ConnectionStartFailed(Connection connection, LocalException ex);
+            void ConnectionStartFailed(Connection connection, System.Exception ex);
         }
 
         private class TimeoutCallback : ITimerTask
@@ -112,7 +112,7 @@ namespace Ice
                     SetState(StateHolding);
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 lock (this)
                 {
@@ -164,7 +164,7 @@ namespace Ice
                     SetState(StateHolding);
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 lock (this)
                 {
@@ -468,7 +468,7 @@ namespace Ice
                     var message = new OutgoingMessage(og, os, compress, requestId);
                     status = SendMessage(message);
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     SetState(StateClosed, ex);
                     Debug.Assert(_exception != null);
@@ -594,7 +594,7 @@ namespace Ice
                     {
                         throw ex.Get();
                     }
-                    catch (LocalException ee)
+                    catch (System.Exception ee)
                     {
                         if (Exception(ee))
                         {
@@ -680,7 +680,7 @@ namespace Ice
             }
         }
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
         {
             //
             // NOTE: This isn't called from a thread pool thread.
@@ -873,7 +873,7 @@ namespace Ice
                     }
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 SetState(StateClosed, ex);
                 return false;
@@ -904,7 +904,7 @@ namespace Ice
                     }
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 SetState(StateClosed, ex);
             }
@@ -1115,7 +1115,7 @@ namespace Ice
                         SetState(StateClosed, ex);
                         return;
                     }
-                    catch (LocalException ex)
+                    catch (System.Exception ex)
                     {
                         if (_endpoint.Datagram())
                         {
@@ -1250,7 +1250,7 @@ namespace Ice
                             {
                                 InitiateShutdown();
                             }
-                            catch (Ice.LocalException ex)
+                            catch (System.Exception ex)
                             {
                                 SetState(StateClosed, ex);
                             }
@@ -1466,7 +1466,7 @@ namespace Ice
                         InitiateShutdown();
                     }
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     SetState(StateClosed, ex);
                 }
@@ -1501,14 +1501,14 @@ namespace Ice
                         InitiateShutdown();
                     }
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     SetState(StateClosed, ex);
                 }
             }
         }
 
-        private void InvokeException(LocalException ex, int invokeNum)
+        private void InvokeException(System.Exception ex, int invokeNum)
         {
             // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
             // called in case of a fatal exception we decrement _dispatchCount here.
@@ -1666,26 +1666,15 @@ namespace Ice
                 _compressionLevel = 9;
             }
 
-            try
+            if (adapter != null)
             {
-                if (adapter != null)
-                {
-                    ThreadPool = adapter.ThreadPool;
-                }
-                else
-                {
-                    ThreadPool = communicator.ClientThreadPool();
-                }
-                ThreadPool.Initialize(this);
+                ThreadPool = adapter.ThreadPool;
             }
-            catch (LocalException)
+            else
             {
-                throw;
+                ThreadPool = communicator.ClientThreadPool();
             }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
-            }
+            ThreadPool.Initialize(this);
         }
 
         private const int StateNotInitialized = 0;
@@ -1697,7 +1686,7 @@ namespace Ice
         private const int StateClosed = 6;
         private const int StateFinished = 7;
 
-        private void SetState(int state, LocalException ex)
+        private void SetState(int state, System.Exception ex)
         {
             //
             // If setState() is called with an exception, then only closed
@@ -1855,7 +1844,7 @@ namespace Ice
                         }
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 _logger.Error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
             }
@@ -1917,7 +1906,7 @@ namespace Ice
                 {
                     InitiateShutdown();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     SetState(StateClosed, ex);
                 }
@@ -1979,7 +1968,7 @@ namespace Ice
                 {
                     SendMessage(new OutgoingMessage(os, false));
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     SetState(StateClosed, ex);
                     Debug.Assert(_exception != null);
@@ -2218,7 +2207,7 @@ namespace Ice
                     }
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 SetState(StateClosed, ex);
             }
@@ -2476,7 +2465,7 @@ namespace Ice
                         }
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 if (_endpoint.Datagram())
                 {
@@ -2570,7 +2559,7 @@ namespace Ice
                     SendResponse(responseFrame, compressionStatus);
                 }
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 InvokeException(ex, invokeNum);
             }
@@ -2667,7 +2656,7 @@ namespace Ice
             {
                 _info = _transceiver.GetInfo();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 _info = new ConnectionInfo();
             }
@@ -2808,7 +2797,7 @@ namespace Ice
                 return false;
             }
 
-            internal void Completed(LocalException ex)
+            internal void Completed(System.Exception ex)
             {
                 if (OutAsync != null)
                 {
@@ -2860,7 +2849,7 @@ namespace Ice
 
         private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
 
-        private LocalException? _exception;
+        private System.Exception? _exception;
 
         private readonly int _messageSizeMax;
 

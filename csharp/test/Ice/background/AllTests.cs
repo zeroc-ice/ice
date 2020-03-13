@@ -161,7 +161,7 @@ public class AllTests
                     _background.opAsync();
                     Thread.Sleep(1);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
             }
@@ -342,7 +342,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             System.Console.Out.WriteLine(ex);
             test(false);
@@ -471,7 +471,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -504,14 +504,16 @@ public class AllTests
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
+            bool called = false;
             try
             {
                 t.Wait();
-                test(false);
+                called = true;
             }
-            catch (AggregateException ex) when (ex.InnerException is System.Exception)
+            catch (AggregateException ex)
             {
             }
+            test(!called);
             test(t.IsCompleted);
 
             OpAMICallback cbEx = new OpAMICallback();
@@ -565,7 +567,7 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -578,14 +580,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -601,14 +603,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -618,7 +620,7 @@ public class AllTests
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 background.op();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -657,7 +659,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -707,7 +709,7 @@ public class AllTests
                 background.op();
                 configuration.readReady(true);
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 Console.Error.WriteLine(ex);
                 test(false);
@@ -791,7 +793,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -820,7 +822,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -899,7 +901,7 @@ public class AllTests
             background.op();
             configuration.writeReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -911,7 +913,7 @@ public class AllTests
             background.op();
             configuration.readReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1147,7 +1149,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1159,7 +1161,7 @@ public class AllTests
             background.op();
             ctl.readReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1201,7 +1203,7 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -1212,7 +1214,7 @@ public class AllTests
             {
                 background.op();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             configuration.writeException(null);

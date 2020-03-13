@@ -149,7 +149,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -180,7 +180,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -211,7 +211,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -240,7 +240,7 @@ public class AllTests
                     server.noCert();
                     test(!((IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -264,7 +264,7 @@ public class AllTests
                     server.noCert();
                     test(((IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -285,7 +285,7 @@ public class AllTests
                 {
                     server.noCert();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -308,7 +308,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -393,7 +393,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -425,7 +425,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -447,7 +447,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -474,7 +474,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -495,7 +495,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -531,7 +531,7 @@ public class AllTests
                         {
                             server.IcePing();
                         }
-                        catch (Ice.LocalException ex)
+                        catch (System.Exception ex)
                         {
                             //
                             // macOS catalina does not check the certificate common name
@@ -586,7 +586,7 @@ public class AllTests
                         {
                             server.IcePing();
                         }
-                        catch (Ice.LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -670,7 +670,7 @@ public class AllTests
                         {
                             server.IcePing();
                         }
-                        catch(Ice.LocalException)
+                        catch(System.Exception)
                         {
                             test(false);
                         }
@@ -753,7 +753,7 @@ public class AllTests
                             IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
                             test(!info.Verified);
                         }
-                        catch (LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -779,7 +779,7 @@ public class AllTests
                         {
                             server.IcePing();
                         }
-                        catch (LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -836,7 +836,7 @@ public class AllTests
                         test(info.Certs!.Length == 1);
                         test(!info.Verified);
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -856,7 +856,7 @@ public class AllTests
                         test(info.Certs!.Length == 1);
                         test(!info.Verified);
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -876,7 +876,7 @@ public class AllTests
                         info = (IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
                         test(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -903,7 +903,7 @@ public class AllTests
                             test(info.Certs!.Length == 2);
                             test(info.Verified);
                         }
-                        catch (LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -934,7 +934,7 @@ public class AllTests
                         {
                             // Chain length too long
                         }
-                        catch (Ice.LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -970,7 +970,7 @@ public class AllTests
                                 test(info.Certs!.Length == 3);
                                 test(info.Verified);
                             }
-                            catch (Ice.LocalException ex)
+                            catch (System.Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1015,7 +1015,7 @@ public class AllTests
                                 test(info.Certs!.Length == 4);
                                 test(info.Verified);
                             }
-                            catch (Ice.LocalException ex)
+                            catch (System.Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1051,7 +1051,7 @@ public class AllTests
                             {
                                 // Expected
                             }
-                            catch (LocalException ex)
+                            catch (System.Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1068,7 +1068,7 @@ public class AllTests
                             {
                                 server.GetConnection();
                             }
-                            catch (LocalException ex)
+                            catch (System.Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -1112,7 +1112,7 @@ public class AllTests
                     Debug.Assert(info.Cipher != null);
                     server.checkCipher(info.Cipher);
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1136,7 +1136,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1189,7 +1189,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1210,7 +1210,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     if (ex.ToString().IndexOf("no protocols available") < 0) // Expected if TLS1.1 is disabled (RHEL8)
                     {
@@ -1236,7 +1236,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.Destroy();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1265,7 +1265,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.Out.Write(ex.ToString());
                     test(false);
@@ -1291,7 +1291,7 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.Out.Write(ex.ToString());
                     test(false);
@@ -1324,7 +1324,7 @@ public class AllTests
                     {
                         server.IcePing();
                     }
-                    catch (LocalException ex)
+                    catch (System.Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                         test(false);
@@ -1350,7 +1350,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1375,7 +1375,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1444,7 +1444,7 @@ public class AllTests
                 {
                     comm.InitializePlugins();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1482,7 +1482,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1504,7 +1504,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1523,7 +1523,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1544,7 +1544,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1566,7 +1566,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1584,7 +1584,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1605,7 +1605,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1623,7 +1623,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1644,7 +1644,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1663,7 +1663,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1682,7 +1682,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1701,7 +1701,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1719,7 +1719,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1739,7 +1739,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1760,7 +1760,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1778,7 +1778,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1798,7 +1798,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1822,7 +1822,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1844,7 +1844,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1870,7 +1870,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1892,7 +1892,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1911,7 +1911,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1932,7 +1932,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -1950,7 +1950,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -1978,7 +1978,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2000,7 +2000,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -2019,7 +2019,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2040,7 +2040,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -2059,7 +2059,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -2083,7 +2083,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2105,7 +2105,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -2124,7 +2124,7 @@ public class AllTests
                     server.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
                 fact.destroyServer(server);
@@ -2142,7 +2142,7 @@ public class AllTests
                 {
                     server.IcePing();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
@@ -2233,7 +2233,7 @@ public class AllTests
                         {
                             server.IcePing();
                         }
-                        catch (Ice.LocalException ex)
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             test(false);
@@ -2326,7 +2326,7 @@ public class AllTests
                         // Expected, by default we don't check for system CAs.
                         break;
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         if ((ex is Ice.ConnectTimeoutException) ||
                            (ex is Ice.SocketException) ||
@@ -2373,7 +2373,7 @@ public class AllTests
                         test(info.Verified);
                         break;
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         if ((ex is Ice.ConnectTimeoutException) ||
                            (ex is Ice.SocketException) ||

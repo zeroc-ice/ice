@@ -60,7 +60,7 @@ namespace IceInternal
                         }
                     }
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                 }
             }

@@ -104,7 +104,7 @@ namespace IceSSL
                 _callback.Connectors(l);
             }
 
-            public void Exception(Ice.LocalException ex) => _callback.Exception(ex);
+            public void Exception(System.Exception ex) => _callback.Exception(ex);
 
             private readonly Instance _instance;
             private readonly string _host;

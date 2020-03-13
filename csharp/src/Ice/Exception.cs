@@ -33,45 +33,13 @@ namespace IceInternal
                 $"requested {requested} bytes, maximum allowed is {maximum} bytes (see Ice.MessageSizeMax)");
         }
     }
-}
 
-namespace Ice
-{
-    /// <summary>
-    /// Base class for Ice run-time exceptions.
-    /// </summary>
-    [Serializable]
-    public abstract class LocalException : System.Exception
-    {
-        /// <summary>
-        /// Creates a default-initialized Ice run-time exception.
-        /// </summary>
-        public LocalException() { }
-
-        /// <summary>
-        /// Creates a default-initialized Ice run-time exception and sets the InnerException
-        /// property to the passed exception.
-        /// </summary>
-        /// <param name="ex">The inner exception.</param>
-        public LocalException(System.Exception ex) : base("", ex) { }
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-    }
-}
-
-namespace IceInternal
-{
     public class RetryException : Exception
     {
-        internal RetryException(Ice.LocalException ex) => _ex = ex;
+        internal RetryException(System.Exception ex) => _ex = ex;
 
-        internal Ice.LocalException Get() => _ex;
+        internal System.Exception Get() => _ex;
 
-        private readonly Ice.LocalException _ex;
+        private readonly System.Exception _ex;
     }
 }

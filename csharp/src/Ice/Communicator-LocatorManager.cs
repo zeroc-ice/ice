@@ -16,7 +16,7 @@ namespace Ice
         public interface IGetEndpointsCallback
         {
             void SetEndpoints(Endpoint[] endpoints, bool cached);
-            void SetException(LocalException ex);
+            void SetException(System.Exception ex);
         }
 
         private class RequestCallback
@@ -80,7 +80,7 @@ namespace Ice
                 {
                     locatorInfo.GetEndpointsException(_ref, exc); // This throws.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     if (_callback != null)
                     {
@@ -483,7 +483,7 @@ namespace Ice
             {
                 throw;
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 Communicator communicator = reference.GetCommunicator();
                 if (communicator.TraceLevels.Location >= 1)
@@ -502,10 +502,6 @@ namespace Ice
                     communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
                 throw;
-            }
-            catch (System.Exception)
-            {
-                Debug.Assert(false);
             }
         }
 

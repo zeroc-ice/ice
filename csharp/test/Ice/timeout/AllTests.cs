@@ -234,7 +234,7 @@ namespace Ice.timeout
                 {
                     _ = connection.GetConnectionInfo(); // getInfo() doesn't throw in the closing state.
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     test(false);
                 }

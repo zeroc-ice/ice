@@ -34,7 +34,7 @@ namespace IceInternal
         public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) =>
             outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex) =>
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex) =>
             _connection.AsyncRequestCanceled(outAsync, ex);
 
         public Reference GetReference() => _reference;

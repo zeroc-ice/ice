@@ -25,7 +25,7 @@ namespace Ice.operations
                 myClass.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                  Console.Out.WriteLine("ok");
             }

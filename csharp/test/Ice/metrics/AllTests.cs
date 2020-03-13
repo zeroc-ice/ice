@@ -274,7 +274,7 @@ public class AllTests : Test.AllTests
         {
             proxy.IcePing();
         }
-        catch (Ice.LocalException)
+        catch (System.Exception)
         {
         }
 
@@ -689,7 +689,7 @@ public class AllTests : Test.AllTests
             catch (Ice.ConnectTimeoutException)
             {
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -732,7 +732,7 @@ public class AllTests : Test.AllTests
                 prx.IcePing();
                 prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
 
@@ -750,7 +750,7 @@ public class AllTests : Test.AllTests
             {
                 dnsException = true;
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }

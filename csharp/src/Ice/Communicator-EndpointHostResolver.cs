@@ -98,7 +98,7 @@ namespace Ice
                         return;
                     }
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     callback.Exception(ex);
                     return;
@@ -180,7 +180,7 @@ namespace Ice
 
                     r.Callback.Connectors(r.Endpoint.Connectors(addrs, networkProxy));
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     if (r.Observer != null)
                     {

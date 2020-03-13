@@ -19,7 +19,7 @@ namespace IceInternal
 
         // If we are initiating the connection closure, wait for the peer
         // to close the TCP/IP connection. Otherwise, close immediately.
-        public int Closing(bool initiator, Ice.LocalException? ex) =>
+        public int Closing(bool initiator, System.Exception? ex) =>
             initiator ? SocketOperation.Read : SocketOperation.None;
 
         public void Close() => _stream.Close();

@@ -45,7 +45,7 @@ namespace IceInternal
             return outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
         }
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
         {
             lock (this)
             {
@@ -130,7 +130,7 @@ namespace IceInternal
             FlushRequests();
         }
 
-        public void SetException(Ice.LocalException ex)
+        public void SetException(System.Exception ex)
         {
             lock (this)
             {
@@ -237,7 +237,7 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            Ice.LocalException? exception = null;
+            System.Exception? exception = null;
             foreach (ProxyOutgoingAsyncBase outAsync in _requests)
             {
                 try
@@ -256,7 +256,7 @@ namespace IceInternal
 
                     outAsync.RetryException();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     exception = ex;
                     if (outAsync.Exception(ex))
@@ -308,7 +308,7 @@ namespace IceInternal
 
         private Connection? _connection;
         private bool _compress;
-        private LocalException? _exception;
+        private System.Exception? _exception;
         private bool _initialized;
         private bool _flushing;
 

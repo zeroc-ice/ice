@@ -155,7 +155,7 @@ namespace IceInternal
                     {
                         throw _cancellationException;
                     }
-                    catch (Ice.LocalException)
+                    catch (System.Exception)
                     {
                         _cancellationException = null;
                         throw;
@@ -306,7 +306,7 @@ namespace IceInternal
             }
         }
 
-        protected void Cancel(Ice.LocalException ex)
+        protected void Cancel(System.Exception ex)
         {
             ICancellationHandler handler;
             {
@@ -350,7 +350,7 @@ namespace IceInternal
         private bool _doneInSent;
         private bool _alreadySent;
         private System.Exception? _ex;
-        private LocalException? _cancellationException;
+        private System.Exception? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
 

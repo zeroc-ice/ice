@@ -403,7 +403,7 @@ namespace Glacier2
                             typeIdNamespaces: _typeIdNamespaces);
                     }
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     lock (_mutex)
                     {

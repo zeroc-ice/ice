@@ -856,7 +856,7 @@ namespace Ice
             {
                 UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 lock (_mutex)
                 {
