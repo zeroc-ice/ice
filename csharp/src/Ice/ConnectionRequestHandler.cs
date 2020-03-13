@@ -24,7 +24,7 @@ namespace IceInternal
                     return newHandler;
                 }
             }
-            catch (Ice.Exception)
+            catch (System.Exception)
             {
                 // Ignore
             }

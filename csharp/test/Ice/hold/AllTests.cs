@@ -58,7 +58,7 @@ namespace Ice
                 }
 
                 public void
-                exception(Ice.Exception ex)
+                exception(System.Exception ex)
                 {
                 }
 

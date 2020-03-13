@@ -54,7 +54,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        public void exception(Ice.Exception ex)
+        public void exception(System.Exception ex)
         {
             response();
         }

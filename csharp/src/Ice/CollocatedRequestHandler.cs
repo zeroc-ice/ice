@@ -277,7 +277,7 @@ namespace IceInternal
             }
         }
 
-        private void HandleException(int requestId, Ice.Exception ex, bool amd)
+        private void HandleException(int requestId, System.Exception ex, bool amd)
         {
             if (requestId == 0)
             {
