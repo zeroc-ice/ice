@@ -2248,7 +2248,7 @@ class RemoteProcessController(ProcessController):
                 pass
 
         nRetry = 0
-        while nRetry < 24:
+        while nRetry < 120:
             nRetry += 1
 
             if self.supportsDiscovery():
@@ -2260,9 +2260,9 @@ class RemoteProcessController(ProcessController):
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
 
-            # If the controller isn't up after 30s, we restart it. With the iOS simulator,
+            # If the controller isn't up after a while, we restart it. With the iOS simulator,
             # it's not uncommon to get Springoard crashes when starting the controller.
-            if nRetry == 18:
+            if nRetry == 50:
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
                 self.restartControllerApp(current, ident)
