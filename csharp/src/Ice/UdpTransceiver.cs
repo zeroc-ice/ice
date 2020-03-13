@@ -181,10 +181,6 @@ namespace IceInternal
                         throw new Ice.SocketException(ex);
                     }
                 }
-                catch (System.Exception e)
-                {
-                    throw new SyscallException(e);
-                }
             }
             return SocketOperation.None;
         }
@@ -264,10 +260,6 @@ namespace IceInternal
                     {
                         throw new Ice.SocketException(e);
                     }
-                }
-                catch (System.Exception e)
-                {
-                    throw new SyscallException(e);
                 }
             }
 

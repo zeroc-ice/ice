@@ -127,44 +127,15 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if a system error occurred in the server
-    /// or client process.
-    /// There are many possible causes for such a system
-    /// exception. For details on the cause, SyscallException.error
-    /// should be inspected.
-    /// </summary>
-    public class SyscallException : System.Exception
-    {
-        public int Error;
-
-        public SyscallException() => Error = 0;
-
-        public SyscallException(System.Exception ex) : base("", ex) => Error = 0;
-
-        public SyscallException(int error) => Error = error;
-
-        public SyscallException(int error, System.Exception ex) : base("", ex) => Error = error;
-
-    }
-
-    /// <summary>
     /// This exception indicates socket errors.
     /// </summary>
-    public class SocketException : SyscallException
+    public class SocketException : System.Exception
     {
         public SocketException()
         {
         }
 
-        public SocketException(System.Exception ex) : base(ex)
-        {
-        }
-
-        public SocketException(int error) : base(error)
-        {
-        }
-
-        public SocketException(int error, System.Exception ex) : base(error, ex)
+        public SocketException(System.Exception ex) : base("", ex)
         {
         }
     }
@@ -172,18 +143,11 @@ namespace Ice
     /// <summary>
     /// This exception indicates file errors.
     /// </summary>
-    public class FileException : SyscallException
+    public class FileException : System.Exception
     {
         public string Path;
 
-        public FileException() => Path = "";
-
-        public FileException(System.Exception ex) : base(ex) => Path = "";
-
-        public FileException(int error, string path) : base(error) => Path = path;
-
-        public FileException(int error, string path, System.Exception ex) : base(error, ex) => Path = path;
-
+        public FileException(System.Exception ex) : base("", ex) => Path = "";
     }
 
     /// <summary>
@@ -196,14 +160,6 @@ namespace Ice
         }
 
         public ConnectFailedException(System.Exception ex) : base(ex)
-        {
-        }
-
-        public ConnectFailedException(int error) : base(error)
-        {
-        }
-
-        public ConnectFailedException(int error, System.Exception ex) : base(error, ex)
         {
         }
     }
@@ -221,14 +177,6 @@ namespace Ice
         public ConnectionRefusedException(System.Exception ex) : base(ex)
         {
         }
-
-        public ConnectionRefusedException(int error) : base(error)
-        {
-        }
-
-        public ConnectionRefusedException(int error, System.Exception ex) : base(error, ex)
-        {
-        }
     }
 
     /// <summary>
@@ -241,14 +189,6 @@ namespace Ice
         }
 
         public ConnectionLostException(System.Exception ex) : base(ex)
-        {
-        }
-
-        public ConnectionLostException(int error) : base(error)
-        {
-        }
-
-        public ConnectionLostException(int error, System.Exception ex) : base(error, ex)
         {
         }
     }
