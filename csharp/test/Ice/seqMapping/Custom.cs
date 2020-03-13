@@ -84,7 +84,7 @@ namespace Ice.seqMapping
                 }
                 return true;
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 return false;
             }

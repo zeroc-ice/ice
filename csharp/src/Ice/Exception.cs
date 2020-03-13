@@ -38,36 +38,10 @@ namespace IceInternal
 namespace Ice
 {
     /// <summary>
-    /// Base class for Ice exceptions.
-    /// </summary>
-    [Serializable]
-    public abstract class Exception : System.Exception
-    {
-        /// <summary>
-        /// Creates a default-initialized exception.
-        /// </summary>
-        public Exception() { }
-
-        /// <summary>
-        /// Creates a default-initialized exception and sets the InnerException
-        /// property to the passed exception.
-        /// </summary>
-        /// <param name="ex">The inner exception.</param>
-        public Exception(System.Exception ex) : base("", ex) { }
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) { }
-    }
-
-    /// <summary>
     /// Base class for Ice run-time exceptions.
     /// </summary>
     [Serializable]
-    public abstract class LocalException : Exception
+    public abstract class LocalException : System.Exception
     {
         /// <summary>
         /// Creates a default-initialized Ice run-time exception.
@@ -79,7 +53,7 @@ namespace Ice
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public LocalException(System.Exception ex) : base(ex) { }
+        public LocalException(System.Exception ex) : base("", ex) { }
 
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
