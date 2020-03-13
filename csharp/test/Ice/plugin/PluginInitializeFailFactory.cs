@@ -16,6 +16,7 @@ public class PluginInitializeFailFactory : Ice.IPluginFactory
         {
             if (!b)
             {
+                System.Diagnostics.Debug.Assert(false);
                 throw new System.Exception();
             }
         }

@@ -14,6 +14,7 @@ public abstract class BasePlugin : Ice.IPlugin
     {
         if (!b)
         {
+            System.Diagnostics.Debug.Assert(false);
             throw new System.Exception();
         }
     }

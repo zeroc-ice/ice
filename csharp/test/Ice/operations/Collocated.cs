@@ -24,6 +24,7 @@ namespace Ice.operations
 
             if (prx.GetConnection() != null)
             {
+                System.Diagnostics.Debug.Assert(false);
                 throw new System.Exception();
             }
             AllTests.allTests(this);

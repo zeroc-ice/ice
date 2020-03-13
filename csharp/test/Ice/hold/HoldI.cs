@@ -10,6 +10,7 @@ namespace Ice.hold
         {
             if (!b)
             {
+                System.Diagnostics.Debug.Assert(false);
                 throw new System.Exception();
             }
         }
