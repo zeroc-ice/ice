@@ -1,0 +1,30 @@
+set(iceutil_priority_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/src
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${GENERATED_SLICES_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(priority_client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/Client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PriorityInversion.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PriorityInversion.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestBase.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestSuite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestSuite.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ThreadPriority.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ThreadPriority.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TimerPriority.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TimerPriority.h
+)
+
+CreateExecutableTest(IceUtil
+	"${iceutil_priority_includes}"
+	${ICEUTIL_TEST_OUTPUT_DIR}/priority
+	"${priority_client_sources}"
+	iceutilpriorityclient
+	client
+	"${ICEUTIL_TEST_DEPS}"
+)

@@ -33,6 +33,7 @@ unnecessary.
     + [iOS Simulator](#ios-simulator)
     + [iOS Device](#ios-device)
   * [Universal Windows](#universal-windows)
+- [Building Ice with CMake](#building-ice-with-cmake)
 
 ## C++ Build Requirements
 
@@ -551,3 +552,110 @@ failure, the tests abort with `failed`.
 [9]: https://www.freedesktop.org/wiki/Software/pkg-config
 [10]: https://www.freedesktop.org/wiki/Software/dbus
 [11]: http://www.bluez.org
+
+# Building Ice with CMake
+
+## Using vcpkg
+
+The easiest method for dependency management with CMake is to use [vcpkg](https://github.com/microsoft/vcpkg). Once vcpkg is installed and integrated, you can install the Ice dependencies for your platform listed above with the following command:
+
+```
+./vcpkg install zlib bzip2 lmdb mcpp openssl expat --triplet <arch>-<os>
+```
+
+`triplet` types can be found in the vcpkg [triplet](https://github.com/microsoft/vcpkg/tree/master/triplets) directory. Supported Windows builds require either the `x86-windows` or `x64-windows` triplets.
+
+### Configuring
+
+#### Command line
+
+##### Default build
+
+To configure for a default build create a build directory (preferably outside of the Ice source directory) and run the following command:
+
+```
+cmake -G "<preferred_generator>" "-DCMAKE_TOOLCHAIN_FILE=<vcpkg_dir>/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=<arch>-<os>" "-DBUILD_ICE_CXX=ON" "-DCMAKE_BUILD_TYPE=<Debug | Release>"
+```
+where `<vcpkg_dir>` is the path to the `vcpkg` local repository, and `<Debug | Release>` represents choices for single configuration generators (i.e. Makefile generators).
+
+Generator types can be found in the [cmake-generators(7)](https://cmake.org/cmake/help/v3.7/manual/cmake-generators.7.html) documentation.
+
+##### C++11 build
+
+Add the following to the Configure command:
+
+```
+"-DBUILD_ICE_CPP11=ON"
+```
+
+##### Building tests
+
+For default tests add the following option to the Configure command:
+
+```
+"-DBUILD_ICE_TESTS=ON"
+```
+
+To build tests for C++11 add the option covered in the `C++11 build` section.
+
+##### Visual Studio generators
+
+It is recommended (and sometimes required) to run cmake in a Developer Command prompt for the architecture type being built. More information about where to find the Developer Command prompt can be found in the [Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs). Using MSVC requires at least Visual Studio Build Tools or Community with the C++ Workflow installed.
+
+##### Other generators
+
+For Linux and macOS it is recommended to use `Unix Makefiles` or `Ninja` generators. The Windows build can also use `Ninja`. Most Linux distributions have `ninja-build` in their repositories. Otherwise it can be downloaded [here](https://ninja-build.org/). It should also be added to the `PATH` environment variable for easier access. 
+
+#### IDE
+
+If your IDE supports CMake, the above Configuration args will need to be entered into the project settings. Visual Studio and VS Code make use of vcpkg integration, so the `-DCMAKE_TOOLCHAIN_FILE=` option may not be needed.
+
+### Building
+
+#### Command line
+
+Run the following command from your build directory:
+
+```
+cmake --build .
+```
+
+For multi-config generators (i.e. Visual Studio) Debug or Release can be selected by adding this option to the build command:
+
+```
+--config <Debug | Release>
+```
+
+To pass options to the underlying build tool:
+
+```
+cmake --build . -- <options>
+```
+
+For example, if you are using `Unix Makefiles` with `make`:
+
+```
+cmake --build . -- -j<n> (where n=threads for parallel build)
+```
+
+Another option is to call the build tool that the generator supports in the build directory.
+
+#### IDE
+
+If your IDE has CMake support, it should handle all the needed build configurations.
+
+### Installing
+
+From a command line, run the following in your build directory:
+
+```
+cmake --install .
+```
+
+The install directory is specified by the variable `CMAKE_INSTALL_PREFIX` and defaults to system install directories for the given OS. You can also specify the directory by adding the following to the Configure command above:
+
+```
+-DCMAKE_INSTALL_PREFIX=<install_path>
+```
+
+where `<install_path>` is a chosen directory. More information about the config variable can be found in the CMake [docs](https://cmake.org/cmake/help/v3.7/variable/CMAKE_INSTALL_PREFIX.html).

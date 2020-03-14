@@ -1,0 +1,47 @@
+set(glacier2_dynfilter_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/Glacier2
+	${CMAKE_CURRENT_BINARY_DIR}
+	${GENERATED_SLICES_DIR}
+)
+
+set(dynamicFiltering_client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/BackendI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/BackendI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SessionI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SessionI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestControllerI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestControllerI.h
+)
+CreateExecutableIceTest(Glacier2
+	"${glacier2_dynfilter_includes}"
+	${GLACIER2_TEST_OUTPUT_DIR}/dynamicFiltering
+	"${dynamicFiltering_client_sources}"
+	${CMAKE_CURRENT_SOURCE_DIR}/Test.ice
+	glacier2dynfilterclient
+	client
+	"${GLACIER2_TEST_DEPS}"
+)
+
+set(dynamicFiltering_server_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/BackendI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/BackendI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Server.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SessionI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SessionI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestControllerI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestControllerI.h
+)
+
+CreateExecutableIceTest(Glacier2
+	"${glacier2_dynfilter_includes}"
+	${GLACIER2_TEST_OUTPUT_DIR}/dynamicFiltering
+	"${dynamicFiltering_server_sources}"
+	${CMAKE_CURRENT_SOURCE_DIR}/Test.ice
+	glacier2dynfilterserver
+	server
+	"${GLACIER2_TEST_DEPS}"
+)

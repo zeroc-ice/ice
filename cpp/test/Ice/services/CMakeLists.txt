@@ -1,0 +1,39 @@
+set(ice_services_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/Ice
+	${CMAKE_CURRENT_BINARY_DIR}
+	${GENERATED_SLICES_DIR}
+)
+
+set(services_client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/Alltests.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Client.cpp
+)
+
+if(BUILD_ICE_CPP11)
+	set(services_test_deps
+		icegrid++11
+		icestorm++11
+		glacier2++11
+		${ICE_TEST_DEPS}
+	)
+else()
+	set(services_test_deps
+		icegrid
+		icestorm
+		glacier2
+		${ICE_TEST_DEPS}
+	)
+endif()
+
+CreateExecutableIceTest(Ice
+	"${ice_services_includes}"
+	${ICE_TEST_OUTPUT_DIR}/services
+	"${services_client_sources}"
+	${CMAKE_CURRENT_SOURCE_DIR}/Test.ice
+	iceservicesclient
+	client
+	"${services_test_deps}"
+)

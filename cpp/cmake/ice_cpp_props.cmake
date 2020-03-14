@@ -1,0 +1,17 @@
+# define c++ compiler options and preprocessor definitions for all OS types
+set(ICE_COMPILE_DEFS "ICE_BUILDING_SRC")
+set(STATIC_ICE_COMPILE_DEFS ${ICE_COMPILE_DEFS} "ICE_STATIC_LIBS")
+
+if(BUILD_ICE_CPP11)
+	if(NOT BUILD_SHARED_LIBS)
+		set(ICE_COMPILE_DEFS ${STATIC_ICE_COMPILE_DEFS} "ICE_CPP11_MAPPING")
+	else()
+		set(ICE_COMPILE_DEFS ${ICE_COMPILE_DEFS} "ICE_CPP11_MAPPING")
+	endif()
+else()
+	if(NOT BUILD_SHARED_LIBS)
+		set(ICE_COMPILE_DEFS ${STATIC_ICE_COMPILE_DEFS})
+	endif()
+endif()
+
+list(APPEND COMPILE_SLICES_CPP_PARAMETERS "--include-dir")

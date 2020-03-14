@@ -1,0 +1,52 @@
+set(ice_logger_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/src
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${GENERATED_SLICES_DIR}
+)
+
+CreateExecutableTest(Ice
+	"${ice_logger_includes}"
+	${ICE_TEST_OUTPUT_DIR}/logger
+	${CMAKE_CURRENT_SOURCE_DIR}/Client1.cpp
+	iceloggerclient1
+	client1
+	"${ICE_TEST_DEPS}"
+)
+
+CreateExecutableTest(Ice
+	"${ice_logger_includes}"
+	${ICE_TEST_OUTPUT_DIR}/logger
+	${CMAKE_CURRENT_SOURCE_DIR}/Client2.cpp
+	iceloggerclient2
+	client2
+	"${ICE_TEST_DEPS}"
+)
+
+CreateExecutableTest(Ice
+	"${ice_logger_includes}"
+	${ICE_TEST_OUTPUT_DIR}/logger
+	${CMAKE_CURRENT_SOURCE_DIR}/Client3.cpp
+	iceloggerclient3
+	client3
+	"${ICE_TEST_DEPS}"
+)
+
+CreateExecutableTest(Ice
+	"${ice_logger_includes}"
+	${ICE_TEST_OUTPUT_DIR}/logger
+	${CMAKE_CURRENT_SOURCE_DIR}/Client4.cpp
+	iceloggerclient4
+	client4
+	"${ICE_TEST_DEPS}"
+)
+
+CreateExecutableTest(Ice
+	"${ice_logger_includes}"
+	${ICE_TEST_OUTPUT_DIR}/logger
+	${CMAKE_CURRENT_SOURCE_DIR}/Client5.cpp
+	iceloggerclient5
+	client5
+	"${ICE_TEST_DEPS}"
+)

@@ -1,0 +1,42 @@
+set(iceutil_thread_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/src
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${GENERATED_SLICES_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(thread_client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/AliveTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AliveTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CountDownLatchTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CountDownLatchTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CreateTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CreateTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/MonitorMutexTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MonitorMutexTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/MonitorRecMutexTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MonitorRecMutexTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/MutexTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MutexTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/RecMutexTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/RecMutexTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/SleepTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SleepTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/StartTest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StartTest.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestBase.h
+	${CMAKE_CURRENT_SOURCE_DIR}/TestSuite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TestSuite.h
+)
+
+CreateExecutableTest(IceUtil
+	"${iceutil_thread_includes}"
+	${ICEUTIL_TEST_OUTPUT_DIR}/thread
+	"${thread_client_sources}"
+	iceutilthreadclient
+	client
+	"${ICEUTIL_TEST_DEPS}"
+)

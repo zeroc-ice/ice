@@ -1,0 +1,42 @@
+set(ice_interceptor_includes
+	${PROJECT_SOURCE_DIR}/cpp/include
+	${PROJECT_SOURCE_DIR}/cpp/test/include
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/Ice
+	${CMAKE_CURRENT_BINARY_DIR}
+	${GENERATED_SLICES_DIR}
+)
+
+CreateLibraryIceTest(Ice
+	"${ice_interceptor_includes}"
+	${ICE_TEST_OUTPUT_DIR}/interceptor
+	${CMAKE_CURRENT_SOURCE_DIR}/TestI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Test.ice
+	iceinterceptortest
+	interceptortest
+	"${ICE_TEST_DEPS}"
+)
+
+set(interceptor_client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/AMDInterceptorI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AMDInterceptorI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/InterceptorI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/InterceptorI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/MyObjectI.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MyObjectI.cpp
+)
+
+set(interceptor_client_test_deps
+	${ICE_TEST_DEPS} 
+	iceinterceptortest
+)
+
+CreateExecutableTest(Ice
+	"${ice_interceptor_includes}"
+	${ICE_TEST_OUTPUT_DIR}/interceptor
+	"${interceptor_client_sources}"
+	iceinterceptorclient
+	client
+	"${interceptor_client_test_deps}"
+)
