@@ -18,7 +18,7 @@ namespace Ice
         public void IceWrite(OutputStream ostr);
     }
 
-    public delegate void OutputStreamWriter<T>(OutputStream os, T value);
+    public delegate void OutputStreamWriter<in T>(OutputStream os, T value);
     public delegate void OutputStreamStructWriter<T>(OutputStream ostr, in T value) where T : struct;
 
     /// <summary>
@@ -1093,8 +1093,8 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
-            OutputStreamWriter<TValue> valueWriter)
+        public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+                                            OutputStreamWriter<TValue> valueWriter)
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)
@@ -1104,8 +1104,9 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
-            OutputStreamWriter<TValue> valueWriter) where TKey : struct
+        public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict,
+                                            OutputStreamStructWriter<TKey> keyWriter,
+                                            OutputStreamWriter<TValue> valueWriter) where TKey : struct
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)
@@ -1115,8 +1116,8 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
-            OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
+        public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
+                                            OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)
@@ -1126,9 +1127,10 @@ namespace Ice
             }
         }
 
-        public void WriteDict<TKey, TValue>(IDictionary<TKey, TValue> dict, OutputStreamStructWriter<TKey> keyWriter,
-            OutputStreamStructWriter<TValue> valueWriter) where TKey : struct
-                                                          where TValue : struct
+        public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict,
+                                            OutputStreamStructWriter<TKey> keyWriter,
+                                            OutputStreamStructWriter<TValue> valueWriter) where TKey : struct
+                                                                                          where TValue : struct
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)

@@ -427,7 +427,7 @@ Slice::CsGenerator::getTagFormat(const TypePtr& type, const string& scope)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional)
+Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional, bool readOnly)
 {
     if(!type)
     {
@@ -533,7 +533,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            typeName = "Dictionary";
+            typeName = readOnly ? "IReadOnlyDictionary" : "Dictionary";
         }
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +

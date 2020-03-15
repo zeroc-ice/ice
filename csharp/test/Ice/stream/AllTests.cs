@@ -930,7 +930,7 @@ namespace Ice.stream
                 dict.Add("key1", "value1");
                 dict.Add("key2", "value2");
                 ostr = new OutputStream(communicator);
-                ostr.Write(dict);
+                Ice.ContextHelper.Write(ostr, dict);
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadSortedStringStringD();

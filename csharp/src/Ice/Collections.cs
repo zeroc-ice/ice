@@ -8,7 +8,8 @@ namespace Ice
 {
     internal static class Collections
     {
-        public static bool Equals<TKey, TValue>(Dictionary<TKey, TValue>? lhs, Dictionary<TKey, TValue>? rhs)
+        public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
+            IReadOnlyDictionary<TKey, TValue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -31,7 +32,7 @@ namespace Ice
             return true;
         }
 
-        public static int GetHashCode<TKey, TValue>(Dictionary<TKey, TValue> d)
+        public static int GetHashCode<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> d)
         {
             var hash = new System.HashCode();
             foreach (KeyValuePair<TKey, TValue> e in d)

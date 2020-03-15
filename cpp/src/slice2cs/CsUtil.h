@@ -100,7 +100,8 @@ public:
     //
     static void validateMetaData(const UnitPtr&);
 
-    static std::string typeToString(const TypePtr&, const std::string&, bool = false);
+    static std::string typeToString(const TypePtr& type, const std::string& package, bool optional = false,
+                                    bool readOnly = false);
 
 protected:
 

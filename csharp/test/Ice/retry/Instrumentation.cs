@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace Ice.retry
 {
@@ -98,7 +98,7 @@ namespace Ice.retry
             }
 
             public Ice.Instrumentation.IInvocationObserver?
-            GetInvocationObserver(Ice.IObjectPrx p, string o, Dictionary<string, string> c)
+            GetInvocationObserver(Ice.IObjectPrx p, string o, ReadOnlyContext c)
             {
                 return invocationObserver;
             }

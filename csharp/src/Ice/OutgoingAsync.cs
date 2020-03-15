@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Context = System.Collections.Generic.Dictionary<string, string>;
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+
 namespace IceInternal
 {
     public interface IOutgoingAsyncCompletionCallback
@@ -605,6 +608,37 @@ namespace IceInternal
             }
         }
 
+        protected ReadOnlyContext ProxyAndCurrentContext()
+        {
+           ReadOnlyContext context;
+
+            if (Proxy.Context.Count == 0)
+            {
+                context = Proxy.Communicator.CurrentContext;
+            }
+            else if (Proxy.Communicator.CurrentContext.Count == 0)
+            {
+                context = Proxy.Context;
+            }
+            else
+            {
+                var combinedContext = new Context(Proxy.Context);
+                foreach (KeyValuePair<string, string> e in Proxy.Communicator.CurrentContext)
+                {
+                    try
+                    {
+                        combinedContext.Add(e.Key, e.Value);
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        // Ignore duplicate: the proxy Context entry prevails.
+                    }
+                }
+                context = combinedContext;
+            }
+            return context;
+        }
+
         protected readonly Ice.IObjectPrx Proxy;
         protected IRequestHandler? Handler;
         protected bool IsIdempotent;
@@ -630,7 +664,7 @@ namespace IceInternal
             IsOneway = oneway;
         }
 
-        public void Prepare(string operation, bool idempotent, bool oneway, Dictionary<string, string>? context)
+        public void Prepare(string operation, bool idempotent, bool oneway, ReadOnlyContext? context)
         {
             Debug.Assert(Os != null);
             Proxy.IceReference.GetProtocol().CheckSupported();
@@ -638,7 +672,9 @@ namespace IceInternal
             IsIdempotent = idempotent;
             IsOneway = oneway;
 
-            Observer = ObserverHelper.get(Proxy, operation, context);
+            context ??= ProxyAndCurrentContext();
+
+            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
 
             switch (Proxy.IceReference.GetMode())
             {
@@ -678,30 +714,7 @@ namespace IceInternal
             Os.WriteString(operation);
             Os.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
 
-            if (context != null)
-            {
-                //
-                // Explicit context
-                //
-                Ice.ContextHelper.Write(Os, context);
-            }
-            else
-            {
-                //
-                // Implicit context
-                //
-                var implicitContext = (Ice.ImplicitContext?)rf.GetCommunicator().GetImplicitContext();
-                Dictionary<string, string> prxContext = rf.GetContext();
-
-                if (implicitContext == null)
-                {
-                    Ice.ContextHelper.Write(Os, prxContext);
-                }
-                else
-                {
-                    implicitContext.Write(prxContext, Os);
-                }
-            }
+            Ice.ContextHelper.Write(Os, context);
         }
         public override bool Sent() => base.SentImpl(IsOneway); // done = true
 
@@ -825,9 +838,10 @@ namespace IceInternal
         }
 
         // Called by IceInvokeAsync
-        internal void Invoke(string operation, Dictionary<string, string>? context, bool synchronous)
+        internal void Invoke(string operation, ReadOnlyContext? context, bool synchronous)
         {
-            Observer = ObserverHelper.get(Proxy, operation, context);
+            context ??= ProxyAndCurrentContext();
+            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
             Invoke(synchronous);
         }
 
@@ -858,7 +872,7 @@ namespace IceInternal
                            bool idempotent,
                            bool oneway,
                            Ice.FormatType? format,
-                           Dictionary<string, string>? context,
+                           ReadOnlyContext? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
         {
@@ -915,7 +929,7 @@ namespace IceInternal
                            bool idempotent,
                            bool oneway,
                            Ice.FormatType? format,
-                           Dictionary<string, string>? context,
+                           ReadOnlyContext? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
                            System.Func<Ice.InputStream, T>? read = null)
@@ -999,7 +1013,7 @@ namespace IceInternal
             // since it's a local operation.
             Debug.Assert(!IsOneway); // always constructed with IsOneway set to false
             Synchronous = synchronous;
-            Observer = ObserverHelper.get(Proxy, operation, null);
+            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, IceInternal.Reference.EmptyContext);
             InvokeImpl(true); // userThread = true
         }
     }

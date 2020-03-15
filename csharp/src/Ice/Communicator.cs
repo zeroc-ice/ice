@@ -13,6 +13,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+using Context = System.Collections.Generic.Dictionary<string, string>;
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+
 namespace Ice
 {
     internal sealed class BufSizeWarnInfo
@@ -50,6 +53,71 @@ namespace Ice
         ///
         /// </returns>
         public ILogger Logger { get; internal set; }
+
+        /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
+        /// per-thread CurrentContext combined with the proxy's context.</summary>
+        public Context CurrentContext
+        {
+            get
+            {
+                try
+                {
+                    if (_currentContext.IsValueCreated)
+                    {
+                        return _currentContext.Value;
+                    }
+                    else
+                    {
+                        _currentContext.Value = new Context();
+                        return _currentContext.Value;
+                    }
+                }
+                catch (ObjectDisposedException ex)
+                {
+#pragma warning disable CA1065
+                    throw new CommunicatorDestroyedException(ex);
+#pragma warning restore CA1065
+                }
+            }
+            set
+            {
+                try
+                {
+                    _currentContext.Value = value;
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw new CommunicatorDestroyedException(ex);
+                }
+            }
+        }
+
+        /// <summary>The default context for proxies created using this communicator. Changing the value of
+        /// DefaultContext does not change the context of previously created proxies.</summary>
+        public ReadOnlyContext DefaultContext
+        {
+            get
+            {
+                lock (this)
+                {
+                    return _defaultContext;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    if (value.Count == 0)
+                    {
+                        _defaultContext = IceInternal.Reference.EmptyContext;
+                    }
+                    else
+                    {
+                        _defaultContext = new Context(value); // makes a copy
+                    }
+                }
+            }
+        }
 
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
@@ -98,9 +166,11 @@ namespace Ice
         private AsyncIOThread? _asyncIOThread;
         private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly Func<int, string>? _compactIdResolver;
+        private readonly ThreadLocal<Context> _currentContext = new ThreadLocal<Context>();
+        private ReadOnlyContext _defaultContext = IceInternal.Reference.EmptyContext;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
-        private readonly ImplicitContext? _implicitContext; // Immutable
+
         private bool _isShutdown = false;
         private static bool _oneOffDone = false;
         private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
@@ -337,8 +407,6 @@ namespace Ice
                 }
 
                 ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");
-
-                _implicitContext = ImplicitContext.Create(GetProperty("Ice.ImplicitContext"));
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
 
@@ -1319,6 +1387,7 @@ namespace Ice
                     ((FileLoggerI)Logger).Destroy();
                 }
             }
+            _currentContext.Dispose();
         }
 
         public void Dispose() => Destroy();
@@ -1476,14 +1545,6 @@ namespace Ice
                 return _defaultRouter;
             }
         }
-
-        /// <summary>
-        /// Get the implicit context associated with this communicator.
-        /// </summary>
-        /// <returns>The implicit context associated with this communicator;
-        /// returns null when the property Ice.ImplicitContext is not set
-        /// or is set to None.</returns>
-        public IImplicitContext? GetImplicitContext() => _implicitContext;
 
         /// <summary>
         /// Check whether communicator has been shut down.
@@ -1775,9 +1836,6 @@ namespace Ice
 
         internal Reference CreateReference(Identity ident, Connection connection)
         {
-            //
-            // Create new reference
-            //
             return new FixedReference(
                 this,
                 ident,
@@ -1788,7 +1846,7 @@ namespace Ice
                 DefaultsAndOverrides.DefaultEncoding,
                 connection,
                 -1,
-                null,
+                DefaultContext,
                 null);
         }
 
@@ -2200,7 +2258,7 @@ namespace Ice
             EndpointSelectionType endpointSelection = DefaultsAndOverrides.DefaultEndpointSelection;
             int locatorCacheTimeout = DefaultsAndOverrides.DefaultLocatorCacheTimeout;
             int invocationTimeout = DefaultsAndOverrides.DefaultInvocationTimeout;
-            Dictionary<string, string>? context = null;
+            ReadOnlyContext? context = null;
 
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
@@ -2288,9 +2346,11 @@ namespace Ice
                                                                           e => e.Value);
             }
 
-            //
-            // Create new reference
-            //
+            if (context == null || context.Count == 0)
+            {
+                context = DefaultContext;
+            }
+
             return new RoutableReference(this,
                                          ident,
                                          facet,

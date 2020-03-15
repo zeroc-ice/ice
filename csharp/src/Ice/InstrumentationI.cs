@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+
 namespace IceInternal
 {
     public class ObserverWithDelegate<T, O> : Observer<T>
@@ -397,7 +399,7 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public InvocationHelper(IObjectPrx? proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
+        public InvocationHelper(IObjectPrx? proxy, string op, ReadOnlyContext ctx) : base(_attributes)
         {
             _proxy = proxy;
             _operation = op;
@@ -495,7 +497,7 @@ namespace IceInternal
 
         private readonly IObjectPrx? _proxy;
         private readonly string _operation;
-        private readonly Dictionary<string, string> _context;
+        private readonly ReadOnlyContext _context;
         private string? _id;
 
         private static readonly IEndpoint[] _emptyEndpoints = Array.Empty<IEndpoint>();
@@ -1046,7 +1048,7 @@ namespace IceInternal
         }
 
         public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
-                                                                              Dictionary<string, string> ctx)
+                                                                              ReadOnlyContext ctx)
         {
             if (_invocations.IsEnabled())
             {

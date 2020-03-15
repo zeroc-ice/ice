@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+
 namespace Glacier2
 {
 
@@ -211,7 +213,7 @@ namespace Glacier2
         /// </summary>
         /// <param name="context">The request context.</param>
         public void
-        setConnectContext(Dictionary<string, string> context)
+        setConnectContext(ReadOnlyContext context)
         {
             lock (this)
             {
@@ -372,7 +374,7 @@ namespace Glacier2
         private string _transport = "ssl";
         private int _port = 0;
         private int _timeout = 10000;
-        private Dictionary<string, string>? _context;
+        private ReadOnlyContext? _context;
         private bool _useCallbacks = true;
         private static int GLACIER2_SSL_PORT = 4064;
         private static int GLACIER2_TCP_PORT = 4063;

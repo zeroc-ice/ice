@@ -10,10 +10,15 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+using Context = System.Collections.Generic.Dictionary<string, string>;
+
 namespace IceInternal
 {
     public abstract class Reference : IEquatable<Reference>
     {
+        internal static ReadOnlyContext EmptyContext = new Context();
+
         public interface IGetConnectionCallback
         {
             void SetConnection(Connection connection, bool compress);
@@ -32,7 +37,7 @@ namespace IceInternal
 
         public string GetFacet() => _facet;
 
-        public Dictionary<string, string> GetContext() => _context;
+        public ReadOnlyContext GetContext() => _context;
 
         public int
         GetInvocationTimeout() => _invocationTimeout;
@@ -73,7 +78,10 @@ namespace IceInternal
             hash.Add(_mode);
             hash.Add(Secure);
             hash.Add(_identity);
-            hash.Add(Collections.GetHashCode(_context));
+            if (_context != null)
+            {
+                hash.Add(Collections.GetHashCode(_context));
+            }
             hash.Add(_facet);
             hash.Add(OverrideCompress);
             if (OverrideCompress)
@@ -349,7 +357,7 @@ namespace IceInternal
                                        bool? connectionCached = null,
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
-                                       Dictionary<string, string>? context = null,
+                                       ReadOnlyContext? context = null,
                                        Encoding? encoding = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
@@ -366,7 +374,7 @@ namespace IceInternal
             Reference reference = this;
 
             //
-            // This options must always be handled by one of the super classe.
+            // This options must always be handled by one of the derived classes.
             //
             Debug.Assert(adapterId == null);
             Debug.Assert(clearLocator == false);
@@ -417,7 +425,7 @@ namespace IceInternal
                 {
                     reference = Clone();
                 }
-                reference._context = context.Count == 0 ? _emptyContext : new Dictionary<string, string>(context);
+                reference._context = context.Count == 0 ? EmptyContext : new Context(context);
             }
 
             if (encoding is Encoding encodingValue && encodingValue != _encoding)
@@ -466,13 +474,11 @@ namespace IceInternal
 
         public Reference Clone() => (Reference)MemberwiseClone();
 
-        private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
-
         protected Communicator Communicator;
 
         private InvocationMode _mode;
         private Identity _identity;
-        private Dictionary<string, string> _context;
+        private ReadOnlyContext _context;
         private string _facet;
         protected bool Secure;
         private readonly Protocol _protocol;
@@ -490,7 +496,7 @@ namespace IceInternal
                             Protocol protocol,
                             Encoding encoding,
                             int invocationTimeout,
-                            Dictionary<string, string>? context)
+                            ReadOnlyContext context)
         {
             //
             // Validate string arguments.
@@ -502,7 +508,7 @@ namespace IceInternal
             Communicator = communicator;
             _mode = mode;
             _identity = identity;
-            _context = context != null ? new Dictionary<string, string>(context) : _emptyContext;
+            _context = context;
             _facet = facet;
             _protocol = protocol;
             _encoding = encoding;
@@ -521,7 +527,7 @@ namespace IceInternal
         private int _hashCode = 0;
         private Connection _fixedConnection;
 
-        public FixedReference(Communicator communicator,
+        internal FixedReference(Communicator communicator,
                               Identity identity,
                               string facet,
                               InvocationMode mode,
@@ -530,7 +536,7 @@ namespace IceInternal
                               Encoding encoding,
                               Connection connection,
                               int invocationTimeout,
-                              Dictionary<string, string>? context,
+                              ReadOnlyContext context,
                               bool? compress)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
@@ -576,7 +582,7 @@ namespace IceInternal
                                         bool? connectionCached = null,
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
-                                        Dictionary<string, string>? context = null,
+                                        ReadOnlyContext? context = null,
                                         Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
@@ -894,7 +900,7 @@ namespace IceInternal
                                         bool? connectionCached = null,
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
-                                        Dictionary<string, string>? context = null,
+                                        ReadOnlyContext? context = null,
                                         Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
@@ -1480,7 +1486,7 @@ namespace IceInternal
             }
         }
 
-        public RoutableReference(Communicator communicator,
+        internal RoutableReference(Communicator communicator,
                                  Identity identity,
                                  string facet,
                                  InvocationMode mode,
@@ -1497,7 +1503,7 @@ namespace IceInternal
                                  EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout,
                                  int invocationTimeout,
-                                 Dictionary<string, string>? context)
+                                 ReadOnlyContext context)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _endpoints = endpoints;

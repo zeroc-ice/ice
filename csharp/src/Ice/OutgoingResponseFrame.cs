@@ -17,7 +17,7 @@ namespace Ice
         /// <summary>The Ice1 reply status. Only meaningful for the Ice1 protocol, always set to OK with Ice2.</summary>
         public ReplyStatus ReplyStatus { get; }
 
-        /// <summary>The response context. Always null with Ice1.</summary>
+        /// <summary>The response context. Always null with ice1.</summary>
         public Context? Context { get; }
 
         private readonly Encoding _payloadEncoding; // TODO: move to OutputStream

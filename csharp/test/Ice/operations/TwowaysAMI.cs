@@ -1641,72 +1641,51 @@ namespace Ice.operations
             //
             if (p.GetConnection() != null)
             {
-                string[] impls = { "Shared", "PerThread" };
-                for (int i = 0; i < 2; i++)
+                communicator.CurrentContext["one"] = "ONE";
+                communicator.CurrentContext["two"] = "TWO";
+                communicator.CurrentContext["three"] = "THREE";
+
+                var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                test(global::Test.Collections.Equals(p3.opContextAsync().Result, communicator.CurrentContext));
+
+                Dictionary<string, string> prxContext = new Dictionary<string, string>();
+                prxContext["one"] = "UN";
+                prxContext["four"] = "QUATRE";
+
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach (KeyValuePair<string, string> e in communicator.CurrentContext)
                 {
-                    var properties = communicator.GetProperties();
-                    properties["Ice.ImplicitContext"] = impls[i];
-
-                    Communicator ic = helper.initialize(properties);
-
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-                    ctx["one"] = "ONE";
-                    ctx["two"] = "TWO";
-                    ctx["three"] = "THREE";
-
-                    var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
-
-                    ic.GetImplicitContext().SetContext(ctx);
-                    test(global::Test.Collections.Equals(ic.GetImplicitContext().GetContext(), ctx));
+                    try
                     {
-                        test(global::Test.Collections.Equals(p3.opContextAsync().Result, ctx));
+                        combined.Add(e.Key, e.Value);
                     }
-
-                    ic.GetImplicitContext().Put("zero", "ZERO");
-
-                    ctx = ic.GetImplicitContext().GetContext();
+                    catch (ArgumentException)
                     {
-                        test(global::Test.Collections.Equals(p3.opContextAsync().Result, ctx));
+                        // Ignore.
                     }
-
-                    Dictionary<string, string> prxContext = new Dictionary<string, string>();
-                    prxContext["one"] = "UN";
-                    prxContext["four"] = "QUATRE";
-
-                    Dictionary<string, string> combined = prxContext;
-                    foreach (KeyValuePair<string, string> e in ctx)
-                    {
-                        try
-                        {
-                            combined.Add(e.Key, e.Value);
-                        }
-                        catch (ArgumentException)
-                        {
-                            // Ignore.
-                        }
-                    }
-                    test(combined["one"].Equals("UN"));
-
-                    p3 = p.Clone(context: prxContext);
-
-                    ic.GetImplicitContext().SetContext(null);
-                    {
-                        test(global::Test.Collections.Equals(p3.opContextAsync().Result, prxContext));
-                    }
-
-                    ic.GetImplicitContext().SetContext(ctx);
-                    {
-                        test(global::Test.Collections.Equals(p3.opContextAsync().Result, combined));
-                    }
-
-                    //ic.getImplicitContext().setContext(null);
-                    ic.Destroy();
                 }
+                test(combined["one"].Equals("UN"));
+
+                test(communicator.DefaultContext.Count == 0);
+                communicator.DefaultContext = prxContext;
+                test(communicator.DefaultContext != prxContext); // it's a copy
+                test(global::Test.Collections.Equals(communicator.DefaultContext, prxContext));
+
+                p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+
+                var ctx = new Dictionary<string, string>(communicator.CurrentContext);
+                communicator.CurrentContext.Clear();
+                test(global::Test.Collections.Equals(p3.opContextAsync().Result, prxContext));
+
+                communicator.CurrentContext = ctx;
+                test(global::Test.Collections.Equals(p3.opContextAsync().Result, combined));
+
+                // Cleanup
+                communicator.CurrentContext.Clear();
+                communicator.DefaultContext = new Dictionary<string, string>();
             }
 
-            {
-                p.opIdempotentAsync().Wait();
-            }
+            p.opIdempotentAsync().Wait();
 
             try
             {
