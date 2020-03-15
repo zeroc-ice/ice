@@ -9,7 +9,7 @@ namespace Ice
     internal static class Collections
     {
         public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
-            IReadOnlyDictionary<TKey, TValue>? rhs)
+                                                IReadOnlyDictionary<TKey, TValue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {

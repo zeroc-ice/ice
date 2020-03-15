@@ -8,8 +8,8 @@ namespace Test
 {
     public static class Collections
     {
-        public static bool Equals<Key, TValue>(IReadOnlyDictionary<Key, TValue>? lhs,
-                                               IReadOnlyDictionary<Key, TValue>? rhs)
+        public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
+                                                IReadOnlyDictionary<TKey, TValue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -22,7 +22,7 @@ namespace Test
             }
 
             EqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
-            foreach (KeyValuePair<Key, TValue> entry in lhs)
+            foreach (KeyValuePair<TKey, TValue> entry in lhs)
             {
                 if (!rhs.TryGetValue(entry.Key, out TValue value) || !comparer.Equals(entry.Value, value))
                 {

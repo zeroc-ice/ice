@@ -610,7 +610,7 @@ namespace IceInternal
 
         protected ReadOnlyContext ProxyAndCurrentContext()
         {
-           ReadOnlyContext context;
+            ReadOnlyContext context;
 
             if (Proxy.Context.Count == 0)
             {

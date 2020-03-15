@@ -113,7 +113,7 @@ namespace Ice
                     }
                     else
                     {
-                        _defaultContext = new Context(value); // makes a copy
+                        _defaultContext = new Context(value);
                     }
                 }
             }

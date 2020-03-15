@@ -10,8 +10,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 using Context = System.Collections.Generic.Dictionary<string, string>;
+using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace IceInternal
 {
