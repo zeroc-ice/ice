@@ -622,17 +622,10 @@ namespace IceInternal
             }
             else
             {
-                var combinedContext = new Context(Proxy.Context);
-                foreach (KeyValuePair<string, string> e in Proxy.Communicator.CurrentContext)
+                var combinedContext = new Context(Proxy.Communicator.CurrentContext);
+                foreach ((string key, string value) in Proxy.Context)
                 {
-                    try
-                    {
-                        combinedContext.Add(e.Key, e.Value);
-                    }
-                    catch (System.ArgumentException)
-                    {
-                        // Ignore duplicate: the proxy Context entry prevails.
-                    }
+                    combinedContext[key] = value;
                 }
                 context = combinedContext;
             }
