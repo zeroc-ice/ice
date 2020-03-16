@@ -625,7 +625,7 @@ namespace IceInternal
                 var combinedContext = new Context(Proxy.Communicator.CurrentContext);
                 foreach ((string key, string value) in Proxy.Context)
                 {
-                    combinedContext[key] = value;
+                    combinedContext[key] = value;  // the proxy Context entry prevails.
                 }
                 context = combinedContext;
             }

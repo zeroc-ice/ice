@@ -80,27 +80,12 @@ namespace Ice
             }
             else
             {
-                if (proxy.Context != null)
+                Context = new Context(proxy.Communicator.CurrentContext);
+                foreach ((string key, string value) in proxy.Context)
                 {
-                    Context = new Context(proxy.Context);
-                    foreach (KeyValuePair<string, string> e in proxy.Communicator.CurrentContext)
-                    {
-                        try
-                        {
-                            Context.Add(e.Key, e.Value);
-                        }
-                        catch (System.ArgumentException)
-                        {
-                            // Ignore duplicate: the proxy Context entry prevails.
-                        }
-                    }
-                }
-                else
-                {
-                    Context = new Context(proxy.Communicator.CurrentContext);
+                    Context[key] = value; // the proxy Context entry prevails.
                 }
             }
-
             ContextHelper.Write(this, Context);
         }
 
