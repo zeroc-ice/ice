@@ -773,7 +773,7 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    _logger.Warning("IceBoxServiceManager: exception while shutting down communicator for service " +
+                    _logger.Warning("IceBox.ServiceManager: exception while shutting down communicator for service " +
                         $"`{service}'\n{ex}");
                 }
 

@@ -1540,7 +1540,7 @@ namespace IceInternal
                     CreateAcceptor();
                 }
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 //
                 // Clean up.

@@ -2009,33 +2009,19 @@ namespace Ice
                     //
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
-                catch (ServerNotFoundException)
-                {
-                    if (TraceLevels.Location >= 1)
-                    {
-                        var s = new StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
-                        s.Append("the server is not known to the locator registry");
-                        Logger.Trace(TraceLevels.LocationCat, s.ToString());
-                    }
-                    throw;
-                }
                 catch (System.Exception ex)
                 {
                     if (TraceLevels.Location >= 1)
                     {
-                        var s = new StringBuilder();
-                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        Logger.Trace(TraceLevels.LocationCat, s.ToString());
+                        Logger.Trace(TraceLevels.LocationCat,
+                            $"could not register server `{serverId}' with the locator registry:\n{ex}");
                     }
-                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                    throw;
                 }
 
                 if (TraceLevels.Location >= 1)
                 {
-                    var s = new StringBuilder();
-                    s.Append("registered server `" + serverId + "' with the locator registry");
-                    Logger.Trace(TraceLevels.LocationCat, s.ToString());
+                    Logger.Trace(TraceLevels.LocationCat, $"registered server `{serverId}' with the locator registry");
                 }
             }
         }
