@@ -4,6 +4,7 @@
 
 using IceInternal;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -179,6 +180,8 @@ namespace Ice
         private int _state;
         private readonly IceInternal.Timer _timer;
         private readonly string[] _typeIdNamespaces = { "Ice.TypeId" };
+        private readonly ConcurrentDictionary<string, Type?> _typeIdCache = new ConcurrentDictionary<string, Type?>();
+        private readonly ConcurrentDictionary<int, Type?> _compactIdCache = new ConcurrentDictionary<int, Type?>();
 
         public Communicator(Dictionary<string, string>? properties,
                             Func<int, string>? compactIdResolver = null,
@@ -1887,75 +1890,83 @@ namespace Ice
         // Return the C# class associated with this Slice type-id
         // Used for both non-local Slice classes and exceptions
         //
-        internal Type? ResolveClass(string id)
+        internal Type? ResolveClass(string typeId)
         {
-            // First attempt corresponds to no cs:namespace metadata in the
-            // enclosing top-level module
-            //
-            string className = TypeToClass(id);
-            Type? c = AssemblyUtil.FindType(className);
-
-            //
-            // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
-            //
-            if (c == null && _typeIdNamespaces != null)
+            return _typeIdCache.GetOrAdd(typeId, id =>
             {
-                foreach (string ns in _typeIdNamespaces)
+                // First attempt corresponds to no cs:namespace metadata in the
+                // enclosing top-level module
+                string className = TypeToClass(id);
+                Type? classType = AssemblyUtil.FindType(className);
+
+                //
+                // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
+                //
+                if (classType == null && _typeIdNamespaces != null)
                 {
-                    Type? helper = AssemblyUtil.FindType(ns + "." + className);
-                    if (helper != null)
+                    foreach (string ns in _typeIdNamespaces)
                     {
-                        try
+                        Type? helper = AssemblyUtil.FindType(ns + "." + className);
+                        if (helper != null)
                         {
-                            c = helper.GetProperty("targetClass").PropertyType;
-                            break; // foreach
-                        }
-                        catch (System.Exception)
-                        {
+                            try
+                            {
+                                classType = helper.GetProperty("targetClass").PropertyType;
+                                break; // foreach
+                            }
+                            catch (System.Exception)
+                            {
+                            }
                         }
                     }
                 }
-            }
 
-            //
-            // Ensure the class is instantiable.
-            //
-            if (c != null && !c.IsAbstract && !c.IsInterface)
-            {
-                return c;
-            }
+                //
+                // Ensure the class is instantiable.
+                //
+                if (classType != null && !classType.IsAbstract && !classType.IsInterface)
+                {
+                    return classType;
+                }
 
-            return null;
+                return null;
+            });
         }
 
-        internal string? ResolveCompactId(int compactId)
+        internal Type? ResolveCompactId(int compactId)
         {
-            string[] defaultVal = { "IceCompactId" };
-            var compactIdNamespaces = new List<string>(defaultVal);
-
-            if (_typeIdNamespaces != null)
+            return _compactIdCache.GetOrAdd(compactId, id =>
             {
-                compactIdNamespaces.AddRange(_typeIdNamespaces);
-            }
+                string[] defaultVal = { "IceCompactId" };
+                var compactIdNamespaces = new List<string>(defaultVal);
 
-            string? result = null;
-
-            foreach (string ns in compactIdNamespaces)
-            {
-                try
+                if (_typeIdNamespaces != null)
                 {
-                    Type? c = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
-                    if (c != null)
+                    compactIdNamespaces.AddRange(_typeIdNamespaces);
+                }
+
+                foreach (string ns in compactIdNamespaces)
+                {
+                    try
                     {
-                        result = (string)c.GetField("typeId").GetValue(null);
-                        break; // foreach
+                        Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{id}");
+                        if (classType != null)
+                        {
+                            var result = (string)classType.GetField("typeId").GetValue(null);
+                            if (result != null)
+                            {
+                                return ResolveClass(result);
+                            }
+                            return null;
+                        }
+                    }
+                    catch (System.Exception)
+                    {
                     }
                 }
-                catch (System.Exception)
-                {
-                }
-            }
-            return result;
+
+                return null;
+            });
         }
 
         internal IceInternal.ThreadPool ServerThreadPool()

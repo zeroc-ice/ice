@@ -68,7 +68,7 @@ namespace Ice
         public Encoding Encoding { get; private set; }
 
         /// <summary>Determines the current size of the stream, this correspond
-        /// to the number of bytes already writen to the stream.</summary>
+        /// to the number of bytes already written to the stream.</summary>
         /// <value>The current size.</value>
         internal int Size { get; private set; }
 
