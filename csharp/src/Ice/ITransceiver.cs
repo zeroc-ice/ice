@@ -23,7 +23,7 @@ namespace IceInternal
         /// <returns>Returns SocketOperation.Write, SocketOperation.Read or SocketOperation.None indicating
         /// whenever the operation needs to write more data, read more data or it is done.</returns>
         int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
-        int Closing(bool initiator, Ice.LocalException? ex);
+        int Closing(bool initiator, System.Exception? ex);
         void Close();
         void Destroy();
 

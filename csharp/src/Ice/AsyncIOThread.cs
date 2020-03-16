@@ -110,15 +110,9 @@ namespace IceInternal
                     {
                         cb();
                     }
-                    catch (Ice.LocalException ex)
-                    {
-                        string s = "exception in asynchronous IO thread:\n" + ex;
-                        _communicator.Logger.Error(s);
-                    }
                     catch (System.Exception ex)
                     {
-                        string s = "unknown exception in asynchronous IO thread:\n" + ex;
-                        _communicator.Logger.Error(s);
+                        _communicator.Logger.Error($"exception in asynchronous IO thread:\n{ex}");
                     }
                 }
                 queue.Clear();

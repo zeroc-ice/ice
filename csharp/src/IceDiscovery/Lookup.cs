@@ -268,7 +268,7 @@ namespace IceDiscovery
                     Debug.Assert(reply != null);
                     reply.FoundObjectByIdAsync(id, proxy);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     // Ignore.
                 }
@@ -293,7 +293,7 @@ namespace IceDiscovery
                     Debug.Assert(reply != null);
                     reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     // Ignore.
                 }
@@ -318,7 +318,7 @@ namespace IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         _timer.Schedule(request, _timeout);
                     }
-                    catch (LocalException)
+                    catch (System.Exception)
                     {
                         request.Finished(null);
                         _objectRequests.Remove(id);
@@ -346,7 +346,7 @@ namespace IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         _timer.Schedule(request, _timeout);
                     }
-                    catch (LocalException)
+                    catch (System.Exception)
                     {
                         request.Finished(null);
                         _adapterRequests.Remove(adapterId);
@@ -403,7 +403,7 @@ namespace IceDiscovery
                         _timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (Ice.LocalException)
+                    catch (System.Exception)
                     {
                     }
                 }
@@ -460,7 +460,7 @@ namespace IceDiscovery
                         _timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (LocalException)
+                    catch (System.Exception)
                     {
                     }
                 }

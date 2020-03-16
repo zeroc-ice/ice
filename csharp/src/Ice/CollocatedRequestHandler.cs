@@ -30,7 +30,7 @@ namespace IceInternal
 
         public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.InvokeCollocated(this);
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
         {
             lock (this)
             {
@@ -222,7 +222,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (Ice.LocalException ex)
+            catch (System.Exception ex)
             {
                 HandleException(requestId, ex, false);
             }
@@ -277,7 +277,7 @@ namespace IceInternal
             }
         }
 
-        private void HandleException(int requestId, Ice.Exception ex, bool amd)
+        private void HandleException(int requestId, System.Exception ex, bool amd)
         {
             if (requestId == 0)
             {

@@ -28,7 +28,7 @@ internal class Transceiver : IceInternal.ITransceiver
         return IceInternal.SocketOperation.None;
     }
 
-    public int Closing(bool initiator, Ice.LocalException? ex) => _transceiver.Closing(initiator, ex);
+    public int Closing(bool initiator, System.Exception? ex) => _transceiver.Closing(initiator, ex);
 
     public void Close() => _transceiver.Close();
 

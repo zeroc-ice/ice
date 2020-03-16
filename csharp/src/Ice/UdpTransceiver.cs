@@ -49,7 +49,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, LocalException? ex)
+        public int Closing(bool initiator, System.Exception? ex)
         {
             //
             // Nothing to do.
@@ -181,10 +181,6 @@ namespace IceInternal
                         throw new Ice.SocketException(ex);
                     }
                 }
-                catch (System.Exception e)
-                {
-                    throw new SyscallException(e);
-                }
             }
             return SocketOperation.None;
         }
@@ -264,10 +260,6 @@ namespace IceInternal
                     {
                         throw new Ice.SocketException(e);
                     }
-                }
-                catch (System.Exception e)
-                {
-                    throw new SyscallException(e);
                 }
             }
 
@@ -704,7 +696,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
                 _fd = null;
                 throw;
@@ -740,7 +732,7 @@ namespace IceInternal
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
                 if (_readEventArgs != null)
                 {

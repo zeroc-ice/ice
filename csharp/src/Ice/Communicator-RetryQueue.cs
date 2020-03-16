@@ -29,7 +29,7 @@ namespace Ice
             _communicator.RemoveRetryTask(this);
         }
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
         {
             Debug.Assert(_outAsync == outAsync);
             if (_communicator.CancelRetryTask(this))

@@ -229,7 +229,7 @@ namespace Ice
                 {
                     return handler.GetConnection();
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
             }

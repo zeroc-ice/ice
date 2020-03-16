@@ -17,6 +17,7 @@ namespace Ice.operations.AMD
         {
             if (!b)
             {
+                System.Diagnostics.Debug.Assert(false);
                 throw new System.Exception();
             }
         }

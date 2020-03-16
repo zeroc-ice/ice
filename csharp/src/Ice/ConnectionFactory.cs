@@ -39,7 +39,7 @@ namespace IceInternal
         public interface ICreateConnectionCallback
         {
             void SetConnection(Connection connection, bool compress);
-            void SetException(LocalException ex);
+            void SetException(System.Exception ex);
         }
 
         public void Destroy()
@@ -163,7 +163,7 @@ namespace IceInternal
                     return;
                 }
             }
-            catch (Ice.LocalException ex)
+            catch (System.Exception ex)
             {
                 callback.SetException(ex);
                 return;
@@ -507,13 +507,13 @@ namespace IceInternal
                     connection = new Ice.Connection(_communicator, _monitor, transceiver, ci.Connector,
                                                     ci.Endpoint.Compress(false), null);
                 }
-                catch (Ice.LocalException)
+                catch (System.Exception)
                 {
                     try
                     {
                         transceiver.Close();
                     }
-                    catch (Ice.LocalException)
+                    catch (System.Exception)
                     {
                         // Ignore
                     }
@@ -592,7 +592,7 @@ namespace IceInternal
             }
         }
 
-        private void FinishGetConnection(List<ConnectorInfo> connectors, Ice.LocalException ex, ConnectCallback cb)
+        private void FinishGetConnection(List<ConnectorInfo> connectors, System.Exception ex, ConnectCallback cb)
         {
             var failedCallbacks = new HashSet<ConnectCallback>();
             if (cb != null)
@@ -641,7 +641,7 @@ namespace IceInternal
             }
         }
 
-        private void HandleConnectionException(Ice.LocalException ex, bool hasMore)
+        private void HandleConnectionException(System.Exception ex, bool hasMore)
         {
             TraceLevels traceLevels = _communicator.TraceLevels;
             if (traceLevels.Network >= 2)
@@ -719,7 +719,7 @@ namespace IceInternal
             }
         }
 
-        internal void HandleException(Ice.LocalException ex, bool hasMore)
+        internal void HandleException(System.Exception ex, bool hasMore)
         {
             TraceLevels traceLevels = _communicator.TraceLevels;
             if (traceLevels.Network >= 2)
@@ -793,7 +793,7 @@ namespace IceInternal
                 _factory.FinishGetConnection(_connectors, _current, connection, this);
             }
 
-            public void ConnectionStartFailed(Ice.Connection connection, Ice.LocalException ex)
+            public void ConnectionStartFailed(Ice.Connection connection, System.Exception ex)
             {
                 if (ConnectionStartFailedImpl(ex))
                 {
@@ -829,7 +829,7 @@ namespace IceInternal
                 }
             }
 
-            public void Exception(Ice.LocalException ex)
+            public void Exception(System.Exception ex)
             {
                 _factory.HandleException(ex, _hasMore || _endpointsIter < _endpoints.Count);
                 if (_endpointsIter < _endpoints.Count)
@@ -862,7 +862,7 @@ namespace IceInternal
                 _factory.DecPendingConnectCount(); // Must be called last.
             }
 
-            public void SetException(Ice.LocalException ex)
+            public void SetException(System.Exception ex)
             {
                 //
                 // Callback from the factory: connection establishment failed.
@@ -898,7 +898,7 @@ namespace IceInternal
                     //
                     _factory.IncPendingConnectCount();
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     _callback.SetException(ex);
                     return;
@@ -915,7 +915,7 @@ namespace IceInternal
                     _currentEndpoint = _endpoints[_endpointsIter++];
                     _currentEndpoint.ConnectorsAsync(_selType, this);
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     Exception(ex);
                 }
@@ -944,7 +944,7 @@ namespace IceInternal
                     _callback.SetConnection(connection, compress);
                     _factory.DecPendingConnectCount(); // Must be called last.
                 }
-                catch (Ice.LocalException ex)
+                catch (System.Exception ex)
                 {
                     _callback.SetException(ex);
                     _factory.DecPendingConnectCount(); // Must be called last.
@@ -984,7 +984,7 @@ namespace IceInternal
                         Ice.Connection connection = _factory.CreateConnection(_current.Connector.Connect(), _current);
                         connection.Start(this);
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         if (_factory._communicator.TraceLevels.Network >= 2)
                         {
@@ -1008,7 +1008,7 @@ namespace IceInternal
                 }
             }
 
-            private bool ConnectionStartFailedImpl(Ice.LocalException ex)
+            private bool ConnectionStartFailedImpl(System.Exception ex)
             {
                 if (_observer != null)
                 {
@@ -1274,7 +1274,7 @@ namespace IceInternal
             {
                 completedSynchronously = _acceptor.StartAccept(callback, this);
             }
-            catch (Ice.LocalException ex)
+            catch (System.Exception ex)
             {
                 _acceptorException = ex;
                 completedSynchronously = true;
@@ -1294,7 +1294,7 @@ namespace IceInternal
                 }
                 _acceptor.FinishAccept();
             }
-            catch (Ice.LocalException ex)
+            catch (System.Exception ex)
             {
                 _acceptorException = null;
                 _communicator.Logger.Error($"couldn't accept connection:\n{ex}\n{_acceptor}");
@@ -1381,7 +1381,7 @@ namespace IceInternal
                         // Ignore socket exceptions.
                         return;
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         // Warn about other Ice local exceptions.
                         if (_warn)
@@ -1397,13 +1397,13 @@ namespace IceInternal
                     {
                         connection = new Ice.Connection(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
                     }
-                    catch (Ice.LocalException ex)
+                    catch (System.Exception ex)
                     {
                         try
                         {
                             transceiver.Close();
                         }
-                        catch (Ice.LocalException)
+                        catch (System.Exception)
                         {
                             // Ignore
                         }
@@ -1477,7 +1477,7 @@ namespace IceInternal
             }
         }
 
-        public void ConnectionStartFailed(Ice.Connection connection, Ice.LocalException ex)
+        public void ConnectionStartFailed(Ice.Connection connection, System.Exception ex)
         {
             lock (this)
             {
@@ -1551,7 +1551,7 @@ namespace IceInternal
                     {
                         _transceiver.Close();
                     }
-                    catch (LocalException)
+                    catch (System.Exception)
                     {
                         // Ignore
                     }
@@ -1561,14 +1561,7 @@ namespace IceInternal
                 _monitor.Destroy();
                 _connections.Clear();
 
-                if (ex is Ice.LocalException)
-                {
-                    throw;
-                }
-                else
-                {
-                    throw new Ice.SyscallException(ex);
-                }
+                throw;
             }
         }
 
@@ -1720,7 +1713,7 @@ namespace IceInternal
             _acceptor.Close();
         }
 
-        private void Warning(Ice.LocalException ex) =>
+        private void Warning(System.Exception ex) =>
             _communicator.Logger.Warning($"connection exception:\n{ex}\n{_acceptor}");
 
         private readonly Ice.Communicator _communicator;
@@ -1739,7 +1732,7 @@ namespace IceInternal
 
         private int _state;
         private bool _acceptorStarted;
-        private Ice.LocalException? _acceptorException;
+        private System.Exception? _acceptorException;
     }
 
 }

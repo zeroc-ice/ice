@@ -155,7 +155,7 @@ namespace IceInternal
                     {
                         throw _cancellationException;
                     }
-                    catch (Ice.LocalException)
+                    catch (System.Exception)
                     {
                         _cancellationException = null;
                         throw;
@@ -306,7 +306,7 @@ namespace IceInternal
             }
         }
 
-        protected void Cancel(Ice.LocalException ex)
+        protected void Cancel(System.Exception ex)
         {
             ICancellationHandler handler;
             {
@@ -350,7 +350,7 @@ namespace IceInternal
         private bool _doneInSent;
         private bool _alreadySent;
         private System.Exception? _ex;
-        private LocalException? _cancellationException;
+        private System.Exception? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
 
@@ -437,7 +437,7 @@ namespace IceInternal
                 Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
                 Communicator.AddRetryTask(this, 0);
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 if (Exception(ex))
                 {
@@ -447,7 +447,7 @@ namespace IceInternal
         }
 
         public void Retry() => InvokeImpl(false);
-        public void Abort(Ice.Exception ex)
+        public void Abort(System.Exception ex)
         {
             Debug.Assert(ChildObserver == null);
             if (ExceptionImpl(ex))
@@ -526,7 +526,7 @@ namespace IceInternal
                     {
                         Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
                     }
-                    catch (Ice.Exception ex)
+                    catch (System.Exception ex)
                     {
                         if (ChildObserver != null)
                         {
@@ -547,7 +547,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 //
                 // If called from the user thread we re-throw, the exception
@@ -818,7 +818,7 @@ namespace IceInternal
             return handler.InvokeAsyncRequest(this, Synchronous);
         }
 
-        public new void Abort(Ice.Exception ex)
+        public new void Abort(System.Exception ex)
         {
             Ice.InvocationMode mode = Proxy.IceReference.GetMode();
 
@@ -882,7 +882,7 @@ namespace IceInternal
                 }
                 Invoke(synchronous);
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 Abort(ex);
             }

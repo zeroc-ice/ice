@@ -748,7 +748,7 @@ namespace Ice
                 {
                     _adminAdapter.Activate();
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     //
                     // We cleanup _adminAdapter, however this error is not recoverable
@@ -1494,7 +1494,7 @@ namespace Ice
             {
                 adminAdapter.Activate();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 // We cleanup _adminAdapter, however this error is not recoverable
                 // (can't call again getAdmin() after fixing the problem)
@@ -2020,7 +2020,7 @@ namespace Ice
 
                     throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     if (TraceLevels.Location >= 1)
                     {

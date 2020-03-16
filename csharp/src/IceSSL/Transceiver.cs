@@ -81,7 +81,7 @@ namespace IceSSL
             return IceInternal.SocketOperation.None;
         }
 
-        public int Closing(bool initiator, LocalException? ex) => _delegate.Closing(initiator, ex);
+        public int Closing(bool initiator, System.Exception? ex) => _delegate.Closing(initiator, ex);
 
         public void Close()
         {
@@ -142,10 +142,6 @@ namespace IceSSL
             {
                 throw new ConnectionLostException(ex);
             }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
-            }
         }
 
         public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
@@ -174,10 +170,6 @@ namespace IceSSL
                 Debug.Assert(ret > 0);
                 offset += ret;
             }
-            catch (LocalException)
-            {
-                throw;
-            }
             catch (IOException ex)
             {
                 if (IceInternal.Network.ConnectionLost(ex))
@@ -193,10 +185,6 @@ namespace IceSSL
             catch (ObjectDisposedException ex)
             {
                 throw new ConnectionLostException(ex);
-            }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
             }
         }
 
@@ -245,10 +233,6 @@ namespace IceSSL
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
-            }
         }
 
         public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
@@ -296,10 +280,6 @@ namespace IceSSL
             catch (ObjectDisposedException ex)
             {
                 throw new ConnectionLostException(ex);
-            }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
             }
         }
 
@@ -403,10 +383,6 @@ namespace IceSSL
             {
                 throw new Ice.SecurityException(ex.Message, ex);
             }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
-            }
 
             Debug.Assert(_writeResult != null);
             return _writeResult.CompletedSynchronously;
@@ -443,10 +419,6 @@ namespace IceSSL
             catch (AuthenticationException ex)
             {
                 throw new SecurityException(ex.Message, ex);
-            }
-            catch (System.Exception ex)
-            {
-                throw new SyscallException(ex);
             }
         }
 

@@ -72,7 +72,7 @@ namespace Ice.invoke
                 {
                     result.InputStream.EndEncapsulation();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -89,7 +89,7 @@ namespace Ice.invoke
                 {
                     oneway.InvokeAsync(request, oneway: true).Wait();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -123,7 +123,7 @@ namespace Ice.invoke
                 {
                     result.InputStream.EndEncapsulation();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }

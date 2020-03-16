@@ -16,6 +16,7 @@ public class AllTests
     {
         if (!b)
         {
+            Debug.Assert(false);
             throw new System.Exception();
         }
     }
@@ -71,9 +72,9 @@ public class AllTests
 
         public void noResponse() => test(false);
 
-        public void exception(Ice.Exception ex) => _response.called();
+        public void exception(System.Exception ex) => _response.called();
 
-        public void noException(Ice.Exception ex)
+        public void noException(System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -160,7 +161,7 @@ public class AllTests
                     _background.opAsync();
                     Thread.Sleep(1);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
             }
@@ -312,7 +313,7 @@ public class AllTests
                         p.Wait();
                         cb.responseNoOp();
                     }
-                    catch (Ice.Exception ex)
+                    catch (System.Exception ex)
                     {
                         cb.noException(ex);
                     }
@@ -341,7 +342,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             System.Console.Out.WriteLine(ex);
             test(false);
@@ -360,14 +361,16 @@ public class AllTests
             }
             IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
+            bool called = false;
             try
             {
                 prx.op();
-                test(false);
+                called = true;
             }
-            catch (Ice.Exception)
+            catch (System.Exception)
             {
             }
+            test(!called);
 
             var sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
@@ -375,14 +378,16 @@ public class AllTests
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
+
             try
             {
                 t.Wait();
-                test(false);
+                called = true;
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
+            catch (AggregateException ex)
             {
             }
+            test(!called);
             test(t.IsCompleted);
 
             OpAMICallback cbEx = new OpAMICallback();
@@ -398,9 +403,9 @@ public class AllTests
                 {
                     p.Wait();
                 }
-                catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
+                catch (AggregateException ex)
                 {
-                    cbEx.exception((Ice.Exception)ex.InnerException);
+                    cbEx.exception(ex.InnerException);
                 }
             });
             cbEx.checkException(true);
@@ -426,7 +431,7 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -439,7 +444,7 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
             }
@@ -466,7 +471,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -499,14 +504,16 @@ public class AllTests
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
+            bool called = false;
             try
             {
                 t.Wait();
-                test(false);
+                called = true;
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
+            catch (AggregateException ex)
             {
             }
+            test(!called);
             test(t.IsCompleted);
 
             OpAMICallback cbEx = new OpAMICallback();
@@ -519,9 +526,9 @@ public class AllTests
             {
                 t.Wait();
             }
-            catch (AggregateException ex) when (ex.InnerException is Ice.Exception)
+            catch (AggregateException ex)
             {
-                cbEx.exception((Ice.Exception)ex.InnerException);
+                cbEx.exception(ex.InnerException);
             }
             cbEx.checkException(true);
             test(t.IsCompleted);
@@ -560,7 +567,7 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -573,14 +580,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -596,14 +603,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -613,7 +620,7 @@ public class AllTests
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 background.op();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -652,7 +659,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -702,7 +709,7 @@ public class AllTests
                 background.op();
                 configuration.readReady(true);
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 Console.Error.WriteLine(ex);
                 test(false);
@@ -786,7 +793,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -815,7 +822,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (LocalException ex)
+        catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -894,7 +901,7 @@ public class AllTests
             background.op();
             configuration.writeReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -906,7 +913,7 @@ public class AllTests
             background.op();
             configuration.readReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1037,7 +1044,7 @@ public class AllTests
                 p.Wait();
                 cb.response();
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 cb.exception(ex);
             }
@@ -1058,7 +1065,7 @@ public class AllTests
                 p.Wait();
                 cb2.response();
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 cb2.noException(ex);
             }
@@ -1076,9 +1083,8 @@ public class AllTests
             try
             {
                 p.Wait();
-                cbWP.noResponse();
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 cbWP.noException(ex);
             }
@@ -1095,9 +1101,8 @@ public class AllTests
             try
             {
                 p.Wait();
-                cbWP.noResponse();
             }
-            catch (Ice.Exception ex)
+            catch (System.Exception ex)
             {
                 cbWP.noException(ex);
             }
@@ -1144,7 +1149,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1156,7 +1161,7 @@ public class AllTests
             background.op();
             ctl.readReady(true);
         }
-        catch (LocalException)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -1198,7 +1203,7 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -1209,7 +1214,7 @@ public class AllTests
             {
                 background.op();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             configuration.writeException(null);

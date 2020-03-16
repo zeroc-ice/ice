@@ -34,7 +34,7 @@ namespace Ice.timeout
             {
                 allTestsWithController(helper, controller);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
                 // the test from hanging on exit in case a connection which disables timeouts is still opened.
@@ -234,7 +234,7 @@ namespace Ice.timeout
                 {
                     _ = connection.GetConnectionInfo(); // getInfo() doesn't throw in the closing state.
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     test(false);
                 }

@@ -202,7 +202,7 @@ namespace IceInternal
                 _state = StateOpened;
                 _nextState = StateOpened;
             }
-            catch (LocalException ex)
+            catch (System.Exception ex)
             {
                 if (_instance.TraceLevel >= 2)
                 {
@@ -228,7 +228,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, LocalException? reason)
+        public int Closing(bool initiator, System.Exception? reason)
         {
             if (_instance.TraceLevel >= 1)
             {

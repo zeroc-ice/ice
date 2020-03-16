@@ -91,7 +91,7 @@ namespace Ice.location
             {
                 obj2.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -105,7 +105,7 @@ namespace Ice.location
             {
                 obj6.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -119,7 +119,7 @@ namespace Ice.location
             {
                 obj3.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -127,7 +127,7 @@ namespace Ice.location
             {
                 obj2.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -137,7 +137,7 @@ namespace Ice.location
             {
                 obj2.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -145,7 +145,7 @@ namespace Ice.location
             {
                 obj3.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -155,7 +155,7 @@ namespace Ice.location
             {
                 obj2.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -165,7 +165,7 @@ namespace Ice.location
             {
                 obj3.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -176,7 +176,7 @@ namespace Ice.location
                 obj5 = Test.ITestIntfPrx.CheckedCast(base5);
                 obj5.IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -325,7 +325,7 @@ namespace Ice.location
                                                 IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                 IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -335,7 +335,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter3", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
@@ -343,7 +343,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
@@ -351,7 +351,7 @@ namespace Ice.location
             {
                 IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -378,7 +378,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test3", communicator).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             registry.SetAdapterDirectProxy("TestAdapter4", locator.FindAdapterById("TestAdapter"));
@@ -386,7 +386,7 @@ namespace Ice.location
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -397,7 +397,7 @@ namespace Ice.location
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -407,7 +407,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter4", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
@@ -415,7 +415,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter4", communicator).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
@@ -423,7 +423,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test3", communicator).IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
@@ -431,7 +431,7 @@ namespace Ice.location
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -483,7 +483,7 @@ namespace Ice.location
                         System.Threading.Thread.Sleep(10);
                     }
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     // Expected to fail once they endpoints have been updated in the background.
                 }
@@ -495,7 +495,7 @@ namespace Ice.location
                         System.Threading.Thread.Sleep(10);
                     }
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     // Expected to fail once they endpoints have been updated in the background.
                 }
@@ -543,7 +543,7 @@ namespace Ice.location
                 obj2.IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
@@ -551,7 +551,7 @@ namespace Ice.location
                 obj3.IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             try
@@ -559,7 +559,7 @@ namespace Ice.location
                 obj5.IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
             output.WriteLine("ok");

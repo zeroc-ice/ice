@@ -135,7 +135,7 @@ internal class Endpoint : IceInternal.Endpoint
             _callback.Connectors(connectors);
         }
 
-        public void Exception(Ice.LocalException exception)
+        public void Exception(System.Exception exception)
         {
             _callback.Exception(exception);
         }
@@ -150,7 +150,7 @@ internal class Endpoint : IceInternal.Endpoint
             _configuration.checkConnectorsException();
             _endpoint.ConnectorsAsync(selType, new ConnectorsCallback(cb));
         }
-        catch (Ice.LocalException ex)
+        catch (System.Exception ex)
         {
             cb.Exception(ex);
         }

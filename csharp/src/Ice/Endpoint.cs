@@ -10,7 +10,7 @@ namespace IceInternal
     public interface IEndpointConnectors
     {
         void Connectors(List<IConnector> connectors);
-        void Exception(Ice.LocalException ex);
+        void Exception(System.Exception ex);
     }
 
     public abstract class Endpoint : Ice.IEndpoint, IComparable<Endpoint>, IEquatable<Endpoint>

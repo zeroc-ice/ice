@@ -43,7 +43,7 @@ public class AllTests : Test.AllTests
         private bool _called;
     }
 
-    private static void exceptAbortI(Ice.Exception ex, TextWriter output)
+    private static void exceptAbortI(System.Exception ex, TextWriter output)
     {
         try
         {
@@ -167,7 +167,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException as Ice.Exception, output);
+                        exceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
@@ -207,7 +207,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException as Ice.Exception, output);
+                        exceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
@@ -226,7 +226,7 @@ public class AllTests : Test.AllTests
             obj.IcePing();
             test(false);
         }
-        catch (Ice.LocalException)
+        catch (System.Exception)
         {
             output.WriteLine("ok");
         }

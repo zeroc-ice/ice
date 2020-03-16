@@ -12,6 +12,7 @@ public sealed class TestIntf : ITestIntf
     {
         if (!b)
         {
+            System.Diagnostics.Debug.Assert(false);
             throw new System.Exception();
         }
     }

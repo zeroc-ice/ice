@@ -170,7 +170,7 @@ namespace Ice
                         communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                         test(false);
                     }
-                    catch (LocalException)
+                    catch (System.Exception)
                     {
                         // Expected can't re-use the same endpoint.
                     }
@@ -190,7 +190,7 @@ namespace Ice
                     obj.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                     output.WriteLine("ok");
                 }

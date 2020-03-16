@@ -215,7 +215,7 @@ public class AllTests : Test.AllTests
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
                     test(false);
                 }
-                catch (LocalException)
+                catch (System.Exception)
                 {
                 }
                 comm.Destroy();

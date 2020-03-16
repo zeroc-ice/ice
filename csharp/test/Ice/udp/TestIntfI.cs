@@ -20,7 +20,7 @@ namespace Ice.udp
             {
                 reply.reply();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -32,7 +32,7 @@ namespace Ice.udp
             {
                 reply.reply();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -58,7 +58,7 @@ namespace Ice.udp
 
                 current.Connection.CreateProxy(id, Test.IPingReplyPrx.Factory).reply();
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }

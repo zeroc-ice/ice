@@ -54,7 +54,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        public void exception(Ice.Exception ex)
+        public void exception(System.Exception ex)
         {
             response();
         }
@@ -274,7 +274,7 @@ public class AllTests : Test.AllTests
         {
             proxy.IcePing();
         }
-        catch (Ice.LocalException)
+        catch (System.Exception)
         {
         }
 
@@ -689,7 +689,7 @@ public class AllTests : Test.AllTests
             catch (Ice.ConnectTimeoutException)
             {
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -732,7 +732,7 @@ public class AllTests : Test.AllTests
                 prx.IcePing();
                 prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
             }
 
@@ -750,7 +750,7 @@ public class AllTests : Test.AllTests
             {
                 dnsException = true;
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
@@ -851,7 +851,7 @@ public class AllTests : Test.AllTests
 
         dm1 = (IceMX.DispatchMetrics)map["opWithLocalException"];
         test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
-        checkFailure(serverMetrics, "Dispatch", dm1.Id, "Ice.SyscallException", 1, output);
+        checkFailure(serverMetrics, "Dispatch", dm1.Id, "Ice.InitializationException", 1, output);
         test(dm1.Size == 39 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
         dm1 = (IceMX.DispatchMetrics)map["opWithRequestFailedException"];

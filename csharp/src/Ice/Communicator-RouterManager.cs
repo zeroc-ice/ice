@@ -13,13 +13,13 @@ namespace Ice
         public interface GetClientEndpointsCallback
         {
             void setEndpoints(Endpoint[] endpoints);
-            void setException(Ice.LocalException ex);
+            void setException(System.Exception ex);
         }
 
         public interface AddProxyCallback
         {
             void addedProxy();
-            void SetException(Ice.LocalException ex);
+            void SetException(System.Exception ex);
         }
 
         internal RouterInfo(IRouterPrx router) => Router = router;
@@ -87,8 +87,7 @@ namespace Ice
                     }
                     catch (System.AggregateException ae)
                     {
-                        Debug.Assert(ae.InnerException is LocalException);
-                        callback.setException((LocalException)ae.InnerException);
+                        callback.setException(ae.InnerException);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -151,8 +150,7 @@ namespace Ice
                     }
                     catch (System.AggregateException ae)
                     {
-                        Debug.Assert(ae.InnerException is LocalException);
-                        callback.SetException((LocalException)ae.InnerException);
+                        callback.SetException(ae.InnerException);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);

@@ -418,7 +418,7 @@ public class Client : Test.TestHelper
                 process.IcePing();
                 test(false);
             }
-            catch (LocalException)
+            catch (System.Exception)
             {
                 Console.Out.WriteLine("ok");
             }

@@ -19,7 +19,7 @@ namespace IceInternal
         public interface IGetConnectionCallback
         {
             void SetConnection(Connection connection, bool compress);
-            void SetException(LocalException ex);
+            void SetException(System.Exception ex);
         }
 
         public InvocationMode GetMode() => _mode;
@@ -1371,7 +1371,7 @@ namespace IceInternal
                 }
             }
 
-            public void setException(LocalException ex) => _cb.SetException(ex);
+            public void setException(System.Exception ex) => _cb.SetException(ex);
 
             private readonly RoutableReference _ir;
             private readonly IGetConnectionCallback _cb;
@@ -1414,7 +1414,7 @@ namespace IceInternal
                 _ir.CreateConnection(_ir.ApplyOverrides(endpoints), new ConnectionCallback(_ir, _cb, cached));
             }
 
-            public void SetException(LocalException ex) => _cb.SetException(ex);
+            public void SetException(System.Exception ex) => _cb.SetException(ex);
 
             private readonly RoutableReference _ir;
             private readonly IGetConnectionCallback _cb;
@@ -1431,7 +1431,7 @@ namespace IceInternal
 
             public void SetConnection(Connection connection, bool compress) => _cb.SetConnection(connection, compress);
 
-            public void SetException(LocalException exc)
+            public void SetException(System.Exception exc)
             {
                 try
                 {
@@ -1441,7 +1441,7 @@ namespace IceInternal
                 {
                     _cb.SetException(ex); // No need to retry if there's no endpoints.
                 }
-                catch (LocalException ex)
+                catch (System.Exception ex)
                 {
                     Debug.Assert(_ir._locatorInfo != null);
                     _ir._locatorInfo.ClearCache(_ir);
@@ -1686,7 +1686,7 @@ namespace IceInternal
                 _callback.SetConnection(connection, compress);
             }
 
-            public void SetException(LocalException ex)
+            public void SetException(System.Exception ex)
             {
                 if (_exception == null)
                 {
@@ -1708,7 +1708,7 @@ namespace IceInternal
             private readonly Endpoint[]? _endpoints;
             private readonly IGetConnectionCallback _callback;
             private int _i = 0;
-            private LocalException? _exception = null;
+            private System.Exception? _exception = null;
         }
 
         protected void CreateConnection(Endpoint[] allEndpoints, IGetConnectionCallback callback)
