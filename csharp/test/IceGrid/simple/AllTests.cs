@@ -229,10 +229,9 @@ public class AllTests : Test.AllTests
             IObjectPrx.Parse("unknown/unknown", communicator).IcePing();
             test(false);
         }
-        catch (NotRegisteredException ex)
+        catch (ObjectNotFoundException)
         {
-            test(ex.KindOfObject.Equals("object"));
-            test(ex.Id.Equals("unknown/unknown"));
+            // expected
         }
         Console.Out.WriteLine("ok");
 
@@ -243,10 +242,9 @@ public class AllTests : Test.AllTests
             IObjectPrx.Parse("test @ TestAdapterUnknown", communicator).IcePing();
             test(false);
         }
-        catch (NotRegisteredException ex)
+        catch (AdapterNotFoundException)
         {
-            test(ex.KindOfObject.Equals("object adapter"));
-            test(ex.Id.Equals("TestAdapterUnknown"));
+            // expected
         }
         Console.Out.WriteLine("ok");
 

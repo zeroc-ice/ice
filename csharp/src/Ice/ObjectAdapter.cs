@@ -1324,42 +1324,6 @@ namespace Ice
                     locatorRegistry.SetReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
                 }
             }
-            catch (AdapterNotFoundException)
-            {
-                if (Communicator.TraceLevels.Location >= 1)
-                {
-                    var s = new StringBuilder();
-                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
-                    s.Append("the object adapter is not known to the locator registry");
-                    Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
-                }
-
-                throw new NotRegisteredException("object adapter", _id);
-            }
-            catch (InvalidReplicaGroupIdException)
-            {
-                if (Communicator.TraceLevels.Location >= 1)
-                {
-                    var s = new StringBuilder();
-                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
-                    s.Append($"the replica group `{_replicaGroupId}' is not known to the locator registry");
-                    Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
-                }
-
-                throw new NotRegisteredException("replica group", _replicaGroupId);
-            }
-            catch (AdapterAlreadyActiveException)
-            {
-                if (Communicator.TraceLevels.Location >= 1)
-                {
-                    var s = new StringBuilder();
-                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
-                    s.Append("the object adapter endpoints are already set");
-                    Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
-                }
-
-                throw new ObjectAdapterIdInUseException(_id);
-            }
             catch (ObjectAdapterDeactivatedException)
             {
                 // Expected if collocated call and OA is deactivated, ignore.
@@ -1368,14 +1332,21 @@ namespace Ice
             {
                 // Ignore
             }
-            catch (System.Exception e)
+            catch (System.Exception ex)
             {
                 if (Communicator.TraceLevels.Location >= 1)
                 {
-                    var s = new StringBuilder();
-                    s.Append($"could not update object adapter `{_id}' endpoints with the locator registry:\n");
-                    s.Append(e.ToString());
-                    Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
+                    if (_replicaGroupId.Length == 0)
+                    {
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat,
+                            $"could not update the endpoints of object adapter `{_id}' in the locator registry:\n{ex}");
+                    }
+                    else
+                    {
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat,
+                            $"could not update the endpoints of object adapter `{_id}' " +
+                            $" with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
+                    }
                 }
                 throw;
             }

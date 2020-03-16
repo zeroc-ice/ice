@@ -306,16 +306,7 @@ namespace Ice
 
                         if (stdOut != null)
                         {
-                            try
-                            {
-                                outStream = System.IO.File.AppendText(stdOut);
-                            }
-                            catch (System.IO.IOException ex)
-                            {
-                                var fe = new Ice.FileException(ex);
-                                fe.Path = stdOut;
-                                throw fe;
-                            }
+                            outStream = System.IO.File.AppendText(stdOut);
                             outStream.AutoFlush = true;
                             Console.Out.Close();
                             Console.SetOut(outStream);
@@ -330,17 +321,7 @@ namespace Ice
                             }
                             else
                             {
-                                System.IO.StreamWriter errStream;
-                                try
-                                {
-                                    errStream = System.IO.File.AppendText(stdErr);
-                                }
-                                catch (System.IO.IOException ex)
-                                {
-                                    var fe = new Ice.FileException(ex);
-                                    fe.Path = stdErr;
-                                    throw fe;
-                                }
+                                System.IO.StreamWriter errStream = System.IO.File.AppendText(stdErr);
                                 errStream.AutoFlush = true;
                                 Console.Error.Close();
                                 Console.SetError(errStream);
@@ -680,7 +661,7 @@ namespace Ice
                 _adminFacets.Add(facet, servant);
                 if (_adminAdapter != null)
                 {
-                    Debug.Assert(_adminIdentity != null); // TODO: check it's true
+                    Debug.Assert(_adminIdentity != null);
                     _adminAdapter.Add(_adminIdentity.Value, facet, servant);
                 }
             }
@@ -743,7 +724,7 @@ namespace Ice
                 AddAllAdminFacets();
             }
 
-            if (adminAdapter == null)
+            if (adminAdapter == null) // the parameter is null which means _adminAdapter needs to be activated
             {
                 try
                 {
@@ -751,11 +732,9 @@ namespace Ice
                 }
                 catch (System.Exception)
                 {
-                    //
                     // We cleanup _adminAdapter, however this error is not recoverable
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
-                    //
                     _adminAdapter.Destroy();
                     lock (this)
                     {
@@ -1557,29 +1536,21 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Remove the following facet to the Admin object.
-        /// Removing a facet that was not previously registered throws
-        /// NotRegisteredException.
-        ///
-        /// </summary>
-        /// <param name="facet">The name of the Admin facet.
-        /// </param>
-        /// <returns>The servant associated with this Admin facet.</returns>
+        /// <summary>Removes an admin facet servant previously added with AddAdminFacet.</summary>
+        /// <param name="facet">The Admin facet.</param>
+        /// <returns>The admin facet servant that was just removed, or null if the facet was not found.</returns>
         public IObject? RemoveAdminFacet(string facet)
         {
             lock (this)
             {
-                if (_state == StateDestroyed)
+                if (_adminFacets.TryGetValue(facet, out IObject result))
                 {
-                    throw new CommunicatorDestroyedException();
+                    _adminFacets.Remove(facet);
                 }
-
-                if (!_adminFacets.TryGetValue(facet, out IObject result))
+                else
                 {
-                    throw new NotRegisteredException("facet", facet);
+                    return null;
                 }
-                _adminFacets.Remove(facet);
                 if (_adminAdapter != null)
                 {
                     Debug.Assert(_adminIdentity != null);
@@ -2121,7 +2092,7 @@ namespace Ice
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
-                        Debug.Assert(_adminIdentity != null); // TODO: check
+                        Debug.Assert(_adminIdentity != null);
                         _adminAdapter.Add(_adminIdentity.Value, entry.Key, entry.Value);
                     }
                 }
