@@ -98,7 +98,7 @@ namespace Ice.retry
             }
 
             public Ice.Instrumentation.IInvocationObserver?
-            GetInvocationObserver(Ice.IObjectPrx p, string o, Dictionary<string, string> c)
+            GetInvocationObserver(Ice.IObjectPrx p, string o, IReadOnlyDictionary<string, string> c)
             {
                 return invocationObserver;
             }

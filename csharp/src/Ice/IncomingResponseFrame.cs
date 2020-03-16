@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
@@ -19,7 +18,7 @@ namespace Ice
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The response context. Always null with Ice1.</summary>
-        public Context? Context { get; }
+        public Dictionary<string, string>? Context { get; }
 
         /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>

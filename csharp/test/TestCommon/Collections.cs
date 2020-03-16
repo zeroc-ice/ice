@@ -8,7 +8,8 @@ namespace Test
 {
     public static class Collections
     {
-        public static bool Equals<Key, Tvalue>(Dictionary<Key, Tvalue>? lhs, Dictionary<Key, Tvalue>? rhs)
+        public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
+                                                IReadOnlyDictionary<TKey, TValue>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -20,10 +21,10 @@ namespace Test
                 return false;
             }
 
-            EqualityComparer<Tvalue> comparer = EqualityComparer<Tvalue>.Default;
-            foreach (KeyValuePair<Key, Tvalue> entry in lhs)
+            EqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
+            foreach (KeyValuePair<TKey, TValue> entry in lhs)
             {
-                if (!rhs.TryGetValue(entry.Key, out Tvalue value) || !comparer.Equals(entry.Value, value))
+                if (!rhs.TryGetValue(entry.Key, out TValue value) || !comparer.Equals(entry.Value, value))
                 {
                     return false;
                 }
@@ -54,7 +55,17 @@ namespace Test
             return true;
         }
 
-        public static bool Equals<T>(ICollection<T>? lhs, ICollection<T>? rhs)
+        public static bool Equals<T>(IReadOnlyList<T>? lhs, IReadOnlyList<T>? rhs)
+        {
+            return Equals<T>(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
+        }
+
+        public static bool Equals<T>(LinkedList<T>? lhs, LinkedList<T>? rhs)
+        {
+            return Equals<T>(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
+        }
+
+        private static bool Equals<T>(IReadOnlyCollection<T>? lhs, IReadOnlyCollection<T>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {

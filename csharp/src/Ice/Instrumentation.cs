@@ -263,7 +263,8 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation, Dictionary<string, string> ctx);
+            IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
+                                                       IReadOnlyDictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given

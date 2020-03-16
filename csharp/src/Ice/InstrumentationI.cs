@@ -397,7 +397,8 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public InvocationHelper(IObjectPrx? proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
+        public InvocationHelper(IObjectPrx? proxy, string op, IReadOnlyDictionary<string, string> ctx)
+            : base(_attributes)
         {
             _proxy = proxy;
             _operation = op;
@@ -495,7 +496,7 @@ namespace IceInternal
 
         private readonly IObjectPrx? _proxy;
         private readonly string _operation;
-        private readonly Dictionary<string, string> _context;
+        private readonly IReadOnlyDictionary<string, string> _context;
         private string? _id;
 
         private static readonly IEndpoint[] _emptyEndpoints = Array.Empty<IEndpoint>();
@@ -1046,7 +1047,7 @@ namespace IceInternal
         }
 
         public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
-                                                                              Dictionary<string, string> ctx)
+                                                                              IReadOnlyDictionary<string, string> ctx)
         {
             if (_invocations.IsEnabled())
             {

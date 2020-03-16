@@ -362,7 +362,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
               << fixId(p->name());
         params.push_back(param.str());
     }
-    params.push_back("global::System.Collections.Generic.Dictionary<string, string>? " +
+    params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " +
                      getEscapedParamName(op, "context") + " = null");
     return params;
 }
@@ -392,14 +392,14 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
     if(defaultValues)
     {
-        params.push_back("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null");
+        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context + " = null");
         params.push_back("global::System.IProgress<bool>? " + progress + " = null");
         params.push_back("global::System.Threading.CancellationToken " + cancel +
                          " = default");
     }
     else
     {
-        params.push_back("global::System.Collections.Generic.Dictionary<string, string>? " + context);
+        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context);
         params.push_back("global::System.IProgress<bool>? " + progress);
         params.push_back("global::System.Threading.CancellationToken " + cancel);
     }
@@ -2228,7 +2228,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     _out << name << "? CheckedCast("
          << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
-         << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
+         << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context = null)";
     _out << sb;
 
     _out << nl << "if(prx.IceIsA(global::Ice.TypeExtensions.GetIceTypeId(typeof(" << interfaceName(p)
@@ -2488,13 +2488,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
     string dictS = typeToString(p, ns);
+    string readOnlyDictS = typeToString(p, ns, false, true);
     string generic = p->findMetaDataWithPrefix("cs:generic:");
 
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
          << outputStreamWriter(key, ns) << ", "
@@ -2502,7 +2503,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriter = Write;";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
 
     _out << sp;
     _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) => ";

@@ -14,6 +14,8 @@ namespace Ice
         public string Facet { get; }
         public string Operation { get; }
         public bool IsIdempotent { get; }
+
+        // TODO: should this be a IReadOnlyDictionary<string, string>?
         public Dictionary<string, string> Context { get; }
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
