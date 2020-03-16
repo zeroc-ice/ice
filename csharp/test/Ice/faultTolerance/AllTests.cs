@@ -167,7 +167,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException as System.Exception, output);
+                        exceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
@@ -207,7 +207,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException as System.Exception, output);
+                        exceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
