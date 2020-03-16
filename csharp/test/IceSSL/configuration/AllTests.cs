@@ -133,8 +133,9 @@ public class AllTests
                     p.IcePing();
                     test(false);
                 }
-                catch (System.Exception)
+                catch (InvalidOperationException)
                 {
+                    // expected
                 }
                 comm.Destroy();
             }

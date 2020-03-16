@@ -86,7 +86,7 @@ namespace Ice
         {
             if (name.Length == 0)
             {
-                throw new ArgumentException("The empty string is not a valid object adapter name", nameof(name));
+                throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
 
             SetProperty($"{name}.Endpoints", endpoints);
@@ -110,7 +110,7 @@ namespace Ice
         {
             if (name.Length == 0)
             {
-                throw new ArgumentException("The empty string is not a valid object adapter name", nameof(name));
+                throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
 
             // We set the proxy properties here, although we still use the proxy supplied.
@@ -153,7 +153,7 @@ namespace Ice
         {
             if (name != null && name.Length == 0)
             {
-                throw new ArgumentException("The empty string is not a valid object adapter name", nameof(name));
+                throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
 
             lock (this)
@@ -167,8 +167,8 @@ namespace Ice
                 {
                     if (_adapterNamesInUse.Contains(name))
                     {
-                        throw new System.ArgumentException(
-                            $"An object adapter with name `{name}' is already registered", nameof(name));
+                        throw new ArgumentException($"an object adapter with name `{name}' is already registered",
+                            nameof(name));
                     }
                     _adapterNamesInUse.Add(name);
                 }

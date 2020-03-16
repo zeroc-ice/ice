@@ -20,7 +20,7 @@ namespace Ice.exceptions
                 {
                     first = communicator.CreateObjectAdapter("TestAdapter0");
                 }
-                catch (InitializationException)
+                catch (Ice.InvalidConfigurationException)
                 {
                     // Expected
                 }

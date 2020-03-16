@@ -595,22 +595,22 @@ namespace IceInternal
         {
             if (locator != null && clearLocator)
             {
-                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+                throw new ArgumentException($"you cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
             if (router != null && clearRouter)
             {
-                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
+                throw new ArgumentException($"you cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
 
             if (oneway != null && invocationMode != null)
             {
-                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                throw new ArgumentException($"you cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
             }
 
             if (endpoints != null && adapterId != null)
             {
-                throw new ArgumentException($"You cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+                throw new ArgumentException($"you cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
             //
@@ -638,7 +638,7 @@ namespace IceInternal
                         {
                             if (mode != InvocationMode.BatchDatagram && mode != InvocationMode.Datagram)
                             {
-                                throw new ArgumentException($"InvocationMode {mode} requires a TCP connection");
+                                throw new ArgumentException($"invocationMode `{mode}' requires a TCP connection");
                             }
                             break;
                         }
@@ -646,7 +646,7 @@ namespace IceInternal
                         {
                             if (mode == InvocationMode.BatchDatagram || mode == InvocationMode.Datagram)
                             {
-                                throw new ArgumentException($"InvocationMode {mode} requires an UDP connection");
+                                throw new ArgumentException($"invocationMode `{mode}' requires an UDP connection");
                             }
                             break;
                         }
@@ -677,70 +677,70 @@ namespace IceInternal
 
             if (adapterId != null)
             {
-                throw new ArgumentException($"Cannot change the adapter ID of a fixed proxy", nameof(adapterId));
+                throw new ArgumentException($"cannot change the adapter ID of a fixed proxy", nameof(adapterId));
             }
 
             if (collocationOptimized != null)
             {
-                throw new ArgumentException($"Cannot change the collocation optimization configuration of a fixed proxy", nameof(collocationOptimized));
+                throw new ArgumentException($"cannot change the collocation optimization configuration of a fixed proxy", nameof(collocationOptimized));
             }
 
             if (connectionCached != null)
             {
-                throw new ArgumentException($"Cannot change the connection caching configuration of a fixed proxy", nameof(connectionCached));
+                throw new ArgumentException($"cannot change the connection caching configuration of a fixed proxy", nameof(connectionCached));
             }
 
             if (connectionId != null)
             {
-                throw new ArgumentException($"Cannot change the connection ID of a fixed proxy", nameof(connectionId));
+                throw new ArgumentException($"cannot change the connection ID of a fixed proxy", nameof(connectionId));
             }
 
             if (connectionTimeout != null)
             {
-                throw new ArgumentException($"Cannot change the connection timeout of a fixed proxy", nameof(connectionTimeout));
+                throw new ArgumentException($"cannot change the connection timeout of a fixed proxy", nameof(connectionTimeout));
             }
 
             if (endpointSelectionType != null)
             {
-                throw new ArgumentException($"Cannot change the endpoint selection policy of a fixed proxy", nameof(endpointSelectionType));
+                throw new ArgumentException($"cannot change the endpoint selection policy of a fixed proxy", nameof(endpointSelectionType));
             }
 
             if (endpoints != null)
             {
-                throw new ArgumentException($"Cannot change the endpoints of a fixed proxy", nameof(endpoints));
+                throw new ArgumentException($"cannot change the endpoints of a fixed proxy", nameof(endpoints));
             }
 
             if (locator != null)
             {
-                throw new ArgumentException($"Cannot change the locator of a fixed proxy", nameof(locator));
+                throw new ArgumentException($"cannot change the locator of a fixed proxy", nameof(locator));
             }
             else if (clearLocator)
             {
-                throw new ArgumentException($"Cannot change the locator of a fixed proxy", nameof(clearLocator));
+                throw new ArgumentException($"cannot change the locator of a fixed proxy", nameof(clearLocator));
             }
 
             if (locatorCacheTimeout != null)
             {
-                throw new ArgumentException($"Cannot change the locator cache timeout of a fixed proxy", nameof(locatorCacheTimeout));
+                throw new ArgumentException($"cannot change the locator cache timeout of a fixed proxy", nameof(locatorCacheTimeout));
             }
 
             if (preferSecure != null)
             {
-                throw new ArgumentException($"Cannot change the prefer sercure configuration of a fixed proxy", nameof(preferSecure));
+                throw new ArgumentException($"cannot change the prefer sercure configuration of a fixed proxy", nameof(preferSecure));
             }
 
             if (router != null)
             {
-                throw new ArgumentException($"Cannot change the router of a fixed proxy", nameof(router));
+                throw new ArgumentException($"cannot change the router of a fixed proxy", nameof(router));
             }
             else if (clearRouter)
             {
-                throw new ArgumentException($"Cannot change the router of a fixed proxy", nameof(clearRouter));
+                throw new ArgumentException($"cannot change the router of a fixed proxy", nameof(clearRouter));
             }
 
             if (secure != null)
             {
-                throw new ArgumentException($"Cannot change the secure configuration of a fixed proxy", nameof(secure));
+                throw new ArgumentException($"cannot change the secure configuration of a fixed proxy", nameof(secure));
             }
             return reference;
         }
@@ -749,9 +749,9 @@ namespace IceInternal
 
         public override bool IsWellKnown() => false;
 
-        public override void StreamWrite(OutputStream s) => throw new NotSupportedException("You cannot marshal a fixed proxy");
+        public override void StreamWrite(OutputStream s) => throw new NotSupportedException("you cannot marshal a fixed proxy");
 
-        public override Dictionary<string, string> ToProperty(string prefix) => throw new NotSupportedException("You cannot convert a fixed proxy to propery dictionary");
+        public override Dictionary<string, string> ToProperty(string prefix) => throw new NotSupportedException("you cannot convert a fixed proxy to propery dictionary");
 
         public override IRequestHandler GetRequestHandler(IObjectPrx proxy)
         {
@@ -913,22 +913,22 @@ namespace IceInternal
         {
             if (locator != null && clearLocator)
             {
-                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+                throw new ArgumentException($"you cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
             if (router != null && clearRouter)
             {
-                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
+                throw new ArgumentException($"you cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
 
             if (oneway != null && invocationMode != null)
             {
-                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                throw new ArgumentException($"you cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
             }
 
             if (endpoints != null && adapterId != null)
             {
-                throw new ArgumentException($"You cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+                throw new ArgumentException($"you cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
             //

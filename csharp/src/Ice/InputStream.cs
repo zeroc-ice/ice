@@ -1089,7 +1089,7 @@ namespace Ice
                     Type? type = Communicator.ResolveClass(typeId);
                     if (type != null)
                     {
-                        remoteEx = (RemoteException?)IceInternal.AssemblyUtil.CreateInstance(type);
+                        remoteEx = (RemoteException)IceInternal.AssemblyUtil.CreateInstance(type);
                     }
                 }
                 catch (Exception ex)
@@ -1714,7 +1714,7 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                        v = (AnyClass)IceInternal.AssemblyUtil.CreateInstance(cls);
                     }
                     catch (Exception ex)
                     {

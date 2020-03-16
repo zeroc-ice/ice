@@ -438,7 +438,7 @@ namespace Ice
                 bool ipv6 = (GetPropertyAsInt("Ice.IPv6") ?? (isIPv6Supported ? 1 : 0)) > 0;
                 if (!ipv4 && !ipv6)
                 {
-                    throw new InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
+                    throw new InvalidConfigurationException("Both IPV4 and IPv6 support cannot be disabled.");
                 }
                 else if (ipv4 && ipv6)
                 {
@@ -669,12 +669,13 @@ namespace Ice
 
                 if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
                 {
-                    throw new ArgumentException($"facet `{facet}' not allow by Ice.Admin.Facets configuration", nameof(facet));
+                    throw new ArgumentException($"facet `{facet}' not allowed by Ice.Admin.Facets configuration",
+                        nameof(facet));
                 }
 
                 if (_adminFacets.ContainsKey(facet))
                 {
-                    throw new ArgumentException($"A facet `{facet}' is already registered", nameof(facet));
+                    throw new ArgumentException($"facet `{facet}' is already registered", nameof(facet));
                 }
                 _adminFacets.Add(facet, servant);
                 if (_adminAdapter != null)
@@ -690,7 +691,7 @@ namespace Ice
         /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator,
         /// createAdmin registers the Admin's Process facet with the Locator's LocatorRegistry.
         ///
-        /// createAdmin call only be called once; subsequent calls raise InitializationException.
+        /// createAdmin call only be called once; subsequent calls raise InvalidOperationException.
         ///
         /// </summary>
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
@@ -714,12 +715,12 @@ namespace Ice
 
                 if (_adminAdapter != null)
                 {
-                    throw new InitializationException("Admin already created");
+                    throw new InvalidOperationException("Admin already created");
                 }
 
                 if (!_adminEnabled)
                 {
-                    throw new InitializationException("Admin is disabled");
+                    throw new InvalidOperationException("Admin is disabled");
                 }
 
                 _adminIdentity = adminIdentity;
@@ -731,7 +732,7 @@ namespace Ice
                     }
                     else
                     {
-                        throw new InitializationException("Ice.Admin.Endpoints is not set");
+                        throw new InvalidConfigurationException("Ice.Admin.Endpoints is not set");
                     }
                 }
                 else
@@ -1099,14 +1100,14 @@ namespace Ice
                 beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, beg + 1);
                 if (beg == -1)
                 {
-                    throw new ArgumentException($"missing adapter id in `{s}'");
+                    throw new FormatException($"missing adapter id in `{s}'");
                 }
 
                 string adapterstr;
                 end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
                 if (end == -1)
                 {
-                    throw new ArgumentException($"mismatched quotes around adapter id in `{s}'");
+                    throw new FormatException($"mismatched quotes around adapter id in `{s}'");
                 }
                 else if (end == 0)
                 {
@@ -1126,7 +1127,7 @@ namespace Ice
 
                 if (end != s.Length && IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end) != -1)
                 {
-                    throw new ArgumentException(
+                    throw new FormatException(
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
@@ -1134,13 +1135,13 @@ namespace Ice
 
                 if (adapter.Length == 0)
                 {
-                    throw new ArgumentException($"empty adapter id in `{s}'");
+                    throw new FormatException($"empty adapter id in `{s}'");
                 }
                 return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<Endpoint>(),
                     adapter, propertyPrefix);
             }
 
-            throw new ArgumentException($"malformed proxy `{s}'");
+            throw new FormatException($"malformed proxy `{s}'");
         }
 
         public Reference CreateReference(Identity ident, InputStream s)
@@ -2017,8 +2018,7 @@ namespace Ice
                         s.Append("the server is not known to the locator registry");
                         Logger.Trace(TraceLevels.LocationCat, s.ToString());
                     }
-
-                    throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
+                    throw;
                 }
                 catch (System.Exception ex)
                 {
@@ -2197,7 +2197,7 @@ namespace Ice
             {
                 if (protocolSupport == Network.EnableIPv6)
                 {
-                    throw new InitializationException("IPv6 only is not supported with SOCKS4 proxies");
+                    throw new InvalidConfigurationException("IPv6 only is not supported with SOCKS4 proxies");
                 }
                 return new SOCKSNetworkProxy(proxyHost, GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 1080);
             }

@@ -115,17 +115,12 @@ namespace Glacier2
         {
             lock (this)
             {
-                if (transport == null)
-                {
-                    throw new ArgumentException("You must use a valid transport");
-                }
-
                 if (!transport.Equals("tcp") &&
                     !transport.Equals("ssl") &&
                     !transport.Equals("wss") &&
                     !transport.Equals("ws"))
                 {
-                    throw new ArgumentException($"Unknown transport `{transport}'");
+                    throw new ArgumentException($"unknown transport `{transport}'", nameof(transport));
                 }
                 _transport = transport;
             }

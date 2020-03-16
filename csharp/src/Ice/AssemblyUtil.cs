@@ -39,16 +39,9 @@ namespace IceInternal
             return null;
         }
 
-        public static object? CreateInstance(Type t)
+        public static object CreateInstance(Type t)
         {
-            try
-            {
-                return Activator.CreateInstance(t);
-            }
-            catch (MemberAccessException)
-            {
-                return null;
-            }
+            return Activator.CreateInstance(t);
         }
 
         public static void PreloadAssemblies()

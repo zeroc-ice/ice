@@ -139,7 +139,7 @@ namespace Ice.proxy
                 b1 = IObjectPrx.Parse("id@adapter test", communicator);
                 test(false);
             }
-            catch (ArgumentException)
+            catch (FormatException)
             {
             }
             b1 = IObjectPrx.Parse("category/test@adapter", communicator);
@@ -209,7 +209,7 @@ namespace Ice.proxy
                 b1 = IObjectPrx.Parse("test -f facet@test @test", communicator);
                 test(false);
             }
-            catch (ArgumentException)
+            catch (FormatException)
             {
             }
             b1 = IObjectPrx.Parse("test", communicator);

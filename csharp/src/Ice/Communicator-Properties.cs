@@ -217,7 +217,7 @@ namespace Ice
             name = name.Trim();
             if (name.Length == 0)
             {
-                throw new ArgumentException("Attempt to set property with empty key", nameof(name));
+                throw new ArgumentException("attempt to set property with empty key", nameof(name));
             }
 
             int dotPos = name.IndexOf('.');

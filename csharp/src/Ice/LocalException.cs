@@ -4,19 +4,28 @@
 
 namespace Ice
 {
-    /// <summary>
-    /// This exception is raised when a failure occurs during initialization.
-    /// </summary>
-    public class InitializationException : System.Exception
+    /// <summary>This exception reports incorrect or missing Ice configuration.</summary>
+    public class InvalidConfigurationException : System.Exception
     {
-        public string Reason;
+        public InvalidConfigurationException(string message)
+            : base(message)
+        {
+        }
 
-        public InitializationException() => Reason = "";
+        public InvalidConfigurationException(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 
-        public InitializationException(System.Exception ex) : base("", ex) => Reason = "";
-        public InitializationException(string reason) => Reason = reason;
-
-        public InitializationException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
+    /// <summary>This exception provides context for an exception thrown while attempting to load a class or create a
+    /// class instance at runtime.</summary>
+    public class LoadException : System.Exception
+    {
+        public LoadException(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 
     /// <summary>

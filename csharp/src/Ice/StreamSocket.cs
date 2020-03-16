@@ -549,7 +549,8 @@ namespace IceInternal
                     _writeCallback(e.UserToken);
                     break;
                 default:
-                    throw new ArgumentException("The last operation completed on the socket was not a receive or send");
+                    throw new ArgumentException("the last operation completed on the socket was not a receive or send",
+                        nameof(e.LastOperation));
             }
         }
 

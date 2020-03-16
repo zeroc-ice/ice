@@ -13,7 +13,7 @@ namespace IceSSL
             //
             if (!_instance.Initialized())
             {
-                throw new Ice.InitializationException("IceSSL: plug-in is not initialized");
+                throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
             }
 
             return new Transceiver(_instance, _delegate.Connect(), _host, false);

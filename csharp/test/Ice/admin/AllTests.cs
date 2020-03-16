@@ -187,7 +187,7 @@ namespace Ice.admin
                     com.CreateAdmin(null, id);
                     test(false);
                 }
-                catch (InitializationException)
+                catch (InvalidConfigurationException)
                 {
                 }
 

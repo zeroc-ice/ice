@@ -550,7 +550,8 @@ namespace Ice
         {
             if (!(context.Context is Communicator communicator))
             {
-                throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
+                throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
+                    nameof(context));
             }
             IceReference = communicator.CreateReference(info.GetString("proxy"), null);
         }

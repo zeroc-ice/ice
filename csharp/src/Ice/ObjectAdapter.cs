@@ -843,8 +843,8 @@ namespace Ice
                 CheckForDeactivation();
                 if (_routerInfo != null)
                 {
-                    throw new ArgumentException(
-                                    "can't set published endpoints on object adapter associated with a router");
+                    throw new InvalidOperationException(
+                                    "cannot set published endpoints on an object adapter associated with a router");
                 }
 
                 oldPublishedEndpoints = _publishedEndpoints;
@@ -906,7 +906,7 @@ namespace Ice
             if (router == null && noProps)
             {
                 _state = State.Destroyed;
-                throw new InitializationException($"object adapter `{Name}' requires configuration");
+                throw new InvalidConfigurationException($"object adapter `{Name}' requires configuration");
             }
 
             _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
@@ -950,7 +950,7 @@ namespace Ice
                     if (_routerInfo.Adapter != null)
                     {
                         string routerStr = router.Identity.ToString(Communicator.ToStringMode);
-                        throw new ArgumentException($"Router `{routerStr}' already registered with an object adapter",
+                        throw new ArgumentException($"router `{routerStr}' already registered with an object adapter",
                             nameof(router));
                     }
 
