@@ -247,7 +247,7 @@ namespace IceUtilInternal
                         Debug.Assert((toStringMode & Ice.ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
                         if (i + 1 == s.Length)
                         {
-                            throw new System.ArgumentException("High surrogate without low surrogate");
+                            throw new System.ArgumentException("high surrogate without low surrogate", nameof(s));
                         }
                         else
                         {

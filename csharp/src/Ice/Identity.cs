@@ -38,7 +38,7 @@ namespace Ice
                         //
                         // Extra unescaped slash found.
                         //
-                        throw new ArgumentException($"unescaped backslash in identity `{s}'");
+                        throw new FormatException($"unescaped backslash in identity `{s}'");
                     }
                 }
                 pos++;

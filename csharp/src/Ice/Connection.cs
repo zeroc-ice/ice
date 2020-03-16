@@ -638,7 +638,7 @@ namespace Ice
             {
                 if (timeout is int timeoutValue && timeoutValue < 0)
                 {
-                    throw new ArgumentException("invalid negative ACM timeout value");
+                    throw new ArgumentException("invalid negative ACM timeout value", nameof(timeout));
                 }
 
                 if (_monitor == null || _state >= StateClosed)

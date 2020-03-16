@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 
 namespace IceInternal
 {
-    public sealed class Network
+    public static class Network
     {
         // Which versions of the Internet Protocol are enabled?
         public const int EnableIPv4 = 0;
@@ -206,10 +206,6 @@ namespace IceInternal
                 }
             }
             catch (SocketException ex)
-            {
-                throw new Ice.SocketException(ex);
-            }
-            catch (ArgumentException ex)
             {
                 throw new Ice.SocketException(ex);
             }

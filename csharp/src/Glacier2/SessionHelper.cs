@@ -195,7 +195,7 @@ namespace Glacier2
                 }
                 if (!_useCallbacks)
                 {
-                    throw new InitializationException(
+                    throw new InvalidOperationException(
                         "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
                 }
                 Debug.Assert(_adapter != null);

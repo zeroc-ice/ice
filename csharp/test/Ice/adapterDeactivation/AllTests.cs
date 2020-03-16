@@ -131,7 +131,7 @@ namespace Ice
                         adapter.SetPublishedEndpoints(router.Endpoints);
                         test(false);
                     }
-                    catch (ArgumentException)
+                    catch (InvalidOperationException)
                     {
                         // Expected.
                     }

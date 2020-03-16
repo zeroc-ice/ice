@@ -719,12 +719,6 @@ namespace controller
             {
                 _controllerI = new ControllerI(this);
             }
-            catch (PluginInitializationException ex)
-            {
-                print(ex.ToString());
-                print(ex.reason);
-                print(ex.StackTrace);
-            }
             catch (System.Exception ex)
             {
                 print(ex.ToString());

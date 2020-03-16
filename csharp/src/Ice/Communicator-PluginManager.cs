@@ -44,7 +44,7 @@ namespace Ice
         {
             if (_pluginsInitialized)
             {
-                throw new InitializationException("plug-ins already initialized");
+                throw new InvalidOperationException("plug-ins already initialized");
             }
 
             //
@@ -121,7 +121,7 @@ namespace Ice
 
                 if (FindPlugin(name) != null)
                 {
-                    throw new ArgumentException("A plugin named `{name}' is already resgistered", nameof(name));
+                    throw new ArgumentException("a plugin named `{name}' is already registered", nameof(name));
                 }
 
                 _plugins.Add((name, plugin));
@@ -188,7 +188,7 @@ namespace Ice
 
                 if (FindPlugin(name) != null)
                 {
-                    throw new InvalidOperationException($"plug-in `{name}' already loaded");
+                    throw new InvalidConfigurationException($"plug-in `{name}' already loaded");
                 }
 
                 string key = $"Ice.Plugin.{name}clr";
@@ -206,7 +206,7 @@ namespace Ice
                 }
                 else
                 {
-                    throw new InvalidOperationException($"plug-in `{name}' not defined");
+                    throw new InvalidConfigurationException($"plug-in `{name}' not defined");
                 }
             }
 
@@ -283,7 +283,7 @@ namespace Ice
                 }
                 catch (FormatException ex)
                 {
-                    throw new ArgumentException($"invalid arguments for plug-in `{name}", nameof(pluginSpec), ex);
+                    throw new InvalidConfigurationException($"invalid arguments for plug-in `{name}'", ex);
                 }
 
                 Debug.Assert(args.Length > 0);
@@ -374,7 +374,7 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    throw new InvalidOperationException(
+                    throw new LoadException(
                         $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
                 }
 
@@ -388,23 +388,17 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    throw new InvalidOperationException(
-                        $"error loading plug-in `{ entryPoint}': cannot find the plugin factory class `{className}'", ex);
+                    throw new LoadException(
+                        $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'", ex);
                 }
 
                 try
                 {
-                    pluginFactory = (IPluginFactory?)IceInternal.AssemblyUtil.CreateInstance(c);
+                    pluginFactory = (IPluginFactory)IceInternal.AssemblyUtil.CreateInstance(c);
                 }
                 catch (System.Exception ex)
                 {
-                    throw new InvalidOperationException($"error loading plug-in `{entryPoint}'", ex);
-                }
-
-                if (pluginFactory == null)
-                {
-                    throw new InvalidOperationException(
-                        $"error loading plug-in `{ entryPoint}': can't find constructor for `{className}'");
+                    throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
                 }
             }
 

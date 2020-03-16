@@ -24,7 +24,8 @@ namespace IceInternal
                 DefaultSourceAddress = Network.GetNumericAddress(val);
                 if (DefaultSourceAddress == null)
                 {
-                    throw new InitializationException($"invalid IP address set for Ice.Default.SourceAddress: `{val}'");
+                    throw new InvalidConfigurationException(
+                        $"invalid IP address set for Ice.Default.SourceAddress: `{val}'");
                 }
             }
             else
@@ -135,7 +136,7 @@ namespace IceInternal
             }
             else
             {
-                throw new ArgumentException($"illegal value `{val}'; expected `Random' or `Ordered'");
+                throw new InvalidConfigurationException($"illegal value `{val}'; expected `Random' or `Ordered'");
             }
 
             DefaultTimeout = communicator.GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;

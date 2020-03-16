@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -108,24 +110,18 @@ namespace IceSSL
                 Type? cls = _facade.FindType(certVerifierClass);
                 if (cls == null)
                 {
-                    throw new InvalidOperationException(
+                    throw new InvalidConfigurationException(
                         $"IceSSL: unable to load certificate verifier class `{certVerifierClass}'");
                 }
 
                 try
                 {
-                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _verifier = (ICertificateVerifier)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException(
+                    throw new LoadException(
                         $"IceSSL: unable to instantiate certificate verifier class `{certVerifierClass}", ex);
-                }
-
-                if (_verifier == null)
-                {
-                    throw new InvalidOperationException(
-                        $"IceSSL: unable to instantiate certificate verifier class {certVerifierClass}");
                 }
             }
 
@@ -143,24 +139,18 @@ namespace IceSSL
                 Type? cls = _facade.FindType(passwordCallbackClass);
                 if (cls == null)
                 {
-                    throw new InvalidOperationException(
-                        $"IceSSL: unable to load password callback class {passwordCallbackClass}");
+                    throw new InvalidConfigurationException(
+                        $"IceSSL: unable to load password callback class `{passwordCallbackClass}'");
                 }
 
                 try
                 {
-                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _passwordCallback = (IPasswordCallback)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException(
+                    throw new LoadException(
                         $"IceSSL: unable to load password callback class {passwordCallbackClass}", ex);
-                }
-
-                if (_passwordCallback == null)
-                {
-                    throw new InvalidOperationException(
-                        $"IceSSL: unable to load password callback class {passwordCallbackClass}");
                 }
             }
 
@@ -224,7 +214,7 @@ namespace IceSSL
                     }
                     catch (CryptographicException ex)
                     {
-                        throw new InvalidOperationException(
+                        throw new InvalidConfigurationException(
                             $"IceSSL: error while attempting to load certificate from `{certFile}'", ex);
                     }
                 }
@@ -234,7 +224,7 @@ namespace IceSSL
                     _certs.AddRange(FindCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
                     if (_certs.Count == 0)
                     {
-                        throw new InvalidOperationException("IceSSL: no certificates found");
+                        throw new InvalidConfigurationException("IceSSL: no certificates found");
                     }
                 }
                 else if (findCertProps.Count > 0)
@@ -264,7 +254,7 @@ namespace IceSSL
                     }
                     if (_certs.Count == 0)
                     {
-                        throw new InvalidOperationException("IceSSL: no certificates found");
+                        throw new InvalidConfigurationException("IceSSL: no certificates found");
                     }
                 }
             }
@@ -342,7 +332,7 @@ namespace IceSSL
                     }
                     catch (Exception ex)
                     {
-                        throw new InvalidOperationException(
+                        throw new InvalidConfigurationException(
                             $"IceSSL: error while attempting to load CA certificate from {certAuthFile}", ex);
                     }
                 }
@@ -467,7 +457,7 @@ namespace IceSSL
             int pos = store.IndexOf('.');
             if (pos == -1)
             {
-                throw new FormatException($"IceSSL: property `{prop}' has invalid format");
+                throw new InvalidConfigurationException($"IceSSL: property `{prop}' has invalid format");
             }
 
             string sloc = store.Substring(0, pos).ToUpperInvariant();
@@ -481,13 +471,13 @@ namespace IceSSL
             }
             else
             {
-                throw new ArgumentException("IceSSL: unknown store location `{sloc}' in {prop}", nameof(prop));
+                throw new InvalidConfigurationException($"IceSSL: unknown store location `{sloc}' in `{prop}'");
             }
 
             sname = store.Substring(pos + 1);
             if (sname.Length == 0)
             {
-                throw new ArgumentException($"IceSSL: invalid store name in {prop}", nameof(prop));
+                throw new InvalidConfigurationException($"IceSSL: invalid store name in `{prop}'");
             }
 
             //
@@ -643,7 +633,8 @@ namespace IceSSL
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"IceSSL: failure while opening store specified by {prop}", ex);
+                throw new InvalidConfigurationException($"IceSSL: failure while opening store specified by `{prop}'",
+                    ex);
             }
 
             //

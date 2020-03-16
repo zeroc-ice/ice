@@ -75,7 +75,7 @@ namespace IceBox
             }
             catch (System.Exception ex)
             {
-                _logger.Warning($"ServiceManager: exception while starting service {info.Name}:\n{ex}");
+                _logger.Warning($"IceBox.ServiceManager: exception while starting service `{info.Name}':\n{ex}");
             }
 
             lock (this)
@@ -125,7 +125,7 @@ namespace IceBox
             }
             catch (System.Exception ex)
             {
-                _logger.Warning($"ServiceManager: exception while stopping service {info.Name}\n{ex}");
+                _logger.Warning($"IceBox.ServiceManager: exception while stopping service `{info.Name}'\n{ex}");
             }
 
             lock (this)
@@ -219,7 +219,8 @@ namespace IceBox
 
                 if (services.Count == 0)
                 {
-                    throw new InvalidOperationException("ServiceManager: configuration must include at least one IceBox service");
+                    throw new InvalidConfigurationException(
+                        "IceBox.ServiceManager: configuration must include at least one IceBox service");
                 }
 
                 string[] loadOrder = (_communicator.GetPropertyAsList("IceBox.LoadOrder") ?? Array.Empty<string>()).Where(
@@ -230,7 +231,8 @@ namespace IceBox
                     string key = prefix + name;
                     if (!services.TryGetValue(key, out string? value))
                     {
-                        throw new InvalidOperationException($"ServiceManager: no service definition for `{name}'");
+                        throw new InvalidConfigurationException(
+                            $"IceBox.ServiceManager: no service definition for `{name}'");
                     }
                     servicesInfo.Add(new StartServiceInfo(name, value, _argv));
                     services.Remove(key);
@@ -333,7 +335,7 @@ namespace IceBox
             }
             catch (System.Exception ex)
             {
-                _logger.Error("ServiceManager: caught exception:\n" + ex.ToString());
+                _logger.Error("IceBox.ServiceManager: caught exception:\n" + ex.ToString());
                 return 1;
             }
             finally
@@ -403,8 +405,9 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    throw new InvalidOperationException(
-                        $"ServiceManager: unable to load service '{entryPoint}': error loading assembly: {assemblyName}", ex);
+                    throw new LoadException(
+                        $"IceBox.ServiceManager: unable to load service '{entryPoint}': error loading assembly " +
+                        $"`{assemblyName}'", ex);
                 }
 
                 //
@@ -417,8 +420,9 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    throw new InvalidOperationException(
-                        $"ServiceManager: unable to load service '{entryPoint}': cannot find the service class `{className}'", ex);
+                    throw new LoadException(
+                        $"IceBox.ServiceManager: unable to load service `{entryPoint}': cannot find the service " +
+                        $"class `{className}'", ex);
                 }
                 Debug.Assert(c != null);
 
@@ -430,7 +434,7 @@ namespace IceBox
                 // communicator for the service. The communicator inherits
                 // from the shared communicator properties. If it's not
                 // defined, add the service properties to the shared
-                // commnunicator property set.
+                // communicator property set.
                 //
                 Communicator communicator;
                 if (_communicator.GetPropertyAsInt($"IceBox.UseSharedCommunicator.{service}") > 0)
@@ -501,10 +505,7 @@ namespace IceBox
 
                 try
                 {
-                    //
                     // Instantiate the service.
-                    //
-                    IService? s;
                     try
                     {
                         //
@@ -518,34 +519,22 @@ namespace IceBox
                         {
                             object[] parameters = new object[1];
                             parameters[0] = _communicator;
-                            s = (IService)ci.Invoke(parameters);
+                            info.Service = (IService)ci.Invoke(parameters);
                         }
                         else
                         {
                             //
                             // Fall back to the default constructor.
                             //
-                            s = (IService?)IceInternal.AssemblyUtil.CreateInstance(c);
+                            info.Service = (IService)IceInternal.AssemblyUtil.CreateInstance(c);
                         }
                     }
                     catch (System.Exception ex)
                     {
-                        throw new InvalidOperationException($"ServiceManager: unable to load service '{entryPoint}", ex);
+                        throw new LoadException($"IceBox.ServiceManager: unable to load service `{entryPoint}'", ex);
                     }
 
-                    info.Service = s ?? throw new InvalidOperationException(
-                            $"ServiceManager: unable to load service '{entryPoint}': " +
-                            $"no default constructor for `{className}'");
-
-                    try
-                    {
-                        info.Service.start(service, communicator, info.Args);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        throw new InvalidOperationException($"ServiceManager: exception while starting service {service}", ex);
-                    }
-
+                    info.Service.start(service, communicator, info.Args);
                     info.Status = ServiceStatus.Started;
                     _services.Add(info);
                 }
@@ -558,7 +547,6 @@ namespace IceBox
 
                     throw;
                 }
-
             }
         }
 
@@ -612,7 +600,8 @@ namespace IceBox
                     }
                     catch (System.Exception ex)
                     {
-                        _logger.Warning($"ServiceManager: exception while destroying shared communicator:\n{ex}");
+                        _logger.Warning(
+                            $"IceBox.ServiceManager: exception while destroying shared communicator:\n{ex}");
                     }
                     _sharedCommunicator = null;
                 }
@@ -733,7 +722,7 @@ namespace IceBox
                 }
                 catch (FormatException ex)
                 {
-                    throw new ArgumentException($"ServiceManager: invalid arguments for service `{Name}'", ex);
+                    throw new ArgumentException($"IceBox.ServiceManager: invalid arguments for service `{Name}'", ex);
                 }
 
                 Debug.Assert(Args.Length > 0);
@@ -784,7 +773,8 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    _logger.Warning($"ServiceManager: exception while shutting down communicator for service {service}\n{ex}");
+                    _logger.Warning("IceBox.ServiceManager: exception while shutting down communicator for service " +
+                        $"`{service}'\n{ex}");
                 }
 
                 RemoveAdminFacets("IceBox.Service." + service + ".");

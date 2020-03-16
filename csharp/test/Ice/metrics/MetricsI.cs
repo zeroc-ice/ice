@@ -32,7 +32,7 @@ public sealed class Metrics : IMetrics
 
     public void opWithRequestFailedException(Ice.Current current) => throw new Ice.ObjectNotExistException();
 
-    public void opWithLocalException(Ice.Current current) => throw new Ice.InitializationException();
+    public void opWithLocalException(Ice.Current current) => throw new Ice.InvalidConfigurationException("fake");
 
     public void opWithUnknownException(Ice.Current current) => throw new ArgumentOutOfRangeException();
 

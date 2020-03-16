@@ -39,7 +39,7 @@ public sealed class Metrics : IMetrics
     opWithRequestFailedExceptionAsync(Ice.Current current) => throw new Ice.ObjectNotExistException();
 
     public ValueTask
-    opWithLocalExceptionAsync(Ice.Current current) => throw new Ice.InitializationException();
+    opWithLocalExceptionAsync(Ice.Current current) => throw new Ice.InvalidConfigurationException("fake");
 
     public ValueTask
     opWithUnknownExceptionAsync(Ice.Current current) => throw new ArgumentOutOfRangeException();
