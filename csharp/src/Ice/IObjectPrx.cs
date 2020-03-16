@@ -11,8 +11,6 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace Ice
 {
     public enum InvocationMode : byte
@@ -60,7 +58,7 @@ namespace Ice
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>True if the target object implements the Slice interface identified by id</returns>.
-        public bool IceIsA(string id, ReadOnlyContext? context = null)
+        public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null)
         {
             try
             {
@@ -81,13 +79,13 @@ namespace Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<bool> IceIsAAsync(string id,
-                                      ReadOnlyContext? context = null,
+                                      IReadOnlyDictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
                                       CancellationToken cancel = default) =>
             IceIsAAsync(id, context, progress, cancel, synchronous: false);
 
-        private Task<bool> IceIsAAsync(string id, ReadOnlyContext? context, IProgress<bool>? progress,
-                                       CancellationToken cancel, bool synchronous)
+        private Task<bool> IceIsAAsync(string id, IReadOnlyDictionary<string, string>? context,
+                                       IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
             var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
             request.StartParameters();
@@ -108,7 +106,7 @@ namespace Ice
         /// Tests whether the target object of this proxy can be reached.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        public void IcePing(ReadOnlyContext? context = null)
+        public void IcePing(IReadOnlyDictionary<string, string>? context = null)
         {
             try
             {
@@ -127,12 +125,12 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task IcePingAsync(ReadOnlyContext? context = null,
+        public Task IcePingAsync(IReadOnlyDictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = default)
             => IcePingAsync(context, progress, cancel, synchronous: false);
 
-        private Task IcePingAsync(ReadOnlyContext? context, IProgress<bool>? progress,
+        private Task IcePingAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
                                   CancellationToken cancel, bool synchronous)
         {
             var request = OutgoingRequestFrame.Empty(this, "ice_ping", idempotent: true, context);
@@ -149,7 +147,7 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(ReadOnlyContext? context = null)
+        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null)
         {
             try
             {
@@ -168,12 +166,12 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string[]> IceIdsAsync(ReadOnlyContext? context = null,
+        public Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context = null,
                                           IProgress<bool>? progress = null,
                                           CancellationToken cancel = default)
             => IceIdsAsync(context, progress, cancel, synchronous: false);
 
-        private Task<string[]> IceIdsAsync(ReadOnlyContext? context, IProgress<bool>? progress,
+        private Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
                                            CancellationToken cancel, bool synchronous)
         {
             var request = OutgoingRequestFrame.Empty(this, "ice_ids", idempotent: true, context);
@@ -192,7 +190,7 @@ namespace Ice
         /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
         /// </summary>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(ReadOnlyContext? context = null)
+        public string IceId(IReadOnlyDictionary<string, string>? context = null)
         {
             try
             {
@@ -211,12 +209,12 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string> IceIdAsync(ReadOnlyContext? context = null,
+        public Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
                                        CancellationToken cancel = new CancellationToken()) =>
             IceIdAsync(context, progress, cancel, synchronous: false);
 
-        private Task<string> IceIdAsync(ReadOnlyContext? context, IProgress<bool>? progress,
+        private Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
                                         CancellationToken cancel, bool synchronous)
         {
             var request = OutgoingRequestFrame.Empty(this, "ice_id", idempotent: true, context);
@@ -238,7 +236,7 @@ namespace Ice
         public Identity Identity => IceReference.GetIdentity();
 
         /// <summary>Returns the context of this proxy.</summary>
-        public ReadOnlyContext Context => IceReference.GetContext();
+        public IReadOnlyDictionary<string, string> Context => IceReference.GetContext();
 
         /// <summary>
         /// Returns the facet for this proxy.

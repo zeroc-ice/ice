@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -263,7 +263,8 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation, ReadOnlyContext ctx);
+            IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
+                                                       IReadOnlyDictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given

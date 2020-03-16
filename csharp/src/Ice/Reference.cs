@@ -10,14 +10,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-using Context = System.Collections.Generic.Dictionary<string, string>;
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace IceInternal
 {
     public abstract class Reference : IEquatable<Reference>
     {
-        internal static ReadOnlyContext EmptyContext = new Context();
+        internal static IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
 
         public interface IGetConnectionCallback
         {
@@ -37,7 +34,7 @@ namespace IceInternal
 
         public string GetFacet() => _facet;
 
-        public ReadOnlyContext GetContext() => _context;
+        public IReadOnlyDictionary<string, string> GetContext() => _context;
 
         public int
         GetInvocationTimeout() => _invocationTimeout;
@@ -357,7 +354,7 @@ namespace IceInternal
                                        bool? connectionCached = null,
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
-                                       ReadOnlyContext? context = null,
+                                       IReadOnlyDictionary<string, string>? context = null,
                                        Encoding? encoding = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
@@ -425,7 +422,7 @@ namespace IceInternal
                 {
                     reference = Clone();
                 }
-                reference._context = context.Count == 0 ? EmptyContext : new Context(context);
+                reference._context = context.Count == 0 ? EmptyContext : new Dictionary<string, string>(context);
             }
 
             if (encoding is Encoding encodingValue && encodingValue != _encoding)
@@ -478,7 +475,7 @@ namespace IceInternal
 
         private InvocationMode _mode;
         private Identity _identity;
-        private ReadOnlyContext _context;
+        private IReadOnlyDictionary<string, string> _context;
         private string _facet;
         protected bool Secure;
         private readonly Protocol _protocol;
@@ -496,7 +493,7 @@ namespace IceInternal
                             Protocol protocol,
                             Encoding encoding,
                             int invocationTimeout,
-                            ReadOnlyContext context)
+                            IReadOnlyDictionary<string, string> context)
         {
             //
             // Validate string arguments.
@@ -536,7 +533,7 @@ namespace IceInternal
                               Encoding encoding,
                               Connection connection,
                               int invocationTimeout,
-                              ReadOnlyContext context,
+                              IReadOnlyDictionary<string, string> context,
                               bool? compress)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
@@ -582,7 +579,7 @@ namespace IceInternal
                                         bool? connectionCached = null,
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
-                                        ReadOnlyContext? context = null,
+                                        IReadOnlyDictionary<string, string>? context = null,
                                         Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
@@ -900,7 +897,7 @@ namespace IceInternal
                                         bool? connectionCached = null,
                                         string? connectionId = null,
                                         int? connectionTimeout = null,
-                                        ReadOnlyContext? context = null,
+                                        IReadOnlyDictionary<string, string>? context = null,
                                         Encoding? encoding = null,
                                         EndpointSelectionType? endpointSelectionType = null,
                                         IEndpoint[]? endpoints = null,
@@ -1503,7 +1500,7 @@ namespace IceInternal
                                  EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout,
                                  int invocationTimeout,
-                                 ReadOnlyContext context)
+                                 IReadOnlyDictionary<string, string> context)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _endpoints = endpoints;

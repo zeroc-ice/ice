@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace Ice
 {
     public static class Proxy
@@ -24,7 +22,7 @@ namespace Ice
                                        bool? connectionCached = null,
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
-                                       ReadOnlyContext? context = null,
+                                       IReadOnlyDictionary<string, string>? context = null,
                                        Encoding? encoding = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
@@ -75,7 +73,7 @@ namespace Ice
                                        bool? connectionCached = null,
                                        string? connectionId = null,
                                        int? connectionTimeout = null,
-                                       ReadOnlyContext? context = null,
+                                       IReadOnlyDictionary<string, string>? context = null,
                                        Encoding? encoding = null,
                                        EndpointSelectionType? endpointSelectionType = null,
                                        IEndpoint[]? endpoints = null,
@@ -125,7 +123,7 @@ namespace Ice
                                      bool? connectionCached = null,
                                      string? connectionId = null,
                                      int? connectionTimeout = null,
-                                     ReadOnlyContext? context = null,
+                                     IReadOnlyDictionary<string, string>? context = null,
                                      Encoding? encoding = null,
                                      EndpointSelectionType? endpointSelectionType = null,
                                      IEndpoint[]? endpoints = null,

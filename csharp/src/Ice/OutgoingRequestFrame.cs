@@ -5,9 +5,6 @@
 using System;
 using System.Collections.Generic;
 
-using Context = System.Collections.Generic.Dictionary<string, string>;
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace Ice
 {
     /// <summary>Represents a request protocol frame sent by the application.</summary>
@@ -26,7 +23,7 @@ namespace Ice
         public bool IsIdempotent { get; }
 
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
-        public Context Context { get; }
+        public Dictionary<string, string> Context { get; }
 
         private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
 
@@ -38,7 +35,7 @@ namespace Ice
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
-                                                 ReadOnlyContext? context = null)
+                                                 IReadOnlyDictionary<string, string>? context = null)
             => new OutgoingRequestFrame(proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
 
         /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
@@ -49,7 +46,8 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, ReadOnlyContext? context = null)
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                    IReadOnlyDictionary<string, string>? context = null)
             : base(proxy.Communicator)
         {
             proxy.IceReference.GetProtocol().CheckSupported();
@@ -76,11 +74,11 @@ namespace Ice
 
             if (context != null)
             {
-                Context = new Context(context);
+                Context = new Dictionary<string, string>(context);
             }
             else
             {
-                Context = new Context(proxy.Communicator.CurrentContext);
+                Context = new Dictionary<string, string>(proxy.Communicator.CurrentContext);
                 foreach ((string key, string value) in proxy.Context)
                 {
                     Context[key] = value; // the proxy Context entry prevails.
@@ -98,8 +96,8 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
         /// </param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent, ReadOnlyContext? context,
-                                    ArraySegment<byte> payload)
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                    IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)
         {
             if (payload.Count == 0)

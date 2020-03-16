@@ -8,8 +8,6 @@ using System.Diagnostics;
 using System.Threading;
 using Ice;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace Glacier2
 {
 
@@ -214,7 +212,7 @@ namespace Glacier2
         /// </summary>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        Connect(ReadOnlyContext? context)
+        Connect(IReadOnlyDictionary<string, string>? context)
         {
             lock (_mutex)
             {
@@ -232,7 +230,7 @@ namespace Glacier2
         /// <param name="password">The password.</param>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        Connect(string username, string password, ReadOnlyContext? context)
+        Connect(string username, string password, IReadOnlyDictionary<string, string>? context)
         {
             lock (_mutex)
             {

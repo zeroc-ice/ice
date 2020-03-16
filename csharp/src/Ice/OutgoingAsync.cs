@@ -9,9 +9,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Context = System.Collections.Generic.Dictionary<string, string>;
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace IceInternal
 {
     public interface IOutgoingAsyncCompletionCallback
@@ -608,9 +605,9 @@ namespace IceInternal
             }
         }
 
-        protected ReadOnlyContext ProxyAndCurrentContext()
+        protected IReadOnlyDictionary<string, string> ProxyAndCurrentContext()
         {
-            ReadOnlyContext context;
+            IReadOnlyDictionary<string, string> context;
 
             if (Proxy.Context.Count == 0)
             {
@@ -622,7 +619,7 @@ namespace IceInternal
             }
             else
             {
-                var combinedContext = new Context(Proxy.Communicator.CurrentContext);
+                var combinedContext = new Dictionary<string, string>(Proxy.Communicator.CurrentContext);
                 foreach ((string key, string value) in Proxy.Context)
                 {
                     combinedContext[key] = value;  // the proxy Context entry prevails.
@@ -657,7 +654,7 @@ namespace IceInternal
             IsOneway = oneway;
         }
 
-        public void Prepare(string operation, bool idempotent, bool oneway, ReadOnlyContext? context)
+        public void Prepare(string operation, bool idempotent, bool oneway, IReadOnlyDictionary<string, string>? context)
         {
             Debug.Assert(Os != null);
             Proxy.IceReference.GetProtocol().CheckSupported();
@@ -831,7 +828,7 @@ namespace IceInternal
         }
 
         // Called by IceInvokeAsync
-        internal void Invoke(string operation, ReadOnlyContext? context, bool synchronous)
+        internal void Invoke(string operation, IReadOnlyDictionary<string, string>? context, bool synchronous)
         {
             context ??= ProxyAndCurrentContext();
             Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
@@ -865,7 +862,7 @@ namespace IceInternal
                            bool idempotent,
                            bool oneway,
                            Ice.FormatType? format,
-                           ReadOnlyContext? context,
+                           IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
         {
@@ -922,7 +919,7 @@ namespace IceInternal
                            bool idempotent,
                            bool oneway,
                            Ice.FormatType? format,
-                           ReadOnlyContext? context,
+                           IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
                            System.Func<Ice.InputStream, T>? read = null)
@@ -1102,6 +1099,7 @@ namespace IceInternal
         {
         }
 
-        public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((OutgoingAsyncT<T>)og).GetResult(ok));
+        public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og)
+            => SetResult(((OutgoingAsyncT<T>)og).GetResult(ok));
     }
 }

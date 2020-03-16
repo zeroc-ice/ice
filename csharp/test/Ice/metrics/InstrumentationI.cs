@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 public class Observer : Ice.Instrumentation.IObserver
 {
     virtual public void
@@ -352,7 +350,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
 
     public Ice.Instrumentation.IInvocationObserver
-    GetInvocationObserver(Ice.IObjectPrx? p, string op, ReadOnlyContext ctx)
+    GetInvocationObserver(Ice.IObjectPrx? p, string op, IReadOnlyDictionary<string, string> ctx)
     {
         lock (this)
         {

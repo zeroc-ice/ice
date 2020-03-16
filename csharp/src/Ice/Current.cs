@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Context = System.Collections.Generic.Dictionary<string, string>;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -14,7 +14,9 @@ namespace Ice
         public string Facet { get; }
         public string Operation { get; }
         public bool IsIdempotent { get; }
-        public Context Context { get; } // TODO: should this be a ReadOnlyContext?
+
+        // TODO: should this be a IReadOnlyDictionary<string, string>?
+        public Dictionary<string, string> Context { get; }
         public int RequestId { get; }
         public bool IsOneway => RequestId == 0;
         public Encoding Encoding { get; }

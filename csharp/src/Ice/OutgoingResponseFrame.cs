@@ -3,8 +3,8 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Context = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Ice
 {
@@ -18,7 +18,7 @@ namespace Ice
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The response context. Always null with ice1.</summary>
-        public Context? Context { get; }
+        public Dictionary<string, string>? Context { get; }
 
         private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
 

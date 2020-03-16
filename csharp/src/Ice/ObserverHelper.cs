@@ -4,14 +4,14 @@
 
 using Ice.Instrumentation;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+using System.Collections.Generic;
 
 namespace IceInternal
 {
     internal static class ObserverHelper
     {
         internal static IInvocationObserver? GetInvocationObserver(Ice.IObjectPrx proxy, string op,
-                                                                   ReadOnlyContext context)
+                                                                   IReadOnlyDictionary<string, string> context)
         {
             if (proxy.Communicator.Observer is ICommunicatorObserver communicatorObserver)
             {

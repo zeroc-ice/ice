@@ -10,8 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace IceLocatorDiscovery
 {
     public sealed class PluginFactory : Ice.IPluginFactory
@@ -30,7 +28,7 @@ namespace IceLocatorDiscovery
         private readonly LocatorI _locator;
         private readonly string _operation;
         private readonly bool _idempotent;
-        private readonly ReadOnlyContext? _context;
+        private readonly IReadOnlyDictionary<string, string>? _context;
         private readonly ArraySegment<byte> _payload;
 
         private ILocatorPrx? _locatorPrx;
@@ -40,7 +38,7 @@ namespace IceLocatorDiscovery
                        string operation,
                        bool idempotent,
                        ArraySegment<byte> payload,
-                       ReadOnlyContext? context)
+                       IReadOnlyDictionary<string, string>? context)
         {
             _locator = locator;
             _operation = operation;

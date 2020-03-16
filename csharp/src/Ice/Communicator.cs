@@ -13,9 +13,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-using Context = System.Collections.Generic.Dictionary<string, string>;
-using ReadOnlyContext = System.Collections.Generic.IReadOnlyDictionary<string, string>;
-
 namespace Ice
 {
     internal sealed class BufSizeWarnInfo
@@ -56,7 +53,7 @@ namespace Ice
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
-        public Context CurrentContext
+        public Dictionary<string, string> CurrentContext
         {
             get
             {
@@ -68,7 +65,7 @@ namespace Ice
                     }
                     else
                     {
-                        _currentContext.Value = new Context();
+                        _currentContext.Value = new Dictionary<string, string>();
                         return _currentContext.Value;
                     }
                 }
@@ -94,7 +91,7 @@ namespace Ice
 
         /// <summary>The default context for proxies created using this communicator. Changing the value of
         /// DefaultContext does not change the context of previously created proxies.</summary>
-        public ReadOnlyContext DefaultContext
+        public IReadOnlyDictionary<string, string> DefaultContext
         {
             get
             {
@@ -113,7 +110,7 @@ namespace Ice
                     }
                     else
                     {
-                        _defaultContext = new Context(value);
+                        _defaultContext = new Dictionary<string, string>(value);
                     }
                 }
             }
@@ -166,8 +163,9 @@ namespace Ice
         private AsyncIOThread? _asyncIOThread;
         private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly Func<int, string>? _compactIdResolver;
-        private readonly ThreadLocal<Context> _currentContext = new ThreadLocal<Context>();
-        private ReadOnlyContext _defaultContext = IceInternal.Reference.EmptyContext;
+        private readonly ThreadLocal<Dictionary<string, string>> _currentContext
+            = new ThreadLocal<Dictionary<string, string>>();
+        private IReadOnlyDictionary<string, string> _defaultContext = IceInternal.Reference.EmptyContext;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
 
@@ -2258,7 +2256,7 @@ namespace Ice
             EndpointSelectionType endpointSelection = DefaultsAndOverrides.DefaultEndpointSelection;
             int locatorCacheTimeout = DefaultsAndOverrides.DefaultLocatorCacheTimeout;
             int invocationTimeout = DefaultsAndOverrides.DefaultInvocationTimeout;
-            ReadOnlyContext? context = null;
+            IReadOnlyDictionary<string, string>? context = null;
 
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
