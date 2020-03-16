@@ -1345,7 +1345,7 @@ namespace Ice
                     {
                         Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat,
                             $"could not update the endpoints of object adapter `{_id}' " +
-                            $" with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
+                            $"with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
                     }
                 }
                 throw;
