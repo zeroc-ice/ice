@@ -74,10 +74,37 @@ namespace Ice
                 }
             }
 
-            public void Exception(LocatorInfo locatorInfo, System.Exception exc)
+            public void Exception(Exception ex)
             {
-                // Call even when _callback is null to get the logging
-                System.Exception ex = GetEndpointsException(_ref, exc);
+                Communicator communicator = _ref.GetCommunicator();
+                if (communicator.TraceLevels.Location > 0)
+                {
+                    if (ex is AdapterNotFoundException)
+                    {
+                        communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
+                            $"adapter not found\nadapter = {_ref.GetAdapterId()}");
+                    }
+                    else if (ex is ObjectNotFoundException)
+                    {
+                        communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
+                            $"object not found\nobject = {_ref.GetIdentity().ToString(communicator.ToStringMode)}");
+                    }
+                    else
+                    {
+                        var s = new System.Text.StringBuilder();
+                        s.Append("could not contact the locator to retrieve endpoints\n");
+                        if (_ref.GetAdapterId().Length > 0)
+                        {
+                            s.Append($"adapter = {_ref.GetAdapterId()}\n");
+                        }
+                        else
+                        {
+                            s.Append($"well-known proxy = {_ref}\n");
+                        }
+                        s.Append($"reason = {ex}");
+                        communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
+                    }
+                }
                 _callback?.SetException(ex);
             }
         }
@@ -131,7 +158,7 @@ namespace Ice
                 else
                 {
                     Debug.Assert(_exception != null);
-                    callback.Exception(LocatorInfo, _exception);
+                    callback.Exception(_exception);
                 }
             }
 
@@ -160,7 +187,7 @@ namespace Ice
                 }
                 foreach (RequestCallback callback in _callbacks)
                 {
-                    callback.Exception(LocatorInfo, ex);
+                    callback.Exception(ex);
                 }
             }
 
@@ -436,40 +463,6 @@ namespace Ice
             s.Append(resolved.GetAdapterId());
 
             r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.LocationCat, s.ToString());
-        }
-
-        private static System.Exception GetEndpointsException(Reference reference, System.Exception exc)
-        {
-            Communicator communicator = reference.GetCommunicator();
-            if (communicator.TraceLevels.Location > 0)
-            {
-                if (exc is AdapterNotFoundException)
-                {
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
-                        $"adapter not found\nadapter = {reference.GetAdapterId()}");
-                }
-                else if (exc is ObjectNotFoundException)
-                {
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
-                        $"object not found\nobject = {reference.GetIdentity().ToString(communicator.ToStringMode)}");
-                }
-                else
-                {
-                    var s = new System.Text.StringBuilder();
-                    s.Append("could not contact the locator to retrieve endpoints\n");
-                    if (reference.GetAdapterId().Length > 0)
-                    {
-                        s.Append($"adapter = {reference.GetAdapterId()}\n");
-                    }
-                    else
-                    {
-                        s.Append($"well-known proxy = {reference}\n");
-                    }
-                    s.Append($"reason = {exc}");
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
-                }
-            }
-            return exc;
         }
 
         private void GetEndpointsTrace(Reference reference, Endpoint[]? endpoints, bool cached)

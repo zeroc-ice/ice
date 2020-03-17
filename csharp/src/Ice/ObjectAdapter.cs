@@ -1332,7 +1332,7 @@ namespace Ice
             {
                 // Ignore
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 if (Communicator.TraceLevels.Location >= 1)
                 {
