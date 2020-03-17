@@ -1906,7 +1906,7 @@ namespace Ice
                 {
                     foreach (string ns in _typeIdNamespaces)
                     {
-                        Type? helper = AssemblyUtil.FindType(ns + "." + className);
+                        Type? helper = AssemblyUtil.FindType($"{ns}.{className}");
                         if (helper != null)
                         {
                             try
