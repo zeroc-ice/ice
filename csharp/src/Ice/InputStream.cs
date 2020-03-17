@@ -98,11 +98,6 @@ namespace Ice
         private ArraySegment<byte> _buffer;
         private int _pos;
 
-        // TODO: should we cache those per InputStream or per communicator?
-        //       should we clear the caches in ResetEncapsulation?
-        private Dictionary<string, Type?>? _typeIdCache;
-        private Dictionary<int, Type?>? _compactIdCache;
-
         // Map of type ID index to type ID string.
         // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
         // read, in order. Since this map is a list, we lookup a previously assigned type ID string with
@@ -379,7 +374,7 @@ namespace Ice
 
             int minSize = sz * minElementSize;
 
-            // With _minTotalSeqSize, we make sure that multiple sequences within an InpuStream can't trigger
+            // With _minTotalSeqSize, we make sure that multiple sequences within an InputStream can't trigger
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
@@ -1327,42 +1322,6 @@ namespace Ice
             }
         }
 
-        private Type? ResolveClass(string typeId)
-        {
-            if (_typeIdCache == null || !_typeIdCache.TryGetValue(typeId, out Type? cls))
-            {
-                // Not found in typeIdCache
-                try
-                {
-                    cls = Communicator.ResolveClass(typeId);
-                    _typeIdCache ??= new Dictionary<string, Type?>(); // Lazy initialization
-                    _typeIdCache.Add(typeId, cls);
-                }
-                catch (Exception ex)
-                {
-                    throw new NoClassFactoryException("no class factory", typeId, ex);
-                }
-            }
-            return cls;
-        }
-
-        private Type? ResolveClass(int compactId)
-        {
-            Type? cls = null;
-            if (_compactIdCache == null || !_compactIdCache.TryGetValue(compactId, out cls))
-            {
-                // Not found in compactIdCache
-                string? typeId = Communicator.ResolveCompactId(compactId);
-                if (typeId != null)
-                {
-                    cls = ResolveClass(typeId);
-                    _compactIdCache ??= new Dictionary<int, Type?>();
-                    _compactIdCache.Add(compactId, cls);
-                }
-            }
-            return cls;
-        }
-
         private AnyClass? ReadAnyClass()
         {
             int index = ReadSize();
@@ -1702,11 +1661,11 @@ namespace Ice
                 if (typeId != null)
                 {
                     Debug.Assert(_current.SliceCompactId == null);
-                    cls = ResolveClass(typeId);
+                    cls = Communicator.ResolveClass(typeId);
                 }
                 else if (_current.SliceCompactId.HasValue)
                 {
-                    cls = ResolveClass(_current.SliceCompactId.Value);
+                    cls = Communicator.ResolveCompactId(_current.SliceCompactId.Value);
                 }
 
                 if (cls != null)
@@ -1881,8 +1840,8 @@ namespace Ice
             }
 
             // TODO: Ideally this should use a InputStream view and cache the input stream start
-            // position, so that succesivelly enumerators yield same valid results. In practice
-            // GetEnuerator should only be called once when the collection is unmarshal.
+            // position, so that successive enumerators yield same valid results. In practice
+            // GetEnumerator should only be called once when the collection is unmarshaled.
             public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
 
             IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);

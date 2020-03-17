@@ -22,7 +22,6 @@ namespace Glacier2
         /// <param name="callback">The callback for notifications about session
         /// establishment.</param>
         /// <param name="properties">Optional properties used for communicator initialization.</param>
-        /// <param name="compactIdResolver">Optional compact type ID resolver delegate used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="threadStart">Optional thread start delegate used for communicator initialization.</param>
@@ -35,7 +34,6 @@ namespace Glacier2
             string finderStr,
             bool useCallbacks,
             Dictionary<string, string> properties,
-            Func<int, string>? compactIdResolver = null,
             ILogger? logger = null,
             Ice.Instrumentation.ICommunicatorObserver? observer = null,
             Action? threadStart = null,
@@ -46,7 +44,6 @@ namespace Glacier2
             _finderStr = finderStr;
             _useCallbacks = useCallbacks;
             _properties = properties;
-            _compactIdResolver = compactIdResolver;
             _logger = logger;
             _observer = observer;
             _threadStart = threadStart;
@@ -395,7 +392,6 @@ namespace Glacier2
                     {
                         _communicator = new Communicator(
                             properties: _properties,
-                            compactIdResolver: _compactIdResolver,
                             logger: _logger,
                             observer: _observer,
                             threadStart: _threadStart,
@@ -461,7 +457,6 @@ namespace Glacier2
         private readonly string _finderStr;
         private readonly bool _useCallbacks;
         private readonly Dictionary<string, string> _properties;
-        private readonly Func<int, string>? _compactIdResolver;
         private readonly Ice.ILogger? _logger;
         private readonly Ice.Instrumentation.ICommunicatorObserver? _observer;
         private readonly Action? _threadStart;
