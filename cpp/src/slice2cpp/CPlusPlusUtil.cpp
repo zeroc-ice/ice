@@ -629,15 +629,23 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 string
 Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
+    // TODO remove this logic.
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
-        "::Ice::Byte",
         "bool",
+        "::Ice::Byte",
         "::Ice::Short",
+        "???",
         "::Ice::Int",
+        "???",
+        "???",
+        "???",
         "::Ice::Long",
+        "???",
+        "???",
+        "???",
         "::Ice::Float",
         "::Ice::Double",
         "::std::string",
@@ -646,13 +654,20 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::Ice::ValuePtr"
     };
 
-    static const char* cpp11BuiltinTable[] =
+    static const std::array<std::string, 18> cpp11BuiltinTable =
     {
-        "::Ice::Byte",
         "bool",
+        "::Ice::Byte",
         "short",
+        "unsigned short",
         "int",
+        "unsigned int",
+        "int",
+        "unsigned int",
         "long long int",
+        "unsigned long long int",
+        "long long int",
+        "unsigned long long int",
         "float",
         "double",
         "::std::string",
@@ -822,15 +837,23 @@ string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                          int typeCtx)
 {
+    //TODO remove this logic.
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* cpp98InputBuiltinTable[] =
+    static const std::array<std::string, 18> cpp98InputBuiltinTable =
     {
-        "::Ice::Byte",
         "bool",
+        "::Ice::Byte",
         "::Ice::Short",
+        "???",
         "::Ice::Int",
+        "???",
+        "???",
+        "???",
         "::Ice::Long",
+        "???",
+        "???",
+        "???",
         "::Ice::Float",
         "::Ice::Double",
         "const ::std::string&",
@@ -839,13 +862,20 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::Ice::ValuePtr&"
     };
 
-    static const char* cpp11InputBuiltinTable[] =
+    static const std::array<std::string, 18> cpp11InputBuiltinTable =
     {
-        "::Ice::Byte",
         "bool",
+        "::Ice::Byte",
         "short",
+        "unsigned short",
         "int",
+        "unsigned int",
+        "int",
+        "unsigned int",
         "long long int",
+        "unsigned long long int",
+        "long long int",
+        "unsigned long long int",
         "float",
         "double",
         "const ::std::string&",
@@ -971,15 +1001,23 @@ string
 Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
+    // TODO remove this logic.
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* outputBuiltinTable[] =
+    static const std::array<std::string, 18> outputBuiltinTable =
     {
-        "::Ice::Byte&",
         "bool&",
+        "::Ice::Byte&",
         "::Ice::Short&",
+        "???",
         "::Ice::Int&",
+        "???",
+        "???",
+        "???",
         "::Ice::Long&",
+        "???",
+        "???",
+        "???",
         "::Ice::Float&",
         "::Ice::Double&",
         "::std::string&",
@@ -988,13 +1026,20 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::Ice::ValuePtr&"
     };
 
-    static const char* cpp11OutputBuiltinTable[] =
+    static const std::array<std::string, 18> cpp11OutputBuiltinTable =
     {
-        "::Ice::Byte&",
         "bool&",
+        "::Ice::Byte&",
         "short&",
+        "unsigned short&",
         "int&",
+        "unsigned int&",
+        "int&",
+        "unsigned int&",
         "long long int&",
+        "unsigned long long int&",
+        "long long int&",
+        "unsigned long long int&",
         "float&",
         "double&",
         "::std::string&",
