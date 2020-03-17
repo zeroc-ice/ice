@@ -483,6 +483,39 @@ Slice::Builtin::minWireSize() const
     }
 }
 
+string
+Slice::Builtin::getTagFormat() const
+{
+    switch(_kind)
+    {
+        case KindBool:
+        case KindByte:
+            return "F1";
+        case KindShort:
+        case KindUShort:
+            return "F2";
+        case KindInt:
+        case KindUInt:
+        case KindFloat:
+            return "F4";
+        case KindLong:
+        case KindULong:
+        case KindDouble:
+            return "F8";
+        case KindVarInt:
+        case KindVarUInt:
+        case KindVarLong:
+        case KindVarULong:
+        case KindString:
+            return "VSize";
+        case KindObject:
+        case KindValue:
+            return "Class";
+        case KindObjectProxy:
+            return "FSize";
+    }
+}
+
 bool
 Slice::Builtin::isVariableLength() const
 {
@@ -3327,6 +3360,12 @@ Slice::ClassDecl::minWireSize() const
     return 1; // At least four bytes for an instance, if the instance is marshaled as an index.
 }
 
+string
+Slice::ClassDecl::getTagFormat() const
+{
+    return "Class";
+}
+
 bool
 Slice::ClassDecl::isVariableLength() const
 {
@@ -4163,6 +4202,12 @@ Slice::Optional::minWireSize() const
     return 1;
 }
 
+string
+Slice::Optional::getTagFormat() const
+{
+    return _underlying->getTagFormat();
+}
+
 bool
 Slice::Optional::isVariableLength() const
 {
@@ -4183,6 +4228,12 @@ size_t
 Slice::Proxy::minWireSize() const
 {
     return 2; // At least two bytes for a nil proxy (empty name and empty category strings).
+}
+
+string
+Slice::Proxy::getTagFormat() const
+{
+    return "FSize";
 }
 
 ClassDeclPtr
@@ -4697,6 +4748,12 @@ Slice::Struct::minWireSize() const
     return sz;
 }
 
+string
+Slice::Struct::getTagFormat() const
+{
+    return isVariableLength() ? "FSize" : "VSize";
+}
+
 bool
 Slice::Struct::isVariableLength() const
 {
@@ -4800,6 +4857,12 @@ size_t
 Slice::Sequence::minWireSize() const
 {
     return 1; // An empty sequence.
+}
+
+string
+Slice::Sequence::getTagFormat() const
+{
+    return _type->isVariableLength() ? "FSize" : "VSize";
 }
 
 bool
@@ -4908,6 +4971,12 @@ size_t
 Slice::Dictionary::minWireSize() const
 {
     return 1; // An empty dictionary.
+}
+
+string
+Slice::Dictionary::getTagFormat() const
+{
+    return _keyType->isVariableLength() || _valueType->isVariableLength() ? "FSize" : "VSize";
 }
 
 bool
@@ -5082,6 +5151,12 @@ size_t
 Slice::Enum::minWireSize() const
 {
     return 1;
+}
+
+string
+Slice::Enum::getTagFormat() const
+{
+    return "Size";
 }
 
 bool

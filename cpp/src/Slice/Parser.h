@@ -345,6 +345,7 @@ public:
     virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
     virtual size_t minWireSize() const = 0;
+    virtual std::string getTagFormat() const = 0;
     virtual bool isVariableLength() const = 0;
 
 protected:
@@ -385,6 +386,7 @@ public:
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
 
     bool isNumeric() const;
@@ -623,6 +625,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
@@ -777,6 +780,7 @@ public:
     std::string typeId() const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
+    std::string getTagFormat() const override;
     bool isVariableLength() const override;
     TypePtr underlying() const { return _underlying; }
 
@@ -797,6 +801,7 @@ public:
 
     bool usesClasses() const override;
     size_t minWireSize() const override;
+    std::string getTagFormat() const override;
     ClassDeclPtr _class() const;
 };
 
@@ -853,6 +858,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
@@ -879,6 +885,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -909,6 +916,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -944,6 +952,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
