@@ -1567,7 +1567,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp;
 
-    // TODO: remove this parameter-less constructor used by unmarshaling code.
+    // Parameterless constructor - all exceptions derived from System.Exception should provide such a constructor.
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "()";
     _out << sb;
