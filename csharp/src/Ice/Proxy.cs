@@ -280,10 +280,10 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static async ValueTask<OutputStream> ForwardAsync(this IObjectPrx proxy,
-                                                                 IncomingRequestFrame request,
-                                                                 IProgress<bool>? progress = null,
-                                                                 CancellationToken cancel = default)
+        public static async ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
+                                                                          IncomingRequestFrame request,
+                                                                          IProgress<bool>? progress = null,
+                                                                          CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request.Current.Operation,
                 request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
@@ -291,7 +291,7 @@ namespace Ice
             IncomingResponseFrame response =
                 await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
                     .ConfigureAwait(false);
-            return new OutgoingResponseFrame(request.Current, response.ReplyStatus, response.TakePayload());
+            return new OutgoingResponseFrame(request.Current.Encoding, response.ReplyStatus, response.TakePayload());
         }
 
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

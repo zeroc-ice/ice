@@ -75,7 +75,7 @@ namespace IceInternal
         {
             try
             {
-                _completionCallback.HandleInvokeSent(sentSynchronously_, _doneInSent, _alreadySent, this);
+                _completionCallback.HandleInvokeSent(SentSynchronously, _doneInSent, _alreadySent, this);
             }
             catch (System.Exception ex)
             {
@@ -171,7 +171,8 @@ namespace IceInternal
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Ice1Definitions.HeaderSize - 4;
+                Debug.Assert(RequestFrame != null);
+                int size = RequestFrame.Size - Ice1Definitions.HeaderSize - 4;
                 ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -180,12 +181,13 @@ namespace IceInternal
             }
         }
 
-        public void AttachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
+        public void AttachCollocatedObserver(ObjectAdapter adapter, int requestId)
         {
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                int size = Os!.Size - Ice1Definitions.HeaderSize - 4;
+                Debug.Assert(RequestFrame != null);
+                int size = RequestFrame.Size - Ice1Definitions.HeaderSize - 4;
                 ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
                 if (ChildObserver != null)
                 {
@@ -193,8 +195,6 @@ namespace IceInternal
                 }
             }
         }
-
-        public Ice.OutputStream GetOs() => Os!;
 
         public Ice.InputStream GetIs() => Is!;
 
@@ -205,15 +205,17 @@ namespace IceInternal
         public bool IsSynchronous() => Synchronous;
 
         protected OutgoingAsyncBase(Ice.Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
-                                    Ice.OutputStream? os = null, Ice.InputStream? iss = null)
+                                    OutgoingRequestFrame? requestFrame = null, List<ArraySegment<byte>>? requestData = null,
+                                    Ice.InputStream? iss = null)
         {
             Communicator = communicator;
-            sentSynchronously_ = false;
+            SentSynchronously = false;
             Synchronous = false;
             _doneInSent = false;
             _alreadySent = false;
             State = 0;
-            Os = os ?? new Ice.OutputStream(communicator, Ice.Ice1Definitions.Encoding);
+            RequestFrame = requestFrame;
+            RequestData = requestData;
             Is = iss ?? new Ice.InputStream(communicator, Ice.Ice1Definitions.Encoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
@@ -333,18 +335,18 @@ namespace IceInternal
 
         protected Ice.Instrumentation.IInvocationObserver? GetObserver() => Observer;
 
-        public bool SentSynchronously() => sentSynchronously_;
+        public bool SentSynchronously { get; protected set; }
 
         protected Communicator Communicator;
         protected Connection? CachedConnection;
-        protected bool sentSynchronously_;
         protected bool Synchronous;
         protected int State;
 
         protected Ice.Instrumentation.IInvocationObserver? Observer;
         protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
-        protected OutputStream? Os;
+        public OutgoingRequestFrame? RequestFrame;
+        public List<ArraySegment<byte>>? RequestData;
         protected InputStream? Is;
 
         private bool _doneInSent;
@@ -467,9 +469,9 @@ namespace IceInternal
 
         protected ProxyOutgoingAsyncBase(Ice.IObjectPrx prx,
                                          IOutgoingAsyncCompletionCallback completionCallback,
-                                         Ice.OutputStream? os = null,
+                                         OutgoingRequestFrame? requestFrame = null,
                                          Ice.InputStream? iss = null) :
-            base(prx.Communicator, completionCallback, os, iss)
+            base(prx.Communicator, completionCallback, requestFrame, null, iss)
         {
             Proxy = prx;
             IsIdempotent = false;
@@ -506,7 +508,7 @@ namespace IceInternal
                         {
                             if (userThread)
                             {
-                                sentSynchronously_ = true;
+                                SentSynchronously = true;
                                 if ((status & AsyncStatusInvokeSentCallback) != 0)
                                 {
                                     InvokeSent(); // Call the sent callback from the user thread.
@@ -646,7 +648,7 @@ namespace IceInternal
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         public OutgoingAsync(Ice.IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-                             Ice.OutputStream? os = null, Ice.InputStream? iss = null, bool oneway = false) :
+                             Ice.OutgoingRequestFrame? os = null, Ice.InputStream? iss = null, bool oneway = false) :
             base(prx, completionCallback, os, iss)
         {
             Encoding = Proxy.Encoding;
@@ -654,58 +656,6 @@ namespace IceInternal
             IsOneway = oneway;
         }
 
-        public void Prepare(string operation, bool idempotent, bool oneway, IReadOnlyDictionary<string, string>? context)
-        {
-            Debug.Assert(Os != null);
-            Proxy.IceReference.GetProtocol().CheckSupported();
-
-            IsIdempotent = idempotent;
-            IsOneway = oneway;
-
-            context ??= ProxyAndCurrentContext();
-
-            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
-
-            switch (Proxy.IceReference.GetMode())
-            {
-                case Ice.InvocationMode.Twoway:
-                case Ice.InvocationMode.Oneway:
-                case Ice.InvocationMode.Datagram:
-                    {
-                        Os.WriteSpan(Ice1Definitions.RequestHeader.AsSpan());
-                        break;
-                    }
-
-                case Ice.InvocationMode.BatchOneway:
-                case Ice.InvocationMode.BatchDatagram:
-                    {
-                        Debug.Assert(false); // not implemented
-                        break;
-                    }
-            }
-
-            Reference rf = Proxy.IceReference;
-
-            rf.GetIdentity().IceWrite(Os);
-
-            //
-            // For compatibility with the old FacetPath.
-            //
-            string facet = rf.GetFacet();
-            if (facet == null || facet.Length == 0)
-            {
-                Os.WriteStringSeq(System.Array.Empty<string>());
-            }
-            else
-            {
-                Os.WriteStringSeq(new string[]{ facet });
-            }
-
-            Os.WriteString(operation);
-            Os.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
-
-            Ice.ContextHelper.Write(Os, context);
-        }
         public override bool Sent() => base.SentImpl(IsOneway); // done = true
 
         public override bool Response()
@@ -866,19 +816,35 @@ namespace IceInternal
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write)
         {
-            Debug.Assert(Os != null);
             try
             {
-                Prepare(operation, idempotent, oneway, context);
+                Proxy.IceReference.GetProtocol().CheckSupported();
+
+                IsIdempotent = idempotent;
+                IsOneway = oneway;
+                context ??= ProxyAndCurrentContext();
+                Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
+
+                switch (Proxy.IceReference.GetMode())
+                {
+                    case InvocationMode.BatchOneway:
+                    case InvocationMode.BatchDatagram:
+                    {
+                        Debug.Assert(false); // not implemented
+                        break;
+                    }
+                }
+
                 if (write != null)
                 {
-                    Os.StartEncapsulation(Encoding, format);
-                    write(Os);
-                    Os.EndEncapsulation();
+                    RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context);
+                    OutputStream ostr = RequestFrame.WritePayload(format);
+                    write(ostr);
+                    RequestFrame.SavePayload(ostr);
                 }
                 else
                 {
-                    Os.WriteEmptyEncapsulation(Encoding);
+                    RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
                 }
                 Invoke(synchronous);
             }
@@ -909,9 +875,9 @@ namespace IceInternal
     {
         public OutgoingAsyncT(Ice.IObjectPrx prx,
                               IOutgoingAsyncCompletionCallback completionCallback,
-                              Ice.OutputStream? os = null,
+                              Ice.OutgoingRequestFrame? requestFrame = null,
                               Ice.InputStream? iss = null) :
-            base(prx, completionCallback, os, iss)
+            base(prx, completionCallback, requestFrame, iss)
         {
         }
 

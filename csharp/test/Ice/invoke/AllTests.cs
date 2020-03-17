@@ -38,9 +38,9 @@ namespace Ice.invoke
                 test(response.ReplyStatus == ReplyStatus.UserException);
 
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                request.StartParameters();
-                request.WriteString(testString);
-                request.EndParameters();
+                OutputStream ostr = request.WritePayload();
+                ostr.WriteString(testString);
+                request.SavePayload(ostr);
                 response = cl.Invoke(request);
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Success);
@@ -95,9 +95,9 @@ namespace Ice.invoke
                 }
 
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                request.StartParameters();
-                request.WriteString(testString);
-                request.EndParameters();
+                OutputStream ostr = request.WritePayload();
+                ostr.WriteString(testString);
+                request.SavePayload(ostr);
 
                 var response = cl.InvokeAsync(request).Result;
                 var result = response.ReadResult();

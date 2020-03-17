@@ -2610,7 +2610,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
-    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << getUnqualified("Ice.IObject", ns)
         << ".DispatchAsync(global::Ice.InputStream istr, global::Ice.Current current)";
     _out.inc();
@@ -2620,7 +2620,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
-    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << "DispatchAsync(" << fixId(name) << " servant, "
         << "global::Ice.InputStream istr, global::Ice.Current current)";
     _out << sb;
@@ -2683,15 +2683,15 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current);";
-        _out << nl << "ResponseFrame.StartReturnValue(";
+        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
+        _out << nl << "var ostr = ResponseFrame.WritePayload(";
         if (operation->format() != DefaultFormat)
         {
             _out << opFormatTypeToString(operation, ns);
         }
         _out << ");";
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ResponseFrame");
-        _out << nl << "ResponseFrame.EndReturnValue();";
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
+        _out << nl << "ResponseFrame.SavePayload(ostr);";
         _out << eb;
         _out << eb;
     }
@@ -2757,7 +2757,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << "async ";
     }
-    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
+    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutgoingResponseFrame", ns) + ">";
     _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
         << " current)";
     _out << sb;
@@ -2820,7 +2820,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             if (amd)
             {
-                _out << nl << "return global::Ice.OutgoingResponseFrame.Empty(current);";
+                _out << nl << "return global::Ice.OutgoingResponseFrame.Empty(current.Encoding);";
             }
             else
             {
@@ -2829,15 +2829,15 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current);";
-            _out << nl << "responseFrame.StartReturnValue(";
+            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
+            _out << nl << "var ostr = responseFrame.WritePayload(";
             if (operation->format() != DefaultFormat)
             {
                 _out << opFormatTypeToString(operation, ns);
             }
             _out << ");";
-            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "responseFrame");
-            _out << nl << "responseFrame.EndReturnValue();";
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
+            _out << nl << "responseFrame.SavePayload(ostr);";
             if (amd)
             {
                 _out << nl << "return responseFrame;";

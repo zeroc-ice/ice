@@ -4,11 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ice
 {
     /// <summary>Represents a request protocol frame sent by the application.</summary>
-    public sealed class OutgoingRequestFrame : OutputStream
+    public sealed class OutgoingRequestFrame : OutgoingFrame
     {
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
@@ -24,8 +25,6 @@ namespace Ice
 
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
-
-        private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
 
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
@@ -48,7 +47,7 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                     IReadOnlyDictionary<string, string>? context = null)
-            : base(proxy.Communicator)
+            : base(proxy.Encoding)
         {
             proxy.IceReference.GetProtocol().CheckSupported();
 
@@ -56,21 +55,20 @@ namespace Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            _payloadEncoding = proxy.Encoding;
-
-            WriteSpan(Ice1Definitions.RequestHeader.AsSpan());
-            Identity.IceWrite(this);
+            var ostr = new OutputStream(proxy.Communicator.DefaultsAndOverrides.DefaultEncoding,
+                Data, new OutputStream.Position(0, 0));
+            Identity.IceWrite(ostr);
             if (Facet.Length == 0)
             {
-                WriteStringSeq(Array.Empty<string>());
+                ostr.WriteStringSeq(Array.Empty<string>());
             }
             else
             {
-                WriteStringSeq(new string[]{ Facet });
+                ostr.WriteStringSeq(new string[]{ Facet });
             }
 
-            WriteString(operation);
-            this.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
+            ostr.WriteString(operation);
+            ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
 
             if (context != null)
             {
@@ -84,7 +82,9 @@ namespace Ice
                     Context[key] = value; // the proxy Context entry prevails.
                 }
             }
-            ContextHelper.Write(this, Context);
+
+            ContextHelper.Write(ostr, Context);
+            PayloadStart = ostr.Tail;
         }
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>
@@ -100,23 +100,72 @@ namespace Ice
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)
         {
+            var ostr = new OutputStream(Encoding, Data, PayloadStart);
             if (payload.Count == 0)
             {
-                WriteEmptyEncapsulation(_payloadEncoding);
+                ostr.WriteEmptyEncapsulation(Encoding);
+                ostr.Finish();
             }
             else
             {
-                WritePayload(payload);
+                ostr.WritePayload(payload);
             }
+            OutputStream.Position payloadEnd = ostr.Tail;
+            Size = Ice1Definitions.HeaderSize + 4 + Data.GetByteCount();
+            PayloadSize = OutputStream.Distance(Data, PayloadStart, payloadEnd);
+            PayloadEnd = payloadEnd;
+            IsSealed = true;
         }
 
-        /// <summary>Starts writing the parameters for this request.</summary>
-        /// <param name="format">The format for the parameters, null (meaning keep communicator's setting), SlicedFormat
-        /// or CompactFormat.</param>
-        public void StartParameters(FormatType? format = null)
-            => StartEncapsulation(_payloadEncoding, format);
+        /// <summary>
+        /// Creates and returns an OutputStream that can be used to write the payload of this request,
+        /// once the caller finish writting the payload it must call SavePayload and passing the returned
+        /// stream as argument.
+        /// </summary>
+        /// <param name="format">The format type for the payload.</param>
+        /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
+        public override OutputStream WritePayload(FormatType? format = null)
+        {
+            if (Ostr != null)
+            {
+                throw new InvalidOperationException("the frame already start writting the payload");
+            }
 
-        /// <summary>Marks the end of the parameters.</summary>
-        public void EndParameters() => EndEncapsulation();
+            if (PayloadEnd != null)
+            {
+                throw new InvalidOperationException("the frame already contains a paylod");
+            }
+            Ostr = new OutputStream(Encoding, Data, PayloadStart);
+            Ostr.StartEncapsulation(Encoding, format);
+            return Ostr;
+        }
+
+        private ArraySegment<byte> CreateRequestHeader(int requestId)
+        {
+            Debug.Assert(IsSealed);
+            ArraySegment<byte> requestHeader = new byte[Ice1Definitions.HeaderSize + 4];
+            int pos = 0;
+            Ice1Definitions.Magic.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.Magic.Length));
+            pos += Ice1Definitions.Magic.Length;
+            Ice1Definitions.ProtocolBytes.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.ProtocolBytes.Length));
+            pos += Ice1Definitions.ProtocolBytes.Length;
+            requestHeader[pos++] = (byte)Ice1Definitions.MessageType.RequestMessage;
+            pos++; // compression plabceholder
+            OutputStream.WriteInt(Size, requestHeader.AsSpan(pos, 4));
+            pos += 4;
+            OutputStream.WriteInt(requestId, requestHeader.AsSpan(pos, 4));
+
+            return requestHeader;
+        }
+
+        internal List<ArraySegment<byte>> GetRequestData(int requestId)
+        {
+            var data = new List<ArraySegment<byte>>(Data.Count + 1)
+            {
+                CreateRequestHeader(requestId)
+            };
+            data.AddRange(Data);
+            return data;
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace Ice
         /// See <see cref="OutgoingResponseFrame"/>.</returns>
         /// <exception cref="System.Exception">Any exception thrown by Dispatch will be marshaled into the response
         /// frame.</exception>
-        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream istr, Current current)
         {
             // TODO: switch to abstract method
             Debug.Assert(false);
@@ -71,17 +71,17 @@ namespace Ice
             }
         }
 
-        protected static ValueTask<OutputStream> IceFromResult(OutputStream ostr)
-            => new ValueTask<OutputStream>(ostr);
+        protected static ValueTask<OutgoingResponseFrame> IceFromResult(OutgoingResponseFrame responseFrame)
+            => new ValueTask<OutgoingResponseFrame>(responseFrame);
 
-        protected static ValueTask<OutputStream> IceFromVoidResult(Current current)
+        protected static ValueTask<OutgoingResponseFrame> IceFromVoidResult(Current current)
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.
-            return IceFromResult(OutgoingResponseFrame.Empty(current));
+            return IceFromResult(OutgoingResponseFrame.Empty(current.Encoding));
         }
 
-        protected ValueTask<OutputStream> IceD_ice_pingAsync(InputStream istr, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
@@ -89,40 +89,40 @@ namespace Ice
             return IceFromVoidResult(current);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_isAAsync(InputStream istr, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var responseFrame = new OutgoingResponseFrame(current);
-            responseFrame.StartReturnValue();
-            responseFrame.WriteBool(ret);
-            responseFrame.EndReturnValue();
+            var responseFrame = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = responseFrame.WritePayload();
+            ostr.WriteBool(ret);
+            responseFrame.SavePayload(ostr);
             return IceFromResult(responseFrame);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_idAsync(InputStream istr, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var responseFrame = new OutgoingResponseFrame(current);
-            responseFrame.StartReturnValue();
-            responseFrame.WriteString(ret);
-            responseFrame.EndReturnValue();
+            var responseFrame = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = responseFrame.WritePayload();
+            ostr.WriteString(ret);
+            responseFrame.SavePayload(ostr);
             return IceFromResult(responseFrame);
         }
 
-        protected ValueTask<OutputStream> IceD_ice_idsAsync(InputStream istr, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(InputStream istr, Current current)
         {
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var responseFrame = new OutgoingResponseFrame(current);
-            responseFrame.StartReturnValue();
-            responseFrame.WriteStringSeq(ret);
-            responseFrame.EndReturnValue();
+            var responseFrame = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = responseFrame.WritePayload();
+            ostr.WriteStringSeq(ret);
+            responseFrame.SavePayload(ostr);
             return IceFromResult(responseFrame);
         }
     }

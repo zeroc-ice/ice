@@ -9,7 +9,7 @@ namespace Ice.invoke
 {
     public class BlobjectI : IObject
     {
-        public async ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(Ice.InputStream istr, Current current)
         {
             if (current.Operation.Equals("opOneway"))
             {
@@ -18,16 +18,16 @@ namespace Ice.invoke
                     // If called two-way, return exception to caller.
                     throw new Test.MyException();
                 }
-                return OutgoingResponseFrame.Empty(current);
+                return OutgoingResponseFrame.Empty(current.Encoding);
             }
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current);
-                responseFrame.StartReturnValue();
-                responseFrame.WriteString(s);
-                responseFrame.WriteString(s);
-                responseFrame.EndReturnValue();
+                var responseFrame = new OutgoingResponseFrame(current.Encoding);
+                var ostr = responseFrame.WritePayload();
+                ostr.WriteString(s);
+                ostr.WriteString(s);
+                responseFrame.SavePayload(ostr);
                 return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
@@ -42,22 +42,15 @@ namespace Ice.invoke
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return OutgoingResponseFrame.Empty(current);
+                return OutgoingResponseFrame.Empty(current.Encoding);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current);
-                responseFrame.StartReturnValue();
-                if (s.Equals("::Test::MyClass"))
-                {
-                    responseFrame.WriteBool(true);
-                }
-                else
-                {
-                    responseFrame.WriteBool(false);
-                }
-                responseFrame.EndReturnValue();
+                var responseFrame = new OutgoingResponseFrame(current.Encoding);
+                var ostr = responseFrame.WritePayload();
+                ostr.WriteBool(s.Equals("::Test::MyClass"));
+                responseFrame.SavePayload(ostr);
                 return responseFrame;
             }
             else

@@ -111,7 +111,8 @@ namespace IceInternal
                     {
                         if (SentAsync(outAsync))
                         {
-                            ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                            Debug.Assert(outAsync.RequestFrame != null);
+                            ValueTask vt = InvokeAllAsync(outAsync.RequestFrame, requestId);
                             // TODO: do something with the value task
                         }
                     });
@@ -120,7 +121,8 @@ namespace IceInternal
             {
                 if (SentAsync(outAsync))
                 {
-                    ValueTask vt = InvokeAllAsync(outAsync.GetOs(), requestId);
+                    Debug.Assert(outAsync.RequestFrame != null);
+                    ValueTask vt = InvokeAllAsync(outAsync.RequestFrame, requestId);
                     // TODO: do something with the value task
                 }
             }
@@ -145,7 +147,7 @@ namespace IceInternal
             return true;
         }
 
-        private async ValueTask InvokeAllAsync(Ice.OutputStream os, int requestId)
+        private async ValueTask InvokeAllAsync(OutgoingRequestFrame outgingRequestFrame, int requestId)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -153,31 +155,29 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
+                List<System.ArraySegment<byte>> requestData = outgingRequestFrame.GetRequestData(requestId);
+                byte[] requestBuffer = requestData.GetSegment(0, outgingRequestFrame.Size).ToArray();
                 if (_traceLevels.Protocol >= 1)
                 {
-                    FillInValue(os, new Ice.OutputStream.Position(0, 10), os.Size);
-                    if (requestId > 0)
-                    {
-                        FillInValue(os, new Ice.OutputStream.Position(0, Ice1Definitions.HeaderSize), requestId);
-                    }
-                    TraceUtil.TraceSend(os, _logger, _traceLevels);
+                    TraceUtil.TraceSend(_adapter.Communicator, outgingRequestFrame.Encoding, requestBuffer,
+                        _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var requestFrame = new Ice.InputStream(os.Communicator, os.Encoding, os.ToArray());
-                requestFrame.Pos = Ice1Definitions.RequestHeader.Length;
+                var incomingRequestFrame = new InputStream(_adapter.Communicator, outgingRequestFrame.Encoding, requestBuffer);
+                incomingRequestFrame.Pos = Ice1Definitions.RequestHeader.Length;
 
-                int start = requestFrame.Pos;
-                var current = new Ice.Current(requestId, requestFrame, _adapter);
+                int start = incomingRequestFrame.Pos;
+                var current = new Current(requestId, incomingRequestFrame, _adapter);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
-                    int encapsSize = requestFrame.GetEncapsulationSize();
+                    int encapsSize = incomingRequestFrame.GetEncapsulationSize();
 
                     dispatchObserver = communicatorObserver.GetDispatchObserver(current,
-                        requestFrame.Pos - start + encapsSize);
+                        incomingRequestFrame.Pos - start + encapsSize);
                     dispatchObserver?.Attach();
                 }
 
@@ -192,11 +192,11 @@ namespace IceInternal
                         throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
-                    ValueTask<Ice.OutputStream> vt = servant.DispatchAsync(requestFrame, current);
+                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequestFrame, current);
                     amd = !vt.IsCompleted;
                     if (requestId != 0)
                     {
-                        Ice.OutputStream responseFrame = await vt.ConfigureAwait(false);
+                        OutgoingResponseFrame responseFrame = await vt.ConfigureAwait(false);
                         dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
                         SendResponse(requestId, responseFrame, amd);
                     }
@@ -233,18 +233,14 @@ namespace IceInternal
             }
         }
 
-        private void SendResponse(int requestId, Ice.OutputStream os, bool amd)
+        private void SendResponse(int requestId, OutgoingResponseFrame responseFrame, bool amd)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                if (_traceLevels.Protocol >= 1)
-                {
-                    FillInValue(os, new Ice.OutputStream.Position(0, 10), os.Size);
-                }
-
-                // TODO Avoid copy OutputStream buffer
-                var iss = new Ice.InputStream(os.Communicator, os.Encoding, os.ToArray());
+                List<System.ArraySegment<byte>> responseData = responseFrame.GetResponseData(requestId);
+                byte[] responseBuffer = responseData.GetSegment(0, responseFrame.Size).ToArray();
+                var iss = new Ice.InputStream(_adapter.Communicator, responseFrame.Encoding, responseBuffer);
 
                 iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
 

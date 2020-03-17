@@ -88,9 +88,9 @@ namespace Ice
                                        IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
             var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
-            request.StartParameters();
-            request.WriteString(id);
-            request.EndParameters();
+            OutputStream ostr = request.WritePayload();
+            ostr.WriteString(id);
+            request.SavePayload(ostr);
             return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)

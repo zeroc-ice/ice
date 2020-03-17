@@ -56,12 +56,6 @@ namespace Ice
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
 
         /// <summary>
-        /// The communicator associated with this stream.
-        /// </summary>
-        /// <value>The communicator.</value>
-        public Communicator Communicator { get; }
-
-        /// <summary>
         /// The encoding used when writing from this stream.
         /// </summary>
         /// <value>The encoding.</value>
@@ -114,38 +108,35 @@ namespace Ice
         // segment and the offset into it.
         private Position _tail;
 
-        /// <summary>
-        /// This constructor uses the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public OutputStream(Communicator communicator)
-            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding)
-        {
-        }
+        internal Position Tail => _tail;
 
-        /// <summary>
-        /// This constructor uses the given communicator and encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <summary>This constructor uses the given communicator and encoding version.</summary>
         /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="buffer">The intial stream data.</param>
-        public OutputStream(Communicator communicator, Encoding encoding, byte[]? buffer = null)
+        /// <param name="data">The intial stream data.</param>
+        /// <param name="tail">The position at what start writing.</param>
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? tail = null)
         {
-            Communicator = communicator;
             Encoding = encoding;
-            _segmentList = new List<ArraySegment<byte>>();
-            _currentSegment = buffer ?? new byte[DefaultSegmentSize];
-            _segmentList.Add(_currentSegment);
-            _capacity = _currentSegment.Count;
-            if (buffer == null)
+            _segmentList = data;
+            if (_segmentList.Count == 0)
             {
+                _currentSegment = new byte[DefaultSegmentSize];
+                _segmentList.Add(_currentSegment);
+                _capacity = _currentSegment.Count;
                 Size = 0;
+                _tail = new Position(0, 0);
             }
             else
             {
-                Size = buffer.Length;
+                _tail = tail ?? new Position(0, 0);
+                _currentSegment = _segmentList[_tail.Segment];
+                Size = Distance(new Position(0, 0));
+                _capacity = 0;
+                foreach (ArraySegment<byte> segment in _segmentList)
+                {
+                    _capacity += segment.Count;
+                }
             }
-            _tail = new Position(0, Size);
         }
 
         /// <summary>
@@ -606,6 +597,8 @@ namespace Ice
         /// </summary>
         /// <param name="v">The int to write to the stream.</param>
         public void WriteInt(int v) => WriteNumeric(v, 4);
+
+        internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         /// <summary>
         /// Writes an optional int to the stream.
@@ -1254,24 +1247,30 @@ namespace Ice
         private int Distance(Position start)
         {
             Debug.Assert(_tail.Segment > start.Segment ||
-                         (_tail.Segment == start.Segment && _tail.Offset > start.Offset));
+                        (_tail.Segment == start.Segment && _tail.Offset > start.Offset));
 
+            return Distance(_segmentList, start, _tail);
+        }
+
+        internal static int Distance(IList<ArraySegment<byte>> data, Position start, Position end)
+        {
             // If both the start and end position are in the same array segment just
             // compute the offsets distance.
-            if (start.Segment == _tail.Segment)
+            if (start.Segment == end.Segment)
             {
-                return _tail.Offset - start.Offset;
+                return end.Offset - start.Offset;
             }
+
             // If start and end position are in different segments we need to acumulate the
             // size from start offset to the end of the start segment, the size of the intermediary
             // segments, and the current offset into the last segment.
-            ArraySegment<byte> segment = _segmentList[start.Segment];
+            ArraySegment<byte> segment = data[start.Segment];
             int size = segment.Count - start.Offset;
-            for (int i = start.Segment + 1; i < _tail.Segment; ++i)
+            for (int i = start.Segment + 1; i < end.Segment; ++i)
             {
-                size += _segmentList[i].Count;
+                size += data[i].Count;
             }
-            return size + _tail.Offset;
+            return size + end.Offset;
         }
 
         /// <summary>Write a span of bytes to the stream. The stream capacity is expanded
@@ -1344,6 +1343,9 @@ namespace Ice
             _tail.Offset = _currentSegment.Count;
         }
 
+        // Adjust the last segment to the written bytes.
+        internal void Finish() => _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
+
         /// <summary>Expand the stream to make room for more data, if the stream
         /// remaining bytes are not enough to hold the given number of bytes allocate
         /// a new byte array, after this method return the stream has enough free space
@@ -1402,8 +1404,6 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         internal void Swap(OutputStream other)
         {
-            Debug.Assert(Communicator == other.Communicator);
-
             (_segmentList, other._segmentList) = (other._segmentList, _segmentList);
             (Size, other.Size) = (other.Size, Size);
             (_capacity, other._capacity) = (other._capacity, _capacity);
