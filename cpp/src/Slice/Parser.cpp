@@ -3074,47 +3074,67 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
                 switch(b->kind())
                 {
                     case Builtin::KindByte:
+                    {
                         min = 0;
                         max = UINT8_MAX;
                         break;
+                    }
                     case Builtin::KindShort:
+                    {
                         min = INT16_MIN;
                         max = INT16_MAX;
                         break;
+                    }
                     case Builtin::KindUShort:
+                    {
                         min = 0;
                         max = UINT16_MAX;
                         break;
+                    }
                     case Builtin::KindInt:
                     case Builtin::KindVarInt:
+                    {
                         min = INT32_MIN;
                         max = INT32_MAX;
                         break;
+                    }
                     case Builtin::KindUInt:
                     case Builtin::KindVarUInt:
+                    {
                         min = 0;
                         max = UINT32_MAX;
                         break;
+                    }
                     case Builtin::KindLong:
+                    {
                         min = INT64_MIN;
                         max = INT64_MAX;
                         break;
+                    }
                     case Builtin::KindULong:
+                    {
                         min = 0;
                         max = UINT64_MAX;
                         break;
+                    }
                     // The first 2 bits are reserved for storing the length, so we only have 62 bits for the value.
                     case Builtin::KindVarLong:
+                    {
                         // We lose another bit here for the sign.
                         min = -(1 << 61);
                         max = (1 << 61) - 1;
                         break;
+                    }
                     case Builtin::KindVarULong:
+                    {
                         min = 0;
                         max = (1 << 62) - 1;
                         break;
+                    }
                     default:
+                    {
                         throw logic_error("");
+                    }
                 }
 
                 auto val = stoll(value);
