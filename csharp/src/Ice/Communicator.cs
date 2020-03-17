@@ -163,7 +163,8 @@ namespace Ice
         private Identity? _adminIdentity;
         private AsyncIOThread? _asyncIOThread;
         private readonly IceInternal.ThreadPool _clientThreadPool;
-        private readonly Func<int, string>? _compactIdResolver;
+        private readonly ConcurrentDictionary<int, Type?> _compactIdCache = new ConcurrentDictionary<int, Type?>();
+        private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
         private IReadOnlyDictionary<string, string> _defaultContext = IceInternal.Reference.EmptyContext;
@@ -179,12 +180,10 @@ namespace Ice
         private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
-        private readonly string[] _typeIdNamespaces = { "Ice.TypeId" };
         private readonly ConcurrentDictionary<string, Type?> _typeIdCache = new ConcurrentDictionary<string, Type?>();
-        private readonly ConcurrentDictionary<int, Type?> _compactIdCache = new ConcurrentDictionary<int, Type?>();
+        private readonly string[] _typeIdNamespaces;
 
         public Communicator(Dictionary<string, string>? properties,
-                            Func<int, string>? compactIdResolver = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -193,7 +192,6 @@ namespace Ice
             this(ref _emptyArgs,
                  null,
                  properties,
-                 compactIdResolver,
                  logger,
                  observer,
                  threadStart,
@@ -204,7 +202,6 @@ namespace Ice
 
         public Communicator(ref string[] args,
                             Dictionary<string, string>? properties,
-                            Func<int, string>? compactIdResolver = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -213,7 +210,6 @@ namespace Ice
             this(ref args,
                  null,
                  properties,
-                 compactIdResolver,
                  logger,
                  observer,
                  threadStart,
@@ -224,7 +220,6 @@ namespace Ice
 
         public Communicator(NameValueCollection? appSettings = null,
                             Dictionary<string, string>? properties = null,
-                            Func<int, string>? compactIdResolver = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -233,7 +228,6 @@ namespace Ice
             this(ref _emptyArgs,
                  appSettings,
                  properties,
-                 compactIdResolver,
                  logger,
                  observer,
                  threadStart,
@@ -245,7 +239,6 @@ namespace Ice
         public Communicator(ref string[] args,
                             NameValueCollection? appSettings,
                             Dictionary<string, string>? properties = null,
-                            Func<int, string>? compactIdResolver = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
@@ -253,12 +246,12 @@ namespace Ice
                             string[]? typeIdNamespaces = null)
         {
             _state = StateActive;
-            _compactIdResolver = compactIdResolver;
             Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
             ThreadStart = threadStart;
             ThreadStop = threadStop;
             _typeIdNamespaces = typeIdNamespaces ?? new string[] { "Ice.TypeId" };
+            _compactIdNamespaces = new string[] { "IceCompactId" }.Concat(_typeIdNamespaces).ToArray();
 
             if (properties == null)
             {
@@ -1886,23 +1879,19 @@ namespace Ice
             }
         }
 
-        //
         // Return the C# class associated with this Slice type-id
-        // Used for both non-local Slice classes and exceptions
-        //
+        // Used for both Slice classes and exceptions
         internal Type? ResolveClass(string typeId)
         {
-            return _typeIdCache.GetOrAdd(typeId, id =>
+            return _typeIdCache.GetOrAdd(typeId, typeId =>
             {
                 // First attempt corresponds to no cs:namespace metadata in the
                 // enclosing top-level module
-                string className = TypeToClass(id);
+                string className = TypeToClass(typeId);
                 Type? classType = AssemblyUtil.FindType(className);
 
-                //
                 // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
-                //
-                if (classType == null && _typeIdNamespaces != null)
+                if (classType == null)
                 {
                     foreach (string ns in _typeIdNamespaces)
                     {
@@ -1914,16 +1903,14 @@ namespace Ice
                                 classType = helper.GetProperty("targetClass").PropertyType;
                                 break; // foreach
                             }
-                            catch (System.Exception)
+                            catch (Exception)
                             {
                             }
                         }
                     }
                 }
 
-                //
                 // Ensure the class is instantiable.
-                //
                 if (classType != null && !classType.IsAbstract && !classType.IsInterface)
                 {
                     return classType;
@@ -1935,21 +1922,13 @@ namespace Ice
 
         internal Type? ResolveCompactId(int compactId)
         {
-            return _compactIdCache.GetOrAdd(compactId, id =>
+            return _compactIdCache.GetOrAdd(compactId, compactId =>
             {
-                string[] defaultVal = { "IceCompactId" };
-                var compactIdNamespaces = new List<string>(defaultVal);
-
-                if (_typeIdNamespaces != null)
-                {
-                    compactIdNamespaces.AddRange(_typeIdNamespaces);
-                }
-
-                foreach (string ns in compactIdNamespaces)
+                foreach (string ns in _compactIdNamespaces)
                 {
                     try
                     {
-                        Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{id}");
+                        Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
                         if (classType != null)
                         {
                             var result = (string)classType.GetField("typeId").GetValue(null);
@@ -1960,7 +1939,7 @@ namespace Ice
                             return null;
                         }
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                 }
