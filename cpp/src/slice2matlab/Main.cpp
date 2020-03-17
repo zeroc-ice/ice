@@ -47,6 +47,28 @@ using namespace IceUtilInternal;
 namespace
 {
 
+static const std::array<std::string, 18> builtinSuffixTable =
+{
+    "Bool",
+    "Byte",
+    "Short",
+    "UShort",
+    "Int",
+    "UInt",
+    "VarInt",
+    "VarUInt",
+    "Long",
+    "ULong",
+    "VarLong",
+    "VarULong",
+    "Float",
+    "Double",
+    "String",
+    "Value",
+    "Proxy",
+    "Value",
+};
+
 //
 // Split an absolute name into its components and return the components as a list of identifiers.
 //
@@ -326,13 +348,20 @@ getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const s
 string
 typeToString(const TypePtr& type)
 {
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
-        "uint8",
         "logical",
+        "uint8",
         "int16",
+        "uint16",
         "int32",
+        "uint32",
+        "int32",
+        "uint32",
         "int64",
+        "uint64",
+        "int64",
+        "uint64",
         "single",
         "double",
         "char",
@@ -399,6 +428,7 @@ dictionaryTypeToString(const TypePtr& type, bool key)
             case Builtin::KindBool:
             case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             {
                 //
                 // containers.Map supports a limited number of key types.
@@ -406,7 +436,13 @@ dictionaryTypeToString(const TypePtr& type, bool key)
                 return key ? "int32" : typeToString(type);
             }
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             case Builtin::KindString:
             {
                 return typeToString(type);
@@ -426,7 +462,7 @@ dictionaryTypeToString(const TypePtr& type, bool key)
             }
             default:
             {
-                return "???";
+                throw logic_error("");
             }
         }
     }
@@ -452,8 +488,7 @@ declarePropertyType(const TypePtr& type, bool optional)
     }
 
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    if(b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
-             b->kind() == Builtin::KindValue))
+    if(b && (b->usesClasses() || b->kind() == Builtin::KindObjectProxy))
     {
         return false;
     }
@@ -471,35 +506,17 @@ constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const str
     }
     else
     {
-        BuiltinPtr bp;
-        if((bp = BuiltinPtr::dynamicCast(type)))
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if(builtin)
         {
-            switch(bp->kind())
+            if(builtin->kind() == Builtin::KindString)
             {
-                case Builtin::KindString:
-                {
-                    return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
-                }
-                case Builtin::KindBool:
-                case Builtin::KindByte:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                {
-                    return value;
-                }
-
-                default:
-                {
-                    return "???";
-                }
+                return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
             }
-
+            else
+            {
+                return value;
+            }
         }
         else if(EnumPtr::dynamicCast(type))
         {
@@ -538,8 +555,15 @@ defaultValue(const DataMemberPtr& m)
                     return "false";
                 case Builtin::KindByte:
                 case Builtin::KindShort:
+                case Builtin::KindUShort:
                 case Builtin::KindInt:
+                case Builtin::KindUInt:
+                case Builtin::KindVarInt:
+                case Builtin::KindVarUInt:
                 case Builtin::KindLong:
+                case Builtin::KindULong:
+                case Builtin::KindVarLong:
+                case Builtin::KindVarULong:
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                     return "0";
@@ -593,7 +617,7 @@ isClass(const TypePtr& type)
 {
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
+    return (b && b->usesClasses()) || cl;
 }
 
 bool
@@ -2973,28 +2997,9 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const TypePtr content = p->type();
 
     const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
-    if(b)
+    if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
     {
-        switch(b->kind())
-        {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-            {
-                return;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindValue:
-            {
-                break;
-            }
-        }
+        return;
     }
 
     EnumPtr enumContent = EnumPtr::dynamicCast(content);
@@ -3851,129 +3856,14 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        switch(builtin->kind())
+        out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()];
+        if(isTagged)
         {
-            case Builtin::KindByte:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeByteOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeByte(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindBool:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeBoolOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeBool(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeShortOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeShort(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeIntOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeInt(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeLongOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeLong(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeFloatOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeFloat(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeDoubleOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeDouble(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindString:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeStringOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeString(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeValue(" << v << ");";
-                }
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".writeProxyOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeProxy(" << v << ");";
-                }
-                break;
-            }
+            out << "Opt(" << tag << ", " << v << ");";
+        }
+        else
+        {
+            out << "(" << v << ")";
         }
         return;
     }
@@ -4056,26 +3946,9 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         const TypePtr content = seq->type();
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-           b->kind() != Builtin::KindValue)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
         {
-            static const char* builtinTable[] =
-            {
-                "Byte",
-                "Bool",
-                "Short",
-                "Int",
-                "Long",
-                "Float",
-                "Double",
-                "String",
-                "???",
-                "???",
-                "???",
-                "???"
-            };
-            string bs = builtinTable[b->kind()];
-            out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
+            out << nl << stream << ".write" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)
             {
                 out << "Opt(" << tag << ", ";
@@ -4109,128 +3982,28 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        switch(builtin->kind())
+        if(builtin->usesClasses())
         {
-            case Builtin::KindByte:
+            out << nl << stream << ".readValue";
+            if(isTagged)
             {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readByteOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readByte();";
-                }
-                break;
+                out << "Opt(" << tag << ", " << v << ", 'Ice.Value');";
             }
-            case Builtin::KindBool:
+            else
             {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readBoolOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readBool();";
-                }
-                break;
+                out << "(" << v << ", 'Ice.Value');";
             }
-            case Builtin::KindShort:
+        }
+        else
+        {
+            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()];
+            if(isTagged)
             {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readShortOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readShort();";
-                }
-                break;
+                out << "Opt(" << tag << ");";
             }
-            case Builtin::KindInt:
+            else
             {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readIntOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readInt();";
-                }
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readLongOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readLong();";
-                }
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readFloatOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readFloat();";
-                }
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readDoubleOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readDouble();";
-                }
-                break;
-            }
-            case Builtin::KindString:
-            {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readStringOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readString();";
-                }
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                if(isTagged)
-                {
-                    out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", 'Ice.Value');";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << v << ", 'Ice.Value');";
-                }
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                if(isTagged)
-                {
-                    out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readProxy();";
-                }
-                break;
+                out << "();";
             }
         }
         return;
@@ -4335,26 +4108,9 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         const TypePtr content = seq->type();
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-           b->kind() != Builtin::KindValue)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
         {
-            static const char* builtinTable[] =
-            {
-                "Byte",
-                "Bool",
-                "Short",
-                "Int",
-                "Long",
-                "Float",
-                "Double",
-                "String",
-                "???",
-                "???",
-                "???",
-                "???"
-            };
-            string bs = builtinTable[b->kind()];
-            out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
+            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)
             {
                 out << "Opt(" << tag << ");";
