@@ -26,7 +26,6 @@ module Ice
         Identity id;
         string facet;
         string operation;
-        string message; // TODO: switch to an optional string
     }
 
     // A dispatch exception is an exception that occurs during the server-side request dispatch before the operation

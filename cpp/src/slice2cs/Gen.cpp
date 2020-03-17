@@ -103,6 +103,21 @@ getEscapedParamName(const OperationPtr& p, const string& name)
     return name;
 }
 
+string
+getEscapedParamName(const ExceptionPtr& p, const string& name)
+{
+    DataMemberList params = p->allDataMembers();
+
+    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if((*i)->name() == name)
+        {
+            return name + "_";
+        }
+    }
+    return name;
+}
+
 bool
 hasDataMemberWithName(const DataMemberList& dataMembers, const string& name)
 {
@@ -1521,7 +1536,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList dataMembers = p->dataMembers();
 
-    vector<string> allParamDecl;
+    string messageParamName = getEscapedParamName(p, "message");
+
+    vector<string> allParamDecl = { "string " +  messageParamName };
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
@@ -1529,25 +1546,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         allParamDecl.push_back(memberType + " " + memberName);
     }
 
-    vector<string> paramNames;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        paramNames.push_back(fixId((*q)->name()));
-    }
-
-    vector<string> paramDecl;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns, (*q)->tagged());
-        paramDecl.push_back(memberType + " " + memberName);
-    }
-
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
     if(p->base())
     {
+        baseParamNames.push_back(messageParamName);
         baseDataMembers = p->base()->allDataMembers();
         for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
@@ -1562,6 +1566,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
          << name << "))!;";
 
     _out << sp;
+
+    // TODO: remove this parameter-less constructor used by unmarshaling code.
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "()";
     _out << sb;
@@ -1574,7 +1580,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
+         << "global::System.Runtime.Serialization.StreamingContext context)";
+    _out.inc();
+    _out << nl << ": base(info, context)";
+    _out.dec();
     _out << sb;
     if(!dataMembers.empty())
     {
@@ -1653,26 +1662,47 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    if(!allDataMembers.empty())
+    bool generateMessageLessCtor = false; // one-shot ctor without message
+    do
     {
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar << allParamDecl << epar;
-        if(p->base() && allDataMembers.size() != dataMembers.size())
+        _out.inc();
+        if (p->base() && allDataMembers.size() != dataMembers.size())
         {
-            _out << " : base" << spar << baseParamNames << epar;
+            _out << nl << ": base" << spar << baseParamNames << epar;
         }
-        _out << sb;
-        if(!dataMembers.empty())
+        else if (!generateMessageLessCtor)
         {
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            _out << nl << ": base" << spar << messageParamName << epar;
+        }
+        // else, it's the message-less ctor, so we use the base's parameterless ctor.
+        _out.dec();
+        _out << sb;
+        if (!dataMembers.empty())
+        {
+            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
                 _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
             }
         }
         _out << eb;
-    }
+        if (generateMessageLessCtor)
+        {
+            generateMessageLessCtor = false; // done
+        }
+        else if (allParamDecl.size() > 1)
+        {
+            allParamDecl.erase(allParamDecl.cbegin()); // remove message
+            if (baseParamNames.size() > 1)
+            {
+                baseParamNames.erase(baseParamNames.cbegin()); // remove message
+            }
+            generateMessageLessCtor = true;
+        }
+    } while (generateMessageLessCtor);
 
     if(!dataMembers.empty())
     {

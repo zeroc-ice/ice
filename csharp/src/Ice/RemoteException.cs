@@ -19,22 +19,35 @@ namespace Ice
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; } = false;
 
+        /// <summary>When true, a custom message was provided to the constructor. Otherwise, false.</summary>
+        protected bool HasCustomMessage { get; } = false;
+
         protected SlicedData? IceSlicedData { get; set; }
+
         internal SlicedData? SlicedData => IceSlicedData;
 
         internal RemoteException(SlicedData slicedData) => IceSlicedData = slicedData;
 
-        /// <summary>Creates a default-initialized remote exception.</summary>
+        /// <summary>Constructs a remote exception with the default system message.</summary>
         protected RemoteException()
         {
         }
 
-        /// <summary>Creates a default-initialized remote exception and sets the InnerException property to the passed
-        /// exception.</summary>
-        /// <param name="innerException">The inner exception.</param>
-        protected RemoteException(System.Exception innerException)
-            : base("", innerException)
+        /// <summary>Constructs a remote exception with the provided message.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        protected RemoteException(string message)
+            : base(message)
         {
+            HasCustomMessage = true;
+        }
+
+        /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        /// <param name="innerException">The inner exception.</param>
+        protected RemoteException(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+            HasCustomMessage = true;
         }
 
         /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>

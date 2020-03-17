@@ -386,6 +386,7 @@ namespace Ice.exceptions
                 catch (ObjectNotExistException ex)
                 {
                     test(ex.Id.Equals(id));
+                    test(ex.Message.Contains("servant")); // verify we don't get system message
                 }
                 catch (System.Exception)
                 {
@@ -409,6 +410,7 @@ namespace Ice.exceptions
                 catch (ObjectNotExistException ex)
                 {
                     test(ex.Facet.Equals("no such facet"));
+                    test(ex.Message.Contains("with facet")); // verify we don't get system message
                 }
             }
             catch (System.Exception)
@@ -430,6 +432,7 @@ namespace Ice.exceptions
             catch (OperationNotExistException ex)
             {
                 test(ex.Operation.Equals("noSuchOperation"));
+                test(ex.Message.Contains("could not find operation")); // verify we don't get system message
             }
             catch (System.Exception)
             {
@@ -446,8 +449,9 @@ namespace Ice.exceptions
                 thrower.throwLocalException();
                 test(false);
             }
-            catch (UnhandledException)
+            catch (UnhandledException ex)
             {
+                 test(ex.Message.Contains("unhandled exception")); // verify we get custom message
             }
             catch (System.Exception)
             {
@@ -476,7 +480,7 @@ namespace Ice.exceptions
                 thrower.throwNonIceException();
                 test(false);
             }
-            catch (UnhandledException)
+            catch (UnhandledException ex)
             {
             }
             catch (System.Exception)
