@@ -8,12 +8,15 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
+#include <array>
 #include <string>
 #include <vector>
 #include <list>
 #include <stack>
 #include <map>
+#include <optional>
 #include <set>
+#include <string_view>
 #include <stdio.h>
 
 namespace Slice
@@ -359,11 +362,18 @@ public:
 
     enum Kind
     {
-        KindByte,
         KindBool,
+        KindByte,
         KindShort,
+        KindUShort,
         KindInt,
+        KindUInt,
+        KindVarInt,
+        KindVarUInt,
         KindLong,
+        KindULong,
+        KindVarLong,
+        KindVarULong,
         KindFloat,
         KindDouble,
         KindString,
@@ -377,17 +387,42 @@ public:
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
 
+    bool isNumeric() const;
+    bool isWholeNumber() const;
+    bool isUnsignedNumber() const;
+
     Kind kind() const;
     std::string kindAsString() const;
+    static std::optional<Kind> kindFromString(std::string_view);
 
-    static const char* builtinTable[];
+    inline static const std::array<std::string, 18> builtinTable =
+    {
+        "bool",
+        "byte",
+        "short",
+        "ushort",
+        "int",
+        "uint",
+        "varint",
+        "varuint",
+        "long",
+        "ulong",
+        "varlong",
+        "varulong",
+        "float",
+        "double",
+        "string",
+        "Object",
+        "Object*",
+        "Value"
+    };
 
 protected:
 
     Builtin(const UnitPtr&, Kind);
     friend class Unit;
 
-    Kind _kind;
+    const Kind _kind;
 };
 
 // ----------------------------------------------------------------------

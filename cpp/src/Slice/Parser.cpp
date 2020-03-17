@@ -145,7 +145,7 @@ isMutableAfterReturnType(const TypePtr& type)
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+    if(builtin && builtin->usesClasses())
     {
         return true;
     }
@@ -441,66 +441,14 @@ Slice::Type::Type(const UnitPtr& unt) :
 string
 Slice::Builtin::typeId() const
 {
-    switch(_kind)
+    if(usesClasses() || _kind == KindObjectProxy)
     {
-        case KindByte:
-        {
-            return "byte";
-            break;
-        }
-        case KindBool:
-        {
-            return "bool";
-            break;
-        }
-        case KindShort:
-        {
-            return "short";
-            break;
-        }
-        case KindInt:
-        {
-            return "int";
-            break;
-        }
-        case KindLong:
-        {
-            return "long";
-            break;
-        }
-        case KindFloat:
-        {
-            return "float";
-            break;
-        }
-        case KindDouble:
-        {
-            return "double";
-            break;
-        }
-        case KindString:
-        {
-            return "string";
-            break;
-        }
-        case KindObject:
-        {
-            return "::Ice::Object";
-            break;
-        }
-        case KindObjectProxy:
-        {
-            return "::Ice::Object*";
-            break;
-        }
-        case KindValue:
-        {
-            return "::Ice::Value";
-            break;
-        }
+        return "::Ice::" + kindAsString();
     }
-    assert(false);
-    return ""; // Keep the compiler happy.
+    else
+    {
+        return kindAsString();
+    }
 }
 
 bool
@@ -512,55 +460,135 @@ Slice::Builtin::usesClasses() const
 size_t
 Slice::Builtin::minWireSize() const
 {
-    static size_t minWireSizeTable[] =
+    switch(_kind)
     {
-        1, // KindByte
-        1, // KindBool
-        2, // KindShort
-        4, // KindInt
-        8, // KindLong
-        4, // KindFloat
-        8, // KindDouble
-        1, // KindString: at least one byte for an empty string.
-        1, // KindObject: at least one byte (to marshal an index instead of an instance).
-        2, // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
-        1  // KindValue: at least one byte (to marshal an index instead of an instance).
-    };
-    return minWireSizeTable[_kind];
+        case KindBool: return 1;
+        case KindByte: return 1;
+        case KindShort: return 2;
+        case KindUShort: return 2;
+        case KindInt: return 4;
+        case KindUInt: return 4;
+        case KindVarInt: return 1;
+        case KindVarUInt: return 1;
+        case KindLong: return 8;
+        case KindULong: return 8;
+        case KindVarLong: return 1;
+        case KindVarULong: return 1;
+        case KindFloat: return 4;
+        case KindDouble: return 8;
+        case KindString: return 1; // at least one byte for an empty string.
+        case KindObject: return 1; // at least one byte (to marshal an index instead of an instance).
+        case KindObjectProxy: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
+        case KindValue: return 1; // at least one byte (to marshal an index instead of an instance).
+    }
 }
 
 bool
 Slice::Builtin::isVariableLength() const
 {
-    return _kind == KindString || _kind == KindObject || _kind == KindObjectProxy || _kind == KindValue;
+    switch(_kind)
+    {
+        case KindVarInt:
+        case KindVarUInt:
+        case KindVarLong:
+        case KindVarULong:
+        case KindString:
+        case KindObject:
+        case KindObjectProxy:
+        case KindValue:
+            return true;
+        default:
+            return false;
+    }
 }
 
-Builtin::Kind
+bool
+Slice::Builtin::isNumeric() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+        case KindShort:
+        case KindUShort:
+        case KindInt:
+        case KindUInt:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindLong:
+        case KindULong:
+        case KindVarLong:
+        case KindVarULong:
+        case KindFloat:
+        case KindDouble:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool
+Slice::Builtin::isWholeNumber() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+        case KindShort:
+        case KindUShort:
+        case KindInt:
+        case KindUInt:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindLong:
+        case KindULong:
+        case KindVarLong:
+        case KindVarULong:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool
+Slice::Builtin::isUnsignedNumber() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+        case KindUShort:
+        case KindUInt:
+        case KindVarUInt:
+        case KindULong:
+        case KindVarULong:
+            return true;
+        default:
+            return false;
+    }
+}
+
+Slice::Builtin::Kind
 Slice::Builtin::kind() const
 {
     return _kind;
 }
 
 string
-Builtin::kindAsString() const
+Slice::Builtin::kindAsString() const
 {
     return builtinTable[_kind];
 }
 
-const char* Slice::Builtin::builtinTable[] =
+optional<Slice::Builtin::Kind>
+Slice::Builtin::kindFromString(string_view str)
+{
+    for(size_t i = 0; i < builtinTable.size(); i++)
     {
-        "byte",
-        "bool",
-        "short",
-        "int",
-        "long",
-        "float",
-        "double",
-        "string",
-        "Object",
-        "Object*",
-        "Value"
-    };
+        if(str == builtinTable[i])
+        {
+            return static_cast<Kind>(i);
+        }
+    }
+    return nullopt;
+}
 
 Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
     SyntaxTreeBase(ut),
@@ -1669,14 +1697,12 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     //
     // Check for builtin type.
     //
-    for(unsigned int i = 0; i < sizeof(Builtin::builtinTable) / sizeof(const char*); ++i)
+    auto kind = Builtin::kindFromString(sc);
+    if(kind)
     {
-        if(sc == Builtin::builtinTable[i])
-        {
-            TypeList result;
-            result.push_back(_unit->builtin(static_cast<Builtin::Kind>(i)));
-            return result;
-        }
+        TypeList result;
+        result.push_back(_unit->builtin(kind.value()));
+        return result;
     }
 
     //
@@ -2912,30 +2938,18 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 
     if(b)
     {
-        switch(b->kind())
+        if(b->usesClasses() || b->kind() == Builtin::KindObjectProxy)
         {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-                break;
-            default:
+            if(isConstant)
             {
-                if(isConstant)
-                {
-                    _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
-                }
-                else
-                {
-                    _unit->error("default value not allowed for data member `" + name + "' of type `" +
-                                 b->kindAsString() + "'");
-                }
-                return false;
+                _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
             }
+            else
+            {
+                _unit->error("default value not allowed for data member `" + name + "' of type `" +
+                             b->kindAsString() + "'");
+            }
+            return false;
         }
     }
     else if(!e)
@@ -2970,68 +2984,22 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 
         if(lt)
         {
-            bool ok = true;
-            switch(b->kind())
+            bool ok = false;
+            if(b->kind() == lt->kind())
             {
-                case Builtin::KindBool:
-                {
-                    if(lt->kind() != Builtin::KindBool)
-                    {
-                        ok = false;
-                    }
-                    break;
-                }
-                case Builtin::KindByte:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                {
-                    switch(lt->kind())
-                    {
-                    case Builtin::KindByte:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                        break;
-                    default:
-                        ok = false;
-                        break;
-                    }
-                    break;
-                }
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                {
-                    switch(lt->kind())
-                    {
-                    case Builtin::KindByte:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                    case Builtin::KindFloat:
-                    case Builtin::KindDouble:
-                        break;
-                    default:
-                        ok = false;
-                        break;
-                    }
-                    break;
-                }
-                case Builtin::KindString:
-                {
-                    if(lt->kind() != Builtin::KindString)
-                    {
-                        ok = false;
-                    }
-                    break;
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                {
-                    assert(false);
-                    break;
-                }
+                ok = true;
+            }
+            else if(b->isUnsignedNumber())
+            {
+                ok = lt->isUnsignedNumber();
+            }
+            else if(b->isWholeNumber())
+            {
+                ok = lt->isWholeNumber();
+            }
+            else if(b->isNumeric())
+            {
+                ok = lt->isNumeric();
             }
 
             if(!ok)
@@ -3050,49 +3018,86 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
             return false;
         }
 
-        switch(b->kind())
+        // Check that numeric values are within the type's legal range.
+        int64_t min;
+        uint64_t max;
+        try
         {
-            case Builtin::KindByte:
+            // `unsigned long long`s don't fit in a `long long`, so we check them separately with `stoull`.
+            if(b->kind() == Builtin::KindULong)
             {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-                if(l < ByteMin || l > ByteMax)
+                min = 0;
+                max = UINT64_MAX;
+                auto val = stoull(value);
+                if(val < static_cast<uint64_t>(min) || val > max)
                 {
-                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
-                        "' out of range for type byte";
-                    _unit->error(msg);
-                    return false;
+                    // `stoull` throws this if the value is outside the range of an unsigned long long.
+                    // So it makes sense to piggyback on this and then handle errors all in one place.
+                    throw out_of_range("");
                 }
-                break;
             }
-            case Builtin::KindShort:
+            else if(b->isWholeNumber())
             {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-                if(l < Int16Min || l > Int16Max)
+                switch(b->kind())
                 {
-                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
-                        "' out of range for type short";
-                    _unit->error(msg);
-                    return false;
+                    case Builtin::KindByte:
+                        min = 0;
+                        max = UINT8_MAX;
+                        break;
+                    case Builtin::KindShort:
+                        min = INT16_MIN;
+                        max = INT16_MAX;
+                        break;
+                    case Builtin::KindUShort:
+                        min = 0;
+                        max = UINT16_MAX;
+                        break;
+                    case Builtin::KindInt:
+                    case Builtin::KindVarInt:
+                        min = INT32_MIN;
+                        max = INT32_MAX;
+                        break;
+                    case Builtin::KindUInt:
+                    case Builtin::KindVarUInt:
+                        min = 0;
+                        max = UINT32_MAX;
+                        break;
+                    case Builtin::KindLong:
+                        min = INT64_MIN;
+                        max = INT64_MAX;
+                        break;
+                    case Builtin::KindULong:
+                        min = 0;
+                        max = UINT64_MAX;
+                        break;
+                    // The first 2 bits are reserved for storing the length, so we only have 62 bits for the value.
+                    case Builtin::KindVarLong:
+                        // We lose another bit here for the sign.
+                        min = -(1 << 61);
+                        max = (1 << 61) - 1;
+                        break;
+                    case Builtin::KindVarULong:
+                        min = 0;
+                        max = (1 << 62) - 1;
+                        break;
+                    default:
+                        throw logic_error("");
                 }
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-                if(l < Int32Min || l > Int32Max)
-                {
-                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
-                        "' out of range for type int";
-                    _unit->error(msg);
-                    return false;
-                }
-                break;
-            }
 
-            default:
-            {
-                break;
+                auto val = stoll(value);
+                if(val < min || val > static_cast<int64_t>(max))
+                {
+                    // `stoll` throws this if the value is outside the range of a long long.
+                    // So it makes sense to piggyback on this and then handle errors all in one place.
+                    throw out_of_range("");
+                }
             }
+        }
+        catch(const out_of_range&)
+        {
+            _unit->error("initializer `" + value + "' for " + desc + " `" + name + " ' out of range for type " +
+                         b->kindAsString());
+            return false;
         }
     }
 
@@ -3886,9 +3891,7 @@ Slice::ClassDef::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4366,9 +4369,7 @@ Slice::Exception::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4642,9 +4643,7 @@ Slice::Struct::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4967,26 +4966,22 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
     {
         switch(bp->kind())
         {
-            case Builtin::KindByte:
             case Builtin::KindBool:
+            case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             case Builtin::KindString:
-            {
                 return true;
-                break;
-            }
-
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindValue:
-            {
+            default:
                 return false;
-                break;
-            }
         }
     }
 
