@@ -117,11 +117,9 @@ namespace Ice
             IsSealed = true;
         }
 
-        /// <summary>
-        /// Creates and returns an OutputStream that can be used to write the payload of this request,
-        /// once the caller finish writting the payload it must call SavePayload and passing the returned
-        /// stream as argument.
-        /// </summary>
+        /// <summary>Creates and returns an OutputStream that can be used to write the payload of this request,
+        /// once the caller finish writting the payload it must call SavePayload passing the returned
+        /// stream as argument.</summary>
         /// <param name="format">The format type for the payload.</param>
         /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
         public override OutputStream WritePayload(FormatType? format = null)

@@ -159,6 +159,7 @@ namespace IceInternal
                 byte[] requestBuffer = requestData.GetSegment(0, outgingRequestFrame.Size).ToArray();
                 if (_traceLevels.Protocol >= 1)
                 {
+                    // TODO we need a better API for tracing
                     TraceUtil.TraceSend(_adapter.Communicator, outgingRequestFrame.Encoding, requestBuffer,
                         _logger, _traceLevels);
                 }
