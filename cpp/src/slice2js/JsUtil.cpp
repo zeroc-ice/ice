@@ -34,6 +34,33 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+namespace
+{
+
+const std::array<std::string, 18> builtinSuffixTable =
+{
+    "Bool",
+    "Byte",
+    "Short",
+    "UShort",
+    "Int",
+    "UInt",
+    "VarInt",
+    "VarUInt",
+    "Long",
+    "ULong",
+    "VarLong",
+    "VarULong",
+    "Float",
+    "Double",
+    "String",
+    "Object",
+    "Proxy",
+    "Object"
+};
+
+}
+
 string
 Slice::relativePath(const string& p1, const string& p2)
 {
@@ -121,12 +148,19 @@ lookupKwd(const string& name)
 string
 Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
 {
-    static const char* builtinModuleTable[] =
+    static const std::array<std::string, 18> builtinModuleTable =
     {
-        "",           // byte
         "",           // bool
+        "",           // byte
+        "",           // short
         "",           // short
         "",           // int
+        "",           // int
+        "",           // int
+        "",           // int
+        "ice",        // long
+        "ice",        // long
+        "ice",        // long
         "ice",        // long
         "",           // float
         "",           // double
@@ -164,8 +198,7 @@ bool
 Slice::JsGenerator::isClassType(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
-        ClassDeclPtr::dynamicCast(type);
+    return (builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type);
 }
 
 //
@@ -335,13 +368,20 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return "void";
     }
 
-    static const char* typeScriptBuiltinTable[] =
+    static const std::array<std::string, 18> typeScriptBuiltinTable =
     {
-        "number",           // byte
         "boolean",          // bool
+        "number",           // byte
         "number",           // short
+        "number",           // ushort
         "number",           // int
+        "number",           // uint
+        "number",           // varint
+        "number",           // varuint
         "Ice.Long",         // long
+        "Ice.Long",         // ulong
+        "Ice.Long",         // varlong
+        "Ice.Long",         // varulong
         "number",           // float
         "number",           // double
         "string",
@@ -350,13 +390,20 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "Ice.Value"
     };
 
-    static const char* javaScriptBuiltinTable[] =
+    static const std::array<std::string, 18> javaScriptBuiltinTable =
     {
-        "Number",           // byte
         "Boolean",          // bool
+        "Number",           // byte
         "Number",           // short
+        "Number",           // ushort
         "Number",           // int
+        "Number",           // uint
+        "Number",           // varint
+        "Number",           // varuint
         "Ice.Long",         // long
+        "Ice.Long",         // ulong
+        "Ice.Long",         // varlong
+        "Ice.Long",         // varulong
         "Number",           // float
         "Number",           // double
         "String",
@@ -478,7 +525,9 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             const TypePtr keyType = d->keyType();
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(keyType);
             ostringstream os;
-            if ((builtin && builtin->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
+            if ((builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindULong ||
+                 builtin->kind() == Builtin::KindVarLong || builtin->kind() == Builtin::KindVarULong)) ||
+                 StructPtr::dynamicCast(keyType))
             {
                 const string prefix = importPrefix("Ice.HashMap", toplevel);
                 os << prefix << getUnqualified("Ice.HashMap", toplevel->scope(), prefix);
@@ -608,139 +657,30 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               const string& param,
                                               bool marshal)
 {
-    string stream = marshal ? "ostr" : "istr";
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    // Builtin types that use classes are handled by isClassType below.
+    if(builtin && !builtin->usesClasses())
     {
-        switch(builtin->kind())
+        if(marshal)
         {
-            case Builtin::KindByte:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeByte(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readByte()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindBool:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeBool(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readBool()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindShort:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeShort(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readShort()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindInt:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeInt(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readInt()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindLong:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeLong(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readLong()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindFloat:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeFloat(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readFloat()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindDouble:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeDouble(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readDouble()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindString:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeString(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readString()" << ';';
-                }
-                return;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                // Handle by isClassType below.
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeProxy(" << param << ");";
-                }
-                else
-                {
-                    out << nl << param << " = " << stream << ".readProxy();";
-                }
-                return;
-            }
+            out << nl << "ostr.write" << builtinSuffixTable[builtin->kind()] << "(" << param << ");";
         }
+        else
+        {
+            out << nl << param << " = " << "istr.read" << builtinSuffixTable[builtin->kind()] << "();";
+        }
+        return;
     }
 
     if(EnumPtr::dynamicCast(type))
     {
         if(marshal)
         {
-            out << nl << typeToString(type) << "._write(" << stream << ", " << param << ");";
+            out << nl << typeToString(type) << "._write(ostr, " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToString(type) << "._read(" << stream << ");";
+            out << nl << param << " = " << typeToString(type) << "._read(istr);";
         }
         return;
     }
@@ -749,11 +689,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << typeToString(type) << ".write(" << stream << ", " << param << ");";
+            out << nl << typeToString(type) << ".write(ostr, " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToString(type) << ".read(" << stream << ", " << param << ");";
+            out << nl << param << " = " << typeToString(type) << ".read(istr, " << param << ");";
         }
         return;
     }
@@ -762,11 +702,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << stream << ".writeValue(" << param << ");";
+            out << nl << "ostr.writeValue(" << param << ");";
         }
         else
         {
-            out << nl << stream << ".readValue(obj => " << param << " = obj, " << typeToString(type) << ");";
+            out << nl << "istr.readValue(obj => " << param << " = obj, " << typeToString(type) << ");";
         }
         return;
     }
@@ -775,11 +715,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << getHelper(type) <<".write(" << stream << ", " << param << ");";
+            out << nl << getHelper(type) <<".write(ostr, " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << getHelper(type) << ".read(" << stream << ");";
+            out << nl << param << " = " << getHelper(type) << ".read(istr);";
         }
         return;
     }
@@ -839,49 +779,13 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        switch(builtin->kind())
+        if(builtin->kind() == Builtin::KindObjectProxy)
         {
-            case Builtin::KindByte:
-            {
-                return "Ice.ByteHelper";
-            }
-            case Builtin::KindBool:
-            {
-                return "Ice.BoolHelper";
-            }
-            case Builtin::KindShort:
-            {
-                return "Ice.ShortHelper";
-            }
-            case Builtin::KindInt:
-            {
-                return "Ice.IntHelper";
-            }
-            case Builtin::KindLong:
-            {
-                return "Ice.LongHelper";
-            }
-            case Builtin::KindFloat:
-            {
-                return "Ice.FloatHelper";
-            }
-            case Builtin::KindDouble:
-            {
-                return "Ice.DoubleHelper";
-            }
-            case Builtin::KindString:
-            {
-                return "Ice.StringHelper";
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                return "Ice.ObjectHelper";
-            }
-            case Builtin::KindObjectProxy:
-            {
-                return "Ice.ObjectPrx";
-            }
+            return "Ice.ObjectPrx";
+        }
+        else
+        {
+            return "Ice." + builtinSuffixTable[builtin->kind()] + "Helper";
         }
     }
 
@@ -921,6 +825,5 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
         return "Ice.ObjectHelper";
     }
 
-    assert(false);
-    return "???";
+    throw logic_error("");
 }
