@@ -17,11 +17,19 @@ _ModuleRegistry.require(module,
 
 const builtinHelpers =
 [
-    Ice.ByteHelper,
+    // TODO add helpers for the new integer types.
     Ice.BoolHelper,
+    Ice.ByteHelper,
     Ice.ShortHelper,
+    null,
     Ice.IntHelper,
+    null,
+    null,
+    null,
     Ice.LongHelper,
+    null,
+    null,
+    null,
     Ice.FloatHelper,
     Ice.DoubleHelper,
     Ice.StringHelper,
