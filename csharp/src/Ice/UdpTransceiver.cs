@@ -150,7 +150,7 @@ namespace IceInternal
                     {
                         if (_peerAddr == null)
                         {
-                            throw new Ice.SocketException();
+                            throw new Ice.TransportException();
                         }
 
                         ArraySegment<byte> data = buffer.GetSegment(0, count);
@@ -178,7 +178,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.SocketException(ex);
+                        throw new Ice.TransportException(ex);
                     }
                 }
             }
@@ -258,7 +258,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.SocketException(e);
+                        throw new Ice.TransportException(e);
                     }
                 }
             }
@@ -333,7 +333,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.SocketException(ex);
+                        throw new Ice.TransportException(ex);
                     }
                 }
             }
@@ -376,14 +376,13 @@ namespace IceInternal
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
-
-                    if (Network.ConnectionRefused(ex))
+                    else if (Network.ConnectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
                     else
                     {
-                        throw new Ice.SocketException(ex);
+                        throw new Ice.TransportException(ex);
                     }
                 }
             }
@@ -453,7 +452,7 @@ namespace IceInternal
                 {
                     if (_peerAddr == null)
                     {
-                        throw new Ice.SocketException();
+                        throw new Ice.TransportException();
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
@@ -471,7 +470,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
             completed = true;
@@ -530,7 +529,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
 
@@ -586,14 +585,12 @@ namespace IceInternal
 
         public void CheckSendSize(int size)
         {
-            //
-            // The maximum packetSize is either the maximum allowable UDP packet size, or
-            // the UDP send buffer size (which ever is smaller).
-            //
+            // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size
+            // (which ever is smaller).
             int packetSize = Math.Min(MaxPacketSize, _sndSize - UdpOverhead);
             if (packetSize < size)
             {
-                throw new DatagramLimitException();
+                throw new DatagramLimitException($"cannot send more than {packetSize} bytes with UDP");
             }
         }
 

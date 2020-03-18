@@ -59,7 +59,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             return _result.CompletedSynchronously;
         }

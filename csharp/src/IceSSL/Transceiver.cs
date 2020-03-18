@@ -62,7 +62,7 @@ namespace IceSSL
                     }
                     else
                     {
-                        throw new Ice.SocketException(ex);
+                        throw new Ice.TransportException(ex);
                     }
                 }
                 return IceInternal.SocketOperation.Connect;
@@ -136,7 +136,7 @@ namespace IceSSL
                 {
                     throw new Ice.TimeoutException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -180,7 +180,7 @@ namespace IceSSL
                 {
                     throw new Ice.TimeoutException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -227,7 +227,7 @@ namespace IceSSL
                 {
                     throw new Ice.TimeoutException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -275,7 +275,7 @@ namespace IceSSL
                 {
                     throw new Ice.TimeoutException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -377,11 +377,11 @@ namespace IceSSL
                     //
                     throw new Ice.ConnectionLostException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (AuthenticationException ex)
             {
-                throw new Ice.SecurityException(ex.Message, ex);
+                throw new Ice.SecurityException(ex);
             }
 
             Debug.Assert(_writeResult != null);
@@ -414,11 +414,11 @@ namespace IceSSL
                     //
                     throw new Ice.ConnectionLostException();
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (AuthenticationException ex)
             {
-                throw new SecurityException(ex.Message, ex);
+                throw new SecurityException(ex);
             }
         }
 
