@@ -494,29 +494,29 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
     {
         switch(builtin->kind())
         {
-            case Builtin::KindBool:
+            case Builtin::Kind::Bool:
             {
                 return "false";
             }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindUShort:
-            case Builtin::KindInt:
-            case Builtin::KindUInt:
-            case Builtin::KindVarInt:
-            case Builtin::KindVarUInt:
-            case Builtin::KindLong:
-            case Builtin::KindULong:
-            case Builtin::KindVarLong:
-            case Builtin::KindVarULong:
+            case Builtin::Kind::Byte:
+            case Builtin::Kind::Short:
+            case Builtin::Kind::UShort:
+            case Builtin::Kind::Int:
+            case Builtin::Kind::UInt:
+            case Builtin::Kind::VarInt:
+            case Builtin::Kind::VarUInt:
+            case Builtin::Kind::Long:
+            case Builtin::Kind::ULong:
+            case Builtin::Kind::VarLong:
+            case Builtin::Kind::VarULong:
             {
                 return "0";
             }
-            case Builtin::KindFloat:
+            case Builtin::Kind::Float:
             {
                 return "0.0f";
             }
-            case Builtin::KindDouble:
+            case Builtin::Kind::Double:
             {
                 return "0.0";
             }
@@ -555,24 +555,24 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         if(bp)
         {
-            if(bp->kind() == Builtin::KindString)
+            if(bp->kind() == Builtin::Kind::String)
             {
                 _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
             }
-            else if(bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
-                    bp->kind() == Builtin::KindVarUInt)
+            else if(bp->kind() == Builtin::Kind::UShort || bp->kind() == Builtin::Kind::UInt ||
+                    bp->kind() == Builtin::Kind::VarUInt)
             {
                 _out << value << "U";
             }
-            else if(bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
+            else if(bp->kind() == Builtin::Kind::Long || bp->kind() == Builtin::Kind::VarLong)
             {
                 _out << value << "L";
             }
-            else if(bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
+            else if(bp->kind() == Builtin::Kind::ULong || bp->kind() == Builtin::Kind::VarULong)
             {
                 _out << value << "UL";
             }
-            else if(bp->kind() == Builtin::KindFloat)
+            else if(bp->kind() == Builtin::Kind::Float)
             {
                 _out << value << "F";
             }
@@ -636,7 +636,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
             SequencePtr seq = SequencePtr::dynamicCast(type);
             DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
 
-            if(builtin && builtin->kind() == Builtin::KindString)
+            if(builtin && builtin->kind() == Builtin::Kind::String)
             {
                 _out << nl << fixId(dataMemberName(p), baseTypes) << " = \"\";";
             }
@@ -1632,7 +1632,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(m->type());
             if(builtin)
             {
-                getter = builtinGetter[builtin->kind()];
+                getter = builtinGetter[builtin->index()];
             }
             if(getter.empty())
             {

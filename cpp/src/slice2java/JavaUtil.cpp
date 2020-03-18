@@ -243,7 +243,7 @@ public:
                 //
                 metaData.remove(s);
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-                if(!builtin || builtin->kind() != Builtin::KindByte)
+                if(!builtin || builtin->kind() != Builtin::Kind::Byte)
                 {
                     dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "': " +
                                 "this metadata can only be used with a byte sequence");
@@ -257,9 +257,9 @@ public:
 
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
                 if(!builtin ||
-                   (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
-                    builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
-                    builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
+                   (builtin->kind() != Builtin::Kind::Byte && builtin->kind() != Builtin::Kind::Short &&
+                    builtin->kind() != Builtin::Kind::Int && builtin->kind() != Builtin::Kind::Long &&
+                    builtin->kind() != Builtin::Kind::Float && builtin->kind() != Builtin::Kind::Double))
                 {
                     dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "': " +
                                 "this metadata can not be used with this type");
@@ -424,9 +424,9 @@ private:
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                     if(builtin &&
-                       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-                        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-                        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+                       (builtin->kind() == Builtin::Kind::Byte || builtin->kind() == Builtin::Kind::Short ||
+                        builtin->kind() == Builtin::Kind::Int || builtin->kind() == Builtin::Kind::Long ||
+                        builtin->kind() == Builtin::Kind::Float || builtin->kind() == Builtin::Kind::Double))
                     {
                         newMetaData.push_back(*i);
                         continue;
@@ -991,11 +991,11 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     assert((b && b->usesClasses()) || cl);
 
-    if(b && b->kind() == Builtin::KindObject)
+    if(b && b->kind() == Builtin::Kind::Object)
     {
         return getUnqualified("com.zeroc.Ice.Object", package) + ".ice_staticId()";
     }
-    else if(b && b->kind() == Builtin::KindValue)
+    else if(b && b->kind() == Builtin::Kind::Value)
     {
         return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
     }
@@ -1049,13 +1049,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject)
+        if(builtin->kind() == Builtin::Kind::Object)
         {
-            return getUnqualified(builtinTable[Builtin::KindValue], package);
+            return getUnqualified(builtinTable[static_cast<size_t>(Builtin::Kind::Value)], package);
         }
         else
         {
-            return getUnqualified(builtinTable[builtin->kind()], package);
+            return getUnqualified(builtinTable[builtin->index()], package);
         }
     }
 
@@ -1150,7 +1150,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin && mode != TypeModeOut)
     {
-        return builtinTable[builtin->kind()];
+        return builtinTable[builtin->index()];
     }
 
     return typeToString(type, mode, package, metaData, formal);
@@ -1184,13 +1184,13 @@ Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& type,
             {
                 switch(builtin->kind())
                 {
-                    case Builtin::KindByte:
-                    case Builtin::KindBool:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                    case Builtin::KindFloat:
-                    case Builtin::KindDouble:
+                    case Builtin::Kind::Byte:
+                    case Builtin::Kind::Bool:
+                    case Builtin::Kind::Short:
+                    case Builtin::Kind::Int:
+                    case Builtin::Kind::Long:
+                    case Builtin::Kind::Float:
+                    case Builtin::Kind::Double:
                     {
                         return typeString;
                     }
@@ -1237,7 +1237,7 @@ typeToBufferString(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinBufferTable[builtin->kind()];
+        return builtinBufferTable[builtin->index()];
     }
     else
     {
@@ -1273,7 +1273,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "(";
+            out << nl << stream << ".write" << builtinSuffixTable[builtin->index()] << "(";
             if(isTaggedParam)
             {
                 out << tag << ", ";
@@ -1292,7 +1292,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 out << patchParams << ");";
             }
-            else if(builtin->kind() == Builtin::KindObjectProxy)
+            else if(builtin->kind() == Builtin::Kind::ObjectProxy)
             {
                 if(isTaggedParam)
                 {
@@ -1309,7 +1309,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "(";
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->index()] << "(";
                 if(isTaggedParam)
                 {
                     out << tag;
@@ -1486,9 +1486,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             string ignored;
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = BuiltinPtr::dynamicCast(elemType);
-            if(!hasTypeMetaData(seq, metaData) && eltBltin && eltBltin->kind() < Builtin::KindObject)
+            if(!hasTypeMetaData(seq, metaData) && eltBltin && (!eltBltin->usesClasses() &&
+               eltBltin->kind() != Builtin::Kind::ObjectProxy))
             {
-                string bs = builtinSuffixTable[eltBltin->kind()];
+                string bs = builtinSuffixTable[eltBltin->index()];
                 if(marshal)
                 {
                     out << nl << stream << ".write" << bs << "Seq(" << tag << ", " << param << ");";
@@ -1796,7 +1797,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // get rid of these two easy cases first.
     //
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-    if(builtin && builtin->kind() == Builtin::KindByte)
+    if(builtin && builtin->kind() == Builtin::Kind::Byte)
     {
         string meta;
         static const string protobuf = "java:protobuf:";
@@ -1839,9 +1840,9 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     if(builtin &&
-       (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-        builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-        builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+       (builtin->kind() == Builtin::Kind::Byte || builtin->kind() == Builtin::Kind::Short ||
+        builtin->kind() == Builtin::Kind::Int || builtin->kind() == Builtin::Kind::Long ||
+        builtin->kind() == Builtin::Kind::Float || builtin->kind() == Builtin::Kind::Double))
     {
         string meta;
         static const string bytebuffer = "java:buffer";
@@ -1849,25 +1850,25 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
-                out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Buffer(" << param << ");";
+                out << nl << stream << ".write" << builtinSuffixTable[builtin->index()] << "Buffer(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Buffer();";
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->index()] << "Buffer();";
             }
             return;
         }
     }
 
-    if(!hasTypeMetaData(seq, metaData) && builtin && builtin->kind() <= Builtin::KindString)
+    if(!hasTypeMetaData(seq, metaData) && builtin && builtin->kind() <= Builtin::Kind::String)
     {
         if(marshal)
         {
-            out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ");";
+            out << nl << stream << ".write" << builtinSuffixTable[builtin->index()] << "Seq(" << param << ");";
         }
         else
         {
-            out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Seq();";
+            out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->index()] << "Seq();";
         }
         return;
     }
@@ -1999,18 +2000,18 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     else
     {
         if(builtin &&
-        (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-            builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-            builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble ||
-            builtin->kind() == Builtin::KindString))
+        (builtin->kind() == Builtin::Kind::Byte || builtin->kind() == Builtin::Kind::Short ||
+            builtin->kind() == Builtin::Kind::Int || builtin->kind() == Builtin::Kind::Long ||
+            builtin->kind() == Builtin::Kind::Float || builtin->kind() == Builtin::Kind::Double ||
+            builtin->kind() == Builtin::Kind::String))
         {
             if(marshal)
             {
-                out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ");";
+                out << nl << stream << ".write" << builtinSuffixTable[builtin->index()] << "Seq(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Seq();";
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->index()] << "Seq();";
             }
         }
         else
@@ -2181,7 +2182,7 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
             if(seq)
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                if(builtin && builtin->kind() == Builtin::KindByte)
+                if(builtin && builtin->kind() == Builtin::Kind::Byte)
                 {
                     return true;
                 }
@@ -2196,9 +2197,9 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin &&
-                   (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-                    builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-                    builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+                   (builtin->kind() == Builtin::Kind::Byte || builtin->kind() == Builtin::Kind::Short ||
+                    builtin->kind() == Builtin::Kind::Int || builtin->kind() == Builtin::Kind::Long ||
+                    builtin->kind() == Builtin::Kind::Float || builtin->kind() == Builtin::Kind::Double))
                 {
                     return true;
                 }
@@ -2254,7 +2255,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindByte)
+        if(builtin->kind() == Builtin::Kind::Byte)
         {
             string prefix = "java:serializable:";
             string meta;
@@ -2271,9 +2272,9 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
             }
         }
 
-        if((builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
-            builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
-            builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
+        if((builtin->kind() == Builtin::Kind::Byte || builtin->kind() == Builtin::Kind::Short ||
+            builtin->kind() == Builtin::Kind::Int || builtin->kind() == Builtin::Kind::Long ||
+            builtin->kind() == Builtin::Kind::Float || builtin->kind() == Builtin::Kind::Double))
         {
             string prefix = "java:buffer";
             string meta;

@@ -1469,12 +1469,12 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
         {
             switch(bp->kind())
             {
-                case Builtin::KindString:
+                case Builtin::Kind::String:
                 {
                     out << "\"" << toStringLiteral(value, "\b\f\n\r\t", "", ShortUCN, 0) << "\"";
                     break;
                 }
-                case Builtin::KindByte:
+                case Builtin::Kind::Byte:
                 {
                     int i = atoi(value.c_str());
                     if(i > 127)
@@ -1484,12 +1484,12 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                     out << i; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
                     break;
                 }
-                case Builtin::KindLong:
+                case Builtin::Kind::Long:
                 {
                     out << value << "L"; // Need to append "L" modifier for long constants.
                     break;
                 }
-                case Builtin::KindFloat:
+                case Builtin::Kind::Float:
                 {
                     out << value << "F";
                     break;
@@ -1541,7 +1541,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
         else
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
-            if(builtin && builtin->kind() == Builtin::KindString)
+            if(builtin && builtin->kind() == Builtin::Kind::String)
             {
                 out << nl << "this." << fixKwd(p->name()) << " = \"\";";
             }
@@ -3142,9 +3142,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         string memberName = fixKwd(d->name());
         BuiltinPtr b = BuiltinPtr::dynamicCast(d->type());
-        if(b && (b->kind() == Builtin::KindByte || b->kind() == Builtin::KindBool || b->kind() == Builtin::KindShort ||
-                 b->kind() == Builtin::KindInt || b->kind() == Builtin::KindLong || b->kind() == Builtin::KindFloat ||
-                 b->kind() == Builtin::KindDouble))
+        if(b && (b->kind() == Builtin::Kind::Byte || b->kind() == Builtin::Kind::Bool || b->kind() == Builtin::Kind::Short ||
+                 b->kind() == Builtin::Kind::Int || b->kind() == Builtin::Kind::Long || b->kind() == Builtin::Kind::Float ||
+                 b->kind() == Builtin::Kind::Double))
         {
             out << nl << "if(this." << memberName << " != r." << memberName << ')';
             out << sb;
@@ -3547,7 +3547,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         // Check for bool type.
         //
-        if(b && b->kind() == Builtin::KindBool)
+        if(b && b->kind() == Builtin::Kind::Bool)
         {
             if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
             {
@@ -3864,7 +3864,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string meta;
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() <= Builtin::KindString)
+    if(!hasTypeMetaData(p) && builtin && builtin->kind() <= Builtin::Kind::String)
     {
         return; // No helpers for sequence of primitive types
     }
@@ -3990,9 +3990,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
         << " ostr, int tag, " << addAnnotation(typeS, "@Nullable") << " v)";
     out << sb;
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
+    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::Kind::Object)
     {
-        out << nl << "ostr.write" << builtinTable[builtin->kind()] << "Seq(tag, v);";
+        out << nl << "ostr.write" << builtinTable[builtin->index()] << "Seq(tag, v);";
     }
     else
     {
@@ -4043,9 +4043,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static " << addAnnotation(typeS, "@Nullable") << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr, int tag)";
     out << sb;
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
+    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::Kind::Object)
     {
-        out << nl << "return istr.read" << builtinTable[builtin->kind()] << "Seq(tag);";
+        out << nl << "return istr.read" << builtinTable[builtin->index()] << "Seq(tag);";
     }
     else
     {
@@ -4960,38 +4960,38 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
         {
             switch(b->kind())
             {
-                case Builtin::KindBool:
+                case Builtin::Kind::Bool:
                 {
                     return "false";
                 }
-                case Builtin::KindByte:
+                case Builtin::Kind::Byte:
                 {
                     return "(byte)0";
                 }
-                case Builtin::KindShort:
+                case Builtin::Kind::Short:
                 {
                     return "(short)0";
                 }
-                case Builtin::KindInt:
-                case Builtin::KindLong:
+                case Builtin::Kind::Int:
+                case Builtin::Kind::Long:
                 {
                     return "0";
                 }
-                case Builtin::KindFloat:
+                case Builtin::Kind::Float:
                 {
                     return "(float)0.0";
                 }
-                case Builtin::KindDouble:
+                case Builtin::Kind::Double:
                 {
                     return "0.0";
                 }
-                case Builtin::KindString:
+                case Builtin::Kind::String:
                 {
                     return "\"\"";
                 }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
+                case Builtin::Kind::Object:
+                case Builtin::Kind::ObjectProxy:
+                case Builtin::Kind::Value:
                 {
                     return "null";
                 }

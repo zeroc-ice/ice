@@ -648,7 +648,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = ";
 
-    if(builtin && builtin->kind() == Builtin::KindByte)
+    if(builtin && builtin->kind() == Builtin::Kind::Byte)
     {
         out << "Foundation.Data";
     }
@@ -657,7 +657,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         out << "[" << typeToString(p->type(), p, p->getMetaData()) << "]";
     }
 
-    if(builtin && builtin->kind() <= Builtin::KindString)
+    if(builtin && builtin->kind() <= Builtin::Kind::String)
     {
         return; // No helpers for sequence of primitive types
     }

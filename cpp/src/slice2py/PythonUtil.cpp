@@ -1510,7 +1510,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
         if(q->find(protobuf) == 0)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if(!builtin || builtin->kind() != Builtin::Kind::Byte)
             {
                 continue;
             }
@@ -1665,53 +1665,53 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
         // TODO add support for new integer types to Python mapping.
         switch(builtin->kind())
         {
-            case Builtin::KindBool:
+            case Builtin::Kind::Bool:
             {
                 _out << "IcePy._t_bool";
                 break;
             }
-            case Builtin::KindByte:
+            case Builtin::Kind::Byte:
             {
                 _out << "IcePy._t_byte";
                 break;
             }
-            case Builtin::KindShort:
+            case Builtin::Kind::Short:
             {
                 _out << "IcePy._t_short";
                 break;
             }
-            case Builtin::KindInt:
+            case Builtin::Kind::Int:
             {
                 _out << "IcePy._t_int";
                 break;
             }
-            case Builtin::KindLong:
+            case Builtin::Kind::Long:
             {
                 _out << "IcePy._t_long";
                 break;
             }
-            case Builtin::KindFloat:
+            case Builtin::Kind::Float:
             {
                 _out << "IcePy._t_float";
                 break;
             }
-            case Builtin::KindDouble:
+            case Builtin::Kind::Double:
             {
                 _out << "IcePy._t_double";
                 break;
             }
-            case Builtin::KindString:
+            case Builtin::Kind::String:
             {
                 _out << "IcePy._t_string";
                 break;
             }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
+            case Builtin::Kind::Object:
+            case Builtin::Kind::Value:
             {
                 _out << "IcePy._t_Value";
                 break;
             }
-            case Builtin::KindObjectProxy:
+            case Builtin::Kind::ObjectProxy:
             {
                 _out << "IcePy._t_ObjectPrx";
                 break;
@@ -1754,33 +1754,33 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
         // TODO add support for new integer types to Python mapping.
         switch(builtin->kind())
         {
-            case Builtin::KindBool:
+            case Builtin::Kind::Bool:
             {
                 _out << "False";
                 break;
             }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
+            case Builtin::Kind::Byte:
+            case Builtin::Kind::Short:
+            case Builtin::Kind::Int:
+            case Builtin::Kind::Long:
             {
                 _out << "0";
                 break;
             }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
+            case Builtin::Kind::Float:
+            case Builtin::Kind::Double:
             {
                 _out << "0.0";
                 break;
             }
-            case Builtin::KindString:
+            case Builtin::Kind::String:
             {
                 _out << "''";
                 break;
             }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
+            case Builtin::Kind::Value:
+            case Builtin::Kind::Object:
+            case Builtin::Kind::ObjectProxy:
             {
                 _out << "None";
                 break;
@@ -1927,22 +1927,22 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
         {
             switch(b->kind())
             {
-                case Slice::Builtin::KindBool:
+                case Slice::Builtin::Kind::Bool:
                 {
                     _out << (value == "true" ? "True" : "False");
                     break;
                 }
-                case Slice::Builtin::KindByte:
-                case Slice::Builtin::KindShort:
-                case Slice::Builtin::KindInt:
-                case Slice::Builtin::KindFloat:
-                case Slice::Builtin::KindDouble:
-                case Slice::Builtin::KindLong:
+                case Slice::Builtin::Kind::Byte:
+                case Slice::Builtin::Kind::Short:
+                case Slice::Builtin::Kind::Int:
+                case Slice::Builtin::Kind::Float:
+                case Slice::Builtin::Kind::Double:
+                case Slice::Builtin::Kind::Long:
                 {
                     _out << value;
                     break;
                 }
-                case Slice::Builtin::KindString:
+                case Slice::Builtin::Kind::String:
                 {
                     string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
                     string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
@@ -1954,9 +1954,9 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
                     }
                     break;
                 }
-                case Slice::Builtin::KindValue:
-                case Slice::Builtin::KindObject:
-                case Slice::Builtin::KindObjectProxy:
+                case Slice::Builtin::Kind::Value:
+                case Slice::Builtin::Kind::Object:
+                case Slice::Builtin::Kind::ObjectProxy:
                 default:
                 {
                     assert(false);
@@ -3124,7 +3124,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             //
             metaData.remove(s);
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if(!builtin || builtin->kind() != Builtin::Kind::Byte)
             {
                 dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + ": " +
                             "`protobuf' encoding must be a byte sequence");
@@ -3200,7 +3200,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                         // types excluding strings.
                         //
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                        if(builtin && (builtin->isNumeric() || builtin->kind() == Builtin::KindBool))
+                        if(builtin && (builtin->isNumeric() || builtin->kind() == Builtin::Kind::Bool))
                         {
                             continue;
                         }

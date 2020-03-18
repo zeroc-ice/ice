@@ -4373,7 +4373,7 @@ yyreduce:
 #line 2124 "src/Slice/Grammar.y"
 {
     // TODO: equivalent to ICE_OBJECT ? above, need to merge KindObject / KindObjectProxy
-    yyval = unit->builtin(Builtin::KindObjectProxy);
+    yyval = unit->builtin(Builtin::Kind::ObjectProxy);
 }
 #line 4379 "src/Slice/Grammar.cpp"
     break;
@@ -4525,7 +4525,7 @@ yyreduce:
   case 204:
 #line 2252 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindLong);//TODONOW
+    BuiltinPtr type = unit->builtin(Builtin::Kind::Long);//TODONOW
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
     ostringstream sstr;
     sstr << intVal->v;
@@ -4538,7 +4538,7 @@ yyreduce:
   case 205:
 #line 2261 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindDouble);
+    BuiltinPtr type = unit->builtin(Builtin::Kind::Double);
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast(yyvsp[0]);
     ostringstream sstr;
     sstr << floatVal->v;
@@ -4595,7 +4595,7 @@ yyreduce:
   case 207:
 #line 2310 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindString);
+    BuiltinPtr type = unit->builtin(Builtin::Kind::String);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
     yyval = def;
@@ -4606,7 +4606,7 @@ yyreduce:
   case 208:
 #line 2317 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = unit->builtin(Builtin::Kind::Bool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
     yyval = def;
@@ -4617,7 +4617,7 @@ yyreduce:
   case 209:
 #line 2324 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = unit->builtin(Builtin::Kind::Bool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
     yyval = def;

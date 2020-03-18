@@ -30,23 +30,23 @@ isConstexprType(const TypePtr& type)
     {
         switch(bp->kind())
         {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindUShort:
-            case Builtin::KindInt:
-            case Builtin::KindUInt:
-            case Builtin::KindVarInt:
-            case Builtin::KindVarUInt:
-            case Builtin::KindLong:
-            case Builtin::KindULong:
-            case Builtin::KindVarLong:
-            case Builtin::KindVarULong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
+            case Builtin::Kind::Bool:
+            case Builtin::Kind::Byte:
+            case Builtin::Kind::Short:
+            case Builtin::Kind::UShort:
+            case Builtin::Kind::Int:
+            case Builtin::Kind::UInt:
+            case Builtin::Kind::VarInt:
+            case Builtin::Kind::VarUInt:
+            case Builtin::Kind::Long:
+            case Builtin::Kind::ULong:
+            case Builtin::Kind::VarLong:
+            case Builtin::Kind::VarULong:
+            case Builtin::Kind::Float:
+            case Builtin::Kind::Double:
+            case Builtin::Kind::Value:
+            case Builtin::Kind::Object:
+            case Builtin::Kind::ObjectProxy:
             {
                 return true;
             }
@@ -114,7 +114,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         {
             switch(bp->kind())
             {
-                case Builtin::KindString:
+                case Builtin::Kind::String:
                 {
                     bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
                     if(wide || cpp11)
@@ -130,9 +130,9 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     break;
                 }
 
-                case Builtin::KindUShort:
-                case Builtin::KindUInt:
-                case Builtin::KindVarUInt:
+                case Builtin::Kind::UShort:
+                case Builtin::Kind::UInt:
+                case Builtin::Kind::VarUInt:
                 {
                     if(cpp11)
                     {
@@ -145,8 +145,8 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     break;
                 }
 
-                case Builtin::KindLong:
-                case Builtin::KindVarLong:
+                case Builtin::Kind::Long:
+                case Builtin::Kind::VarLong:
                 {
                     if(cpp11)
                     {
@@ -159,8 +159,8 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     break;
                 }
 
-                case Builtin::KindULong:
-                case Builtin::KindVarULong:
+                case Builtin::Kind::ULong:
+                case Builtin::Kind::VarULong:
                     if(cpp11)
                     {
                         out << value << "ULL";
@@ -171,7 +171,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     }
                     break;
 
-                case Builtin::KindFloat:
+                case Builtin::Kind::Float:
                 {
                     out << value;
                     if(value.find(".") == string::npos)
@@ -4398,29 +4398,29 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
     {
         switch(builtin->kind())
         {
-            case Builtin::KindBool:
+            case Builtin::Kind::Bool:
             {
                 return "false";
             }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
+            case Builtin::Kind::Byte:
+            case Builtin::Kind::Short:
+            case Builtin::Kind::Int:
+            case Builtin::Kind::Long:
             {
                 return "0";
             }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
+            case Builtin::Kind::Float:
+            case Builtin::Kind::Double:
             {
                 return "0.0";
             }
-            case Builtin::KindString:
+            case Builtin::Kind::String:
             {
                 return "::std::string()";
             }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
+            case Builtin::Kind::Value:
+            case Builtin::Kind::Object:
+            case Builtin::Kind::ObjectProxy:
             {
                 return "0";
             }
@@ -5399,14 +5399,14 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 ClassDefPtr clss = ClassDefPtr::dynamicCast(cont);
                 StructPtr strct = StructPtr::dynamicCast(cont);
                 ExceptionPtr exception = ExceptionPtr::dynamicCast(cont);
-                if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || exception)
+                if((builtin && builtin->kind() == Builtin::Kind::String) || module || clss || strct || exception)
                 {
                     continue;
                 }
             }
             if(BuiltinPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
             {
-                if(BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindString)
+                if(BuiltinPtr::dynamicCast(cont)->kind() == Builtin::Kind::String)
                 {
                     continue;
                 }
@@ -6273,7 +6273,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(!defaultValue.empty())
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-        if(p->tagged() && builtin->kind() == Builtin::KindString)
+        if(p->tagged() && builtin->kind() == Builtin::Kind::String)
         {
             //
             // = "<string literal>" doesn't work for optional<std::string>
@@ -7044,7 +7044,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     if(!defaultValue.empty())
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-        if(p->tagged() && builtin && builtin->kind() == Builtin::KindString)
+        if(p->tagged() && builtin && builtin->kind() == Builtin::Kind::String)
         {
             //
             // = "<string literal>" doesn't work for optional<std::string>
@@ -8241,36 +8241,36 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
     {
         switch(builtin->kind())
         {
-            case Builtin::KindBool:
+            case Builtin::Kind::Bool:
             {
                 return "false";
             }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindUShort:
-            case Builtin::KindInt:
-            case Builtin::KindUInt:
-            case Builtin::KindVarInt:
-            case Builtin::KindVarUInt:
-            case Builtin::KindLong:
-            case Builtin::KindULong:
-            case Builtin::KindVarLong:
-            case Builtin::KindVarULong:
+            case Builtin::Kind::Byte:
+            case Builtin::Kind::Short:
+            case Builtin::Kind::UShort:
+            case Builtin::Kind::Int:
+            case Builtin::Kind::UInt:
+            case Builtin::Kind::VarInt:
+            case Builtin::Kind::VarUInt:
+            case Builtin::Kind::Long:
+            case Builtin::Kind::ULong:
+            case Builtin::Kind::VarLong:
+            case Builtin::Kind::VarULong:
             {
                 return "0";
             }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
+            case Builtin::Kind::Float:
+            case Builtin::Kind::Double:
             {
                 return "0.0";
             }
-            case Builtin::KindString:
+            case Builtin::Kind::String:
             {
                 return "::std::string()";
             }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
+            case Builtin::Kind::Value:
+            case Builtin::Kind::Object:
+            case Builtin::Kind::ObjectProxy:
             {
                 return "nullptr";
             }
