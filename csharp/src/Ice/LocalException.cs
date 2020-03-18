@@ -29,46 +29,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// An attempt was made to find or deregister something that is not
-    /// registered with the Ice run time or Ice locator.
-    /// This exception is raised if an attempt is made to remove a servant,
-    /// servant locator, facet, class factory, plug-in, object adapter,
-    /// object, or user exception factory that is not currently registered.
-    ///
-    /// It's also raised if the Ice locator can't find an object or object
-    /// adapter when resolving an indirect proxy or when an object adapter
-    /// is activated.
-    /// </summary>
-    public class NotRegisteredException : System.Exception
-    {
-        public string KindOfObject;
-        public string Id;
-        public NotRegisteredException()
-        {
-            KindOfObject = "";
-            Id = "";
-        }
-
-        public NotRegisteredException(System.Exception ex) : base("", ex)
-        {
-            KindOfObject = "";
-            Id = "";
-        }
-
-        public NotRegisteredException(string kindOfObject, string id)
-        {
-            KindOfObject = kindOfObject;
-            Id = id;
-        }
-
-        public NotRegisteredException(string kindOfObject, string id, System.Exception ex) : base("", ex)
-        {
-            KindOfObject = kindOfObject;
-            Id = id;
-        }
-    }
-
-    /// <summary>
     /// This exception is raised if the Communicator has been destroyed.
     /// </summary>
     public class CommunicatorDestroyedException : System.Exception
@@ -101,24 +61,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if an ObjectAdapter cannot be activated.
-    /// This happens if the Locator detects another active ObjectAdapter with
-    /// the same adapter id.
-    /// </summary>
-    public class ObjectAdapterIdInUseException : System.Exception
-    {
-        public string Id;
-
-        public ObjectAdapterIdInUseException() => Id = "";
-
-        public ObjectAdapterIdInUseException(System.Exception ex) : base("", ex) => Id = "";
-
-        public ObjectAdapterIdInUseException(string id) => Id = id;
-
-        public ObjectAdapterIdInUseException(string id, System.Exception ex) : base("", ex) => Id = id;
-    }
-
-    /// <summary>
     /// This exception is raised if no suitable endpoint is available.
     /// </summary>
     public class NoEndpointException : System.Exception
@@ -147,16 +89,6 @@ namespace Ice
         public SocketException(System.Exception ex) : base("", ex)
         {
         }
-    }
-
-    /// <summary>
-    /// This exception indicates file errors.
-    /// </summary>
-    public class FileException : System.Exception
-    {
-        public string Path;
-
-        public FileException(System.Exception ex) : base("", ex) => Path = "";
     }
 
     /// <summary>

@@ -108,30 +108,17 @@ namespace Ice.admin
                 }
             }
 
-            try
-            {
-                com.RemoveAdminFacet("Bogus");
-                test(false);
-            }
-            catch (NotRegisteredException)
-            {
-                // Expected
-            }
+            var facet = com.RemoveAdminFacet("Bogus");
+            test(facet == null);
 
             if (!filtered)
             {
-                com.RemoveAdminFacet("Facet1");
+                facet = com.RemoveAdminFacet("Facet1");
+                test(facet == f1);
                 com.RemoveAdminFacet("Facet2");
                 com.RemoveAdminFacet("Facet3");
-                try
-                {
-                    com.RemoveAdminFacet("Facet1");
-                    test(false);
-                }
-                catch (NotRegisteredException)
-                {
-                    // Expected
-                }
+                facet = com.RemoveAdminFacet("Facet1");
+                test(facet == null);
             }
         }
 
