@@ -1537,8 +1537,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
 
     string messageParamName = getEscapedParamName(p, "message");
+    string innerExceptionParamName = getEscapedParamName(p, "innerException");
 
-    vector<string> allParamDecl = { "string " +  messageParamName };
+    vector<string> allParamDecl;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
@@ -1547,12 +1548,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
-
     if(p->base())
     {
-        baseParamNames.push_back(messageParamName);
-        baseDataMembers = p->base()->allDataMembers();
+        DataMemberList baseDataMembers = p->base()->allDataMembers();
         for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             baseParamNames.push_back(fixId((*q)->name()));
@@ -1662,47 +1660,46 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    bool generateMessageLessCtor = false; // one-shot ctor without message
-    do
+    // Up to 3 "one-shot" constructors
+    for (int i = 0; i < 3; i++)
     {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << allParamDecl << epar;
-        _out.inc();
-        if (p->base() && allDataMembers.size() != dataMembers.size())
+        if (allParamDecl.size() > 0)
         {
-            _out << nl << ": base" << spar << baseParamNames << epar;
-        }
-        else if (!generateMessageLessCtor)
-        {
-            _out << nl << ": base" << spar << messageParamName << epar;
-        }
-        // else, it's the message-less ctor, so we use the base's parameterless ctor.
-        _out.dec();
-        _out << sb;
-        if (!dataMembers.empty())
-        {
-            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public " << name << spar << allParamDecl << epar;
+            _out.inc();
+            if (baseParamNames.size() > 0)
             {
-                string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
-                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
+                _out << nl << ": base" << spar << baseParamNames << epar;
             }
-        }
-        _out << eb;
-        if (generateMessageLessCtor)
-        {
-            generateMessageLessCtor = false; // done
-        }
-        else if (allParamDecl.size() > 1)
-        {
-            allParamDecl.erase(allParamDecl.cbegin()); // remove message
-            if (baseParamNames.size() > 1)
+            // else we use the base's parameterless ctor.
+            _out.dec();
+            _out << sb;
+            if (!dataMembers.empty())
             {
-                baseParamNames.erase(baseParamNames.cbegin()); // remove message
+                for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+                {
+                    string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
+                    _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
+                }
             }
-            generateMessageLessCtor = true;
+            _out << eb;
         }
-    } while (generateMessageLessCtor);
+
+        if (i == 0)
+        {
+            // Insert message first
+            allParamDecl.insert(allParamDecl.cbegin(), "string " + messageParamName);
+            baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
+        }
+        else if (i == 1)
+        {
+            // Also add innerException
+            allParamDecl.push_back("global::System.Exception " + innerExceptionParamName);
+            baseParamNames.push_back(innerExceptionParamName);
+        }
+    }
 
     if(!dataMembers.empty())
     {

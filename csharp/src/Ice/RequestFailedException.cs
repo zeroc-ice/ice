@@ -10,20 +10,9 @@ namespace Ice
 
     public partial class RequestFailedException
     {
-        protected virtual string DefaultMessage
+        protected override string DefaultMessage
             => Facet.Length == 0 ? $"request for operation `{Operation}' on Ice object `{Id}' failed"
                 : $"request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}' failed";
-
-        public override string Message => HasCustomMessage ? base.Message : DefaultMessage;
-
-        public RequestFailedException(string message, Identity id, string facet, string operation,
-                                      Exception innerException)
-            : base(message, innerException)
-        {
-            Id = id;
-            Facet = facet;
-            Operation = operation;
-        }
     }
 
     public partial class ObjectNotExistException
