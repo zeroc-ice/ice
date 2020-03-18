@@ -343,8 +343,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 
     static const std::array<std::string, 18> builtinTable =
     {
-        "byte",
         "bool",
+        "byte",
         "short",
         "ushort",
         "int",
