@@ -19,6 +19,28 @@ using namespace IceUtilInternal;
 namespace
 {
 
+const std::array<std::string, 18> builtinTable =
+{
+    "Swift.Bool",
+    "Swift.UInt8",
+    "Swift.Int16",
+    "Swift.UInt16",
+    "Swift.Int32",
+    "Swift.UInt32",
+    "Swift.Int32",
+    "Swift.UInt32",
+    "Swift.Int64",
+    "Swift.UInt64",
+    "Swift.Int64",
+    "Swift.UInt64",
+    "Swift.Float",
+    "Swift.Double",
+    "Swift.String",
+    "Ice.Disp",         // Object
+    "Ice.ObjectPrx",    // ObjectPrx
+    "Ice.Value"         // Value
+};
+
 static string
 lookupKwd(const string& name)
 {
@@ -930,8 +952,15 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "0";
             }
@@ -1029,21 +1058,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
                              const StringList& metadata,
                              bool optional)
 {
-    static const char* builtinTable[] =
-    {
-        "Swift.UInt8",
-        "Swift.Bool",
-        "Swift.Int16",
-        "Swift.Int32",
-        "Swift.Int64",
-        "Swift.Float",
-        "Swift.Double",
-        "Swift.String",
-        "Ice.Disp",         // Object
-        "Ice.ObjectPrx",    // ObjectPrx
-        "Ice.Value"         // Value
-    };
-
     if(!type)
     {
         return "";
@@ -1111,21 +1125,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
 string
 SwiftGenerator::getAbsolute(const TypePtr& type)
 {
-    static const char* builtinTable[] =
-    {
-        "Swift.UInt8",
-        "Swift.Bool",
-        "Swift.Int16",
-        "Swift.Int32",
-        "Swift.Int64",
-        "Swift.Float",
-        "Swift.Double",
-        "Swift.String",
-        "Ice.Disp",         // Object
-        "Ice.ObjectPrx",    // ObjectPrx
-        "Ice.Value"         // Value
-    };
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
@@ -1280,9 +1279,7 @@ bool
 SwiftGenerator::isClassType(const TypePtr& p)
 {
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && (builtin->kind() == Builtin::KindObject ||
-                        builtin->kind() == Builtin::KindValue)) ||
-        ClassDeclPtr::dynamicCast(p);
+    return (builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(p);
 }
 
 bool
@@ -1496,25 +1493,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         switch(builtin->kind())
         {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-            {
-                if(marshal)
-                {
-                    out << nl << stream << ".write(" << args << ")";
-                }
-                else
-                {
-                    out << nl << param << " = try " << stream << ".read(" << args << ")";
-                }
-                break;
-            }
             case Builtin::KindObjectProxy:
             {
                 if(marshal)
@@ -1548,6 +1526,14 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             default:
             {
+                if(marshal)
+                {
+                    out << nl << stream << ".write(" << args << ")";
+                }
+                else
+                {
+                    out << nl << param << " = try " << stream << ".read(" << args << ")";
+                }
                 break;
             }
         }
