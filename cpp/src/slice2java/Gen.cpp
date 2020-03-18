@@ -3970,7 +3970,27 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v;";
     out << eb;
 
-    static const char* builtinTable[] = { "Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String" };
+    static const std::array<std::string, 18> builtinTable =
+    {
+        "Bool",
+        "Byte",
+        "Short",
+        "UShort",
+        "Int",
+        "UInt",
+        "VarInt",
+        "VarUInt",
+        "Long",
+        "ULong",
+        "VarLong",
+        "VarULong",
+        "Float",
+        "Double",
+        "String",
+        "???",
+        "???",
+        "???"
+    };
 
     out << sp;
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
