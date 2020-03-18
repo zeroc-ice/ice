@@ -82,14 +82,9 @@ bool
 Slice::isNullable(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if(builtin && (builtin->usesClasses() || builtin->kind() == Builtin::KindObjectProxy))
     {
-        if(builtin->kind() == Builtin::KindObject ||
-           builtin->kind() == Builtin::KindValue ||
-           builtin->kind() == Builtin::KindObjectProxy)
-        {
-            return true;
-        }
+        return true;
     }
     return ClassDeclPtr::dynamicCast(type) ||
         ProxyPtr::dynamicCast(type);
@@ -98,13 +93,20 @@ Slice::isNullable(const TypePtr& type)
 namespace
 {
 
-static const char* builtinTableSuffix[] =
+const std::array<std::string, 18> builtinSuffixTable =
 {
-    "Byte",
     "Bool",
+    "Byte",
     "Short",
+    "UShort",
     "Int",
+    "UInt",
+    "VarInt",
+    "VarUInt",
     "Long",
+    "ULong",
+    "VarLong",
+    "VarULong",
     "Float",
     "Double",
     "String",
@@ -339,13 +341,20 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         return typeToString(type, package) + "?";
     }
 
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
         "byte",
         "bool",
         "short",
+        "ushort",
         "int",
+        "uint",
+        "int",
+        "uint",
         "long",
+        "ulong",
+        "long",
+        "ulong",
         "float",
         "double",
         "string",
@@ -540,7 +549,7 @@ Slice::isClassType(const TypePtr& type)
         return true;
     }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
+    return builtin && builtin->usesClasses();
 }
 
 bool
@@ -574,18 +583,16 @@ Slice::isValueType(const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::KindObject:
-            case Builtin::KindValue:
             case Builtin::KindString:
+            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 return false;
-                break;
             }
             default:
             {
                 return true;
-                break;
             }
         }
     }
@@ -746,9 +753,9 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !isProxyType(type) && !isClassType(type))
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.OutputStream.IceWriterFrom" << builtinTableSuffix[builtin->kind()];
+        out << "Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
@@ -774,8 +781,8 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 
     if(builtin || isProxyType(type) || isClassType(type))
     {
-        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
-        out << nl << stream << ".Write" << builtinTableSuffix[kind] << "(" << param << ");";
+        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << param << ");";
     }
     else if(st)
     {
@@ -792,9 +799,9 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !isProxyType(type) && !isClassType(type))
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.InputStream.IceReaderInto" << builtinTableSuffix[builtin->kind()];
+        out << "Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
@@ -829,7 +836,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if(builtin)
     {
-        out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "();";
+        out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "();";
     }
     else if(st)
     {
@@ -858,8 +865,8 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
 
     if(builtin || isProxyType(type) || isClassType(type))
     {
-        int kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
-        out << nl << stream << ".Write" << builtinTableSuffix[kind] << "(" << tag << ", " << param << ");";
+        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
     {
@@ -946,7 +953,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if(builtin)
     {
-        out << nl << param << " = " << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "(" << tag << ");";
+        out << nl << param << " = " << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "(" << tag << ");";
     }
     else if(st)
     {
@@ -1002,9 +1009,9 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     {
         out << stream << ".WriteSerializable(" << param << ")";
     }
-    else if(builtin && !isProxyType(type) && !isClassType(type))
+    else if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << stream << ".Write" << builtinTableSuffix[builtin->kind()] << "Seq(" << param << ")";
+        out << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ")";
     }
     else
     {
@@ -1029,9 +1036,9 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else if(generic.empty())
     {
-        if(builtin && !isProxyType(type) && !isClassType(type))
+        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
         {
-            out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
+            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
         }
         else
         {
@@ -1041,9 +1048,9 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else
     {
-        if(builtin && !isProxyType(type) && !isClassType(type))
+        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
         {
-            out << stream << ".Read" << builtinTableSuffix[builtin->kind()] << "Array()";
+            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
         }
         else
         {
@@ -1087,16 +1094,42 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
 
     if(builtin || proxy)
     {
-        switch(kind)
+        if(builtin->usesClasses() || builtin->kind() == Builtin::KindObjectProxy)
         {
-        case Builtin::KindByte:
-        case Builtin::KindBool:
-        case Builtin::KindShort:
-        case Builtin::KindInt:
-        case Builtin::KindFloat:
-        case Builtin::KindLong:
-        case Builtin::KindDouble:
-        case Builtin::KindString:
+            if(marshal)
+            {
+                out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
+                    << getTagFormat(seq, scope) << "))";
+                out << sb;
+                out << nl << "var pos = " << stream << ".StartSize();";
+                writeMarshalCode(out, seq, scope, param, stream);
+                out << nl << stream << ".EndSize(pos);";
+                out << eb;
+            }
+            else
+            {
+                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
+                out << sb;
+                out << nl << stream << ".Skip(4);";
+                string tmp = "tmpVal";
+                out << nl << seqS << ' ' << tmp << ';';
+                writeUnmarshalCode(out, seq, scope, tmp, stream);
+                if(isArray)
+                {
+                    out << nl << param << " = " << tmp << ";";
+                }
+                else
+                {
+                    out << nl << param << " = new " << seqS << "(" << tmp << ");";
+                }
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << param << " = null;";
+                out << eb;
+            }
+        }
+        else
         {
             string func = typeS;
             func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
@@ -1154,52 +1187,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << param << " = null;";
                 out << eb;
             }
-            break;
         }
-
-        case Builtin::KindValue:
-        case Builtin::KindObject:
-        case Builtin::KindObjectProxy:
-        {
-            if(marshal)
-            {
-                out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                    << getTagFormat(seq, scope) << "))";
-                out << sb;
-                out << nl << "var pos = " << stream << ".StartSize();";
-                writeMarshalCode(out, seq, scope, param, stream);
-                out << nl << stream << ".EndSize(pos);";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-                out << sb;
-                out << nl << stream << ".Skip(4);";
-                string tmp = "tmpVal";
-                out << nl << seqS << ' ' << tmp << ';';
-                writeUnmarshalCode(out, seq, scope, tmp, stream);
-                if(isArray)
-                {
-                    out << nl << param << " = " << tmp << ";";
-                }
-                else
-                {
-                    out << nl << param << " = new " << seqS << "(" << tmp << ");";
-                }
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << param << " = null;";
-                out << eb;
-            }
-            break;
-        }
-
-        default:
-            assert(false);
-        }
-
         return;
     }
 

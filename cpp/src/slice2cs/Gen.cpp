@@ -497,30 +497,32 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
             case Builtin::KindBool:
             {
                 return "false";
-                break;
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "0";
-                break;
             }
             case Builtin::KindFloat:
             {
                 return "0.0f";
-                break;
             }
             case Builtin::KindDouble:
             {
                 return "0.0";
-                break;
             }
             default:
             {
                 return "null";
-                break;
             }
         }
     }
@@ -551,17 +553,34 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     else
     {
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        if(bp && bp->kind() == Builtin::KindString)
+        if(bp)
         {
-            _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
-        }
-        else if(bp && bp->kind() == Builtin::KindLong)
-        {
-            _out << value << "L";
-        }
-        else if(bp && bp->kind() == Builtin::KindFloat)
-        {
-            _out << value << "F";
+            if(bp->kind() == Builtin::KindString)
+            {
+                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
+            }
+            else if(bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
+                    bp->kind() == Builtin::KindVarUInt)
+            {
+                _out << value << "U";
+            }
+            else if(bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
+            {
+                _out << value << "L";
+            }
+            else if(bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
+            {
+                _out << value << "UL";
+            }
+            else if(bp->kind() == Builtin::KindFloat)
+            {
+                _out << value << "F";
+            }
+            else
+            {
+                _out << value;
+            }
+
         }
         else if(EnumPtr::dynamicCast(type))
         {
@@ -1579,21 +1598,27 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(!dataMembers.empty())
     {
         bool optionals = false;
-        const char* builtinGetter[] =
-            {
-                "GetByte",
-                "GetBoolean",
-                "GetInt16",
-                "GetInt32",
-                "GetInt64",
-                "GetSingle",
-                "GetDouble",
-                "GetString",
-                "",
-                "",
-                "",
-                ""
-            };
+        static const std::array<std::string, 18> builtinGetter =
+        {
+            "GetBoolean",
+            "GetByte",
+            "GetInt16",
+            "GetUInt16",
+            "GetInt32",
+            "GetUInt32",
+            "GetInt32",
+            "GetUInt32",
+            "GetInt64",
+            "GetUInt64",
+            "GetInt64",
+            "GetUInt64",
+            "GetSingle",
+            "GetDouble",
+            "GetString",
+            "",
+            "",
+            "",
+        };
 
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
