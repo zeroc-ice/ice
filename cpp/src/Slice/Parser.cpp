@@ -3146,7 +3146,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
         }
         catch(const out_of_range&)
         {
-            _unit->error("initializer `" + value + "' for " + desc + " `" + name + " ' out of range for type " +
+            _unit->error("initializer `" + value + "' for " + desc + " `" + name + "' out of range for type " +
                          b->kindAsString());
             return false;
         }
