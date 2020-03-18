@@ -441,7 +441,7 @@ Slice::Type::Type(const UnitPtr& unt) :
 string
 Slice::Builtin::typeId() const
 {
-    if(usesClasses() || _kind == Kind::ObjectProxy)
+    if(usesClasses() || _kind == KindObjectProxy)
     {
         return "::Ice::" + kindAsString();
     }
@@ -454,7 +454,7 @@ Slice::Builtin::typeId() const
 bool
 Slice::Builtin::usesClasses() const
 {
-    return _kind == Kind::Object || _kind == Kind::Value;
+    return _kind == KindObject || _kind == KindValue;
 }
 
 size_t
@@ -462,24 +462,24 @@ Slice::Builtin::minWireSize() const
 {
     switch(_kind)
     {
-        case Kind::Bool: return 1;
-        case Kind::Byte: return 1;
-        case Kind::Short: return 2;
-        case Kind::UShort: return 2;
-        case Kind::Int: return 4;
-        case Kind::UInt: return 4;
-        case Kind::VarInt: return 1;
-        case Kind::VarUInt: return 1;
-        case Kind::Long: return 8;
-        case Kind::ULong: return 8;
-        case Kind::VarLong: return 1;
-        case Kind::VarULong: return 1;
-        case Kind::Float: return 4;
-        case Kind::Double: return 8;
-        case Kind::String: return 1; // at least one byte for an empty string.
-        case Kind::Object: return 1; // at least one byte (to marshal an index instead of an instance).
-        case Kind::ObjectProxy: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
-        case Kind::Value: return 1; // at least one byte (to marshal an index instead of an instance).
+        case KindBool: return 1;
+        case KindByte: return 1;
+        case KindShort: return 2;
+        case KindUShort: return 2;
+        case KindInt: return 4;
+        case KindUInt: return 4;
+        case KindVarInt: return 1;
+        case KindVarUInt: return 1;
+        case KindLong: return 8;
+        case KindULong: return 8;
+        case KindVarLong: return 1;
+        case KindVarULong: return 1;
+        case KindFloat: return 4;
+        case KindDouble: return 8;
+        case KindString: return 1; // at least one byte for an empty string.
+        case KindObject: return 1; // at least one byte (to marshal an index instead of an instance).
+        case KindObjectProxy: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
+        case KindValue: return 1; // at least one byte (to marshal an index instead of an instance).
     }
     throw logic_error("");
 }
@@ -489,30 +489,30 @@ Slice::Builtin::getTagFormat() const
 {
     switch(_kind)
     {
-        case Kind::Bool:
-        case Kind::Byte:
+        case KindBool:
+        case KindByte:
             return "F1";
-        case Kind::Short:
-        case Kind::UShort:
+        case KindShort:
+        case KindUShort:
             return "F2";
-        case Kind::Int:
-        case Kind::UInt:
-        case Kind::Float:
+        case KindInt:
+        case KindUInt:
+        case KindFloat:
             return "F4";
-        case Kind::Long:
-        case Kind::ULong:
-        case Kind::Double:
+        case KindLong:
+        case KindULong:
+        case KindDouble:
             return "F8";
-        case Kind::VarInt:
-        case Kind::VarUInt:
-        case Kind::VarLong:
-        case Kind::VarULong:
-        case Kind::String:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindVarLong:
+        case KindVarULong:
+        case KindString:
             return "VSize";
-        case Kind::Object:
-        case Kind::Value:
+        case KindObject:
+        case KindValue:
             return "Class";
-        case Kind::ObjectProxy:
+        case KindObjectProxy:
             return "FSize";
     }
     throw logic_error("");
@@ -523,14 +523,14 @@ Slice::Builtin::isVariableLength() const
 {
     switch(_kind)
     {
-        case Kind::VarInt:
-        case Kind::VarUInt:
-        case Kind::VarLong:
-        case Kind::VarULong:
-        case Kind::String:
-        case Kind::Object:
-        case Kind::ObjectProxy:
-        case Kind::Value:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindVarLong:
+        case KindVarULong:
+        case KindString:
+        case KindObject:
+        case KindObjectProxy:
+        case KindValue:
             return true;
         default:
             return false;
@@ -542,19 +542,19 @@ Slice::Builtin::isNumeric() const
 {
     switch(_kind)
     {
-        case Kind::Byte:
-        case Kind::Short:
-        case Kind::UShort:
-        case Kind::Int:
-        case Kind::UInt:
-        case Kind::VarInt:
-        case Kind::VarUInt:
-        case Kind::Long:
-        case Kind::ULong:
-        case Kind::VarLong:
-        case Kind::VarULong:
-        case Kind::Float:
-        case Kind::Double:
+        case KindByte:
+        case KindShort:
+        case KindUShort:
+        case KindInt:
+        case KindUInt:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindLong:
+        case KindULong:
+        case KindVarLong:
+        case KindVarULong:
+        case KindFloat:
+        case KindDouble:
             return true;
         default:
             return false;
@@ -566,17 +566,17 @@ Slice::Builtin::isWholeNumber() const
 {
     switch(_kind)
     {
-        case Kind::Byte:
-        case Kind::Short:
-        case Kind::UShort:
-        case Kind::Int:
-        case Kind::UInt:
-        case Kind::VarInt:
-        case Kind::VarUInt:
-        case Kind::Long:
-        case Kind::ULong:
-        case Kind::VarLong:
-        case Kind::VarULong:
+        case KindByte:
+        case KindShort:
+        case KindUShort:
+        case KindInt:
+        case KindUInt:
+        case KindVarInt:
+        case KindVarUInt:
+        case KindLong:
+        case KindULong:
+        case KindVarLong:
+        case KindVarULong:
             return true;
         default:
             return false;
@@ -588,12 +588,12 @@ Slice::Builtin::isUnsignedNumber() const
 {
     switch(_kind)
     {
-        case Kind::Byte:
-        case Kind::UShort:
-        case Kind::UInt:
-        case Kind::VarUInt:
-        case Kind::ULong:
-        case Kind::VarULong:
+        case KindByte:
+        case KindUShort:
+        case KindUInt:
+        case KindVarUInt:
+        case KindULong:
+        case KindVarULong:
             return true;
         default:
             return false;
@@ -606,16 +606,10 @@ Slice::Builtin::kind() const
     return _kind;
 }
 
-size_t
-Slice::Builtin::index() const
-{
-    return static_cast<size_t>(_kind);
-}
-
 string
 Slice::Builtin::kindAsString() const
 {
-    return builtinTable[index()];
+    return builtinTable[_kind];
 }
 
 optional<Slice::Builtin::Kind>
@@ -2979,7 +2973,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 
     if(b)
     {
-        if(b->usesClasses() || b->kind() == Builtin::Kind::ObjectProxy)
+        if(b->usesClasses() || b->kind() == Builtin::KindObjectProxy)
         {
             if(isConstant)
             {
@@ -3061,7 +3055,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
         try
         {
             // `unsigned long long`s don't fit in a `long long`, so we check them separately with `stoull`.
-            if(b->kind() == Builtin::Kind::ULong)
+            if(b->kind() == Builtin::KindULong)
             {
                 min = 0;
                 max = UINT64_MAX;
@@ -3077,59 +3071,59 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
             {
                 switch(b->kind())
                 {
-                    case Builtin::Kind::Byte:
+                    case Builtin::KindByte:
                     {
                         min = 0;
                         max = UINT8_MAX;
                         break;
                     }
-                    case Builtin::Kind::Short:
+                    case Builtin::KindShort:
                     {
                         min = INT16_MIN;
                         max = INT16_MAX;
                         break;
                     }
-                    case Builtin::Kind::UShort:
+                    case Builtin::KindUShort:
                     {
                         min = 0;
                         max = UINT16_MAX;
                         break;
                     }
-                    case Builtin::Kind::Int:
-                    case Builtin::Kind::VarInt:
+                    case Builtin::KindInt:
+                    case Builtin::KindVarInt:
                     {
                         min = INT32_MIN;
                         max = INT32_MAX;
                         break;
                     }
-                    case Builtin::Kind::UInt:
-                    case Builtin::Kind::VarUInt:
+                    case Builtin::KindUInt:
+                    case Builtin::KindVarUInt:
                     {
                         min = 0;
                         max = UINT32_MAX;
                         break;
                     }
-                    case Builtin::Kind::Long:
+                    case Builtin::KindLong:
                     {
                         min = INT64_MIN;
                         max = INT64_MAX;
                         break;
                     }
-                    case Builtin::Kind::ULong:
+                    case Builtin::KindULong:
                     {
                         min = 0;
                         max = UINT64_MAX;
                         break;
                     }
                     // The first 2 bits are reserved for storing the length, so we only have 62 bits for the value.
-                    case Builtin::Kind::VarLong:
+                    case Builtin::KindVarLong:
                     {
                         // We lose another bit here for the sign.
                         min = -(1LL << 61);
                         max = (1ULL << 61) - 1;
                         break;
                     }
-                    case Builtin::Kind::VarULong:
+                    case Builtin::KindVarULong:
                     {
                         min = 0;
                         max = (1ULL << 62) - 1;
@@ -5059,19 +5053,19 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
     {
         switch(bp->kind())
         {
-            case Builtin::Kind::Bool:
-            case Builtin::Kind::Byte:
-            case Builtin::Kind::Short:
-            case Builtin::Kind::UShort:
-            case Builtin::Kind::Int:
-            case Builtin::Kind::UInt:
-            case Builtin::Kind::VarInt:
-            case Builtin::Kind::VarUInt:
-            case Builtin::Kind::Long:
-            case Builtin::Kind::ULong:
-            case Builtin::Kind::VarLong:
-            case Builtin::Kind::VarULong:
-            case Builtin::Kind::String:
+            case Builtin::KindBool:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindUShort:
+            case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
+            case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
+            case Builtin::KindString:
                 return true;
             default:
                 return false;

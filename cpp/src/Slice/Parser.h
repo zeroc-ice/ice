@@ -361,26 +361,26 @@ class Builtin : public virtual Type
 {
 public:
 
-    enum class Kind
+    enum Kind
     {
-        Bool,
-        Byte,
-        Short,
-        UShort,
-        Int,
-        UInt,
-        VarInt,
-        VarUInt,
-        Long,
-        ULong,
-        VarLong,
-        VarULong,
-        Float,
-        Double,
-        String,
-        Object,
-        ObjectProxy,
-        Value
+        KindBool,
+        KindByte,
+        KindShort,
+        KindUShort,
+        KindInt,
+        KindUInt,
+        KindVarInt,
+        KindVarUInt,
+        KindLong,
+        KindULong,
+        KindVarLong,
+        KindVarULong,
+        KindFloat,
+        KindDouble,
+        KindString,
+        KindObject,
+        KindObjectProxy,
+        KindValue
     };
 
     virtual std::string typeId() const;
@@ -394,7 +394,6 @@ public:
     bool isUnsignedNumber() const;
 
     Kind kind() const;
-    size_t index() const;
     std::string kindAsString() const;
     static std::optional<Kind> kindFromString(std::string_view);
 

@@ -378,7 +378,7 @@ typeToString(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinTable[builtin->index()];
+        return builtinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -425,37 +425,37 @@ dictionaryTypeToString(const TypePtr& type, bool key)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::Bool:
-            case Builtin::Kind::Byte:
-            case Builtin::Kind::Short:
-            case Builtin::Kind::UShort:
+            case Builtin::KindBool:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindUShort:
             {
                 //
                 // containers.Map supports a limited number of key types.
                 //
                 return key ? "int32" : typeToString(type);
             }
-            case Builtin::Kind::Int:
-            case Builtin::Kind::UInt:
-            case Builtin::Kind::VarInt:
-            case Builtin::Kind::VarUInt:
-            case Builtin::Kind::Long:
-            case Builtin::Kind::ULong:
-            case Builtin::Kind::VarLong:
-            case Builtin::Kind::VarULong:
-            case Builtin::Kind::String:
+            case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
+            case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
+            case Builtin::KindString:
             {
                 return typeToString(type);
             }
-            case Builtin::Kind::Float:
-            case Builtin::Kind::Double:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
             {
                 assert(!key);
                 return typeToString(type);
             }
-            case Builtin::Kind::Object:
-            case Builtin::Kind::ObjectProxy:
-            case Builtin::Kind::Value:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 assert(!key);
                 return "any";
@@ -488,7 +488,7 @@ declarePropertyType(const TypePtr& type, bool optional)
     }
 
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    if(b && (b->usesClasses() || b->kind() == Builtin::Kind::ObjectProxy))
+    if(b && (b->usesClasses() || b->kind() == Builtin::KindObjectProxy))
     {
         return false;
     }
@@ -509,7 +509,7 @@ constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const str
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
         if(builtin)
         {
-            if(builtin->kind() == Builtin::Kind::String)
+            if(builtin->kind() == Builtin::KindString)
             {
                 return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
             }
@@ -549,27 +549,27 @@ defaultValue(const DataMemberPtr& m)
         {
             switch(builtin->kind())
             {
-                case Builtin::Kind::String:
+                case Builtin::KindString:
                     return "''";
-                case Builtin::Kind::Bool:
+                case Builtin::KindBool:
                     return "false";
-                case Builtin::Kind::Byte:
-                case Builtin::Kind::Short:
-                case Builtin::Kind::UShort:
-                case Builtin::Kind::Int:
-                case Builtin::Kind::UInt:
-                case Builtin::Kind::VarInt:
-                case Builtin::Kind::VarUInt:
-                case Builtin::Kind::Long:
-                case Builtin::Kind::ULong:
-                case Builtin::Kind::VarLong:
-                case Builtin::Kind::VarULong:
-                case Builtin::Kind::Float:
-                case Builtin::Kind::Double:
+                case Builtin::KindByte:
+                case Builtin::KindShort:
+                case Builtin::KindUShort:
+                case Builtin::KindInt:
+                case Builtin::KindUInt:
+                case Builtin::KindVarInt:
+                case Builtin::KindVarUInt:
+                case Builtin::KindLong:
+                case Builtin::KindULong:
+                case Builtin::KindVarLong:
+                case Builtin::KindVarULong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
                     return "0";
-                case Builtin::Kind::Object:
-                case Builtin::Kind::ObjectProxy:
-                case Builtin::Kind::Value:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindValue:
                     return "[]";
             }
         }
@@ -625,7 +625,7 @@ isProxy(const TypePtr& type)
 {
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ProxyPtr p = ProxyPtr::dynamicCast(type);
-    return (b && b->kind() == Builtin::Kind::ObjectProxy) || p;
+    return (b && b->kind() == Builtin::KindObjectProxy) || p;
 }
 
 bool
@@ -2997,7 +2997,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const TypePtr content = p->type();
 
     const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
-    if(b && !b->usesClasses() && b->kind() != Builtin::Kind::ObjectProxy)
+    if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
     {
         return;
     }
@@ -3111,7 +3111,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if((b && b->kind() == Builtin::Kind::String) || dictContent || seqContent || proxy)
+    else if((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
     {
         //
         // These types require a cell array.
@@ -3856,7 +3856,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        out << nl << stream << ".write" << builtinSuffixTable[builtin->index()];
+        out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()];
         if(isTagged)
         {
             out << "Opt(" << tag << ", " << v << ");";
@@ -3946,9 +3946,9 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         const TypePtr content = seq->type();
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && !b->usesClasses() && b->kind() != Builtin::Kind::ObjectProxy)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
         {
-            out << nl << stream << ".write" << builtinSuffixTable[b->index()] << "Seq";
+            out << nl << stream << ".write" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)
             {
                 out << "Opt(" << tag << ", ";
@@ -3996,7 +3996,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         }
         else
         {
-            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[builtin->index()];
+            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()];
             if(isTagged)
             {
                 out << "Opt(" << tag << ");";
@@ -4108,9 +4108,9 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         const TypePtr content = seq->type();
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && !b->usesClasses() && b->kind() != Builtin::Kind::ObjectProxy)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
         {
-            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[b->index()] << "Seq";
+            out << nl << v << " = " << stream << ".read" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)
             {
                 out << "Opt(" << tag << ");";

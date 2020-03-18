@@ -428,34 +428,34 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::Bool:
+            case Builtin::KindBool:
             {
                 return "false";
             }
             // TODO change these whole-number types to use BigInt
-            case Builtin::Kind::Byte:
-            case Builtin::Kind::Short:
-            case Builtin::Kind::UShort:
-            case Builtin::Kind::Int:
-            case Builtin::Kind::UInt:
-            case Builtin::Kind::VarInt:
-            case Builtin::Kind::VarUInt:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindUShort:
+            case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             {
                 return "0";
             }
-            case Builtin::Kind::Long:
-            case Builtin::Kind::ULong:
-            case Builtin::Kind::VarLong:
-            case Builtin::Kind::VarULong:
+            case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "new Ice.Long(0, 0)";
             }
-            case Builtin::Kind::Float:
-            case Builtin::Kind::Double:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
             {
                 return "0.0";
             }
-            case Builtin::Kind::String:
+            case Builtin::KindString:
             {
                 return "\"\"";
             }
@@ -495,7 +495,7 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
     {
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         EnumPtr ep;
-        if(bp && bp->kind() == Builtin::Kind::String)
+        if(bp && bp->kind() == Builtin::KindString)
         {
             //
             // For now, we generate strings in ECMAScript 5 format, with two \unnnn for astral characters
@@ -503,8 +503,8 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
             os << "\"" << toStringLiteral(value, "\b\f\n\r\t\v", "", ShortUCN, 0) << "\"";
         }
         // TODO eliminate this special Ice.Long logic in a future PR
-        else if(bp && (bp->kind() == Builtin::Kind::Long || bp->kind() == Builtin::Kind::ULong ||
-                bp->kind() == Builtin::Kind::VarLong || bp->kind() == Builtin::Kind::VarULong))
+        else if(bp && (bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindULong ||
+                bp->kind() == Builtin::KindVarLong || bp->kind() == Builtin::KindVarULong))
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
 
@@ -903,10 +903,10 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
     {
         switch(builtin->kind())
         {
-        case Builtin::Kind::Object:
+        case Builtin::KindObject:
             _seenObjectSeq = true;
             break;
-        case Builtin::Kind::ObjectProxy:
+        case Builtin::KindObjectProxy:
             _seenObjectProxySeq = true;
             break;
         default:
@@ -923,10 +923,10 @@ Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
     {
         switch(builtin->kind())
         {
-        case Builtin::Kind::Object:
+        case Builtin::KindObject:
             _seenObjectDict = true;
             break;
-        case Builtin::Kind::ObjectProxy:
+        case Builtin::KindObjectProxy:
             _seenObjectProxyDict = true;
             break;
         default:
@@ -2023,8 +2023,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     //
     bool keyUseEquals = false;
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
-    if((b && (b->kind() == Builtin::Kind::Long || b->kind() == Builtin::Kind::ULong || b->kind() == Builtin::Kind::VarLong ||
-        b->kind() == Builtin::Kind::VarULong)) || StructPtr::dynamicCast(keyType))
+    if((b && (b->kind() == Builtin::KindLong || b->kind() == Builtin::KindULong || b->kind() == Builtin::KindVarLong ||
+        b->kind() == Builtin::KindVarULong)) || StructPtr::dynamicCast(keyType))
     {
         keyUseEquals = true;
     }
@@ -2150,7 +2150,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinTable[builtin->index()];
+        return builtinTable[builtin->kind()];
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);

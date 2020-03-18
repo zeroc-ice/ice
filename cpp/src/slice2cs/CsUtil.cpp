@@ -82,7 +82,7 @@ bool
 Slice::isNullable(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin && (builtin->usesClasses() || builtin->kind() == Builtin::Kind::ObjectProxy))
+    if(builtin && (builtin->usesClasses() || builtin->kind() == Builtin::KindObjectProxy))
     {
         return true;
     }
@@ -366,13 +366,13 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::Kind::Object)
+        if(builtin->kind() == Builtin::KindObject)
         {
-            return getUnqualified(builtinTable[static_cast<size_t>(Builtin::Kind::Value)], package, true);
+            return getUnqualified(builtinTable[Builtin::KindValue], package, true);
         }
         else
         {
-            return getUnqualified(builtinTable[builtin->index()], package, true);
+            return getUnqualified(builtinTable[builtin->kind()], package, true);
         }
     }
 
@@ -560,7 +560,7 @@ Slice::isProxyType(const TypePtr& type)
         return true;
     }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && builtin->kind() == Builtin::Kind::ObjectProxy;
+    return builtin && builtin->kind() == Builtin::KindObjectProxy;
 }
 
 bool
@@ -583,10 +583,10 @@ Slice::isValueType(const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::String:
-            case Builtin::Kind::Object:
-            case Builtin::Kind::ObjectProxy:
-            case Builtin::Kind::Value:
+            case Builtin::KindString:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 return false;
             }
@@ -753,9 +753,9 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::Kind::ObjectProxy)
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->index()];
+        out << "Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
@@ -781,8 +781,8 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 
     if(builtin || isProxyType(type) || isClassType(type))
     {
-        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::Kind::ObjectProxy : Builtin::Kind::Value;
-        out << nl << stream << ".Write" << builtinSuffixTable[static_cast<size_t>(kind)] << "(" << param << ");";
+        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << param << ");";
     }
     else if(st)
     {
@@ -799,9 +799,9 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::Kind::ObjectProxy)
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->index()];
+        out << "Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
     {
@@ -836,7 +836,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if(builtin)
     {
-        out << stream << ".Read" << builtinSuffixTable[builtin->index()] << "();";
+        out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "();";
     }
     else if(st)
     {
@@ -865,9 +865,8 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
 
     if(builtin || isProxyType(type) || isClassType(type))
     {
-        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::Kind::ObjectProxy : Builtin::Kind::Value;
-        out << nl << stream << ".Write" << builtinSuffixTable[static_cast<size_t>(kind)] << "(" << tag << ", " << param
-            << ");";
+        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
     {
@@ -954,7 +953,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if(builtin)
     {
-        out << nl << param << " = " << stream << ".Read" << builtinSuffixTable[builtin->index()] << "(" << tag << ");";
+        out << nl << param << " = " << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "(" << tag << ");";
     }
     else if(st)
     {
@@ -1010,9 +1009,9 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     {
         out << stream << ".WriteSerializable(" << param << ")";
     }
-    else if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::Kind::ObjectProxy)
+    else if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << stream << ".Write" << builtinSuffixTable[builtin->index()] << "Seq(" << param << ")";
+        out << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ")";
     }
     else
     {
@@ -1037,9 +1036,9 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else if(generic.empty())
     {
-        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::Kind::ObjectProxy)
+        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
         {
-            out << stream << ".Read" << builtinSuffixTable[builtin->index()] << "Array()";
+            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
         }
         else
         {
@@ -1049,9 +1048,9 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else
     {
-        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::Kind::ObjectProxy)
+        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
         {
-            out << stream << ".Read" << builtinSuffixTable[builtin->index()] << "Array()";
+            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
         }
         else
         {
@@ -1091,11 +1090,11 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    auto kind = builtin ? builtin->kind() : Builtin::Kind::ObjectProxy;
+    auto kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
 
     if(builtin || proxy)
     {
-        if(builtin->usesClasses() || kind == Builtin::Kind::ObjectProxy)
+        if(builtin->usesClasses() || kind == Builtin::KindObjectProxy)
         {
             if(marshal)
             {
@@ -1167,7 +1166,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".Skip(4);";
                 }
-                else if(kind != Builtin::Kind::Byte && kind != Builtin::Kind::Bool)
+                else if(kind != Builtin::KindByte && kind != Builtin::KindBool)
                 {
                     out << nl << stream << ".SkipSize();";
                 }
@@ -1492,7 +1491,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     }
                     string type = s.substr(csSerializablePrefix.size());
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                    if(!type.empty() && builtin && builtin->kind() == Builtin::Kind::Byte)
+                    if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
                     {
                         newLocalMetaData.push_back(s);
                         continue;

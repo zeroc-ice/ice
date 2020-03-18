@@ -946,30 +946,30 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::Bool:
+            case Builtin::KindBool:
             {
                 return "false";
             }
-            case Builtin::Kind::Byte:
-            case Builtin::Kind::Short:
-            case Builtin::Kind::UShort:
-            case Builtin::Kind::Int:
-            case Builtin::Kind::UInt:
-            case Builtin::Kind::VarInt:
-            case Builtin::Kind::VarUInt:
-            case Builtin::Kind::Long:
-            case Builtin::Kind::ULong:
-            case Builtin::Kind::VarLong:
-            case Builtin::Kind::VarULong:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindUShort:
+            case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
+            case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "0";
             }
-            case Builtin::Kind::Float:
-            case Builtin::Kind::Double:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
             {
                 return "0.0";
             }
-            case Builtin::Kind::String:
+            case Builtin::KindString:
             {
                 return "\"\"";
             }
@@ -1023,7 +1023,7 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
         {
             BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
             EnumPtr ep = EnumPtr::dynamicCast(type);
-            if(bp && bp->kind() == Builtin::Kind::String)
+            if(bp && bp->kind() == Builtin::KindString)
             {
                 out << "\"";
                 out << toStringLiteral(value, "\n\r\t", "", EC6UCN, 0);
@@ -1073,13 +1073,13 @@ SwiftGenerator::typeToString(const TypePtr& type,
 
     if(builtin)
     {
-        if(builtin->kind() == Builtin::Kind::Object)
+        if(builtin->kind() == Builtin::KindObject)
         {
-            t = getUnqualified(builtinTable[static_cast<size_t>(Builtin::Kind::Value)], currentModule);
+            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
         }
         else
         {
-            t = getUnqualified(builtinTable[builtin->index()], currentModule);
+            t = getUnqualified(builtinTable[builtin->kind()], currentModule);
         }
     }
 
@@ -1091,7 +1091,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
     {
         if(cl->isInterface())
         {
-            t = fixIdent(getUnqualified(builtinTable[static_cast<size_t>(Builtin::Kind::Value)], currentModule));
+            t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
         }
         else
         {
@@ -1128,7 +1128,7 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinTable[builtin->index()];
+        return builtinTable[builtin->kind()];
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
@@ -1252,9 +1252,9 @@ SwiftGenerator::isNullableType(const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::Object:
-            case Builtin::Kind::ObjectProxy:
-            case Builtin::Kind::Value:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 return true;
             }
@@ -1272,7 +1272,7 @@ bool
 SwiftGenerator::isProxyType(const TypePtr& p)
 {
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && builtin->kind() == Builtin::Kind::ObjectProxy) || ProxyPtr::dynamicCast(p);
+    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || ProxyPtr::dynamicCast(p);
 }
 
 bool
@@ -1451,7 +1451,7 @@ SwiftGenerator::usesMarshalHelper(const TypePtr& type)
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
         if(builtin)
         {
-            return builtin->usesClasses() || builtin->kind() == Builtin::Kind::ObjectProxy;
+            return builtin->kind() > Builtin::KindString;
         }
         return true;
     }
@@ -1493,7 +1493,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::ObjectProxy:
+            case Builtin::KindObjectProxy:
             {
                 if(marshal)
                 {
@@ -1511,8 +1511,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 break;
             }
-            case Builtin::Kind::Object:
-            case Builtin::Kind::Value:
+            case Builtin::KindObject:
+            case Builtin::KindValue:
             {
                 if(marshal)
                 {
@@ -1643,7 +1643,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     if(seq)
     {
         BuiltinPtr seqBuiltin = BuiltinPtr::dynamicCast(seq->type());
-        if(seqBuiltin && !seqBuiltin->usesClasses() && seqBuiltin->kind() != Builtin::Kind::ObjectProxy)
+        if(seqBuiltin && seqBuiltin->kind() <= Builtin::KindString)
         {
             if(marshal)
             {

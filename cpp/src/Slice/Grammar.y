@@ -2123,7 +2123,7 @@ type
 : ICE_OBJECT '*'
 {
     // TODO: equivalent to ICE_OBJECT ? above, need to merge KindObject / KindObjectProxy
-    $$ = unit->builtin(Builtin::Kind::ObjectProxy);
+    $$ = unit->builtin(Builtin::KindObjectProxy);
 }
 | builtin '?'
 {
@@ -2250,7 +2250,7 @@ const_initializer
 // ----------------------------------------------------------------------
 : ICE_INTEGER_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::Kind::Long);//TODONOW
+    BuiltinPtr type = unit->builtin(Builtin::KindLong);//TODONOW
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << intVal->v;
@@ -2259,7 +2259,7 @@ const_initializer
 }
 | ICE_FLOATING_POINT_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::Kind::Double);
+    BuiltinPtr type = unit->builtin(Builtin::KindDouble);
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << floatVal->v;
@@ -2308,21 +2308,21 @@ const_initializer
 }
 | ICE_STRING_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::Kind::String);
+    BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
     $$ = def;
 }
 | ICE_FALSE
 {
-    BuiltinPtr type = unit->builtin(Builtin::Kind::Bool);
+    BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
     $$ = def;
 }
 | ICE_TRUE
 {
-    BuiltinPtr type = unit->builtin(Builtin::Kind::Bool);
+    BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
     $$ = def;

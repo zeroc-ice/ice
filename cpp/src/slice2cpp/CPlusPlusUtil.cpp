@@ -85,15 +85,15 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(typeCtx & TypeContextAMIPrivateEnd)
             {
-                if(builtin && builtin->kind() == Builtin::Kind::Byte)
+                if(builtin && builtin->kind() == Builtin::KindByte)
                 {
                     string s = typeToString(seq->type(), scope);
                     return "::std::pair<const " + s + "*, const " + s + "*>";
                 }
                 else if(builtin &&
-                        builtin->kind() != Builtin::Kind::String &&
-                        builtin->kind() != Builtin::Kind::Object &&
-                        builtin->kind() != Builtin::Kind::ObjectProxy)
+                        builtin->kind() != Builtin::KindString &&
+                        builtin->kind() != Builtin::KindObject &&
+                        builtin->kind() != Builtin::KindObjectProxy)
                 {
                     string s = toTemplateArg(typeToString(builtin, scope));
                     return "::std::pair< ::IceUtil::ScopedArray<" + s + ">, " +
@@ -234,10 +234,10 @@ writeParamEndCode(Output& out, const TypePtr& type, bool isTagged, const string&
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(builtin &&
-               builtin->kind() != Builtin::Kind::Byte &&
-               builtin->kind() != Builtin::Kind::String &&
-               builtin->kind() != Builtin::Kind::Object &&
-               builtin->kind() != Builtin::Kind::ObjectProxy)
+               builtin->kind() != Builtin::KindByte &&
+               builtin->kind() != Builtin::KindString &&
+               builtin->kind() != Builtin::KindObject &&
+               builtin->kind() != Builtin::KindObjectProxy)
             {
                 if(isTagged)
                 {
@@ -252,9 +252,9 @@ writeParamEndCode(Output& out, const TypePtr& type, bool isTagged, const string&
                 }
             }
             else if(!builtin ||
-                    builtin->kind() == Builtin::Kind::String ||
-                    builtin->kind() == Builtin::Kind::Object ||
-                    builtin->kind() == Builtin::Kind::ObjectProxy)
+                    builtin->kind() == Builtin::KindString ||
+                    builtin->kind() == Builtin::KindObject ||
+                    builtin->kind() == Builtin::KindObjectProxy)
             {
                 if(isTagged)
                 {
@@ -582,10 +582,10 @@ Slice::isMovable(const TypePtr& type)
     {
         switch(builtin->kind())
         {
-            case Builtin::Kind::String:
-            case Builtin::Kind::Object:
-            case Builtin::Kind::ObjectProxy:
-            case Builtin::Kind::Value:
+            case Builtin::KindString:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
             {
                 return true;
             }
@@ -693,24 +693,24 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::Kind::String)
+        if(builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx);
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::Kind::Object && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
             {
-                return getUnqualified(cpp11BuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11BuiltinTable[builtin->index()], scope);
+                return getUnqualified(cpp11BuiltinTable[builtin->kind()], scope);
             }
         }
         else
         {
-            return getUnqualified(builtinTable[builtin->index()], scope);
+            return getUnqualified(builtinTable[builtin->kind()], scope);
         }
     }
 
@@ -721,7 +721,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         {
             if(cl->isInterface())
             {
-                return getUnqualified(cpp11BuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
@@ -766,7 +766,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
             }
             else
             {
-                return getUnqualified(cpp11BuiltinTable[static_cast<size_t>(Builtin::Kind::ObjectProxy)], scope);
+                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
             }
         }
         else
@@ -894,24 +894,24 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::Kind::String)
+        if(builtin->kind() == Builtin::KindString)
         {
             return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::Kind::Object && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
             {
-                return getUnqualified(cpp11InputBuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11InputBuiltinTable[builtin->index()], scope);
+                return getUnqualified(cpp11InputBuiltinTable[builtin->kind()], scope);
             }
         }
         else
         {
-            return getUnqualified(cpp98InputBuiltinTable[builtin->index()], scope);
+            return getUnqualified(cpp98InputBuiltinTable[builtin->kind()], scope);
         }
     }
 
@@ -922,7 +922,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         {
             if(cl->isInterface())
             {
-                return getUnqualified(cpp11InputBuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
@@ -963,7 +963,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
             ClassDefPtr def = proxy->_class()->definition();
             if(def && !def->isInterface() && def->allOperations().empty())
             {
-                return getUnqualified(cpp11InputBuiltinTable[static_cast<size_t>(Builtin::Kind::ObjectProxy)], scope);
+                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindObjectProxy], scope);
             }
             else
             {
@@ -1056,24 +1056,24 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::Kind::String)
+        if(builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx) + "&";
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::Kind::Object && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
             {
-                return getUnqualified(cpp11OutputBuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11OutputBuiltinTable[builtin->index()], scope);
+                return getUnqualified(cpp11OutputBuiltinTable[builtin->kind()], scope);
             }
         }
         else
         {
-            return getUnqualified(outputBuiltinTable[builtin->index()], scope);
+            return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
         }
     }
 
@@ -1084,7 +1084,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         {
             if(cl->isInterface())
             {
-                return getUnqualified(cpp11OutputBuiltinTable[static_cast<size_t>(Builtin::Kind::Value)], scope);
+                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
@@ -1122,7 +1122,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
             //
             if(def && !def->isInterface() && def->allOperations().empty())
             {
-                return getUnqualified(cpp11OutputBuiltinTable[static_cast<size_t>(Builtin::Kind::ObjectProxy)], scope);
+                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindObjectProxy], scope);
             }
             else
             {
@@ -1315,7 +1315,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool isTagged
             if(seqType == "%array")
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                if(builtin && builtin->kind() == Builtin::Kind::Byte)
+                if(builtin && builtin->kind() == Builtin::KindByte)
                 {
                     out << nl << func << objPrefix << param << ");";
                     return;
@@ -1393,14 +1393,14 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(builtin &&
-               builtin->kind() != Builtin::Kind::Byte &&
-               builtin->kind() != Builtin::Kind::String &&
-               builtin->kind() != Builtin::Kind::Object &&
-               builtin->kind() != Builtin::Kind::ObjectProxy)
+               builtin->kind() != Builtin::KindByte &&
+               builtin->kind() != Builtin::KindString &&
+               builtin->kind() != Builtin::KindObject &&
+               builtin->kind() != Builtin::KindObjectProxy)
             {
                 endArg += "_tmp_";
             }
-            else if(!builtin || builtin->kind() != Builtin::Kind::Byte)
+            else if(!builtin || builtin->kind() != Builtin::KindByte)
             {
                 endArg += "_tmp_";
             }
