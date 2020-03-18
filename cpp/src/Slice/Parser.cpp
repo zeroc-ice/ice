@@ -3022,10 +3022,6 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
             {
                 ok = true;
             }
-            else if(b->isUnsignedNumber())
-            {
-                ok = lt->isUnsignedNumber();
-            }
             else if(b->isWholeNumber())
             {
                 ok = lt->isWholeNumber();
