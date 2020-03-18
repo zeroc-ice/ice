@@ -1090,11 +1090,11 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
+    auto kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
 
     if(builtin || proxy)
     {
-        if(builtin->usesClasses() || builtin->kind() == Builtin::KindObjectProxy)
+        if(builtin->usesClasses() || kind == Builtin::KindObjectProxy)
         {
             if(marshal)
             {
@@ -1166,7 +1166,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".Skip(4);";
                 }
-                else if(builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+                else if(kind != Builtin::KindByte && kind != Builtin::KindBool)
                 {
                     out << nl << stream << ".SkipSize();";
                 }

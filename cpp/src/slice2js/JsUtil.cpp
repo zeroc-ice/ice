@@ -417,7 +417,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     {
         if(typescript)
         {
-            int kind = (builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
+            auto kind = (builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
             ostringstream os;
             if(getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
             {

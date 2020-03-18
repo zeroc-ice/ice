@@ -2128,12 +2128,12 @@ type
 | builtin '?'
 {
     StringTokPtr typeName = StringTokPtr::dynamicCast($1);
-    unit->optionalBuiltin(Builtin::KindFromString(typeName->value).value());
+    $$ = unit->optionalBuiltin(Builtin::kindFromString(typeName->v).value());
 }
 | builtin
 {
     StringTokPtr typeName = StringTokPtr::dynamicCast($1);
-    unit->builtin(Builtin::KindFromString(typeName->value).value());
+    $$ = unit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 | scoped_name
 {
