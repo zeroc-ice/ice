@@ -481,6 +481,7 @@ Slice::Builtin::minWireSize() const
         case Kind::ObjectProxy: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
         case Kind::Value: return 1; // at least one byte (to marshal an index instead of an instance).
     }
+    throw logic_error("");
 }
 
 string
@@ -514,6 +515,7 @@ Slice::Builtin::getTagFormat() const
         case Kind::ObjectProxy:
             return "FSize";
     }
+    throw logic_error("");
 }
 
 bool
