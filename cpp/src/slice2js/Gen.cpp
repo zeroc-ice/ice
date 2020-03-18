@@ -2127,24 +2127,24 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 
     static const std::array<std::string, 18> builtinTable =
     {
-        "0",  // bool
-        "1",  // byte
+        "1",  // bool
+        "0",  // byte
         "2",  // short
-        "3",  // ushort
-        "4",  // int
-        "5",  // uint
-        "6",  // varint
-        "7",  // varuint
-        "8",  // long
-        "9",  // ulong
-        "10", // varlong
-        "11", // varulong
-        "12", // float
-        "13", // double
-        "14", // string
-        "15", // Ice.Object
-        "16", // Ice.ObjectPrx
-        "17", // Ice.Value
+        "?",  // ushort
+        "3",  // int
+        "?",  // uint
+        "?",  // varint
+        "?",  // varuint
+        "4",  // long
+        "?",  // ulong
+        "?", // varlong
+        "?", // varulong
+        "5", // float
+        "6", // double
+        "7", // string
+        "8", // Ice.Object
+        "9", // Ice.ObjectPrx
+        "10", // Ice.Value
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

@@ -4525,7 +4525,7 @@ yyreduce:
   case 204:
 #line 2252 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindLong);//TODONOW
+    BuiltinPtr type = unit->builtin(Builtin::KindLong);
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
     ostringstream sstr;
     sstr << intVal->v;
