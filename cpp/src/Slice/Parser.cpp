@@ -3117,14 +3117,14 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
                     case Builtin::KindVarLong:
                     {
                         // We lose another bit here for the sign.
-                        min = -(1L << 61);
-                        max = (1L << 61) - 1;
+                        min = -(1LL << 61);
+                        max = (1ULL << 61) - 1;
                         break;
                     }
                     case Builtin::KindVarULong:
                     {
                         min = 0;
-                        max = (1L << 62) - 1;
+                        max = (1ULL << 62) - 1;
                         break;
                     }
                     default:

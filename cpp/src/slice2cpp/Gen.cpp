@@ -179,6 +179,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                         out << ".0";
                     }
                     out << "F";
+                    break;
                 }
 
                 default:
