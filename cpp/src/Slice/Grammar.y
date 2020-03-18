@@ -2250,7 +2250,7 @@ const_initializer
 // ----------------------------------------------------------------------
 : ICE_INTEGER_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindLong);//TODONOW
+    BuiltinPtr type = unit->builtin(Builtin::KindLong);
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << intVal->v;
