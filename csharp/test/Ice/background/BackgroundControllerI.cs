@@ -48,7 +48,7 @@ internal class BackgroundController : IBackgroundController
 
     public void initializeException(bool enable, Ice.Current current)
     {
-        _configuration.initializeException(enable ? new Ice.TransportException() : null);
+        _configuration.initializeException(enable ? new Ice.TransportException("") : null);
     }
 
     public void readReady(bool enable, Ice.Current current)
@@ -58,7 +58,7 @@ internal class BackgroundController : IBackgroundController
 
     public void readException(bool enable, Ice.Current current)
     {
-        _configuration.readException(enable ? new Ice.TransportException() : null);
+        _configuration.readException(enable ? new Ice.TransportException("") : null);
     }
 
     public void writeReady(bool enable, Ice.Current current)
@@ -68,7 +68,7 @@ internal class BackgroundController : IBackgroundController
 
     public void writeException(bool enable, Ice.Current current)
     {
-        _configuration.writeException(enable ? new Ice.TransportException() : null);
+        _configuration.writeException(enable ? new Ice.TransportException("") : null);
     }
 
     public void buffered(bool enable, Ice.Current current)

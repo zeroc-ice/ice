@@ -150,7 +150,7 @@ namespace IceInternal
                     {
                         if (_peerAddr == null)
                         {
-                            throw new Ice.TransportException();
+                            throw new Ice.TransportException("cannot send datagram to undefined peer");
                         }
 
                         ArraySegment<byte> data = buffer.GetSegment(0, count);
@@ -452,7 +452,7 @@ namespace IceInternal
                 {
                     if (_peerAddr == null)
                     {
-                        throw new Ice.TransportException();
+                        throw new Ice.TransportException("cannot send datagram to undefined peer");
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;

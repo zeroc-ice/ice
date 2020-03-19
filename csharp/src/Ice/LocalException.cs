@@ -57,8 +57,8 @@ namespace Ice
         {
         }
 
-        public CommunicatorDestroyedException(Exception ex)
-            : base("", ex)
+        public CommunicatorDestroyedException(Exception innerException)
+            : base("", innerException)
         {
         }
 
@@ -83,14 +83,10 @@ namespace Ice
         }
     }
 
-    /// <summary>This exception reports that a proxy's endpoints could not be resolved./// </summary>
+    /// <summary>This exception reports that a proxy's endpoints could not be resolved.</summary>
     [Serializable]
     public class NoEndpointException : Exception
     {
-        public NoEndpointException() // TODO: remove this constructor
-        {
-        }
-
         public NoEndpointException(string stringifiedProxy)
             : base($"could not find the endpoints for proxy `{stringifiedProxy}'")
         {
@@ -106,7 +102,8 @@ namespace Ice
     [Serializable]
     public class TransportException : Exception
     {
-        public TransportException()
+        // A plain TransportException should have a custom message or an inner exception (or both).
+        protected TransportException()
         {
         }
 
@@ -124,6 +121,7 @@ namespace Ice
             : base(message, innerException)
         {
         }
+
         protected TransportException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -213,6 +211,7 @@ namespace Ice
 
     /// <summary>This exception reports that a datagram exceeds the configured send or receive buffer size, or exceeds
     ///  the maximum payload size of a UDP packet (65507 bytes).</summary>
+    // TODO: eliminate this exception
     [Serializable]
     public class DatagramLimitException : TransportException
     {
@@ -237,7 +236,7 @@ namespace Ice
         }
 
         public SecurityException(Exception innerException)
-            : base("", innerException)
+            : base(innerException)
         {
         }
 

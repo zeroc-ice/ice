@@ -971,8 +971,14 @@ namespace Ice
 
                                 if (_endpoint.Datagram() && size > _readBufferOffset)
                                 {
-                                    throw new DatagramLimitException(
-                                        $"maximum datagram size of {_readBufferOffset} exceeded");
+                                    if (_warnUdp)
+                                    {
+                                        _logger.Warning($"maximum datagram size of {_readBufferOffset} exceeded");
+                                    }
+                                    _readBuffer = ArraySegment<byte>.Empty;
+                                    _readBufferOffset = 0;
+                                    _readHeader = true;
+                                    return;
                                 }
 
                                 if (size > _readBuffer.Array.Length)
@@ -1082,17 +1088,6 @@ namespace Ice
 
                         _dispatchCount += dispatchCount;
                         msg.Completed(ref current);
-                    }
-                    catch (DatagramLimitException ex) // Expected.
-                    {
-                        if (_warnUdp)
-                        {
-                            _logger.Warning(ex.Message);
-                        }
-                        _readBuffer = ArraySegment<byte>.Empty;
-                        _readBufferOffset = 0;
-                        _readHeader = true;
-                        return;
                     }
                     catch (TransportException ex)
                     {
