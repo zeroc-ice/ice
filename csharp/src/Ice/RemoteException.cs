@@ -13,28 +13,46 @@ namespace Ice
     [Serializable]
     public class RemoteException : System.Exception
     {
+        public override string Message => _hasCustomMessage || DefaultMessage == null ? base.Message : DefaultMessage;
+
         /// <summary>When true, if this exception is thrown from the implementation of an operation, Ice will convert
         /// it into an Ice.UnhandledException. When false, Ice marshals this remote exception as-is. true is the
         /// default for exceptions unmarshaled by Ice, while false is the default for exceptions that did not originate
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; } = false;
 
+        /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
+        /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
+        /// derived partial exception classes that provide a custom default message.</summary>
+        protected virtual string? DefaultMessage => null;
+
         protected SlicedData? IceSlicedData { get; set; }
         internal SlicedData? SlicedData => IceSlicedData;
 
+        private readonly bool _hasCustomMessage = false;
+
         internal RemoteException(SlicedData slicedData) => IceSlicedData = slicedData;
 
-        /// <summary>Creates a default-initialized remote exception.</summary>
+        /// <summary>Constructs a remote exception with the default system message.</summary>
         protected RemoteException()
         {
         }
 
-        /// <summary>Creates a default-initialized remote exception and sets the InnerException property to the passed
-        /// exception.</summary>
-        /// <param name="innerException">The inner exception.</param>
-        protected RemoteException(System.Exception innerException)
-            : base("", innerException)
+        /// <summary>Constructs a remote exception with the provided message.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        protected RemoteException(string message)
+            : base(message)
         {
+            _hasCustomMessage = true;
+        }
+
+        /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        /// <param name="innerException">The inner exception.</param>
+        protected RemoteException(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+            _hasCustomMessage = true;
         }
 
         /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>

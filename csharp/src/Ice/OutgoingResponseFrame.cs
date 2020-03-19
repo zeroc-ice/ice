@@ -123,14 +123,7 @@ namespace Ice
                 else
                 {
                     WriteByte((byte)ReplyStatus.UnknownLocalException);
-                    if (requestFailedException.IceMessage.Length > 0)
-                    {
-                        WriteString(requestFailedException.IceMessage);
-                    }
-                    else
-                    {
-                        WriteString(requestFailedException.ToString());
-                    }
+                    WriteString(requestFailedException.Message);
                 }
             }
             else
