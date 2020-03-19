@@ -357,7 +357,7 @@ public class AllTests
             }
             else
             {
-                configuration.connectException(new SocketException());
+                configuration.connectException(new TransportException(""));
             }
             IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
@@ -436,7 +436,7 @@ public class AllTests
                     test(false);
                 }
 
-                configuration.connectException(new SocketException());
+                configuration.connectException(new TransportException(""));
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 Thread.Sleep(10);
                 configuration.connectException(null);
@@ -481,7 +481,7 @@ public class AllTests
         {
             if (i == 0 || i == 2)
             {
-                configuration.initializeException(new SocketException());
+                configuration.initializeException(new TransportException(""));
             }
             else
             {
@@ -494,7 +494,7 @@ public class AllTests
                 prx.op();
                 test(false);
             }
-            catch (SocketException)
+            catch (TransportException)
             {
             }
 
@@ -572,7 +572,7 @@ public class AllTests
                 test(false);
             }
 
-            configuration.initializeException(new SocketException());
+            configuration.initializeException(new TransportException(""));
             background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
             configuration.initializeException(null);
@@ -668,18 +668,18 @@ public class AllTests
         try
         {
             // Get the read() of connection validation to throw right away.
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             background.op();
             test(false);
         }
-        catch (SocketException)
+        catch (TransportException)
         {
             configuration.readException(null);
         }
 
         for (int i = 0; i < 2; ++i)
         {
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
             bool sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
@@ -692,7 +692,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -720,11 +720,11 @@ public class AllTests
             {
                 // Get the read() of the connection validation to return "would block" and then throw.
                 configuration.readReady(false);
-                configuration.readException(new SocketException());
+                configuration.readException(new TransportException(""));
                 background.op();
                 test(false);
             }
-            catch (SocketException)
+            catch (TransportException)
             {
                 configuration.readException(null);
                 configuration.readReady(true);
@@ -733,7 +733,7 @@ public class AllTests
             for (int i = 0; i < 2; ++i)
             {
                 configuration.readReady(false);
-                configuration.readException(new SocketException());
+                configuration.readException(new TransportException(""));
                 var sentSynchronously = false;
                 var t = background.opAsync(progress: new Progress<bool>(value =>
                 {
@@ -745,7 +745,7 @@ public class AllTests
                     t.Wait();
                     test(false);
                 }
-                catch (AggregateException ex) when (ex.InnerException is SocketException)
+                catch (AggregateException ex) when (ex.InnerException is TransportException)
                 {
                 }
                 test(t.IsCompleted);
@@ -835,17 +835,17 @@ public class AllTests
             try
             {
                 prx.IcePing();
-                configuration.writeException(new SocketException());
+                configuration.writeException(new TransportException(""));
                 prx.op();
                 test(false);
             }
-            catch (SocketException)
+            catch (TransportException)
             {
                 configuration.writeException(null);
             }
 
             background.IcePing();
-            configuration.writeException(new SocketException());
+            configuration.writeException(new TransportException(""));
             var sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
@@ -857,7 +857,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -867,11 +867,11 @@ public class AllTests
         try
         {
             background.IcePing();
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             background.op();
             test(false);
         }
-        catch (SocketException)
+        catch (TransportException)
         {
             configuration.readException(null);
         }
@@ -879,14 +879,14 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             var t = background.opAsync();
             try
             {
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -922,11 +922,11 @@ public class AllTests
         {
             background.IcePing();
             configuration.writeReady(false);
-            configuration.writeException(new SocketException());
+            configuration.writeException(new TransportException(""));
             background.op();
             test(false);
         }
-        catch (SocketException)
+        catch (TransportException)
         {
             configuration.writeReady(true);
             configuration.writeException(null);
@@ -938,7 +938,7 @@ public class AllTests
 
             background.IcePing();
             configuration.writeReady(false);
-            configuration.writeException(new SocketException());
+            configuration.writeException(new TransportException(""));
             bool sentSynchronously = false;
             var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
@@ -950,7 +950,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -962,11 +962,11 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false);
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             background.op();
             test(false);
         }
-        catch (SocketException)
+        catch (TransportException)
         {
             configuration.readException(null);
             configuration.readReady(true);
@@ -975,14 +975,14 @@ public class AllTests
         {
             background.IcePing();
             configuration.readReady(false);
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             var t = background.opAsync();
             try
             {
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -994,7 +994,7 @@ public class AllTests
             background.IcePing();
             configuration.readReady(false);
             configuration.writeReady(false);
-            configuration.readException(new SocketException());
+            configuration.readException(new TransportException(""));
             var t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
             //r.waitForSent();
@@ -1003,7 +1003,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is SocketException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
             test(t.IsCompleted);
@@ -1209,7 +1209,7 @@ public class AllTests
             }
 
             Thread.Sleep(10);
-            configuration.writeException(new SocketException());
+            configuration.writeException(new TransportException(""));
             try
             {
                 background.op();

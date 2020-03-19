@@ -55,7 +55,7 @@ public class AllTests : Test.AllTests
         catch (Ice.ConnectFailedException)
         {
         }
-        catch (Ice.SocketException)
+        catch (Ice.TransportException)
         {
         }
         catch (Exception)
@@ -151,7 +151,7 @@ public class AllTests : Test.AllTests
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.SocketException)
+                    catch (Ice.TransportException)
                     {
                         output.WriteLine("ok");
                     }
@@ -191,7 +191,7 @@ public class AllTests : Test.AllTests
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.SocketException)
+                    catch (Ice.TransportException)
                     {
                         output.WriteLine("ok");
                     }

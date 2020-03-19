@@ -73,7 +73,7 @@ namespace Ice.location
                     adapter2.Activate();
                     break;
                 }
-                catch (SocketException ex)
+                catch (TransportException ex)
                 {
                     if (nRetry == 0)
                     {

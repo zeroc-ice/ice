@@ -207,7 +207,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
 
             if (!udp)
@@ -227,7 +227,7 @@ namespace IceInternal
                 catch (SocketException ex)
                 {
                     CloseSocketNoThrow(socket);
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
             return socket;
@@ -246,7 +246,7 @@ namespace IceInternal
                 catch (SocketException ex)
                 {
                     CloseSocketNoThrow(socket);
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
             return socket;
@@ -280,7 +280,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -293,7 +293,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -326,7 +326,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -339,7 +339,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -352,7 +352,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -366,7 +366,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             return sz;
         }
@@ -380,7 +380,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -394,7 +394,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             return sz;
         }
@@ -408,7 +408,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -431,7 +431,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -479,7 +479,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(s);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -499,7 +499,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -518,7 +518,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -539,7 +539,7 @@ namespace IceInternal
                 }
 
                 CloseSocketNoThrow(socket);
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -764,10 +764,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.DNSException
-                        {
-                            Host = host
-                        };
+                        throw new Ice.DNSException(host);
                     }
                 }
                 catch (FormatException)
@@ -811,11 +808,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                throw new Ice.DNSException(0, host, ex);
+                throw new Ice.DNSException(host, ex);
             }
             catch (Exception ex)
             {
-                throw new Ice.DNSException(0, host, ex);
+                throw new Ice.DNSException(host, ex);
             }
 
             //
@@ -823,7 +820,7 @@ namespace IceInternal
             //
             if (addresses.Count == 0)
             {
-                throw new Ice.DNSException(0, host);
+                throw new Ice.DNSException(host);
             }
             return addresses;
         }
@@ -866,11 +863,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                throw new Ice.DNSException(0, "0.0.0.0", ex);
+                throw new Ice.DNSException("0.0.0.0", ex);
             }
             catch (Exception ex)
             {
-                throw new Ice.DNSException(0, "0.0.0.0", ex);
+                throw new Ice.DNSException("0.0.0.0", ex);
             }
 
             return addresses.ToArray();
@@ -1090,7 +1087,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
