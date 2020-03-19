@@ -67,50 +67,44 @@ namespace Ice
         /// <value>The current size.</value>
         internal int Size { get; private set; }
 
+        internal Position Tail => _tail;
+
         private const int DefaultSegmentSize = 256;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
+        // Data for the class or exception instance that is currently getting marshaled.
+        private InstanceData? _current;
         // The segment currently used by write operations, this is usually the last segment of
         // the segment list but it can occasionally be one before last after expanding the list.
         // The tail Position always points to this segment, and the tail offset indicates how much
         // of the segment has been used.
         private ArraySegment<byte> _currentSegment;
-        // all segments before the tail segment are fully used
-        private List<ArraySegment<byte>> _segmentList;
-
-        // When set, we are writing to a top-level encapsulation.
-        private readonly Encaps? _mainEncaps;
         // When set, we are writing an endpoint encapsulation. An endpoint encapsulation is a lightweight
         // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
         // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
-
         // The current class/exception format, can be either Compact or Sliced.
         private FormatType _format;
-
         // Map of class instance to instance ID, where the instance IDs start at 2.
         // When writing a top-level encapsulation:
         //  - Instance ID = 0 means null.
         //  - Instance ID = 1 means the instance is encoded inline afterwards.
         //  - Instance ID > 1 means a reference to a previously encoded instance, found in this map.
         private Dictionary<AnyClass, int>? _instanceMap;
-
+        // When set, we are writing to a top-level encapsulation.
+        private readonly Encaps? _mainEncaps;
+        // all segments before the tail segment are fully used
+        private readonly List<ArraySegment<byte>> _segmentList;
+        // This is the position for the next write operation, it holds the index of the current
+        // segment and the offset into it.
+        private Position _tail;
         // Map of type ID string to type ID index.
         // When writing into a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
-
-        // Data for the class or exception instance that is currently getting marshaled.
-        private InstanceData? _current;
-
-        // This is the position for the next write operation, it holds the index of the current
-        // segment and the offset into it.
-        private Position _tail;
-
-        private PayloadReady? _payloadReady;
-
-        internal Position Tail => _tail;
+        // Delegate call from Save once the payload is ready.
+        private readonly PayloadReady? _payloadReady;
 
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? tail = null,
             bool startPayload = false, FormatType? format = null, PayloadReady? payloadReady = null)
