@@ -2,251 +2,260 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Runtime.Serialization;
+
 namespace Ice
 {
     /// <summary>This exception reports incorrect or missing Ice configuration.</summary>
-    public class InvalidConfigurationException : System.Exception
+    [Serializable]
+    public class InvalidConfigurationException : Exception
     {
         public InvalidConfigurationException(string message)
             : base(message)
         {
         }
 
-        public InvalidConfigurationException(string message, System.Exception innerException)
+        public InvalidConfigurationException(string message, Exception innerException)
             : base(message, innerException)
+        {
+        }
+
+        protected InvalidConfigurationException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
     /// <summary>This exception provides context for an exception thrown while attempting to load a class or create a
     /// class instance at runtime.</summary>
-    public class LoadException : System.Exception
+    [Serializable]
+    public class LoadException : Exception
     {
-        public LoadException(string message, System.Exception innerException)
+        public LoadException(string message)
+            : base(message)
+        {
+        }
+
+        public LoadException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
+
+        protected LoadException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
     }
 
-    /// <summary>
-    /// An attempt was made to find or deregister something that is not
-    /// registered with the Ice run time or Ice locator.
-    /// This exception is raised if an attempt is made to remove a servant,
-    /// servant locator, facet, class factory, plug-in, object adapter,
-    /// object, or user exception factory that is not currently registered.
-    ///
-    /// It's also raised if the Ice locator can't find an object or object
-    /// adapter when resolving an indirect proxy or when an object adapter
-    /// is activated.
-    /// </summary>
-    public class NotRegisteredException : System.Exception
+    /// <summary>This exception reports an attempt to use a destroyed communicator.</summary>
+    [Serializable]
+    public class CommunicatorDestroyedException : ObjectDisposedException
     {
-        public string KindOfObject;
-        public string Id;
-        public NotRegisteredException()
+        public CommunicatorDestroyedException() :
+            base("")
         {
-            KindOfObject = "";
-            Id = "";
         }
 
-        public NotRegisteredException(System.Exception ex) : base("", ex)
+        public CommunicatorDestroyedException(Exception innerException)
+            : base("", innerException)
         {
-            KindOfObject = "";
-            Id = "";
         }
 
-        public NotRegisteredException(string kindOfObject, string id)
+        protected CommunicatorDestroyedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
-            KindOfObject = kindOfObject;
-            Id = id;
-        }
-
-        public NotRegisteredException(string kindOfObject, string id, System.Exception ex) : base("", ex)
-        {
-            KindOfObject = kindOfObject;
-            Id = id;
         }
     }
 
-    /// <summary>
-    /// This exception is raised if the Communicator has been destroyed.
-    /// </summary>
-    public class CommunicatorDestroyedException : System.Exception
+    /// <summary>This exception reports an attempt to use a deactivated object adapter.</summary>
+    [Serializable]
+    public class ObjectAdapterDeactivatedException : ObjectDisposedException
     {
-        public CommunicatorDestroyedException()
+        public ObjectAdapterDeactivatedException(string objectName)
+            : base(objectName)
         {
         }
 
-        public CommunicatorDestroyedException(System.Exception ex) : base("", ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if an attempt is made to use a deactivated
-    /// ObjectAdapter.
-    /// </summary>
-    public class ObjectAdapterDeactivatedException : System.Exception
-    {
-        public string Name;
-
-        public ObjectAdapterDeactivatedException() => Name = "";
-
-        public ObjectAdapterDeactivatedException(System.Exception ex) : base("", ex) => Name = "";
-
-        public ObjectAdapterDeactivatedException(string name) => Name = name;
-
-        public ObjectAdapterDeactivatedException(string name, System.Exception ex) : base("", ex) => Name = name;
-
-    }
-
-    /// <summary>
-    /// This exception is raised if an ObjectAdapter cannot be activated.
-    /// This happens if the Locator detects another active ObjectAdapter with
-    /// the same adapter id.
-    /// </summary>
-    public class ObjectAdapterIdInUseException : System.Exception
-    {
-        public string Id;
-
-        public ObjectAdapterIdInUseException() => Id = "";
-
-        public ObjectAdapterIdInUseException(System.Exception ex) : base("", ex) => Id = "";
-
-        public ObjectAdapterIdInUseException(string id) => Id = id;
-
-        public ObjectAdapterIdInUseException(string id, System.Exception ex) : base("", ex) => Id = id;
-    }
-
-    /// <summary>
-    /// This exception is raised if no suitable endpoint is available.
-    /// </summary>
-    public class NoEndpointException : System.Exception
-    {
-        public string Proxy;
-
-        public NoEndpointException() => Proxy = "";
-
-        public NoEndpointException(System.Exception ex) : base("", ex) => Proxy = "";
-
-        public NoEndpointException(string proxy) => Proxy = proxy;
-
-        public NoEndpointException(string proxy, System.Exception ex) : base("", ex) => Proxy = proxy;
-
-    }
-
-    /// <summary>
-    /// This exception indicates socket errors.
-    /// </summary>
-    public class SocketException : System.Exception
-    {
-        public SocketException()
-        {
-        }
-
-        public SocketException(System.Exception ex) : base("", ex)
+        protected ObjectAdapterDeactivatedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
-    /// <summary>
-    /// This exception indicates file errors.
-    /// </summary>
-    public class FileException : System.Exception
+    /// <summary>This exception reports that a proxy's endpoints could not be resolved.</summary>
+    [Serializable]
+    public class NoEndpointException : Exception
     {
-        public string Path;
+        public NoEndpointException(string stringifiedProxy)
+            : base($"could not find the endpoints for proxy `{stringifiedProxy}'")
+        {
+        }
 
-        public FileException(System.Exception ex) : base("", ex) => Path = "";
+        protected NoEndpointException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
     }
 
-    /// <summary>
-    /// This exception indicates connection failures.
-    /// </summary>
-    public class ConnectFailedException : SocketException
+    /// <summary>This exception reports an error from the transport layer.</summary>
+    [Serializable]
+    public class TransportException : Exception
+    {
+        // A plain TransportException should have a custom message or an inner exception (or both).
+        protected TransportException()
+        {
+        }
+
+        public TransportException(string message)
+            : base(message)
+        {
+        }
+
+        public TransportException(Exception innerException)
+            : base("", innerException)
+        {
+        }
+
+        public TransportException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected TransportException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception reports a failed attempt to establish a connection.</summary>
+    [Serializable]
+    public class ConnectFailedException : TransportException
     {
         public ConnectFailedException()
         {
         }
 
-        public ConnectFailedException(System.Exception ex) : base(ex)
+        public ConnectFailedException(Exception innerException)
+            : base(innerException)
+        {
+        }
+
+        protected ConnectFailedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
-    /// <summary>
-    /// This exception indicates a connection failure for which
-    /// the server host actively refuses a connection.
-    /// </summary>
+    /// <summary>This exception reports connection refused error.</summary>
+    [Serializable]
     public class ConnectionRefusedException : ConnectFailedException
     {
         public ConnectionRefusedException()
         {
         }
 
-        public ConnectionRefusedException(System.Exception ex) : base(ex)
+        public ConnectionRefusedException(Exception innerException)
+            : base(innerException)
+        {
+        }
+
+        protected ConnectionRefusedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
-    /// <summary>
-    /// This exception indicates a lost connection.
-    /// </summary>
-    public class ConnectionLostException : SocketException
+    /// <summary>This exception reports that a previously established connection was lost.</summary>
+    [Serializable]
+    public class ConnectionLostException : TransportException
     {
         public ConnectionLostException()
         {
         }
 
-        public ConnectionLostException(System.Exception ex) : base(ex)
+        public ConnectionLostException(Exception innerException)
+            : base(innerException)
+        {
+        }
+
+        protected ConnectionLostException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
-    /// <summary>
-    /// This exception indicates a DNS problem.
-    /// For details on the cause,
-    /// DNSException.error should be inspected.
-    /// </summary>
-    public class DNSException : System.Exception
+    /// <summary>This exception reports a DNS error.</summary>
+    [Serializable]
+    public class DNSException : TransportException
     {
-        public int Error;
-        public string Host;
-
         public DNSException()
         {
-            Error = 0;
-            Host = "";
         }
 
-        public DNSException(System.Exception ex) : base("", ex)
+        public DNSException(string host)
+            : base($"failed to resolve hostname `{host}'")
         {
-            Error = 0;
-            Host = "";
         }
 
-        public DNSException(int error, string host)
+        public DNSException(string host, Exception innerException)
+            : base($"failed to resolve hostname `{host}'", innerException)
         {
-            Error = error;
-            Host = host;
         }
 
-        public DNSException(int error, string host, System.Exception ex) : base("", ex)
+        protected DNSException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
-            Error = error;
-            Host = host;
+        }
+    }
+
+    /// <summary>This exception reports that a datagram exceeds the configured send or receive buffer size, or exceeds
+    ///  the maximum payload size of a UDP packet (65507 bytes).</summary>
+    // TODO: eliminate this exception
+    [Serializable]
+    public class DatagramLimitException : TransportException
+    {
+        public DatagramLimitException(string message)
+            : base(message)
+        {
+        }
+
+        protected DatagramLimitException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception reports a failure in the security subsystem.</summary>
+    [Serializable]
+    public class SecurityException : TransportException
+    {
+        public SecurityException(string message)
+            : base(message)
+        {
+        }
+
+        public SecurityException(Exception innerException)
+            : base(innerException)
+        {
+        }
+
+        protected SecurityException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
     }
 
     /// <summary>
     /// This exception indicates a timeout condition.
     /// </summary>
-    public class TimeoutException : System.Exception
+    public class TimeoutException : Exception
     {
         public TimeoutException()
         {
         }
 
-        public TimeoutException(System.Exception ex) : base("", ex)
+        public TimeoutException(Exception ex) : base("", ex)
         {
         }
     }
@@ -261,7 +270,7 @@ namespace Ice
         {
         }
 
-        public ConnectTimeoutException(System.Exception ex) : base(ex)
+        public ConnectTimeoutException(Exception ex) : base(ex)
         {
         }
     }
@@ -276,7 +285,7 @@ namespace Ice
         {
         }
 
-        public CloseTimeoutException(System.Exception ex) : base(ex)
+        public CloseTimeoutException(Exception ex) : base(ex)
         {
         }
     }
@@ -292,7 +301,7 @@ namespace Ice
         {
         }
 
-        public ConnectionTimeoutException(System.Exception ex) : base(ex)
+        public ConnectionTimeoutException(Exception ex) : base(ex)
         {
         }
     }
@@ -307,7 +316,7 @@ namespace Ice
         {
         }
 
-        public InvocationTimeoutException(System.Exception ex) : base(ex)
+        public InvocationTimeoutException(Exception ex) : base(ex)
         {
         }
     }
@@ -316,13 +325,13 @@ namespace Ice
     /// This exception indicates that an asynchronous invocation failed
     /// because it was canceled explicitly by the user.
     /// </summary>
-    public class InvocationCanceledException : System.Exception
+    public class InvocationCanceledException : Exception
     {
         public InvocationCanceledException()
         {
         }
 
-        public InvocationCanceledException(System.Exception ex) : base("", ex)
+        public InvocationCanceledException(Exception ex) : base("", ex)
         {
         }
     }
@@ -331,17 +340,17 @@ namespace Ice
     /// A generic exception base for all kinds of protocol error
     /// conditions.
     /// </summary>
-    public class ProtocolException : System.Exception
+    public class ProtocolException : Exception
     {
         public string Reason;
 
         public ProtocolException() => Reason = "";
 
-        public ProtocolException(System.Exception ex) : base("", ex) => Reason = "";
+        public ProtocolException(Exception ex) : base("", ex) => Reason = "";
 
         public ProtocolException(string reason) => Reason = reason;
 
-        public ProtocolException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
+        public ProtocolException(string reason, Exception ex) : base("", ex) => Reason = reason;
     }
 
     /// <summary>
@@ -354,11 +363,11 @@ namespace Ice
 
         public BadMagicException() => BadMagic = System.Array.Empty<byte>();
 
-        public BadMagicException(System.Exception ex) : base(ex) => BadMagic = System.Array.Empty<byte>();
+        public BadMagicException(Exception ex) : base(ex) => BadMagic = System.Array.Empty<byte>();
 
         public BadMagicException(string reason, byte[] badMagic) : base(reason) => BadMagic = badMagic;
 
-        public BadMagicException(string reason, byte[] badMagic, System.Exception ex) : base(reason, ex) => BadMagic = badMagic;
+        public BadMagicException(string reason, byte[] badMagic, Exception ex) : base(reason, ex) => BadMagic = badMagic;
     }
 
     /// <summary>
@@ -376,7 +385,7 @@ namespace Ice
             Supported = supported;
         }
 
-        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported, System.Exception ex) : base(reason, ex)
+        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported, Exception ex) : base(reason, ex)
         {
             Bad = bad;
             Supported = supported;
@@ -397,7 +406,7 @@ namespace Ice
             Supported = default;
         }
 
-        public UnsupportedEncodingException(System.Exception ex) : base(ex)
+        public UnsupportedEncodingException(Exception ex) : base(ex)
         {
             Bad = default;
             Supported = default;
@@ -409,7 +418,7 @@ namespace Ice
             Supported = supported;
         }
 
-        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported, System.Exception ex) : base(reason, ex)
+        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported, Exception ex) : base(reason, ex)
         {
             Bad = bad;
             Supported = supported;
@@ -425,7 +434,7 @@ namespace Ice
         {
         }
 
-        public UnknownMessageException(System.Exception ex) : base(ex)
+        public UnknownMessageException(Exception ex) : base(ex)
         {
         }
 
@@ -433,7 +442,7 @@ namespace Ice
         {
         }
 
-        public UnknownMessageException(string reason, System.Exception ex) : base(reason, ex)
+        public UnknownMessageException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -448,7 +457,7 @@ namespace Ice
         {
         }
 
-        public ConnectionNotValidatedException(System.Exception ex) : base(ex)
+        public ConnectionNotValidatedException(Exception ex) : base(ex)
         {
         }
 
@@ -456,7 +465,7 @@ namespace Ice
         {
         }
 
-        public ConnectionNotValidatedException(string reason, System.Exception ex) : base(reason, ex)
+        public ConnectionNotValidatedException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -471,7 +480,7 @@ namespace Ice
         {
         }
 
-        public UnknownRequestIdException(System.Exception ex) : base(ex)
+        public UnknownRequestIdException(Exception ex) : base(ex)
         {
         }
 
@@ -479,7 +488,7 @@ namespace Ice
         {
         }
 
-        public UnknownRequestIdException(string reason, System.Exception ex) : base(reason, ex)
+        public UnknownRequestIdException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -493,7 +502,7 @@ namespace Ice
         {
         }
 
-        public UnknownReplyStatusException(System.Exception ex) : base(ex)
+        public UnknownReplyStatusException(Exception ex) : base(ex)
         {
         }
 
@@ -501,7 +510,7 @@ namespace Ice
         {
         }
 
-        public UnknownReplyStatusException(string reason, System.Exception ex) : base(reason, ex)
+        public UnknownReplyStatusException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -523,7 +532,7 @@ namespace Ice
         {
         }
 
-        public CloseConnectionException(System.Exception ex) : base(ex)
+        public CloseConnectionException(Exception ex) : base(ex)
         {
         }
 
@@ -531,7 +540,7 @@ namespace Ice
         {
         }
 
-        public CloseConnectionException(string reason, System.Exception ex) : base(reason, ex)
+        public CloseConnectionException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -540,7 +549,7 @@ namespace Ice
     /// This exception is raised by an operation call if the application
     /// closes the connection locally using Connection.close.
     /// </summary>
-    public class ConnectionManuallyClosedException : System.Exception
+    public class ConnectionManuallyClosedException : Exception
     {
         public bool Graceful;
 
@@ -548,13 +557,13 @@ namespace Ice
         {
         }
 
-        public ConnectionManuallyClosedException(System.Exception ex) : base("", ex)
+        public ConnectionManuallyClosedException(Exception ex) : base("", ex)
         {
         }
 
         public ConnectionManuallyClosedException(bool graceful) => Graceful = graceful;
 
-        public ConnectionManuallyClosedException(bool graceful, System.Exception ex) : base("", ex) => Graceful = graceful;
+        public ConnectionManuallyClosedException(bool graceful, Exception ex) : base("", ex) => Graceful = graceful;
     }
 
     /// <summary>
@@ -567,7 +576,7 @@ namespace Ice
         {
         }
 
-        public IllegalMessageSizeException(System.Exception ex) : base(ex)
+        public IllegalMessageSizeException(Exception ex) : base(ex)
         {
         }
 
@@ -575,7 +584,7 @@ namespace Ice
         {
         }
 
-        public IllegalMessageSizeException(string reason, System.Exception ex) : base(reason, ex)
+        public IllegalMessageSizeException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -589,7 +598,7 @@ namespace Ice
         {
         }
 
-        public CompressionException(System.Exception ex) : base(ex)
+        public CompressionException(Exception ex) : base(ex)
         {
         }
 
@@ -597,31 +606,7 @@ namespace Ice
         {
         }
 
-        public CompressionException(string reason, System.Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// A datagram exceeds the configured size.
-    /// This exception is raised if a datagram exceeds the configured send or receive buffer
-    /// size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-    /// </summary>
-    public class DatagramLimitException : ProtocolException
-    {
-        public DatagramLimitException()
-        {
-        }
-
-        public DatagramLimitException(System.Exception ex) : base(ex)
-        {
-        }
-
-        public DatagramLimitException(string reason) : base(reason)
-        {
-        }
-
-        public DatagramLimitException(string reason, System.Exception ex) : base(reason, ex)
+        public CompressionException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -635,7 +620,7 @@ namespace Ice
         {
         }
 
-        public MarshalException(System.Exception ex) : base(ex)
+        public MarshalException(Exception ex) : base(ex)
         {
         }
 
@@ -643,7 +628,7 @@ namespace Ice
         {
         }
 
-        public MarshalException(string reason, System.Exception ex) : base(reason, ex)
+        public MarshalException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -657,7 +642,7 @@ namespace Ice
         {
         }
 
-        public ProxyUnmarshalException(System.Exception ex) : base(ex)
+        public ProxyUnmarshalException(Exception ex) : base(ex)
         {
         }
 
@@ -665,7 +650,7 @@ namespace Ice
         {
         }
 
-        public ProxyUnmarshalException(string reason, System.Exception ex) : base(reason, ex)
+        public ProxyUnmarshalException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -679,7 +664,7 @@ namespace Ice
         {
         }
 
-        public UnmarshalOutOfBoundsException(System.Exception ex) : base(ex)
+        public UnmarshalOutOfBoundsException(Exception ex) : base(ex)
         {
         }
 
@@ -687,7 +672,7 @@ namespace Ice
         {
         }
 
-        public UnmarshalOutOfBoundsException(string reason, System.Exception ex) : base(reason, ex)
+        public UnmarshalOutOfBoundsException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -702,11 +687,11 @@ namespace Ice
 
         public NoClassFactoryException() => Type = "";
 
-        public NoClassFactoryException(System.Exception ex) : base(ex) => Type = "";
+        public NoClassFactoryException(Exception ex) : base(ex) => Type = "";
 
         public NoClassFactoryException(string reason, string type) : base(reason) => Type = type;
 
-        public NoClassFactoryException(string reason, string type, System.Exception ex) : base(reason, ex) => Type = type;
+        public NoClassFactoryException(string reason, string type, Exception ex) : base(reason, ex) => Type = type;
     }
 
     /// <summary>
@@ -729,7 +714,7 @@ namespace Ice
             ExpectedType = "";
         }
 
-        public UnexpectedObjectException(System.Exception ex) : base(ex)
+        public UnexpectedObjectException(Exception ex) : base(ex)
         {
             Type = "";
             ExpectedType = "";
@@ -741,7 +726,7 @@ namespace Ice
             ExpectedType = expectedType;
         }
 
-        public UnexpectedObjectException(string reason, string type, string expectedType, System.Exception ex) : base(reason, ex)
+        public UnexpectedObjectException(string reason, string type, string expectedType, Exception ex) : base(reason, ex)
         {
             Type = type;
             ExpectedType = expectedType;
@@ -759,7 +744,7 @@ namespace Ice
         {
         }
 
-        public MemoryLimitException(System.Exception ex) : base(ex)
+        public MemoryLimitException(Exception ex) : base(ex)
         {
         }
 
@@ -767,7 +752,7 @@ namespace Ice
         {
         }
 
-        public MemoryLimitException(string reason, System.Exception ex) : base(reason, ex)
+        public MemoryLimitException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -782,7 +767,7 @@ namespace Ice
         {
         }
 
-        public EncapsulationException(System.Exception ex) : base(ex)
+        public EncapsulationException(Exception ex) : base(ex)
         {
         }
 
@@ -790,45 +775,8 @@ namespace Ice
         {
         }
 
-        public EncapsulationException(string reason, System.Exception ex) : base(reason, ex)
+        public EncapsulationException(string reason, Exception ex) : base(reason, ex)
         {
         }
-    }
-
-    /// <summary>
-    /// This exception is raised if an unsupported feature is used.
-    /// The
-    /// unsupported feature string contains the name of the unsupported
-    /// feature
-    /// </summary>
-    public class FeatureNotSupportedException : System.Exception
-    {
-        public string UnsupportedFeature;
-
-        public FeatureNotSupportedException() => UnsupportedFeature = "";
-
-        public FeatureNotSupportedException(System.Exception ex) : base("", ex) => UnsupportedFeature = "";
-
-        public FeatureNotSupportedException(string unsupportedFeature) => UnsupportedFeature = unsupportedFeature;
-
-        public FeatureNotSupportedException(string unsupportedFeature, System.Exception ex) : base("", ex) =>
-            UnsupportedFeature = unsupportedFeature;
-    }
-
-    /// <summary>
-    /// This exception indicates a failure in a security subsystem,
-    /// such as the IceSSL plug-in.
-    /// </summary>
-    public class SecurityException : System.Exception
-    {
-        public string Reason;
-
-        public SecurityException() => Reason = "";
-
-        public SecurityException(System.Exception ex) : base("", ex) => Reason = "";
-
-        public SecurityException(string reason) => Reason = reason;
-
-        public SecurityException(string reason, System.Exception ex) : base("", ex) => Reason = reason;
     }
 }

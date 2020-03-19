@@ -98,7 +98,7 @@ namespace Ice
             IObjectPrx? serverProxy = Router.GetServerProxy();
             if (serverProxy == null)
             {
-                throw new NoEndpointException();
+                throw new InvalidConfigurationException($"router `{Router.Identity}' has no server endpoints");
             }
 
             serverProxy = serverProxy.Clone(clearRouter: true); // The server proxy cannot be routed.

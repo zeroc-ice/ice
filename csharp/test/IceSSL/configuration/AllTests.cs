@@ -2331,7 +2331,7 @@ public class AllTests
                     catch (System.Exception ex)
                     {
                         if ((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.SocketException) ||
+                           (ex is Ice.TransportException) ||
                            (ex is Ice.DNSException))
                         {
                             if (++retryCount < retryMax)
@@ -2378,7 +2378,7 @@ public class AllTests
                     catch (System.Exception ex)
                     {
                         if ((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.SocketException) ||
+                           (ex is Ice.TransportException) ||
                            (ex is Ice.DNSException))
                         {
                             if (++retryCount < retryMax)

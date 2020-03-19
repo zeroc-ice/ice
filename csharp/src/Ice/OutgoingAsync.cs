@@ -731,8 +731,7 @@ namespace IceInternal
                     case ReplyStatus.UnknownLocalException:
                     case ReplyStatus.UnknownUserException:
                         {
-                            string unknown = Is.ReadString();
-                            throw new UnhandledException(Ice.Identity.Empty, "", "", unknown);
+                            throw new UnhandledException(Is.ReadString(), Ice.Identity.Empty, "", "");
                         }
 
                     default:

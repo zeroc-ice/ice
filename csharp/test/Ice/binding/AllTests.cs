@@ -866,7 +866,7 @@ namespace Ice.binding
                         serverCommunicator.Destroy();
                         continue; // IP version not supported.
                     }
-                    catch (SocketException)
+                    catch (TransportException)
                     {
                         if (p == ipv6)
                         {
@@ -914,7 +914,7 @@ namespace Ice.binding
                             // e.g.: resolving an IPv4 address when only IPv6
                             // is enabled fails with a DNS exception.
                         }
-                        catch (SocketException)
+                        catch (TransportException)
                         {
                             test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
                                 (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||

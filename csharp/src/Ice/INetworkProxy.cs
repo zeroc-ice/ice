@@ -76,11 +76,11 @@ namespace IceInternal
         {
             if (!(endpoint is IPEndPoint))
             {
-                throw new Ice.FeatureNotSupportedException("SOCKS4 does not support domain names");
+                throw new Ice.TransportException("SOCKS4 does not support domain names");
             }
             else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
-                throw new Ice.FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
+                throw new Ice.TransportException("SOCKS4 only supports IPv4 addresses");
             }
 
             //

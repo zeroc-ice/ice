@@ -230,7 +230,7 @@ namespace IceInternal
                 {
                     throw new ConnectionLostException(ex);
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
         }
 
@@ -269,7 +269,7 @@ namespace IceInternal
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -314,7 +314,7 @@ namespace IceInternal
                 }
                 catch (System.Exception ex)
                 {
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
 
@@ -336,7 +336,7 @@ namespace IceInternal
                 {
                     throw new ConnectionLostException(ex);
                 }
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -400,7 +400,7 @@ namespace IceInternal
                     throw new ConnectionLostException(ex);
                 }
 
-                throw new Ice.SocketException(ex);
+                throw new Ice.TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -473,7 +473,7 @@ namespace IceInternal
                         throw new ConnectionLostException(ex);
                     }
 
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
             return bytesTransferred;
@@ -528,7 +528,7 @@ namespace IceInternal
                     {
                         throw new ConnectionLostException(ex);
                     }
-                    throw new Ice.SocketException(ex);
+                    throw new Ice.TransportException(ex);
                 }
             }
             return sent;

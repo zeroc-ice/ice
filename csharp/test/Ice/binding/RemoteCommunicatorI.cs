@@ -28,7 +28,7 @@ namespace Ice.binding
                     return current.Adapter.AddWithUUID(
                         new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
-                catch (SocketException)
+                catch (TransportException)
                 {
                     if (--retry == 0)
                     {

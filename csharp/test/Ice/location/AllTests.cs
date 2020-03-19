@@ -190,10 +190,8 @@ namespace Ice.location
                 @base.IcePing();
                 test(false);
             }
-            catch (NotRegisteredException ex)
+            catch (ObjectNotFoundException)
             {
-                test(ex.KindOfObject.Equals("object"));
-                test(ex.Id.Equals("unknown/unknown"));
             }
             output.WriteLine("ok");
 
@@ -205,10 +203,8 @@ namespace Ice.location
                 @base.IcePing();
                 test(false);
             }
-            catch (NotRegisteredException ex)
+            catch (AdapterNotFoundException)
             {
-                test(ex.KindOfObject.Equals("object adapter"));
-                test(ex.Id.Equals("TestAdapterUnknown"));
             }
             output.WriteLine("ok");
 
@@ -289,7 +285,7 @@ namespace Ice.location
                     {
                         t.Wait();
                     }
-                    catch (AggregateException ex) when (ex.InnerException is Ice.NotRegisteredException)
+                    catch (AggregateException ex) when (ex.InnerException is AdapterNotFoundException)
                     {
                     }
                 }));
@@ -312,10 +308,8 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                 test(false);
             }
-            catch (NotRegisteredException ex)
+            catch (AdapterNotFoundException)
             {
-                test(ex.KindOfObject == "object adapter");
-                test(ex.Id.Equals("TestAdapter3"));
             }
             registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
             try
@@ -335,17 +329,18 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter3", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
+
             try
             {
                 IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
-                test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
+
             registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
             try
             {
@@ -365,10 +360,8 @@ namespace Ice.location
                 IObjectPrx.Parse("test3", communicator).IcePing();
                 test(false);
             }
-            catch (NotRegisteredException ex)
+            catch (AdapterNotFoundException)
             {
-                test(ex.KindOfObject == "object adapter");
-                test(ex.Id.Equals("TestUnknown"));
             }
             registry.addObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
             registry.SetAdapterDirectProxy("TestAdapter4",
@@ -378,7 +371,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test3", communicator).IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
             registry.SetAdapterDirectProxy("TestAdapter4", locator.FindAdapterById("TestAdapter"));
@@ -407,7 +400,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter4", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
             try
@@ -415,7 +408,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test@TestAdapter4", communicator).IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
             try
@@ -423,7 +416,7 @@ namespace Ice.location
                 IObjectPrx.Parse("test3", communicator).IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (ConnectionRefusedException)
             {
             }
             registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
@@ -543,7 +536,7 @@ namespace Ice.location
                 obj2.IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (AdapterNotFoundException)
             {
             }
             try
@@ -551,7 +544,7 @@ namespace Ice.location
                 obj3.IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (AdapterNotFoundException)
             {
             }
             try
@@ -559,7 +552,7 @@ namespace Ice.location
                 obj5.IcePing();
                 test(false);
             }
-            catch (System.Exception)
+            catch (AdapterNotFoundException)
             {
             }
             output.WriteLine("ok");

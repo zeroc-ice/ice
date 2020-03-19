@@ -8,58 +8,43 @@ namespace Ice
 
     public partial class RequestFailedException
     {
-        protected virtual string DefaultIceMessage
+        protected override string DefaultMessage
             => Facet.Length == 0 ? $"request for operation `{Operation}' on Ice object `{Id}' failed"
                 : $"request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}' failed";
-
-        public override string Message => IceMessage.Length > 0 ? IceMessage : DefaultIceMessage;
-
-        public RequestFailedException(Identity id, string facet, string operation,
-                                      System.Exception innerException)
-            : base(innerException)
-        {
-            Id = id;
-            Facet = facet;
-            Operation = operation;
-            IceMessage = "";
-        }
     }
 
     public partial class ObjectNotExistException
     {
-        protected override string DefaultIceMessage
+        protected override string DefaultMessage
             => $"could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
                 $" while attempting to call operation `{Operation}'";
-
-        public ObjectNotExistException(Identity id, string facet, string operation)
-            : base(id, facet, operation, "")
-        {
-        }
     }
 
     public partial class OperationNotExistException
     {
-        protected override string DefaultIceMessage
+        protected override string DefaultMessage
             => $"could not find operation `{Operation}' for Ice object `{Id}'" +
                 (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
-
-        public OperationNotExistException(Identity id, string facet, string operation)
-            : base(id, facet, operation, "")
-        {
-        }
     }
 
     public partial class UnhandledException
     {
-        public UnhandledException(Identity id, string facet, string operation, System.Exception innerException)
-            : base(id, facet, operation, innerException)
+        public UnhandledException(Identity id, string facet, string operation, Exception innerException)
+            : base(CustomMessage(id, facet, operation, innerException), id, facet, operation, innerException)
         {
-            IceMessage = $"unhandled exception while calling `{Operation}' on Ice object `{Id}'";
-            if (Facet.Length > 0)
+        }
+
+        private static string CustomMessage(Identity id, string facet, string operation, Exception innerException)
+        {
+            string message = $"unhandled exception while calling `{operation}' on Ice object `{id}'";
+            if (facet.Length > 0)
             {
-                IceMessage += $" with facet `{Facet}'";
+                message += $" with facet `{facet}'";
             }
-            IceMessage += $":\n {innerException}";
+            // Since this custom message will be sent "over the wire", we don't include the stack trace of the inner
+            // exception since it can include sensitive information. The stack trace is of course available locally.
+            message += $":\n{innerException.Message}";
+            return message;
         }
     }
 }

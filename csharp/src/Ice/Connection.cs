@@ -205,28 +205,11 @@ namespace Ice
             }
         }
 
-        // DestructionReason.
-        public const int ObjectAdapterDeactivated = 0;
-        public const int CommunicatorDestroyed = 1;
-
-        internal void Destroy(int reason)
+        internal void Destroy(System.Exception ex)
         {
             lock (this)
             {
-                switch (reason)
-                {
-                    case ObjectAdapterDeactivated:
-                        {
-                            SetState(StateClosing, new ObjectAdapterDeactivatedException());
-                            break;
-                        }
-
-                    case CommunicatorDestroyed:
-                        {
-                            SetState(StateClosing, new CommunicatorDestroyedException());
-                            break;
-                        }
-                }
+                SetState(StateClosing, ex);
             }
         }
 
@@ -984,7 +967,14 @@ namespace Ice
 
                                 if (_endpoint.Datagram() && size > _readBufferOffset)
                                 {
-                                    throw new DatagramLimitException(); // The message was truncated.
+                                    if (_warnUdp)
+                                    {
+                                        _logger.Warning($"maximum datagram size of {_readBufferOffset} exceeded");
+                                    }
+                                    _readBuffer = ArraySegment<byte>.Empty;
+                                    _readBufferOffset = 0;
+                                    _readHeader = true;
+                                    return;
                                 }
 
                                 if (size > _readBuffer.Array.Length)
@@ -1095,18 +1085,7 @@ namespace Ice
                         _dispatchCount += dispatchCount;
                         msg.Completed(ref current);
                     }
-                    catch (DatagramLimitException) // Expected.
-                    {
-                        if (_warnUdp)
-                        {
-                            _logger.Warning(string.Format("maximum datagram size of {0} exceeded", _readBufferOffset));
-                        }
-                        _readBuffer = ArraySegment<byte>.Empty;
-                        _readBufferOffset = 0;
-                        _readHeader = true;
-                        return;
-                    }
-                    catch (SocketException ex)
+                    catch (TransportException ex)
                     {
                         SetState(StateClosed, ex);
                         return;
@@ -2304,7 +2283,7 @@ namespace Ice
                     else
                     {
                         string lib = AssemblyUtil.IsWindows ? "bzip2.dll" : "libbz2.so.1";
-                        throw new FeatureNotSupportedException($"Cannot uncompress compressed message: {lib} not found");
+                        throw new LoadException($"cannot uncompress compressed message: {lib} not found");
                     }
                 }
                 info.Stream.Pos = Ice1Definitions.HeaderSize;

@@ -87,7 +87,7 @@ public class Client : Test.TestHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (SocketException)
+                catch (TransportException)
                 {
                     test(false);
                 }
@@ -377,7 +377,7 @@ public class Client : Test.TestHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (SocketException)
+                catch (TransportException)
                 {
                     test(false);
                 }

@@ -55,7 +55,7 @@ namespace IceInternal
                 {
                     foreach (Connection c in connections)
                     {
-                        c.Destroy(Ice.Connection.CommunicatorDestroyed);
+                        c.Destroy(new CommunicatorDestroyedException());
                     }
                 }
 
@@ -1366,7 +1366,7 @@ namespace IceInternal
                             _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                         }
                     }
-                    catch (Ice.SocketException ex)
+                    catch (Ice.TransportException ex)
                     {
                         if (Network.NoMoreFds(ex.InnerException))
                         {
@@ -1643,7 +1643,7 @@ namespace IceInternal
 
                         foreach (Connection connection in _connections)
                         {
-                            connection.Destroy(Ice.Connection.ObjectAdapterDeactivated);
+                            connection.Destroy(new ObjectAdapterDeactivatedException(_adapter!.Name));
                         }
                         break;
                     }

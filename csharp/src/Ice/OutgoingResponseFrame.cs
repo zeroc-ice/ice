@@ -117,14 +117,7 @@ namespace Ice
                 else
                 {
                     ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
-                    if (requestFailedException.IceMessage.Length > 0)
-                    {
-                        ostr.WriteString(requestFailedException.IceMessage);
-                    }
-                    else
-                    {
-                        ostr.WriteString(requestFailedException.ToString());
-                    }
+                    ostr.WriteString(requestFailedException.Message);
                 }
             }
             else
