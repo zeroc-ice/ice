@@ -538,7 +538,7 @@ Slice::Builtin::isVariableLength() const
 }
 
 bool
-Slice::Builtin::isNumeric() const
+Slice::Builtin::isNumericType() const
 {
     switch(_kind)
     {
@@ -562,7 +562,7 @@ Slice::Builtin::isNumeric() const
 }
 
 bool
-Slice::Builtin::isWholeNumber() const
+Slice::Builtin::isIntegralType() const
 {
     switch(_kind)
     {
@@ -584,7 +584,7 @@ Slice::Builtin::isWholeNumber() const
 }
 
 bool
-Slice::Builtin::isUnsignedNumber() const
+Slice::Builtin::isUnsignedType() const
 {
     switch(_kind)
     {
@@ -3024,13 +3024,13 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
             {
                 ok = true;
             }
-            else if(b->isWholeNumber())
+            else if(b->isIntegralType())
             {
-                ok = lt->isWholeNumber();
+                ok = lt->isIntegralType();
             }
-            else if(b->isNumeric())
+            else if(b->isNumericType())
             {
-                ok = lt->isNumeric();
+                ok = lt->isNumericType();
             }
 
             if(!ok)
@@ -3067,7 +3067,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
                     throw out_of_range("");
                 }
             }
-            else if(b->isWholeNumber())
+            else if(b->isIntegralType())
             {
                 switch(b->kind())
                 {

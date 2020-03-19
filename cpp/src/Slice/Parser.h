@@ -389,9 +389,9 @@ public:
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
 
-    bool isNumeric() const;
-    bool isWholeNumber() const;
-    bool isUnsignedNumber() const;
+    bool isNumericType() const;
+    bool isIntegralType() const;
+    bool isUnsignedType() const;
 
     Kind kind() const;
     std::string kindAsString() const;

@@ -3200,7 +3200,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                         // types excluding strings.
                         //
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                        if(builtin && (builtin->isNumeric() || builtin->kind() == Builtin::KindBool))
+                        if(builtin && (builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
                         {
                             continue;
                         }

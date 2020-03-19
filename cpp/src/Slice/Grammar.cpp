@@ -2518,7 +2518,7 @@ yyreduce:
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b && b->isWholeNumber())
+        if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
@@ -2645,7 +2645,7 @@ yyreduce:
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b && b->isWholeNumber())
+        if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
@@ -2948,7 +2948,7 @@ yyreduce:
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b && b->isWholeNumber())
+        if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
@@ -4084,7 +4084,7 @@ yyreduce:
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
             BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-            if(b && b->isWholeNumber())
+            if(b && b->isIntegralType())
             {
                 IceUtil::Int64 v;
                 if(IceUtilInternal::stringToInt64(constant->value(), v))

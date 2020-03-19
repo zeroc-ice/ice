@@ -26,7 +26,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-static const std::array<std::string, 18> builtinSuffixTable =
+const std::array<std::string, 18> builtinSuffixTable =
 {
     "Bool",
     "Byte",

@@ -4389,7 +4389,7 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExpo
 {
 }
 
-// TODO remove ImplVisitor and replace it with the Cpp11ImplVisitor.
+// TODO replace this ImplVisitor with Cpp11ImplVisitor.
 string
 Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
