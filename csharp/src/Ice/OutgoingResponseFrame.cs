@@ -11,11 +11,11 @@ namespace Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutgoingFrame
     {
-        /// <summary>The Ice1 reply status. Only meaningful for the Ice1 protocol, always set to OK with Ice2.</summary>
-        public ReplyStatus ReplyStatus { get; }
-
         /// <summary>The response context. Always null with ice1.</summary>
         public Dictionary<string, string>? Context { get; }
+
+        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
+        public override IList<ArraySegment<byte>> Payload => Data;
 
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>

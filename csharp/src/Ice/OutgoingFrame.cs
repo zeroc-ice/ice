@@ -17,36 +17,7 @@ namespace Ice
         public int Size { get; protected set; }
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        public IList<ArraySegment<byte>> Payload
-        {
-            get
-            {
-                lock (this)
-                {
-                    if (PayloadEnd == null)
-                    {
-                        return new List<ArraySegment<byte>>();
-                    }
-                    else if (_payload == null)
-                    {
-                        _payload = new List<ArraySegment<byte>>();
-                        OutputStream.Position payloadEnd = PayloadEnd.Value;
-                        _payload[PayloadStart.Segment] = Data[PayloadStart.Segment].Slice(PayloadStart.Offset);
-                        for (int i = PayloadStart.Segment + 1; i < payloadEnd.Segment; i++)
-                        {
-                            _payload.Add(Data[i]);
-                        }
-                        _payload[payloadEnd.Segment] = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
-                    }
-
-                    return _payload;
-                }
-            }
-        }
-
-        /// <summary>Take ownership of the frame payload contents</summary>
-        // TODO The frame should be destroy after taking its payload
-        public IList<ArraySegment<byte>> TakePayload => Payload;
+        public abstract IList<ArraySegment<byte>> Payload { get; }
 
         // Position of the start of the payload.
         protected OutputStream.Position PayloadStart;
@@ -56,8 +27,6 @@ namespace Ice
 
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
-
-        private List<ArraySegment<byte>>? _payload;
 
         protected OutgoingFrame(Encoding encoding)
         {

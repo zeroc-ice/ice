@@ -646,8 +646,8 @@ namespace IceInternal
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         public OutgoingAsync(Ice.IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-                             Ice.OutgoingRequestFrame? os = null, Ice.InputStream? iss = null, bool oneway = false) :
-            base(prx, completionCallback, os, iss)
+                             Ice.OutgoingRequestFrame? requestFrame = null, Ice.InputStream? iss = null, bool oneway = false) :
+            base(prx, completionCallback, requestFrame, iss)
         {
             Encoding = Proxy.Encoding;
             Synchronous = false;

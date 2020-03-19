@@ -26,6 +26,36 @@ namespace Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
 
+        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
+        public override IList<ArraySegment<byte>> Payload
+        {
+            get
+            {
+                lock (this)
+                {
+                    if (PayloadEnd == null)
+                    {
+                        return new List<ArraySegment<byte>>();
+                    }
+                    else if (_payload == null)
+                    {
+                        _payload = new List<ArraySegment<byte>>();
+                        OutputStream.Position payloadEnd = PayloadEnd.Value;
+                        _payload[PayloadStart.Segment] = Data[PayloadStart.Segment].Slice(PayloadStart.Offset);
+                        for (int i = PayloadStart.Segment + 1; i < payloadEnd.Segment; i++)
+                        {
+                            _payload.Add(Data[i]);
+                        }
+                        _payload[payloadEnd.Segment] = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
+                    }
+
+                    return _payload;
+                }
+            }
+        }
+
+        private List<ArraySegment<byte>>? _payload;
+
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
@@ -55,8 +85,7 @@ namespace Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Communicator.DefaultsAndOverrides.DefaultEncoding,
-                Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(proxy.Encoding, Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
             if (Facet.Length == 0)
             {

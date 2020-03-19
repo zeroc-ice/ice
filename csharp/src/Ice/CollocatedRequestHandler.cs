@@ -147,7 +147,7 @@ namespace IceInternal
             return true;
         }
 
-        private async ValueTask InvokeAllAsync(OutgoingRequestFrame outgingRequestFrame, int requestId)
+        private async ValueTask InvokeAllAsync(OutgoingRequestFrame outgoingRequestFrame, int requestId)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -155,17 +155,17 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgingRequestFrame, requestId);
+                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequestFrame, requestId);
                 byte[] requestBuffer = VectoredBufferExtensions.ToArray(requestData);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
-                    TraceUtil.TraceSend(_adapter.Communicator, outgingRequestFrame.Encoding, requestBuffer,
+                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequestFrame.Encoding, requestBuffer,
                         _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var incomingRequestFrame = new InputStream(_adapter.Communicator, outgingRequestFrame.Encoding, requestBuffer);
+                var incomingRequestFrame = new InputStream(_adapter.Communicator, outgoingRequestFrame.Encoding, requestBuffer);
                 incomingRequestFrame.Pos = Ice1Definitions.RequestHeader.Length;
 
                 int start = incomingRequestFrame.Pos;
