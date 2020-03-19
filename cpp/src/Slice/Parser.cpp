@@ -1735,9 +1735,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     auto kind = Builtin::kindFromString(sc);
     if(kind)
     {
-        TypeList result;
-        result.push_back(_unit->builtin(kind.value()));
-        return result;
+        return { _unit->builtin(kind.value()) };
     }
 
     //
