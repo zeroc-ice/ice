@@ -20,10 +20,10 @@ namespace Ice
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
         public static OutgoingResponseFrame Empty(Encoding encoding)
-            => new OutgoingResponseFrame(encoding, ReplyStatus.OK, ArraySegment<byte>.Empty);
+            => new OutgoingResponseFrame(encoding, ArraySegment<byte>.Empty);
 
         /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
-        /// written later on with WritePayload/SavePayload.</summary>
+        /// written later on with WritePayload.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
         public OutgoingResponseFrame(Encoding encoding) : base(encoding)
         {
@@ -31,28 +31,28 @@ namespace Ice
 
         /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
-        /// <param name="replyStatus">The reply status.</param>
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        public OutgoingResponseFrame(Encoding encoding, ReplyStatus replyStatus, ArraySegment<byte> payload)
+        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload)
             : this(encoding)
         {
-            ReplyStatus = replyStatus;
-            var ostr = new OutputStream(Encoding, Data, PayloadStart);
-            ostr.WriteByte((byte)replyStatus);
-            if (payload.Count == 0 && (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException))
+            if (payload.Count == 0)
             {
-                ostr.WriteEmptyEncapsulation(Encoding);
+                byte[] buffer = new byte[256];
+                int pos = 0;
+                buffer[pos++] = (byte)ReplyStatus.OK;
+                OutputStream.WriteInt(6, buffer.AsSpan(pos, 4));
+                pos += 4;
+                buffer[pos++] = encoding.Major;
+                buffer[pos++] = encoding.Minor;
+                Data.Add(new ArraySegment<byte>(buffer, 0, pos));
             }
             else
             {
-                ostr.WritePayload(payload);
+                Data.Add(payload);
+                PayloadEnd = new OutputStream.Position(0, payload.Count);
             }
-            OutputStream.Position payloadEnd = ostr.Tail;
-            ostr.Finish();
-            Size = Ice1Definitions.HeaderSize + 4 + Data.GetByteCount();
-            PayloadSize = Data.GetByteCount();
-            PayloadEnd = payloadEnd;
+            Size = Data.GetByteCount();
             IsSealed = true;
         }
 
@@ -63,24 +63,24 @@ namespace Ice
         public OutgoingResponseFrame(Current current, RemoteException exception)
             : this(current.Encoding)
         {
-            var ostr = new OutputStream(Encoding, Data, PayloadStart);
+            var ostr = new OutputStream(this, PayloadStart);
             if (exception is RequestFailedException requestFailedException)
             {
                 if (requestFailedException is DispatchException dispatchException)
                 {
                     // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
 
-                    if (dispatchException.Id.Name == null || dispatchException.Id.Name.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Id.Name))
                     {
                         dispatchException.Id = current.Id;
                     }
 
-                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Facet))
                     {
                         dispatchException.Facet = current.Facet;
                     }
 
-                    if (dispatchException.Operation == null || dispatchException.Operation.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Operation))
                     {
                         dispatchException.Operation = current.Operation;
                     }
@@ -104,7 +104,7 @@ namespace Ice
                     dispatchException.Id.IceWrite(ostr);
 
                     // For compatibility with the old FacetPath.
-                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Facet))
                     {
                         ostr.WriteStringSeq(Array.Empty<string>());
                     }
@@ -113,7 +113,6 @@ namespace Ice
                         ostr.WriteStringSeq(new string[] { dispatchException.Facet });
                     }
                     ostr.WriteString(dispatchException.Operation);
-
                 }
                 else
                 {
@@ -131,15 +130,12 @@ namespace Ice
             else
             {
                 ostr.WriteByte((byte)ReplyStatus.UserException);
-                ostr.StartEncapsulation(Encoding, FormatType.SlicedFormat);
+                ostr.StartEncapsulation(FormatType.SlicedFormat);
                 ostr.WriteException(exception);
                 ostr.EndEncapsulation();
             }
-            OutputStream.Position payloadEnd = ostr.Tail;
-            ostr.Finish();
-            Size = Ice1Definitions.HeaderSize + 4 + Data.GetByteCount();
-            PayloadSize = OutputStream.Distance(Data, PayloadStart, payloadEnd);
-            PayloadEnd = payloadEnd;
+            PayloadEnd = ostr.Finish();
+            Size = Data.GetByteCount();
             IsSealed = true;
         }
 
@@ -148,46 +144,14 @@ namespace Ice
         /// SlicedFormat or CompactFormat.</param>
         public override OutputStream WritePayload(FormatType? format = null)
         {
-            if (Ostr != null)
-            {
-                throw new InvalidOperationException("the frame already start writting the payload");
-            }
-
             if (PayloadEnd != null)
             {
-                throw new InvalidOperationException("the frame already contains a paylod");
+                throw new InvalidOperationException("the frame already contains a payload");
             }
-            Ostr = new OutputStream(Encoding, Data, PayloadStart);
-            Ostr.WriteByte((byte)ReplyStatus.OK);
-            Ostr.StartEncapsulation(Encoding, format);
-            return Ostr;
-        }
-
-        private ArraySegment<byte> CreateResponseHeader(int requestId)
-        {
-            ArraySegment<byte> requestHeader = new byte[Ice1Definitions.HeaderSize + 4];
-            int pos = 0;
-            Ice1Definitions.Magic.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.Magic.Length));
-            pos += Ice1Definitions.Magic.Length;
-            Ice1Definitions.ProtocolBytes.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.ProtocolBytes.Length));
-            pos += Ice1Definitions.ProtocolBytes.Length;
-            requestHeader[pos++] = (byte)Ice1Definitions.MessageType.ReplyMessage;
-            pos++; // compression plabceholder
-            OutputStream.WriteInt(Size, requestHeader.AsSpan(pos, 4));
-            pos += 4;
-            OutputStream.WriteInt(requestId, requestHeader.AsSpan(pos, 4));
-
-            return requestHeader;
-        }
-
-        internal List<ArraySegment<byte>> GetResponseData(int requestId)
-        {
-            var data = new List<ArraySegment<byte>>(Data.Count + 1)
-            {
-                CreateResponseHeader(requestId)
-            };
-            data.AddRange(Data);
-            return data;
+            var ostr = new OutputStream(this, PayloadStart);
+            ostr.WriteByte((byte)ReplyStatus.OK);
+            ostr.StartEncapsulation(format);
+            return ostr;
         }
     }
 }

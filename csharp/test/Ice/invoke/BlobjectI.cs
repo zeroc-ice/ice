@@ -27,7 +27,7 @@ namespace Ice.invoke
                 var ostr = responseFrame.WritePayload();
                 ostr.WriteString(s);
                 ostr.WriteString(s);
-                responseFrame.SavePayload(ostr);
+                ostr.Save();
                 return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
@@ -50,7 +50,7 @@ namespace Ice.invoke
                 var responseFrame = new OutgoingResponseFrame(current.Encoding);
                 var ostr = responseFrame.WritePayload();
                 ostr.WriteBool(s.Equals("::Test::MyClass"));
-                responseFrame.SavePayload(ostr);
+                ostr.Save();
                 return responseFrame;
             }
             else

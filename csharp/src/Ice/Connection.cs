@@ -412,9 +412,9 @@ namespace Ice
             }
         }
 
-        internal int SendAsyncRequest(OutgoingAsyncBase outging, bool compress, bool response)
+        internal int SendAsyncRequest(OutgoingAsyncBase outgoing, bool compress, bool response)
         {
-            OutgoingRequestFrame? requestFrame = outging.RequestFrame;
+            OutgoingRequestFrame? requestFrame = outgoing.RequestFrame;
             lock (this)
             {
                 //
@@ -442,7 +442,7 @@ namespace Ice
                 // Notify the request that it's cancelable with this connection.
                 // This will throw if the request is canceled.
                 //
-                outging.Cancelable(this);
+                outgoing.Cancelable(this);
                 int requestId = 0;
                 if (response)
                 {
@@ -457,17 +457,17 @@ namespace Ice
                     }
                 }
 
-                outging.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
+                outgoing.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
 
                 int status = OutgoingAsyncBase.AsyncStatusQueued;
                 try
                 {
                     if (requestFrame != null)
                     {
-                        outging.RequestData = requestFrame.GetRequestData(requestId);
+                        outgoing.RequestData = Ice1Definitions.GetRequestData(requestFrame, requestId);
                     }
                     Encoding encoding = requestFrame?.Encoding ?? _communicator.DefaultsAndOverrides.DefaultEncoding;
-                    var message = new OutgoingMessage(outging, encoding, compress, requestId);
+                    var message = new OutgoingMessage(outgoing, encoding, compress, requestId);
                     status = SendMessage(message);
                 }
                 catch (System.Exception ex)
@@ -482,7 +482,7 @@ namespace Ice
                     //
                     // Add to the async requests map.
                     //
-                    _asyncRequests[requestId] = outging;
+                    _asyncRequests[requestId] = outgoing;
                 }
                 return status;
             }
@@ -1632,6 +1632,8 @@ namespace Ice
             _readTimeoutScheduled = false;
             _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
+
+            Ice1Definitions.RequestHeader.CopyTo(_requestHeader.AsSpan());
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {
                 _acmLastActivity = Time.CurrentMonotonicTimeMillis();
@@ -2520,7 +2522,7 @@ namespace Ice
                 else
                 {
                     Debug.Assert(responseFrame != null);
-                    dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
+                    dispatchObserver?.Reply(responseFrame.Size);
                     SendResponse(responseFrame, requestId, compressionStatus);
                 }
             }
@@ -2754,7 +2756,7 @@ namespace Ice
             {
                 Frame = frame;
                 Encoding = Frame.Encoding;
-                Data = frame.GetResponseData(requestId);
+                Data = Ice1Definitions.GetResponseData(frame, requestId);
                 Size = Data.GetByteCount();
                 Compress = compress;
             }
@@ -2802,6 +2804,7 @@ namespace Ice
             internal bool ReceivedReply;
         }
 
+        private readonly byte[] _requestHeader = new byte[Ice1Definitions.HeaderSize + 4];
         private readonly Communicator _communicator;
         private IACMMonitor? _monitor;
         private readonly ITransceiver _transceiver;

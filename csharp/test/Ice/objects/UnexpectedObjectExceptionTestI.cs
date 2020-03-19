@@ -14,7 +14,7 @@ namespace Ice.objects
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
             OutputStream ostr = responseFrame.WritePayload();
             ostr.WriteClass(ae);
-            responseFrame.SavePayload(ostr);
+            ostr.Save();
             return new ValueTask<OutgoingResponseFrame>(responseFrame);
         }
     }

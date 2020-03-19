@@ -155,8 +155,8 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                List<System.ArraySegment<byte>> requestData = outgingRequestFrame.GetRequestData(requestId);
-                byte[] requestBuffer = requestData.GetSegment(0, outgingRequestFrame.Size).ToArray();
+                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgingRequestFrame, requestId);
+                byte[] requestBuffer = VectoredBufferExtensions.ToArray(requestData);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
@@ -198,7 +198,7 @@ namespace IceInternal
                     if (requestId != 0)
                     {
                         OutgoingResponseFrame responseFrame = await vt.ConfigureAwait(false);
-                        dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
+                        dispatchObserver?.Reply(responseFrame.Size);
                         SendResponse(requestId, responseFrame, amd);
                     }
                 }
@@ -218,7 +218,7 @@ namespace IceInternal
 
                         Incoming.ReportException(actualEx, dispatchObserver, current);
                         var responseFrame = new Ice.OutgoingResponseFrame(current, actualEx);
-                        dispatchObserver?.Reply(responseFrame.Size - Ice1Definitions.HeaderSize - 4);
+                        dispatchObserver?.Reply(responseFrame.Size);
                         SendResponse(requestId, responseFrame, amd);
                     }
                 }
@@ -239,9 +239,9 @@ namespace IceInternal
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                List<System.ArraySegment<byte>> responseData = responseFrame.GetResponseData(requestId);
-                byte[] responseBuffer = responseData.GetSegment(0, responseFrame.Size).ToArray();
-                var iss = new Ice.InputStream(_adapter.Communicator, responseFrame.Encoding, responseBuffer);
+                List<System.ArraySegment<byte>> responseData = Ice1Definitions.GetResponseData(responseFrame, requestId);
+                byte[] responseBuffer = VectoredBufferExtensions.ToArray(responseData);
+                var iss = new InputStream(_adapter.Communicator, responseFrame.Encoding, responseBuffer);
 
                 iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
 

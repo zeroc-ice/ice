@@ -98,7 +98,7 @@ namespace Ice
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
             OutputStream ostr = responseFrame.WritePayload();
             ostr.WriteBool(ret);
-            responseFrame.SavePayload(ostr);
+            ostr.Save();
             return IceFromResult(responseFrame);
         }
 
@@ -110,7 +110,7 @@ namespace Ice
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
             OutputStream ostr = responseFrame.WritePayload();
             ostr.WriteString(ret);
-            responseFrame.SavePayload(ostr);
+            ostr.Save();
             return IceFromResult(responseFrame);
         }
 
@@ -122,7 +122,7 @@ namespace Ice
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
             OutputStream ostr = responseFrame.WritePayload();
             ostr.WriteStringSeq(ret);
-            responseFrame.SavePayload(ostr);
+            ostr.Save();
             return IceFromResult(responseFrame);
         }
     }

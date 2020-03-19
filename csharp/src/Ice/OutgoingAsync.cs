@@ -172,8 +172,7 @@ namespace IceInternal
             if (observer != null)
             {
                 Debug.Assert(RequestFrame != null);
-                int size = RequestFrame.Size - Ice1Definitions.HeaderSize - 4;
-                ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
+                ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, RequestFrame.Size);
                 if (ChildObserver != null)
                 {
                     ChildObserver.Attach();
@@ -187,8 +186,7 @@ namespace IceInternal
             if (observer != null)
             {
                 Debug.Assert(RequestFrame != null);
-                int size = RequestFrame.Size - Ice1Definitions.HeaderSize - 4;
-                ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
+                ChildObserver = observer.GetCollocatedObserver(adapter, requestId, RequestFrame.Size);
                 if (ChildObserver != null)
                 {
                     ChildObserver.Attach();
@@ -840,7 +838,7 @@ namespace IceInternal
                     RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context);
                     OutputStream ostr = RequestFrame.WritePayload(format);
                     write(ostr);
-                    RequestFrame.SavePayload(ostr);
+                    ostr.Save();
                 }
                 else
                 {

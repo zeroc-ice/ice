@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Ice
@@ -74,7 +75,7 @@ namespace Ice
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte) MessageType.ValidateConnectionMessage,
             0, // Compression status.
-            HeaderSize, 0, 0, 0, // Message size.
+            HeaderSize, 0, 0, 0 // Message size.
         };
 
         internal static readonly byte[] CloseConnectionMessage = new byte[]
@@ -83,7 +84,7 @@ namespace Ice
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte) MessageType.CloseConnectionMessage,
             0, // Compression status.
-            HeaderSize, 0, 0, 0, // Message size.
+            HeaderSize, 0, 0, 0 // Message size.
         };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
@@ -109,6 +110,40 @@ namespace Ice
                 throw new ProtocolException(
                     $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
             }
+        }
+
+        internal static List<ArraySegment<byte>>
+        GetRequestData(OutgoingRequestFrame frame, int requestId)
+        {
+            byte[] headerData = new byte[HeaderSize + 4];
+            RequestHeader.CopyTo(headerData.AsSpan());
+
+            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
+            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
+
+            var data = new List<ArraySegment<byte>>()
+                {
+                    headerData
+                };
+            data.AddRange(frame.Data);
+            return data;
+        }
+
+        internal static List<ArraySegment<byte>>
+        GetResponseData(OutgoingResponseFrame frame, int requestId)
+        {
+            byte[] headerData = new byte[HeaderSize + 4];
+            ReplyHeader.CopyTo(headerData.AsSpan());
+
+            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
+            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
+
+            var data = new List<ArraySegment<byte>>()
+                {
+                    headerData
+                };
+            data.AddRange(frame.Data);
+            return data;
         }
     }
 }

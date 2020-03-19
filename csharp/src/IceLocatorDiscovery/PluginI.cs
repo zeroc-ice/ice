@@ -204,8 +204,7 @@ namespace IceLocatorDiscovery
                 current.Context);
             Invoke(null, request);
             IncomingResponseFrame incomingResponseFrame = await request.Task.ConfigureAwait(false);
-            return new OutgoingResponseFrame(current.Encoding, incomingResponseFrame.ReplyStatus,
-                incomingResponseFrame.TakePayload());
+            return new OutgoingResponseFrame(current.Encoding, incomingResponseFrame.TakePayload());
         }
 
         public List<Ice.ILocatorPrx>

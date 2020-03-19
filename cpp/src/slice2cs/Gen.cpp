@@ -2691,7 +2691,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         }
         _out << ");";
         writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
-        _out << nl << "ResponseFrame.SavePayload(ostr);";
+        _out << nl << "ostr.Save();";
         _out << eb;
         _out << eb;
     }
@@ -2837,7 +2837,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             }
             _out << ");";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
-            _out << nl << "responseFrame.SavePayload(ostr);";
+            _out << nl << "ostr.Save();";
             if (amd)
             {
                 _out << nl << "return responseFrame;";

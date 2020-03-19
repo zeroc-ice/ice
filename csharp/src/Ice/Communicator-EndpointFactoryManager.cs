@@ -108,8 +108,7 @@ namespace Ice
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var data = new List<ArraySegment<byte>>();
-                    var os = new OutputStream(Ice1Definitions.Encoding, data);
+                    var os = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
                     os.WriteShort(ue.Type());
                     ue.StreamWrite(os);
                     // TODO avoid copy OutputStream buffers

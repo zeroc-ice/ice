@@ -291,7 +291,7 @@ namespace Ice
             IncomingResponseFrame response =
                 await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
                     .ConfigureAwait(false);
-            return new OutgoingResponseFrame(request.Current.Encoding, response.ReplyStatus, response.TakePayload());
+            return new OutgoingResponseFrame(request.Current.Encoding, response.TakePayload());
         }
 
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

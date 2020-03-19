@@ -40,7 +40,7 @@ namespace Ice.invoke
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
                 OutputStream ostr = request.WritePayload();
                 ostr.WriteString(testString);
-                request.SavePayload(ostr);
+                ostr.Save();
                 response = cl.Invoke(request);
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Success);
@@ -97,7 +97,7 @@ namespace Ice.invoke
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
                 OutputStream ostr = request.WritePayload();
                 ostr.WriteString(testString);
-                request.SavePayload(ostr);
+                ostr.Save();
 
                 var response = cl.InvokeAsync(request).Result;
                 var result = response.ReadResult();

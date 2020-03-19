@@ -36,7 +36,7 @@ namespace Ice
             // TODO: works only when Payload called first before reading anything. Need a better version!
             // TODO: not efficient to create an array here
             InputStream.Pos -= 6;
-            Payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out Encoding _));
+            Payload = InputStream.ReadEncapsulation(out Encoding _);
         }
     }
 }

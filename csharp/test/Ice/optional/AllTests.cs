@@ -381,7 +381,7 @@ namespace Ice.optional
             ostr.WriteInt(15);
             ostr.WriteOptional(1, OptionalFormat.VSize);
             ostr.WriteString("test");
-            requestFrame.SavePayload(ostr);
+           ostr.Save();
 
             test(initial.Invoke(requestFrame).ReplyStatus == 0);
 
@@ -538,7 +538,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opByte", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteByte(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -573,7 +573,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opBool", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteBool(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -608,7 +608,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opShort", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteShort(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -643,7 +643,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opInt", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteInt(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -678,7 +678,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opLong", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteLong(1, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -713,7 +713,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opFloat", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteFloat(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -748,7 +748,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opDouble", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteDouble(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -785,7 +785,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opString", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteString(2, p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -820,7 +820,7 @@ namespace Ice.optional
                 requestFrame = new OutgoingRequestFrame(initial, "opMyEnum", idempotent: false);
                 ostr = requestFrame.WritePayload();
                 ostr.WriteEnum(2, (int)p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -859,7 +859,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(1);
                 p1.Value.IceWrite(ostr);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -902,7 +902,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(4);
                 p1.Value.IceWrite(ostr);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -951,7 +951,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 p1.Value.IceWrite(ostr);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1015,7 +1015,7 @@ namespace Ice.optional
                 ostr = requestFrame.WritePayload();
                 ostr.WriteOptional(2, OptionalFormat.Class);
                 ostr.WriteClass(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1055,7 +1055,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 ostr.WriteProxy(p1);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1091,7 +1091,7 @@ namespace Ice.optional
                 ostr = requestFrame.WritePayload();
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteByteSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1129,7 +1129,7 @@ namespace Ice.optional
                 ostr = requestFrame.WritePayload();
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteBoolSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1169,7 +1169,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteShortSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1210,7 +1210,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteIntSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1251,7 +1251,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteLongSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1292,7 +1292,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteFloatSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1333,7 +1333,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
                 ostr.WriteDoubleSeq(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1375,7 +1375,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 ostr.WriteStringSeq(p1);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1416,7 +1416,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
                 ostr.Write(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1463,7 +1463,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1506,7 +1506,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
                 ostr.Write(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1553,7 +1553,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1597,7 +1597,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1640,7 +1640,7 @@ namespace Ice.optional
                 ostr = requestFrame.WritePayload();
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSerializable(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1683,7 +1683,7 @@ namespace Ice.optional
                 ostr.WriteOptional(2, OptionalFormat.VSize);
                 ostr.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
                 ostr.Write(p1);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1729,7 +1729,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();
@@ -1775,7 +1775,7 @@ namespace Ice.optional
                 OutputStream.Position pos = ostr.StartSize();
                 ostr.Write(p1);
                 ostr.EndSize(pos);
-                requestFrame.SavePayload(ostr);
+               ostr.Save();
 
                 var responseFrame = initial.Invoke(requestFrame);
                 responseFrame.InputStream.StartEncapsulation();

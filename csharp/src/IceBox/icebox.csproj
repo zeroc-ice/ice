@@ -7,6 +7,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="generated\ServiceManager.cs" />
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
         <Compile Update="generated\ServiceManager.cs">
           <SliceCompileSource>..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>

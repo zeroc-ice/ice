@@ -104,66 +104,32 @@ namespace Ice
             if (payload.Count == 0)
             {
                 ostr.WriteEmptyEncapsulation(Encoding);
-                ostr.Finish();
             }
             else
             {
                 ostr.WritePayload(payload);
             }
-            OutputStream.Position payloadEnd = ostr.Tail;
-            Size = Ice1Definitions.HeaderSize + 4 + Data.GetByteCount();
-            PayloadSize = OutputStream.Distance(Data, PayloadStart, payloadEnd);
+            OutputStream.Position payloadEnd = ostr.Finish();
+            Size = Data.GetByteCount();
             PayloadEnd = payloadEnd;
             IsSealed = true;
         }
 
         /// <summary>Creates and returns an OutputStream that can be used to write the payload of this request,
-        /// once the caller finish writting the payload it must call SavePayload passing the returned
+        /// once the caller finish writing the payload it must call SavePayload passing the returned
         /// stream as argument.</summary>
         /// <param name="format">The format type for the payload.</param>
         /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
         public override OutputStream WritePayload(FormatType? format = null)
         {
-            if (Ostr != null)
-            {
-                throw new InvalidOperationException("the frame already start writting the payload");
-            }
-
             if (PayloadEnd != null)
             {
-                throw new InvalidOperationException("the frame already contains a paylod");
+                throw new InvalidOperationException("the frame already contains a payload");
             }
-            Ostr = new OutputStream(Encoding, Data, PayloadStart);
-            Ostr.StartEncapsulation(Encoding, format);
-            return Ostr;
-        }
 
-        private ArraySegment<byte> CreateRequestHeader(int requestId)
-        {
-            Debug.Assert(IsSealed);
-            ArraySegment<byte> requestHeader = new byte[Ice1Definitions.HeaderSize + 4];
-            int pos = 0;
-            Ice1Definitions.Magic.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.Magic.Length));
-            pos += Ice1Definitions.Magic.Length;
-            Ice1Definitions.ProtocolBytes.CopyTo(requestHeader.AsSpan(pos, Ice1Definitions.ProtocolBytes.Length));
-            pos += Ice1Definitions.ProtocolBytes.Length;
-            requestHeader[pos++] = (byte)Ice1Definitions.MessageType.RequestMessage;
-            pos++; // compression plabceholder
-            OutputStream.WriteInt(Size, requestHeader.AsSpan(pos, 4));
-            pos += 4;
-            OutputStream.WriteInt(requestId, requestHeader.AsSpan(pos, 4));
-
-            return requestHeader;
-        }
-
-        internal List<ArraySegment<byte>> GetRequestData(int requestId)
-        {
-            var data = new List<ArraySegment<byte>>(Data.Count + 1)
-            {
-                CreateRequestHeader(requestId)
-            };
-            data.AddRange(Data);
-            return data;
+            var ostr = new OutputStream(this, PayloadStart);
+            ostr.StartEncapsulation(format);
+            return ostr;
         }
     }
 }

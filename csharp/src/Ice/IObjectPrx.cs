@@ -90,7 +90,7 @@ namespace Ice
             var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
             OutputStream ostr = request.WritePayload();
             ostr.WriteString(id);
-            request.SavePayload(ostr);
+            ostr.Save();
             return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)
