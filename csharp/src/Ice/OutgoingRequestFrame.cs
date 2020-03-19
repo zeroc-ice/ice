@@ -4,57 +4,78 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Ice
 {
     /// <summary>Represents a request protocol frame sent by the application.</summary>
-    public sealed class OutgoingRequestFrame : OutgoingFrame
+    public sealed class OutgoingRequestFrame
     {
-        /// <summary>The identity of the target Ice object.</summary>
-        public Identity Identity { get; }
+        /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
+        public Dictionary<string, string> Context { get; }
+
+        /// <summary>The encoding of the frame payload</summary>
+        public Encoding Encoding { get; }
 
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
 
-        /// <summary>The operation called on the Ice object.</summary>
-        public string Operation { get; }
+        /// <summary>The identity of the target Ice object.</summary>
+        public Identity Identity { get; }
 
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
 
-        /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
-        public Dictionary<string, string> Context { get; }
+        /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
+        public bool IsSealed { get; private set; }
 
-        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        public override IList<ArraySegment<byte>> Payload
+        /// <summary>The operation called on the Ice object.</summary>
+        public string Operation { get; }
+
+        /// <summary>Returns a list of array segments with the contents of the request frame payload.
+        /// The request payload correspond to the encapsulation parameters, the Payload data is lazy
+        /// initialize from the frame data the first time it is accessed, if the Payload has not been
+        /// written it returns an empty list.</summary>
+        public IList<ArraySegment<byte>> Payload
         {
             get
             {
-                lock (this)
+                if (_payloadEnd == null)
                 {
-                    if (PayloadEnd == null)
-                    {
-                        return new List<ArraySegment<byte>>();
-                    }
-                    else if (_payload == null)
-                    {
-                        _payload = new List<ArraySegment<byte>>();
-                        OutputStream.Position payloadEnd = PayloadEnd.Value;
-                        _payload[PayloadStart.Segment] = Data[PayloadStart.Segment].Slice(PayloadStart.Offset);
-                        for (int i = PayloadStart.Segment + 1; i < payloadEnd.Segment; i++)
-                        {
-                            _payload.Add(Data[i]);
-                        }
-                        _payload[payloadEnd.Segment] = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
-                    }
-
-                    return _payload;
+                    throw new InvalidOperationException("the frame payload has not been written");
                 }
+
+                // thread-safe lazy initialization reference assignment is atomic
+                if (_payload == null)
+                {
+                    var payload = new List<ArraySegment<byte>>();
+                    OutputStream.Position payloadEnd = _payloadEnd.Value;
+                    payload[_payloadStart.Segment] = Data[_payloadStart.Segment].Slice(_payloadStart.Offset);
+                    for (int i = _payloadStart.Segment + 1; i < payloadEnd.Segment; i++)
+                    {
+                        payload.Add(Data[i]);
+                    }
+                    payload[payloadEnd.Segment] = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
+                    _payload = payload;
+                }
+
+                return _payload;
             }
         }
 
+        /// <summary>The frame byte count.</summary>
+        public int Size { get; private set; }
+
+        // Contents of the Frame
+        internal List<ArraySegment<byte>> Data { get; private set; }
+
+        // Store the Payload property data
         private List<ArraySegment<byte>>? _payload;
+
+        // Position of the end of the payload, for Ice1 this is always the frame end.
+        private OutputStream.Position? _payloadEnd;
+
+        // Position of the start of the payload.
+        private OutputStream.Position _payloadStart;
 
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
@@ -77,15 +98,17 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                     IReadOnlyDictionary<string, string>? context = null)
-            : base(proxy.Encoding)
         {
+            Encoding = proxy.Encoding;
+            Encoding.CheckSupported();
+            Data = new List<ArraySegment<byte>>();
             proxy.IceReference.GetProtocol().CheckSupported();
 
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Encoding, Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
             if (Facet.Length == 0)
             {
@@ -113,7 +136,7 @@ namespace Ice
             }
 
             ContextHelper.Write(ostr, Context);
-            PayloadStart = ostr.Tail;
+            _payloadStart = ostr.Tail;
         }
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>
@@ -129,7 +152,7 @@ namespace Ice
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)
         {
-            var ostr = new OutputStream(Encoding, Data, PayloadStart);
+            var ostr = new OutputStream(Encoding, Data, _payloadStart);
             if (payload.Count == 0)
             {
                 ostr.WriteEmptyEncapsulation(Encoding);
@@ -140,7 +163,7 @@ namespace Ice
             }
             OutputStream.Position payloadEnd = ostr.Finish();
             Size = Data.GetByteCount();
-            PayloadEnd = payloadEnd;
+            _payloadEnd = payloadEnd;
             IsSealed = true;
         }
 
@@ -149,16 +172,27 @@ namespace Ice
         /// stream as argument.</summary>
         /// <param name="format">The format type for the payload.</param>
         /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
-        public override OutputStream WritePayload(FormatType? format = null)
+        public OutputStream WritePayload(FormatType? format = null)
         {
-            if (PayloadEnd != null)
+            if (_payloadEnd != null)
             {
                 throw new InvalidOperationException("the frame already contains a payload");
             }
 
-            var ostr = new OutputStream(this, PayloadStart);
-            ostr.StartEncapsulation(format);
-            return ostr;
+            return new OutputStream(Encoding, Data, _payloadStart, true, format,
+                paylaodEnd => PayloadReady(this, paylaodEnd));
+        }
+
+        internal static void PayloadReady(OutgoingRequestFrame frame, OutputStream.Position payloadEnd)
+        {
+            if (frame._payloadEnd != null)
+            {
+                throw new InvalidOperationException("the frame already contains a payload");
+            }
+
+            frame.Size = frame.Data.GetByteCount();
+            frame._payloadEnd = payloadEnd;
+            frame.IsSealed = true;
         }
     }
 }

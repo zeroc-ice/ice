@@ -1612,7 +1612,6 @@ namespace Ice
             _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
-            Ice1Definitions.RequestHeader.CopyTo(_requestHeader.AsSpan());
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {
                 _acmLastActivity = Time.CurrentMonotonicTimeMillis();
@@ -2723,7 +2722,6 @@ namespace Ice
             {
                 Debug.Assert(outgoing.RequestData != null);
                 OutAsync = outgoing;
-                Frame = outgoing.RequestFrame;
                 Encoding = encoding;
                 Data = outgoing.RequestData;
                 Size = Data.GetByteCount();
@@ -2733,8 +2731,7 @@ namespace Ice
 
             internal OutgoingMessage(OutgoingResponseFrame frame, bool compress, int requestId)
             {
-                Frame = frame;
-                Encoding = Frame.Encoding;
+                Encoding = frame.Encoding;
                 Data = Ice1Definitions.GetResponseData(frame, requestId);
                 Size = Data.GetByteCount();
                 Compress = compress;
@@ -2771,9 +2768,6 @@ namespace Ice
 
             internal List<ArraySegment<byte>> Data;
             internal int Size;
-            // A reference to the frame that owns the data, it is always null for
-            // validate connection and close connection messages.
-            internal OutgoingFrame? Frame;
             internal Encoding Encoding;
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
@@ -2783,7 +2777,6 @@ namespace Ice
             internal bool ReceivedReply;
         }
 
-        private readonly byte[] _requestHeader = new byte[Ice1Definitions.HeaderSize + 4];
         private readonly Communicator _communicator;
         private IACMMonitor? _monitor;
         private readonly ITransceiver _transceiver;

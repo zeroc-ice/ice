@@ -12,7 +12,7 @@ namespace Ice.objects
         {
             var ae = new Test.AlsoEmpty();
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.WritePayload();
+            OutputStream ostr = responseFrame.WritePayload(ReplyStatus.OK);
             ostr.WriteClass(ae);
             ostr.Save();
             return new ValueTask<OutgoingResponseFrame>(responseFrame);

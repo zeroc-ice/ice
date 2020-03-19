@@ -13,6 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Ice
 {
+    internal delegate void PayloadReady(OutputStream.Position payloadEnd);
     public interface IStreamableStruct // value with the value-type semantics
     {
         public void IceWrite(OutputStream ostr);
@@ -79,7 +80,7 @@ namespace Ice
         private List<ArraySegment<byte>> _segmentList;
 
         // When set, we are writing to a top-level encapsulation.
-        private Encaps? _mainEncaps;
+        private readonly Encaps? _mainEncaps;
         // When set, we are writing an endpoint encapsulation. An endpoint encapsulation is a lightweight
         // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
         // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
@@ -87,8 +88,6 @@ namespace Ice
 
         // The current class/exception format, can be either Compact or Sliced.
         private FormatType _format;
-
-        private OutgoingFrame? _frame;
 
         // Map of class instance to instance ID, where the instance IDs start at 2.
         // When writing a top-level encapsulation:
@@ -109,20 +108,19 @@ namespace Ice
         // segment and the offset into it.
         private Position _tail;
 
+        private PayloadReady? _payloadReady;
+
         internal Position Tail => _tail;
 
-        internal OutputStream(OutgoingFrame frame, Position? tail = null) :
-            this(frame.Encoding, frame.Data, tail) => _frame = frame;
-
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? tail = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? tail = null,
+            bool startPayload = false, FormatType? format = null, PayloadReady? payloadReady = null)
         {
             Encoding = encoding;
             _segmentList = data;
             if (_segmentList.Count == 0)
             {
-                _currentSegment = new byte[DefaultSegmentSize];
-                _segmentList.Add(_currentSegment);
-                _capacity = _currentSegment.Count;
+                _currentSegment = ArraySegment<byte>.Empty;
+                _capacity = 0;
                 Size = 0;
                 _tail = new Position(0, 0);
             }
@@ -137,6 +135,20 @@ namespace Ice
                     _capacity += segment.Count;
                 }
             }
+
+            if (startPayload)
+            {
+                Debug.Assert(payloadReady != null);
+                _payloadReady = payloadReady;
+                _mainEncaps = new Encaps(Encoding, _tail);
+
+                if (format.HasValue)
+                {
+                    _format = format.Value;
+                }
+
+                WriteEncapsulationHeader(0, Encoding);
+            }
         }
 
         public Position Finish()
@@ -147,34 +159,6 @@ namespace Ice
 
         public void Save()
         {
-            EndEncapsulation();
-            if (_frame != null)
-            {
-                _frame.PayloadReady(this);
-            }
-        }
-
-        /// <summary>Writes the start of an encapsulation to the stream.</summary>
-        /// <param name="format">Specify the compact or sliced format; when null, keep the stream's format.</param>
-        public void StartEncapsulation(FormatType? format = null)
-        {
-            Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-
-            _mainEncaps = new Encaps(Encoding, _format, _tail);
-
-            if (format.HasValue)
-            {
-                _format = format.Value;
-            }
-
-            WriteEncapsulationHeader(0, Encoding);
-        }
-
-        /// <summary>
-        /// Ends the previous main encapsulation.
-        /// </summary>
-        public void EndEncapsulation()
-        {
             Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
 
             Encaps encaps = _mainEncaps.Value;
@@ -182,7 +166,9 @@ namespace Ice
             // Size includes size and version.
             RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
 
-            _format = encaps.OldFormat;
+            Debug.Assert(_payloadReady != null);
+            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
+            _payloadReady(_tail);
         }
 
         // Start writing a slice of a class or exception instance.
@@ -1327,6 +1313,10 @@ namespace Ice
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
+                if (_segmentList.Count == 1)
+                {
+                    _currentSegment = buffer;
+                }
                 _capacity += buffer.Length;
             }
         }
@@ -1374,7 +1364,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             encoding.CheckSupported();
 
-            _endpointEncaps = new Encaps(Encoding, _format, _tail);
+            _endpointEncaps = new Encaps(Encoding, _tail);
             Encoding = encoding;
             // We didn't change _format, so no need to restore it.
 
@@ -1547,15 +1537,11 @@ namespace Ice
             // Old Encoding
             internal readonly Encoding OldEncoding;
 
-            // Previous format (Compact or Sliced).
-            internal readonly FormatType OldFormat;
-
             internal readonly Position StartPos;
 
-            internal Encaps(Encoding oldEncoding, FormatType oldFormat, Position startPos)
+            internal Encaps(Encoding oldEncoding, Position startPos)
             {
                 OldEncoding = oldEncoding;
-                OldFormat = oldFormat;
                 StartPos = startPos;
             }
         }

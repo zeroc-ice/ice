@@ -2711,10 +2711,10 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << epar;
         _out << sb;
         _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
-        _out << nl << "var ostr = ResponseFrame.WritePayload(";
+        _out << nl << "var ostr = ResponseFrame.WritePayload(global::Ice.ReplyStatus.OK";
         if (operation->format() != DefaultFormat)
         {
-            _out << opFormatTypeToString(operation, ns);
+            _out << ", " << opFormatTypeToString(operation, ns);
         }
         _out << ");";
         writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
@@ -2857,10 +2857,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         else
         {
             _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
-            _out << nl << "var ostr = responseFrame.WritePayload(";
+            _out << nl << "var ostr = responseFrame.WritePayload(global::Ice.ReplyStatus.OK";
             if (operation->format() != DefaultFormat)
             {
-                _out << opFormatTypeToString(operation, ns);
+                _out << ", " << opFormatTypeToString(operation, ns);
             }
             _out << ");";
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");

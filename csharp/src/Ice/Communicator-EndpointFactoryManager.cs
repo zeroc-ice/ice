@@ -108,11 +108,11 @@ namespace Ice
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var os = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
-                    os.WriteShort(ue.Type());
-                    ue.StreamWrite(os);
+                    var ostr = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
+                    ostr.WriteShort(ue.Type());
+                    ue.StreamWrite(ostr);
                     // TODO avoid copy OutputStream buffers
-                    var iss = new InputStream(this, Ice1Definitions.Encoding, os.ToArray());
+                    var iss = new InputStream(this, Ice1Definitions.Encoding, ostr.ToArray());
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
