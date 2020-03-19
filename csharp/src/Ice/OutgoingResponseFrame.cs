@@ -159,7 +159,7 @@ namespace Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)replyStatus;
             Data.Add(buffer);
-            return new OutputStream(Encoding, Data, _encapsStart, true, format,
+            return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), true, format,
                 payloadEnd => PayloadReady(this, payloadEnd));
         }
 
@@ -174,7 +174,5 @@ namespace Ice
             frame._payloadEnd = payloadEnd;
             frame.IsSealed = true;
         }
-
-        private static readonly OutputStream.Position _encapsStart = new OutputStream.Position(0, 1);
     }
 }
