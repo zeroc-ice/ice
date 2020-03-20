@@ -186,9 +186,9 @@ public class AllTests : Test.AllTests
             testPrx.SBSUnknownDerivedAsSBaseCompact();
             test(false);
         }
-        catch (Ice.NoClassFactoryException)
+        catch (Ice.InvalidDataException ex)
         {
-            // Expected.
+            test(ex.Message.Contains("::Test::SBSUnknownDerived"));
         }
         catch (System.Exception ex)
         {
@@ -214,7 +214,7 @@ public class AllTests : Test.AllTests
         }
         catch (AggregateException ae)
         {
-            test(ae.InnerException is Ice.NoClassFactoryException);
+            test(ae.InnerException is Ice.InvalidDataException);
         }
         output.WriteLine("ok");
 
@@ -228,10 +228,6 @@ public class AllTests : Test.AllTests
                 test((o as Ice.UnknownSlicedClass).TypeId.Equals("::Test::SUnknown"));
                 test((o as Ice.UnknownSlicedClass).GetSlicedData() != null);
                 testPrx.checkSUnknown(o);
-            }
-            catch (Ice.NoClassFactoryException)
-            {
-                test(false);
             }
             catch (System.Exception ex)
             {

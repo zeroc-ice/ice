@@ -71,23 +71,28 @@ namespace Ice
             Debug.Assert(header.Length >= 8);
             if (header[0] != Magic[0] || header[1] != Magic[1] || header[2] != Magic[2] || header[3] != Magic[3])
             {
-                throw new BadMagicException("Received incorrect magic bytes in ice1 header",
-                    header.Slice(0, 4).ToArray());
+                throw new InvalidDataException(
+                    $"received incorrect magic bytes in header of ice1 frame: {BytesToString(header.Slice(0, 4))}");
             }
 
             header = header.Slice(4);
 
             if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
             {
-                throw new ProtocolException(
-                    $"received ice1 protocol frame with protocol set to {header[0]}.{header[1]}");
+                throw new InvalidDataException(
+                    $"received ice1 protocol frame with protocol set to {BytesToString(header.Slice(0, 2))}");
             }
 
             if (header[2] != ProtocolBytes[2] || header[3] != ProtocolBytes[3])
             {
-                throw new ProtocolException(
-                    $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
+                throw new InvalidDataException(
+                    $"received ice1 protocol frame with protocol encoding set to {BytesToString(header.Slice(2, 2))}");
             }
+        }
+
+        private static string BytesToString(Span<byte> bytes)
+        {
+            return BitConverter.ToString(bytes.ToArray());
         }
     }
 }

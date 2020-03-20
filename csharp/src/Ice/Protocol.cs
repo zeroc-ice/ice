@@ -21,14 +21,15 @@ namespace Ice
     internal static class ProtocolExtensions
     {
         /// <summary>Checks if this protocol is supported by the Ice runtime. If not supported, throws
-        /// UnsupportedProtocolException.</summary>
+        /// NotSupportedException.</summary>
         /// <param name="protocol">The protocol.</param>
         internal static void CheckSupported(this Protocol protocol)
         {
             // For now, we support only ice1
             if (protocol != Protocol.Ice1)
             {
-                throw new UnsupportedProtocolException("", protocol, Protocol.Ice1);
+                throw new System.NotSupportedException(
+                    $"Ice protocol `{protocol.ToString().ToLower()}' is not supported by this Ice runtime");
             }
         }
 

@@ -904,25 +904,10 @@ namespace Ice.proxy
                 cl13.IcePing();
                 test(false);
             }
-            catch (UnsupportedEncodingException)
+            catch (NotSupportedException)
             {
                 // expected
             }
-
-            output.Write("testing encoding versioning... ");
-            output.Flush();
-            string ref21 = "test -e 2.1:" + helper.getTestEndpoint(0);
-            Test.IMyClassPrx cl21 = Test.IMyClassPrx.Parse(ref21, communicator);
-            try
-            {
-                cl21.IcePing();
-                test(false);
-            }
-            catch (UnsupportedEncodingException)
-            {
-                // expected
-            }
-
             output.WriteLine("ok");
 
             output.Write("testing protocol versioning... ");
@@ -934,7 +919,7 @@ namespace Ice.proxy
                 cl3.IcePing();
                 test(false);
             }
-            catch (UnsupportedProtocolException)
+            catch (NotSupportedException)
             {
                 // expected
             }

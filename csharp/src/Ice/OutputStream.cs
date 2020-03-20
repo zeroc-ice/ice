@@ -470,7 +470,7 @@ namespace Ice
             }
             catch (System.Exception ex)
             {
-                throw new MarshalException("cannot serialize object:", ex);
+                throw new MarshalException("cannot serialize object", ex);
             }
         }
 
@@ -1463,7 +1463,7 @@ namespace Ice
             Debug.Assert(v.Length >= 6);
             if (v.Length < 6)
             {
-                throw new EncapsulationException();
+                throw new ArgumentException($"encapsulation has only {v.Length} bytes", nameof(v));
             }
             WriteSpan(v.AsSpan());
         }

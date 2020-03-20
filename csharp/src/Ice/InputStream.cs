@@ -68,7 +68,8 @@ namespace Ice
             {
                 if (value < 0 || value > _buffer.Count)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(Pos), "The position value is outside the buffer bounds.");
+                    throw new ArgumentOutOfRangeException(nameof(Pos),
+                        "the position value is outside the buffer bounds.");
                 }
                 _pos = value;
             }
@@ -165,7 +166,7 @@ namespace Ice
 
             if (_buffer.Count - _pos != 0)
             {
-                throw new EncapsulationException();
+                throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in encapsulation");
             }
             _limit = _mainEncaps.Value.OldLimit;
             Encoding = _mainEncaps.Value.OldEncoding;
@@ -177,7 +178,7 @@ namespace Ice
         {
             if (_mainEncapsBackup == null)
             {
-                throw new EncapsulationException();
+                throw new InvalidOperationException();
             }
 
             if (_mainEncaps != null || _endpointEncaps != null)
@@ -261,8 +262,7 @@ namespace Ice
             int pos = _pos + encapsHeader.Size - 6;
             if (pos > _buffer.Count)
             {
-                Debug.Assert(false);
-                throw new UnmarshalOutOfBoundsException();
+                throw new InvalidDataException("the encapsulation's size extends beyond the end of the frame");
             }
             _pos = pos;
             return encapsHeader.Encoding;
@@ -350,8 +350,7 @@ namespace Ice
             int size = ReadInt();
             if (size < 0)
             {
-                Debug.Assert(false);
-                throw new UnmarshalOutOfBoundsException();
+                throw new InvalidDataException($"read invalid size: {size}");
             }
             return size;
         }
@@ -380,7 +379,7 @@ namespace Ice
 
             if (_pos + minSize > _buffer.Count || _minTotalSeqSize > _buffer.Count)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new InvalidDataException("invalid sequence size");
             }
             return sz;
         }
@@ -392,7 +391,7 @@ namespace Ice
         {
             if (_buffer.Count - _pos < sz)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new IndexOutOfRangeException($"cannot read {sz} bytes");
             }
             byte[] v = new byte[sz];
             _buffer.Slice(_pos).CopyTo(v);
@@ -452,7 +451,7 @@ namespace Ice
                 {
                     if (format != expectedFormat)
                     {
-                        throw new MarshalException("invalid tagged data member `" + tag + "': unexpected format");
+                        throw new InvalidDataException($"invalid tagged data member `{tag}': unexpected format");
                     }
                     return true;
                 }
@@ -1034,8 +1033,8 @@ namespace Ice
             }
             else
             {
-                IceInternal.Ex.ThrowUOE(typeof(T), obj);
-                return null;
+                throw new InvalidDataException(@$"read instance of type `{obj.GetType().FullName
+                    }' but expected instance of type `{typeof(T).FullName}'");
             }
         }
 
@@ -1057,8 +1056,8 @@ namespace Ice
             }
             else
             {
-                IceInternal.Ex.ThrowUOE(typeof(T), obj);
-                return null;
+                throw new InvalidDataException(@$"read instance of type `{obj.GetType().FullName
+                    }' but expected instance of type `{typeof(T).FullName}'");
             }
         }
 
@@ -1078,18 +1077,19 @@ namespace Ice
             while (true)
             {
                 RemoteException? remoteEx = null;
-
-                try
+                Type? type = Communicator.ResolveClass(typeId);
+                if (type != null)
                 {
-                    Type? type = Communicator.ResolveClass(typeId);
-                    if (type != null)
+                    try
                     {
                         remoteEx = (RemoteException)IceInternal.AssemblyUtil.CreateInstance(type);
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw new MarshalException(ex);
+                    catch (Exception ex)
+                    {
+                        throw new InvalidDataException(
+                            @$"failed to create an instance of type `{type.Name
+                            }' while reading a remote exception with type ID `{typeId}'", ex);
+                    }
                 }
 
                 // We found the exception.
@@ -1126,7 +1126,7 @@ namespace Ice
         {
             if (size < 0 || size > _buffer.Count - _pos)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new IndexOutOfRangeException($"cannot skip {size} bytes");
             }
             _pos += size;
         }
@@ -1159,7 +1159,7 @@ namespace Ice
 
             if (_limit - _pos != 0)
             {
-                throw new EncapsulationException();
+                throw new InvalidDataException($"there are {_limit - _pos} bytes remaining in endpoint encapsulation");
             }
 
             _limit = _endpointEncaps.Value.OldLimit;
@@ -1206,11 +1206,11 @@ namespace Ice
             int sz = ReadInt();
             if (sz < 6)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new InvalidDataException($"encapsulation has only {sz} bytes");
             }
             if (sz - 4 > _buffer.Count - _pos)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new InvalidDataException("the encapsulation's size extends beyond the end of the frame");
             }
             byte major = ReadByte();
             byte minor = ReadByte();
@@ -1302,7 +1302,7 @@ namespace Ice
                     // The encoded type-id indices start at 1, not 0.
                     return _typeIdMap[index - 1];
                 }
-                throw new MarshalException($"read invalid typeId index {index}");
+                throw new InvalidDataException($"read invalid type ID index {index}");
             }
             else
             {
@@ -1327,7 +1327,7 @@ namespace Ice
             int index = ReadSize();
             if (index < 0)
             {
-                throw new MarshalException("invalid object id");
+                throw new InvalidDataException($"invalid index {index} while reading a class");
             }
             else if (index == 0)
             {
@@ -1347,7 +1347,7 @@ namespace Ice
                 }
                 else
                 {
-                    throw new MarshalException("index too big for indirection table");
+                    throw new InvalidDataException("index too big for indirection table");
                 }
             }
             else
@@ -1416,7 +1416,7 @@ namespace Ice
                 _current.SliceSize = ReadInt();
                 if (_current.SliceSize < 4)
                 {
-                    throw new MarshalException("invalid slice size");
+                    throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
                 }
             }
             else
@@ -1442,7 +1442,7 @@ namespace Ice
                 int savedPos = _pos;
                 if (_current.SliceSize < 4)
                 {
-                    throw new MarshalException("invalid slice size");
+                    throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
                 }
                 _pos = savedPos + _current.SliceSize - 4;
                 _current.IndirectionTable = ReadIndirectionTable();
@@ -1482,15 +1482,15 @@ namespace Ice
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
-                    throw new NoClassFactoryException("no class factory found and compact format prevents " +
-                                                      "slicing (the sender should use the sliced format " +
-                                                      "instead)", _current.SliceTypeId ?? "");
+                    string typeId = _current.SliceTypeId ?? _current.SliceCompactId!.ToString();
+                    throw new InvalidDataException(@$"no class found for type ID `{typeId
+                        }' and compact format prevents slicing (the sender should use the sliced format instead)");
                 }
                 else
                 {
-                    throw new NoClassFactoryException("no exception factory found and compact format prevents " +
-                                                      "slicing (the sender should use the sliced format " +
-                                                      "instead)", _current.SliceTypeId ?? "");
+                    string typeId = _current.SliceTypeId!;
+                    throw new InvalidDataException(@$"no exception class found for type ID `{typeId
+                        }' and compact format prevents slicing (the sender should use the sliced format instead)");
                 }
             }
 
@@ -1557,13 +1557,13 @@ namespace Ice
                 int index = ReadSize();
                 if (index <= 0)
                 {
-                    throw new MarshalException($"read invalid index {index} in indirection table");
+                    throw new InvalidDataException($"read invalid index {index} in indirection table");
                 }
                 if (index == 1)
                 {
                     if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
                     {
-                        throw new MarshalException("maximum class graph depth reached");
+                        throw new InvalidDataException("maximum class graph depth reached");
                     }
 
                     // Read/skip this instance
@@ -1583,19 +1583,19 @@ namespace Ice
                         }
                         else
                         {
-                            throw new MarshalException(
-                                "indirection table cannot hold an instance without a type-id");
+                            throw new InvalidDataException(
+                                "indirection table cannot hold an instance without a type ID");
                         }
 
                         // Read the slice size, then skip the slice
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0)
                         {
-                            throw new MarshalException("size of slice missing");
+                            throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadInt();
                         if (sliceSize < 4)
                         {
-                            throw new MarshalException("invalid slice size");
+                            throw new InvalidDataException($"invalid slice size: {sliceSize}");
                         }
                         _pos = _pos + sliceSize - 4;
 
@@ -1615,7 +1615,7 @@ namespace Ice
             int size = ReadAndCheckSeqSize(1);
             if (size == 0)
             {
-                throw new MarshalException("invalid empty indirection table");
+                throw new InvalidDataException("invalid empty indirection table");
             }
             var indirectionTable = new AnyClass[size];
             for (int i = 0; i < indirectionTable.Length; ++i)
@@ -1623,7 +1623,7 @@ namespace Ice
                 int index = ReadSize();
                 if (index < 1)
                 {
-                    throw new MarshalException($"read invalid index {index} in indirection table");
+                    throw new InvalidDataException($"read invalid index {index} in indirection table");
                 }
                 indirectionTable[i] = ReadInstance(index);
             }
@@ -1640,7 +1640,7 @@ namespace Ice
                 {
                     return _instanceMap[index - 2];
                 }
-                throw new MarshalException($"could not find index {index} in {nameof(_instanceMap)}");
+                throw new InvalidDataException($"could not find index {index} in {nameof(_instanceMap)}");
             }
 
             InstanceData? previousCurrent = Push(InstanceType.Class);
@@ -1677,7 +1677,9 @@ namespace Ice
                     }
                     catch (Exception ex)
                     {
-                        throw new NoClassFactoryException("no class factory", typeId ?? "", ex);
+                        string typeIdString = typeId ?? _current.SliceCompactId!.ToString();
+                        throw new InvalidDataException(@$"failed to create an instance of type `{cls.Name
+                            } while reading a class with type ID {typeIdString}", ex);
                     }
                 }
 
@@ -1704,7 +1706,7 @@ namespace Ice
 
             if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
             {
-                throw new MarshalException("maximum class graph depth reached");
+                throw new InvalidDataException("maximum class graph depth reached");
             }
 
             // Add the instance to the map/list of instances. This must be done before reading the instances (for

@@ -84,8 +84,8 @@ namespace Ice
         public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int srcOffset, int count)
         {
             Debug.Assert(src.GetByteCount() >= srcOffset + count,
-                $"requested {count} bytes starting at offset {srcOffset} but there is only " +
-                $"{src.GetByteCount() - srcOffset} bytes remaining.");
+                @$"requested {count} bytes starting at offset {srcOffset
+                    } but there is only {src.GetByteCount() - srcOffset} bytes remaining.");
 
             // Skip offset bytes into the source segment list
             int srcIndex = 0;

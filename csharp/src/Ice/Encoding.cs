@@ -107,7 +107,8 @@ namespace Ice
             // TODO: add 2.0
             if (this != V1_1)
             {
-                throw new UnsupportedEncodingException("", this, V1_1);
+                throw new NotSupportedException(
+                    $"Ice encoding `{ToString()}' is not supported by this Ice runtime");
             }
         }
     }

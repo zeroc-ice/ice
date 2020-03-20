@@ -319,7 +319,7 @@ namespace Ice.exceptions
                     thrower.throwMemoryLimitException(Array.Empty<byte>());
                     test(false);
                 }
-                catch (MemoryLimitException)
+                catch (InvalidDataException)
                 {
                 }
                 catch (System.Exception)
@@ -351,7 +351,7 @@ namespace Ice.exceptions
                     {
                         thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                     }
-                    catch (MemoryLimitException)
+                    catch (InvalidDataException)
                     {
                     }
                     var thrower3 = IThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(2), communicator);

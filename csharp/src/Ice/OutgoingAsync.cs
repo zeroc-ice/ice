@@ -758,7 +758,8 @@ namespace IceInternal
                             {
                                 if (facetPath.Length > 1)
                                 {
-                                    throw new Ice.MarshalException();
+                                    throw new Ice.InvalidDataException(
+                                        $"invalid facet path length: {facetPath.Length}");
                                 }
                                 facet = facetPath[0];
                             }
@@ -788,7 +789,8 @@ namespace IceInternal
 
                     default:
                         {
-                            throw new Ice.UnknownReplyStatusException();
+                            throw new InvalidDataException(
+                                $"received ice1 response frame with unknown reply status `{replyStatus}'");
                         }
                 }
 

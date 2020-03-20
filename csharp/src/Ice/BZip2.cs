@@ -394,7 +394,7 @@ namespace IceInternal
 
                 if (rc != BzRunOk)
                 {
-                    throw new Ice.CompressionException($"Bzip2 compress run failed {GetBZ2Error(rc)}");
+                    throw new Ice.MarshalException($"bzip2 compresssion failed: {GetBZ2Error(rc)}");
                 }
 
                 do
@@ -405,7 +405,7 @@ namespace IceInternal
 
                 if (rc != BzStreamEnd)
                 {
-                    throw new Ice.CompressionException($"Bzip2 compress finish failed {GetBZ2Error(rc)}");
+                    throw new Ice.MarshalException($"bzip2 compresssion failed: {GetBZ2Error(rc)}");
                 }
 
                 int compressedLen = compressed.Length - (int)bzStream.AvailOut;
@@ -440,11 +440,13 @@ namespace IceInternal
             int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4).Span);
             if (uncompressedSize <= headerSize)
             {
-                throw new Ice.IllegalMessageSizeException("compressed size <= header size");
+                throw new Ice.InvalidDataException(
+                    $"received compressed ice1 frame with a decompressed size of only {uncompressedSize} bytes");
             }
             if (uncompressedSize > messageSizeMax)
             {
-                Ex.ThrowMemoryLimitException(uncompressedSize, messageSizeMax);
+                throw new Ice.InvalidDataException(
+                    $"uncompressed size of {uncompressedSize} bytes is greater than Ice.MessageSizeMax value");
             }
 
             // TODO this is not optimal we copy the compressed data to feed Bzip2 with a single array,
@@ -460,7 +462,7 @@ namespace IceInternal
             int rc = _decompressBuffer(uncompressedData, ref uncompressedLen, compressedData, compressedLen, 0, 0);
             if (rc < 0)
             {
-                throw new Ice.CompressionException($"BZ2_bzBuffToBuffDecompress failed\n{GetBZ2Error(rc)}");
+                throw new Ice.InvalidDataException($"bzip2 decompression failed: {GetBZ2Error(rc)}");
             }
 
             // Copy the header from the compressed buffer to the uncompressed one. We should
