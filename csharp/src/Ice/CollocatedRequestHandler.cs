@@ -144,7 +144,7 @@ namespace IceInternal
             return true;
         }
 
-        private async ValueTask InvokeAllAsync(OutgoingRequestFrame outgoingRequestFrame, int requestId)
+        private async ValueTask InvokeAllAsync(OutgoingRequestFrame outgoingRequest, int requestId)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -152,30 +152,30 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequestFrame, requestId);
+                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
                 byte[] requestBuffer = VectoredBufferExtensions.ToArray(requestData);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
-                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequestFrame.Encoding, requestBuffer,
+                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequest.Encoding, requestBuffer,
                         _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var incomingRequestFrame = new InputStream(_adapter.Communicator, outgoingRequestFrame.Encoding, requestBuffer);
-                incomingRequestFrame.Pos = Ice1Definitions.RequestHeader.Length;
+                var incomingRequest = new InputStream(_adapter.Communicator, outgoingRequest.Encoding, requestBuffer);
+                incomingRequest.Pos = Ice1Definitions.RequestHeader.Length;
 
-                int start = incomingRequestFrame.Pos;
-                var current = new Current(requestId, incomingRequestFrame, _adapter);
+                int start = incomingRequest.Pos;
+                var current = new Current(requestId, incomingRequest, _adapter);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
-                    int encapsSize = incomingRequestFrame.GetEncapsulationSize();
+                    int encapsSize = incomingRequest.GetEncapsulationSize();
 
                     dispatchObserver = communicatorObserver.GetDispatchObserver(current,
-                        incomingRequestFrame.Pos - start + encapsSize);
+                        incomingRequest.Pos - start + encapsSize);
                     dispatchObserver?.Attach();
                 }
 
@@ -190,7 +190,7 @@ namespace IceInternal
                         throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
-                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequestFrame, current);
+                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
                     amd = !vt.IsCompleted;
                     if (requestId != 0)
                     {

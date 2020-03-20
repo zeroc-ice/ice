@@ -145,6 +145,13 @@ namespace Ice
             WriteEncapsulationHeader(0, Encoding);
         }
 
+        /// <summary>
+        /// Finish writing the contents of the stream, and inform the frame that
+        /// create the stream the payload is ready. The stream should not longer
+        /// be used.
+        /// </summary>
+        /// <returns>The tail position that marks the end of the stream.</returns>
+        /// TODO: The stream should not longer be used, how can we enforce it.
         public Position Save()
         {
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
