@@ -2700,7 +2700,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sp;
         _out << nl << "public struct " << opName << "MarshaledReturnValue";
         _out << sb;
-        _out << nl << "public " << getUnqualified("Ice.OutgoingResponseFrame", ns) << " ResponseFrame { get; }";
+        _out << nl << "public " << getUnqualified("Ice.OutgoingResponseFrame", ns) << " Response { get; }";
 
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(outParams, [](const auto& p)
@@ -2710,8 +2710,8 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
-        _out << nl << "var ostr = ResponseFrame.StartPayload(";
+        _out << nl << "Response = new global::Ice.OutgoingResponseFrame(current.Encoding);";
+        _out << nl << "var ostr = Response.StartPayload(";
         if (operation->format() != DefaultFormat)
         {
             _out << opFormatTypeToString(operation, ns);
@@ -2812,12 +2812,12 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "var result = await this." << name << spar << getNames(inParams) << "current" << epar
                 << ".ConfigureAwait(false);";
-            _out << nl << "return result.ResponseFrame;";
+            _out << nl << "return result.Response;";
         }
         else
         {
             _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
-                << "current" << epar << ".ResponseFrame);";
+                << "current" << epar << ".Response);";
         }
         _out << eb;
     }
@@ -2856,8 +2856,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current.Encoding);";
-            _out << nl << "var ostr = responseFrame.StartPayload(";
+            _out << nl << "var response = new global::Ice.OutgoingResponseFrame(current.Encoding);";
+            _out << nl << "var ostr = response.StartPayload(";
             if (operation->format() != DefaultFormat)
             {
                 _out << opFormatTypeToString(operation, ns);
@@ -2867,11 +2867,11 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "ostr.Save();";
             if (amd)
             {
-                _out << nl << "return responseFrame;";
+                _out << nl << "return response;";
             }
             else
             {
-                _out << nl << "return IceFromResult(responseFrame);";
+                _out << nl << "return IceFromResult(response);";
             }
         }
         _out << eb;

@@ -1409,7 +1409,7 @@ namespace Ice
             }
         }
 
-        private void SendResponse(OutgoingResponseFrame responseFrame, int requestId, byte compressionStatus)
+        private void SendResponse(OutgoingResponseFrame response, int requestId, byte compressionStatus)
         {
             lock (this)
             {
@@ -1432,7 +1432,7 @@ namespace Ice
                         throw _exception;
                     }
 
-                    SendMessage(new OutgoingMessage(responseFrame, compressionStatus > 0, requestId));
+                    SendMessage(new OutgoingMessage(response, compressionStatus > 0, requestId));
 
                     if (_state == StateClosing && _dispatchCount == 0)
                     {
@@ -2451,7 +2451,7 @@ namespace Ice
                     dispatchObserver?.Attach();
                 }
 
-                OutgoingResponseFrame? responseFrame = null;
+                OutgoingResponseFrame? response = null;
                 try
                 {
                     Ice.IObject? servant = current.Adapter.Find(current.Id, current.Facet);
@@ -2468,7 +2468,7 @@ namespace Ice
                     --invokeNum;
                     if (requestId != 0)
                     {
-                        responseFrame = await vt.ConfigureAwait(false);
+                        response = await vt.ConfigureAwait(false);
                     }
                 }
                 catch (System.Exception ex)
@@ -2485,7 +2485,7 @@ namespace Ice
                             actualEx = new UnhandledException(current.Id, current.Facet, current.Operation, ex);
                         }
                         Incoming.ReportException(actualEx, dispatchObserver, current);
-                        responseFrame = new OutgoingResponseFrame(current, actualEx);
+                        response = new OutgoingResponseFrame(current, actualEx);
                     }
                 }
 
@@ -2495,9 +2495,9 @@ namespace Ice
                 }
                 else
                 {
-                    Debug.Assert(responseFrame != null);
-                    dispatchObserver?.Reply(responseFrame.Size);
-                    SendResponse(responseFrame, requestId, compressionStatus);
+                    Debug.Assert(response != null);
+                    dispatchObserver?.Reply(response.Size);
+                    SendResponse(response, requestId, compressionStatus);
                 }
             }
             catch (System.Exception ex)

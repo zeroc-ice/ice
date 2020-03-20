@@ -194,9 +194,9 @@ namespace IceInternal
                     amd = !vt.IsCompleted;
                     if (requestId != 0)
                     {
-                        OutgoingResponseFrame responseFrame = await vt.ConfigureAwait(false);
-                        dispatchObserver?.Reply(responseFrame.Size);
-                        SendResponse(requestId, responseFrame, amd);
+                        OutgoingResponseFrame response = await vt.ConfigureAwait(false);
+                        dispatchObserver?.Reply(response.Size);
+                        SendResponse(requestId, response, amd);
                     }
                 }
                 catch (System.Exception ex)
@@ -214,9 +214,9 @@ namespace IceInternal
                         }
 
                         Incoming.ReportException(actualEx, dispatchObserver, current);
-                        var responseFrame = new Ice.OutgoingResponseFrame(current, actualEx);
-                        dispatchObserver?.Reply(responseFrame.Size);
-                        SendResponse(requestId, responseFrame, amd);
+                        var response = new Ice.OutgoingResponseFrame(current, actualEx);
+                        dispatchObserver?.Reply(response.Size);
+                        SendResponse(requestId, response, amd);
                     }
                 }
             }

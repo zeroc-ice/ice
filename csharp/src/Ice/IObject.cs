@@ -95,11 +95,11 @@ namespace Ice
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.StartPayload();
+            var response = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = response.StartPayload();
             ostr.WriteBool(ret);
             ostr.Save();
-            return IceFromResult(responseFrame);
+            return IceFromResult(response);
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(InputStream istr, Current current)
@@ -107,11 +107,11 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.StartPayload();
+            var response = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = response.StartPayload();
             ostr.WriteString(ret);
             ostr.Save();
-            return IceFromResult(responseFrame);
+            return IceFromResult(response);
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(InputStream istr, Current current)
@@ -119,11 +119,11 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.StartPayload();
+            var response = new OutgoingResponseFrame(current.Encoding);
+            OutputStream ostr = response.StartPayload();
             ostr.WriteStringSeq(ret);
             ostr.Save();
-            return IceFromResult(responseFrame);
+            return IceFromResult(response);
         }
     }
 }
