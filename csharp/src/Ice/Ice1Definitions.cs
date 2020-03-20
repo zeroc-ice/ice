@@ -121,10 +121,7 @@ namespace Ice
             OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
             OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
 
-            var data = new List<ArraySegment<byte>>()
-                {
-                    headerData
-                };
+            var data = new List<ArraySegment<byte>>() { headerData };
             data.AddRange(frame.Data);
             return data;
         }
@@ -138,10 +135,7 @@ namespace Ice
             OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
             OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
 
-            var data = new List<ArraySegment<byte>>()
-                {
-                    headerData
-                };
+            var data = new List<ArraySegment<byte>>() { headerData };
             data.AddRange(frame.Data);
             return data;
         }

@@ -835,7 +835,7 @@ namespace IceInternal
                 if (write != null)
                 {
                     RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context);
-                    OutputStream ostr = RequestFrame.WritePayload(format);
+                    OutputStream ostr = RequestFrame.StartPayload(format);
                     write(ostr);
                     ostr.Save();
                 }

@@ -24,7 +24,7 @@ namespace Ice.invoke
             {
                 string s = istr.ReadString();
                 var responseFrame = new OutgoingResponseFrame(current.Encoding);
-                var ostr = responseFrame.WritePayload(ReplyStatus.OK);
+                var ostr = responseFrame.StartPayload();
                 ostr.WriteString(s);
                 ostr.WriteString(s);
                 ostr.Save();
@@ -48,7 +48,7 @@ namespace Ice.invoke
             {
                 string s = istr.ReadString();
                 var responseFrame = new OutgoingResponseFrame(current.Encoding);
-                var ostr = responseFrame.WritePayload(ReplyStatus.OK);
+                var ostr = responseFrame.StartPayload();
                 ostr.WriteBool(s.Equals("::Test::MyClass"));
                 ostr.Save();
                 return responseFrame;

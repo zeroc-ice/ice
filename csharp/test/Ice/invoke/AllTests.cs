@@ -38,7 +38,7 @@ namespace Ice.invoke
                 test(response.ReplyStatus == ReplyStatus.UserException);
 
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                OutputStream ostr = request.WritePayload();
+                OutputStream ostr = request.StartPayload();
                 ostr.WriteString(testString);
                 ostr.Save();
                 response = cl.Invoke(request);
@@ -95,7 +95,7 @@ namespace Ice.invoke
                 }
 
                 request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                OutputStream ostr = request.WritePayload();
+                OutputStream ostr = request.StartPayload();
                 ostr.WriteString(testString);
                 ostr.Save();
 

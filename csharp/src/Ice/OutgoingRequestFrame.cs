@@ -152,6 +152,18 @@ namespace Ice
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)
         {
+            if (payload.Count > 0)
+            {
+                if (payload.Count < 6)
+                {
+                    throw new EncapsulationException();
+                }
+
+                if (payload[1] != Encoding.Major || payload[2] != Encoding.Minor)
+                {
+                    throw new EncapsulationException("Invalid payload encoding");
+                }
+            }
             var ostr = new OutputStream(Encoding, Data, _payloadStart);
             _payloadEnd = ostr.WriteEncapsulation(payload);
             Size = Data.GetByteCount();
@@ -159,22 +171,21 @@ namespace Ice
         }
 
         /// <summary>Creates and returns an OutputStream that can be used to write the payload of this request,
-        /// once the caller finish writing the payload it must call SavePayload passing the returned
-        /// stream as argument.</summary>
+        /// once the caller finish writing the payload it must call Save on the returned stream.</summary>
         /// <param name="format">The format type for the payload.</param>
         /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
-        public OutputStream WritePayload(FormatType? format = null)
+        public OutputStream StartPayload(FormatType? format = null)
         {
             if (_payloadEnd != null)
             {
                 throw new InvalidOperationException("the frame already contains a payload");
             }
 
-            return new OutputStream(Encoding, Data, _payloadStart, true, format,
-                paylaodEnd => PayloadReady(this, paylaodEnd));
+            return new OutputStream(Encoding, Data, _payloadStart,
+                payloadEnd => PayloadReady(this, payloadEnd), format);
         }
 
-        internal static void PayloadReady(OutgoingRequestFrame frame, OutputStream.Position payloadEnd)
+        private static void PayloadReady(OutgoingRequestFrame frame, OutputStream.Position payloadEnd)
         {
             if (frame._payloadEnd != null)
             {

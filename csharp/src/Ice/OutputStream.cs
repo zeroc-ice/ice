@@ -106,8 +106,7 @@ namespace Ice
         // Delegate call from Save once the payload is ready.
         private readonly PayloadReady? _payloadReady;
 
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? tail = null,
-            bool startPayload = false, FormatType? format = null, PayloadReady? payloadReady = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
             Encoding = encoding;
             _segmentList = data;
@@ -120,7 +119,7 @@ namespace Ice
             }
             else
             {
-                _tail = tail ?? new Position(0, 0);
+                _tail = startAt ?? new Position(0, 0);
                 _currentSegment = _segmentList[_tail.Segment];
                 Size = Distance(new Position(0, 0));
                 _capacity = 0;
@@ -129,20 +128,21 @@ namespace Ice
                     _capacity += segment.Count;
                 }
             }
+        }
 
-            if (startPayload)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt,
+                              PayloadReady payloadReady, FormatType? format = null)
+            : this(encoding, data, startAt)
+        {
+            _payloadReady = payloadReady;
+            _mainEncaps = new Encaps(Encoding, _tail);
+
+            if (format.HasValue)
             {
-                Debug.Assert(payloadReady != null);
-                _payloadReady = payloadReady;
-                _mainEncaps = new Encaps(Encoding, _tail);
-
-                if (format.HasValue)
-                {
-                    _format = format.Value;
-                }
-
-                WriteEncapsulationHeader(0, Encoding);
+                _format = format.Value;
             }
+
+            WriteEncapsulationHeader(0, Encoding);
         }
 
         public Position Save()
@@ -1471,7 +1471,7 @@ namespace Ice
             }
         }
 
-        // Write this class instance in-line if not previously marshaled, otherwise just write its instance ID.
+        // Write this class instance inline if not previously marshaled, otherwise just write its instance ID.
         private void WriteInstance(AnyClass v)
         {
             Debug.Assert(v != null);

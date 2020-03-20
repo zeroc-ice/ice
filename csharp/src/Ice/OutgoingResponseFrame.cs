@@ -63,6 +63,15 @@ namespace Ice
             }
             else
             {
+                if (payload.Count < 7)
+                {
+                    throw new EncapsulationException();
+                }
+
+                if (payload[1] != encoding.Major || payload[2] != encoding.Minor)
+                {
+                    throw new EncapsulationException("Invalid payload encoding");
+                }
                 Data.Add(payload);
                 _payloadEnd = new OutputStream.Position(0, payload.Count);
             }
@@ -139,7 +148,7 @@ namespace Ice
             }
             else
             {
-                OutputStream ostr = WritePayload(ReplyStatus.UserException, FormatType.SlicedFormat);
+                OutputStream ostr = StartPayload(ReplyStatus.UserException, FormatType.SlicedFormat);
                 ostr.WriteException(exception);
                 ostr.Save();
             }
@@ -149,7 +158,7 @@ namespace Ice
         /// <param name="replyStatus">The response reply status.</param>
         /// <param name="format">The format for the return value, null (meaning keep communicator's setting),
         /// SlicedFormat or CompactFormat.</param>
-        public OutputStream WritePayload(ReplyStatus replyStatus, FormatType? format = null)
+        private OutputStream StartPayload(ReplyStatus replyStatus, FormatType? format = null)
         {
             if (_payloadEnd != null)
             {
@@ -159,11 +168,14 @@ namespace Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)replyStatus;
             Data.Add(buffer);
-            return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), true, format,
-                payloadEnd => PayloadReady(this, payloadEnd));
+            return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1),
+                payloadEnd => PayloadReady(this, payloadEnd), format);
         }
 
-        internal static void PayloadReady(OutgoingResponseFrame frame, OutputStream.Position payloadEnd)
+        // Used by generated code to write successful response:
+        public OutputStream StartPayload(FormatType? format = null) => StartPayload(ReplyStatus.OK, format);
+
+        private static void PayloadReady(OutgoingResponseFrame frame, OutputStream.Position payloadEnd)
         {
             if (frame._payloadEnd != null)
             {

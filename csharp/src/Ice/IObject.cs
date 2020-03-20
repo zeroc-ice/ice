@@ -96,7 +96,7 @@ namespace Ice
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.WritePayload(ReplyStatus.OK);
+            OutputStream ostr = responseFrame.StartPayload();
             ostr.WriteBool(ret);
             ostr.Save();
             return IceFromResult(responseFrame);
@@ -108,7 +108,7 @@ namespace Ice
             istr.EndEncapsulation();
             string ret = IceId(current);
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.WritePayload(ReplyStatus.OK);
+            OutputStream ostr = responseFrame.StartPayload();
             ostr.WriteString(ret);
             ostr.Save();
             return IceFromResult(responseFrame);
@@ -120,7 +120,7 @@ namespace Ice
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
             var responseFrame = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = responseFrame.WritePayload(ReplyStatus.OK);
+            OutputStream ostr = responseFrame.StartPayload();
             ostr.WriteStringSeq(ret);
             ostr.Save();
             return IceFromResult(responseFrame);

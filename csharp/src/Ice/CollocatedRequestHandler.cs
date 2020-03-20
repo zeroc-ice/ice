@@ -11,9 +11,6 @@ namespace IceInternal
 {
     public class CollocatedRequestHandler : IRequestHandler
     {
-        private void
-        FillInValue(Ice.OutputStream os, Ice.OutputStream.Position pos, int value) => os.RewriteInt(value, pos);
-
         public
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {

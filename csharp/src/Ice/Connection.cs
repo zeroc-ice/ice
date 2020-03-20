@@ -366,7 +366,7 @@ namespace Ice
                     //
                     // If writing or reading, nothing to do, the connection
                     // timeout will kick-in if writes or reads don't progress.
-                    // This check is necessary because the actitivy timer is
+                    // This check is necessary because the activity timer is
                     // only set when a message is fully read/written.
                     //
                     return;
@@ -803,7 +803,7 @@ namespace Ice
         /// for example because of firewalls. In this case, the server would create a proxy using an already
         /// established connection from the client.</summary>
         /// <param name="identity">The identity for which a proxy is to be created.</param>
-        /// <param name="factory">The proxy facetory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
+        /// <param name="factory">The proxy factory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
         /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
@@ -938,7 +938,7 @@ namespace Ice
 
                                 //
                                 // Connection is validated on first message. This is only used by
-                                // setState() to check wether or not we can print a connection
+                                // setState() to check whether or not we can print a connection
                                 // warning (a client might close the connection forcefully if the
                                 // connection isn't validated, we don't want to print a warning
                                 // in this case).
@@ -1251,7 +1251,7 @@ namespace Ice
             //
             // If there are no callbacks to call, we don't call ioCompleted() since we're not going
             // to call code that will potentially block (this avoids promoting a new leader and
-            // unecessary thread creation, especially if this is called on shutdown).
+            // unnecessary thread creation, especially if this is called on shutdown).
             //
             if (_startCallback == null && _outgoingMessages.Count == 0 && _asyncRequests.Count == 0 &&
                _closeCallback == null && _heartbeatCallback == null)
@@ -2754,7 +2754,7 @@ namespace Ice
                 return false;
             }
 
-            internal void Completed(System.Exception ex)
+            internal void Completed(Exception ex)
             {
                 if (OutAsync != null)
                 {
@@ -2766,7 +2766,7 @@ namespace Ice
                 Data = null;
             }
 
-            internal List<ArraySegment<byte>> Data;
+            internal List<ArraySegment<byte>>? Data;
             internal int Size;
             internal Encoding Encoding;
             internal OutgoingAsyncBase? OutAsync;
