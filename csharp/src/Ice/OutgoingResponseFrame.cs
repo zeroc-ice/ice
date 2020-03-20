@@ -31,28 +31,15 @@ namespace Ice
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
         public static OutgoingResponseFrame Empty(Encoding encoding)
-            => new OutgoingResponseFrame(encoding, ArraySegment<byte>.Empty);
+            => new OutgoingResponseFrame(encoding, true);
 
-        /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
-        /// written later on with WritePayload.</summary>
-        /// <param name="encoding">The encoding for the frame payload.</param>
-        public OutgoingResponseFrame(Encoding encoding)
-        {
-            Encoding = encoding;
-            Encoding.CheckSupported();
-            Data = new List<ArraySegment<byte>>();
-        }
-
-        /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
-        /// <param name="encoding">The encoding for the frame payload.</param>
-        /// <param name="payload">The payload for this response frame.</param>
-        // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload)
+        private OutgoingResponseFrame(Encoding encoding, bool writeEmptyPayload)
         {
             Encoding = encoding;
             Data = new List<ArraySegment<byte>>();
-            if (payload.Count == 0)
+            if (writeEmptyPayload)
             {
+                Encoding.CheckSupported();
                 byte[] buffer = new byte[256];
                 int pos = 0;
                 buffer[pos++] = (byte)ReplyStatus.OK;
@@ -61,37 +48,54 @@ namespace Ice
                 buffer[pos++] = encoding.Major;
                 buffer[pos++] = encoding.Minor;
                 Data.Add(new ArraySegment<byte>(buffer, 0, pos));
+                _payloadEnd = new OutputStream.Position(0, pos);
+                Size = Data.GetByteCount();
+                IsSealed = true;
             }
-            else
+        }
+
+        /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
+        /// written later on with WritePayload.</summary>
+        /// <param name="encoding">The encoding for the frame payload.</param>
+        public OutgoingResponseFrame(Encoding encoding) : this(encoding, false)
+        {
+        }
+
+        /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
+        /// <param name="encoding">The encoding for the frame payload.</param>
+        /// <param name="payload">The payload for this response frame.</param>
+        // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
+        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload) : this(encoding, false)
+        {
+            // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes of an
+            // empty encapsulation.
+            if (payload.Count < 7)
             {
-                if (payload.Count < 7)
-                {
-                    throw new ArgumentException(
-                        $"the response payload should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
-                        nameof(payload));
-                }
-
-                if (payload[0] != (byte)ReplyStatus.OK && payload[0] != (byte)ReplyStatus.UserException)
-                {
-                    throw new ArgumentException($"invalid payload response status `{payload[0]}'", nameof(payload));
-                }
-
-                int size = InputStream.ReadInt(payload.AsSpan(1, 4));
-                if (size != payload.Count)
-                {
-                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
-                        nameof(payload));
-                }
-
-                if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
-                {
-                    throw new ArgumentException($"the payload encoding `{payload[5]}.{payload[6]}' must be the same " +
-                                                $"as the frame encoding `{Encoding.Major}.{Encoding.Minor}'",
-                        nameof(payload));
-                }
-                Data.Add(payload);
-                _payloadEnd = new OutputStream.Position(0, payload.Count);
+                throw new ArgumentException(
+                    $"the response payload should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                    nameof(payload));
             }
+
+            if (payload[0] != (byte)ReplyStatus.OK && payload[0] != (byte)ReplyStatus.UserException)
+            {
+                throw new ArgumentException($"invalid payload response status `{payload[0]}'", nameof(payload));
+            }
+
+            int size = InputStream.ReadInt(payload.AsSpan(1, 4));
+            if (size != payload.Count)
+            {
+                throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                    nameof(payload));
+            }
+
+            if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
+            {
+                throw new ArgumentException($"the payload encoding `{payload[5]}.{payload[6]}' must be the same " +
+                                            $"as the frame encoding `{Encoding.Major}.{Encoding.Minor}'",
+                    nameof(payload));
+            }
+            Data.Add(payload);
+            _payloadEnd = new OutputStream.Position(0, payload.Count);
             Size = Data.GetByteCount();
             IsSealed = true;
         }
@@ -165,17 +169,17 @@ namespace Ice
             }
             else
             {
-                OutputStream ostr = StartPayload(ReplyStatus.UserException, FormatType.SlicedFormat);
+                OutputStream ostr = StartPayload(ResultType.Failure, FormatType.SlicedFormat);
                 ostr.WriteException(exception);
                 ostr.Save();
             }
         }
 
         /// <summary>Starts writing the return value for a successful response.</summary>
-        /// <param name="replyStatus">The response reply status.</param>
+        /// <param name="resultType">The response reply status.</param>
         /// <param name="format">The format for the return value, null (meaning keep communicator's setting),
         /// SlicedFormat or CompactFormat.</param>
-        private OutputStream StartPayload(ReplyStatus replyStatus, FormatType? format = null)
+        private OutputStream StartPayload(ResultType resultType, FormatType? format = null)
         {
             if (_payloadEnd != null)
             {
@@ -183,14 +187,14 @@ namespace Ice
             }
             Debug.Assert(Data.Count == 0);
             byte[] buffer = new byte[256];
-            buffer[0] = (byte)replyStatus;
+            buffer[0] = (byte)resultType;
             Data.Add(buffer);
             return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1),
                 payloadEnd => PayloadReady(payloadEnd), format);
         }
 
         // Used by generated code to write successful response:
-        public OutputStream StartPayload(FormatType? format = null) => StartPayload(ReplyStatus.OK, format);
+        public OutputStream StartPayload(FormatType? format = null) => StartPayload(ResultType.Success, format);
 
         private void PayloadReady(OutputStream.Position payloadEnd)
         {

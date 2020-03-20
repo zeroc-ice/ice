@@ -13,7 +13,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Ice
 {
-    internal delegate void PayloadReady(OutputStream.Position payloadEnd);
     public interface IStreamableStruct // value with the value-type semantics
     {
         public void IceWrite(OutputStream ostr);
@@ -104,11 +103,12 @@ namespace Ice
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
         // Delegate call from Save once the payload is ready.
-        private readonly PayloadReady? _payloadReady;
+        private readonly Action<Position>? _payloadReady;
 
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
             Encoding = encoding;
+            Encoding.CheckSupported();
             _segmentList = data;
             if (_segmentList.Count == 0)
             {
@@ -131,7 +131,7 @@ namespace Ice
         }
 
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt,
-                              PayloadReady payloadReady, FormatType? format = null)
+                              Action<Position> payloadReady, FormatType? format = null)
             : this(encoding, data, startAt)
         {
             _payloadReady = payloadReady;
@@ -1349,9 +1349,8 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes an encapsulation.
+        /// Writes an empty encapsulation.
         /// </summary>
-        /// <param name="encapsulation">The encapsulation to write.</param>
         internal Position WriteEmptyEncapsulation()
         {
             WriteEncapsulationHeader(6, Encoding);

@@ -94,21 +94,12 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
                                                  IReadOnlyDictionary<string, string>? context = null)
-            => new OutgoingRequestFrame(proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
+            => new OutgoingRequestFrame(proxy, operation, idempotent, true, context);
 
-        /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
-        /// provided using StartPayload.</summary>
-        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
-        /// encoding and context of this proxy to create the request frame.</param>
-        /// <param name="operation">The operation to invoke on the target Ice object.</param>
-        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
-        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
-        /// proxy and the communicator's current context (if any).</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
-                                    IReadOnlyDictionary<string, string>? context = null)
+        private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                     bool writeEmptyEncaps, IReadOnlyDictionary<string, string>? context = null)
         {
             Encoding = proxy.Encoding;
-            Encoding.CheckSupported();
             Data = new List<ArraySegment<byte>>();
             proxy.IceReference.GetProtocol().CheckSupported();
 
@@ -116,7 +107,7 @@ namespace Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(Encoding.V1_1, Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
             if (Facet.Length == 0)
             {
@@ -124,7 +115,7 @@ namespace Ice
             }
             else
             {
-                ostr.WriteStringSeq(new string[]{ Facet });
+                ostr.WriteStringSeq(new string[] { Facet });
             }
 
             ostr.WriteString(operation);
@@ -145,6 +136,28 @@ namespace Ice
 
             ContextHelper.Write(ostr, Context);
             _payloadStart = ostr.Tail;
+
+            if (writeEmptyEncaps)
+            {
+                Encoding.CheckSupported();
+                _payloadEnd = ostr.WriteEmptyEncapsulation();
+                Size = Data.GetByteCount();
+                IsSealed = true;
+            }
+        }
+
+        /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
+        /// provided using StartPayload.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                    IReadOnlyDictionary<string, string>? context = null) :
+            this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
+        {
         }
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>
@@ -158,38 +171,30 @@ namespace Ice
         /// </param>
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
-            : this(proxy, operation, idempotent, context)
+            : this(proxy, operation, idempotent, false, context)
         {
-            if (payload.Count == 0)
+            if (payload.Count < 6)
             {
-                var ostr = new OutputStream(Encoding, Data, _payloadStart);
-                _payloadEnd = ostr.WriteEmptyEncapsulation();
+                throw new ArgumentException(
+                    $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
+                    nameof(payload));
             }
-            else
+            int size = InputStream.ReadInt(payload.AsSpan(0, 4));
+            if (size != payload.Count)
             {
-                if (payload.Count < 6)
-                {
-                    throw new ArgumentException(
-                        $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
-                        nameof(payload));
-                }
-                int size = InputStream.ReadInt(payload.AsSpan(0, 4));
-                if (size != payload.Count)
-                {
-                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
-                        nameof(payload));
-                }
+                throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                    nameof(payload));
+            }
 
-                if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
-                {
-                    throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
-                                                $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
-                        nameof(payload));
-                }
-                Data[0] = Data[0].Slice(0, _payloadStart.Offset);
-                Data.Add(payload);
-                _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
+            if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
+            {
+                throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
+                                            $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
+                    nameof(payload));
             }
+            Data[0] = Data[0].Slice(0, _payloadStart.Offset);
+            Data.Add(payload);
+            _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
             Size = Data.GetByteCount();
             IsSealed = true;
         }
@@ -204,7 +209,6 @@ namespace Ice
             {
                 throw new InvalidOperationException("the frame already contains a payload");
             }
-
             return new OutputStream(Encoding, Data, _payloadStart, payloadEnd => PayloadReady(payloadEnd), format);
         }
 

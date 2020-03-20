@@ -841,7 +841,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
+                    RequestFrame = OutgoingRequestFrame.Empty(Proxy, operation, idempotent, context);
                 }
                 Invoke(synchronous);
             }

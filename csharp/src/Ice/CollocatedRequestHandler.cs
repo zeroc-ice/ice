@@ -214,7 +214,7 @@ namespace IceInternal
                         }
 
                         Incoming.ReportException(actualEx, dispatchObserver, current);
-                        var response = new Ice.OutgoingResponseFrame(current, actualEx);
+                        var response = new OutgoingResponseFrame(current, actualEx);
                         dispatchObserver?.Reply(response.Size);
                         SendResponse(requestId, response, amd);
                     }
