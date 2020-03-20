@@ -69,7 +69,7 @@ namespace Ice
                 if (value < 0 || value > _buffer.Count)
                 {
                     throw new ArgumentOutOfRangeException(nameof(Pos),
-                        "the position value is outside the buffer bounds.");
+                        "the position value is outside the buffer bounds");
                 }
                 _pos = value;
             }

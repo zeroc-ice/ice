@@ -2028,14 +2028,14 @@ namespace Ice
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {
                         throw new InvalidDataException(@$"received ice1 frame with message type `{messageType
-                            }' before receiving frame with ValidateConnectionMessage");
+                            }' before receiving the validate connection message");
                     }
 
                     int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                     if (size != Ice1Definitions.HeaderSize)
                     {
                         throw new InvalidDataException(
-                            $"received an ice1 frame with ValidateConnectionMessage and a size of `{size}' bytes");
+                            $"received an ice1 frame with validate connection type and a size of `{size}' bytes");
                     }
                 }
             }
