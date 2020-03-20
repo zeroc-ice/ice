@@ -85,7 +85,7 @@ namespace Ice
         // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
         // The current class/exception format, can be either Compact or Sliced.
-        private FormatType _format;
+        private readonly FormatType _format;
         // Map of class instance to instance ID, where the instance IDs start at 2.
         // When writing a top-level encapsulation:
         //  - Instance ID = 0 means null.
@@ -145,24 +145,24 @@ namespace Ice
             }
         }
 
-        public Position Finish()
+        public Position Save()
         {
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
+
+            if (_mainEncaps.HasValue)
+            {
+                Debug.Assert(_endpointEncaps == null);
+
+                Encaps encaps = _mainEncaps.Value;
+
+                // Size includes size and version.
+                RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
+
+                Debug.Assert(_payloadReady != null);
+
+                _payloadReady(_tail);
+            }
             return _tail;
-        }
-
-        public void Save()
-        {
-            Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
-
-            Encaps encaps = _mainEncaps.Value;
-
-            // Size includes size and version.
-            RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
-
-            Debug.Assert(_payloadReady != null);
-            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
-            _payloadReady(_tail);
         }
 
         // Start writing a slice of a class or exception instance.
@@ -1152,7 +1152,7 @@ namespace Ice
             if (remaining < 4)
             {
                 segment = _segmentList[pos.Segment + 1];
-                data.Slice(remaining, 4 - remaining).CopyTo(segment.AsSpan(0, 4 - remaining));
+                data[remaining..4].CopyTo(segment.AsSpan(0, 4 - remaining));
             }
         }
 
@@ -1378,13 +1378,21 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes an empty encapsulation using the given encoding version.
+        /// Writes an encapsulation.
         /// </summary>
-        /// <param name="encoding">The encoding version of the encapsulation.</param>
-        internal void WriteEmptyEncapsulation(Encoding encoding)
+        /// <param name="encapsulation">The encapsulation to write.</param>
+        internal Position WriteEncapsulation(ArraySegment<byte> encapsulation)
         {
-            encoding.CheckSupported();
-            WriteEncapsulationHeader(6, encoding);
+            if (encapsulation.Count == 0)
+            {
+                WriteEncapsulationHeader(6, Encoding);
+                _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
+            }
+            else
+            {
+                WritePayload(encapsulation);
+            }
+            return _tail;
         }
 
         /// <summary>

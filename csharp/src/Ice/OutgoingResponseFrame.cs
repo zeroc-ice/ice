@@ -133,7 +133,7 @@ namespace Ice
                     ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
                     ostr.WriteString(requestFailedException.Message);
                 }
-                _payloadEnd = ostr.Finish();
+                _payloadEnd = ostr.Save();
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }

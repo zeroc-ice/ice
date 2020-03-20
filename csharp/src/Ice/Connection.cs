@@ -2194,7 +2194,7 @@ namespace Ice
             _writeBufferOffset = 0;
 
             TraceUtil.TraceSend(_communicator, message.Encoding,
-                requestData.GetSegment(0, message.Size).Array, _logger, _traceLevels);
+                VectoredBufferExtensions.ToArray(requestData), _logger, _traceLevels);
 
             //
             // Send the message without blocking.

@@ -153,17 +153,8 @@ namespace Ice
             : this(proxy, operation, idempotent, context)
         {
             var ostr = new OutputStream(Encoding, Data, _payloadStart);
-            if (payload.Count == 0)
-            {
-                ostr.WriteEmptyEncapsulation(Encoding);
-            }
-            else
-            {
-                ostr.WritePayload(payload);
-            }
-            OutputStream.Position payloadEnd = ostr.Finish();
+            _payloadEnd = ostr.WriteEncapsulation(payload);
             Size = Data.GetByteCount();
-            _payloadEnd = payloadEnd;
             IsSealed = true;
         }
 
