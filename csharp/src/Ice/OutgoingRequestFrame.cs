@@ -97,7 +97,7 @@ namespace Ice
             => new OutgoingRequestFrame(proxy, operation, idempotent, context, ArraySegment<byte>.Empty);
 
         /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
-        /// provided using StartParameters/EndParameters.</summary>
+        /// provided using StartPayload.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>

@@ -48,8 +48,9 @@ namespace Ice
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload)
-            : this(encoding)
         {
+            Encoding = encoding;
+            Data = new List<ArraySegment<byte>>();
             if (payload.Count == 0)
             {
                 byte[] buffer = new byte[256];
