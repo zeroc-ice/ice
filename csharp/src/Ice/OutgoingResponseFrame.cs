@@ -65,12 +65,28 @@ namespace Ice
             {
                 if (payload.Count < 7)
                 {
-                    throw new EncapsulationException();
+                    throw new ArgumentException(
+                        $"the response payload should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                        nameof(payload));
                 }
 
-                if (payload[1] != encoding.Major || payload[2] != encoding.Minor)
+                if (payload[0] != (byte)ReplyStatus.OK && payload[0] != (byte)ReplyStatus.UserException)
                 {
-                    throw new EncapsulationException("Invalid payload encoding");
+                    throw new ArgumentException($"invalid payload response status `{payload[0]}'", nameof(payload));
+                }
+
+                int size = InputStream.ReadInt(payload.AsSpan(1, 4));
+                if (size != payload.Count)
+                {
+                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                        nameof(payload));
+                }
+
+                if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
+                {
+                    throw new ArgumentException($"the payload encoding `{payload[5]}.{payload[6]}' must be the same " +
+                                                $"as the frame encoding `{Encoding.Major}.{Encoding.Minor}'",
+                        nameof(payload));
                 }
                 Data.Add(payload);
                 _payloadEnd = new OutputStream.Position(0, payload.Count);
@@ -169,22 +185,22 @@ namespace Ice
             buffer[0] = (byte)replyStatus;
             Data.Add(buffer);
             return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1),
-                payloadEnd => PayloadReady(this, payloadEnd), format);
+                payloadEnd => PayloadReady(payloadEnd), format);
         }
 
         // Used by generated code to write successful response:
         public OutputStream StartPayload(FormatType? format = null) => StartPayload(ReplyStatus.OK, format);
 
-        private static void PayloadReady(OutgoingResponseFrame frame, OutputStream.Position payloadEnd)
+        private void PayloadReady(OutputStream.Position payloadEnd)
         {
-            if (frame._payloadEnd != null)
+            if (_payloadEnd != null)
             {
                 throw new InvalidOperationException("the frame already contains a payload");
             }
 
-            frame.Size = frame.Data.GetByteCount();
-            frame._payloadEnd = payloadEnd;
-            frame.IsSealed = true;
+            Size = Data.GetByteCount();
+            _payloadEnd = payloadEnd;
+            IsSealed = true;
         }
     }
 }

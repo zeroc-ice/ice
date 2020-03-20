@@ -1264,35 +1264,6 @@ namespace Ice
             }
         }
 
-        /// <summary>Appends an array segment to the segment list, no data is copied. If the
-        /// current segment is not fully written it is first sliced to the written size, this
-        /// ensures there is no gaps, the size and capacity of the stream are adjusted to the
-        /// sum of all segment counts, and the tail is advanced to the end of the new segment.</summary>
-        /// <param name="payload">The array segment payload to write into the stream.</param>
-        internal void WritePayload(ArraySegment<byte> payload)
-        {
-            Debug.Assert(_tail.Segment == _segmentList.Count - 1, "Current segment is not the last segment");
-
-            // If current segment is not fully written slice it to is written size
-            // and adjust the stream capacity.
-            if (_tail.Offset < _currentSegment.Count)
-            {
-                _capacity -= _currentSegment.Count;
-                _currentSegment = _currentSegment.Slice(0, _tail.Offset);
-                _capacity += _currentSegment.Count;
-                _segmentList[_tail.Segment] = _currentSegment;
-            }
-
-            Debug.Assert(Size == _capacity);
-
-            _segmentList.Add(payload);
-            _capacity += payload.Count;
-            Size = _capacity;
-            _currentSegment = payload;
-            _tail.Segment++;
-            _tail.Offset = _currentSegment.Count;
-        }
-
         /// <summary>Expand the stream to make room for more data, if the stream
         /// remaining bytes are not enough to hold the given number of bytes allocate
         /// a new byte array, after this method return the stream has enough free space
@@ -1381,17 +1352,10 @@ namespace Ice
         /// Writes an encapsulation.
         /// </summary>
         /// <param name="encapsulation">The encapsulation to write.</param>
-        internal Position WriteEncapsulation(ArraySegment<byte> encapsulation)
+        internal Position WriteEmptyEncapsulation()
         {
-            if (encapsulation.Count == 0)
-            {
-                WriteEncapsulationHeader(6, Encoding);
-                _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
-            }
-            else
-            {
-                WritePayload(encapsulation);
-            }
+            WriteEncapsulationHeader(6, Encoding);
+            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }
 

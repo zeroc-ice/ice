@@ -450,8 +450,7 @@ namespace Ice
                         outgoing.RequestData = Ice1Definitions.GetRequestData(requestFrame, requestId);
                     }
                     Encoding encoding = requestFrame?.Encoding ?? _communicator.DefaultsAndOverrides.DefaultEncoding;
-                    var message = new OutgoingMessage(outgoing, encoding, compress, requestId);
-                    status = SendMessage(message);
+                    status = SendMessage(new OutgoingMessage(outgoing, encoding, compress, requestId));
                 }
                 catch (System.Exception ex)
                 {
@@ -2071,7 +2070,6 @@ namespace Ice
             else if (_state == StateClosingPending && _writeBufferOffset == 0)
             {
                 // Message wasn't sent, empty the _writeStream, we're not going to send more data.
-                OutgoingMessage message = _outgoingMessages.First.Value;
                 _writeBuffer = _emptyBuffer;
                 _writeBufferOffset = 0;
                 _writeBufferSize = 0;
@@ -2135,7 +2133,6 @@ namespace Ice
                     _writeBuffer = message.Data;
                     _writeBufferSize = message.Size;
                     _writeBufferOffset = 0;
-
                     //
                     // Send the message.
                     //
@@ -2217,7 +2214,6 @@ namespace Ice
                 }
                 return status;
             }
-
             _outgoingMessages.AddLast(message);
             ScheduleTimeout(op);
             ThreadPool.Register(this, op);

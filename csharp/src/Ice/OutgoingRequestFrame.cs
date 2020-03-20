@@ -49,12 +49,20 @@ namespace Ice
                 {
                     var payload = new List<ArraySegment<byte>>();
                     OutputStream.Position payloadEnd = _payloadEnd.Value;
-                    payload[_payloadStart.Segment] = Data[_payloadStart.Segment].Slice(_payloadStart.Offset);
+                    ArraySegment<byte> segment = Data[_payloadStart.Segment].Slice(_payloadStart.Offset);
+                    if (segment.Count > 0)
+                    {
+                        payload.Add(segment);
+                    }
                     for (int i = _payloadStart.Segment + 1; i < payloadEnd.Segment; i++)
                     {
                         payload.Add(Data[i]);
                     }
-                    payload[payloadEnd.Segment] = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
+                    segment = Data[payloadEnd.Segment].Slice(0, payloadEnd.Offset);
+                    if (segment.Count > 0)
+                    {
+                        payload.Add(segment);
+                    }
                     _payload = payload;
                 }
 
@@ -152,20 +160,36 @@ namespace Ice
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)
         {
-            if (payload.Count > 0)
+            if (payload.Count == 0)
+            {
+                var ostr = new OutputStream(Encoding, Data, _payloadStart);
+                _payloadEnd = ostr.WriteEmptyEncapsulation();
+            }
+            else
             {
                 if (payload.Count < 6)
                 {
-                    throw new EncapsulationException();
+                    throw new ArgumentException(
+                        $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
+                        nameof(payload));
+                }
+                int size = InputStream.ReadInt(payload.AsSpan(0, 4));
+                if (size != payload.Count)
+                {
+                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                        nameof(payload));
                 }
 
-                if (payload[1] != Encoding.Major || payload[2] != Encoding.Minor)
+                if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
                 {
-                    throw new EncapsulationException("Invalid payload encoding");
+                    throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
+                                                $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
+                        nameof(payload));
                 }
+                Data[0] = Data[0].Slice(0, _payloadStart.Offset);
+                Data.Add(payload);
+                _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
             }
-            var ostr = new OutputStream(Encoding, Data, _payloadStart);
-            _payloadEnd = ostr.WriteEncapsulation(payload);
             Size = Data.GetByteCount();
             IsSealed = true;
         }
@@ -181,20 +205,19 @@ namespace Ice
                 throw new InvalidOperationException("the frame already contains a payload");
             }
 
-            return new OutputStream(Encoding, Data, _payloadStart,
-                payloadEnd => PayloadReady(this, payloadEnd), format);
+            return new OutputStream(Encoding, Data, _payloadStart, payloadEnd => PayloadReady(payloadEnd), format);
         }
 
-        private static void PayloadReady(OutgoingRequestFrame frame, OutputStream.Position payloadEnd)
+        private void PayloadReady(OutputStream.Position payloadEnd)
         {
-            if (frame._payloadEnd != null)
+            if (_payloadEnd != null)
             {
                 throw new InvalidOperationException("the frame already contains a payload");
             }
 
-            frame.Size = frame.Data.GetByteCount();
-            frame._payloadEnd = payloadEnd;
-            frame.IsSealed = true;
+            Size = Data.GetByteCount();
+            _payloadEnd = payloadEnd;
+            IsSealed = true;
         }
     }
 }
