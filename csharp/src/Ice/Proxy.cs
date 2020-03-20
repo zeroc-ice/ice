@@ -246,16 +246,7 @@ namespace Ice
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request,
                                                    bool oneway = false)
-        {
-            try
-            {
-                return proxy.IceInvokeAsync(request, oneway, null, CancellationToken.None, true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
+            => proxy.IceInvoke(request, oneway);
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -272,7 +263,7 @@ namespace Ice
                                                               bool oneway = false,
                                                               IProgress<bool>? progress = null,
                                                               CancellationToken cancel = default)
-            => proxy.IceInvokeAsync(request, oneway, progress, cancel, false);
+            => proxy.IceInvokeAsync(request, oneway, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
