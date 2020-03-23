@@ -2055,8 +2055,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         _out << nl << "if(value < 0 || value > " << p->maxValue() << ")";
     }
     _out << sb;
-    _out << nl << "throw new Ice.MarshalException($\"invalid enumerator value `{value}' for " << fixId(p->scoped())
-         << "\");";
+    _out << nl << "throw new Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
+        << fixId(p->scoped()) << "\");";
     _out << eb;
     _out << nl << "return (" << name << ") value;";
     _out << eb;

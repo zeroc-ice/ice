@@ -30,7 +30,7 @@ namespace Ice
             string[] facetPath = request.ReadStringArray();
             if (facetPath.Length > 1)
             {
-                throw new MarshalException();
+                throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
             }
             Facet = facetPath.Length == 0 ? "" : facetPath[0];
             Operation = request.ReadString();

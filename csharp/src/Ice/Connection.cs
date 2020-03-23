@@ -401,7 +401,7 @@ namespace Ice
             lock (this)
             {
                 //
-                // If the exception is closed before we even have a chance
+                // If the exception is thrown before we even have a chance
                 // to send our request, we always try to send the request
                 // again.
                 //
@@ -573,16 +573,9 @@ namespace Ice
                 }
                 catch (RetryException ex)
                 {
-                    try
+                    if (Exception(ex.InnerException))
                     {
-                        throw ex.Get();
-                    }
-                    catch (System.Exception ee)
-                    {
-                        if (Exception(ee))
-                        {
-                            InvokeExceptionAsync();
-                        }
+                        InvokeExceptionAsync();
                     }
                 }
                 catch (Exception ex)
@@ -954,19 +947,21 @@ namespace Ice
                                     //
                                     // This situation is possible for small UDP packets.
                                     //
-                                    throw new IllegalMessageSizeException();
+                                    throw new InvalidDataException(
+                                        $"received packet with only {_readBufferOffset} bytes");
                                 }
 
                                 Ice1Definitions.CheckHeader(_readBuffer.AsSpan(0, 8));
                                 int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                                 if (size < Ice1Definitions.HeaderSize)
                                 {
-                                    throw new IllegalMessageSizeException();
+                                    throw new InvalidDataException($"received ice1 frame with only {size} bytes");
                                 }
 
                                 if (size > _messageSizeMax)
                                 {
-                                    Ex.ThrowMemoryLimitException(size, _messageSizeMax);
+                                    throw new Ice.InvalidDataException(
+                                        $"frame with {size} bytes exceeds Ice.MessageSizeMax value");
                                 }
 
                                 if (_endpoint.Datagram() && size > _readBufferOffset)
@@ -2032,13 +2027,15 @@ namespace Ice
                     byte messageType = _readBuffer[8];
                     if (messageType != Ice1Definitions.ValidateConnectionMessage)
                     {
-                        throw new ConnectionNotValidatedException();
+                        throw new InvalidDataException(@$"received ice1 frame with message type `{messageType
+                            }' before receiving the validate connection message");
                     }
 
                     int size = InputStream.ReadInt(_readBuffer.Slice(10, 4));
                     if (size != Ice1Definitions.HeaderSize)
                     {
-                        throw new IllegalMessageSizeException();
+                        throw new InvalidDataException(
+                            $"received an ice1 frame with validate connection type and a size of `{size}' bytes");
                     }
                 }
             }
@@ -2383,8 +2380,10 @@ namespace Ice
                                 info.InvokeNum = info.Stream.ReadInt();
                                 if (info.InvokeNum < 0)
                                 {
+                                    var invokeNum = info.InvokeNum;
                                     info.InvokeNum = 0;
-                                    throw new UnmarshalOutOfBoundsException();
+                                    throw new InvalidDataException(
+                                        $"received ice1 RequestBatchMessage with {invokeNum} batch requests");
                                 }
                                 info.Adapter = _adapter;
                                 info.MessageDispatchCount += info.InvokeNum;
@@ -2440,7 +2439,8 @@ namespace Ice
                         {
                             TraceUtil.Trace("received unknown message\n(invalid, closing connection)",
                                             info.Stream, _logger, _traceLevels);
-                            throw new UnknownMessageException();
+                            throw new InvalidDataException(
+                                $"received ice1 frame with unknown message type `{messageType}'");
                         }
                 }
             }

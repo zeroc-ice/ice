@@ -42,7 +42,7 @@ namespace Ice
             {
                 // Could be for example attempting to marshal this instance into a compact-format encapsulation.
                 throw new MarshalException(
-                    $"Failed to marshal an {nameof(UnknownSlicedClass)} with type ID {TypeId}");
+                    $"failed to marshal an {nameof(UnknownSlicedClass)} with type ID `{TypeId}'");
             }
         }
         internal UnknownSlicedClass()

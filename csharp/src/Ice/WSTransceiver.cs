@@ -13,6 +13,23 @@ using System.Text;
 
 namespace IceInternal
 {
+
+    // TODO: refactor and eliminate these exceptions
+    public sealed class WSProtocolException : Exception
+    {
+        internal WSProtocolException(string message)
+            : base(message)
+        {
+        }
+    }
+
+    public sealed class WSMemoryLimitException : Exception
+    {
+        internal WSMemoryLimitException()
+        {
+        }
+    }
+
     internal sealed class WSTransceiver : ITransceiver
     {
         public Socket? Fd() => _delegate.Fd();
@@ -128,7 +145,7 @@ namespace IceInternal
                             //
                             if (_readBufferOffset + 1024 > _instance.MessageSizeMax)
                             {
-                                throw new MemoryLimitException();
+                                throw new WSMemoryLimitException();
                             }
                             byte[] tmpBuffer = new byte[_readBufferOffset + 1024];
                             _readBuffer.AsSpan(0, _readBufferOffset).CopyTo(tmpBuffer);
@@ -162,7 +179,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            throw new ProtocolException("incomplete request message");
+                            throw new WSProtocolException("incomplete request message");
                         }
                     }
 
@@ -190,14 +207,14 @@ namespace IceInternal
                             }
                             else
                             {
-                                throw new ProtocolException("incomplete response message");
+                                throw new WSProtocolException("incomplete response message");
                             }
                         }
                     }
                 }
                 catch (WebSocketException ex)
                 {
-                    throw new ProtocolException(ex.Message);
+                    throw new WSProtocolException(ex.Message);
                 }
                 _state = StateOpened;
                 _nextState = StateOpened;
@@ -266,11 +283,11 @@ namespace IceInternal
             {
                 _closingReason = CLOSURE_SHUTDOWN;
             }
-            else if (reason is Ice.ProtocolException)
+            else if (reason is WSProtocolException)
             {
                 _closingReason = CLOSURE_PROTOCOL_ERROR;
             }
-            else if (reason is Ice.MemoryLimitException)
+            else if (reason is WSMemoryLimitException)
             {
                 _closingReason = CLOSURE_TOO_BIG;
             }
@@ -952,7 +969,7 @@ namespace IceInternal
                     {
                         if (!_readLastFrame)
                         {
-                            throw new ProtocolException("invalid data frame, no FIN on previous frame");
+                            throw new WSProtocolException("invalid data frame, no FIN on previous frame");
                         }
                         _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                     }
@@ -960,7 +977,7 @@ namespace IceInternal
                     {
                         if (_readLastFrame)
                         {
-                            throw new ProtocolException("invalid continuation frame, previous frame FIN set");
+                            throw new WSProtocolException("invalid continuation frame, previous frame FIN set");
                         }
                         _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                     }
@@ -973,7 +990,7 @@ namespace IceInternal
                     bool masked = (ch & FLAG_MASKED) == FLAG_MASKED;
                     if (masked != _incoming)
                     {
-                        throw new ProtocolException("invalid masking");
+                        throw new WSProtocolException("invalid masking");
                     }
 
                     //
@@ -1033,7 +1050,7 @@ namespace IceInternal
                         _readBufferPos += 8;
                         if (length < 0 || length > int.MaxValue)
                         {
-                            throw new ProtocolException($"invalid WebSocket payload length: {length}");
+                            throw new WSProtocolException($"invalid WebSocket payload length: {length}");
                         }
                         _readPayloadLength = (int)length;
                     }
@@ -1057,7 +1074,7 @@ namespace IceInternal
                     {
                         case OP_TEXT: // Text frame
                             {
-                                throw new ProtocolException("text frames not supported");
+                                throw new WSProtocolException("text frames not supported");
                             }
                         case OP_DATA: // Data frame
                         case OP_CONT: // Continuation frame
@@ -1072,7 +1089,7 @@ namespace IceInternal
 
                                 if (_readPayloadLength <= 0)
                                 {
-                                    throw new ProtocolException("payload length is 0");
+                                    throw new WSProtocolException("payload length is 0");
                                 }
                                 _readState = ReadStatePayload;
                                 Debug.Assert(offset < buffer.Count);
@@ -1137,7 +1154,7 @@ namespace IceInternal
                             }
                         default:
                             {
-                                throw new ProtocolException($"unsupported opcode: {_readOpCode}");
+                                throw new WSProtocolException($"unsupported opcode: {_readOpCode}");
                             }
                     }
                 }

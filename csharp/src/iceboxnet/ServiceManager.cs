@@ -405,9 +405,8 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    throw new LoadException(
-                        $"IceBox.ServiceManager: unable to load service '{entryPoint}': error loading assembly " +
-                        $"`{assemblyName}'", ex);
+                    throw new LoadException(@$"IceBox.ServiceManager: unable to load service `{entryPoint
+                        }': error loading assembly `{assemblyName}'", ex);
                 }
 
                 //
@@ -420,9 +419,8 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    throw new LoadException(
-                        $"IceBox.ServiceManager: unable to load service `{entryPoint}': cannot find the service " +
-                        $"class `{className}'", ex);
+                    throw new LoadException(@$"IceBox.ServiceManager: unable to load service `{entryPoint
+                        }': cannot find the service class `{className}'", ex);
                 }
                 Debug.Assert(c != null);
 
@@ -580,7 +578,8 @@ namespace IceBox
                         }
                         catch (System.Exception ex)
                         {
-                            _logger.Warning($"IceBox.ServiceManager: exception while stopping service {info.Name}:\n{ex}");
+                            _logger.Warning(
+                                $"IceBox.ServiceManager: exception while stopping service {info.Name}:\n{ex}");
                         }
                     }
 
@@ -773,8 +772,8 @@ namespace IceBox
                 }
                 catch (System.Exception ex)
                 {
-                    _logger.Warning("IceBox.ServiceManager: exception while shutting down communicator for service " +
-                        $"`{service}'\n{ex}");
+                    _logger.Warning(@$"IceBox.ServiceManager: exception while shutting down communicator for service `{
+                        service}'\n{ex}");
                 }
 
                 RemoveAdminFacets("IceBox.Service." + service + ".");
@@ -844,5 +843,4 @@ namespace IceBox
         private readonly Dictionary<IServiceObserverPrx, bool> _observers = new Dictionary<IServiceObserverPrx, bool>();
         private readonly int _traceServiceObserver = 0;
     }
-
 }
