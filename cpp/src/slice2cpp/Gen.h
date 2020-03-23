@@ -23,7 +23,6 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         const std::string&,
-        bool,
         bool);
     ~Gen();
 
@@ -65,7 +64,6 @@ private:
     std::string _dllExport;
     std::string _dir;
     bool _impl;
-    bool _ice;
 
     // Visitors
 

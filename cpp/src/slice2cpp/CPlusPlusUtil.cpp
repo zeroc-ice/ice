@@ -124,7 +124,7 @@ dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const Str
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const string& scope, const string& fixedName,
-                       const StringList& metaData, int typeCtx, bool endArg)
+                       const StringList& metaData, int typeCtx)
 {
     string s = typeToString(type, scope, metaData, typeCtx);
     if(isTagged)
@@ -136,7 +136,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const st
 
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "",
+                            bool prepend, const string& customStream = "", const string& retP = "",
                             const string& obj = "")
 {
     string prefix = prepend ? paramPrefix : "";
@@ -851,17 +851,17 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
                         const string& customStream, const string& retP)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx, customStream, retP);
+    writeMarshalUnmarshalParams(out, params, op, true, prepend, customStream, retP);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
                           const string& customStream, const string& retP, const string& obj)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, customStream, retP, obj);
+    writeMarshalUnmarshalParams(out, params, op, false, prepend, customStream, retP, obj);
 }
 
 void
@@ -878,48 +878,14 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->tagged(), clScope, fixKwd(prefix + (*p)->name()),
-                               (*p)->getMetaData(), typeCtx, getEndArg((*p)->type(), (*p)->getMetaData(),
-                                                                       (*p)->name()) != (*p)->name());
+                               (*p)->getMetaData(), typeCtx);
     }
 
     if(op && op->returnType())
     {
         writeParamAllocateCode(out, op->returnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetaData(),
-                               typeCtx, getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
+                               typeCtx);
     }
-}
-
-string
-Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& arg)
-{
-    string endArg = arg;
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        string seqType = findMetaData(metaData, TypeContextInParam);
-        if(seqType.empty())
-        {
-            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
-        }
-
-        if(seqType == "%array")
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-            if(builtin &&
-               builtin->kind() != Builtin::KindByte &&
-               builtin->kind() != Builtin::KindString &&
-               builtin->kind() != Builtin::KindObject &&
-               builtin->kind() != Builtin::KindObjectProxy)
-            {
-                endArg += "_tmp_";
-            }
-            else if(!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                endArg += "_tmp_";
-            }
-        }
-    }
-    return endArg;
 }
 
 void

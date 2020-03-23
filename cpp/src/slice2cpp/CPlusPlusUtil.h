@@ -43,13 +43,12 @@ std::string opFormatTypeToString(const OperationPtr&);
 std::string fixKwd(const std::string&);
 
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
-                      int = 0, const std::string& = "", const std::string& = "");
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
+                      const std::string& = "", const std::string& = "");
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
                         const std::string& = "", const std::string& = "", const std::string& = "");
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
-std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
 void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);

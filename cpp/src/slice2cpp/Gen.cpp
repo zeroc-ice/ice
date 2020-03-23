@@ -213,34 +213,6 @@ toDllMemberExport(const string& dllExport)
 }
 
 void
-writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int typeContext)
-{
-    bool first = true;
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
-    {
-        ContainedPtr contained = ContainedPtr::dynamicCast((*p)->container());
-        string scope = contained->scope();
-        if((*p)->defaultValueType())
-        {
-            string memberName = fixKwd((*p)->name());
-
-            if(first)
-            {
-                first = false;
-            }
-            else
-            {
-                C << ',';
-            }
-            C << nl << memberName << '(';
-            writeConstantValue(C, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), typeContext,
-                               (*p)->getMetaData(), scope);
-            C << ')';
-        }
-    }
-}
-
-void
 writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const ParamDeclList& inParams,
                     const string& scope)
 {
@@ -252,7 +224,7 @@ writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const Par
     {
         C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
         C << sb;
-        writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
+        writeMarshalCode(C, inParams, 0, true);
         if(p->sendsClasses(false))
         {
             C << nl << "ostr->writePendingValues();";
@@ -674,7 +646,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool impl, bool ice) :
+                bool impl) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -684,8 +656,7 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _includePaths(includePaths),
     _dllExport(dllExport),
     _dir(dir),
-    _impl(impl),
-    _ice(ice)
+    _impl(impl)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -1082,38 +1053,6 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
             out << "\n#endif";
         }
     }
-}
-
-namespace
-{
-
-bool
-usePrivateEnd(const OperationPtr& p)
-{
-    TypePtr ret = p->returnType();
-    bool retIsTagged = p->returnIsTagged();
-    string retSEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIEnd);
-    string retSPrivateEnd = returnTypeToString(ret, retIsTagged, "", p->getMetaData(), TypeContextAMIPrivateEnd);
-
-    ParamDeclList outParams;
-    vector<string> outDeclsEnd;
-    vector<string> outDeclsPrivateEnd;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        if((*q)->isOutParam())
-        {
-            outDeclsEnd.push_back(outputTypeToString((*q)->type(), (*q)->tagged(), "", (*q)->getMetaData(),
-                                                     TypeContextAMIEnd));
-            outDeclsPrivateEnd.push_back(outputTypeToString((*q)->type(), (*q)->tagged(), "", (*q)->getMetaData(),
-                                                            TypeContextAMIPrivateEnd));
-        }
-    }
-
-    return retSEnd != retSPrivateEnd || outDeclsEnd != outDeclsPrivateEnd;
-}
-
 }
 
 void
@@ -2495,7 +2434,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "istr->startEncapsulation();";
         writeAllocateCode(C, outParams, p, true, clScope, _useWstring | TypeContextInParam);
-        writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextInParam);
+        writeUnmarshalCode(C, outParams, p, true);
 
         if(p->returnsClasses(false))
         {
@@ -2621,7 +2560,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", clScope) << " istr)";
         C << sb;
         C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring, "", returnValueS, "v");
+        writeUnmarshalCode(C, outParams, p, false, "", returnValueS, "v");
 
         if(p->returnsClasses(false))
         {
@@ -2641,7 +2580,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
 
         writeAllocateCode(C, outParams, p, true, clScope, _useWstring);
-        writeUnmarshalCode(C, outParams, p, true, _useWstring);
+        writeUnmarshalCode(C, outParams, p, true);
 
         if(p->returnsClasses(false))
         {
@@ -3244,7 +3183,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C.dec();
         C << sb;
         C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, outParams, p, true, 0, "ostr");
+        writeMarshalCode(C, outParams, p, true, "ostr");
         if(p->returnsClasses(false))
         {
             C << nl << "ostr->writePendingValues();";
@@ -3299,7 +3238,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "auto istr = inS.startReadParams();";
         writeAllocateCode(C, inParams, 0, true, classScope, _useWstring | TypeContextInParam);
-        writeUnmarshalCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
+        writeUnmarshalCode(C, inParams, 0, true);
         if(p->sendsClasses(false))
         {
             C << nl << "istr->readPendingValues();";

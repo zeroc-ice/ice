@@ -317,7 +317,7 @@ compile(const vector<string>& argv)
                     try
                     {
                         Gen gen(icecpp->getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                                includePaths, dllExport, output, impl, ice);
+                                includePaths, dllExport, output, impl);
                         gen.generate(u);
                     }
                     catch(const Slice::FileException& ex)
