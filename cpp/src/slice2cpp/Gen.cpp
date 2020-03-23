@@ -1235,8 +1235,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end();)
         {
             string s = *q++;
-            if(s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 ||
-               s.find("cpp:range") == 0 || s == "cpp:array")
+            if(s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 || s == "cpp:array")
             {
                 dc->warning(InvalidMetaData, p->file(), p->line(),
                             "ignoring invalid metadata `" + s + "' for operation with void return type");

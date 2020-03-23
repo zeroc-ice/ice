@@ -44,47 +44,6 @@ TestIntfI::opVariableArrayAsync(std::pair<const Test::Variable*, const Test::Var
 }
 
 void
-TestIntfI::opBoolRangeAsync(Test::BoolSeq in,
-                            std::function<void(const Test::BoolSeq&, const Test::BoolSeq&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeAsync(Test::ByteList in,
-                            std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeAsync(Test::VariableList in,
-                                std::function<void(const Test::VariableList&, const Test::VariableList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeTypeAsync(Test::ByteList in,
-                                std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeTypeAsync(Test::VariableList in,
-                                    std::function<void(const Test::VariableList&,
-                                                        const Test::VariableList&)> response,
-                                    std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
 TestIntfI::opBoolSeqAsync(std::deque<bool> in,
                           std::function<void(const std::deque<bool>&, const std::deque<bool>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
@@ -251,28 +210,11 @@ TestIntfI::opCListAsync(Test::CList in,
 }
 
 void
-TestIntfI::opClassStructAsync(Test::ClassStruct in1, Test::ClassStructSeq in2,
-                              std::function<void(const Test::ClassStruct&,
-                                                  const Test::ClassStruct&, const Test::ClassStructSeq&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in1, in1, in2);
-}
-
-void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
                                   std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(std::make_pair(in.data(), in.data() + in.size()));
-}
-
-void
-TestIntfI::opOutRangeByteSeqAsync(Test::ByteSeq in,
-                                  std::function<void(const Test::ByteSeq&)> response,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in);
 }
 
 void
@@ -375,56 +317,6 @@ TestIntfI::opVariableArray_async(const Test::AMD_TestIntf_opVariableArrayPtr& op
 {
     Test::VariableList outSeq(inSeq.first, inSeq.second);
     opVariableArrayCB->ice_response(outSeq, outSeq);
-}
-
-void
-TestIntfI::opBoolRange_async(const Test::AMD_TestIntf_opBoolRangePtr& opBoolRangeCB,
-                             const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& inSeq,
-                             const Ice::Current&)
-{
-    Test::BoolSeq outSeq(inSeq.first, inSeq.second);
-    opBoolRangeCB->ice_response(outSeq, outSeq);
-}
-
-void
-TestIntfI::opByteRange_async(const Test::AMD_TestIntf_opByteRangePtr& opByteRangeCB,
-                             const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
-                             const Ice::Current&)
-{
-    opByteRangeCB->ice_response(inSeq, inSeq);
-}
-
-void
-TestIntfI::opVariableRange_async(const Test::AMD_TestIntf_opVariableRangePtr& opVariableRangeCB,
-                                 const std::pair<Test::VariableList::const_iterator,
-                                 Test::VariableList::const_iterator>& inSeq,
-                                 const Ice::Current&)
-{
-    Test::VariableList outSeq(inSeq.first, inSeq.second);
-    opVariableRangeCB->ice_response(outSeq, outSeq);
-}
-
-void
-TestIntfI::opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr& opByteRangeTypeCB,
-                                 const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
-                                 const Ice::Current&)
-{
-    Test::ByteList outSeq(inSeq.first, inSeq.second);
-    opByteRangeTypeCB->ice_response(outSeq, outSeq);
-}
-
-void
-TestIntfI::opVariableRangeType_async(const Test::AMD_TestIntf_opVariableRangeTypePtr& opVariableRangeTypeCB,
-                                     const std::pair<std::deque<Test::Variable>::const_iterator,
-                                     std::deque<Test::Variable>::const_iterator>& inSeq,
-                                     const Ice::Current&)
-{
-    Test::VariableList outSeq;
-    for(std::deque<Test::Variable>::const_iterator p = inSeq.first; p != inSeq.second; ++p)
-    {
-        outSeq.push_back(*p);
-    }
-    opVariableRangeTypeCB->ice_response(outSeq, outSeq);
 }
 
 void
@@ -607,30 +499,12 @@ TestIntfI::opCList_async(const Test::AMD_TestIntf_opCListPtr& opCListCB,
 }
 
 void
-TestIntfI::opClassStruct_async(const Test::AMD_TestIntf_opClassStructPtr& cb,
-                               const Test::ClassStructPtr& inS,
-                               const Test::ClassStructSeq& inSeq,
-                               const Ice::Current&)
-{
-    cb->ice_response(inS, inS, inSeq);
-}
-
-void
 TestIntfI::opOutArrayByteSeq_async(const Test::AMD_TestIntf_opOutArrayByteSeqPtr& cb,
                                    const Test::ByteSeq& inS,
                                    const Ice::Current&)
 {
     cb->ice_response(std::pair<const Ice::Byte*,
                      const Ice::Byte*>(&inS[0], &inS[0] + inS.size()));
-}
-
-void
-TestIntfI::opOutRangeByteSeq_async(const Test::AMD_TestIntf_opOutRangeByteSeqPtr& cb,
-                                   const Test::ByteSeq& inS,
-                                   const Ice::Current&)
-{
-    cb->ice_response(std::pair<Test::ByteSeq::const_iterator,
-                     Test::ByteSeq::const_iterator>(inS.begin(), inS.end()));
 }
 
 void

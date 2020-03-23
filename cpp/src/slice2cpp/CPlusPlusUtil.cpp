@@ -1106,8 +1106,6 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             // is returned.
             // If the form is cpp:view-type:<...> the data after the
             // cpp:view-type: is returned
-            // If the form is cpp:range[:<...>], cpp:array or cpp:class,
-            // the return value is % followed by the string after cpp:.
             //
             // The priority of the metadata is as follows:
             // 1: array, view-type for "view" parameters
@@ -1140,7 +1138,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 }
             }
             //
-            // Otherwise if the data is "class", "scoped" or "unscoped" it is returned.
+            // Otherwise if the data is "unscoped" it is returned.
             //
             else
             {

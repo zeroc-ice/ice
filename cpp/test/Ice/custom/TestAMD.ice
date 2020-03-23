@@ -91,20 +91,6 @@ sequence<DPrxList> DPrxListSeq;
 
 sequence<double> DoubleSeq;
 
-["cpp:class"] struct ClassOtherStruct
-{
-    int x;
-}
-sequence<ClassOtherStruct> ClassOtherStructSeq;
-
-["cpp:class"] struct ClassStruct
-{
-    ClassOtherStructSeq otherSeq;
-    ClassOtherStruct other;
-    int y;
-}
-sequence<ClassStruct> ClassStructSeq;
-
 ["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
 dictionary<string, int> StringIntDict;
@@ -141,17 +127,6 @@ struct BufferStruct
     ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, out ["cpp:array"] ByteList outSeq);
 
     VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
-
-    BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
-
-    ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
-
-    VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
-
-    ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, out ByteList outSeq);
-
-    VariableList
-    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, out VariableList outSeq);
 
     ["cpp:type:std::deque<bool>"] BoolSeq
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
@@ -212,11 +187,7 @@ struct BufferStruct
 
     CList opCList(CList inSeq, out CList outSeq);
 
-    ClassStruct opClassStruct(ClassStruct inS, ClassStructSeq inSeq, out ClassStruct outS, out ClassStructSeq outSeq);
-
     void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
-
-    void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
