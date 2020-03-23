@@ -98,14 +98,14 @@ IceUtil::generateUUID()
 
     unsigned char* str;
 
-    ret = UuidToString(&uuid, &str);
+    ret = UuidToStringA(&uuid, &str);
     if(ret != RPC_S_OK)
     {
         throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
     string result = reinterpret_cast<char*>(str);
 
-    RpcStringFree(&str);
+    RpcStringFreeA(&str);
     return result;
 
 #else
