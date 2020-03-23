@@ -90,9 +90,6 @@ namespace Ice
             }
         }
 
-        private static string BytesToString(Span<byte> bytes)
-        {
-            return BitConverter.ToString(bytes.ToArray());
-        }
+        private static string BytesToString(Span<byte> bytes) => BitConverter.ToString(bytes.ToArray());
     }
 }

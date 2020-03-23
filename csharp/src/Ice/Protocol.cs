@@ -28,8 +28,8 @@ namespace Ice
             // For now, we support only ice1
             if (protocol != Protocol.Ice1)
             {
-                throw new System.NotSupportedException(
-                    $"Ice protocol `{protocol.ToString().ToLower()}' is not supported by this Ice runtime");
+                throw new System.NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
+                    }' is not supported by this Ice runtime ({Util.StringVersion()})");
             }
         }
 

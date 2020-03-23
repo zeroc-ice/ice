@@ -108,7 +108,7 @@ namespace Ice
             if (this != V1_1)
             {
                 throw new NotSupportedException(
-                    $"Ice encoding `{ToString()}' is not supported by this Ice runtime");
+                    $"Ice encoding `{ToString()}' is not supported by this Ice runtime ({Util.StringVersion()})");
             }
         }
     }
