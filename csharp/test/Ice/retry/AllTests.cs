@@ -256,7 +256,7 @@ namespace Ice.retry
                         retryWithTimeout.sleep(500);
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (Ice.ConnectionTimeoutException)
                     {
                     }
                     Instrumentation.testRetryCount(4);

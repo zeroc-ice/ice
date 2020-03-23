@@ -417,9 +417,9 @@ namespace Ice
 
             // We only retry after failing with a RequestFailedException or a local exception.
             //
-            // A CloseConnectionException indicates graceful server shutdown, and is therefore always repeatable without
-            // violating "at-most-once". That's because by sending a close connection message, the server guarantees
-            // that all outstanding requests can safely be repeated.
+            // A ConnectionClosedByPeerException indicates graceful server shutdown, and is therefore always repeatable
+            // without violating "at-most-once". That's because by sending a close connection message, the server
+            // guarantees that all outstanding requests can safely be repeated.
             //
             // An ObjectNotExistException can always be retried as well without violating "at-most-once" (see the
             // implementation of the checkRetryAfterException method of the ProxyFactory class for the reasons why it
@@ -429,7 +429,7 @@ namespace Ice
             // count isn't reached.
             //
             // TODO: revisit retry logic
-            if (ex is ObjectNotExistException || ex is CloseConnectionException || !sent || idempotent)
+            if (ex is ObjectNotExistException || ex is ConnectionClosedByPeerException || !sent || idempotent)
             {
                 try
                 {

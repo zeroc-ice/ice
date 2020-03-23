@@ -587,7 +587,7 @@ namespace Ice.acm
                     con.ThrowException();
                     test(false);
                 }
-                catch (Ice.ConnectionManuallyClosedException)
+                catch (Ice.ConnectionClosedLocallyException)
                 {
                 }
 

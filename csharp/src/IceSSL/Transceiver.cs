@@ -134,7 +134,7 @@ namespace IceSSL
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
                 throw new Ice.TransportException(ex);
             }
@@ -178,7 +178,7 @@ namespace IceSSL
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
                 throw new Ice.TransportException(ex);
             }
@@ -225,7 +225,7 @@ namespace IceSSL
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
                 throw new Ice.TransportException(ex);
             }
@@ -273,7 +273,7 @@ namespace IceSSL
                 }
                 if (IceInternal.Network.Timeout(ex))
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
                 throw new Ice.TransportException(ex);
             }

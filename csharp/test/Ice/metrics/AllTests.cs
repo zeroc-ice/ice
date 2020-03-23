@@ -612,7 +612,7 @@ public class AllTests : Test.AllTests
                 metrics.Clone(connectionTimeout: 500).opByteS(new byte[10000000]);
                 test(false);
             }
-            catch (Ice.TimeoutException)
+            catch (Ice.ConnectTimeoutException)
             {
             }
             controller.resume();
@@ -627,9 +627,8 @@ public class AllTests : Test.AllTests
                 }
                 Thread.Sleep(10);
             }
-            test(cm1.Failures == 2 && sm1.Failures >= 2);
+            test(cm1.Failures == 1 && sm1.Failures >= 2);
 
-            checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.TimeoutException", 1, output);
             checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectTimeoutException", 1, output);
             checkFailure(serverMetrics, "Connection", sm1.Id, "Ice.ConnectionLostException", 0, output);
 

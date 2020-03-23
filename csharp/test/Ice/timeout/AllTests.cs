@@ -41,7 +41,6 @@ namespace Ice.timeout
                 controller.resumeAdapter();
                 throw;
             }
-
         }
 
         public static void allTestsWithController(global::Test.TestHelper helper, Test.IControllerPrx controller)
@@ -76,14 +75,7 @@ namespace Ice.timeout
                 //
                 var to = timeout.Clone(connectionTimeout: -1);
                 controller.holdAdapter(100);
-                try
-                {
-                    to.op();
-                }
-                catch (Ice.ConnectTimeoutException)
-                {
-                    test(false);
-                }
+                to.op();
             }
             output.WriteLine("ok");
 
@@ -104,7 +96,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -121,7 +113,7 @@ namespace Ice.timeout
                 {
                     to.sendData(new byte[1000000]);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     test(false);
                 }
@@ -187,14 +179,14 @@ namespace Ice.timeout
                     to.sleep(750);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     try
                     {
                         _ = con.GetConnectionInfo();
                         test(false);
                     }
-                    catch (TimeoutException)
+                    catch (ConnectionTimeoutException)
                     {
                         // Connection got closed as well.
                     }
@@ -207,14 +199,14 @@ namespace Ice.timeout
                     to.sleepAsync(750).Wait();
                     test(false);
                 }
-                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
+                catch (System.AggregateException ex) when (ex.InnerException is ConnectionTimeoutException)
                 {
                     try
                     {
                         _ = con.GetConnectionInfo();
                         test(false);
                     }
-                    catch (TimeoutException)
+                    catch (ConnectionTimeoutException)
                     {
                         // Connection got closed as well.
                     }
@@ -246,10 +238,9 @@ namespace Ice.timeout
                         _ = connection.GetConnectionInfo();
                         Thread.Sleep(10);
                     }
-                    catch (ConnectionManuallyClosedException ex)
+                    catch (ConnectionClosedLocallyException ex)
                     {
-                        // Expected.
-                        test(ex.Graceful);
+                        // Expected (graceful closure)
                         break;
                     }
                 }
@@ -277,7 +268,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -295,7 +286,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -352,7 +343,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }

@@ -650,7 +650,7 @@ namespace controller
                         Thread.Sleep(500);
                         registerProcessController();
                     }
-                    catch (Ice.TimeoutException)
+                    catch (Ice.ConnectionTimeoutException)
                     {
                         Thread.Sleep(500);
                         registerProcessController();

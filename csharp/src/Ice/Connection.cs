@@ -221,11 +221,11 @@ namespace Ice
             {
                 if (mode == ConnectionClose.Forcefully)
                 {
-                    SetState(StateClosed, new ConnectionManuallyClosedException(false));
+                    SetState(StateClosed, new ConnectionClosedLocallyException("connection closed forcefully"));
                 }
                 else if (mode == ConnectionClose.Gracefully)
                 {
-                    SetState(StateClosing, new ConnectionManuallyClosedException(true));
+                    SetState(StateClosing, new ConnectionClosedLocallyException("connection closed gracefully"));
                 }
                 else
                 {
@@ -239,7 +239,7 @@ namespace Ice
                         System.Threading.Monitor.Wait(this);
                     }
 
-                    SetState(StateClosing, new ConnectionManuallyClosedException(true));
+                    SetState(StateClosing, new ConnectionClosedLocallyException("connection closed gracefully"));
                 }
             }
         }
@@ -258,8 +258,8 @@ namespace Ice
         /// <summary>
         /// Throw an exception indicating the reason for connection closure.
         /// For example,
-        /// CloseConnectionException is raised if the connection was closed gracefully,
-        /// whereas ConnectionManuallyClosedException is raised if the connection was
+        /// ConnectionClosedByPeerException is raised if the connection was closed gracefully by the peer,
+        /// whereas ConnectionClosedLocallyException is raised if the connection was
         /// manually closed by the application. This operation does nothing if the connection is
         /// not yet closed.
         /// </summary>
@@ -1295,8 +1295,7 @@ namespace Ice
                 //
                 // Trace the cause of unexpected connection closures
                 //
-                if (!(_exception is CloseConnectionException ||
-                      _exception is ConnectionManuallyClosedException ||
+                if (!(_exception is ConnectionClosedException ||
                       _exception is ConnectionTimeoutException ||
                       _exception is CommunicatorDestroyedException ||
                       _exception is ObjectAdapterDeactivatedException))
@@ -1523,13 +1522,9 @@ namespace Ice
                 {
                     SetState(StateClosed, new ConnectTimeoutException());
                 }
-                else if (_state < StateClosing)
-                {
-                    SetState(StateClosed, new TimeoutException());
-                }
                 else if (_state < StateClosed)
                 {
-                    SetState(StateClosed, new CloseTimeoutException());
+                    SetState(StateClosed, new ConnectionTimeoutException());
                 }
             }
         }
@@ -1690,8 +1685,7 @@ namespace Ice
                     //
                     // Don't warn about certain expected exceptions.
                     //
-                    if (!(_exception is CloseConnectionException ||
-                         _exception is ConnectionManuallyClosedException ||
+                    if (!(_exception is ConnectionClosedException ||
                          _exception is ConnectionTimeoutException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
@@ -1860,8 +1854,7 @@ namespace Ice
                 }
                 if (_observer != null && state == StateClosed && _exception != null)
                 {
-                    if (!(_exception is CloseConnectionException ||
-                         _exception is ConnectionManuallyClosedException ||
+                    if (!(_exception is ConnectionClosedException ||
                          _exception is ConnectionTimeoutException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
@@ -2332,7 +2325,7 @@ namespace Ice
                             }
                             else
                             {
-                                SetState(StateClosingPending, new CloseConnectionException());
+                                SetState(StateClosingPending, new ConnectionClosedByPeerException());
 
                                 //
                                 // Notify the transceiver of the graceful connection closure.

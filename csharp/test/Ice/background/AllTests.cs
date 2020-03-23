@@ -231,7 +231,7 @@ public class AllTests
                 obj.IcePing();
                 test(false);
             }
-            catch (Ice.TimeoutException)
+            catch (Ice.InvocationTimeoutException)
             {
             }
             backgroundController.resumeCall("findAdapterById");
@@ -267,7 +267,7 @@ public class AllTests
                 obj.IcePing();
                 test(false);
             }
-            catch (Ice.TimeoutException)
+            catch (Ice.InvocationTimeoutException)
             {
             }
             backgroundController.resumeCall("getClientProxy");
