@@ -28,20 +28,18 @@ const StreamHelperCategory StreamHelperCategoryUnknown = 0;
 const StreamHelperCategory StreamHelperCategoryBuiltin = 1;
 /** For struct types. */
 const StreamHelperCategory StreamHelperCategoryStruct = 2;
-/** For struct types with cpp:class metadata. */
-const StreamHelperCategory StreamHelperCategoryStructClass = 3;
 /** For enum types. */
-const StreamHelperCategory StreamHelperCategoryEnum = 4;
+const StreamHelperCategory StreamHelperCategoryEnum = 3;
 /** For sequence types. */
-const StreamHelperCategory StreamHelperCategorySequence = 5;
+const StreamHelperCategory StreamHelperCategorySequence = 4;
 /** For dictionary types. */
-const StreamHelperCategory StreamHelperCategoryDictionary = 6;
+const StreamHelperCategory StreamHelperCategoryDictionary = 5;
 /** For proxy types. */
-const StreamHelperCategory StreamHelperCategoryProxy = 7;
+const StreamHelperCategory StreamHelperCategoryProxy = 6;
 /** For class types. */
-const StreamHelperCategory StreamHelperCategoryClass = 8;
+const StreamHelperCategory StreamHelperCategoryClass = 7;
 /** For exception types. */
-const StreamHelperCategory StreamHelperCategoryUserException = 9;
+const StreamHelperCategory StreamHelperCategoryUserException = 8;
 
 /**
  * The optional format.
@@ -513,27 +511,6 @@ struct StreamHelper<T, StreamHelperCategoryStruct>
 };
 
 /**
- * Helper for class structs.
- * \headerfile Ice/Ice.h
- */
-template<typename T>
-struct StreamHelper<T, StreamHelperCategoryStructClass>
-{
-    template<class S> static inline void
-    write(S* stream, const T& v)
-    {
-        StreamWriter<T, S>::write(stream, v);
-    }
-
-    template<class S> static inline void
-    read(S* stream, T& v)
-    {
-        v = new typename T::element_type;
-        StreamReader<T, S>::read(stream, v);
-    }
-};
-
-/**
  * Helper for enums.
  * \headerfile Ice/Ice.h
  */
@@ -926,15 +903,6 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
         stream->skip(4);
         stream->read(v);
     }
-};
-
-/**
- * Class structs are encoded like structs.
- * \headerfile Ice/Ice.h
- */
-template<typename T, bool fixedLength>
-struct StreamOptionalHelper<T, StreamHelperCategoryStructClass, fixedLength> : StreamOptionalHelper<T, StreamHelperCategoryStruct, fixedLength>
-{
 };
 
 /**
