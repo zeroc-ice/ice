@@ -80,10 +80,12 @@ namespace Ice
         {
             var request = IceI_IceIsACreateRequest(id, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceAwaitResponse<bool>(task, IceI_IsAReadResponse);
+            return ReadResponseAsync(task);
+
+            static async Task<bool> ReadResponseAsync(Task<IncomingResponseFrame> task)
+                => IceI_IsAReadResponse(await task.ConfigureAwait(false));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private OutgoingRequestFrame IceI_IceIsACreateRequest(string id, IReadOnlyDictionary<string, string>? context)
         {
             var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
@@ -93,7 +95,6 @@ namespace Ice
             return request;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private static bool IceI_IsAReadResponse(IncomingResponseFrame incomingResponseFrame)
         {
             var inputStream = incomingResponseFrame.ReadReturnValue();
@@ -130,14 +131,15 @@ namespace Ice
         {
             var request = IceI_IcePingCreateRequest(context);
             var task = IceInvokeAsync(request, IsOneway, progress, cancel);
-            return IsOneway ? task : IceAwaitResponse(task, IceI_IcePingReadResponse);
+            return IsOneway ? task : ReadResponseAsync(task);
+
+            static async Task ReadResponseAsync(Task<IncomingResponseFrame> task)
+                => IceI_IcePingReadResponse(await task.ConfigureAwait(false));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private OutgoingRequestFrame IceI_IcePingCreateRequest(IReadOnlyDictionary<string, string>? context)
             => OutgoingRequestFrame.Empty(this, "ice_ping", idempotent: true, context);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private static void IceI_IcePingReadResponse(IncomingResponseFrame incomingResponseFrame)
             => incomingResponseFrame.ReadVoidReturnValue();
 
@@ -167,14 +169,15 @@ namespace Ice
         {
             var request = IceI_IceIdsCreateRequest(context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceAwaitResponse(task, IceI_IceIdsReadResponse);
+            return ReadResponseAsync(task);
+
+            static async Task<string[]> ReadResponseAsync(Task<IncomingResponseFrame> task)
+                => IceI_IceIdsReadResponse(await task.ConfigureAwait(false));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private OutgoingRequestFrame IceI_IceIdsCreateRequest(IReadOnlyDictionary<string, string>? context)
             => OutgoingRequestFrame.Empty(this, "ice_ids", idempotent: true, context);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private static string[] IceI_IceIdsReadResponse(IncomingResponseFrame incomingResponsFrame)
         {
             InputStream inputStream = incomingResponsFrame.ReadReturnValue();
@@ -207,14 +210,15 @@ namespace Ice
         {
             var request = IceI_IceIdCreateRequest(context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceAwaitResponse(task, IceI_IceIdReadResponse);
+            return ReadResponseAsync(task);
+
+            static async Task<string> ReadResponseAsync(Task<IncomingResponseFrame> task)
+                => IceI_IceIdReadResponse(await task.ConfigureAwait(false));
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private OutgoingRequestFrame IceI_IceIdCreateRequest(IReadOnlyDictionary<string, string>? context)
             => OutgoingRequestFrame.Empty(this, "ice_id", idempotent: true, context);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         private static string IceI_IceIdReadResponse(IncomingResponseFrame response)
         {
             InputStream inputStream = response.ReadReturnValue();
@@ -512,16 +516,6 @@ namespace Ice
                 }
             }
         }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static async Task IceAwaitResponse(Task<IncomingResponseFrame> task,
-                                                     Action<IncomingResponseFrame> readResponse)
-            => readResponse(await task.ConfigureAwait(false));
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static async Task<T> IceAwaitResponse<T>(Task<IncomingResponseFrame> task,
-                                                           Func<IncomingResponseFrame, T> readResponse)
-            => readResponse(await task.ConfigureAwait(false));
 
         // Temporary helper class for IceInvokeAsync
         private class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
