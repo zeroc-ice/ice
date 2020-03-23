@@ -30,11 +30,18 @@ isConstexprType(const TypePtr& type)
     {
         switch(bp->kind())
         {
-            case Builtin::KindByte:
             case Builtin::KindBool:
+            case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             case Builtin::KindValue:
@@ -100,41 +107,86 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
     else
     {
+        // TODO remove the cpp98 parts of this logic.
         bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        if(bp && bp->kind() == Builtin::KindString)
+        if(bp)
         {
-            bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
-            if(wide || cpp11)
+            switch(bp->kind())
             {
-                out << (wide ? "L\"" : "u8\"");
-                out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, cpp11 ? 0 : 0x9F + 1);
-                out << "\"";
+                case Builtin::KindString:
+                {
+                    bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
+                    if(wide || cpp11)
+                    {
+                        out << (wide ? "L\"" : "u8\"");
+                        out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, cpp11 ? 0 : 0x9F + 1);
+                        out << "\"";
+                    }
+                    else // C++98 narrow strings
+                    {
+                        out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", Octal, 0) << "\"";
+                    }
+                    break;
+                }
+
+                case Builtin::KindUShort:
+                case Builtin::KindUInt:
+                case Builtin::KindVarUInt:
+                {
+                    if(cpp11)
+                    {
+                        out << value << "U";
+                    }
+                    else
+                    {
+                        // *shrugs*
+                    }
+                    break;
+                }
+
+                case Builtin::KindLong:
+                case Builtin::KindVarLong:
+                {
+                    if(cpp11)
+                    {
+                        out << value << "LL";
+                    }
+                    else
+                    {
+                        out << "ICE_INT64(" << value << ")";
+                    }
+                    break;
+                }
+
+                case Builtin::KindULong:
+                case Builtin::KindVarULong:
+                    if(cpp11)
+                    {
+                        out << value << "ULL";
+                    }
+                    else
+                    {
+                        // *shrugs*
+                    }
+                    break;
+
+                case Builtin::KindFloat:
+                {
+                    out << value;
+                    if(value.find(".") == string::npos)
+                    {
+                        out << ".0";
+                    }
+                    out << "F";
+                    break;
+                }
+
+                default:
+                {
+                    out << value;
+                }
             }
-            else // C++98 narrow strings
-            {
-                out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", Octal, 0) << "\"";
-            }
-        }
-        else if(bp && bp->kind() == Builtin::KindLong)
-        {
-            if(cpp11)
-            {
-                out << value << "LL";
-            }
-            else
-            {
-                out << "ICE_INT64(" << value << ")";
-            }
-        }
-        else if(bp && bp->kind() == Builtin::KindFloat)
-        {
-            out << value;
-            if(value.find(".") == string::npos)
-            {
-                out << ".0";
-            }
-            out << "F";
         }
         else
         {
@@ -3711,9 +3763,7 @@ void
 Slice::Gen::ObjectVisitor::emitGCVisitCode(const TypePtr& p, const string& prefix, const string& name, int level)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if((builtin &&
-       (BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject || BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindValue)) ||
-       ClassDeclPtr::dynamicCast(p))
+    if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(p))
     {
         C << nl << "if(" << prefix << name << ')';
         C << sb;
@@ -4339,6 +4389,7 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExpo
 {
 }
 
+// TODO replace this ImplVisitor with Cpp11ImplVisitor.
 string
 Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
@@ -4373,6 +4424,8 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
             {
                 return "0";
             }
+            default:
+                assert(false);
         }
     }
     else
@@ -8194,8 +8247,15 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "0";
             }

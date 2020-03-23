@@ -1662,6 +1662,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
+        // TODO add support for new integer types to Python mapping.
         switch(builtin->kind())
         {
             case Builtin::KindBool:
@@ -1715,6 +1716,10 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
                 _out << "IcePy._t_ObjectPrx";
                 break;
             }
+            default:
+            {
+                assert(false);
+            }
         }
         return;
     }
@@ -1746,6 +1751,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
+        // TODO add support for new integer types to Python mapping.
         switch(builtin->kind())
         {
             case Builtin::KindBool:
@@ -1778,6 +1784,10 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
             {
                 _out << "None";
                 break;
+            }
+            default:
+            {
+                assert(false);
             }
         }
         return;
@@ -1910,6 +1920,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
     }
     else
     {
+        // TODO add support for new integer types to Python mapping.
         Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
         Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
         if(b)
@@ -1946,6 +1957,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
                 case Slice::Builtin::KindValue:
                 case Slice::Builtin::KindObject:
                 case Slice::Builtin::KindObjectProxy:
+                default:
                 {
                     assert(false);
                 }
@@ -3188,25 +3200,9 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                         // types excluding strings.
                         //
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                        if(builtin)
+                        if(builtin && (builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
                         {
-                            switch(builtin->kind())
-                            {
-                            case Builtin::KindBool:
-                            case Builtin::KindByte:
-                            case Builtin::KindShort:
-                            case Builtin::KindInt:
-                            case Builtin::KindLong:
-                            case Builtin::KindFloat:
-                            case Builtin::KindDouble:
-                                {
-                                    continue;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
-                            }
+                            continue;
                         }
                     }
                 }
