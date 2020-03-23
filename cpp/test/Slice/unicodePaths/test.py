@@ -35,8 +35,7 @@ class SliceUnicodePathsTestCase(ClientTestCase):
                             "};"], "utf-8")
 
         tests = [
-            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++11"),
-            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++98"),
+            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl"),
             ("cs", ["Test.cs", "TestI.cs"], "--impl"),
             ("html", ["index.html"], ""),
             ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
