@@ -578,23 +578,7 @@ Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
     }
     else if(outParams.size() > 1)
     {
-        ostringstream os;
-        os << "(";
-        for(list<ParamInfo>::const_iterator i = outParams.begin(); i != outParams.end();)
-        {
-            os << i->typeStr;
-            if(i->nullable && !i->tagged)
-            {
-                os << "?";
-            }
-            os << " " << i->name;
-            if(++i != outParams.end())
-            {
-                os << ", ";
-            }
-        }
-        os << ")";
-        return os.str();
+        return toTupleType(outParams);
     }
     else
     {
