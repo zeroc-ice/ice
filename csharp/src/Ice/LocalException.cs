@@ -147,9 +147,8 @@ namespace Ice
         }
     }
 
-    /// <summary>
-    /// This exception indicates a connection establishment timeout condition.
-    /// </summary>
+    /// <summary>This exception indicates a connection establishment timeout condition.</summary>
+    [Serializable]
     public class ConnectTimeoutException : ConnectFailedException
     {
         public ConnectTimeoutException()
