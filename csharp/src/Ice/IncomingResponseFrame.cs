@@ -80,7 +80,8 @@ namespace Ice
 
         /// <summary>Reads the return value carried by this response frame using the provided InputStreamReader.
         /// If the response frame carries a failure, ReadReturnValue reads and throws this exception.</summary>
-        /// <returns>An InputStream iterator over this return value.</returns>
+        /// <param name="reader">InputStreamReader that reads the return value.</param>
+        /// <returns>The return value.</returns>
         public T ReadReturnValue<T>(InputStreamReader<T> reader)
         {
             if (ReadResult().ResultType == ResultType.Failure)
