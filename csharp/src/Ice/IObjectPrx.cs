@@ -126,7 +126,7 @@ namespace Ice
         {
             var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
             var response = IceInvoke(request, oneway: false);
-            return response.ReadReturnValue(inputStream => inputStream.ReadStringArray());
+            return response.ReadReturnValue(InputStream.IceReaderIntoStringArray);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Ice
         {
             var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task, inputStream => inputStream.ReadStringArray());
+            return ReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
         }
 
         /// <summary>
@@ -310,7 +310,6 @@ namespace Ice
             {
                 throw ex.InnerException;
             }
-
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
