@@ -29,7 +29,6 @@ struct S2
     StringSeq ss;
     IntList il;
     StringDict sd;
-    S1 s;
     C cls;
     Object* prx;
 }

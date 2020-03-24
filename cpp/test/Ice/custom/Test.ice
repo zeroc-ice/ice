@@ -77,7 +77,7 @@ sequence<EList> EListSeq;
 
 class C {}
 sequence<C> CSeq;
-["cpp:type:std::list< ::Test::CPtr>", "cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
+["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
 ["cpp:type:std::list< ::Test::CList>"] sequence<CList> CListList;
 sequence<CList> CListSeq;
@@ -85,7 +85,7 @@ sequence<CList> CListSeq;
 
 interface D {}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list< ::Test::DPrx>", "cpp:type:std::list<std::shared_ptr<DPrx>>"] sequence<D*> DPrxList;
+["cpp:type:std::list<std::shared_ptr<DPrx>>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list< ::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
@@ -181,15 +181,15 @@ interface TestIntf
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque< ::Test::DPrx>", "cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
-    ["cpp:type:std::deque< ::Test::CPtr>", "cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
-    opCSeq(["cpp:type:std::deque< ::Test::CPtr>", "cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
-           out ["cpp:type:std::deque< ::Test::CPtr>", "cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
+    ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
+    opCSeq(["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
+           out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);
 

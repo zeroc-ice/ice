@@ -118,6 +118,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     out << (wide ? "L\"" : "u8\"");
                     out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, 0);
                     out << "\"";
+                    break;
                 }
 
                 case Builtin::KindUShort:
@@ -1241,6 +1242,14 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metaData.remove(s);
             }
+            else if(s.find("cpp:const") == 0 || s.find("cpp:noexcept") == 0)
+            {
+                continue;
+            }
+            else if(s.find("cpp:") == 0)
+            {
+                dc->warning(InvalidMetaData, p->file(), p->line(), "ignoring invalid metadata `" + s + "'");
+            }
         }
     }
     else
@@ -1336,7 +1345,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             }
             if(SequencePtr::dynamicCast(cont))
             {
-                if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array" || ss.find("range") == 0)
+                if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array")
                 {
                     continue;
                 }
