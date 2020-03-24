@@ -21,7 +21,7 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameters(oneway, "opOneway", idempotent: false);
 
                 // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
 
@@ -37,10 +37,8 @@ namespace Ice.invoke
                 response = oneway.Invoke(request, oneway: false);
                 test(response.ReplyStatus == ReplyStatus.UserException);
 
-                request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                OutputStream ostr = request.StartPayload();
-                ostr.WriteString(testString);
-                ostr.Save();
+                request = OutgoingRequestFrame.WithParameters(cl, "opString", idempotent: false,
+                    format: null, context: null, testString, OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Success);
@@ -60,7 +58,7 @@ namespace Ice.invoke
                     ctx["raise"] = "";
                 }
 
-                var request = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false, context: ctx);
+                var request = OutgoingRequestFrame.WithNoParameters(cl, "opException", idempotent: false, context: ctx);
                 var response = cl.Invoke(request);
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Failure);
@@ -84,7 +82,7 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.Empty(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameters(oneway, "opOneway", idempotent: false);
                 try
                 {
                     oneway.InvokeAsync(request, oneway: true).Wait();
@@ -94,10 +92,8 @@ namespace Ice.invoke
                     test(false);
                 }
 
-                request = new OutgoingRequestFrame(cl, "opString", idempotent: false);
-                OutputStream ostr = request.StartPayload();
-                ostr.WriteString(testString);
-                ostr.Save();
+                request = OutgoingRequestFrame.WithParameters(cl, "opString", idempotent: false,
+                    format: null, context: null, testString, OutputStream.IceWriterFromString);
 
                 var response = cl.InvokeAsync(request).Result;
                 var result = response.ReadResult();
@@ -110,7 +106,7 @@ namespace Ice.invoke
             }
 
             {
-                var request = OutgoingRequestFrame.Empty(cl, "opException", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameters(cl, "opException", idempotent: false);
                 var response = cl.InvokeAsync(request).Result;
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Failure);

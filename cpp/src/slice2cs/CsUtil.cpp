@@ -835,6 +835,61 @@ Slice::getNames(const list<ParamInfo>& params, string prefix)
                             });
 }
 
+std::string
+Slice::toTuple(const list<ParamInfo>& params, const string& paramPrefix)
+{
+    if(params.size() == 1)
+    {
+        auto p = params.front();
+        return p.param ?  fixId(paramPrefix + p.param->name()) : fixId(paramPrefix + p.name);
+    }
+    else
+    {
+        ostringstream os;
+        os << "(";
+        for(list<ParamInfo>::const_iterator it = params.begin(); it != params.end();)
+        {
+            os << (it->param ? fixId(paramPrefix + it->param->name()) : fixId(paramPrefix + it->name));
+            if(++it != params.end())
+            {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os.str();
+    }
+}
+
+std::string
+Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
+{
+    if(params.size() == 1)
+    {
+        auto param = params.front();
+        return param.typeStr + " " + prefix + param.name;
+    }
+    else
+    {
+        ostringstream os;
+        os << "(";
+        for(list<ParamInfo>::const_iterator it = params.begin(); it != params.end();)
+        {
+            os << it->typeStr;
+            if(it->nullable && !it->tagged)
+            {
+                os << "?";
+            }
+            os << " " << prefix + it->name;
+            if(++it != params.end())
+            {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os.str();
+    }
+}
+
 vector<string>
 Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&)> fn)
 {

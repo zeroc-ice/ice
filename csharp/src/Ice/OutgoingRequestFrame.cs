@@ -85,6 +85,30 @@ namespace Ice
         // Position of the start of the payload.
         private OutputStream.Position _payloadStart;
 
+        public static OutgoingRequestFrame WithParameters<T>(
+            IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
+            IReadOnlyDictionary<string, string>? context,
+            in T value, OutputStreamWriter<T> writer)
+        {
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
+            var ostr = new OutputStream(request.Encoding, request.Data, request._payloadStart, format);
+            writer(ostr, value);
+            request.Finish(ostr.Save());
+            return request;
+        }
+
+        public static OutgoingRequestFrame WithParameters<T>(
+            IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
+            IReadOnlyDictionary<string, string>? context,
+            in T value, OutputStreamStructWriter<T> writer) where T : struct
+        {
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
+            var ostr = new OutputStream(request.Encoding, request.Data, request._payloadStart, format);
+            writer(ostr, value);
+            request.Finish(ostr.Save());
+            return request;
+        }
+
         /// <summary>Creates a new outgoing request frame with no parameters.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
@@ -92,8 +116,8 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public static OutgoingRequestFrame Empty(IObjectPrx proxy, string operation, bool idempotent,
-                                                 IReadOnlyDictionary<string, string>? context = null)
+        public static OutgoingRequestFrame WithNoParameters(IObjectPrx proxy, string operation, bool idempotent,
+                                                            IReadOnlyDictionary<string, string>? context = null)
             => new OutgoingRequestFrame(proxy, operation, idempotent, true, context);
 
         private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
@@ -140,7 +164,7 @@ namespace Ice
             if (writeEmptyEncaps)
             {
                 Encoding.CheckSupported();
-                _payloadEnd = ostr.WriteEmptyEncapsulation();
+                _payloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
@@ -154,8 +178,8 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
-                                    IReadOnlyDictionary<string, string>? context = null) :
+        private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                     IReadOnlyDictionary<string, string>? context = null) :
             this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
         {
         }
@@ -192,33 +216,15 @@ namespace Ice
                                             $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
                     nameof(payload));
             }
-            Data[0] = Data[0].Slice(0, _payloadStart.Offset);
+            Data[^1] = Data[^1].Slice(0, _payloadStart.Offset);
             Data.Add(payload);
             _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
             Size = Data.GetByteCount();
             IsSealed = true;
         }
 
-        /// <summary>Creates and returns an OutputStream that can be used to write the payload of this request,
-        /// once the caller finish writing the payload it must call Save on the returned stream.</summary>
-        /// <param name="format">The format type for the payload.</param>
-        /// <returns>An OutputStream instance that can be used to write the payload of this request.</returns>
-        public OutputStream StartPayload(FormatType? format = null)
+        private void Finish(OutputStream.Position payloadEnd)
         {
-            if (_payloadEnd != null)
-            {
-                throw new InvalidOperationException("the frame already contains a payload");
-            }
-            return new OutputStream(Encoding, Data, _payloadStart, payloadEnd => PayloadReady(payloadEnd), format);
-        }
-
-        private void PayloadReady(OutputStream.Position payloadEnd)
-        {
-            if (_payloadEnd != null)
-            {
-                throw new InvalidOperationException("the frame already contains a payload");
-            }
-
             Size = Data.GetByteCount();
             _payloadEnd = payloadEnd;
             IsSealed = true;

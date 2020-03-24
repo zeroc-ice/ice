@@ -102,8 +102,6 @@ namespace Ice
         // When writing into a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
-        // Delegate call from Save once the payload is ready.
-        private readonly Action<Position>? _payloadReady;
 
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
@@ -130,11 +128,9 @@ namespace Ice
             }
         }
 
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt,
-                              Action<Position> payloadReady, FormatType? format = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType? format)
             : this(encoding, data, startAt)
         {
-            _payloadReady = payloadReady;
             _mainEncaps = new Encaps(Encoding, _tail);
 
             if (format.HasValue)
@@ -152,7 +148,7 @@ namespace Ice
         /// </summary>
         /// <returns>The tail position that marks the end of the stream.</returns>
         /// TODO: The stream should not longer be used, how can we enforce it.
-        public Position Save()
+        internal Position Save()
         {
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
 
@@ -164,10 +160,6 @@ namespace Ice
 
                 // Size includes size and version.
                 RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
-
-                Debug.Assert(_payloadReady != null);
-
-                _payloadReady(_tail);
             }
             return _tail;
         }
@@ -1204,7 +1196,7 @@ namespace Ice
         private int Distance(Position start)
         {
             Debug.Assert(_tail.Segment > start.Segment ||
-                        (_tail.Segment == start.Segment && _tail.Offset > start.Offset));
+                        (_tail.Segment == start.Segment && _tail.Offset >= start.Offset));
 
             return Distance(_segmentList, start, _tail);
         }
@@ -1358,9 +1350,9 @@ namespace Ice
         /// <summary>
         /// Writes an empty encapsulation.
         /// </summary>
-        internal Position WriteEmptyEncapsulation()
+        internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
-            WriteEncapsulationHeader(6, Encoding);
+            WriteEncapsulationHeader(6, encoding);
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }

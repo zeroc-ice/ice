@@ -25,13 +25,38 @@ namespace Ice
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
 
-        // Position of the end of the payload, for Ice1 this is always the frame end.
-        private OutputStream.Position? _payloadEnd;
-
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
-        public static OutgoingResponseFrame Empty(Encoding encoding)
+        public static OutgoingResponseFrame WithVoidReturnValue(Encoding encoding)
             => new OutgoingResponseFrame(encoding, true);
+
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format,
+            in T value, OutputStreamWriter<T> writer)
+        {
+            var response = new OutgoingResponseFrame(encoding, false);
+            byte[] buffer = new byte[256];
+            buffer[0] = (byte)ReplyStatus.OK;
+            response.Data.Add(buffer);
+            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            writer(ostr, value);
+            ostr.Save();
+            response.Finish();
+            return response;
+        }
+
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format, in T value,
+            OutputStreamStructWriter<T> writer) where T : struct
+        {
+            var response = new OutgoingResponseFrame(encoding, false);
+            byte[] buffer = new byte[256];
+            buffer[0] = (byte)ReplyStatus.OK;
+            response.Data.Add(buffer);
+            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            writer(ostr, value);
+            ostr.Save();
+            response.Finish();
+            return response;
+        }
 
         private OutgoingResponseFrame(Encoding encoding, bool writeEmptyPayload)
         {
@@ -48,17 +73,9 @@ namespace Ice
                 buffer[pos++] = encoding.Major;
                 buffer[pos++] = encoding.Minor;
                 Data.Add(new ArraySegment<byte>(buffer, 0, pos));
-                _payloadEnd = new OutputStream.Position(0, pos);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
-        }
-
-        /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
-        /// written later on with WritePayload.</summary>
-        /// <param name="encoding">The encoding for the frame payload.</param>
-        public OutgoingResponseFrame(Encoding encoding) : this(encoding, false)
-        {
         }
 
         /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
@@ -82,7 +99,7 @@ namespace Ice
             }
 
             int size = InputStream.ReadInt(payload.AsSpan(1, 4));
-            if (size != payload.Count)
+            if (size != payload.Count - 1)
             {
                 throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
                     nameof(payload));
@@ -95,7 +112,6 @@ namespace Ice
                     nameof(payload));
             }
             Data.Add(payload);
-            _payloadEnd = new OutputStream.Position(0, payload.Count);
             Size = Data.GetByteCount();
             IsSealed = true;
         }
@@ -105,11 +121,12 @@ namespace Ice
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(Current current, RemoteException exception)
-            : this(current.Encoding)
+            : this(current.Encoding, false)
         {
+            OutputStream ostr;
             if (exception is RequestFailedException requestFailedException)
             {
-                var ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
+                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
                 if (requestFailedException is DispatchException dispatchException)
                 {
                     // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
@@ -163,48 +180,24 @@ namespace Ice
                     ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
                     ostr.WriteString(requestFailedException.Message);
                 }
-                _payloadEnd = ostr.Save();
-                Size = Data.GetByteCount();
-                IsSealed = true;
             }
             else
             {
-                OutputStream ostr = StartPayload(ResultType.Failure, FormatType.SlicedFormat);
+                byte[] buffer = new byte[256];
+                buffer[0] = (byte)ReplyStatus.UserException;
+                Data.Add(buffer);
+                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), FormatType.SlicedFormat);
                 ostr.WriteException(exception);
-                ostr.Save();
-            }
-        }
-
-        /// <summary>Starts writing the return value for a successful response.</summary>
-        /// <param name="resultType">The response reply status.</param>
-        /// <param name="format">The format for the return value, null (meaning keep communicator's setting),
-        /// SlicedFormat or CompactFormat.</param>
-        private OutputStream StartPayload(ResultType resultType, FormatType? format = null)
-        {
-            if (_payloadEnd != null)
-            {
-                throw new InvalidOperationException("the frame already contains a payload");
-            }
-            Debug.Assert(Data.Count == 0);
-            byte[] buffer = new byte[256];
-            buffer[0] = (byte)resultType;
-            Data.Add(buffer);
-            return new OutputStream(Encoding, Data, new OutputStream.Position(0, 1),
-                payloadEnd => PayloadReady(payloadEnd), format);
-        }
-
-        // Used by generated code to write successful response:
-        public OutputStream StartPayload(FormatType? format = null) => StartPayload(ResultType.Success, format);
-
-        private void PayloadReady(OutputStream.Position payloadEnd)
-        {
-            if (_payloadEnd != null)
-            {
-                throw new InvalidOperationException("the frame already contains a payload");
             }
 
+            ostr.Save();
             Size = Data.GetByteCount();
-            _payloadEnd = payloadEnd;
+            IsSealed = true;
+        }
+
+        private void Finish()
+        {
+            Size = Data.GetByteCount();
             IsSealed = true;
         }
     }

@@ -811,7 +811,7 @@ namespace IceInternal
                            Ice.FormatType? format,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
-                           System.Action<Ice.OutputStream>? write)
+                           OutgoingRequestFrame request)
         {
             try
             {
@@ -832,17 +832,7 @@ namespace IceInternal
                     }
                 }
 
-                if (write != null)
-                {
-                    RequestFrame = new OutgoingRequestFrame(Proxy, operation, idempotent, context);
-                    OutputStream ostr = RequestFrame.StartPayload(format);
-                    write(ostr);
-                    ostr.Save();
-                }
-                else
-                {
-                    RequestFrame = OutgoingRequestFrame.Empty(Proxy, operation, idempotent, context);
-                }
+                RequestFrame = request;
                 Invoke(synchronous);
             }
             catch (System.Exception ex)
@@ -884,11 +874,11 @@ namespace IceInternal
                            Ice.FormatType? format,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
-                           System.Action<Ice.OutputStream>? write = null,
+                           OutgoingRequestFrame request,
                            System.Func<Ice.InputStream, T>? read = null)
         {
             Read = read;
-            base.Invoke(operation, idempotent, oneway, format, context, synchronous, write);
+            base.Invoke(operation, idempotent, oneway, format, context, synchronous, request);
         }
 
         public T GetResult(bool ok)

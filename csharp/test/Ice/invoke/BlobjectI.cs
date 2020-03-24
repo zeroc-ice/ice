@@ -18,16 +18,17 @@ namespace Ice.invoke
                     // If called two-way, return exception to caller.
                     throw new Test.MyException();
                 }
-                return OutgoingResponseFrame.Empty(current.Encoding);
+                return OutgoingResponseFrame.WithVoidReturnValue(current.Encoding);
             }
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current.Encoding);
-                var ostr = responseFrame.StartPayload();
-                ostr.WriteString(s);
-                ostr.WriteString(s);
-                ostr.Save();
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null, (s, s),
+                    (OutputStream ostr, (string ReturnValue, string s2) value) =>
+                    {
+                        ostr.WriteString(value.ReturnValue);
+                        ostr.WriteString(value.s2);
+                    });
                 return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
@@ -42,15 +43,13 @@ namespace Ice.invoke
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return OutgoingResponseFrame.Empty(current.Encoding);
+                return OutgoingResponseFrame.WithVoidReturnValue(current.Encoding);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current.Encoding);
-                var ostr = responseFrame.StartPayload();
-                ostr.WriteBool(s.Equals("::Test::MyClass"));
-                ostr.Save();
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null,
+                    s.Equals("::Test::MyClass"), OutputStream.IceWriterFromBool);
                 return responseFrame;
             }
             else

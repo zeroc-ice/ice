@@ -66,7 +66,7 @@ namespace Ice
             if (current.IsIdempotent)
             {
                 throw new MarshalException(
-                        $@"idempotent mistmatch for operation `{current.Operation
+                        $@"idempotent mismatch for operation `{current.Operation
                         }': received request marked idempotent for a non-idempotent operation");
             }
         }
@@ -78,7 +78,7 @@ namespace Ice
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.
-            return IceFromResult(OutgoingResponseFrame.Empty(current.Encoding));
+            return IceFromResult(OutgoingResponseFrame.WithVoidReturnValue(current.Encoding));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(InputStream istr, Current current)
@@ -95,10 +95,8 @@ namespace Ice
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var response = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = response.StartPayload();
-            ostr.WriteBool(ret);
-            ostr.Save();
+            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding, null, ret,
+                OutputStream.IceWriterFromBool);
             return IceFromResult(response);
         }
 
@@ -107,10 +105,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var response = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = response.StartPayload();
-            ostr.WriteString(ret);
-            ostr.Save();
+            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding, null, ret,
+                OutputStream.IceWriterFromString);
             return IceFromResult(response);
         }
 
@@ -119,10 +115,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var response = new OutgoingResponseFrame(current.Encoding);
-            OutputStream ostr = response.StartPayload();
-            ostr.WriteStringSeq(ret);
-            ostr.Save();
+            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding, null, ret,
+                (OutputStream ostr, string[] ret) => ostr.WriteStringSeq(ret));
             return IceFromResult(response);
         }
     }
