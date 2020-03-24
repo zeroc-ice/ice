@@ -64,8 +64,8 @@ namespace Ice
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         // TODO: should we pass the payload as a list of segments, or maybe has a separate
         // ctor that accepts a list of segments instead of a single segment
-        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload) :
-            this(encoding)
+        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload)
+            : this(encoding)
         {
             if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
             {
@@ -102,8 +102,8 @@ namespace Ice
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
-        public OutgoingResponseFrame(Current current, RemoteException exception) :
-            this(current.Encoding)
+        public OutgoingResponseFrame(Current current, RemoteException exception)
+            : this(current.Encoding)
         {
             OutputStream ostr;
             if (exception is RequestFailedException requestFailedException)
