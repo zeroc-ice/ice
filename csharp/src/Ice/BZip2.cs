@@ -397,7 +397,7 @@ namespace Ice
 
                 if (rc != BzRunOk)
                 {
-                    throw new CompressionException($"Bzip2 compress run failed {GetBZ2Error(rc)}");
+                    throw new MarshalException($"bzip2 compression failed: {GetBZ2Error(rc)}");
                 }
 
                 do
@@ -408,7 +408,7 @@ namespace Ice
 
                 if (rc != BzStreamEnd)
                 {
-                    throw new CompressionException($"Bzip2 compress finish failed {GetBZ2Error(rc)}");
+                    throw new MarshalException($"bzip2 compression failed: {GetBZ2Error(rc)}");
                 }
 
                 int compressedLen = compressed.Length - (int)bzStream.AvailOut;
@@ -461,11 +461,13 @@ namespace Ice
             int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4).Span);
             if (uncompressedSize <= headerSize)
             {
-                throw new IllegalMessageSizeException("compressed size <= header size");
+                throw new InvalidDataException(
+                    $"received compressed ice1 frame with a decompressed size of only {uncompressedSize} bytes");
             }
             if (uncompressedSize > messageSizeMax)
             {
-                IceInternal.Ex.ThrowMemoryLimitException(uncompressedSize, messageSizeMax);
+                throw new InvalidDataException(
+                    $"uncompressed size of {uncompressedSize} bytes is greater than Ice.MessageSizeMax value");
             }
 
             // TODO this is not optimal we copy the compressed data to feed Bzip2 with a single array,
@@ -481,7 +483,7 @@ namespace Ice
             int rc = _decompressBuffer(uncompressedData, ref uncompressedLen, compressedData, compressedLen, 0, 0);
             if (rc < 0)
             {
-                throw new Ice.CompressionException($"BZ2_bzBuffToBuffDecompress failed\n{GetBZ2Error(rc)}");
+                throw new Ice.InvalidDataException($"bzip2 decompression failed: {GetBZ2Error(rc)}");
             }
 
             // Copy the header from the compressed buffer to the uncompressed one. We should

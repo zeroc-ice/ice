@@ -65,7 +65,7 @@ namespace Ice
         {
             if (current.IsIdempotent)
             {
-                throw new MarshalException(
+                throw new InvalidDataException(
                         $@"idempotent mismatch for operation `{current.Operation
                         }': received request marked idempotent for a non-idempotent operation");
             }

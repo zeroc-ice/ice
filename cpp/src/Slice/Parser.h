@@ -8,12 +8,15 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
+#include <array>
 #include <string>
 #include <vector>
 #include <list>
 #include <stack>
 #include <map>
+#include <optional>
 #include <set>
+#include <string_view>
 #include <stdio.h>
 
 namespace Slice
@@ -342,6 +345,7 @@ public:
     virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
     virtual size_t minWireSize() const = 0;
+    virtual std::string getTagFormat() const = 0;
     virtual bool isVariableLength() const = 0;
 
 protected:
@@ -359,11 +363,18 @@ public:
 
     enum Kind
     {
-        KindByte,
         KindBool,
+        KindByte,
         KindShort,
+        KindUShort,
         KindInt,
+        KindUInt,
+        KindVarInt,
+        KindVarUInt,
         KindLong,
+        KindULong,
+        KindVarLong,
+        KindVarULong,
         KindFloat,
         KindDouble,
         KindString,
@@ -375,19 +386,45 @@ public:
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
+
+    bool isNumericType() const;
+    bool isIntegralType() const;
+    bool isUnsignedType() const;
 
     Kind kind() const;
     std::string kindAsString() const;
+    static std::optional<Kind> kindFromString(std::string_view);
 
-    static const char* builtinTable[];
+    inline static const std::array<std::string, 18> builtinTable =
+    {
+        "bool",
+        "byte",
+        "short",
+        "ushort",
+        "int",
+        "uint",
+        "varint",
+        "varuint",
+        "long",
+        "ulong",
+        "varlong",
+        "varulong",
+        "float",
+        "double",
+        "string",
+        "Object",
+        "Object*",
+        "Value"
+    };
 
 protected:
 
     Builtin(const UnitPtr&, Kind);
     friend class Unit;
 
-    Kind _kind;
+    const Kind _kind;
 };
 
 // ----------------------------------------------------------------------
@@ -588,6 +625,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
@@ -742,6 +780,7 @@ public:
     std::string typeId() const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
+    std::string getTagFormat() const override;
     bool isVariableLength() const override;
     TypePtr underlying() const { return _underlying; }
 
@@ -762,6 +801,7 @@ public:
 
     bool usesClasses() const override;
     size_t minWireSize() const override;
+    std::string getTagFormat() const override;
     ClassDeclPtr _class() const;
 };
 
@@ -818,6 +858,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
@@ -844,6 +885,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -874,6 +916,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -909,6 +952,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);

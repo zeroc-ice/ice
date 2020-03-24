@@ -249,7 +249,7 @@ namespace IceInternal
                 }
                 catch (RetryException ex)
                 {
-                    exception = ex.Get();
+                    exception = ex.InnerException;
 
                     // Remove the request handler before retrying.
                     _reference.GetCommunicator().RemoveRequestHandler(_reference, this);

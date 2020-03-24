@@ -273,10 +273,10 @@ namespace Ice
                         uoet.op();
                         test(false);
                     }
-                    catch (UnexpectedObjectException ex)
+                    catch (InvalidDataException ex)
                     {
-                        test(ex.Type.Equals("::Test::AlsoEmpty"));
-                        test(ex.ExpectedType.Equals("::Test::Empty"));
+                        test(ex.Message.Contains("Test.AlsoEmpty"));
+                        test(ex.Message.Contains("Test.Empty"));
                     }
                     catch (System.Exception ex)
                     {

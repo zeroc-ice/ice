@@ -431,25 +431,29 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
             case Builtin::KindBool:
             {
                 return "false";
-                break;
             }
+            // TODO change these whole-number types to use BigInt
             case Builtin::KindByte:
             case Builtin::KindShort:
+            case Builtin::KindUShort:
             case Builtin::KindInt:
+            case Builtin::KindUInt:
+            case Builtin::KindVarInt:
+            case Builtin::KindVarUInt:
             {
                 return "0";
-                break;
             }
             case Builtin::KindLong:
+            case Builtin::KindULong:
+            case Builtin::KindVarLong:
+            case Builtin::KindVarULong:
             {
                 return "new Ice.Long(0, 0)";
-                break;
             }
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             {
                 return "0.0";
-                break;
             }
             case Builtin::KindString:
             {
@@ -458,7 +462,6 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
             default:
             {
                 return "null";
-                break;
             }
         }
     }
@@ -499,7 +502,9 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
             //
             os << "\"" << toStringLiteral(value, "\b\f\n\r\t\v", "", ShortUCN, 0) << "\"";
         }
-        else if(bp && bp->kind() == Builtin::KindLong)
+        // TODO eliminate this special Ice.Long logic in a future PR
+        else if(bp && (bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindULong ||
+                bp->kind() == Builtin::KindVarLong || bp->kind() == Builtin::KindVarULong))
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
 
@@ -2018,7 +2023,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     //
     bool keyUseEquals = false;
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
-    if((b && b->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
+    if((b && (b->kind() == Builtin::KindLong || b->kind() == Builtin::KindULong || b->kind() == Builtin::KindVarLong ||
+        b->kind() == Builtin::KindVarULong)) || StructPtr::dynamicCast(keyType))
     {
         keyUseEquals = true;
     }
@@ -2119,18 +2125,25 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 {
     assert(type);
 
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
-        "0",  // byte
         "1",  // bool
+        "0",  // byte
         "2",  // short
+        "?",  // ushort
         "3",  // int
+        "?",  // uint
+        "?",  // varint
+        "?",  // varuint
         "4",  // long
-        "5",  // float
-        "6",  // double
-        "7",  // string
-        "8",  // Ice.Object
-        "9",  // Ice.ObjectPrx
+        "?",  // ulong
+        "?", // varlong
+        "?", // varulong
+        "5", // float
+        "6", // double
+        "7", // string
+        "8", // Ice.Object
+        "9", // Ice.ObjectPrx
         "10", // Ice.Value
     };
 

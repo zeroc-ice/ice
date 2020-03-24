@@ -1135,7 +1135,7 @@ namespace Ice
             {
                 if (facetPath.Length > 1)
                 {
-                    throw new ProxyUnmarshalException();
+                    throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
                 }
                 facet = facetPath[0];
             }
@@ -1147,7 +1147,7 @@ namespace Ice
             int mode = s.ReadByte();
             if (mode < 0 || mode > (int)InvocationMode.Last)
             {
-                throw new ProxyUnmarshalException();
+                throw new InvalidDataException($"invalid invocation mode: {mode}");
             }
 
             bool secure = s.ReadBool();
@@ -1156,7 +1156,7 @@ namespace Ice
             byte minor = s.ReadByte();
             if (minor != 0)
             {
-                throw new ProxyUnmarshalException($"received proxy with protocol set to {major}.{minor}");
+                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
             }
             var protocol = (Protocol)major;
 
@@ -1705,7 +1705,7 @@ namespace Ice
             //
             // There is no point in retrying an operation that resulted in a
             // MarshalException. This must have been raised locally (because if
-            // it happened in a server it would result in an UnknownLocalException
+            // it happened in a server it would result in a remote exception
             // instead), which means there was a problem in this process that will
             // not change if we try again.
             //
@@ -1858,7 +1858,7 @@ namespace Ice
             {
                 // First attempt corresponds to no cs:namespace metadata in the
                 // enclosing top-level module
-                string className = TypeToClass(typeId);
+                string className = TypeIdToClassName(typeId);
                 Type? classType = AssemblyUtil.FindType(className);
 
                 // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
@@ -2064,13 +2064,13 @@ namespace Ice
             }
         }
 
-        private static string TypeToClass(string id)
+        private static string TypeIdToClassName(string typeId)
         {
-            if (!id.StartsWith("::", StringComparison.Ordinal))
+            if (!typeId.StartsWith("::", StringComparison.Ordinal))
             {
-                throw new MarshalException("expected type id but received `" + id + "'");
+                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
             }
-            return id.Substring(2).Replace("::", ".");
+            return typeId.Substring(2).Replace("::", ".");
         }
 
         private void AddAllAdminFacets()
