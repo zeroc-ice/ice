@@ -164,7 +164,9 @@ namespace IceInternal
                 _cancellationHandler = handler;
             }
         }
-        public void Cancel() => Cancel(new Ice.InvocationCanceledException());
+
+        // TODO: add more details in message
+        public void Cancel() => Cancel(new OperationCanceledException("invocation on remote Ice object canceled"));
 
         public void AttachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
         {
@@ -593,17 +595,9 @@ namespace IceInternal
             return base.ResponseImpl(userThread, ok, invoke);
         }
 
+        // TODO: add facet and operation to message
         public void RunTimerTask()
-        {
-            if (Proxy.IceReference.GetInvocationTimeout() == -2)
-            {
-                Cancel(new Ice.ConnectionTimeoutException());
-            }
-            else
-            {
-                Cancel(new Ice.InvocationTimeoutException());
-            }
-        }
+            => Cancel(new TimeoutException($"invocation on remote Ice object `{Proxy.Identity}' timed out"));
 
         protected IReadOnlyDictionary<string, string> ProxyAndCurrentContext()
         {

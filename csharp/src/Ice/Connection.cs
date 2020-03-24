@@ -366,7 +366,7 @@ namespace Ice
                     //
                     // If writing or reading, nothing to do, the connection
                     // timeout will kick-in if writes or reads don't progress.
-                    // This check is necessary because the actitivy timer is
+                    // This check is necessary because the activity timer is
                     // only set when a message is fully read/written.
                     //
                     return;
@@ -389,7 +389,7 @@ namespace Ice
                         //
                         // The connection is idle, close it.
                         //
-                        SetState(StateClosing, new ConnectionTimeoutException());
+                        SetState(StateClosing, new ConnectionIdleException());
                     }
                 }
             }
@@ -677,7 +677,7 @@ namespace Ice
                         _asyncRequests.Remove(o.RequestId);
                     }
 
-                    if (ex is ConnectionTimeoutException)
+                    if (ex is ConnectionIdleException)
                     {
                         SetState(StateClosed, ex);
                     }
@@ -710,7 +710,7 @@ namespace Ice
                     {
                         if (kvp.Value == outAsync)
                         {
-                            if (ex is ConnectionTimeoutException)
+                            if (ex is ConnectionIdleException)
                             {
                                 SetState(StateClosed, ex);
                             }
@@ -1296,7 +1296,7 @@ namespace Ice
                 // Trace the cause of unexpected connection closures
                 //
                 if (!(_exception is ConnectionClosedException ||
-                      _exception is ConnectionTimeoutException ||
+                      _exception is ConnectionIdleException ||
                       _exception is CommunicatorDestroyedException ||
                       _exception is ObjectAdapterDeactivatedException))
                 {
@@ -1686,7 +1686,7 @@ namespace Ice
                     // Don't warn about certain expected exceptions.
                     //
                     if (!(_exception is ConnectionClosedException ||
-                         _exception is ConnectionTimeoutException ||
+                         _exception is ConnectionIdleException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
                          (_exception is ConnectionLostException && _state >= StateClosing)))
@@ -1855,7 +1855,7 @@ namespace Ice
                 if (_observer != null && state == StateClosed && _exception != null)
                 {
                     if (!(_exception is ConnectionClosedException ||
-                         _exception is ConnectionTimeoutException ||
+                         _exception is ConnectionIdleException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
                          (_exception is ConnectionLostException && _state >= StateClosing)))

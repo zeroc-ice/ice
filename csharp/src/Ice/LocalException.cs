@@ -266,6 +266,20 @@ namespace Ice
         }
     }
 
+    /// <summary>This exception indicates the connection was closed by ACM because it was idle. </summary>
+    [Serializable]
+    public class ConnectionIdleException : TransportException
+    {
+        public ConnectionIdleException()
+        {
+        }
+
+        protected ConnectionIdleException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
     /// <summary>This exception reports a DNS error.</summary>
     [Serializable]
     public class DNSException : TransportException
@@ -362,48 +376,6 @@ namespace Ice
         }
 
         protected MarshalException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>This exception reports a client-side error during invocation of a remote operation.</summary>
-    [Serializable]
-    public class InvocationException : Exception
-    {
-        protected InvocationException()
-        {
-        }
-
-        protected InvocationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>This exceptions reports that an invocation failed because it timed out.</summary>
-    [Serializable]
-    public class InvocationTimeoutException : InvocationException
-    {
-        public InvocationTimeoutException()
-        {
-        }
-
-        protected InvocationTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>This exceptions reports that an invocation failed because it was canceled.</summary>
-    [Serializable]
-    public class InvocationCanceledException : InvocationException
-    {
-        public InvocationCanceledException()
-        {
-        }
-
-        protected InvocationCanceledException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

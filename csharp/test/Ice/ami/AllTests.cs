@@ -613,7 +613,7 @@ namespace Ice.ami
                         {
                             t3 = p.IcePingAsync(cancel: cs3.Token);
                         }
-                        catch (InvocationCanceledException)
+                        catch (OperationCanceledException)
                         {
                             // expected
                         }
@@ -628,7 +628,7 @@ namespace Ice.ami
                         {
                             ae.Handle(ex =>
                             {
-                                return ex is InvocationCanceledException;
+                                return ex is OperationCanceledException;
                             });
                         }
                         try
@@ -640,7 +640,7 @@ namespace Ice.ami
                         {
                             ae.Handle(ex =>
                             {
-                                return ex is InvocationCanceledException;
+                                return ex is OperationCanceledException;
                             });
                         }
                     }

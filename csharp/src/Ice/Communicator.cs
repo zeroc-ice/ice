@@ -1726,9 +1726,9 @@ namespace Ice
             }
 
             //
-            // Don't retry on invocation exceptions.
+            // Don't retry on timeout and operation canceled exceptions.
             //
-            if (ex is InvocationException)
+            if (ex is TimeoutException || ex is OperationCanceledException)
             {
                 throw ex;
             }
