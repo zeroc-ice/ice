@@ -9,7 +9,7 @@ namespace Ice.invoke
 {
     public class BlobjectI : IObject
     {
-        public async ValueTask<OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(Ice.InputStream istr, Current current)
         {
             if (current.Operation.Equals("opOneway"))
             {
@@ -18,16 +18,17 @@ namespace Ice.invoke
                     // If called two-way, return exception to caller.
                     throw new Test.MyException();
                 }
-                return OutgoingResponseFrame.Empty(current);
+                return OutgoingResponseFrame.WithVoidReturnValue(current.Encoding);
             }
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current);
-                responseFrame.StartReturnValue();
-                responseFrame.WriteString(s);
-                responseFrame.WriteString(s);
-                responseFrame.EndReturnValue();
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null, (s, s),
+                    (OutputStream ostr, (string ReturnValue, string s2) value) =>
+                    {
+                        ostr.WriteString(value.ReturnValue);
+                        ostr.WriteString(value.s2);
+                    });
                 return responseFrame;
             }
             else if (current.Operation.Equals("opException"))
@@ -42,22 +43,13 @@ namespace Ice.invoke
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return OutgoingResponseFrame.Empty(current);
+                return OutgoingResponseFrame.WithVoidReturnValue(current.Encoding);
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var responseFrame = new OutgoingResponseFrame(current);
-                responseFrame.StartReturnValue();
-                if (s.Equals("::Test::MyClass"))
-                {
-                    responseFrame.WriteBool(true);
-                }
-                else
-                {
-                    responseFrame.WriteBool(false);
-                }
-                responseFrame.EndReturnValue();
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null,
+                    s.Equals("::Test::MyClass"), OutputStream.IceWriterFromBool);
                 return responseFrame;
             }
             else

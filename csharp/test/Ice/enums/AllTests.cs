@@ -65,34 +65,6 @@ namespace Ice.enums
 
             output.WriteLine("ok");
 
-            output.Write("testing enum streaming... ");
-            output.Flush();
-
-            Ice.OutputStream ostr;
-            byte[] bytes;
-
-            ostr = new OutputStream(communicator);
-            ostr.Write(ByteEnum.benum11);
-            bytes = ostr.ToArray();
-            test(bytes.Length == 1); // ByteEnum should require one byte
-
-            ostr = new OutputStream(communicator);
-            ostr.Write(ShortEnum.senum11);
-            bytes = ostr.ToArray();
-            test(bytes.Length == 5);
-
-            ostr = new OutputStream(communicator);
-            ostr.Write(IntEnum.ienum11);
-            bytes = ostr.ToArray();
-            test(bytes.Length == 5);
-
-            ostr = new OutputStream(communicator);
-            ostr.Write(SimpleEnum.blue);
-            bytes = ostr.ToArray();
-            test(bytes.Length == 1); // SimpleEnum should require one byte
-
-            output.WriteLine("ok");
-
             output.Write("testing enum operations... ");
             output.Flush();
             {

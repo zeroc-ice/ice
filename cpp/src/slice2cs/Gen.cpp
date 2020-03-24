@@ -2337,7 +2337,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     list<ParamInfo> inParams = getAllInParams(operation);
     list<ParamInfo> requiredInParams;
     list<ParamInfo> taggedInParams;
-    getInParams(operation, requiredInParams, taggedInParams, "iceP_");
+    getInParams(operation, requiredInParams, taggedInParams);
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
@@ -2347,6 +2347,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName);
     string asyncName = opName + "Async";
     string internalName = "_iceI_" + opName + "Async";
+    bool defaultWriter = inParams.size() == 1 && !inParams.front().tagged;
+    string writer = defaultWriter ? outputStreamWriter(inParams.front().type, ns) : "_iceI_" + opName + "Writer";
 
     TypePtr ret = operation->returnType();
     string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
@@ -2424,6 +2426,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         string resultT = resultType(operation, ns, false);
 
+        _out << nl << "var request = " << getUnqualified("Ice.OutgoingRequestFrame", ns);
+        if(inParams.size() == 0)
+        {
+            _out << ".WithNoParameter("
+                 << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
+                 << ", context);";
+        }
+        else
+        {
+            _out << ".WithParameters("
+                 << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
+                 << ", " << opFormatTypeToString(operation, ns) << ", context, ";
+            _out << toTuple(inParams, "iceP_") << ", " << writer << ");";
+        }
+
         _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
              << (outParams.empty() ? "object" : resultT) << ">(progress, cancel);";
         _out << nl << "var outAsync = new global::IceInternal.OutgoingAsyncT<" << (outParams.empty() ? "object" : resultT)
@@ -2431,24 +2448,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
         _out << nl << "outAsync.Invoke(";
         _out.inc();
-        _out << nl << '"' << operation->name() << '"' << ",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
-        _out << nl << "oneway: " << (operation->returnsData() ? "false" : "IsOneway") << ",";
-        _out << nl << opFormatTypeToString(operation, ns) << ",";
-        _out << nl << "context,";
-        _out << nl << "synchronous";
-        if(inParams.size() > 0)
-        {
-            _out << ",";
-            _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
-            _out << sb;
-            writeMarshalParams(operation, requiredInParams, taggedInParams);
-            _out << eb;
-        }
+        _out << nl << '"' << operation->name() << '"' << ", "
+             << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ", "
+             << nl << "oneway: " << (operation->returnsData() ? "false" : "IsOneway") << ", "
+             << nl << opFormatTypeToString(operation, ns) << ", "
+             << nl << "context, "
+             << nl << "synchronous, "
+             << nl << "request";
 
         if(outParams.size() > 0)
         {
-            _out << ",";
+            _out << ", ";
             _out << nl << "read: (" << getUnqualified("Ice.InputStream", ns) << " istr) =>";
             _out << sb;
 
@@ -2468,6 +2478,27 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << ");";
         _out.dec();
         _out << nl << "return completed.Task;";
+        _out << eb;
+    }
+
+    // Write the output stream writer used to fill the request frame
+    if(inParams.size() > 1)
+    {
+        _out << sp;
+        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+             << toTupleType(inParams) << " value)";
+        _out << sb;
+        writeMarshalParams(operation, requiredInParams, taggedInParams, "ostr", "value.");
+        _out << eb;
+    }
+    else if(inParams.size() == 1 && !defaultWriter)
+    {
+        auto param = inParams.front();
+        _out << sp;
+        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+             << param.typeStr << " " << param.name << ")";
+        _out << sb;
+        writeMarshalParams(operation, requiredInParams, taggedInParams, "ostr");
         _out << eb;
     }
 }
@@ -2662,7 +2693,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
-    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+    _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << getUnqualified("Ice.IObject", ns)
         << ".DispatchAsync(global::Ice.InputStream istr, global::Ice.Current current)";
     _out.inc();
@@ -2672,7 +2703,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
-    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutputStream> "
+    _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << "DispatchAsync(" << fixId(name) << " servant, "
         << "global::Ice.InputStream istr, global::Ice.Current current)";
     _out << sb;
@@ -2725,7 +2756,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sp;
         _out << nl << "public struct " << opName << "MarshaledReturnValue";
         _out << sb;
-        _out << nl << "public " << getUnqualified("Ice.OutgoingResponseFrame", ns) << " ResponseFrame { get; }";
+        _out << nl << "public " << getUnqualified("Ice.OutgoingResponseFrame", ns) << " Response { get; }";
 
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(outParams, [](const auto& p)
@@ -2735,15 +2766,29 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
              << (getUnqualified("Ice.Current", ns) + " current")
              << epar;
         _out << sb;
-        _out << nl << "ResponseFrame = new global::Ice.OutgoingResponseFrame(current);";
-        _out << nl << "ResponseFrame.StartReturnValue(";
-        if (operation->format() != DefaultFormat)
+        _out << nl << "Response = " << getUnqualified("Ice.OutgoingResponseFrame", ns) << ".WithReturnValue(";
+        _out.inc();
+        _out << nl << "current.Encoding, ";
+        _out << nl << (operation->format() == DefaultFormat ? "null" : opFormatTypeToString(operation, ns)) << ", ";
+        _out << nl << toTuple(outParams, "iceP_") << ", ";
+        if(outParams.size() > 1)
         {
-            _out << opFormatTypeToString(operation, ns);
+            _out << nl << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+                 << toTupleType(outParams, "iceP_") << " value) => ";
+            _out << sb;
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
+            _out << eb;
+        }
+        else
+        {
+            _out << nl << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << toTupleType(outParams, "iceP_")
+                 << ") =>";
+            _out << sb;
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
+            _out << eb;
         }
         _out << ");";
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ResponseFrame");
-        _out << nl << "ResponseFrame.EndReturnValue();";
+        _out.dec();
         _out << eb;
         _out << eb;
     }
@@ -2796,12 +2841,13 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     list<ParamInfo> taggedInParams;
     getInParams(operation, requiredInParams, taggedInParams, "iceP_");
 
-    list<ParamInfo> outParams = getAllOutParams(operation, "iceP_");
+    list<ParamInfo> outParams = getAllOutParams(operation, "iceP_", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
     getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
 
-    string retS = resultType(operation, ns, true);
+    bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
+    string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns) : "_iceD_" + opName + "Writer";
 
     _out << sp;
     _out << nl << "protected ";
@@ -2809,9 +2855,9 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << "async ";
     }
-    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutputStream", ns) + ">";
+    _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutgoingResponseFrame", ns) + ">";
     _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
-        << " current)";
+         << " current)";
     _out << sb;
 
     if (!isIdempotent(operation))
@@ -2837,26 +2883,23 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "var result = await this." << name << spar << getNames(inParams) << "current" << epar
                 << ".ConfigureAwait(false);";
-            _out << nl << "return result.ResponseFrame;";
+            _out << nl << "return result.Response;";
         }
         else
         {
             _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
-                << "current" << epar << ".ResponseFrame);";
+                << "current" << epar << ".Response);";
         }
         _out << eb;
     }
     else
     {
         _out << nl;
-        if(outParams.size() > 1)
+        if(outParams.size() >= 1)
         {
-            _out << "var " << spar << getNames(getAllOutParams(operation, "iceP_", true)) << epar << " = ";
+            _out << "var result = ";
         }
-        else if(outParams.size() == 1)
-        {
-            _out << "var " << outParams.front().name << " = ";
-        }
+
         if (amd)
         {
             _out << "await ";
@@ -2872,7 +2915,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             if (amd)
             {
-                _out << nl << "return global::Ice.OutgoingResponseFrame.Empty(current);";
+                _out << nl << "return " << getUnqualified("Ice.OutgoingResponseFrame", ns)
+                     << ".WithVoidReturnValue(current.Encoding);";
             }
             else
             {
@@ -2881,24 +2925,41 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var responseFrame = new global::Ice.OutgoingResponseFrame(current);";
-            _out << nl << "responseFrame.StartReturnValue(";
-            if (operation->format() != DefaultFormat)
+            _out << nl << "var response = " << getUnqualified("Ice.OutgoingResponseFrame", ns)
+                 << ".WithReturnValue(current.Encoding, "
+                 << (operation->format() == DefaultFormat ? "null" : opFormatTypeToString(operation, ns))
+                 << ", result, " << writer << ");";
+
+            if(amd)
             {
-                _out << opFormatTypeToString(operation, ns);
-            }
-            _out << ");";
-            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "responseFrame");
-            _out << nl << "responseFrame.EndReturnValue();";
-            if (amd)
-            {
-                _out << nl << "return responseFrame;";
+                _out << nl << "return response;";
             }
             else
             {
-                _out << nl << "return IceFromResult(responseFrame);";
+                _out << nl << "return IceFromResult(response);";
             }
         }
+        _out << eb;
+    }
+
+    // Write the output stream writer used to fill the request frame
+    if(outParams.size() > 1)
+    {
+        _out << sp;
+        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+             << toTupleType(outParams) << " value)";
+        _out << sb;
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
+        _out << eb;
+    }
+    else if(outParams.size() == 1 && !defaultWriter)
+    {
+        auto param = outParams.front();
+        _out << sp;
+        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+             << param.typeStr << " " << param.name << ")";
+        _out << sb;
+        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
         _out << eb;
     }
 }

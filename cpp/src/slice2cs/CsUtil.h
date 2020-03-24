@@ -78,6 +78,9 @@ void getOutParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInf
 std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::string prefix = "");
 std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::function<std::string (const ParamInfo&)>);
 
+std::string toTuple(const std::list<ParamInfo>& params, const std::string& = "");
+std::string toTupleType(const std::list<ParamInfo>& params, const std::string& = "");
+
 template<typename T> inline std::vector<std::string>
 mapfn(const std::list<T>& items, std::function<std::string (const T&)> fn)
 {
