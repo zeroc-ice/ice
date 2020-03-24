@@ -118,7 +118,46 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         public static OutgoingRequestFrame WithNoParameters(IObjectPrx proxy, string operation, bool idempotent,
                                                             IReadOnlyDictionary<string, string>? context = null)
-            => new OutgoingRequestFrame(proxy, operation, idempotent, true, context);
+            => new OutgoingRequestFrame(proxy, operation, idempotent, writeEmptyEncaps: true, context);
+
+        /// <summary>Creates a new outgoing request frame with the given payload.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
+        /// and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
+        /// </param>
+        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
+                                    IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
+            : this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
+        {
+            if (payload.Count < 6)
+            {
+                throw new ArgumentException(
+                    $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
+                    nameof(payload));
+            }
+            int size = InputStream.ReadInt(payload.AsSpan(0, 4));
+            if (size != payload.Count)
+            {
+                throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                    nameof(payload));
+            }
+
+            if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
+            {
+                throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
+                                            $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
+                    nameof(payload));
+            }
+            Data[^1] = Data[^1].Slice(0, _payloadStart.Offset);
+            Data.Add(payload);
+            _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
+            Size = Data.GetByteCount();
+            IsSealed = true;
+        }
 
         private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                      bool writeEmptyEncaps, IReadOnlyDictionary<string, string>? context = null)
@@ -182,45 +221,6 @@ namespace Ice
                                      IReadOnlyDictionary<string, string>? context = null) :
             this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
         {
-        }
-
-        /// <summary>Creates a new outgoing request frame with the given payload.</summary>
-        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
-        /// and context of this proxy to create the request frame.</param>
-        /// <param name="operation">The operation to invoke on the target Ice object.</param>
-        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
-        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
-        /// proxy and the communicator's current context (if any).</param>
-        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
-        /// </param>
-        public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
-                                    IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
-            : this(proxy, operation, idempotent, false, context)
-        {
-            if (payload.Count < 6)
-            {
-                throw new ArgumentException(
-                    $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
-                    nameof(payload));
-            }
-            int size = InputStream.ReadInt(payload.AsSpan(0, 4));
-            if (size != payload.Count)
-            {
-                throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
-                    nameof(payload));
-            }
-
-            if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
-            {
-                throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
-                                            $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
-                    nameof(payload));
-            }
-            Data[^1] = Data[^1].Slice(0, _payloadStart.Offset);
-            Data.Add(payload);
-            _payloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
-            Size = Data.GetByteCount();
-            IsSealed = true;
         }
 
         private void Finish(OutputStream.Position payloadEnd)
