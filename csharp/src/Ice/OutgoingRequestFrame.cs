@@ -124,6 +124,8 @@ namespace Ice
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
         /// </param>
+        // TODO: should we pass the payload as a list of segments, or maybe has a separate
+        // ctor that accepts a list of segments instead of a single segment
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
             : this(proxy, operation, idempotent, context)

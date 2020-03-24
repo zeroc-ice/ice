@@ -62,6 +62,8 @@ namespace Ice
         /// <param name="encoding">The encoding for the frame payload.</param>
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
+        // TODO: should we pass the payload as a list of segments, or maybe has a separate
+        // ctor that accepts a list of segments instead of a single segment
         public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload) :
             this(encoding)
         {
