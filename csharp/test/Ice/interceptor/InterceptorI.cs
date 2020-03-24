@@ -23,7 +23,7 @@ namespace Ice.interceptor
             }
         }
 
-        public async ValueTask<Ice.OutputStream> DispatchAsync(Ice.InputStream istr, Current current)
+        public async ValueTask<Ice.OutgoingResponseFrame> DispatchAsync(Ice.InputStream istr, Current current)
         {
             if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
             {

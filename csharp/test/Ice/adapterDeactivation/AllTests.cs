@@ -122,7 +122,8 @@ namespace Ice
                     var router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId, connectionId: "rc"));
                     var adapter = communicator.CreateObjectAdapterWithRouter(router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23456 -t 30000"));
+                    var endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
+                    test(endpointsStr!.Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23457 -t 30000"));

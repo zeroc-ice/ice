@@ -39,9 +39,12 @@ namespace Ice
                         Debug.Assert(ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException);
 
                         // TODO: works only when Payload called first before reading anything. Need a better version!
-                        // TODO: not efficient to create an array here
                         // TODO: provide Encoding property
-                        _payload = new ArraySegment<byte>(InputStream.ReadEncapsulation(out Encoding _));
+                        ArraySegment<byte> payload = InputStream.ReadEncapsulation(out Encoding _);
+                        // The payload must included the byte before the encapsulation
+                        // corresponding to the reply status.
+                        Debug.Assert(payload.Array.Length >= payload.Count + 1);
+                        _payload = new ArraySegment<byte>(payload.Array, payload.Offset - 1, payload.Count + 1);
                     }
                 }
                 return _payload.Value;

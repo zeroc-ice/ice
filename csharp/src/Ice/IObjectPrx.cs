@@ -88,12 +88,9 @@ namespace Ice
 
         private OutgoingRequestFrame IceI_IceIsACreateRequest(string id, IReadOnlyDictionary<string, string>? context)
         {
-            var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
-            request.StartParameters();
-            request.WriteString(id);
-            request.EndParameters();
-            return request;
-        }
+            var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
+                id, OutputStream.IceWriterFromString);
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
         private static bool IceI_IsAReadResponse(IncomingResponseFrame incomingResponseFrame)
         {
@@ -129,9 +126,9 @@ namespace Ice
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = default)
         {
-            var request = IceI_IcePingCreateRequest(context);
-            var task = IceInvokeAsync(request, IsOneway, progress, cancel);
-            return IsOneway ? task : ReadResponseAsync(task);
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
+            var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel, synchronous);
+            return IsOneway ? task : AwaitResponseAsync(task);
 
             static async Task ReadResponseAsync(Task<IncomingResponseFrame> task)
                 => IceI_IcePingReadResponse(await task.ConfigureAwait(false));
@@ -167,9 +164,8 @@ namespace Ice
                                           IProgress<bool>? progress = null,
                                           CancellationToken cancel = default)
         {
-            var request = IceI_IceIdsCreateRequest(context);
-            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task);
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<string[]> ReadResponseAsync(Task<IncomingResponseFrame> task)
                 => IceI_IceIdsReadResponse(await task.ConfigureAwait(false));
@@ -208,9 +204,8 @@ namespace Ice
                                        IProgress<bool>? progress = null,
                                        CancellationToken cancel = new CancellationToken())
         {
-            var request = IceI_IceIdCreateRequest(context);
-            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task);
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
+            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
 
             static async Task<string> ReadResponseAsync(Task<IncomingResponseFrame> task)
                 => IceI_IceIdReadResponse(await task.ConfigureAwait(false));

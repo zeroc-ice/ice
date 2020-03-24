@@ -25,7 +25,7 @@ namespace Ice.adapterDeactivation
     {
         private readonly IRouter _router = new Router();
 
-        public ValueTask<OutputStream> DispatchAsync(InputStream istr, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream istr, Current current)
         {
             IObject? servant;
             if (current.Id.Name.Equals("router"))

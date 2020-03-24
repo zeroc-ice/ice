@@ -26,6 +26,28 @@ using namespace IceUtilInternal;
 namespace
 {
 
+const std::array<std::string, 18> builtinSuffixTable =
+{
+    "Bool",
+    "Byte",
+    "Short",
+    "UShort",
+    "Int",
+    "UInt",
+    "VarInt",
+    "VarUInt",
+    "Long",
+    "ULong",
+    "VarLong",
+    "VarULong",
+    "Float",
+    "Double",
+    "String",
+    "Value",
+    "Proxy",
+    "Value"
+};
+
 void
 hashAdd(long& hashCode, const std::string& value)
 {
@@ -986,83 +1008,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 string
 Slice::JavaGenerator::getTagFormat(const TypePtr& type)
 {
-    const string prefix = "com.zeroc.Ice.TagFormat.";
-
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp)
-    {
-        switch(bp->kind())
-        {
-        case Builtin::KindByte:
-        case Builtin::KindBool:
-        {
-            return prefix + "F1";
-        }
-        case Builtin::KindShort:
-        {
-            return prefix + "F2";
-        }
-        case Builtin::KindInt:
-        case Builtin::KindFloat:
-        {
-            return prefix + "F4";
-        }
-        case Builtin::KindLong:
-        case Builtin::KindDouble:
-        {
-            return prefix + "F8";
-        }
-        case Builtin::KindString:
-        {
-            return prefix + "VSize";
-        }
-        case Builtin::KindObject:
-        {
-            return prefix + "Class";
-        }
-        case Builtin::KindObjectProxy:
-        {
-            return prefix + "FSize";
-        }
-        case Builtin::KindValue:
-        {
-            return prefix + "Class";
-        }
-        }
-    }
-
-    if(EnumPtr::dynamicCast(type))
-    {
-        return prefix + "Size";
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        return seq->type()->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
-    }
-
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
-    {
-        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
-            prefix + "FSize" : prefix + "VSize";
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        return st->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
-    }
-
-    if(ProxyPtr::dynamicCast(type))
-    {
-        return prefix + "FSize";
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    assert(cl);
-    return prefix + "Class";
+    return "com.zeroc.Ice.TagFormat." + type->getTagFormat();
 }
 
 string
@@ -1072,13 +1018,20 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    const StringList& metaData,
                                    bool formal) const
 {
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
-        "byte",
         "boolean",
+        "byte",
         "short",
+        "???",
         "int",
+        "???",
+        "int",
+        "???",
         "long",
+        "???",
+        "long",
+        "???",
         "float",
         "double",
         "String",
@@ -1172,13 +1125,20 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
                                          const StringList& metaData,
                                          bool formal) const
 {
-    static const char* builtinTable[] =
+    static const std::array<std::string, 18> builtinTable =
     {
-        "java.lang.Byte",
         "java.lang.Boolean",
+        "java.lang.Byte",
         "java.lang.Short",
+        "???",
         "java.lang.Integer",
+        "???",
+        "java.lang.Integer",
+        "???",
         "java.lang.Long",
+        "???",
+        "java.lang.Long",
+        "???",
         "java.lang.Float",
         "java.lang.Double",
         "java.lang.String",
@@ -1252,13 +1212,20 @@ Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& type,
 string
 typeToBufferString(const TypePtr& type)
 {
-    static const char* builtinBufferTable[] =
+    static const std::array<std::string, 18> builtinBufferTable =
     {
-        "java.nio.ByteBuffer",
         "???",
+        "java.nio.ByteBuffer",
         "java.nio.ShortBuffer",
+        "???",
         "java.nio.IntBuffer",
+        "???",
+        "java.nio.IntBuffer",
+        "???",
         "java.nio.LongBuffer",
+        "???",
+        "java.nio.LongBuffer",
+        "???",
         "java.nio.FloatBuffer",
         "java.nio.DoubleBuffer",
         "???",
@@ -1301,118 +1268,53 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
     assert(!marshal || mode != TaggedMember); // Only support TaggedMember for un-marshaling
 
-    static const char* builtinTable[] =
-    {
-        "Byte",
-        "Bool",
-        "Short",
-        "Int",
-        "Long",
-        "Float",
-        "Double",
-        "String",
-        "???",
-        "???",
-        "???"
-    };
-
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        switch(builtin->kind())
+        if(marshal)
         {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
+            out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "(";
+            if(isTaggedParam)
             {
-                string s = builtinTable[builtin->kind()];
-                if(marshal)
-                {
-                    if(isTaggedParam)
-                    {
-                        out << nl << stream << ".write" << s << "(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".write" << s << "(" << param << ");";
-                    }
-                }
-                else
-                {
-                    if(isTaggedParam)
-                    {
-                        out << nl << param << " = " << stream << ".read" << s << "(" << tag << ");";
-                    }
-                    else
-                    {
-                        out << nl << param << " = " << stream << ".read" << s << "();";
-                    }
-                }
-                break;
+                out << tag << ", ";
             }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
+            out << param << ");";
+        }
+        else
+        {
+            if(builtin->usesClasses())
             {
-                if(marshal)
+                assert(!patchParams.empty());
+                out << nl << stream << ".readValue(";
+                if(isTaggedParam)
                 {
-                    if(isTaggedParam)
-                    {
-                        out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeValue(" << param << ");";
-                    }
+                    out << tag << ", ";
                 }
-                else
-                {
-                    assert(!patchParams.empty());
-                    if(isTaggedParam)
-                    {
-                        out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".readValue(" << patchParams << ");";
-                    }
-                }
-                break;
+                out << patchParams << ");";
             }
-            case Builtin::KindObjectProxy:
+            else if(builtin->kind() == Builtin::KindObjectProxy)
             {
-                if(marshal)
+                if(isTaggedParam)
                 {
-                    if(isTaggedParam)
-                    {
-                        out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeProxy(" << param << ");";
-                    }
+                    out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
                 }
                 else
                 {
-                    if(isTaggedParam)
-                    {
-                        out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
-                    }
-                    else if(mode == TaggedMember)
+                    if(mode == TaggedMember)
                     {
                         out << nl << stream << ".skip(4);";
-                        out << nl << param << " = " << stream << ".readProxy();";
                     }
-                    else
-                    {
-                        out << nl << param << " = " << stream << ".readProxy();";
-                    }
+                    out << nl << param << " = " << stream << ".readProxy();";
                 }
-                break;
+            }
+            else
+            {
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "(";
+                if(isTaggedParam)
+                {
+                    out << tag;
+                }
+                out << ");";
             }
         }
         return;
@@ -1586,7 +1488,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             BuiltinPtr eltBltin = BuiltinPtr::dynamicCast(elemType);
             if(!hasTypeMetaData(seq, metaData) && eltBltin && eltBltin->kind() < Builtin::KindObject)
             {
-                string bs = builtinTable[eltBltin->kind()];
+                string bs = builtinSuffixTable[eltBltin->kind()];
                 if(marshal)
                 {
                     out << nl << stream << ".write" << bs << "Seq(" << tag << ", " << param << ");";
@@ -1936,18 +1838,6 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
     }
 
-    static const char* builtinTable[] =
-    {
-        "Byte",
-        "Bool",
-        "Short",
-        "Int",
-        "Long",
-        "Float",
-        "Double",
-        "String"
-    };
-
     if(builtin &&
        (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
         builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
@@ -1959,11 +1849,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
-                out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Buffer(" << param << ");";
+                out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Buffer(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Buffer();";
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Buffer();";
             }
             return;
         }
@@ -1973,11 +1863,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Seq(" << param << ");";
+            out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ");";
         }
         else
         {
-            out << nl << param << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Seq();";
+            out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Seq();";
         }
         return;
     }
@@ -2116,11 +2006,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
-                out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Seq(" << param << ");";
+                out << nl << stream << ".write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Seq();";
+                out << nl << param << " = " << stream << ".read" << builtinSuffixTable[builtin->kind()] << "Seq();";
             }
         }
         else

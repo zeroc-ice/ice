@@ -84,8 +84,8 @@ namespace Ice
         public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int srcOffset, int count)
         {
             Debug.Assert(src.GetByteCount() >= srcOffset + count,
-                $"requested {count} bytes starting at offset {srcOffset} but there is only " +
-                $"{src.GetByteCount() - srcOffset} bytes remaining.");
+                @$"requested {count} bytes starting at offset {srcOffset
+                    } but there is only {src.GetByteCount() - srcOffset} bytes remaining.");
 
             // Skip offset bytes into the source segment list
             int srcIndex = 0;
@@ -128,6 +128,18 @@ namespace Ice
                 int remaining = Math.Min(count - dstOffset, segment.Count);
                 Buffer.BlockCopy(segment.Array, segment.Offset, data, dstOffset, remaining);
                 dstOffset += remaining;
+            }
+            return data;
+        }
+
+        public static byte[] ToArray(this IList<ArraySegment<byte>> src)
+        {
+            byte[] data = new byte[src.GetByteCount()];
+            int offset = 0;
+            foreach (var segment in src)
+            {
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, segment.Count);
+                offset += segment.Count;
             }
             return data;
         }

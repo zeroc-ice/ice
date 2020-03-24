@@ -246,6 +246,50 @@ namespace Ice
         }
     }
 
+    /// <summary>This exception reports that data (bytes) received by Ice are not in an expected format.</summary>
+    [Serializable]
+    public class InvalidDataException : Exception
+    {
+        public InvalidDataException(string message)
+            : base(message)
+        {
+        }
+
+        public InvalidDataException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected InvalidDataException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception reports an error that occurred while marshaling data into a sequence of bytes.</summary>
+    [Serializable]
+    public class MarshalException : Exception
+    {
+        public MarshalException(string message)
+            : base(message)
+        {
+        }
+
+        public MarshalException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected MarshalException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    //
+    // TODO: all remaining exceptions below need to be refactored
+    //
+
     /// <summary>
     /// This exception indicates a timeout condition.
     /// </summary>
@@ -337,185 +381,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// A generic exception base for all kinds of protocol error
-    /// conditions.
-    /// </summary>
-    public class ProtocolException : Exception
-    {
-        public string Reason;
-
-        public ProtocolException() => Reason = "";
-
-        public ProtocolException(Exception ex) : base("", ex) => Reason = "";
-
-        public ProtocolException(string reason) => Reason = reason;
-
-        public ProtocolException(string reason, Exception ex) : base("", ex) => Reason = reason;
-    }
-
-    /// <summary>
-    /// This exception indicates that a message did not start with the expected
-    /// magic number ('I', 'c', 'e', 'P').
-    /// </summary>
-    public class BadMagicException : ProtocolException
-    {
-        public byte[] BadMagic;
-
-        public BadMagicException() => BadMagic = System.Array.Empty<byte>();
-
-        public BadMagicException(Exception ex) : base(ex) => BadMagic = System.Array.Empty<byte>();
-
-        public BadMagicException(string reason, byte[] badMagic) : base(reason) => BadMagic = badMagic;
-
-        public BadMagicException(string reason, byte[] badMagic, Exception ex) : base(reason, ex) => BadMagic = badMagic;
-    }
-
-    /// <summary>
-    /// This exception indicates an unsupported protocol version.
-    /// </summary>
-    public class UnsupportedProtocolException : ProtocolException
-    {
-
-        public Protocol Bad;
-        public Protocol Supported;
-
-        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported) : base(reason)
-        {
-            Bad = bad;
-            Supported = supported;
-        }
-
-        public UnsupportedProtocolException(string reason, Protocol bad, Protocol supported, Exception ex) : base(reason, ex)
-        {
-            Bad = bad;
-            Supported = supported;
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates an unsupported data encoding version.
-    /// </summary>
-    public class UnsupportedEncodingException : ProtocolException
-    {
-        public Encoding Bad;
-        public Encoding Supported;
-
-        public UnsupportedEncodingException()
-        {
-            Bad = default;
-            Supported = default;
-        }
-
-        public UnsupportedEncodingException(Exception ex) : base(ex)
-        {
-            Bad = default;
-            Supported = default;
-        }
-
-        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported) : base(reason)
-        {
-            Bad = bad;
-            Supported = supported;
-        }
-
-        public UnsupportedEncodingException(string reason, Encoding bad, Encoding supported, Exception ex) : base(reason, ex)
-        {
-            Bad = bad;
-            Supported = supported;
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that an unknown protocol message has been received.
-    /// </summary>
-    public class UnknownMessageException : ProtocolException
-    {
-        public UnknownMessageException()
-        {
-        }
-
-        public UnknownMessageException(Exception ex) : base(ex)
-        {
-        }
-
-        public UnknownMessageException(string reason) : base(reason)
-        {
-        }
-
-        public UnknownMessageException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if a message is received over a connection
-    /// that is not yet validated.
-    /// </summary>
-    public class ConnectionNotValidatedException : ProtocolException
-    {
-        public ConnectionNotValidatedException()
-        {
-        }
-
-        public ConnectionNotValidatedException(Exception ex) : base(ex)
-        {
-        }
-
-        public ConnectionNotValidatedException(string reason) : base(reason)
-        {
-        }
-
-        public ConnectionNotValidatedException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that a response for an unknown request ID has been
-    /// received.
-    /// </summary>
-    public class UnknownRequestIdException : ProtocolException
-    {
-        public UnknownRequestIdException()
-        {
-        }
-
-        public UnknownRequestIdException(Exception ex) : base(ex)
-        {
-        }
-
-        public UnknownRequestIdException(string reason) : base(reason)
-        {
-        }
-
-        public UnknownRequestIdException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that an unknown reply status has been received.
-    /// </summary>
-    public class UnknownReplyStatusException : ProtocolException
-    {
-        public UnknownReplyStatusException()
-        {
-        }
-
-        public UnknownReplyStatusException(Exception ex) : base(ex)
-        {
-        }
-
-        public UnknownReplyStatusException(string reason) : base(reason)
-        {
-        }
-
-        public UnknownReplyStatusException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
     /// This exception indicates that the connection has been gracefully shut down by the
     /// server.
     /// The operation call that caused this exception has not been
@@ -526,21 +391,9 @@ namespace Ice
     /// retry limit has been reached, then this exception is propagated to
     /// the application code.
     /// </summary>
-    public class CloseConnectionException : ProtocolException
+    public class CloseConnectionException : Exception
     {
         public CloseConnectionException()
-        {
-        }
-
-        public CloseConnectionException(Exception ex) : base(ex)
-        {
-        }
-
-        public CloseConnectionException(string reason) : base(reason)
-        {
-        }
-
-        public CloseConnectionException(string reason, Exception ex) : base(reason, ex)
         {
         }
     }
@@ -553,230 +406,6 @@ namespace Ice
     {
         public bool Graceful;
 
-        public ConnectionManuallyClosedException()
-        {
-        }
-
-        public ConnectionManuallyClosedException(Exception ex) : base("", ex)
-        {
-        }
-
         public ConnectionManuallyClosedException(bool graceful) => Graceful = graceful;
-
-        public ConnectionManuallyClosedException(bool graceful, Exception ex) : base("", ex) => Graceful = graceful;
-    }
-
-    /// <summary>
-    /// This exception indicates that a message size is less
-    /// than the minimum required size.
-    /// </summary>
-    public class IllegalMessageSizeException : ProtocolException
-    {
-        public IllegalMessageSizeException()
-        {
-        }
-
-        public IllegalMessageSizeException(Exception ex) : base(ex)
-        {
-        }
-
-        public IllegalMessageSizeException(string reason) : base(reason)
-        {
-        }
-
-        public IllegalMessageSizeException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates a problem with compressing or uncompressing data.
-    /// </summary>
-    public class CompressionException : ProtocolException
-    {
-        public CompressionException()
-        {
-        }
-
-        public CompressionException(Exception ex) : base(ex)
-        {
-        }
-
-        public CompressionException(string reason) : base(reason)
-        {
-        }
-
-        public CompressionException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised for errors during marshaling or unmarshaling data.
-    /// </summary>
-    public class MarshalException : ProtocolException
-    {
-        public MarshalException()
-        {
-        }
-
-        public MarshalException(Exception ex) : base(ex)
-        {
-        }
-
-        public MarshalException(string reason) : base(reason)
-        {
-        }
-
-        public MarshalException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if inconsistent data is received while unmarshaling a proxy.
-    /// </summary>
-    public class ProxyUnmarshalException : MarshalException
-    {
-        public ProxyUnmarshalException()
-        {
-        }
-
-        public ProxyUnmarshalException(Exception ex) : base(ex)
-        {
-        }
-
-        public ProxyUnmarshalException(string reason) : base(reason)
-        {
-        }
-
-        public ProxyUnmarshalException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if an out-of-bounds condition occurs during unmarshaling.
-    /// </summary>
-    public class UnmarshalOutOfBoundsException : MarshalException
-    {
-        public UnmarshalOutOfBoundsException()
-        {
-        }
-
-        public UnmarshalOutOfBoundsException(Exception ex) : base(ex)
-        {
-        }
-
-        public UnmarshalOutOfBoundsException(string reason) : base(reason)
-        {
-        }
-
-        public UnmarshalOutOfBoundsException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised if no suitable class factory was found during
-    /// unmarshaling of a Slice class instance.
-    /// </summary>
-    public class NoClassFactoryException : MarshalException
-    {
-        public string Type;
-
-        public NoClassFactoryException() => Type = "";
-
-        public NoClassFactoryException(Exception ex) : base(ex) => Type = "";
-
-        public NoClassFactoryException(string reason, string type) : base(reason) => Type = type;
-
-        public NoClassFactoryException(string reason, string type, Exception ex) : base(reason, ex) => Type = type;
-    }
-
-    /// <summary>
-    /// This exception is raised if the type of an unmarshaled Slice class instance does
-    /// not match its expected type.
-    /// This can happen if client and server are compiled with mismatched Slice
-    /// definitions or if a class of the wrong type is passed as a parameter
-    /// or return value using dynamic invocation. This exception can also be
-    /// raised if IceStorm is used to send Slice class instances and
-    /// an operation is subscribed to the wrong topic.
-    /// </summary>
-    public class UnexpectedObjectException : MarshalException
-    {
-        public string Type;
-        public string ExpectedType;
-
-        public UnexpectedObjectException()
-        {
-            Type = "";
-            ExpectedType = "";
-        }
-
-        public UnexpectedObjectException(Exception ex) : base(ex)
-        {
-            Type = "";
-            ExpectedType = "";
-        }
-
-        public UnexpectedObjectException(string reason, string type, string expectedType) : base(reason)
-        {
-            Type = type;
-            ExpectedType = expectedType;
-        }
-
-        public UnexpectedObjectException(string reason, string type, string expectedType, Exception ex) : base(reason, ex)
-        {
-            Type = type;
-            ExpectedType = expectedType;
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised when Ice receives a request or reply
-    /// message whose size exceeds the limit specified by the
-    /// Ice.MessageSizeMax property.
-    /// </summary>
-    public class MemoryLimitException : MarshalException
-    {
-        public MemoryLimitException()
-        {
-        }
-
-        public MemoryLimitException(Exception ex) : base(ex)
-        {
-        }
-
-        public MemoryLimitException(string reason) : base(reason)
-        {
-        }
-
-        public MemoryLimitException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates a malformed data encapsulation.
-    /// </summary>
-    public class EncapsulationException : MarshalException
-    {
-
-        public EncapsulationException()
-        {
-        }
-
-        public EncapsulationException(Exception ex) : base(ex)
-        {
-        }
-
-        public EncapsulationException(string reason) : base(reason)
-        {
-        }
-
-        public EncapsulationException(string reason, Exception ex) : base(reason, ex)
-        {
-        }
     }
 }

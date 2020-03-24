@@ -9,83 +9,121 @@ using System.Diagnostics;
 namespace Ice
 {
     /// <summary>Represents a response protocol frame sent by the application.</summary>
-    public sealed class OutgoingResponseFrame : OutputStream
+    public sealed class OutgoingResponseFrame
     {
-        /// <summary>The ID for this request. With Ice1, a 0 value corresponds to a oneway request.</summary>
-        public int RequestId { get; }
+        /// <summary>The encoding of the frame payload</summary>
+        public Encoding Encoding { get; }
+        /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
+        public bool IsSealed { get; private set; }
 
-        /// <summary>The Ice1 reply status. Only meaningful for the Ice1 protocol, always set to OK with Ice2.</summary>
-        public ReplyStatus ReplyStatus { get; }
+        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
+        public IList<ArraySegment<byte>> Payload => Data;
 
-        /// <summary>The response context. Always null with ice1.</summary>
-        public Dictionary<string, string>? Context { get; }
+        /// <summary>The frame byte count.</summary>
+        public int Size { get; private set; }
 
-        private readonly Encoding _payloadEncoding; // TODO: move to OutputStream
+        // Contents of the Frame
+        internal List<ArraySegment<byte>> Data { get; private set; }
 
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        public static OutgoingResponseFrame Empty(Current current)
-            => new OutgoingResponseFrame(current, ReplyStatus.OK, ArraySegment<byte>.Empty);
+        /// <param name="encoding">The encoding for the frame payload.</param>
+        public static OutgoingResponseFrame WithVoidReturnValue(Encoding encoding)
+            => new OutgoingResponseFrame(encoding, writeVoidReturnValue: true);
 
-        /// <summary>Creates a new outgoing response frame. It's a partial frame, and its payload needs to be
-        /// written later on with StartReturnValue/EndReturnValue.</summary>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        public OutgoingResponseFrame(Current current) : base(current.Adapter.Communicator, Ice1Definitions.Encoding)
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format,
+            in T value, OutputStreamWriter<T> writer)
         {
-            RequestId = current.RequestId;
-            _payloadEncoding = current.Encoding;
+            var response = new OutgoingResponseFrame(encoding);
+            byte[] buffer = new byte[256];
+            buffer[0] = (byte)ReplyStatus.OK;
+            response.Data.Add(buffer);
+            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            writer(ostr, value);
+            ostr.Save();
+            response.Finish();
+            return response;
+        }
 
-            WriteSpan(Ice1Definitions.ReplyHeader.AsSpan());
-            WriteInt(RequestId);
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format, T value,
+            OutputStreamStructWriter<T> writer) where T : struct
+        {
+            var response = new OutgoingResponseFrame(encoding);
+            byte[] buffer = new byte[256];
+            buffer[0] = (byte)ReplyStatus.OK;
+            response.Data.Add(buffer);
+            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            writer(ostr, value);
+            ostr.Save();
+            response.Finish();
+            return response;
         }
 
         /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// request for which this method creates a response.</param>
-        /// <param name="replyStatus">The reply status.</param>
+        /// <param name="encoding">The encoding for the frame payload.</param>
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        public OutgoingResponseFrame(Current current, ReplyStatus replyStatus, ArraySegment<byte> payload)
-            : this(current)
+        // TODO: should we pass the payload as a list of segments, or maybe has a separate
+        // ctor that accepts a list of segments instead of a single segment
+        public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload) :
+            this(encoding)
         {
-            WriteByte((byte)replyStatus);
+            if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
+            {
+                // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes of an
+                // empty encapsulation.
+                if (payload.Count < 7)
+                {
+                    throw new ArgumentException(
+                        $"the response payload should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                        nameof(payload));
+                }
 
-            if (payload.Count == 0 && (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException))
-            {
-                WriteEmptyEncapsulation(current.Encoding);
+                int size = InputStream.ReadInt(payload.AsSpan(1, 4));
+                if (size != payload.Count - 1)
+                {
+                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                        nameof(payload));
+                }
+
+                if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
+                {
+                    throw new ArgumentException(@$"the payload encoding `{payload[5]}.{payload[6]}' must be the same
+                                                   as the frame encoding `{Encoding.Major}.{Encoding.Minor}'",
+                        nameof(payload));
+                }
             }
-            else
-            {
-                WritePayload(payload);
-            }
+
+            Data.Add(payload);
+            Size = Data.GetByteCount();
+            IsSealed = true;
         }
 
         /// <summary>Creates a response frame that represents "failure" and contains an exception.</summary>
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
-        public OutgoingResponseFrame(Current current, RemoteException exception)
-            : this(current)
+        public OutgoingResponseFrame(Current current, RemoteException exception) :
+            this(current.Encoding)
         {
+            OutputStream ostr;
             if (exception is RequestFailedException requestFailedException)
             {
+                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
                 if (requestFailedException is DispatchException dispatchException)
                 {
                     // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
 
-                    if (dispatchException.Id.Name == null || dispatchException.Id.Name.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Id.Name))
                     {
                         dispatchException.Id = current.Id;
                     }
 
-                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Facet))
                     {
                         dispatchException.Facet = current.Facet;
                     }
 
-                    if (dispatchException.Operation == null || dispatchException.Operation.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Operation))
                     {
                         dispatchException.Operation = current.Operation;
                     }
@@ -105,46 +143,64 @@ namespace Ice
                         Debug.Assert(false);
                     }
 
-                    WriteByte((byte)replyStatus);
-                    dispatchException.Id.IceWrite(this);
+                    ostr.WriteByte((byte)replyStatus);
+                    dispatchException.Id.IceWrite(ostr);
 
                     // For compatibility with the old FacetPath.
-                    if (dispatchException.Facet == null || dispatchException.Facet.Length == 0)
+                    if (string.IsNullOrEmpty(dispatchException.Facet))
                     {
-                        WriteStringSeq(Array.Empty<string>());
+                        ostr.WriteStringSeq(Array.Empty<string>());
                     }
                     else
                     {
-                        WriteStringSeq(new string[] { dispatchException.Facet });
+                        ostr.WriteStringSeq(new string[] { dispatchException.Facet });
                     }
-                    WriteString(dispatchException.Operation);
-
+                    ostr.WriteString(dispatchException.Operation);
                 }
                 else
                 {
-                    WriteByte((byte)ReplyStatus.UnknownLocalException);
-                    WriteString(requestFailedException.Message);
+                    ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
+                    ostr.WriteString(requestFailedException.Message);
                 }
             }
             else
             {
-                WriteByte((byte)ReplyStatus.UserException);
-                StartEncapsulation(current.Encoding, FormatType.SlicedFormat);
-                WriteException(exception);
-                EndEncapsulation();
+                byte[] buffer = new byte[256];
+                buffer[0] = (byte)ReplyStatus.UserException;
+                Data.Add(buffer);
+                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), FormatType.SlicedFormat);
+                ostr.WriteException(exception);
+            }
+
+            ostr.Save();
+            Size = Data.GetByteCount();
+            IsSealed = true;
+        }
+
+        private OutgoingResponseFrame(Encoding encoding, bool writeVoidReturnValue = false)
+        {
+            Encoding = encoding;
+            Data = new List<ArraySegment<byte>>();
+            if (writeVoidReturnValue)
+            {
+                Encoding.CheckSupported();
+                byte[] buffer = new byte[256];
+                int pos = 0;
+                buffer[pos++] = (byte)ReplyStatus.OK;
+                OutputStream.WriteInt(6, buffer.AsSpan(pos, 4));
+                pos += 4;
+                buffer[pos++] = encoding.Major;
+                buffer[pos++] = encoding.Minor;
+                Data.Add(new ArraySegment<byte>(buffer, 0, pos));
+                Size = Data.GetByteCount();
+                IsSealed = true;
             }
         }
 
-        /// <summary>Starts writing the return value for a successful response.</summary>
-        /// <param name="format">The format for the return value, null (meaning keep communicator's setting),
-        /// SlicedFormat or CompactFormat.</param>
-        public void StartReturnValue(FormatType? format = null)
+        private void Finish()
         {
-            WriteByte((byte)ReplyStatus.OK);
-            StartEncapsulation(_payloadEncoding, format);
+            Size = Data.GetByteCount();
+            IsSealed = true;
         }
-
-        /// <summary>Marks the end of the return value.</summary>
-        public void EndReturnValue() => EndEncapsulation();
     }
 }

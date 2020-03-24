@@ -1489,20 +1489,14 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                     out << value << "L"; // Need to append "L" modifier for long constants.
                     break;
                 }
-                case Builtin::KindBool:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindDouble:
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                {
-                    out << value;
-                    break;
-                }
                 case Builtin::KindFloat:
                 {
                     out << value << "F";
+                    break;
+                }
+                default:
+                {
+                    out << value;
                     break;
                 }
             }
@@ -3970,7 +3964,27 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v;";
     out << eb;
 
-    static const char* builtinTable[] = { "Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String" };
+    static const std::array<std::string, 18> builtinTable =
+    {
+        "Bool",
+        "Byte",
+        "Short",
+        "UShort",
+        "Int",
+        "UInt",
+        "VarInt",
+        "VarUInt",
+        "Long",
+        "ULong",
+        "VarLong",
+        "VarULong",
+        "Float",
+        "Double",
+        "String",
+        "???",
+        "???",
+        "???"
+    };
 
     out << sp;
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
@@ -4949,46 +4963,40 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
                 case Builtin::KindBool:
                 {
                     return "false";
-                    break;
                 }
                 case Builtin::KindByte:
                 {
                     return "(byte)0";
-                    break;
                 }
                 case Builtin::KindShort:
                 {
                     return "(short)0";
-                    break;
                 }
                 case Builtin::KindInt:
                 case Builtin::KindLong:
                 {
                     return "0";
-                    break;
                 }
                 case Builtin::KindFloat:
                 {
                     return "(float)0.0";
-                    break;
                 }
                 case Builtin::KindDouble:
                 {
                     return "0.0";
-                    break;
                 }
                 case Builtin::KindString:
                 {
                     return "\"\"";
-                    break;
                 }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {
                     return "null";
-                    break;
                 }
+                default:
+                    return "???";
             }
         }
         else

@@ -1045,10 +1045,6 @@ public class AllTests
                                 server.GetConnection();
                                 test(false);
                             }
-                            catch (ProtocolException)
-                            {
-                                // Expected
-                            }
                             catch (ConnectionLostException)
                             {
                                 // Expected

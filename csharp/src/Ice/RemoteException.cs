@@ -83,7 +83,7 @@ namespace Ice
                  // Most derived type Id for this exception
                 string typeId = IceSlicedData.Value.Slices[0].TypeId!;
                 throw new MarshalException(
-                    $"Failed to marshal a fully sliced {nameof(RemoteException)} with type ID `{typeId}'");
+                    $"failed to marshal a fully sliced {nameof(RemoteException)} with type ID `{typeId}'");
             }
         }
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);

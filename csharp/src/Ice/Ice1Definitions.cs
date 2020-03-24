@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Ice
@@ -30,17 +31,20 @@ namespace Ice
         internal static readonly byte[] ProtocolBytes = new byte[] { 1, 0, 1, 0 };
 
         // The Ice protocol message types
-        internal const byte RequestMessage = 0;
-        internal const byte RequestBatchMessage = 1;
-        internal const byte ReplyMessage = 2;
-        internal const byte ValidateConnectionMessage = 3;
-        internal const byte CloseConnectionMessage = 4;
+        internal enum MessageType : byte
+        {
+            RequestMessage = 0,
+            RequestBatchMessage = 1,
+            ReplyMessage = 2,
+            ValidateConnectionMessage = 3,
+            CloseConnectionMessage = 4
+        }
 
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            RequestMessage,
+            (byte) MessageType.RequestMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Request ID (placeholder).
@@ -50,7 +54,7 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            RequestBatchMessage,
+            (byte) MessageType.RequestBatchMessage,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Number of requests in batch (placeholder).
@@ -60,9 +64,27 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            ReplyMessage,
+            (byte) MessageType.ReplyMessage,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).
+        };
+
+        internal static readonly byte[] ValidateConnectionMessage = new byte[]
+        {
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+            (byte) MessageType.ValidateConnectionMessage,
+            0, // Compression status.
+            HeaderSize, 0, 0, 0 // Message size.
+        };
+
+        internal static readonly byte[] CloseConnectionMessage = new byte[]
+        {
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+            (byte) MessageType.CloseConnectionMessage,
+            0, // Compression status.
+            HeaderSize, 0, 0, 0 // Message size.
         };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
@@ -71,23 +93,53 @@ namespace Ice
             Debug.Assert(header.Length >= 8);
             if (header[0] != Magic[0] || header[1] != Magic[1] || header[2] != Magic[2] || header[3] != Magic[3])
             {
-                throw new BadMagicException("Received incorrect magic bytes in ice1 header",
-                    header.Slice(0, 4).ToArray());
+                throw new InvalidDataException(
+                    $"received incorrect magic bytes in header of ice1 frame: {BytesToString(header.Slice(0, 4))}");
             }
 
             header = header.Slice(4);
 
             if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
             {
-                throw new ProtocolException(
-                    $"received ice1 protocol frame with protocol set to {header[0]}.{header[1]}");
+                throw new InvalidDataException(
+                    $"received ice1 protocol frame with protocol set to {BytesToString(header.Slice(0, 2))}");
             }
 
             if (header[2] != ProtocolBytes[2] || header[3] != ProtocolBytes[3])
             {
-                throw new ProtocolException(
-                    $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
+                throw new InvalidDataException(
+                    $"received ice1 protocol frame with protocol encoding set to {BytesToString(header.Slice(2, 2))}");
             }
         }
+
+        internal static List<ArraySegment<byte>>
+        GetRequestData(OutgoingRequestFrame frame, int requestId)
+        {
+            byte[] headerData = new byte[HeaderSize + 4];
+            RequestHeader.CopyTo(headerData.AsSpan());
+
+            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
+            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
+
+            var data = new List<ArraySegment<byte>>() { headerData };
+            data.AddRange(frame.Data);
+            return data;
+        }
+
+        internal static List<ArraySegment<byte>>
+        GetResponseData(OutgoingResponseFrame frame, int requestId)
+        {
+            byte[] headerData = new byte[HeaderSize + 4];
+            ReplyHeader.CopyTo(headerData.AsSpan());
+
+            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
+            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
+
+            var data = new List<ArraySegment<byte>>() { headerData };
+            data.AddRange(frame.Data);
+            return data;
+        }
+
+        private static string BytesToString(Span<byte> bytes) => BitConverter.ToString(bytes.ToArray());
     }
 }
