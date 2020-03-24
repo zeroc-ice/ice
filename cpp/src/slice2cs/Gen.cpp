@@ -2429,7 +2429,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "var request = " << getUnqualified("Ice.OutgoingRequestFrame", ns);
         if(inParams.size() == 0)
         {
-            _out << ".WithNoParameters("
+            _out << ".WithNoParameter("
                  << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
                  << ", context);";
         }

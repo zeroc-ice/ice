@@ -21,7 +21,7 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithNoParameters(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameter(oneway, "opOneway", idempotent: false);
 
                 // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
 
@@ -58,7 +58,7 @@ namespace Ice.invoke
                     ctx["raise"] = "";
                 }
 
-                var request = OutgoingRequestFrame.WithNoParameters(cl, "opException", idempotent: false, context: ctx);
+                var request = OutgoingRequestFrame.WithNoParameter(cl, "opException", idempotent: false, context: ctx);
                 var response = cl.Invoke(request);
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Failure);
@@ -82,7 +82,7 @@ namespace Ice.invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithNoParameters(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameter(oneway, "opOneway", idempotent: false);
                 try
                 {
                     oneway.InvokeAsync(request, oneway: true).Wait();
@@ -106,7 +106,7 @@ namespace Ice.invoke
             }
 
             {
-                var request = OutgoingRequestFrame.WithNoParameters(cl, "opException", idempotent: false);
+                var request = OutgoingRequestFrame.WithNoParameter(cl, "opException", idempotent: false);
                 var response = cl.InvokeAsync(request).Result;
                 var result = response.ReadResult();
                 test(result.ResultType == ResultType.Failure);

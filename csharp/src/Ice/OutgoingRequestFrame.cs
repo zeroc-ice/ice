@@ -39,16 +39,11 @@ namespace Ice
         {
             get
             {
-                if (_payloadEnd == null)
-                {
-                    throw new InvalidOperationException("the frame payload has not been written");
-                }
-
                 // thread-safe lazy initialization reference assignment is atomic
                 if (_payload == null)
                 {
                     var payload = new List<ArraySegment<byte>>();
-                    OutputStream.Position payloadEnd = _payloadEnd.Value;
+                    OutputStream.Position payloadEnd = _payloadEnd!.Value;
                     ArraySegment<byte> segment = Data[_payloadStart.Segment].Slice(_payloadStart.Offset);
                     if (segment.Count > 0)
                     {
@@ -88,7 +83,7 @@ namespace Ice
         public static OutgoingRequestFrame WithParameters<T>(
             IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
             IReadOnlyDictionary<string, string>? context,
-            in T value, OutputStreamWriter<T> writer)
+            T value, OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
             var ostr = new OutputStream(request.Encoding, request.Data, request._payloadStart, format);
@@ -116,9 +111,9 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public static OutgoingRequestFrame WithNoParameters(IObjectPrx proxy, string operation, bool idempotent,
-                                                            IReadOnlyDictionary<string, string>? context = null)
-            => new OutgoingRequestFrame(proxy, operation, idempotent, writeEmptyEncaps: true, context);
+        public static OutgoingRequestFrame WithNoParameter(IObjectPrx proxy, string operation, bool idempotent,
+                                                           IReadOnlyDictionary<string, string>? context = null)
+            => new OutgoingRequestFrame(proxy, operation, idempotent, context, writeEmptyParamList: true);
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
@@ -131,7 +126,7 @@ namespace Ice
         /// </param>
         public OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
                                     IReadOnlyDictionary<string, string>? context, ArraySegment<byte> payload)
-            : this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
+            : this(proxy, operation, idempotent, context)
         {
             if (payload.Count < 6)
             {
@@ -160,7 +155,8 @@ namespace Ice
         }
 
         private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
-                                     bool writeEmptyEncaps, IReadOnlyDictionary<string, string>? context = null)
+                                     IReadOnlyDictionary<string, string>? context,
+                                     bool writeEmptyParamList = false)
         {
             Encoding = proxy.Encoding;
             Data = new List<ArraySegment<byte>>();
@@ -200,27 +196,13 @@ namespace Ice
             ContextHelper.Write(ostr, Context);
             _payloadStart = ostr.Tail;
 
-            if (writeEmptyEncaps)
+            if (writeEmptyParamList)
             {
                 Encoding.CheckSupported();
                 _payloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
-        }
-
-        /// <summary>Creates a new outgoing request frame. This frame is incomplete and its payload needs to be
-        /// provided using StartPayload.</summary>
-        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
-        /// encoding and context of this proxy to create the request frame.</param>
-        /// <param name="operation">The operation to invoke on the target Ice object.</param>
-        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
-        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
-        /// proxy and the communicator's current context (if any).</param>
-        private OutgoingRequestFrame(IObjectPrx proxy, string operation, bool idempotent,
-                                     IReadOnlyDictionary<string, string>? context = null) :
-            this(proxy, operation, idempotent, writeEmptyEncaps: false, context)
-        {
         }
 
         private void Finish(OutputStream.Position payloadEnd)

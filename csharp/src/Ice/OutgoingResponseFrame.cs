@@ -28,12 +28,12 @@ namespace Ice
         /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
         public static OutgoingResponseFrame WithVoidReturnValue(Encoding encoding)
-            => new OutgoingResponseFrame(encoding, true);
+            => new OutgoingResponseFrame(encoding, writeVoidReturnValue: true);
 
         public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format,
             in T value, OutputStreamWriter<T> writer)
         {
-            var response = new OutgoingResponseFrame(encoding, false);
+            var response = new OutgoingResponseFrame(encoding);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -44,10 +44,10 @@ namespace Ice
             return response;
         }
 
-        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format, in T value,
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format, T value,
             OutputStreamStructWriter<T> writer) where T : struct
         {
-            var response = new OutgoingResponseFrame(encoding, false);
+            var response = new OutgoingResponseFrame(encoding);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -63,7 +63,7 @@ namespace Ice
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload) :
-            this(encoding, writeEmptyPayload: false)
+            this(encoding)
         {
             if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
             {
@@ -100,8 +100,8 @@ namespace Ice
         /// <param name="current">The current parameter holds decoded header data and other information about the
         /// request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
-        public OutgoingResponseFrame(Current current, RemoteException exception)
-            : this(current.Encoding, writeEmptyPayload: false)
+        public OutgoingResponseFrame(Current current, RemoteException exception) :
+            this(current.Encoding)
         {
             OutputStream ostr;
             if (exception is RequestFailedException requestFailedException)
@@ -175,11 +175,11 @@ namespace Ice
             IsSealed = true;
         }
 
-        private OutgoingResponseFrame(Encoding encoding, bool writeEmptyPayload)
+        private OutgoingResponseFrame(Encoding encoding, bool writeVoidReturnValue = false)
         {
             Encoding = encoding;
             Data = new List<ArraySegment<byte>>();
-            if (writeEmptyPayload)
+            if (writeVoidReturnValue)
             {
                 Encoding.CheckSupported();
                 byte[] buffer = new byte[256];
