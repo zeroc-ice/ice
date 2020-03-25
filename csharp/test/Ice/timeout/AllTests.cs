@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Threading;
 using Ice.timeout.Test;
 
@@ -41,7 +42,6 @@ namespace Ice.timeout
                 controller.resumeAdapter();
                 throw;
             }
-
         }
 
         public static void allTestsWithController(global::Test.TestHelper helper, Test.IControllerPrx controller)
@@ -76,14 +76,7 @@ namespace Ice.timeout
                 //
                 var to = timeout.Clone(connectionTimeout: -1);
                 controller.holdAdapter(100);
-                try
-                {
-                    to.op();
-                }
-                catch (Ice.ConnectTimeoutException)
-                {
-                    test(false);
-                }
+                to.op();
             }
             output.WriteLine("ok");
 
@@ -104,7 +97,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -121,7 +114,7 @@ namespace Ice.timeout
                 {
                     to.sendData(new byte[1000000]);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     test(false);
                 }
@@ -139,7 +132,7 @@ namespace Ice.timeout
                     to.sleep(1000);
                     test(false);
                 }
-                catch (InvocationTimeoutException)
+                catch (TimeoutException)
                 {
                 }
                 timeout.IcePing();
@@ -149,7 +142,7 @@ namespace Ice.timeout
                 {
                     to.sleep(100);
                 }
-                catch (InvocationTimeoutException)
+                catch (TimeoutException)
                 {
                     test(false);
                 }
@@ -157,14 +150,14 @@ namespace Ice.timeout
             }
             {
                 //
-                // Expect InvocationTimeoutException.
+                // Expect TimeoutException.
                 //
                 var to = timeout.Clone(invocationTimeout: 100);
                 try
                 {
                     to.sleepAsync(1000).Wait();
                 }
-                catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
+                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
                 timeout.IcePing();
@@ -175,51 +168,6 @@ namespace Ice.timeout
                 //
                 var to = timeout.Clone(invocationTimeout: 1000);
                 to.sleepAsync(100).Wait();
-            }
-            {
-                //
-                // Backward compatible connection timeouts
-                //
-                var to = timeout.Clone(invocationTimeout: -2, connectionTimeout: 250);
-                var con = connect(to);
-                try
-                {
-                    to.sleep(750);
-                    test(false);
-                }
-                catch (TimeoutException)
-                {
-                    try
-                    {
-                        _ = con.GetConnectionInfo();
-                        test(false);
-                    }
-                    catch (TimeoutException)
-                    {
-                        // Connection got closed as well.
-                    }
-                }
-                timeout.IcePing();
-
-                try
-                {
-                    con = connect(to);
-                    to.sleepAsync(750).Wait();
-                    test(false);
-                }
-                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
-                {
-                    try
-                    {
-                        _ = con.GetConnectionInfo();
-                        test(false);
-                    }
-                    catch (TimeoutException)
-                    {
-                        // Connection got closed as well.
-                    }
-                }
-                timeout.IcePing();
             }
             output.WriteLine("ok");
 
@@ -246,10 +194,9 @@ namespace Ice.timeout
                         _ = connection.GetConnectionInfo();
                         Thread.Sleep(10);
                     }
-                    catch (ConnectionManuallyClosedException ex)
+                    catch (ConnectionClosedLocallyException ex)
                     {
-                        // Expected.
-                        test(ex.Graceful);
+                        // Expected (graceful closure)
                         break;
                     }
                 }
@@ -277,7 +224,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -295,7 +242,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -352,7 +299,7 @@ namespace Ice.timeout
                     to.sendData(seq);
                     test(false);
                 }
-                catch (TimeoutException)
+                catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
@@ -390,7 +337,7 @@ namespace Ice.timeout
                     proxy.sleep(500);
                     test(false);
                 }
-                catch (InvocationTimeoutException)
+                catch (TimeoutException)
                 {
                 }
 
@@ -399,20 +346,9 @@ namespace Ice.timeout
                     proxy.sleepAsync(500).Wait();
                     test(false);
                 }
-                catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
+                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
-
-                try
-                {
-                    proxy.Clone(invocationTimeout: -2).IcePing();
-                    proxy.Clone(invocationTimeout: -2).IcePingAsync().Wait();
-                }
-                catch (System.Exception)
-                {
-                    test(false);
-                }
-
                 adapter.Destroy();
             }
             output.WriteLine("ok");

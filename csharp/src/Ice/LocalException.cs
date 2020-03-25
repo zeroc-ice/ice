@@ -147,7 +147,21 @@ namespace Ice
         }
     }
 
-    /// <summary>This exception reports connection refused error.</summary>
+    /// <summary>This exception indicates a connection establishment timeout condition.</summary>
+    [Serializable]
+    public class ConnectTimeoutException : ConnectFailedException
+    {
+        public ConnectTimeoutException()
+        {
+        }
+
+        protected ConnectTimeoutException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception reports a connection refused error.</summary>
     [Serializable]
     public class ConnectionRefusedException : ConnectFailedException
     {
@@ -185,6 +199,87 @@ namespace Ice
         }
     }
 
+    /// <summary>This exception reports that a previously established connection timed out.</summary>
+    [Serializable]
+    public class ConnectionTimeoutException : TransportException
+    {
+        public ConnectionTimeoutException()
+        {
+        }
+
+        protected ConnectionTimeoutException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception indicates that a previous established connection was closed.</summary>
+    [Serializable]
+    public class ConnectionClosedException : TransportException
+    {
+        protected ConnectionClosedException()
+        {
+        }
+
+        protected ConnectionClosedException(string message)
+            : base(message)
+        {
+        }
+
+        protected ConnectionClosedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception indicates that the connection was gracefully shut down by the server. A request
+    /// that failed with this exception was not executed by the server. In most cases you will not get this
+    /// exception because the client automatically retries the invocation in case the server shuts down the connection.
+    /// However, if upon retry the server shuts down the connection again, and the retry limit is reached, this
+    /// exception is propagated to the application code.</summary>
+    [Serializable]
+    public class ConnectionClosedByPeerException : ConnectionClosedException
+    {
+        public ConnectionClosedByPeerException()
+        {
+        }
+
+        protected ConnectionClosedByPeerException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception indicates the application (client) closed the connection with Connection.Close.
+    /// </summary>
+    [Serializable]
+    public class ConnectionClosedLocallyException : ConnectionClosedException
+    {
+        public ConnectionClosedLocallyException(string message)
+            : base(message)
+        {
+        }
+
+        protected ConnectionClosedLocallyException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>This exception indicates the connection was closed by ACM because it was idle. </summary>
+    [Serializable]
+    public class ConnectionIdleException : TransportException
+    {
+        public ConnectionIdleException()
+        {
+        }
+
+        protected ConnectionIdleException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
     /// <summary>This exception reports a DNS error.</summary>
     [Serializable]
     public class DNSException : TransportException
@@ -210,7 +305,7 @@ namespace Ice
     }
 
     /// <summary>This exception reports that a datagram exceeds the configured send or receive buffer size, or exceeds
-    ///  the maximum payload size of a UDP packet (65507 bytes).</summary>
+    /// the maximum payload size of a UDP packet (65507 bytes).</summary>
     // TODO: eliminate this exception
     [Serializable]
     public class DatagramLimitException : TransportException
@@ -286,126 +381,18 @@ namespace Ice
         }
     }
 
-    //
-    // TODO: all remaining exceptions below need to be refactored
-    //
-
-    /// <summary>
-    /// This exception indicates a timeout condition.
-    /// </summary>
-    public class TimeoutException : Exception
+    /// <summary>This is a purely Ice-internal exception used for retries.</summary>
+    [Serializable]
+    public class RetryException : Exception
     {
-        public TimeoutException()
+        internal RetryException(Exception innerException)
+            : base("", innerException)
         {
         }
 
-        public TimeoutException(Exception ex) : base("", ex)
+        protected RetryException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
-    }
-
-    /// <summary>
-    /// This exception indicates a connection establishment timeout condition.
-    /// </summary>
-    public class ConnectTimeoutException : TimeoutException
-    {
-
-        public ConnectTimeoutException()
-        {
-        }
-
-        public ConnectTimeoutException(Exception ex) : base(ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates a connection closure timeout condition.
-    /// </summary>
-    public class CloseTimeoutException : TimeoutException
-    {
-
-        public CloseTimeoutException()
-        {
-        }
-
-        public CloseTimeoutException(Exception ex) : base(ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that a connection has been shut down because it has been
-    /// idle for some time.
-    /// </summary>
-    public class ConnectionTimeoutException : TimeoutException
-    {
-
-        public ConnectionTimeoutException()
-        {
-        }
-
-        public ConnectionTimeoutException(Exception ex) : base(ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that an invocation failed because it timed
-    /// out.
-    /// </summary>
-    public class InvocationTimeoutException : TimeoutException
-    {
-        public InvocationTimeoutException()
-        {
-        }
-
-        public InvocationTimeoutException(Exception ex) : base(ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that an asynchronous invocation failed
-    /// because it was canceled explicitly by the user.
-    /// </summary>
-    public class InvocationCanceledException : Exception
-    {
-        public InvocationCanceledException()
-        {
-        }
-
-        public InvocationCanceledException(Exception ex) : base("", ex)
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception indicates that the connection has been gracefully shut down by the
-    /// server.
-    /// The operation call that caused this exception has not been
-    /// executed by the server. In most cases you will not get this
-    /// exception, because the client will automatically retry the
-    /// operation call in case the server shut down the connection. However,
-    /// if upon retry the server shuts down the connection again, and the
-    /// retry limit has been reached, then this exception is propagated to
-    /// the application code.
-    /// </summary>
-    public class CloseConnectionException : Exception
-    {
-        public CloseConnectionException()
-        {
-        }
-    }
-
-    /// <summary>
-    /// This exception is raised by an operation call if the application
-    /// closes the connection locally using Connection.close.
-    /// </summary>
-    public class ConnectionManuallyClosedException : Exception
-    {
-        public bool Graceful;
-
-        public ConnectionManuallyClosedException(bool graceful) => Graceful = graceful;
     }
 }

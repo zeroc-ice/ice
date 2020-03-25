@@ -613,7 +613,7 @@ namespace Ice.ami
                         {
                             t3 = p.IcePingAsync(cancel: cs3.Token);
                         }
-                        catch (InvocationCanceledException)
+                        catch (OperationCanceledException)
                         {
                             // expected
                         }
@@ -628,7 +628,7 @@ namespace Ice.ami
                         {
                             ae.Handle(ex =>
                             {
-                                return ex is InvocationCanceledException;
+                                return ex is OperationCanceledException;
                             });
                         }
                         try
@@ -640,7 +640,7 @@ namespace Ice.ami
                         {
                             ae.Handle(ex =>
                             {
-                                return ex is InvocationCanceledException;
+                                return ex is OperationCanceledException;
                             });
                         }
                     }
@@ -733,7 +733,7 @@ namespace Ice.ami
                     //
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                    // invocation to fail with ConnectionManuallyClosedException.
+                    // invocation to fail with ConnectionClosedLocallyException.
                     //
                     p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection();
@@ -752,8 +752,7 @@ namespace Ice.ami
                     }
                     catch (AggregateException ex)
                     {
-                        test(ex.InnerException is ConnectionManuallyClosedException);
-                        test((ex.InnerException as ConnectionManuallyClosedException).Graceful);
+                        test(ex.InnerException is ConnectionClosedLocallyException);
                     }
                     p.finishDispatch();
 
@@ -779,7 +778,7 @@ namespace Ice.ami
                 {
                     //
                     // Local case: start an operation and then close the connection forcefully on the client side.
-                    // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                    // There will be no retry and we expect the invocation to fail with ConnectionClosedLocallyException.
                     //
                     p.IcePing();
                     Connection con = p.GetConnection();
@@ -798,8 +797,7 @@ namespace Ice.ami
                     }
                     catch (AggregateException ex)
                     {
-                        test(ex.InnerException is ConnectionManuallyClosedException);
-                        test(!(ex.InnerException as ConnectionManuallyClosedException).Graceful);
+                        test(ex.InnerException is ConnectionClosedLocallyException);
                     }
                     p.finishDispatch();
 

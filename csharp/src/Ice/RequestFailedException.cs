@@ -37,7 +37,7 @@ namespace Ice
 
         private static string CustomMessage(Identity id, string facet, string operation, Exception innerException)
         {
-            string message = $"unhandled exception while calling `{operation}' on Ice object `{id}'";
+            string message = $"unhandled exception while dispatching `{operation}' on Ice object `{id}'";
             if (facet.Length > 0)
             {
                 message += $" with facet `{facet}'";

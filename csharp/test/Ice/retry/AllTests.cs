@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Diagnostics;
 using System.Threading;
 
@@ -225,7 +226,7 @@ namespace Ice.retry
                     retry2.Clone(invocationTimeout: 500).opIdempotent(4);
                     test(false);
                 }
-                catch (InvocationTimeoutException)
+                catch (TimeoutException)
                 {
                     Instrumentation.testRetryCount(2);
                     retry2.opIdempotent(-1); // Reset the counter
@@ -240,26 +241,10 @@ namespace Ice.retry
                 }
                 catch (System.AggregateException ex)
                 {
-                    test(ex.InnerException is InvocationTimeoutException);
+                    test(ex.InnerException is TimeoutException);
                     Instrumentation.testRetryCount(2);
                     retry2.opIdempotent(-1); // Reset the counter
                     Instrumentation.testRetryCount(-1);
-                }
-                if (retry1.GetConnection() != null)
-                {
-                    // The timeout might occur on connection establishment or because of the sleep. What's
-                    // important here is to make sure there are 4 retries and that no calls succeed to
-                    // ensure retries with the old connection timeout semantics work.
-                    Test.IRetryPrx retryWithTimeout = retry1.Clone(invocationTimeout: -2, connectionTimeout: 200);
-                    try
-                    {
-                        retryWithTimeout.sleep(500);
-                        test(false);
-                    }
-                    catch (Ice.TimeoutException)
-                    {
-                    }
-                    Instrumentation.testRetryCount(4);
                 }
                 output.WriteLine("ok");
             }

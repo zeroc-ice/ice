@@ -96,9 +96,6 @@ namespace Ice.binding
                 catch (ConnectFailedException)
                 {
                 }
-                catch (ConnectTimeoutException)
-                {
-                }
             }
             output.WriteLine("ok");
 
@@ -438,9 +435,6 @@ namespace Ice.binding
                 catch (ConnectFailedException)
                 {
                 }
-                catch (ConnectTimeoutException)
-                {
-                }
 
                 IEndpoint[] endpoints = obj.Endpoints;
 
@@ -489,9 +483,6 @@ namespace Ice.binding
                     test(false);
                 }
                 catch (ConnectFailedException)
-                {
-                }
-                catch (ConnectTimeoutException)
                 {
                 }
             }
@@ -608,9 +599,6 @@ namespace Ice.binding
                 catch (ConnectFailedException)
                 {
                 }
-                catch (ConnectTimeoutException)
-                {
-                }
 
                 IEndpoint[] endpoints = obj.Endpoints;
 
@@ -669,9 +657,6 @@ namespace Ice.binding
                     obj.getAdapterName();
                 }
                 catch (ConnectFailedException)
-                {
-                }
-                catch (ConnectTimeoutException)
                 {
                 }
 
@@ -768,9 +753,6 @@ namespace Ice.binding
                         test(false);
                     }
                     catch (ConnectFailedException)
-                    {
-                    }
-                    catch (ConnectTimeoutException)
                     {
                     }
 
