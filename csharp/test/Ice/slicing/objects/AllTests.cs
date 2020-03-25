@@ -47,11 +47,17 @@ public class AllTests : Test.AllTests
         output.WriteLine("ok");
 
         output.Write("testing Ice.Default.SlicedFormat... ");
-        // server to client
+        // server to client. Note that client and server has the same Ice.Default.SlicedFormat setting.
         try
         {
             SBase sb = test2Prx.SBSUnknownDerivedAsSBase();
             test(sb.sb.Equals("SBSUnknownDerived.sb"));
+            test(communicator.DefaultFormat == FormatType.Sliced);
+        }
+        catch (InvalidDataException)
+        {
+            // Expected when format is Compact
+            test(communicator.DefaultFormat == FormatType.Compact);
         }
         catch (System.Exception ex)
         {
@@ -63,6 +69,12 @@ public class AllTests : Test.AllTests
         try
         {
             test2Prx.CUnknownAsSBase(new CUnknown("CUnknown.sb", "CUnknown.cu"));
+            test(communicator.DefaultFormat == FormatType.Sliced);
+        }
+        catch (UnhandledException)
+        {
+            // Expected when format is Compact
+            test(communicator.DefaultFormat == FormatType.Compact);
         }
         catch (System.Exception ex)
         {

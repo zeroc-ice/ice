@@ -8,9 +8,7 @@ public class Client : TestHelper
 {
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
-        properties["Ice.Default.SlicedFormat"] = "1";
-        using var communicator = initialize(properties);
+        using var communicator = initialize(ref args);
         AllTests.allTests(this, false).shutdown();
     }
 

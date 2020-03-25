@@ -10,7 +10,6 @@ public class Server : TestHelper
     {
         var properties = createTestProperties(ref args);
         properties["Ice.Warn.Dispatch"] = "0";
-        properties["Ice.Default.SlicedFormat"] = "1";
         using var communicator = initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", $"{getTestEndpoint(0)} -t 2000");
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
