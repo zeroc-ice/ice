@@ -106,35 +106,35 @@ namespace Ice
             : this(current.Encoding)
         {
             OutputStream ostr;
-            if (exception is RequestFailedException requestFailedException)
+            if (exception is DispatchException dispatchException)
             {
                 ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
-                if (requestFailedException is DispatchException dispatchException)
+                if (dispatchException is PreExecutionException preExecutionException)
                 {
                     // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
 
-                    if (string.IsNullOrEmpty(dispatchException.Id.Name))
+                    if (string.IsNullOrEmpty(preExecutionException.Id.Name))
                     {
-                        dispatchException.Id = current.Id;
+                        preExecutionException.Id = current.Id;
                     }
 
-                    if (string.IsNullOrEmpty(dispatchException.Facet))
+                    if (string.IsNullOrEmpty(preExecutionException.Facet))
                     {
-                        dispatchException.Facet = current.Facet;
+                        preExecutionException.Facet = current.Facet;
                     }
 
-                    if (string.IsNullOrEmpty(dispatchException.Operation))
+                    if (string.IsNullOrEmpty(preExecutionException.Operation))
                     {
-                        dispatchException.Operation = current.Operation;
+                        preExecutionException.Operation = current.Operation;
                     }
 
                     ReplyStatus replyStatus = default;
 
-                    if (dispatchException is ObjectNotExistException)
+                    if (preExecutionException is ObjectNotExistException)
                     {
                         replyStatus = ReplyStatus.ObjectNotExistException;
                     }
-                    else if (dispatchException is OperationNotExistException)
+                    else if (preExecutionException is OperationNotExistException)
                     {
                         replyStatus = ReplyStatus.OperationNotExistException;
                     }
@@ -144,23 +144,23 @@ namespace Ice
                     }
 
                     ostr.WriteByte((byte)replyStatus);
-                    dispatchException.Id.IceWrite(ostr);
+                    preExecutionException.Id.IceWrite(ostr);
 
                     // For compatibility with the old FacetPath.
-                    if (string.IsNullOrEmpty(dispatchException.Facet))
+                    if (string.IsNullOrEmpty(preExecutionException.Facet))
                     {
                         ostr.WriteStringSeq(Array.Empty<string>());
                     }
                     else
                     {
-                        ostr.WriteStringSeq(new string[] { dispatchException.Facet });
+                        ostr.WriteStringSeq(new string[] { preExecutionException.Facet });
                     }
-                    ostr.WriteString(dispatchException.Operation);
+                    ostr.WriteString(preExecutionException.Operation);
                 }
                 else
                 {
                     ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
-                    ostr.WriteString(requestFailedException.Message);
+                    ostr.WriteString(dispatchException.Message);
                 }
             }
             else

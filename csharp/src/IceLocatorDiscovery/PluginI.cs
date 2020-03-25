@@ -81,7 +81,7 @@ namespace IceLocatorDiscovery
             {
                 throw ex;
             }
-            catch (Ice.RequestFailedException exc)
+            catch (Ice.DispatchException exc)
             {
                 SetException(exc);
             }
