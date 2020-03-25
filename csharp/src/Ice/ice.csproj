@@ -14,6 +14,9 @@
         <Compile Update="generated\Context.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Context.ice</SliceCompileSource>
         </Compile>
+        <Compile Update="generated\DispatchException.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\DispatchException.ice</SliceCompileSource>
+        </Compile>
         <Compile Update="generated\Identity.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
         </Compile>
@@ -46,9 +49,6 @@
         </Compile>
         <Compile Update="generated\RouterF.cs">
           <SliceCompileSource>..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
-        </Compile>
-        <Compile Update="generated\RequestFailedException.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\RequestFailedException.ice</SliceCompileSource>
         </Compile>
     </ItemGroup>
     <ItemGroup />
