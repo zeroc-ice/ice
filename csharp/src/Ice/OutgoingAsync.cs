@@ -145,7 +145,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void Cancelable(ICancellationHandler handler)
+        public void Cancelable(ICancellationHandler handler)
         {
             lock (this)
             {
