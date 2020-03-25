@@ -30,7 +30,7 @@ namespace Ice
         public static OutgoingResponseFrame WithVoidReturnValue(Encoding encoding)
             => new OutgoingResponseFrame(encoding, writeVoidReturnValue: true);
 
-        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format,
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType format,
             in T value, OutputStreamWriter<T> writer)
         {
             var response = new OutgoingResponseFrame(encoding);
@@ -44,7 +44,7 @@ namespace Ice
             return response;
         }
 
-        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType? format, T value,
+        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType format, T value,
             OutputStreamStructWriter<T> writer) where T : struct
         {
             var response = new OutgoingResponseFrame(encoding);

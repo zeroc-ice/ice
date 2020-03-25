@@ -36,13 +36,20 @@ isIdempotent(const OperationPtr& operation)
 }
 
 string
-opFormatTypeToString(const OperationPtr& op, string ns)
+opFormatTypeToString(const OperationPtr& op, string ns, bool nullForDefault)
 {
     switch (op->format())
     {
         case DefaultFormat:
         {
-            return "null";
+            if (nullForDefault)
+            {
+                return "null";
+            }
+            else
+            {
+                return "current.Adapter.Communicator.DefaultFormat";
+            }
         }
         case CompactFormat:
         {
@@ -2437,7 +2444,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << ".WithParameters("
                  << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
-                 << ", " << opFormatTypeToString(operation, ns) << ", context, ";
+                 << ", " << opFormatTypeToString(operation, ns, true) << ", context, ";
             _out << toTuple(inParams, "iceP_") << ", " << writer << ");";
         }
 
@@ -2451,7 +2458,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << '"' << operation->name() << '"' << ", "
              << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ", "
              << nl << "oneway: " << (operation->returnsData() ? "false" : "IsOneway") << ", "
-             << nl << opFormatTypeToString(operation, ns) << ", "
+             << nl << opFormatTypeToString(operation, ns, true) << ", "
              << nl << "context, "
              << nl << "synchronous, "
              << nl << "request";
@@ -2768,8 +2775,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sb;
         _out << nl << "Response = " << getUnqualified("Ice.OutgoingResponseFrame", ns) << ".WithReturnValue(";
         _out.inc();
-        _out << nl << "current.Encoding, ";
-        _out << nl << (operation->format() == DefaultFormat ? "null" : opFormatTypeToString(operation, ns)) << ", ";
+        _out << nl << "current.Encoding, " << opFormatTypeToString(operation, ns, false) << ", ";
         _out << nl << toTuple(outParams, "iceP_") << ", ";
         if(outParams.size() > 1)
         {
@@ -2926,9 +2932,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         else
         {
             _out << nl << "var response = " << getUnqualified("Ice.OutgoingResponseFrame", ns)
-                 << ".WithReturnValue(current.Encoding, "
-                 << (operation->format() == DefaultFormat ? "null" : opFormatTypeToString(operation, ns))
-                 << ", result, " << writer << ");";
+                << ".WithReturnValue(current.Encoding, " << opFormatTypeToString(operation, ns, false)
+                << ", result, " << writer << ");";
 
             if(amd)
             {
