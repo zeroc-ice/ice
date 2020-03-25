@@ -53,12 +53,7 @@ public sealed class TestIntf : ITestIntf
     }
 
     public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
-    {
-        SBSUnknownDerived sbsud = new SBSUnknownDerived();
-        sbsud.sb = "SBSUnknownDerived.sb";
-        sbsud.sbsud = "SBSUnknownDerived.sbsud";
-        return sbsud;
-    }
+        => new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
     public SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
     {
@@ -416,5 +411,19 @@ public sealed class TestIntf : ITestIntf
         f.h = new Hidden();
         f.h.f = f;
         return f;
+    }
+}
+
+public sealed class TestIntf2 : ITestIntf2
+{
+    public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
+        => new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
+
+    public void CUnknownAsSBase(SBase cUnknown, Ice.Current current)
+    {
+        if (cUnknown.sb != "CUnknown.sb")
+        {
+            throw new System.Exception();
+        }
     }
 }

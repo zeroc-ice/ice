@@ -7,7 +7,7 @@ testcases = [
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers
-if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
+if Mapping.getByPath(__name__).hasSource("Ice/slicing/exceptions", "serveramd"):
     testcases += [
         ClientAMDServerTestCase(),
     ]

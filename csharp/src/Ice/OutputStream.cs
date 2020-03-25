@@ -103,10 +103,12 @@ namespace Ice
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
 
+        // Constructor for header and other non-encapsulated data
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
             Encoding = encoding;
             Encoding.CheckSupported();
+            _format = default; // not used
             _segmentList = data;
             if (_segmentList.Count == 0)
             {
@@ -128,16 +130,12 @@ namespace Ice
             }
         }
 
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType? format)
+        // Constructor that starts an encapsulation
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType format)
             : this(encoding, data, startAt)
         {
             _mainEncaps = new Encaps(Encoding, _tail);
-
-            if (format.HasValue)
-            {
-                _format = format.Value;
-            }
-
+            _format = format;
             WriteEncapsulationHeader(0, Encoding);
         }
 
@@ -185,7 +183,7 @@ namespace Ice
 
             _current.SliceFlags = default;
 
-            if (_format == FormatType.SlicedFormat)
+            if (_format == FormatType.Sliced)
             {
                 // Encode the slice size if using the sliced format.
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasSliceSize;
@@ -202,7 +200,7 @@ namespace Ice
                 // encoding).
                 // This  also shows that the firtSlice is currently useful/used only for class instances in
                 // compact format.
-                if (_format == FormatType.SlicedFormat || firstSlice)
+                if (_format == FormatType.Sliced || firstSlice)
                 {
                     if (compactId.HasValue)
                     {
@@ -266,7 +264,7 @@ namespace Ice
 
             if (_current.IndirectionTable?.Count > 0)
             {
-                Debug.Assert(_format == FormatType.SlicedFormat);
+                Debug.Assert(_format == FormatType.Sliced);
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasIndirectionTable;
 
                 WriteSize(_current.IndirectionTable.Count);
@@ -971,7 +969,7 @@ namespace Ice
             {
                 WriteSize(0);
             }
-            else if (_current != null && _format == FormatType.SlicedFormat)
+            else if (_current != null && _format == FormatType.Sliced)
             {
                 // If writing an instance within a slice and using the sliced format, write an index of that slice's
                 // indirection table.
@@ -1102,7 +1100,7 @@ namespace Ice
         public void WriteException(RemoteException v)
         {
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current == null);
-            Debug.Assert(_format == FormatType.SlicedFormat);
+            Debug.Assert(_format == FormatType.Sliced);
             Debug.Assert(!(v is ObjectNotExistException)); // temporary
             Debug.Assert(!(v is OperationNotExistException)); // temporary
             Debug.Assert(!(v is UnhandledException)); // temporary
@@ -1377,7 +1375,7 @@ namespace Ice
             Debug.Assert(_current != null);
             // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
             // slices, which essentially "slices" the instance into the most-derived type known by the sender.
-            if (_format != FormatType.SlicedFormat || Encoding != slicedData.Encoding)
+            if (_format != FormatType.Sliced || Encoding != slicedData.Encoding)
             {
                 // TODO: if the encodings don't match, do we just drop these slices, or throw an exception?
                 return false;

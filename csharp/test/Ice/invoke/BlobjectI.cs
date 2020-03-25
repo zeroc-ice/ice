@@ -23,7 +23,8 @@ namespace Ice.invoke
             else if (current.Operation.Equals("opString"))
             {
                 string s = istr.ReadString();
-                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null, (s, s),
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding,
+                    current.Adapter.Communicator.DefaultFormat, (s, s),
                     (OutputStream ostr, (string ReturnValue, string s2) value) =>
                     {
                         ostr.WriteString(value.ReturnValue);
@@ -48,7 +49,8 @@ namespace Ice.invoke
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = istr.ReadString();
-                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding, format: null,
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding,
+                    current.Adapter.Communicator.DefaultFormat,
                     s.Equals("::Test::MyClass"), OutputStream.IceWriterFromBool);
                 return responseFrame;
             }

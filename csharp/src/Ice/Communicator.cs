@@ -117,6 +117,10 @@ namespace Ice
             }
         }
 
+        /// <summary>The default format (Compact or Sliced) for class instances marshaled by this communicator.
+        /// </summary>
+        public FormatType DefaultFormat => DefaultsAndOverrides.DefaultFormat;
+
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
         public Action? ThreadStart { get; private set; }

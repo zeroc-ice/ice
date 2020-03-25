@@ -37,12 +37,38 @@ public class AllTests : Test.AllTests
         output.Write("testing stringToProxy... ");
         output.Flush();
         IObjectPrx basePrx = IObjectPrx.Parse($"Test:{helper.getTestEndpoint(0)} -t 2000", communicator);
+        ITestIntf2Prx test2Prx = ITestIntf2Prx.Parse($"Test2:{helper.getTestEndpoint(0)} -t 2000", communicator);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
         ITestIntfPrx testPrx = ITestIntfPrx.CheckedCast(basePrx);
         test(testPrx.Equals(basePrx));
+        output.WriteLine("ok");
+
+        output.Write("testing Ice.Default.SlicedFormat... ");
+        // server to client
+        try
+        {
+            SBase sb = test2Prx.SBSUnknownDerivedAsSBase();
+            test(sb.sb.Equals("SBSUnknownDerived.sb"));
+        }
+        catch (System.Exception ex)
+        {
+            output.WriteLine(ex.ToString());
+            test(false);
+        }
+
+        // client to server
+        try
+        {
+            test2Prx.CUnknownAsSBase(new CUnknown("CUnknown.sb", "CUnknown.cu"));
+        }
+        catch (System.Exception ex)
+        {
+            output.WriteLine(ex.ToString());
+            test(false);
+        }
         output.WriteLine("ok");
 
         output.Write("base as Object... ");
@@ -176,7 +202,6 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-
         try
         {
             //
