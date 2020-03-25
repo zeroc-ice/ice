@@ -14,6 +14,7 @@ public class Server : TestHelper
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("Test", new TestIntf());
+        adapter.Add("Test2", new TestIntf2());
         adapter.Activate();
         communicator.WaitForShutdown();
     }

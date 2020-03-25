@@ -37,6 +37,7 @@ public class AllTests : Test.AllTests
         output.Write("testing stringToProxy... ");
         output.Flush();
         IObjectPrx basePrx = IObjectPrx.Parse($"Test:{helper.getTestEndpoint(0)} -t 2000", communicator);
+        ITestIntf2Prx test2Prx = ITestIntf2Prx.Parse($"Test2:{helper.getTestEndpoint(0)} -t 2000", communicator);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
@@ -168,6 +169,21 @@ public class AllTests : Test.AllTests
             try
             {
                 sb = testPrx.SBSUnknownDerivedAsSBase();
+                test(sb.sb.Equals("SBSUnknownDerived.sb"));
+            }
+            catch (System.Exception ex)
+            {
+                output.WriteLine(ex.ToString());
+                test(false);
+            }
+        }
+
+        // Again with test2 to test Ice.Default.SlicedFormat
+        {
+            SBase sb;
+            try
+            {
+                sb = test2Prx.SBSUnknownDerivedAsSBase();
                 test(sb.sb.Equals("SBSUnknownDerived.sb"));
             }
             catch (System.Exception ex)

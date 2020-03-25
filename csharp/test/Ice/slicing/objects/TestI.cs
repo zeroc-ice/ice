@@ -418,3 +418,14 @@ public sealed class TestIntf : ITestIntf
         return f;
     }
 }
+
+public sealed class TestIntf2 : ITestIntf2
+{
+    public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
+    {
+        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        sbsud.sb = "SBSUnknownDerived.sb";
+        sbsud.sbsud = "SBSUnknownDerived.sbsud";
+        return sbsud;
+    }
+}

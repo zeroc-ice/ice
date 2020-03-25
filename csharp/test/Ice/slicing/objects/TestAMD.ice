@@ -149,6 +149,13 @@ interface TestIntf
     void shutdown();
 }
 
+// Used to test Ice.Default.SlicedFormat property
+["amd"]
+interface TestIntf2
+{
+    SBase SBSUnknownDerivedAsSBase();
+}
+
 class Hidden
 {
     Forward f;

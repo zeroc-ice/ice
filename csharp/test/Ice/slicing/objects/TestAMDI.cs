@@ -423,5 +423,12 @@ public sealed class TestIntf : ITestIntf
         return FromResult(f);
     }
 
-    internal static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
+    private static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
+}
+
+public sealed class TestIntf2 : ITestIntf2
+{
+    public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Ice.Current current)
+        => new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+
 }

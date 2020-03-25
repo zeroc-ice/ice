@@ -103,10 +103,12 @@ namespace Ice
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
 
+        // Constructor for header and other non-encapsulated data
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
             Encoding = encoding;
             Encoding.CheckSupported();
+            _format = default; // not used
             _segmentList = data;
             if (_segmentList.Count == 0)
             {
@@ -128,16 +130,12 @@ namespace Ice
             }
         }
 
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType? format)
+        // Constructor that starts an encapsulation
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType format)
             : this(encoding, data, startAt)
         {
             _mainEncaps = new Encaps(Encoding, _tail);
-
-            if (format.HasValue)
-            {
-                _format = format.Value;
-            }
-
+            _format = format;
             WriteEncapsulationHeader(0, Encoding);
         }
 
