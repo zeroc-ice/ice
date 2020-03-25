@@ -1724,15 +1724,15 @@ namespace Ice
             //
             if (ex is CommunicatorDestroyedException ||
                 ex is ObjectAdapterDeactivatedException ||
-                ex is ConnectionManuallyClosedException)
+                ex is ConnectionClosedLocallyException)
             {
                 throw ex;
             }
 
             //
-            // Don't retry invocation timeouts.
+            // Don't retry on timeout and operation canceled exceptions.
             //
-            if (ex is InvocationTimeoutException || ex is InvocationCanceledException)
+            if (ex is TimeoutException || ex is OperationCanceledException)
             {
                 throw ex;
             }
@@ -1741,10 +1741,10 @@ namespace Ice
             Debug.Assert(cnt > 0);
 
             int interval;
-            if (cnt == (_retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)
+            if (cnt == (_retryIntervals.Length + 1) && ex is Ice.ConnectionClosedByPeerException)
             {
                 //
-                // A close connection exception is always retried at least once, even if the retry
+                // A connection closed exception is always retried at least once, even if the retry
                 // limit is reached.
                 //
                 interval = 0;

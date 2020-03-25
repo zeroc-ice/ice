@@ -651,7 +651,6 @@ namespace Ice.proxy
             try
             {
                 baseProxy.Clone(invocationTimeout: -1);
-                baseProxy.Clone(invocationTimeout: -2);
             }
             catch (ArgumentException)
             {
@@ -660,7 +659,7 @@ namespace Ice.proxy
 
             try
             {
-                baseProxy.Clone(invocationTimeout: -3);
+                baseProxy.Clone(invocationTimeout: -2);
                 test(false);
             }
             catch (ArgumentException)

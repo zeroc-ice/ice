@@ -145,7 +145,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void Cancelable(ICancellationHandler handler)
+        public void Cancelable(ICancellationHandler handler)
         {
             lock (this)
             {
@@ -164,7 +164,9 @@ namespace IceInternal
                 _cancellationHandler = handler;
             }
         }
-        public void Cancel() => Cancel(new Ice.InvocationCanceledException());
+
+        // TODO: add more details in message
+        public void Cancel() => Cancel(new OperationCanceledException("invocation on remote Ice object canceled"));
 
         public void AttachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
         {
@@ -386,10 +388,6 @@ namespace IceInternal
             }
 
             CachedConnection = null;
-            if (Proxy.IceReference.GetInvocationTimeout() == -2)
-            {
-                Communicator.Timer().Cancel(this);
-            }
 
             //
             // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -409,19 +407,6 @@ namespace IceInternal
             {
                 return ExceptionImpl(ex); // No retries, we're done
             }
-        }
-
-        public override void Cancelable(ICancellationHandler handler)
-        {
-            if (Proxy.IceReference.GetInvocationTimeout() == -2 && CachedConnection != null)
-            {
-                int timeout = CachedConnection.Timeout;
-                if (timeout > 0)
-                {
-                    Communicator.Timer().Schedule(this, timeout);
-                }
-            }
-            base.Cancelable(handler);
         }
 
         public void RetryException()
@@ -593,17 +578,9 @@ namespace IceInternal
             return base.ResponseImpl(userThread, ok, invoke);
         }
 
+        // TODO: add facet and operation to message
         public void RunTimerTask()
-        {
-            if (Proxy.IceReference.GetInvocationTimeout() == -2)
-            {
-                Cancel(new Ice.ConnectionTimeoutException());
-            }
-            else
-            {
-                Cancel(new Ice.InvocationTimeoutException());
-            }
-        }
+            => Cancel(new TimeoutException($"invocation on remote Ice object `{Proxy.Identity}' timed out"));
 
         protected IReadOnlyDictionary<string, string> ProxyAndCurrentContext()
         {

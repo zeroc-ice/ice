@@ -258,7 +258,7 @@ namespace IceInternal
             {
                 //
                 // If we initiated a close connection but also received a
-                // close connection, we assume we didn't initiated the
+                // connection closed, we assume we didn't initiated the
                 // connection and we send the close frame now. This is to
                 // ensure that if both peers close the connection at the same
                 // time we don't hang having both peer waiting for the close
@@ -274,7 +274,7 @@ namespace IceInternal
             }
 
             _closingInitiator = initiator;
-            if (reason is CloseConnectionException)
+            if (reason is ConnectionClosedByPeerException)
             {
                 _closingReason = CLOSURE_NORMAL;
             }

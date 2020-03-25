@@ -104,7 +104,7 @@ namespace Ice
                 public ValueTask
                 throwLocalExceptionAsync(Ice.Current current)
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
 
                 public ValueTask
@@ -129,7 +129,7 @@ namespace Ice
                 public ValueTask
                 throwLocalExceptionIdempotentAsync(Ice.Current current)
                 {
-                    throw new Ice.TimeoutException();
+                    throw new Ice.ConnectionTimeoutException();
                 }
 
                 public ValueTask

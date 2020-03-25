@@ -36,7 +36,7 @@ namespace Ice.exceptions
 
         public void throwCasC(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
 
-        public void throwLocalException(Current current) => throw new TimeoutException();
+        public void throwLocalException(Current current) => throw new ConnectionTimeoutException();
 
         public void throwNonIceException(Current current) => throw new System.Exception();
 
@@ -45,7 +45,7 @@ namespace Ice.exceptions
         // 20KB is over the configured 10KB message size max.
         public byte[] throwMemoryLimitException(byte[] seq, Current current) => new byte[1024 * 20];
 
-        public void throwLocalExceptionIdempotent(Current current) => throw new TimeoutException();
+        public void throwLocalExceptionIdempotent(Current current) => throw new ConnectionTimeoutException();
 
         public void throwUndeclaredA(int a, Current current) => throw new Test.A(a);
 
