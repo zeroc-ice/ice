@@ -78,24 +78,34 @@ namespace Ice
             }
         }
 
-        /// <summary>Starts reading the return value carried by this response frame. If the response frame carries
-        /// a failure, ReadReturnValue reads and throws this exception.</summary>
-        /// <returns>An InputStream iterator over this return value.</returns>
-        public InputStream ReadReturnValue()
+        /// <summary>Reads the return value carried by this response frame using the provided InputStreamReader.
+        /// If the response frame carries a failure, ReadReturnValue reads and throws this exception.</summary>
+        /// <param name="reader">InputStreamReader that reads the return value.</param>
+        /// <returns>The return value.</returns>
+        public T ReadReturnValue<T>(InputStreamReader<T> reader)
         {
             if (ReadResult().ResultType == ResultType.Failure)
             {
                 // TODO: would be nicer to read then EndEncaps then throw the exception
                 InputStream.ThrowException();
             }
-            return InputStream;
+
+            var returnValue = reader(InputStream);
+
+            InputStream.EndEncapsulation();
+
+            return returnValue;
         }
 
         /// <summary>Reads an empty return value from the response frame.</summary>
         public void ReadVoidReturnValue()
         {
-            InputStream istr = ReadReturnValue();
-            istr.EndEncapsulation();
+            if (ReadResult().ResultType == ResultType.Failure)
+            {
+                // TODO: would be nicer to read then EndEncaps then throw the exception
+                InputStream.ThrowException();
+            }
+            InputStream.EndEncapsulation();
         }
 
         internal IncomingResponseFrame(ReplyStatus replyStatus, InputStream inputStream)

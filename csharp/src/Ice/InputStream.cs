@@ -27,6 +27,7 @@ namespace Ice
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<string[]> IceReaderIntoStringArray = (istr) => istr.ReadStringArray();
 
         /// <summary>
         /// The communicator associated with this stream.
