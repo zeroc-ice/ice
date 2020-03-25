@@ -82,7 +82,7 @@ namespace Ice
             var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
                                                               id, OutputStream.IceWriterFromString);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task, InputStream.IceReaderIntoBool);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoBool);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Ice
         {
             var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel);
-            return IsOneway ? task : ReadVoidResponseAsync(task);
+            return IsOneway ? task : IceReadVoidResponseAsync(task);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Ice
         {
             var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
         }
 
         /// <summary>
@@ -165,11 +165,11 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
-                                       CancellationToken cancel = new CancellationToken())
+                                       CancellationToken cancel = default)
         {
             var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return ReadResponseAsync(task, InputStream.IceReaderIntoString);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoString);
         }
 
         /// <summary>
@@ -486,9 +486,13 @@ namespace Ice
                 SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
         }
 
-        protected static async Task ReadVoidResponseAsync(Task<IncomingResponseFrame> task)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static async Task IceReadVoidResponseAsync(Task<IncomingResponseFrame> task)
             => (await task.ConfigureAwait(false)).ReadVoidReturnValue();
-        protected static async Task<T> ReadResponseAsync<T>(Task<IncomingResponseFrame> task, InputStreamReader<T> reader)
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static async Task<T> IceReadResponseAsync<T>(Task<IncomingResponseFrame> task,
+                                                               InputStreamReader<T> reader)
             => (await task.ConfigureAwait(false)).ReadReturnValue(reader);
     }
 
