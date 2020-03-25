@@ -53,11 +53,11 @@ opFormatTypeToString(const OperationPtr& op, string ns, bool nullForDefault)
         }
         case CompactFormat:
         {
-            return getUnqualified("Ice.FormatType.CompactFormat", ns);
+            return getUnqualified("Ice.FormatType.Compact", ns);
         }
         case SlicedFormat:
         {
-            return getUnqualified("Ice.FormatType.SlicedFormat", ns);
+            return getUnqualified("Ice.FormatType.Sliced", ns);
         }
         default:
         {

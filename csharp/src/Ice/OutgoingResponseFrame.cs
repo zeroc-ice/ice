@@ -168,7 +168,7 @@ namespace Ice
                 byte[] buffer = new byte[256];
                 buffer[0] = (byte)ReplyStatus.UserException;
                 Data.Add(buffer);
-                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), FormatType.SlicedFormat);
+                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), FormatType.Sliced);
                 ostr.WriteException(exception);
             }
 

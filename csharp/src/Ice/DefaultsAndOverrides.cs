@@ -183,7 +183,7 @@ namespace IceInternal
             }
 
             bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
-            DefaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
+            DefaultFormat = slicedFormat ? Ice.FormatType.Sliced : Ice.FormatType.Compact;
         }
 
         public string? DefaultHost;
