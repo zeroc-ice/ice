@@ -11,16 +11,16 @@ namespace IceInternal
 {
     internal sealed class TraceUtil
     {
-        internal static void TraceSend(Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceSend(Communicator communicator, Encoding encoding,
+            byte[] buffer, ILogger logger, TraceLevels tl)
         {
             if (tl.Protocol >= 1)
             {
-                var buffer = str.ToArray(); // TODO avoid copy the data
-                var iss = new InputStream(str.Communicator, str.Encoding, buffer);
+                var iss = new InputStream(communicator, encoding, buffer);
                 iss.Pos = 0;
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-                byte type = PrintMessage(s, iss);
+                Ice1Definitions.MessageType type = PrintMessage(s, iss);
 
                 logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
             }
@@ -35,27 +35,11 @@ namespace IceInternal
 
                 using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
-                    byte type = PrintMessage(s, str);
+                    Ice1Definitions.MessageType type = PrintMessage(s, str);
 
                     logger.Trace(tl.ProtocolCat, "received " + GetMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.Pos = p;
-            }
-        }
-
-        internal static void Trace(string heading, Ice.OutputStream str, Ice.ILogger logger, TraceLevels tl)
-        {
-            if (tl.Protocol >= 1)
-            {
-                var buffer = str.ToArray(); // TODO avoid copy the data
-                var iss = new InputStream(str.Communicator, str.Encoding, buffer);
-                iss.Pos = 0;
-
-                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-                s.Write(heading);
-                PrintMessage(s, iss);
-
-                logger.Trace(tl.ProtocolCat, s.ToString());
             }
         }
 
@@ -151,7 +135,7 @@ namespace IceInternal
 
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
-                Ice.Encoding v = str.SkipEncapsulation();
+                _ = str.SkipEncapsulation();
                 s.Write("\nencoding = ");
             }
         }
@@ -214,7 +198,7 @@ namespace IceInternal
             }
         }
 
-        private static byte PrintHeader(System.IO.StringWriter s, Ice.InputStream str)
+        private static Ice1Definitions.MessageType PrintHeader(System.IO.StringWriter s, Ice.InputStream str)
         {
             try
             {
@@ -235,7 +219,7 @@ namespace IceInternal
                 str.ReadByte();
                 //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
-                byte type = str.ReadByte();
+                var type = (Ice1Definitions.MessageType)str.ReadByte();
                 s.Write("\nmessage type = " + (int)type + " (" + GetMessageTypeAsString(type) + ')');
 
                 byte compress = str.ReadByte();
@@ -278,32 +262,32 @@ namespace IceInternal
             }
         }
 
-        private static byte PrintMessage(System.IO.StringWriter s, Ice.InputStream str)
+        private static Ice1Definitions.MessageType PrintMessage(System.IO.StringWriter s, InputStream str)
         {
-            byte type = PrintHeader(s, str);
+            var type = (Ice1Definitions.MessageType) PrintHeader(s, str);
 
             switch (type)
             {
-                case Ice1Definitions.CloseConnectionMessage:
-                case Ice1Definitions.ValidateConnectionMessage:
+                case Ice1Definitions.MessageType.CloseConnectionMessage:
+                case Ice1Definitions.MessageType.ValidateConnectionMessage:
                     {
                         // We're done.
                         break;
                     }
 
-                case Ice1Definitions.RequestMessage:
+                case Ice1Definitions.MessageType.RequestMessage:
                     {
                         PrintRequest(s, str);
                         break;
                     }
 
-                case Ice1Definitions.RequestBatchMessage:
+                case Ice1Definitions.MessageType.RequestBatchMessage:
                     {
                         PrintBatchRequest(s, str);
                         break;
                     }
 
-                case Ice1Definitions.ReplyMessage:
+                case Ice1Definitions.MessageType.ReplyMessage:
                     {
                         PrintReply(s, str);
                         break;
@@ -337,15 +321,15 @@ namespace IceInternal
             }
         }
 
-        private static string GetMessageTypeAsString(byte type)
+        private static string GetMessageTypeAsString(Ice1Definitions.MessageType type)
         {
             return type switch
             {
-                Ice1Definitions.RequestMessage => "request",
-                Ice1Definitions.RequestBatchMessage => "batch request",
-                Ice1Definitions.ReplyMessage => "reply",
-                Ice1Definitions.CloseConnectionMessage => "close connection",
-                Ice1Definitions.ValidateConnectionMessage => "validate connection",
+                Ice1Definitions.MessageType.RequestMessage => "request",
+                Ice1Definitions.MessageType.RequestBatchMessage => "batch request",
+                Ice1Definitions.MessageType.ReplyMessage => "reply",
+                Ice1Definitions.MessageType.CloseConnectionMessage => "close connection",
+                Ice1Definitions.MessageType.ValidateConnectionMessage => "validate connection",
                 _ => "unknown",
             };
         }

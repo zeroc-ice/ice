@@ -8,7 +8,7 @@ using Ice;
 
 public class BlobjectI : IObject
 {
-    public ValueTask<OutputStream> DispatchAsync(InputStream inputStream, Current current)
+    public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream inputStream, Current current)
     {
         var request = new IncomingRequestFrame(inputStream, current); // Temporary
 

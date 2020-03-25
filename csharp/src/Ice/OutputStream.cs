@@ -56,12 +56,6 @@ namespace Ice
         public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
 
         /// <summary>
-        /// The communicator associated with this stream.
-        /// </summary>
-        /// <value>The communicator.</value>
-        public Communicator Communicator { get; }
-
-        /// <summary>
         /// The encoding used when writing from this stream.
         /// </summary>
         /// <value>The encoding.</value>
@@ -72,100 +66,73 @@ namespace Ice
         /// <value>The current size.</value>
         internal int Size { get; private set; }
 
+        internal Position Tail => _tail;
+
         private const int DefaultSegmentSize = 256;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
+        // Data for the class or exception instance that is currently getting marshaled.
+        private InstanceData? _current;
         // The segment currently used by write operations, this is usually the last segment of
         // the segment list but it can occasionally be one before last after expanding the list.
         // The tail Position always points to this segment, and the tail offset indicates how much
         // of the segment has been used.
         private ArraySegment<byte> _currentSegment;
-        // all segments before the the tail segment are fully used
-        private List<ArraySegment<byte>> _segmentList;
-
-        // When set, we are writing to a top-level encapsulation.
-        private Encaps? _mainEncaps;
-
-        // When set, we are writing an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
-        // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
-        // when _mainEncaps is set (so nested inside _mainEncaps).
+        // When set, we are writing an endpoint encapsulation. An endpoint encapsulation is a lightweight
+        // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
+        // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
-
         // The current class/exception format, can be either Compact or Sliced.
-        private FormatType _format;
-
+        private readonly FormatType _format;
         // Map of class instance to instance ID, where the instance IDs start at 2.
         // When writing a top-level encapsulation:
         //  - Instance ID = 0 means null.
         //  - Instance ID = 1 means the instance is encoded inline afterwards.
         //  - Instance ID > 1 means a reference to a previously encoded instance, found in this map.
         private Dictionary<AnyClass, int>? _instanceMap;
-
+        // When set, we are writing to a top-level encapsulation.
+        private readonly Encaps? _mainEncaps;
+        // all segments before the tail segment are fully used
+        private readonly List<ArraySegment<byte>> _segmentList;
+        // This is the position for the next write operation, it holds the index of the current
+        // segment and the offset into it.
+        private Position _tail;
         // Map of type ID string to type ID index.
         // When writing into a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
 
-        // Data for the class or exception instance that is currently getting marshaled.
-        private InstanceData? _current;
-
-        // This is the position for the next write operation, it holds the index of the current
-        // segment and the offset into it.
-        private Position _tail;
-
-        /// <summary>
-        /// This constructor uses the communicator's default encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public OutputStream(Communicator communicator)
-            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
-        }
-
-        /// <summary>
-        /// This constructor uses the given communicator and encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="buffer">The intial stream data.</param>
-        public OutputStream(Communicator communicator, Encoding encoding, byte[]? buffer = null)
-        {
-            Communicator = communicator;
             Encoding = encoding;
-            _segmentList = new List<ArraySegment<byte>>();
-            _currentSegment = buffer ?? new byte[DefaultSegmentSize];
-            _segmentList.Add(_currentSegment);
-            _capacity = _currentSegment.Count;
-            if (buffer == null)
+            Encoding.CheckSupported();
+            _segmentList = data;
+            if (_segmentList.Count == 0)
             {
+                _currentSegment = ArraySegment<byte>.Empty;
+                _capacity = 0;
                 Size = 0;
+                _tail = new Position(0, 0);
             }
             else
             {
-                Size = buffer.Length;
+                _tail = startAt ?? new Position(0, 0);
+                _currentSegment = _segmentList[_tail.Segment];
+                Size = Distance(new Position(0, 0));
+                _capacity = 0;
+                foreach (ArraySegment<byte> segment in _segmentList)
+                {
+                    _capacity += segment.Count;
+                }
             }
-            _tail = new Position(0, Size);
         }
 
-        /// <summary>
-        /// Writes the start of an encapsulation to the stream.
-        /// </summary>
-        public void StartEncapsulation() => StartEncapsulation(Encoding);
-
-        /// <summary>
-        /// Writes the start of an encapsulation to the stream.
-        /// </summary>
-        /// <param name="encoding">The encoding version of the encapsulation.</param>
-        /// <param name="format">Specify the compact or sliced format; when null, keep the stream's format.</param>
-        public void StartEncapsulation(Encoding encoding, FormatType? format = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType? format)
+            : this(encoding, data, startAt)
         {
-            Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
-            encoding.CheckSupported();
+            _mainEncaps = new Encaps(Encoding, _tail);
 
-            _mainEncaps = new Encaps(Encoding, _format, _tail);
-
-            Encoding = encoding;
             if (format.HasValue)
             {
                 _format = format.Value;
@@ -174,41 +141,27 @@ namespace Ice
             WriteEncapsulationHeader(0, Encoding);
         }
 
-        internal IList<ArraySegment<byte>> GetUnderlyingBuffer()
-        {
-            Debug.Assert(_segmentList.Count > 0);
-            var buffer = new List<ArraySegment<byte>>();
-            for (int i = 0; i < _segmentList.Count; i++)
-            {
-                ArraySegment<byte> segment = _segmentList[i];
-                if (i == _tail.Segment)
-                {
-                    buffer.Add(segment.Slice(0, _tail.Offset));
-                    break;
-                }
-                else
-                {
-                    buffer.Add(segment);
-                }
-            }
-            return buffer;
-        }
-
         /// <summary>
-        /// Ends the previous main encapsulation.
+        /// Finish writing the contents of the stream, and inform the frame that
+        /// create the stream the payload is ready. The stream should not longer
+        /// be used.
         /// </summary>
-        public void EndEncapsulation()
+        /// <returns>The tail position that marks the end of the stream.</returns>
+        /// TODO: The stream should not longer be used, how can we enforce it.
+        internal Position Save()
         {
-            Debug.Assert(_mainEncaps.HasValue && _endpointEncaps == null);
+            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
 
-            Encaps encaps = _mainEncaps.Value;
+            if (_mainEncaps.HasValue)
+            {
+                Debug.Assert(_endpointEncaps == null);
 
-            // Size includes size and version.
-            RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
+                Encaps encaps = _mainEncaps.Value;
 
-            Encoding = encaps.OldEncoding;
-            _format = encaps.OldFormat;
-            ResetEncapsulation();
+                // Size includes size and version.
+                RewriteInt(Distance(encaps.StartPos), encaps.StartPos);
+            }
+            return _tail;
         }
 
         // Start writing a slice of a class or exception instance.
@@ -606,6 +559,8 @@ namespace Ice
         /// </summary>
         /// <param name="v">The int to write to the stream.</param>
         public void WriteInt(int v) => WriteNumeric(v, 4);
+
+        internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         /// <summary>
         /// Writes an optional int to the stream.
@@ -1157,19 +1112,6 @@ namespace Ice
             Pop(null);
         }
 
-        /// <summary>Reset the stream to the initial state, after reset the stream holds a single
-        /// segment.</summary>
-        internal void Reset()
-        {
-            _segmentList.Clear();
-            _currentSegment = new byte[DefaultSegmentSize];
-            _segmentList.Add(_currentSegment);
-            Size = 0;
-            _capacity = DefaultSegmentSize;
-            _tail.Offset = 0;
-            _tail.Segment = 0;
-        }
-
         /// <summary>Write a byte at a given position of the stream.</summary>
         /// <param name="v">The byte value to write.</param>
         /// <param name="pos">The position to write to.</param>
@@ -1209,7 +1151,7 @@ namespace Ice
             if (remaining < 4)
             {
                 segment = _segmentList[pos.Segment + 1];
-                data.Slice(remaining, 4 - remaining).CopyTo(segment.AsSpan(0, 4 - remaining));
+                data[remaining..4].CopyTo(segment.AsSpan(0, 4 - remaining));
             }
         }
 
@@ -1254,24 +1196,30 @@ namespace Ice
         private int Distance(Position start)
         {
             Debug.Assert(_tail.Segment > start.Segment ||
-                         (_tail.Segment == start.Segment && _tail.Offset > start.Offset));
+                        (_tail.Segment == start.Segment && _tail.Offset >= start.Offset));
 
+            return Distance(_segmentList, start, _tail);
+        }
+
+        internal static int Distance(IList<ArraySegment<byte>> data, Position start, Position end)
+        {
             // If both the start and end position are in the same array segment just
             // compute the offsets distance.
-            if (start.Segment == _tail.Segment)
+            if (start.Segment == end.Segment)
             {
-                return _tail.Offset - start.Offset;
+                return end.Offset - start.Offset;
             }
-            // If start and end position are in different segments we need to acumulate the
+
+            // If start and end position are in different segments we need to accumulate the
             // size from start offset to the end of the start segment, the size of the intermediary
             // segments, and the current offset into the last segment.
-            ArraySegment<byte> segment = _segmentList[start.Segment];
+            ArraySegment<byte> segment = data[start.Segment];
             int size = segment.Count - start.Offset;
-            for (int i = start.Segment + 1; i < _tail.Segment; ++i)
+            for (int i = start.Segment + 1; i < end.Segment; ++i)
             {
-                size += _segmentList[i].Count;
+                size += data[i].Count;
             }
-            return size + _tail.Offset;
+            return size + end.Offset;
         }
 
         /// <summary>Write a span of bytes to the stream. The stream capacity is expanded
@@ -1315,35 +1263,6 @@ namespace Ice
             }
         }
 
-        /// <summary>Appends an array segment to the segment list, no data is copied. If the
-        /// current segment is not fully written it is first sliced to the written size, this
-        /// ensures there is no gaps, the size and capacity of the stream are adjusted to the
-        /// sum of all segment counts, and the tail is advanced to the end of the new segment.</summary>
-        /// <param name="payload">The array segment payload to write into the stream.</param>
-        internal void WritePayload(ArraySegment<byte> payload)
-        {
-            Debug.Assert(_tail.Segment == _segmentList.Count - 1, "Current segment is not the last segment");
-
-            // If current segment is not fully written slice it to is written size
-            // and adjust the stream capacity.
-            if (_tail.Offset < _currentSegment.Count)
-            {
-                _capacity -= _currentSegment.Count;
-                _currentSegment = _currentSegment.Slice(0, _tail.Offset);
-                _capacity += _currentSegment.Count;
-                _segmentList[_tail.Segment] = _currentSegment;
-            }
-
-            Debug.Assert(Size == _capacity);
-
-            _segmentList.Add(payload);
-            _capacity += payload.Count;
-            Size = _capacity;
-            _currentSegment = payload;
-            _tail.Segment++;
-            _tail.Offset = _currentSegment.Count;
-        }
-
         /// <summary>Expand the stream to make room for more data, if the stream
         /// remaining bytes are not enough to hold the given number of bytes allocate
         /// a new byte array, after this method return the stream has enough free space
@@ -1358,6 +1277,10 @@ namespace Ice
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
+                if (_segmentList.Count == 1)
+                {
+                    _currentSegment = buffer;
+                }
                 _capacity += buffer.Length;
             }
         }
@@ -1398,26 +1321,6 @@ namespace Ice
             WriteSpan(data);
         }
 
-        /// <summary>Swaps the contents of one stream with another.</summary>
-        /// <param name="other">The other stream.</param>
-        internal void Swap(OutputStream other)
-        {
-            Debug.Assert(Communicator == other.Communicator);
-
-            (_segmentList, other._segmentList) = (other._segmentList, _segmentList);
-            (Size, other.Size) = (other.Size, Size);
-            (_capacity, other._capacity) = (other._capacity, _capacity);
-            (_currentSegment, other._currentSegment) = (other._currentSegment, _currentSegment);
-            (_tail, other._tail) = (other._tail, _tail);
-            (Encoding, other.Encoding) = (other.Encoding, Encoding);
-
-            // Swap is never called for streams that have encapsulations being written. However,
-            // encapsulations might still be set in case marshalling failed. We just
-            // reset the encapsulations if there are still some set.
-            ResetEncapsulation();
-            other.ResetEncapsulation();
-        }
-
         internal void StartEndpointEncapsulation() => StartEndpointEncapsulation(Encoding);
 
         internal void StartEndpointEncapsulation(Encoding encoding)
@@ -1425,7 +1328,7 @@ namespace Ice
             Debug.Assert(_endpointEncaps == null);
             encoding.CheckSupported();
 
-            _endpointEncaps = new Encaps(Encoding, _format, _tail);
+            _endpointEncaps = new Encaps(Encoding, _tail);
             Encoding = encoding;
             // We didn't change _format, so no need to restore it.
 
@@ -1445,13 +1348,13 @@ namespace Ice
         }
 
         /// <summary>
-        /// Writes an empty encapsulation using the given encoding version.
+        /// Writes an empty encapsulation.
         /// </summary>
-        /// <param name="encoding">The encoding version of the encapsulation.</param>
-        internal void WriteEmptyEncapsulation(Encoding encoding)
+        internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
-            encoding.CheckSupported();
             WriteEncapsulationHeader(6, encoding);
+            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
+            return _tail;
         }
 
         /// <summary>
@@ -1512,15 +1415,6 @@ namespace Ice
             WriteInt(size);
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
-        }
-
-        private void ResetEncapsulation()
-        {
-            _mainEncaps = null;
-            _endpointEncaps = null;
-            _current = null;
-            _instanceMap?.Clear();
-            _typeIdMap?.Clear();
         }
 
         private int RegisterTypeId(string typeId)
@@ -1607,15 +1501,11 @@ namespace Ice
             // Old Encoding
             internal readonly Encoding OldEncoding;
 
-            // Previous format (Compact or Sliced).
-            internal readonly FormatType OldFormat;
-
             internal readonly Position StartPos;
 
-            internal Encaps(Encoding oldEncoding, FormatType oldFormat, Position startPos)
+            internal Encaps(Encoding oldEncoding, Position startPos)
             {
                 OldEncoding = oldEncoding;
-                OldFormat = oldFormat;
                 StartPos = startPos;
             }
         }

@@ -60,14 +60,10 @@ namespace Ice
         /// <returns>True if the target object implements the Slice interface identified by id</returns>.
         public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null)
         {
-            try
-            {
-                return IceIsAAsync(id, context, null, CancellationToken.None, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
+                                                              id, OutputStream.IceWriterFromString);
+            var response = IceInvoke(request, oneway: false);
+            return response.ReadReturnValue(InputStream.IceReaderIntoBool);
         }
 
         /// <summary>
@@ -81,25 +77,12 @@ namespace Ice
         public Task<bool> IceIsAAsync(string id,
                                       IReadOnlyDictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
-                                      CancellationToken cancel = default) =>
-            IceIsAAsync(id, context, progress, cancel, synchronous: false);
-
-        private Task<bool> IceIsAAsync(string id, IReadOnlyDictionary<string, string>? context,
-                                       IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+                                      CancellationToken cancel = default)
         {
-            var request = new OutgoingRequestFrame(this, "ice_isA", idempotent: true, context);
-            request.StartParameters();
-            request.WriteString(id);
-            request.EndParameters();
-            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
-
-            static async Task<bool> AwaitResponseAsync(Task<IncomingResponseFrame> task)
-            {
-                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                bool returnValue = istr.ReadBool();
-                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                return returnValue;
-            }
+            var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
+                                                              id, OutputStream.IceWriterFromString);
+            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoBool);
         }
 
         /// <summary>
@@ -108,13 +91,12 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null)
         {
-            try
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
+            var response = IceInvoke(request, IsOneway);
+
+            if (!IsOneway)
             {
-                IcePingAsync(context, null, CancellationToken.None, synchronous: true).Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
+                response.ReadVoidReturnValue();
             }
         }
 
@@ -128,17 +110,10 @@ namespace Ice
         public Task IcePingAsync(IReadOnlyDictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = default)
-            => IcePingAsync(context, progress, cancel, synchronous: false);
-
-        private Task IcePingAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
-                                  CancellationToken cancel, bool synchronous)
         {
-            var request = OutgoingRequestFrame.Empty(this, "ice_ping", idempotent: true, context);
-            var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel, synchronous);
-            return IsOneway ? task : AwaitResponseAsync(task);
-
-            static async Task AwaitResponseAsync(Task<IncomingResponseFrame> task)
-                => (await task.ConfigureAwait(false)).ReadVoidReturnValue();
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
+            var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel);
+            return IsOneway ? task : IceReadVoidResponseAsync(task);
         }
 
         /// <summary>
@@ -149,14 +124,9 @@ namespace Ice
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
         public string[] IceIds(IReadOnlyDictionary<string, string>? context = null)
         {
-            try
-            {
-                return IceIdsAsync(context, null, CancellationToken.None, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
+            var response = IceInvoke(request, oneway: false);
+            return response.ReadReturnValue(InputStream.IceReaderIntoStringArray);
         }
 
         /// <summary>
@@ -169,21 +139,10 @@ namespace Ice
         public Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context = null,
                                           IProgress<bool>? progress = null,
                                           CancellationToken cancel = default)
-            => IceIdsAsync(context, progress, cancel, synchronous: false);
-
-        private Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
-                                           CancellationToken cancel, bool synchronous)
         {
-            var request = OutgoingRequestFrame.Empty(this, "ice_ids", idempotent: true, context);
-            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
-
-            static async Task<string[]> AwaitResponseAsync(Task<IncomingResponseFrame> task)
-            {
-                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                string[] returnValue = istr.ReadStringArray();
-                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                return returnValue;
-            }
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
+            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
         }
 
         /// <summary>
@@ -192,14 +151,9 @@ namespace Ice
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string IceId(IReadOnlyDictionary<string, string>? context = null)
         {
-            try
-            {
-                return IceIdAsync(context, null, CancellationToken.None, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
+            var response = IceInvoke(request, oneway: false);
+            return response.ReadReturnValue(InputStream.IceReaderIntoString);
         }
 
         /// <summary>
@@ -211,22 +165,11 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
-                                       CancellationToken cancel = new CancellationToken()) =>
-            IceIdAsync(context, progress, cancel, synchronous: false);
-
-        private Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context, IProgress<bool>? progress,
-                                        CancellationToken cancel, bool synchronous)
+                                       CancellationToken cancel = default)
         {
-            var request = OutgoingRequestFrame.Empty(this, "ice_id", idempotent: true, context);
-            return AwaitResponseAsync(IceInvokeAsync(request, oneway: false, progress, cancel, synchronous));
-
-            static async Task<string> AwaitResponseAsync(Task<IncomingResponseFrame> task)
-            {
-                InputStream istr = (await task.ConfigureAwait(false)).ReadReturnValue();
-                string returnValue = istr.ReadString();
-                istr.EndEncapsulation(); // TODO: need a better name, like maybe Done()
-                return returnValue;
-            }
+            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
+            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
+            return IceReadResponseAsync(task, InputStream.IceReaderIntoString);
         }
 
         /// <summary>
@@ -354,15 +297,30 @@ namespace Ice
         public bool IsFixed => IceReference is FixedReference;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<IncomingResponseFrame> IceInvokeAsync(OutgoingRequestFrame request,
-                                                          bool oneway,
-                                                          IProgress<bool>? progress,
-                                                          CancellationToken cancel,
-                                                          bool synchronous)
+        protected internal IncomingResponseFrame IceInvoke(OutgoingRequestFrame request, bool oneway)
+        {
+            try
+            {
+                var completed = new InvokeTaskCompletionCallback(null, default);
+                new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
+                                                                                   synchronous: true);
+                return completed.Task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected internal Task<IncomingResponseFrame> IceInvokeAsync(OutgoingRequestFrame request,
+                                                                      bool oneway,
+                                                                      IProgress<bool>? progress,
+                                                                      CancellationToken cancel)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
-                synchronous);
+                                                                               synchronous: false);
             return completed.Task;
         }
 
@@ -527,6 +485,15 @@ namespace Ice
             public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
                 SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static async Task IceReadVoidResponseAsync(Task<IncomingResponseFrame> task)
+            => (await task.ConfigureAwait(false)).ReadVoidReturnValue();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static async Task<T> IceReadResponseAsync<T>(Task<IncomingResponseFrame> task,
+                                                               InputStreamReader<T> reader)
+            => (await task.ConfigureAwait(false)).ReadReturnValue(reader);
     }
 
     // The base class for all proxies. It's a publically visible Ice-internal class. Applications should

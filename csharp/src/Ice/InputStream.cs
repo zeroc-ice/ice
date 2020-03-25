@@ -27,6 +27,7 @@ namespace Ice
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<string[]> IceReaderIntoStringArray = (istr) => istr.ReadStringArray();
 
         /// <summary>
         /// The communicator associated with this stream.
@@ -229,15 +230,14 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encapsulation's encoding version.</param>
         /// <returns>The encoded encapsulation.</returns>
-        public byte[] ReadEncapsulation(out Encoding encoding)
+        public ArraySegment<byte> ReadEncapsulation(out Encoding encoding)
         {
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _pos -= 6;
             encoding = encapsHeader.Encoding;
-
-            byte[] encaps = new byte[encapsHeader.Size];
-            ReadNumericArray(encaps);
-            return encaps;
+            var data = _buffer.Slice(_pos, encapsHeader.Size);
+            _pos += encapsHeader.Size;
+            return data;
         }
 
         /// <summary>

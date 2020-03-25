@@ -216,7 +216,6 @@ namespace IceInternal
         public bool StartRead(ArraySegment<byte> buffer, int offset, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null && _readEventArgs != null);
-
             int packetSize = GetRecvPacketSize(buffer.Count - offset);
             try
             {
@@ -251,7 +250,6 @@ namespace IceInternal
                 }
                 int ret = _readEventArgs.BytesTransferred;
                 _readEventArgs.SetBuffer(null, 0, 0);
-
                 if (ret == 0)
                 {
                     throw new ConnectionLostException();

@@ -5,8 +5,6 @@
 using System;
 using System.Text;
 
-using Ice.udp.Test;
-
 namespace Ice.udp
 {
     public class Server : global::Test.TestHelper

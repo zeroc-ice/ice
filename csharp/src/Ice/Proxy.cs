@@ -246,16 +246,7 @@ namespace Ice
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request,
                                                    bool oneway = false)
-        {
-            try
-            {
-                return proxy.IceInvokeAsync(request, oneway, null, CancellationToken.None, true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
+            => proxy.IceInvoke(request, oneway);
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -272,7 +263,7 @@ namespace Ice
                                                               bool oneway = false,
                                                               IProgress<bool>? progress = null,
                                                               CancellationToken cancel = default)
-            => proxy.IceInvokeAsync(request, oneway, progress, cancel, false);
+            => proxy.IceInvokeAsync(request, oneway, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -280,10 +271,10 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static async ValueTask<OutputStream> ForwardAsync(this IObjectPrx proxy,
-                                                                 IncomingRequestFrame request,
-                                                                 IProgress<bool>? progress = null,
-                                                                 CancellationToken cancel = default)
+        public static async ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
+                                                                          IncomingRequestFrame request,
+                                                                          IProgress<bool>? progress = null,
+                                                                          CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request.Current.Operation,
                 request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
@@ -291,7 +282,7 @@ namespace Ice
             IncomingResponseFrame response =
                 await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
                     .ConfigureAwait(false);
-            return new OutgoingResponseFrame(request.Current, response.ReplyStatus, response.TakePayload());
+            return new OutgoingResponseFrame(request.Current.Encoding, response.TakePayload());
         }
 
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

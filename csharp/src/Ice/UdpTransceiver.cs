@@ -155,8 +155,8 @@ namespace IceInternal
 
                         ArraySegment<byte> data = buffer.GetSegment(0, count);
                         ret = _fd.SendTo(data.Array, 0, data.Count, SocketFlags.None, _peerAddr);
-                        Debug.Assert(ret == count);
                     }
+                    Debug.Assert(ret == count);
                     offset += ret;
                     break;
                 }
@@ -322,7 +322,7 @@ namespace IceInternal
             {
                 if (Network.RecvTruncated(ex))
                 {
-                    // Nothing todo
+                    // Nothing to do
                     return true;
                 }
                 else

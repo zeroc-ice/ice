@@ -131,5 +131,17 @@ namespace Ice
             }
             return data;
         }
+
+        public static byte[] ToArray(this IList<ArraySegment<byte>> src)
+        {
+            byte[] data = new byte[src.GetByteCount()];
+            int offset = 0;
+            foreach (var segment in src)
+            {
+                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, segment.Count);
+                offset += segment.Count;
+            }
+            return data;
+        }
     }
 }
