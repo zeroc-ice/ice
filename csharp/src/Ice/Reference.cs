@@ -454,7 +454,7 @@ namespace IceInternal
 
             if (invocationTimeout is int invocationTimeoutValue && invocationTimeoutValue != _invocationTimeout)
             {
-                if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1 && invocationTimeoutValue != -2)
+                if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
                 {
                     throw new ArgumentException($"invalid value passed to ice_invocationTimeout: {invocationTimeoutValue}",
                                                 nameof(invocationTimeout));

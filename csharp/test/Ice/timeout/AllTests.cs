@@ -169,33 +169,6 @@ namespace Ice.timeout
                 var to = timeout.Clone(invocationTimeout: 1000);
                 to.sleepAsync(100).Wait();
             }
-            {
-                //
-                // TODO: remove this test since -2 no longer has a special semantics?
-                //
-                var to = timeout.Clone(invocationTimeout: -2, connectionTimeout: 250);
-                var con = connect(to);
-                try
-                {
-                    to.sleep(750);
-                    test(false);
-                }
-                catch (TimeoutException)
-                {
-                }
-                timeout.IcePing();
-
-                try
-                {
-                    con = connect(to);
-                    to.sleepAsync(750).Wait();
-                    test(false);
-                }
-                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
-                {
-                }
-                timeout.IcePing();
-            }
             output.WriteLine("ok");
 
             output.Write("testing close timeout... ");
@@ -376,17 +349,6 @@ namespace Ice.timeout
                 catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
-
-                try
-                {
-                    proxy.Clone(invocationTimeout: -2).IcePing();
-                    proxy.Clone(invocationTimeout: -2).IcePingAsync().Wait();
-                }
-                catch (System.Exception)
-                {
-                    test(false);
-                }
-
                 adapter.Destroy();
             }
             output.WriteLine("ok");

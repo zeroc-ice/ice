@@ -677,29 +677,22 @@ namespace Ice
                         _asyncRequests.Remove(o.RequestId);
                     }
 
-                    if (ex is ConnectionIdleException)
+                    //
+                    // If the request is being sent, don't remove it from the send streams,
+                    // it will be removed once the sending is finished.
+                    //
+                    if (o == _sendStreams.First.Value)
                     {
-                        SetState(StateClosed, ex);
+                        o.Canceled();
                     }
                     else
                     {
-                        //
-                        // If the request is being sent, don't remove it from the send streams,
-                        // it will be removed once the sending is finished.
-                        //
-                        if (o == _sendStreams.First.Value)
-                        {
-                            o.Canceled();
-                        }
-                        else
-                        {
-                            o.Canceled();
-                            _sendStreams.Remove(o);
-                        }
-                        if (outAsync.Exception(ex))
-                        {
-                            outAsync.InvokeExceptionAsync();
-                        }
+                        o.Canceled();
+                        _sendStreams.Remove(o);
+                    }
+                    if (outAsync.Exception(ex))
+                    {
+                        outAsync.InvokeExceptionAsync();
                     }
                     return;
                 }
@@ -710,17 +703,10 @@ namespace Ice
                     {
                         if (kvp.Value == outAsync)
                         {
-                            if (ex is ConnectionIdleException)
+                            _asyncRequests.Remove(kvp.Key);
+                            if (outAsync.Exception(ex))
                             {
-                                SetState(StateClosed, ex);
-                            }
-                            else
-                            {
-                                _asyncRequests.Remove(kvp.Key);
-                                if (outAsync.Exception(ex))
-                                {
-                                    outAsync.InvokeExceptionAsync();
-                                }
+                                outAsync.InvokeExceptionAsync();
                             }
                             return;
                         }

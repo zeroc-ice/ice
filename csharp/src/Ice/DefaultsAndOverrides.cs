@@ -160,7 +160,7 @@ namespace IceInternal
             }
 
             DefaultInvocationTimeout = communicator.GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
-            if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1 && DefaultInvocationTimeout != -2)
+            if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
             {
                 DefaultInvocationTimeout = -1;
                 var msg = new System.Text.StringBuilder("invalid value for Ice.Default.InvocationTimeout `");

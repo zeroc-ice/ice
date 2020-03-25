@@ -388,10 +388,6 @@ namespace IceInternal
             }
 
             CachedConnection = null;
-            if (Proxy.IceReference.GetInvocationTimeout() == -2)
-            {
-                Communicator.Timer().Cancel(this);
-            }
 
             //
             // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -411,19 +407,6 @@ namespace IceInternal
             {
                 return ExceptionImpl(ex); // No retries, we're done
             }
-        }
-
-        public override void Cancelable(ICancellationHandler handler)
-        {
-            if (Proxy.IceReference.GetInvocationTimeout() == -2 && CachedConnection != null)
-            {
-                int timeout = CachedConnection.Timeout;
-                if (timeout > 0)
-                {
-                    Communicator.Timer().Schedule(this, timeout);
-                }
-            }
-            base.Cancelable(handler);
         }
 
         public void RetryException()

@@ -246,22 +246,6 @@ namespace Ice.retry
                     retry2.opIdempotent(-1); // Reset the counter
                     Instrumentation.testRetryCount(-1);
                 }
-                if (retry1.GetConnection() != null)
-                {
-                    // The old invocationTimeout = -2 behaves like any timeout now, with no retry
-                    // TODO: should we remove this entirely? can the connection establishment timeout and trigger a
-                    // retry?
-                    Test.IRetryPrx retryWithTimeout = retry1.Clone(invocationTimeout: -2, connectionTimeout: 200);
-                    try
-                    {
-                        retryWithTimeout.sleep(500);
-                        test(false);
-                    }
-                    catch (System.TimeoutException)
-                    {
-                    }
-                    Instrumentation.testRetryCount(0);
-                }
                 output.WriteLine("ok");
             }
             return retry1;
