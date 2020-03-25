@@ -154,6 +154,7 @@ interface TestIntf
 interface TestIntf2
 {
     SBase SBSUnknownDerivedAsSBase();
+    void CUnknownAsSBase(SBase cUnknown);
 }
 
 class Hidden

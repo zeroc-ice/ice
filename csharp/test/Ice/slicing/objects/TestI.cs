@@ -428,4 +428,12 @@ public sealed class TestIntf2 : ITestIntf2
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
         return sbsud;
     }
+
+    public void CUnknownAsSBase(SBase cUnknown, Ice.Current current)
+    {
+        if (cUnknown.sb != "CUnknown.sb")
+        {
+            throw new System.Exception();
+        }
+    }
 }

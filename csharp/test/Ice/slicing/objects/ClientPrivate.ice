@@ -9,6 +9,11 @@
 module Test
 {
 
+class CUnknown extends SBase
+{
+    string cu;
+}
+
 class D3 extends B
 {
     string sd3;

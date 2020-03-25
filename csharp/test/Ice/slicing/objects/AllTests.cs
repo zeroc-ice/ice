@@ -46,6 +46,31 @@ public class AllTests : Test.AllTests
         test(testPrx.Equals(basePrx));
         output.WriteLine("ok");
 
+        output.Write("testing Ice.Default.SlicedFormat... ");
+        // server to client
+        try
+        {
+            SBase sb = test2Prx.SBSUnknownDerivedAsSBase();
+            test(sb.sb.Equals("SBSUnknownDerived.sb"));
+        }
+        catch (System.Exception ex)
+        {
+            output.WriteLine(ex.ToString());
+            test(false);
+        }
+
+        // client to server
+        try
+        {
+            test2Prx.CUnknownAsSBase(new CUnknown("CUnknown.sb", "CUnknown.cu"));
+        }
+        catch (System.Exception ex)
+        {
+            output.WriteLine(ex.ToString());
+            test(false);
+        }
+        output.WriteLine("ok");
+
         output.Write("base as Object... ");
         output.Flush();
         {
@@ -177,22 +202,6 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-
-        // Again with test2 to test Ice.Default.SlicedFormat
-        {
-            SBase sb;
-            try
-            {
-                sb = test2Prx.SBSUnknownDerivedAsSBase();
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
-            }
-            catch (System.Exception ex)
-            {
-                output.WriteLine(ex.ToString());
-                test(false);
-            }
-        }
-
         try
         {
             //
