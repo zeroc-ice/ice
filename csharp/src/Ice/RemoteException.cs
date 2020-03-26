@@ -78,13 +78,7 @@ namespace Ice
             Debug.Assert(firstSlice);
             // This implementation can only be called on a plain RemoteException with IceSlicedData set.
             Debug.Assert(IceSlicedData.HasValue);
-            if (!ostr.WriteSlicedData(IceSlicedData.Value))
-            {
-                 // Most derived type Id for this exception
-                string typeId = IceSlicedData.Value.Slices[0].TypeId!;
-                throw new MarshalException(
-                    $"failed to marshal a fully sliced {nameof(RemoteException)} with type ID `{typeId}'");
-            }
+            ostr.WriteSlicedData(IceSlicedData.Value);
         }
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }
