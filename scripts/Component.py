@@ -35,9 +35,6 @@ class Ice(Component):
         "mx" : [True],
     }
 
-    def __init__(self):
-        self.nugetVersion = None
-
     def useBinDist(self, mapping, current):
         return Component._useBinDist(self, mapping, current, "ICE_BIN_DIST")
 
