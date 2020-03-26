@@ -373,7 +373,7 @@ namespace Ice
         {
             IceUpdateRequestHandler(handler, null); // Clear the request handler
 
-            // We only retry after failing with a RequestFailedException or a local exception.
+            // We only retry after failing with a DispatchException or a local exception.
             //
             // A ConnectionClosedByPeerException indicates graceful server shutdown, and is therefore always repeatable
             // without violating "at-most-once". That's because by sending a close connection message, the server

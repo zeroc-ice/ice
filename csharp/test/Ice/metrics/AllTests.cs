@@ -806,7 +806,7 @@ public class AllTests : Test.AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch (RequestFailedException)
+        catch (DispatchException)
         {
         }
         try
@@ -942,7 +942,7 @@ public class AllTests : Test.AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch (Ice.RequestFailedException)
+        catch (DispatchException)
         {
         }
 
@@ -953,7 +953,7 @@ public class AllTests : Test.AllTests
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is Ice.RequestFailedException);
+            test(ex.InnerException is DispatchException);
         }
 
         try
