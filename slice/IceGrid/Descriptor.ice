@@ -42,7 +42,6 @@ module IceGrid
     ["java:type:java.util.LinkedList<PropertyDescriptor>"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
     /// A property set descriptor.
-    ["cpp:comparable"]
     struct PropertySetDescriptor
     {
         /// References to named property sets.
@@ -74,7 +73,6 @@ module IceGrid
     ["java:type:java.util.LinkedList<ObjectDescriptor>"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
     /// An Ice object adapter descriptor.
-    ["cpp:comparable"]
     struct AdapterDescriptor
     {
         /// The object adapter name.
@@ -190,7 +188,6 @@ module IceGrid
     ["java:type:java.util.LinkedList<ServiceDescriptor>"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
     /// A server template instance descriptor.
-    ["cpp:comparable"]
     struct ServerInstanceDescriptor
     {
         /// The template used by this instance.

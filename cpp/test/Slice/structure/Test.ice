@@ -16,13 +16,6 @@ class C
     int i;
 }
 
-["cpp:class"]
-struct S1
-{
-    string name;
-}
-
-["cpp:comparable"]
 struct S2
 {
     bool bo;
@@ -36,7 +29,6 @@ struct S2
     StringSeq ss;
     IntList il;
     StringDict sd;
-    S1 s;
     C cls;
     Object* prx;
 }

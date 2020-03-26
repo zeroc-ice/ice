@@ -30,27 +30,6 @@ public:
                               std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opBoolRangeAsync(Test::BoolSeq,
-                          std::function<void(const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeAsync(Test::ByteList,
-                          std::function<void(const Test::ByteList&, const Test::ByteList&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeAsync(Test::VariableList,
-                              std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeTypeAsync(Test::ByteList,
-                              std::function<void(const ::Test::ByteList&, const ::Test::ByteList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeTypeAsync(Test::VariableList,
-                                  std::function<void(const ::Test::VariableList&,
-                                                      const ::Test::VariableList&)>,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opBoolSeqAsync(std::deque<bool>,
                         std::function<void(const std::deque<bool>&, const std::deque<bool>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -137,17 +116,8 @@ public:
                       std::function<void(const ::Test::CList&, const ::Test::CList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opClassStructAsync(::Test::ClassStruct, ::Test::ClassStructSeq,
-                            std::function<void(const ::Test::ClassStruct&,
-                                                const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opOutArrayByteSeqAsync(::Test::ByteSeq,
                                 std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opOutRangeByteSeqAsync(::Test::ByteSeq,
-                                std::function<void(const Test::ByteSeq&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opIntStringDictAsync(::Test::IntStringDict,
@@ -196,28 +166,6 @@ public:
     virtual void opVariableArray_async(const Test::AMD_TestIntf_opVariableArrayPtr&,
                                        const std::pair<const Test::Variable*, const Test::Variable*>&,
                                        const Ice::Current&);
-
-    virtual void opBoolRange_async(const Test::AMD_TestIntf_opBoolRangePtr&,
-                                   const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>&,
-                                   const Ice::Current&);
-
-    virtual void opByteRange_async(const Test::AMD_TestIntf_opByteRangePtr&,
-                                   const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
-                                   const Ice::Current&);
-
-    virtual void opVariableRange_async(const Test::AMD_TestIntf_opVariableRangePtr&,
-                                       const std::pair<Test::VariableList::const_iterator,
-                                       Test::VariableList::const_iterator>&,
-                                       const Ice::Current&);
-
-    virtual void opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr&,
-                                       const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
-                                       const Ice::Current&);
-
-    virtual void opVariableRangeType_async(const Test::AMD_TestIntf_opVariableRangeTypePtr&,
-                                           const std::pair<std::deque<Test::Variable>::const_iterator,
-                                           std::deque<Test::Variable>::const_iterator>&,
-                                           const Ice::Current&);
 
     virtual void opBoolSeq_async(const Test::AMD_TestIntf_opBoolSeqPtr&,
                                  const std::deque<bool>&,
@@ -299,16 +247,7 @@ public:
                                const Test::CList&,
                                const Ice::Current&);
 
-    virtual void opClassStruct_async(const ::Test::AMD_TestIntf_opClassStructPtr&,
-                                     const ::Test::ClassStructPtr&,
-                                     const ::Test::ClassStructSeq&,
-                                     const ::Ice::Current&);
-
     virtual void opOutArrayByteSeq_async(const ::Test::AMD_TestIntf_opOutArrayByteSeqPtr&,
-                                         const ::Test::ByteSeq&,
-                                         const ::Ice::Current&);
-
-    virtual void opOutRangeByteSeq_async(const ::Test::AMD_TestIntf_opOutRangeByteSeqPtr&,
                                          const ::Test::ByteSeq&,
                                          const ::Ice::Current&);
 

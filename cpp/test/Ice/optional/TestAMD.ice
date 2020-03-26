@@ -34,7 +34,7 @@ struct VarStruct
     string m;
 }
 
-["cpp:class"] struct ClassVarStruct
+struct ClassVarStruct
 {
     int a;
 }
@@ -266,8 +266,8 @@ interface Initial
     ["cpp:array"] tag(1) DoubleSeq opDoubleSeq(["cpp:array"] tag(2) DoubleSeq p1,
                                                     out ["cpp:array"] tag(3) DoubleSeq p3);
 
-    ["cpp:range"] tag(1) StringSeq opStringSeq(["cpp:range"] tag(2) StringSeq p1,
-                                                    out ["cpp:range"] tag(3) StringSeq p3);
+    tag(1) StringSeq opStringSeq(tag(2) StringSeq p1,
+                                                    out tag(3) StringSeq p3);
 
     ["cpp:array"] tag(1) SmallStructSeq opSmallStructSeq(["cpp:array"] tag(2) SmallStructSeq p1,
                                                               out ["cpp:array"] tag(3) SmallStructSeq p3);
@@ -281,8 +281,8 @@ interface Initial
     ["cpp:array"] tag(1) FixedStructList opFixedStructList(["cpp:array"] tag(2) FixedStructList p1,
                                                                 out ["cpp:array"] tag(3) FixedStructList p3);
 
-    ["cpp:range"] tag(1) VarStructSeq opVarStructSeq(["cpp:range"] tag(2) VarStructSeq p1,
-                                                          out ["cpp:range"] tag(3) VarStructSeq p3);
+    tag(1) VarStructSeq opVarStructSeq(tag(2) VarStructSeq p1,
+                                                          out tag(3) VarStructSeq p3);
 
     tag(1) Serializable opSerializable(tag(2) Serializable p1, out tag(3) Serializable p3);
 

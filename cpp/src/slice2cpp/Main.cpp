@@ -74,8 +74,7 @@ usage(const string& n)
         "--source-ext EXT         Use EXT instead of the default `cpp' extension.\n"
         "--add-header HDR[,GUARD] Add #include for HDR (with guard GUARD) to generated source file.\n"
         "--include-dir DIR        Use DIR as the header include directory in source files.\n"
-        "--impl-c++11             Generate sample implementations for C++11 mapping.\n"
-        "--impl-c++98             Generate sample implementations for C++98 mapping.\n"
+        "--impl                   Generate sample implementations.\n"
         "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
         "                         deprecated: use instead [[\"cpp:dll-export:SYMBOL\"]] metadata.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
@@ -102,8 +101,7 @@ compile(const vector<string>& argv)
     opts.addOpt("", "include-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "dll-export", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "impl-c++98");
-    opts.addOpt("", "impl-c++11");
+    opts.addOpt("", "impl");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
@@ -172,9 +170,7 @@ compile(const vector<string>& argv)
 
     string dllExport = opts.optArg("dll-export");
 
-    bool implCpp98 = opts.isSet("impl-c++98");
-
-    bool implCpp11 = opts.isSet("impl-c++11");
+    bool impl = opts.isSet("impl");
 
     bool depend = opts.isSet("depend");
 
@@ -201,16 +197,6 @@ compile(const vector<string>& argv)
     if(depend && dependxml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if(!validate)
-        {
-            usage(argv[0]);
-        }
-        return EXIT_FAILURE;
-    }
-
-    if(implCpp98 && implCpp11)
-    {
-        consoleErr << argv[0] << ": error: cannot specify both --impl-c++98 and --impl-c++11" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -331,7 +317,7 @@ compile(const vector<string>& argv)
                     try
                     {
                         Gen gen(icecpp->getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                                includePaths, dllExport, output, implCpp98, implCpp11, ice);
+                                includePaths, dllExport, output, impl);
                         gen.generate(u);
                     }
                     catch(const Slice::FileException& ex)

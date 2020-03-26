@@ -12,7 +12,7 @@ WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:inclu
 WarningInvalidMetaData.ice:35: warning: ignoring invalid metadata `cpp:type:std::list< ::std::string>' for operation with void return type
 WarningInvalidMetaData.ice:38: warning: ignoring invalid metadata `cpp:view-type:std::experimental::string_view' for operation with void return type
 WarningInvalidMetaData.ice:41: warning: ignoring invalid metadata `cpp:array' for operation with void return type
-WarningInvalidMetaData.ice:44: warning: ignoring invalid metadata `cpp:range' for operation with void return type
+WarningInvalidMetaData.ice:44: warning: ignoring invalid metadata `cpp:range'
 WarningInvalidMetaData.ice:49: warning: ignoring invalid metadata `cpp:class'
 WarningInvalidMetaData.ice:49: warning: ignoring invalid metadata `cpp:comparable'
 WarningInvalidMetaData.ice:54: warning: ignoring invalid metadata `cpp:const'

@@ -89,7 +89,6 @@ struct Struct2
     double zeroDotD = ConstZeroDotD;
 }
 
-["cpp:class"]
 struct Struct3
 {
     bool boolFalse = false;

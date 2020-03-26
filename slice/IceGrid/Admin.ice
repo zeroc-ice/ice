@@ -58,7 +58,6 @@ module IceGrid
     dictionary<string, Object*> StringObjectProxyDict;
 
     /// Information about an Ice object.
-    ["cpp:comparable"]
     struct ObjectInfo
     {
         /// The proxy of the object.
@@ -72,7 +71,6 @@ module IceGrid
     sequence<ObjectInfo> ObjectInfoSeq;
 
     /// Information about an adapter registered with the IceGrid registry.
-    ["cpp:comparable"]
     struct AdapterInfo
     {
         /// The id of the adapter.

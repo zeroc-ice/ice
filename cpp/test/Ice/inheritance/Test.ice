@@ -37,7 +37,7 @@ interface IB2 extends MA::IA
     IB2* ib2op(IB2* p);
 }
 
-["cpp:virtual"]class CB extends MA::CA
+class CB extends MA::CA
 {
     CB* cbop(CB* p);
 }
@@ -52,12 +52,12 @@ interface IC extends MB::IB1, MB::IB2
     IC* icop(IC* p);
 }
 
-["cpp:virtual"]class CC extends MB::CB
+class CC extends MB::CB
 {
     CC* ccop(CC* p);
 }
 
-["cpp:virtual"]class CD extends CC implements MB::IB1, MB::IB2
+class CD extends CC implements MB::IB1, MB::IB2
 {
     CD* cdop(CD* p);
 }
@@ -95,7 +95,7 @@ class C extends B
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+ class D extends C
 {
     int dD;
 }
@@ -105,22 +105,22 @@ class C extends B
 module MD
 {
 
-["cpp:virtual"] class A
+ class A
 {
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+ class B extends A
 {
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+ class C extends B
 {
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+ class D extends C
 {
     int dD;
 }
@@ -140,12 +140,12 @@ class B extends A
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+ class C extends B
 {
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+ class D extends C
 {
     int dD;
 }
@@ -160,7 +160,7 @@ class A
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+ class B extends A
 {
     int bB;
 }
@@ -170,7 +170,7 @@ class C extends B
     int cC;
 }
 
-["cpp:virtual"] class D extends C
+ class D extends C
 {
     int dD;
 }
@@ -185,12 +185,12 @@ class A
     int aA;
 }
 
-["cpp:virtual"] class B extends A
+ class B extends A
 {
     int bB;
 }
 
-["cpp:virtual"] class C extends B
+ class C extends B
 {
     int cC;
 }
