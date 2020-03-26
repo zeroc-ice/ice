@@ -43,7 +43,7 @@ namespace Ice.ami
             Action<bool> _report;
         }
 
-        public class ProgresCallback : IProgress<bool>
+        public class ProgressCallback : IProgress<bool>
         {
             public bool Sent
             {
@@ -158,7 +158,6 @@ namespace Ice.ami
             Communicator communicator = helper.communicator();
 
             var p = ITestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-            var testController = ITestIntfControllerPrx.Parse($"testController:{helper.getTestEndpoint(1)}", communicator);
 
             var output = helper.getWriter();
 
@@ -515,24 +514,18 @@ namespace Ice.ami
                 }
 
                 List<Task> tasks = new List<Task>();
-                byte[] seq = new byte[10024];
+                byte[] seq = new byte[1000 * 1024];
                 (new Random()).NextBytes(seq);
-                testController.holdAdapter();
-                try
                 {
                     Task t = null;
-                    ProgresCallback cb;
+                    ProgressCallback cb;
                     do
                     {
-                        cb = new ProgresCallback();
+                        cb = new ProgressCallback();
                         t = p.opWithPayloadAsync(seq, progress: cb);
                         tasks.Add(t);
                     }
                     while (cb.SentSynchronously);
-                }
-                finally
-                {
-                    testController.resumeAdapter();
                 }
                 foreach (Task t in tasks)
                 {
@@ -595,19 +588,10 @@ namespace Ice.ami
                     Task t3;
                     try
                     {
-                        testController.holdAdapter();
-                        ProgresCallback cb = null;
-                        byte[] seq = new byte[10024];
-                        for (int i = 0; i < 200; ++i) // 2MB
-                        {
-                            cb = new ProgresCallback();
-                            p.opWithPayloadAsync(seq, progress: cb);
-                        }
-
-                        test(!cb.Sent);
-
-                        t1 = p.IcePingAsync(cancel: cs1.Token);
-                        t2 = p.IcePingAsync(cancel: cs2.Token);
+                        t1 = p.sleepAsync(300, cancel: cs1.Token);
+                        t2 = p.sleepAsync(300, cancel: cs2.Token);
+                        cs1.Cancel();
+                        cs2.Cancel();
                         cs3.Cancel();
                         try
                         {
@@ -617,8 +601,6 @@ namespace Ice.ami
                         {
                             // expected
                         }
-                        cs1.Cancel();
-                        cs2.Cancel();
                         try
                         {
                             t1.Wait();
@@ -646,7 +628,6 @@ namespace Ice.ami
                     }
                     finally
                     {
-                        testController.resumeAdapter();
                         p.IcePing();
                     }
                 }
@@ -696,14 +677,14 @@ namespace Ice.ami
                             results.Add(p.opWithPayloadAsync(seq));
                         }
 
-                        ProgresCallback cb = new ProgresCallback();
+                        ProgressCallback cb = new ProgressCallback();
                         p.closeAsync(Test.CloseMode.GracefullyWithWait, progress: cb);
 
                         if (!cb.SentSynchronously)
                         {
                             for (int i = 0; i < maxQueue; i++)
                             {
-                                cb = new ProgresCallback();
+                                cb = new ProgressCallback();
                                 Task t = p.opWithPayloadAsync(seq, progress: cb);
                                 results.Add(t);
                                 if (cb.SentSynchronously)

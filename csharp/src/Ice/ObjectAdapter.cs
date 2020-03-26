@@ -187,53 +187,6 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Temporarily hold receiving and dispatching requests.
-        /// The object
-        /// adapter can be reactivated with the activate operation.
-        ///
-        /// Holding is not immediate, i.e., after hold
-        /// returns, the object adapter might still be active for some
-        /// time. You can use waitForHold to wait until holding is
-        /// complete.
-        ///
-        /// </summary>
-        public void Hold()
-        {
-            lock (_mutex)
-            {
-                CheckForDeactivation();
-                _state = State.Held;
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    factory.Hold();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Wait until the object adapter holds requests.
-        /// Calling hold
-        /// initiates holding of requests, and waitForHold only returns
-        /// when holding of requests has been completed.
-        ///
-        /// </summary>
-        public void WaitForHold()
-        {
-            List<IncomingConnectionFactory> incomingConnectionFactories;
-            lock (_mutex)
-            {
-                CheckForDeactivation();
-
-                incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
-            }
-
-            foreach (IncomingConnectionFactory factory in incomingConnectionFactories)
-            {
-                factory.WaitUntilHolding();
-            }
-        }
-
         /// <summary>Initiates the deactivation of all endpoints that belong to this object adapter.
         /// When Deactivate returns, the object adapter stops receiving requests through its endpoints. Object adapters
         /// that have been deactivated must not be reactivated again, and cannot be used otherwise. Calling Deactivate
@@ -1413,7 +1366,6 @@ namespace Ice
         private enum State
         {
             Uninitialized,
-            Held,
             Activating,
             Active,
             Deactivating,

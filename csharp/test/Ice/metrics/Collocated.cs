@@ -31,11 +31,6 @@ public class Collocated : TestHelper
             adapter.Add("metrics", new Metrics());
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add("controller", new Controller(adapter));
-            //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
-
             IMetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }

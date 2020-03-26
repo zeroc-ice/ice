@@ -305,7 +305,7 @@ namespace IceInternal
 
                     foreach (Connection connection in connectionList)
                     {
-                        if (connection.ActiveOrHolding) // Don't return destroyed or unvalidated connections
+                        if (connection.Active) // Don't return destroyed or unvalidated connections
                         {
                             if (defaultsAndOverrides.OverrideCompress)
                             {
@@ -345,7 +345,7 @@ namespace IceInternal
 
                 foreach (Ice.Connection connection in connectionList)
                 {
-                    if (connection.ActiveOrHolding) // Don't return destroyed or un-validated connections
+                    if (connection.Active) // Don't return destroyed or un-validated connections
                     {
                         if (defaultsAndOverrides.OverrideCompress)
                         {
@@ -788,7 +788,6 @@ namespace IceInternal
                 {
                     _observer.Detach();
                 }
-                connection.Activate();
                 Debug.Assert(_current != null);
                 _factory.FinishGetConnection(_connectors, _current, connection, this);
             }
@@ -1057,7 +1056,7 @@ namespace IceInternal
         private int _pendingConnectCount;
     }
 
-    public sealed class IncomingConnectionFactory : EventHandler, Ice.Connection.IStartCallback
+    public sealed class IncomingConnectionFactory : EventHandler
     {
         private class StartAcceptorTask : ITimerTask
         {
@@ -1098,14 +1097,6 @@ namespace IceInternal
             }
         }
 
-        public void Hold()
-        {
-            lock (this)
-            {
-                SetState(StateHolding);
-            }
-        }
-
         public void Destroy()
         {
             lock (this)
@@ -1122,37 +1113,6 @@ namespace IceInternal
                 {
                     connection.UpdateObserver();
                 }
-            }
-        }
-
-        public void WaitUntilHolding()
-        {
-            ICollection<Ice.Connection> connections;
-
-            lock (this)
-            {
-                //
-                // First we wait until the connection factory itself is in
-                // holding state.
-                //
-                while (_state < StateHolding)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                //
-                // We want to wait until all connections are in holding state
-                // outside the thread synchronization.
-                //
-                connections = new List<Ice.Connection>(_connections);
-            }
-
-            //
-            // Now we wait until each connection is in holding state.
-            //
-            foreach (Connection connection in connections)
-            {
-                connection.WaitUntilHolding();
             }
         }
 
@@ -1249,7 +1209,7 @@ namespace IceInternal
                 //
                 foreach (Connection connection in _connections)
                 {
-                    if (connection.ActiveOrHolding)
+                    if (connection.Active)
                     {
                         connections.Add(connection);
                     }
@@ -1324,10 +1284,6 @@ namespace IceInternal
                 try
                 {
                     if (_state >= StateClosed)
-                    {
-                        return;
-                    }
-                    else if (_state == StateHolding)
                     {
                         return;
                     }
@@ -1424,7 +1380,7 @@ namespace IceInternal
             }
 
             Debug.Assert(connection != null);
-            connection.Start(this);
+            connection.Start(null);
         }
 
         public override void Finished(ref ThreadPoolCurrent current)
@@ -1459,39 +1415,6 @@ namespace IceInternal
             }
         }
 
-        //
-        // Operations from ConnectionI.StartCallback
-        //
-        public void ConnectionStartCompleted(Ice.Connection connection)
-        {
-            lock (this)
-            {
-                //
-                // Initially, connections are in the holding state. If the factory is active
-                // we activate the connection.
-                //
-                if (_state == StateActive)
-                {
-                    connection.Activate();
-                }
-            }
-        }
-
-        public void ConnectionStartFailed(Ice.Connection connection, System.Exception ex)
-        {
-            lock (this)
-            {
-                if (_state >= StateClosed)
-                {
-                    return;
-                }
-
-                //
-                // Do not warn about connection exceptions here. The connection is not yet validated.
-                //
-            }
-        }
-
         public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
                                          ACMConfig acmConfig)
         {
@@ -1501,7 +1424,7 @@ namespace IceInternal
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.Connection>();
-            _state = StateHolding;
+            _state = StateInactive;
             _acceptorStarted = false;
             _monitor = new FactoryACMMonitor(_communicator, acmConfig);
 
@@ -1565,8 +1488,8 @@ namespace IceInternal
             }
         }
 
-        private const int StateActive = 0;
-        private const int StateHolding = 1;
+        private const int StateInactive = 0;
+        private const int StateActive = 1;
         private const int StateClosed = 2;
         private const int StateFinished = 3;
 
@@ -1581,33 +1504,7 @@ namespace IceInternal
             {
                 case StateActive:
                     {
-                        if (_state != StateHolding) // Can only switch from holding to active.
-                        {
-                            return;
-                        }
-                        if (_acceptor != null)
-                        {
-                            if (_communicator.TraceLevels.Network >= 1)
-                            {
-                                var s = new StringBuilder("accepting ");
-                                s.Append(_endpoint.Transport());
-                                s.Append(" connections at ");
-                                s.Append(_acceptor.ToString());
-                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
-                            }
-                            _adapter!.ThreadPool.Register(this, SocketOperation.Read);
-                        }
-
-                        foreach (Connection connection in _connections)
-                        {
-                            connection.Activate();
-                        }
-                        break;
-                    }
-
-                case StateHolding:
-                    {
-                        if (_state != StateActive) // Can only switch from active to holding.
+                        if (_state != StateInactive) // Can only switch from inactive to active.
                         {
                             return;
                         }
@@ -1616,14 +1513,27 @@ namespace IceInternal
                             if (_communicator.TraceLevels.Network >= 1)
                             {
                                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                                           $"holding {_endpoint.Transport()} connections at {_acceptor}");
+                                    $"accepting {_endpoint.Transport()} connections at {_acceptor}");
+                            }
+                            _adapter!.ThreadPool.Register(this, SocketOperation.Read);
+                        }
+                        break;
+                    }
+
+                case StateInactive:
+                    {
+                        if (_state != StateActive) // Can only switch from active to inactive.
+                        {
+                            return;
+                        }
+                        if (_acceptor != null)
+                        {
+                            if (_communicator.TraceLevels.Network >= 1)
+                            {
+                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                    $"stopping to accept {_endpoint.Transport()} connections at {_acceptor}");
                             }
                             _adapter!.ThreadPool.Unregister(this, SocketOperation.Read);
-                        }
-
-                        foreach (Connection connection in _connections)
-                        {
-                            connection.Hold();
                         }
                         break;
                     }

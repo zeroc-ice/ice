@@ -106,10 +106,7 @@ namespace Ice
                         return;
                     }
 
-                    //
-                    // We start out in holding state.
-                    //
-                    SetState(StateHolding);
+                    SetState(StateActive);
                 }
             }
             catch (System.Exception ex)
@@ -119,11 +116,11 @@ namespace Ice
                     SetState(StateClosed, ex);
                 }
                 Debug.Assert(_exception != null);
-                callback.ConnectionStartFailed(this, _exception);
+                callback?.ConnectionStartFailed(this, _exception);
                 return;
             }
 
-            callback.ConnectionStartCompleted(this);
+            callback?.ConnectionStartCompleted(this);
         }
 
         internal void StartAndWait()
@@ -158,10 +155,7 @@ namespace Ice
                         }
                     }
 
-                    //
-                    // We start out in holding state.
-                    //
-                    SetState(StateHolding);
+                    SetState(StateActive);
                 }
             }
             catch (System.Exception ex)
@@ -189,19 +183,6 @@ namespace Ice
                     _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
                 SetState(StateActive);
-            }
-        }
-
-        internal void Hold()
-        {
-            lock (this)
-            {
-                if (_state <= StateNotValidated)
-                {
-                    return;
-                }
-
-                SetState(StateHolding);
             }
         }
 
@@ -244,7 +225,7 @@ namespace Ice
             }
         }
 
-        internal bool ActiveOrHolding
+        internal bool Active
         {
             get
             {
@@ -271,17 +252,6 @@ namespace Ice
                 {
                     Debug.Assert(_state >= StateClosing);
                     throw _exception;
-                }
-            }
-        }
-
-        internal void WaitUntilHolding()
-        {
-            lock (this)
-            {
-                while (_state < StateHolding || _dispatchCount > 0)
-                {
-                    System.Threading.Monitor.Wait(this);
                 }
             }
         }
@@ -1008,10 +978,7 @@ namespace Ice
 
                             ThreadPool.Unregister(this, current.Operation);
 
-                            //
-                            // We start out in holding state.
-                            //
-                            SetState(StateHolding);
+                            SetState(StateActive);
                             if (_startCallback != null)
                             {
                                 startCB = _startCallback;
@@ -1629,11 +1596,10 @@ namespace Ice
         private const int StateNotInitialized = 0;
         private const int StateNotValidated = 1;
         private const int StateActive = 2;
-        private const int StateHolding = 3;
-        private const int StateClosing = 4;
-        private const int StateClosingPending = 5;
-        private const int StateClosed = 6;
-        private const int StateFinished = 7;
+        private const int StateClosing = 3;
+        private const int StateClosingPending = 4;
+        private const int StateClosed = 5;
+        private const int StateFinished = 6;
 
         private void SetState(int state, System.Exception ex)
         {
@@ -1730,11 +1696,8 @@ namespace Ice
 
                     case StateActive:
                         {
-                            //
-                            // Can only switch from holding or not validated to
-                            // active.
-                            //
-                            if (_state != StateHolding && _state != StateNotValidated)
+                            // Can only switch from validated to active.
+                            if (_state != StateNotValidated)
                             {
                                 return;
                             }
@@ -1742,29 +1705,10 @@ namespace Ice
                             break;
                         }
 
-                    case StateHolding:
-                        {
-                            //
-                            // Can only switch from active or not validated to
-                            // holding.
-                            //
-                            if (_state != StateActive && _state != StateNotValidated)
-                            {
-                                return;
-                            }
-                            if (_state == StateActive)
-                            {
-                                ThreadPool.Unregister(this, SocketOperation.Read);
-                            }
-                            break;
-                        }
-
                     case StateClosing:
                     case StateClosingPending:
                         {
-                            //
                             // Can't change back from closing pending.
-                            //
                             if (_state >= StateClosingPending)
                             {
                                 return;
@@ -2400,7 +2344,7 @@ namespace Ice
                 }
             }
 
-            return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
+            return SocketOperation.Read;
         }
 
         private async ValueTask InvokeAllAsync(InputStream requestFrame, int invokeNum, int requestId,
@@ -2818,7 +2762,6 @@ namespace Ice
             ConnectionState.ConnectionStateValidating,   // StateNotInitialized
             ConnectionState.ConnectionStateValidating,   // StateNotValidated
             ConnectionState.ConnectionStateActive,       // StateActive
-            ConnectionState.ConnectionStateHolding,      // StateHolding
             ConnectionState.ConnectionStateClosing,      // StateClosing
             ConnectionState.ConnectionStateClosing,      // StateClosingPending
             ConnectionState.ConnectionStateClosed,       // StateClosed

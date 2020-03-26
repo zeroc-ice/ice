@@ -9,17 +9,23 @@ using Test;
 
 public sealed class Controller : IController
 {
-    public Controller(Ice.ObjectAdapter adapter) => _adapter = adapter;
+    public Controller(Func<Ice.ObjectAdapter> factory)
+    {
+        _factory = factory;
+        _adapter = factory();
+        _adapter.Activate();
+    }
 
     public void hold(Ice.Current current)
     {
-        _adapter.Hold();
-        _adapter.WaitForHold();
+        _adapter.Destroy();
+        _adapter = _factory(); // Recreate the adapter without activating it
     }
 
     public void resume(Ice.Current current) => _adapter.Activate();
 
-    readonly private Ice.ObjectAdapter _adapter;
+    readonly private Func<Ice.ObjectAdapter> _factory;
+    private Ice.ObjectAdapter _adapter;
 };
 
 public sealed class Metrics : IMetrics

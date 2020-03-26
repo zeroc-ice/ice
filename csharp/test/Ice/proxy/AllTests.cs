@@ -896,6 +896,7 @@ namespace Ice.proxy
             }
             output.WriteLine("ok");
 
+            output.Write("testing encoding versioning... ");
             string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
             Test.IMyClassPrx cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
             try
