@@ -78,7 +78,7 @@ class to provide component specific information.
 class Component(object):
 
     def __init__(self):
-        self.nugetVersion = None
+        self.nugetVersion = {}
 
     """
     Returns whether or not to use the binary distribution.
@@ -114,7 +114,7 @@ class Component(object):
                                       "net" if isinstance(mapping, CSharpMapping) else platform.getPlatformToolset())
 
     def getNugetPackageVersion(self, mapping):
-        if not self.nugetVersion:
+        if not mapping in self.nugetVersion:
             file = self.getNugetPackageVersionFile(mapping)
             if file.endswith(".nuspec"):
                 expr = "<version>(.*)</version>"
@@ -124,10 +124,10 @@ class Component(object):
                 with open(file, "r") as config:
                     m = re.search(expr, config.read())
                     if m:
-                        self.nugetVersion = m.group(1)
-        if not self.nugetVersion:
+                        self.nugetVersion[mapping] = m.group(1)
+        if not mapping in self.nugetVersion:
             raise RuntimeError("couldn't figure out the nuget version from `{0}'".format(file))
-        return self.nugetVersion
+        return self.nugetVersion[mapping]
 
     def getNugetPackageVersionFile(self, mapping):
         raise RuntimeError("must be overriden if component provides C++ or C# nuget packages")
