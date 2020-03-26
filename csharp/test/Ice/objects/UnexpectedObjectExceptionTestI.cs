@@ -11,9 +11,8 @@ namespace Ice.objects
         public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream istr, Current current)
         {
             var ae = new Test.AlsoEmpty();
-            var responseFrame = OutgoingResponseFrame.WithReturnValue(current.Encoding,
-                current.Adapter.Communicator.DefaultFormat, ae,
-                (OutputStream ostr, Test.AlsoEmpty ae) => ostr.WriteClass(ae));
+            var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
+                ae, (OutputStream ostr, Test.AlsoEmpty ae) => ostr.WriteClass(ae));
             return new ValueTask<OutgoingResponseFrame>(responseFrame);
         }
     }

@@ -13,7 +13,8 @@ namespace Ice
     {
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
-        /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
+
+        /// <summary>True for a sealed frame, false otherwise. Once sealed, a frame is readonly.</summary>
         public bool IsSealed { get; private set; }
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
@@ -25,70 +26,73 @@ namespace Ice
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
 
-        /// <summary>Creates a new outgoing request frame with an OK reply status and a void return value.</summary>
-        /// <param name="encoding">The encoding for the frame payload.</param>
-        public static OutgoingResponseFrame WithVoidReturnValue(Encoding encoding)
-            => new OutgoingResponseFrame(encoding, writeVoidReturnValue: true);
+        /// <summary>Creates a new outgoing response frame with an OK reply status and a void return value.</summary>
+        /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <returns>A new OutgoingResponseFrame.</returns>
+        public static OutgoingResponseFrame WithVoidReturnValue(Current current)
+            => new OutgoingResponseFrame(current.Encoding, writeVoidReturnValue: true);
 
-        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType format,
-            in T value, OutputStreamWriter<T> writer)
+        public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, in T value,
+            OutputStreamWriter<T> writer)
         {
-            var response = new OutgoingResponseFrame(encoding);
+            var response = new OutgoingResponseFrame(current.Encoding);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            var ostr = new OutputStream(response.Encoding, response.Data, new OutputStream.Position(0, 1),
+                 format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
             ostr.Save();
             response.Finish();
             return response;
         }
 
-        public static OutgoingResponseFrame WithReturnValue<T>(Encoding encoding, FormatType format, T value,
+        public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, T value,
             OutputStreamStructWriter<T> writer) where T : struct
         {
-            var response = new OutgoingResponseFrame(encoding);
+            var response = new OutgoingResponseFrame(current.Encoding);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var ostr = new OutputStream(encoding, response.Data, new OutputStream.Position(0, 1), format);
+            var ostr = new OutputStream(response.Encoding, response.Data, new OutputStream.Position(0, 1),
+                format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
             ostr.Save();
             response.Finish();
             return response;
         }
 
-        /// <summary>Creates a new outgoing response frame with the given reply status and payload.</summary>
+        /// <summary>Creates a new outgoing response frame with the given payload.</summary>
         /// <param name="encoding">The encoding for the frame payload.</param>
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        // TODO: should we pass the payload as a list of segments, or maybe has a separate
+        // TODO: should we pass the payload as a list of segments, or maybe add a separate
         // ctor that accepts a list of segments instead of a single segment
         public OutgoingResponseFrame(Encoding encoding, ArraySegment<byte> payload)
             : this(encoding)
         {
             if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
             {
-                // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes of an
+                // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
                 // empty encapsulation.
                 if (payload.Count < 7)
                 {
                     throw new ArgumentException(
-                        $"the response payload should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                        $"{nameof(payload)} should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
                         nameof(payload));
                 }
 
                 int size = InputStream.ReadInt(payload.AsSpan(1, 4));
                 if (size != payload.Count - 1)
                 {
-                    throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
+                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count}'",
                         nameof(payload));
                 }
 
                 if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
                 {
-                    throw new ArgumentException(@$"the payload encoding `{payload[5]}.{payload[6]}' must be the same
-                                                   as the frame encoding `{Encoding.Major}.{Encoding.Minor}'",
+                    throw new ArgumentException(@$"the payload encoding `{payload[5]}.{payload[6]
+                        }' must be the same as the supplied encoding `{Encoding.Major}.{Encoding.Minor}'",
                         nameof(payload));
                 }
             }

@@ -78,7 +78,7 @@ namespace Ice
         {
             // TODO: for oneway requests, we should reuse the same fake response frame, not
             // create a new one each time.
-            return IceFromResult(OutgoingResponseFrame.WithVoidReturnValue(current.Encoding));
+            return IceFromResult(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(InputStream istr, Current current)
@@ -95,8 +95,8 @@ namespace Ice
             string id = istr.ReadString();
             istr.EndEncapsulation();
             bool ret = IceIsA(id, current);
-            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding,
-                current.Adapter.Communicator.DefaultFormat, ret, OutputStream.IceWriterFromBool);
+            var response = OutgoingResponseFrame.WithReturnValue(current, format: null,
+                ret, OutputStream.IceWriterFromBool);
             return IceFromResult(response);
         }
 
@@ -105,8 +105,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string ret = IceId(current);
-            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding,
-                current.Adapter.Communicator.DefaultFormat, ret, OutputStream.IceWriterFromString);
+            var response = OutgoingResponseFrame.WithReturnValue(current, format: null,
+                ret, OutputStream.IceWriterFromString);
             return IceFromResult(response);
         }
 
@@ -115,9 +115,8 @@ namespace Ice
             istr.CheckIsReadable();
             istr.EndEncapsulation();
             string[] ret = IceIds(current);
-            var response = OutgoingResponseFrame.WithReturnValue(current.Encoding,
-                current.Adapter.Communicator.DefaultFormat, ret,
-                (OutputStream ostr, string[] ret) => ostr.WriteStringSeq(ret));
+            var response = OutgoingResponseFrame.WithReturnValue(current, format: null,
+                ret, (OutputStream ostr, string[] ret) => ostr.WriteStringSeq(ret));
             return IceFromResult(response);
         }
     }

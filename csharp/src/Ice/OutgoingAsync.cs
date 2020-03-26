@@ -787,7 +787,6 @@ namespace IceInternal
         public void Invoke(string operation,
                            bool idempotent,
                            bool oneway,
-                           Ice.FormatType? format,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
                            OutgoingRequestFrame request)
@@ -850,14 +849,13 @@ namespace IceInternal
         public void Invoke(string operation,
                            bool idempotent,
                            bool oneway,
-                           Ice.FormatType? format,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
                            OutgoingRequestFrame request,
                            System.Func<Ice.InputStream, T>? read = null)
         {
             Read = read;
-            base.Invoke(operation, idempotent, oneway, format, context, synchronous, request);
+            base.Invoke(operation, idempotent, oneway, context, synchronous, request);
         }
 
         public T GetResult(bool ok)
