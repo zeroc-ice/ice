@@ -59,12 +59,13 @@ class TestI: TestIntf {
     }
 
     func checkSUnknownAsync(o: Value?, current: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
+        return Promise<Void> { seal in
             if current.encoding == Ice.Encoding_1_0 {
                 try _helper.test(!(o is SUnknown))
             } else {
                 try _helper.test((o as! SUnknown).su == "SUnknown.su")
             }
+            seal.fulfill(())
         }
     }
 
@@ -311,7 +312,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknownAsync(p: Preserved?, current: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
+        return Promise<Void> { seal in
             if current.encoding == Ice.Encoding_1_0 {
                 try _helper.test(!(p is PSUnknown))
                 try _helper.test(p!.pi == 5)
@@ -324,6 +325,7 @@ class TestI: TestIntf {
                 try _helper.test(pu.graph == nil)
                 try _helper.test(pu.cl != nil && pu.cl!.i == 15)
             }
+            seal.fulfill(())
         }
     }
 
@@ -342,7 +344,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknownWithGraphAsync(p: Preserved?, current: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
+        return Promise<Void> { seal in
             if current.encoding == Ice.Encoding_1_0 {
                 try _helper.test(!(p is PSUnknown))
                 try _helper.test(p!.pi == 5)
@@ -356,6 +358,7 @@ class TestI: TestIntf {
                 try _helper.test(pu.graph!.next !== pu.graph!.next!.next)
                 try _helper.test(pu.graph!.next!.next!.next === pu.graph)
             }
+            seal.fulfill(())
         }
     }
 
@@ -370,7 +373,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknown2WithGraphAsync(p: Preserved?, current: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
+        return Promise<Void> { seal in
             if current.encoding == Ice.Encoding_1_0 {
                 try _helper.test(!(p is PSUnknown2))
                 try _helper.test(p!.pi == 5)
@@ -381,6 +384,7 @@ class TestI: TestIntf {
                 try _helper.test(pu.ps == "preserved")
                 try _helper.test(pu.pb === pu)
             }
+            seal.fulfill(())
         }
     }
 

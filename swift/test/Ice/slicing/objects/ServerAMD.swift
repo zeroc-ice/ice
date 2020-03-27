@@ -11,7 +11,7 @@ class ServerAMD: TestHelperI {
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceSlicingObjectsAMD", "IceSlicingObjectsAMD"]
+        initData.classResolverPrefix = ["IceSlicingObjectsAMD", "IceSlicingObjectsServerAMD"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
