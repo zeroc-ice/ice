@@ -1707,18 +1707,6 @@ namespace Ice
             }
 
             //
-            // There is no point in retrying an operation that resulted in a
-            // MarshalException. This must have been raised locally (because if
-            // it happened in a server it would result in a remote exception
-            // instead), which means there was a problem in this process that will
-            // not change if we try again.
-            //
-            if (ex is MarshalException)
-            {
-                throw ex;
-            }
-
-            //
             // Don't retry if the communicator is destroyed, object adapter is deactivated,
             // or connection is manually closed.
             //

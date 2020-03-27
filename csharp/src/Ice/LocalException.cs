@@ -361,26 +361,6 @@ namespace Ice
         }
     }
 
-    /// <summary>This exception reports an error that occurred while marshaling data into a sequence of bytes.</summary>
-    [Serializable]
-    public class MarshalException : Exception
-    {
-        public MarshalException(string message)
-            : base(message)
-        {
-        }
-
-        public MarshalException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected MarshalException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
     /// <summary>This is a purely Ice-internal exception used for retries.</summary>
     [Serializable]
     public class RetryException : Exception

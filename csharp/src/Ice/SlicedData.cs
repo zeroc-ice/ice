@@ -4,10 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ice
 {
-    ///<summary>SlicedData holds the sliced-off unknown slices of a class or remote exception.</summary>
+    ///<summary>SlicedData holds the sliced-off unknown slices of a class or remote exception. Each SlicedData value
+    /// holds at least one slice.</summary>
     public readonly struct SlicedData
     {
         /// <summary>The Ice encoding of the "unknown" slices held by this SlicedData. These slices can only be
@@ -19,6 +21,7 @@ namespace Ice
 
         internal SlicedData(Encoding encoding, IReadOnlyList<SliceInfo> slices)
         {
+            Debug.Assert(slices.Count >= 1);
             Encoding = encoding;
             Slices = slices;
         }

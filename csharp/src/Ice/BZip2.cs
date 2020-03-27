@@ -397,7 +397,7 @@ namespace Ice
 
                 if (rc != BzRunOk)
                 {
-                    throw new MarshalException($"bzip2 compression failed: {GetBZ2Error(rc)}");
+                    throw new TransportException($"bzip2 compression failed: {GetBZ2Error(rc)}");
                 }
 
                 do
@@ -408,7 +408,7 @@ namespace Ice
 
                 if (rc != BzStreamEnd)
                 {
-                    throw new MarshalException($"bzip2 compression failed: {GetBZ2Error(rc)}");
+                    throw new TransportException($"bzip2 compression failed: {GetBZ2Error(rc)}");
                 }
 
                 int compressedLen = compressed.Length - (int)bzStream.AvailOut;

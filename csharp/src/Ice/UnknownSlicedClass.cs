@@ -38,12 +38,7 @@ namespace Ice
         {
             Debug.Assert(firstSlice);
             Debug.Assert(_slicedData.HasValue); // Can only be called on an instance previously filled by IceRead.
-            if (!ostr.WriteSlicedData(_slicedData.Value))
-            {
-                // Could be for example attempting to marshal this instance into a compact-format encapsulation.
-                throw new MarshalException(
-                    $"failed to marshal an {nameof(UnknownSlicedClass)} with type ID `{TypeId}'");
-            }
+            ostr.WriteSlicedData(_slicedData.Value);
         }
         internal UnknownSlicedClass()
         {

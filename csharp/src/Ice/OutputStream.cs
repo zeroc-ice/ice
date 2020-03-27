@@ -175,10 +175,15 @@ namespace Ice
             if (slicedData.HasValue)
             {
                 Debug.Assert(firstSlice);
-                if (WriteSlicedData(slicedData.Value))
+                try
                 {
+                    WriteSlicedData(slicedData.Value);
                     firstSlice = false;
-                } // else we didn't write anything and it's still the first slice
+                }
+                catch (NotSupportedException)
+                {
+                    // Ignored: for some reason we could not remarshal the sliced data and firstSlice remains true
+                }
             }
 
             _current.SliceFlags = default;
@@ -412,17 +417,11 @@ namespace Ice
                 WriteSize(0);
                 return;
             }
-            try
-            {
-                var w = new IceInternal.OutputStreamWrapper(this);
-                IFormatter f = new BinaryFormatter();
-                f.Serialize(w, o);
-                w.Close();
-            }
-            catch (System.Exception ex)
-            {
-                throw new MarshalException("cannot serialize object", ex);
-            }
+
+            var w = new IceInternal.OutputStreamWrapper(this);
+            IFormatter f = new BinaryFormatter();
+            f.Serialize(w, o);
+            w.Close();
         }
 
         /// <summary>
@@ -1369,19 +1368,23 @@ namespace Ice
             WriteSpan(v.AsSpan());
         }
 
-        // Returns true when something was written, and false otherwise
-        internal bool WriteSlicedData(SlicedData slicedData)
+        internal void WriteSlicedData(SlicedData slicedData)
         {
             Debug.Assert(_current != null);
             // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
             // slices, which essentially "slices" the instance into the most-derived type known by the sender.
-            if (_format != FormatType.Sliced || Encoding != slicedData.Encoding)
+            if (_format != FormatType.Sliced)
             {
-                // TODO: if the encodings don't match, do we just drop these slices, or throw an exception?
-                return false;
+                throw new NotSupportedException($"cannot write sliced data into payload using {_format} format");
+            }
+            if (Encoding != slicedData.Encoding)
+            {
+                throw new NotSupportedException(@$"cannot write sliced data encoded with encoding {slicedData.Encoding
+                    } into payload encoded with encoding {Encoding}");
             }
 
             bool firstSlice = true;
+            // There is always at least one slice. See SlicedData constructor.
             foreach (SliceInfo info in slicedData.Slices)
             {
                 IceStartSlice(info.TypeId ?? "", firstSlice, null, info.CompactId);
@@ -1405,7 +1408,7 @@ namespace Ice
                 }
                 IceEndSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
             }
-            return firstSlice == false; // we wrote at least one slice
+            Debug.Assert(!firstSlice);
         }
 
         private void WriteEncapsulationHeader(int size, Encoding encoding)
