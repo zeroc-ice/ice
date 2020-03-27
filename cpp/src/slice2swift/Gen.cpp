@@ -734,8 +734,11 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
-        out << nl << "let p = UnsafeMutablePointer<" << typeToString(p->type(), p) << ">(&v[i])";
+        out << nl << "try Swift.withUnsafeMutablePointer(to: &v[i])";
+        out << sb;
+        out << " p in";
         writeMarshalUnmarshalCode(out, type, p, "p.pointee", false);
+        out << eb;
         out << eb;
     }
     else
