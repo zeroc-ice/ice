@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace Ice
 {
     [Serializable]
-    public abstract class AnyClass : ICloneable
+    public abstract class AnyClass
     {
         public static readonly InputStreamReader<AnyClass?> IceReader = (istr) => istr.ReadClass<AnyClass>();
         public static readonly OutputStreamWriter<AnyClass?> IceWriter = (ostr, value) => ostr.WriteClass(value);
@@ -27,13 +27,6 @@ namespace Ice
         // See OutputStream.
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
-
-        /// <summary>
-        /// Returns a copy of the object. The cloned object contains field-for-field copies
-        /// of the state.
-        /// </summary>
-        /// <returns>The cloned object.</returns>
-        public object Clone() => MemberwiseClone();
     }
 
     public static class AnyClassExtensions

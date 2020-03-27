@@ -9,6 +9,10 @@ using IceInternal;
 
 namespace IceMX
 {
+    public partial class Metrics
+    {
+        internal object Clone() => MemberwiseClone();
+    }
     public class MetricsHelper<T> where T : Metrics
     {
         public class AttributeResolver
