@@ -111,7 +111,7 @@ class Base
     double zeroDotD = 0;
 }
 
-class Derived extends Base
+class Derived : Base
 {
     Color c1 = ::Test::Color::red;
     Color c2 = Test::green;
@@ -141,7 +141,7 @@ exception BaseEx
     double zeroDotD = 0;
 }
 
-exception DerivedEx extends BaseEx
+exception DerivedEx : BaseEx
 {
     Color c1 = ConstColor1;
     Color c2 = ConstColor2;
@@ -184,7 +184,7 @@ exception ExceptionNoDefaultsBase
     ByteSeq bs;
 }
 
-exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
+exception ExceptionNoDefaults : ExceptionNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;
@@ -197,7 +197,7 @@ class ClassNoDefaultsBase
     ByteSeq bs;
 }
 
-class ClassNoDefaults extends ClassNoDefaultsBase
+class ClassNoDefaults : ClassNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;

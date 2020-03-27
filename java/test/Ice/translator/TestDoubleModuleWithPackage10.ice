@@ -29,9 +29,9 @@ sequence<dmwpStruct> dmwpTest10StructSeq;
 
 dictionary<dmwpStruct, dmwpBaseClass> dmwpTest10StructClassSeq;
 
-interface dmwpTest10Interface extends dmwpInterface {}
+interface dmwpTest10Interface : dmwpInterface {}
 
-exception dmwpTest10Exception extends dmwpException
+exception dmwpTest10Exception : dmwpException
 {
     dmwpEnum e1;
     dmwpStruct s1;
@@ -41,7 +41,7 @@ exception dmwpTest10Exception extends dmwpException
     dmwpInterface i1;
 }
 
-class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
+class dmwpTest10Class : dmwpBaseClass implements dmwpBaseInterface
 {
     dmwpStruct
     dmwpTest10Op1(dmwpEnum i1,

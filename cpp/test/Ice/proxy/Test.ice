@@ -16,7 +16,7 @@ interface MyClass
     Ice::Context getContext();
 }
 
-interface MyDerivedClass extends MyClass
+interface MyDerivedClass : MyClass
 {
     Object* echo(Object* obj);
 }

@@ -29,7 +29,7 @@ class A
     C theC;
 }
 
-class B extends A
+class B : A
 {
     A theA;
 }
@@ -47,7 +47,7 @@ class D
 }
 
 // Exercise empty class with non-empty base
-class G extends Base
+class G : Base
 {
 }
 
@@ -61,7 +61,7 @@ class Compact(1)
 
 const int CompactExtId = 789;
 
-class CompactExt(CompactExtId) extends Compact
+class CompactExt(CompactExtId) : Compact
 {
 }
 
@@ -106,7 +106,7 @@ class B1
     A1 a2;
 }
 
-class D1 extends B1
+class D1 : B1
 {
     A1 a3;
     A1 a4;
@@ -118,7 +118,7 @@ exception EBase
     A1 a2;
 }
 
-exception EDerived extends EBase
+exception EDerived : EBase
 {
     A1 a3;
     A1 a4;
@@ -228,12 +228,12 @@ class IBase
     string id;
 }
 
-class IDerived extends IBase
+class IDerived : IBase
 {
     string name;
 }
 
-class IDerived2 extends IBase
+class IDerived2 : IBase
 {
 }
 

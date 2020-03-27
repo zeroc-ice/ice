@@ -27,9 +27,9 @@ sequence<::M1::M2::dmnpStruct> dmnpTest5StructSeq;
 
 dictionary<::M1::M2::dmnpStruct, ::M1::M2::dmnpBaseClass> dmnpTest5StructClassSeq;
 
-interface dmnpTest5Interface extends ::M1::M2::dmnpInterface {}
+interface dmnpTest5Interface : ::M1::M2::dmnpInterface {}
 
-exception dmnpTest5Exception extends ::M1::M2::dmnpException
+exception dmnpTest5Exception : ::M1::M2::dmnpException
 {
     ::M1::M2::dmnpEnum e1;
     ::M1::M2::dmnpStruct s1;
@@ -39,7 +39,7 @@ exception dmnpTest5Exception extends ::M1::M2::dmnpException
     ::M1::M2::dmnpInterface i1;
 }
 
-class dmnpTest5Class extends ::M1::M2::dmnpBaseClass implements ::M1::M2::dmnpBaseInterface
+class dmnpTest5Class : ::M1::M2::dmnpBaseClass implements ::M1::M2::dmnpBaseInterface
 {
     ::M1::M2::dmnpStruct
     dmnpTest5Op1(::M1::M2::dmnpEnum i1,

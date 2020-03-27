@@ -35,7 +35,7 @@ class else
     int final;
 }
 
-interface finalize extends default, catch
+interface finalize : default, catch
 {
 }
 sequence<assert> for;
@@ -46,7 +46,7 @@ exception hashCode
     int if;
 }
 
-exception import extends hashCode
+exception import : hashCode
 {
     int instanceof;
     int native;

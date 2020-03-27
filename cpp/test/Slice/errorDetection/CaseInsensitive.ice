@@ -61,12 +61,12 @@ interface i6
     void op();
 }
 
-interface i7 extends i6
+interface i7 : i6
 {
     void op();
 }
 
-interface i8 extends i6
+interface i8 : i6
 {
     void OP();
 }
@@ -76,12 +76,12 @@ class c3
     long l;
 }
 
-class c4 extends c3
+class c4 : c3
 {
     void l();
 }
 
-class c5 extends c3
+class c5 : c3
 {
     void L();
 }
@@ -92,12 +92,12 @@ class c6
     void L();
 }
 
-class c7 extends c3
+class c7 : c3
 {
     long l;
 }
 
-class c8 extends c3
+class c8 : c3
 {
     long L;
 }
@@ -135,12 +135,12 @@ exception e5
     long l;
 }
 
-exception e6 extends e5
+exception e6 : e5
 {
     string l;
 }
 
-exception e7 extends e5
+exception e7 : e5
 {
     string L;
 }
@@ -196,11 +196,11 @@ interface Base
     void op();
 }
 
-interface Derived extends Base
+interface Derived : Base
 {
 }
 
-interface Derived extends base
+interface Derived : base
 {
 }
 
@@ -208,7 +208,7 @@ exception e1
 {
 }
 
-exception e2 extends E1
+exception e2 : E1
 {
 }
 
@@ -260,7 +260,7 @@ module CI
         void OP();
     }
 
-    interface derived extends base1, base2
+    interface derived : base1, base2
     {
     }
 }
@@ -306,7 +306,7 @@ module DI
         int X;
     }
 
-    class derived2 extends base2
+    class derived2 : base2
     {
         string x;
     }

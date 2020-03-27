@@ -53,7 +53,7 @@ module IceStorm
     /// Internal operations for a topic.
     ///
     /// @see Topic
-    interface TopicInternal extends Topic
+    interface TopicInternal : Topic
     {
         /// Retrieve a proxy to the TopicLink interface.
         ///
@@ -71,7 +71,7 @@ module IceStorm
     /// Internal operations for a topic manager.
     ///
     /// @see TopicManager
-    interface TopicManagerInternal extends TopicManager
+    interface TopicManagerInternal : TopicManager
     {
         /// Return the replica node proxy for this topic manager.
         ///

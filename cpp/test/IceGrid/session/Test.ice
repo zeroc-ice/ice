@@ -9,7 +9,7 @@
 module Test
 {
 
-exception ExtendedPermissionDeniedException extends Glacier2::PermissionDeniedException
+exception ExtendedPermissionDeniedException : Glacier2::PermissionDeniedException
 {
 }
 

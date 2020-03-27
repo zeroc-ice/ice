@@ -18,7 +18,7 @@ class base1
     void x();
 }
 
-class derived1 extends base1
+class derived1 : base1
 {
     int x;
 }
@@ -28,7 +28,7 @@ class base2
     int x;
 }
 
-class derived2 extends base2
+class derived2 : base2
 {
     void x();
 }
@@ -38,7 +38,7 @@ class base3
     string x;
 }
 
-class derived3 extends base3
+class derived3 : base3
 {
     string x;
 }

@@ -13,10 +13,10 @@ module Mod
 
 sequence<Mod> Seq;
 dictionary<int, Mod> Dict;
-interface BarIntf extends Mod { void op(); }
-class BarClass1 extends Mod { long l; }
+interface BarIntf : Mod { void op(); }
+class BarClass1 : Mod { long l; }
 class BarClass2 implements Module1, Module2, Module3 { long l; }
-class BarClass3 extends Mod implements Module1, Module2, Module3 { long l; }
+class BarClass3 : Mod implements Module1, Module2, Module3 { long l; }
 
 }
 

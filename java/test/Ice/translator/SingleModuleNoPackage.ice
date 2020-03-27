@@ -25,7 +25,7 @@ interface smnpBaseInterface
     void smnpBaseInterfaceOp();
 }
 
-interface smnpInterface extends smnpBaseInterface
+interface smnpInterface : smnpBaseInterface
 {
     void smnpInterfaceOp();
 }
@@ -38,7 +38,7 @@ class smnpBaseClass
     smnpStringStructDict dict;
 }
 
-class smnpClass extends smnpBaseClass implements smnpInterface
+class smnpClass : smnpBaseClass implements smnpInterface
 {
 }
 
@@ -51,7 +51,7 @@ exception smnpBaseException
     smnpClass c;
 }
 
-exception smnpException extends smnpBaseException
+exception smnpException : smnpBaseException
 {
 }
 

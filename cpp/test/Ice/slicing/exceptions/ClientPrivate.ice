@@ -9,17 +9,17 @@
 module Test
 {
 
-class PreservedClass extends BaseClass
+class PreservedClass : BaseClass
 {
     string pc;
 }
 
-exception Preserved1 extends KnownPreservedDerived
+exception Preserved1 : KnownPreservedDerived
 {
     BaseClass p1;
 }
 
-exception Preserved2 extends Preserved1
+exception Preserved2 : Preserved1
 {
     BaseClass p2;
 }

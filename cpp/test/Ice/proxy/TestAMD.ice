@@ -16,7 +16,7 @@ module Test
     Ice::Context getContext();
 }
 
-["amd"] interface MyDerivedClass extends MyClass
+["amd"] interface MyDerivedClass : MyClass
 {
     Object* echo(Object* obj);
 }

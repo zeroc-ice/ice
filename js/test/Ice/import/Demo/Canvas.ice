@@ -23,7 +23,7 @@ interface Canvas
 
 }
 
-interface Session extends Glacier2::Session
+interface Session : Glacier2::Session
 {
     void destroySession();
 }

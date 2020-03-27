@@ -36,7 +36,7 @@ class delete
     int export;
 }
 
-interface explicit extends typeof, case
+interface explicit : typeof, case
 {
 }
 
@@ -86,7 +86,7 @@ exception fixed
     int for;
 }
 
-exception foreach extends fixed
+exception foreach : fixed
 {
     int goto;
     int if;

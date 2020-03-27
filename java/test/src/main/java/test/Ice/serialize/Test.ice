@@ -60,7 +60,7 @@ class Base
 }
 
 ["java:serialVersionUID:1003"]
-class Derived extends Base
+class Derived : Base
 {
     Object* p;
 }

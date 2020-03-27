@@ -29,9 +29,9 @@ sequence<M::smwpStruct> smwpTest12StructSeq;
 
 dictionary<M::smwpStruct, M::smwpBaseClass> smwpTest12StructClassSeq;
 
-interface smwpTest12Interface extends M::smwpInterface {}
+interface smwpTest12Interface : M::smwpInterface {}
 
-exception smwpTest12Exception extends M::smwpException
+exception smwpTest12Exception : M::smwpException
 {
     M::smwpEnum e1;
     M::smwpStruct s1;
@@ -41,7 +41,7 @@ exception smwpTest12Exception extends M::smwpException
     M::smwpInterface i1;
 }
 
-class smwpTest12Class extends M::smwpBaseClass implements M::smwpBaseInterface
+class smwpTest12Class : M::smwpBaseClass implements M::smwpBaseInterface
 {
     M::smwpStruct
     smwpTest12Op1(M::smwpEnum i1,

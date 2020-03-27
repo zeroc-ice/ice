@@ -28,7 +28,7 @@ module IceGrid
     /// object.
     ///
     /// @see Registry
-    interface Session extends Glacier2::Session
+    interface Session : Glacier2::Session
     {
         /// Keep the session alive. Clients should call this operation
         /// regularly to prevent the server from reaping the session.

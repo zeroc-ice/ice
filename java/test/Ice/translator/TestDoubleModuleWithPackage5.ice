@@ -25,9 +25,9 @@ sequence<::M1::M2::dmwpStruct> dmwpTest5StructSeq;
 
 dictionary<::M1::M2::dmwpStruct, ::M1::M2::dmwpBaseClass> dmwpTest5StructClassSeq;
 
-interface dmwpTest5Interface extends ::M1::M2::dmwpInterface {}
+interface dmwpTest5Interface : ::M1::M2::dmwpInterface {}
 
-exception dmwpTest5Exception extends ::M1::M2::dmwpException
+exception dmwpTest5Exception : ::M1::M2::dmwpException
 {
     ::M1::M2::dmwpEnum e1;
     ::M1::M2::dmwpStruct s1;
@@ -37,7 +37,7 @@ exception dmwpTest5Exception extends ::M1::M2::dmwpException
     ::M1::M2::dmwpInterface i1;
 }
 
-class dmwpTest5Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
+class dmwpTest5Class : ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
 {
     ::M1::M2::dmwpStruct
     dmwpTest5Op1(::M1::M2::dmwpEnum i1,

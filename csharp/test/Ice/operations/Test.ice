@@ -277,7 +277,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["cs:tie"] interface MyDerivedClass extends MyClass
+["cs:tie"] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
@@ -363,7 +363,7 @@ module Test2
  * a different module (ICE-7639).
  *
  **/
-interface MyDerivedClass extends Test::MyClass
+interface MyDerivedClass : Test::MyClass
 {
 }
 

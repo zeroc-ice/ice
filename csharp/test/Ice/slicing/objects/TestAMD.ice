@@ -12,7 +12,7 @@ class SBase
     string sb;
 }
 
-class SBSKnownDerived extends SBase
+class SBSKnownDerived : SBase
 {
     string sbskd;
 }
@@ -23,7 +23,7 @@ class B
     B pb;
 }
 
-class D1 extends B
+class D1 : B
 {
     string sd1;
     B pd1;
@@ -55,7 +55,7 @@ exception BaseException
     B pb;
 }
 
-exception DerivedException extends BaseException
+exception DerivedException : BaseException
 {
     string sde;
     D1 pd1;
@@ -71,12 +71,12 @@ class PBase
 sequence<PBase> PBaseSeq;
 
 ["preserve-slice"]
-class Preserved extends PBase
+class Preserved : PBase
 {
     string ps;
 }
 
-class PDerived extends Preserved
+class PDerived : Preserved
 {
     PBase pb;
 }

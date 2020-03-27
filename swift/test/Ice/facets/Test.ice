@@ -16,17 +16,17 @@ interface A
     string callA();
 }
 
-interface B extends A
+interface B : A
 {
     string callB();
 }
 
-interface C extends A
+interface C : A
 {
     string callC();
 }
 
-interface D extends B, C
+interface D : B, C
 {
     string callD();
 }
@@ -36,7 +36,7 @@ interface E
     string callE();
 }
 
-interface F extends E
+interface F : E
 {
     string callF();
 }
@@ -47,7 +47,7 @@ interface G
     string callG();
 }
 
-interface H extends G
+interface H : G
 {
     string callH();
 }

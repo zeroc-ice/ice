@@ -12,28 +12,28 @@ exception Base
     string b;
 }
 
-exception KnownDerived extends Base
+exception KnownDerived : Base
 {
     string kd;
 }
 
-exception KnownIntermediate extends Base
+exception KnownIntermediate : Base
 {
     string ki;
 }
 
-exception KnownMostDerived extends KnownIntermediate
+exception KnownMostDerived : KnownIntermediate
 {
     string kmd;
 }
 
 ["preserve-slice"]
-exception KnownPreserved extends Base
+exception KnownPreserved : Base
 {
     string kp;
 }
 
-exception KnownPreservedDerived extends KnownPreserved
+exception KnownPreservedDerived : KnownPreserved
 {
     string kpd;
 }

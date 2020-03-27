@@ -21,7 +21,7 @@
 module IceMX
 {
     /// Provides information on IceStorm topics.
-    class TopicMetrics extends Metrics
+    class TopicMetrics : Metrics
     {
         /// Number of events published on the topic by publishers.
         long published = 0;
@@ -31,7 +31,7 @@ module IceMX
     }
 
     /// Provides information on IceStorm subscribers.
-    class SubscriberMetrics extends Metrics
+    class SubscriberMetrics : Metrics
     {
         /// Number of queued events.
         int queued = 0;

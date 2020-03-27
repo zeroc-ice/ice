@@ -156,7 +156,7 @@ module IceGrid
 
     /// This exception is raised if the request to allocate an object times
     /// out.
-    exception AllocationTimeoutException extends AllocationException
+    exception AllocationTimeoutException : AllocationException
     {
     }
 

@@ -169,7 +169,7 @@ module IceGrid
     ///
     /// @see Query
     /// @see Registry
-    interface Locator extends Ice::Locator
+    interface Locator : Ice::Locator
     {
         /// Get the proxy of the registry object hosted by this IceGrid
         /// registry.

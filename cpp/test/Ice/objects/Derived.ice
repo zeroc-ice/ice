@@ -10,7 +10,7 @@
 module Test
 {
 
-class Derived extends Base
+class Derived : Base
 {
     string b;
 }

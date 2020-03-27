@@ -17,12 +17,12 @@ exception A
     int aMem;
 }
 
-exception B extends A
+exception B : A
 {
     int bMem;
 }
 
-exception C extends B
+exception C : B
 {
     int cMem;
 }

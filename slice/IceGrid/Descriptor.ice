@@ -128,7 +128,7 @@ module IceGrid
     }
 
     /// An Ice server descriptor.
-    class ServerDescriptor extends CommunicatorDescriptor
+    class ServerDescriptor : CommunicatorDescriptor
     {
         /// The server id.
         string id;
@@ -175,7 +175,7 @@ module IceGrid
     ["java:type:java.util.LinkedList<ServerDescriptor>"] sequence<ServerDescriptor> ServerDescriptorSeq;
 
     /// An IceBox service descriptor.
-    class ServiceDescriptor extends CommunicatorDescriptor
+    class ServiceDescriptor : CommunicatorDescriptor
     {
         /// The service name.
         string name;
@@ -246,7 +246,7 @@ module IceGrid
     sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
     /// An IceBox server descriptor.
-    class IceBoxDescriptor extends ServerDescriptor
+    class IceBoxDescriptor : ServerDescriptor
     {
         /// The service instances.
         ServiceInstanceDescriptorSeq services;
@@ -286,22 +286,22 @@ module IceGrid
     }
 
     /// Random load balancing policy.
-    class RandomLoadBalancingPolicy extends LoadBalancingPolicy
+    class RandomLoadBalancingPolicy : LoadBalancingPolicy
     {
     }
 
     /// Ordered load balancing policy.
-    class OrderedLoadBalancingPolicy extends LoadBalancingPolicy
+    class OrderedLoadBalancingPolicy : LoadBalancingPolicy
     {
     }
 
     /// Round robin load balancing policy.
-    class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
+    class RoundRobinLoadBalancingPolicy : LoadBalancingPolicy
     {
     }
 
     /// Adaptive load balancing policy.
-    class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
+    class AdaptiveLoadBalancingPolicy : LoadBalancingPolicy
     {
         /// The load sample to use for the load balancing. The allowed
         /// values for this attribute are "1", "5" and "15", representing

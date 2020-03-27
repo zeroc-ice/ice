@@ -18,7 +18,7 @@ module Test
 // only the JavaScript server within the browser (which loads ClientPrivate.js for
 // the server as well)
 //
-// class D extends B
+// class D : B
 // {
 //     string ds;
 //     tag(990) StringSeq seq;

@@ -36,7 +36,7 @@ module Glacier2
     }
 
     /// The Glacier2 specialization of the <code>Ice::Router</code> interface.
-    interface Router extends Ice::Router
+    interface Router : Ice::Router
     {
         /// This category must be used in the identities of all of the client's
         /// callback objects. This is necessary in order for the router to

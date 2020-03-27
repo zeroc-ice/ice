@@ -1050,7 +1050,7 @@ module IceGrid
     /// object or via the registry admin <code>SessionManager</code> object.
     ///
     /// @see Registry
-    interface AdminSession extends Glacier2::Session
+    interface AdminSession : Glacier2::Session
     {
         /// Keep the session alive. Clients should call this operation
         /// regularly to prevent the server from reaping the session.

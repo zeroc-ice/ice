@@ -41,7 +41,7 @@ class Base
     tag(E::e2) int b1;
 }
 
-class Derived extends Base
+class Derived : Base
 {
     tag(1) int d1;
 }
@@ -72,7 +72,7 @@ class BaseEx
     tag(E::e2) int b1;
 }
 
-class DerivedEx extends BaseEx
+class DerivedEx : BaseEx
 {
     tag(1) int d1;
 }

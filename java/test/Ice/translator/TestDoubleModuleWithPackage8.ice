@@ -27,9 +27,9 @@ sequence<::M1::M2::dmwpStruct> dmwpTest8StructSeq;
 
 dictionary<::M1::M2::dmwpStruct, ::M1::M2::dmwpBaseClass> dmwpTest8StructClassSeq;
 
-interface dmwpTest8Interface extends ::M1::M2::dmwpInterface {}
+interface dmwpTest8Interface : ::M1::M2::dmwpInterface {}
 
-exception dmwpTest8Exception extends ::M1::M2::dmwpException
+exception dmwpTest8Exception : ::M1::M2::dmwpException
 {
     ::M1::M2::dmwpEnum e1;
     ::M1::M2::dmwpStruct s1;
@@ -39,7 +39,7 @@ exception dmwpTest8Exception extends ::M1::M2::dmwpException
     ::M1::M2::dmwpInterface i1;
 }
 
-class dmwpTest8Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
+class dmwpTest8Class : ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
 {
     ::M1::M2::dmwpStruct
     dmwpTest8Op1(::M1::M2::dmwpEnum i1,

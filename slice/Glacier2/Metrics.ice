@@ -23,7 +23,7 @@
 module IceMX
 {
     /// Provides information on Glacier2 sessions.
-    class SessionMetrics extends Metrics
+    class SessionMetrics : Metrics
     {
         /// Number of client requests forwarded.
         int forwardedClient = 0;

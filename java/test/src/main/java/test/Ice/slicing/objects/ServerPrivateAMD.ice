@@ -18,7 +18,7 @@ class SBase
     string sb;
 }
 
-class SBSKnownDerived extends SBase
+class SBSKnownDerived : SBase
 {
     string sbskd;
 }
@@ -29,7 +29,7 @@ class B
     B pb;
 }
 
-class D1 extends B
+class D1 : B
 {
     string sd1;
     B pd1;
@@ -61,7 +61,7 @@ exception BaseException
     B pb;
 }
 
-exception DerivedException extends BaseException
+exception DerivedException : BaseException
 {
     string sde;
     D1 pd1;
@@ -77,12 +77,12 @@ class PBase
 sequence<PBase> PBaseSeq;
 
 ["preserve-slice"]
-class Preserved extends PBase
+class Preserved : PBase
 {
     string ps;
 }
 
-class PDerived extends Preserved
+class PDerived : Preserved
 {
     PBase pb;
 }
@@ -160,7 +160,7 @@ interface TestIntf
 // Types private to the server.
 //
 
-class SBSUnknownDerived extends SBase
+class SBSUnknownDerived : SBase
 {
     string sbsud;
 }
@@ -171,19 +171,19 @@ class SUnknown
     SUnknown cycle;
 }
 
-class D2 extends B
+class D2 : B
 {
     string sd2;
     B pd2;
 }
 
-class D4 extends B
+class D4 : B
 {
     B p1;
     B p2;
 }
 
-exception UnknownDerivedException extends BaseException
+exception UnknownDerivedException : BaseException
 {
     string sude;
     D2 pd2;
@@ -194,19 +194,19 @@ class MyClass
     int i;
 }
 
-class PSUnknown extends Preserved
+class PSUnknown : Preserved
 {
     string psu;
     PNode graph;
     MyClass cl;
 }
 
-class PSUnknown2 extends Preserved
+class PSUnknown2 : Preserved
 {
     PBase pb;
 }
 
-exception PSUnknownException extends PreservedException
+exception PSUnknownException : PreservedException
 {
     PSUnknown2 p;
 }

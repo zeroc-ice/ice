@@ -9,37 +9,37 @@
 module Test
 {
 
-exception UnknownDerived extends Base
+exception UnknownDerived : Base
 {
     string ud;
 }
 
-exception UnknownIntermediate extends Base
+exception UnknownIntermediate : Base
 {
    string ui;
 }
 
-exception UnknownMostDerived1 extends KnownIntermediate
+exception UnknownMostDerived1 : KnownIntermediate
 {
    string umd1;
 }
 
-exception UnknownMostDerived2 extends UnknownIntermediate
+exception UnknownMostDerived2 : UnknownIntermediate
 {
    string umd2;
 }
 
-class SPreservedClass extends BaseClass
+class SPreservedClass : BaseClass
 {
     string spc;
 }
 
-exception SPreserved1 extends KnownPreservedDerived
+exception SPreserved1 : KnownPreservedDerived
 {
     BaseClass p1;
 }
 
-exception SPreserved2 extends SPreserved1
+exception SPreserved2 : SPreserved1
 {
     BaseClass p2;
 }

@@ -29,7 +29,7 @@ interface dmwpBaseInterface
     void dmwpBaseInterfaceOp();
 }
 
-interface dmwpInterface extends dmwpBaseInterface
+interface dmwpInterface : dmwpBaseInterface
 {
     void dmwpInterfaceOp();
 }
@@ -42,7 +42,7 @@ class dmwpBaseClass
     dmwpStringStructDict dict;
 }
 
-class dmwpClass extends dmwpBaseClass implements dmwpInterface
+class dmwpClass : dmwpBaseClass implements dmwpInterface
 {
 }
 
@@ -55,7 +55,7 @@ exception dmwpBaseException
     dmwpClass c;
 }
 
-exception dmwpException extends dmwpBaseException
+exception dmwpException : dmwpBaseException
 {
 }
 

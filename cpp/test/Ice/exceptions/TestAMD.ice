@@ -20,12 +20,12 @@ exception A
     int aMem;
 }
 
-exception B extends A
+exception B : A
 {
     int bMem;
 }
 
-exception C extends B
+exception C : B
 {
     int cMem;
 }
@@ -48,7 +48,7 @@ exception F
 
 module Mod
 {
-    exception A extends ::Test::A
+    exception A : ::Test::A
     {
         int a2Mem;
     }

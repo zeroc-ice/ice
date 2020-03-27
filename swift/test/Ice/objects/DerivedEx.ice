@@ -9,7 +9,7 @@
 module Test
 {
 
-exception DerivedEx extends BaseEx
+exception DerivedEx : BaseEx
 {
 }
 

@@ -10,17 +10,17 @@ module M1
         void ia1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {       // OK
         void ia3();
     }
@@ -37,19 +37,19 @@ module M2
         void ia1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
         void op();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
         void op();
     }
 
-    interface A3 extends A2, B2         // Error
+    interface A3 : A2, B2         // Error
     {
         void ia3();
     }
@@ -66,18 +66,18 @@ module M3
         void ia1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
         void op();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
         void op();                      // Error
@@ -95,18 +95,18 @@ module M4
         void ia1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
         void op();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
         void op();                      // Error
@@ -125,17 +125,17 @@ module M5
         void op();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
         void op();                      // Error
@@ -163,7 +163,7 @@ module M6
         void ic1();
     }
 
-    interface A2 extends A1, B1, C1 {   // OK
+    interface A2 : A1, B1, C1 {   // OK
         void ia2();
     }
 }
@@ -190,7 +190,7 @@ module M7
         void ic1();
     }
 
-    interface A2 extends A1, B1, C1     // Error
+    interface A2 : A1, B1, C1     // Error
     {
         void ia2();
     }
@@ -218,7 +218,7 @@ module M8
         void op();
     }
 
-    interface A2 extends A1, B1, C1     // Error
+    interface A2 : A1, B1, C1     // Error
     {
         void ia2();
     }
@@ -246,7 +246,7 @@ module M9
         void op();
     }
 
-    interface A2 extends A1, B1, C1     // Error
+    interface A2 : A1, B1, C1     // Error
     {
         void ia2();
     }
@@ -276,7 +276,7 @@ module M10
         void op();
     }
 
-    interface A2 extends A1, B1, C1     // Error
+    interface A2 : A1, B1, C1     // Error
     {
         void ia2();
     }
@@ -308,7 +308,7 @@ module M11
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1 {       // OK
+    interface A2 : A1, B1, C1, D1 {       // OK
         void ia2();
     }
 }
@@ -340,7 +340,7 @@ module M12
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -374,7 +374,7 @@ module M13
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -407,7 +407,7 @@ module M14
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -441,7 +441,7 @@ module M15
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -475,7 +475,7 @@ module M16
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -509,7 +509,7 @@ module M17
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -544,7 +544,7 @@ module M18
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -579,7 +579,7 @@ module M19
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1
+    interface A2 : A1, B1, C1, D1
     {
         void ia2();
     }
@@ -614,7 +614,7 @@ module M20
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -649,7 +649,7 @@ module M21
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -685,7 +685,7 @@ module M22
         void op();
     }
 
-    interface A2 extends A1, B1, C1, D1         // Error
+    interface A2 : A1, B1, C1, D1         // Error
     {
         void ia2();
     }
@@ -707,7 +707,7 @@ module M23
         void ib0();
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
@@ -727,7 +727,7 @@ module M23
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1         // OK
+    interface A2 : A1, B1, C1, D1         // OK
     {
         void ia2();
     }
@@ -750,7 +750,7 @@ module M24
         void ib0();
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
@@ -770,7 +770,7 @@ module M24
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1
+    interface A2 : A1, B1, C1, D1
     {
         void ia2();
         void op();                              // Error
@@ -794,7 +794,7 @@ module M25
         void op();
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
@@ -814,7 +814,7 @@ module M25
         void id1();
     }
 
-    interface A2 extends A1, B1, C1, D1
+    interface A2 : A1, B1, C1, D1
     {
         void ia2();
         void op();                              // Error
@@ -844,52 +844,52 @@ module M26
         void id0();                     //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // OK
+    interface A4 : A3, B3         // OK
     {
         void ia4();
     }
@@ -918,52 +918,52 @@ module M27
         void id0();                     //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2(); void op();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // Error
+    interface A4 : A3, B3         // Error
     {
         void ia4();
     }
@@ -992,52 +992,52 @@ module M28
         void id0();                     //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // Error
+    interface A4 : A3, B3         // Error
     {
         void ia4();
     }
@@ -1066,52 +1066,52 @@ module M29
         void id0(); void op();          //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // Error
+    interface A4 : A3, B3         // Error
     {
         void ia4();
     }
@@ -1138,52 +1138,52 @@ module M30
         void id0();                     //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1(); void op();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // Error
+    interface A4 : A3, B3         // Error
     {
         void ia4();
     }
@@ -1210,52 +1210,52 @@ module M31
         void id0();                     //               A4             //
     }
 
-    interface A1 extends A0, B0
+    interface A1 : A0, B0
     {
         void ia1(); void op();
     }
 
-    interface B1 extends C0, D0
+    interface B1 : C0, D0
     {
         void ib1();
     }
 
-    interface C1 extends D0
+    interface C1 : D0
     {
         void ic1(); void op();
     }
 
-    interface A2 extends A1
+    interface A2 : A1
     {
         void ia2();
     }
 
-    interface B2 extends A1
+    interface B2 : A1
     {
         void ib2();
     }
 
-    interface C2 extends B1
+    interface C2 : B1
     {
         void ic2();
     }
 
-    interface D2 extends B1, C1
+    interface D2 : B1, C1
     {
         void id2();
     }
 
-    interface A3 extends A2, B2
+    interface A3 : A2, B2
     {
         void ia3();
     }
 
-    interface B3 extends C2, D2
+    interface B3 : C2, D2
     {
         void ib3();
     }
 
-    interface A4 extends A3, B3         // Error
+    interface A4 : A3, B3         // Error
     {
         void ia4();
     }

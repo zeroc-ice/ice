@@ -112,13 +112,13 @@ class A
 }
 
 ["preserve-slice"]
-class B extends A
+class B : A
 {
     int requiredB;
     tag(10) int md;
 }
 
-class C extends B
+class C : B
 {
     string ss;
     tag(890) string ms;
@@ -138,13 +138,13 @@ exception OptionalException
     tag(50) OneOptional o;
 }
 
-exception DerivedException extends OptionalException
+exception DerivedException : OptionalException
 {
     tag(600) string ss = "test";
     tag(601) OneOptional o2;
 }
 
-exception RequiredException extends OptionalException
+exception RequiredException : OptionalException
 {
     string ss = "test";
     OneOptional o2;
@@ -162,7 +162,7 @@ class E
     A ae;
 }
 
-class F extends E
+class F : E
 {
     tag(1) A af;
 }

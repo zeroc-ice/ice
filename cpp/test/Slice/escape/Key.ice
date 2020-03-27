@@ -40,7 +40,7 @@ class switch
     int volatile;
 }
 
-interface do extends char, break
+interface do : char, break
 {
 }
 
@@ -53,7 +53,7 @@ exception return
     int signed;
 }
 
-exception sizeof extends return
+exception sizeof : return
 {
     int static; int switch;
 }

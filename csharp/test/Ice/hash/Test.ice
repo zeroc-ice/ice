@@ -11,12 +11,12 @@ exception BaseException
 {
 }
 
-exception InvalidPointException extends BaseException
+exception InvalidPointException : BaseException
 {
     int index;
 }
 
-exception InvalidLengthException extends BaseException
+exception InvalidLengthException : BaseException
 {
     int length;
 }

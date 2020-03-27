@@ -42,7 +42,7 @@ interface TestController
     void shutdown();
 }
 
-interface TestSession extends Glacier2::Session
+interface TestSession : Glacier2::Session
 {
     void shutdown();
 }

@@ -274,7 +274,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd"] interface MyDerivedClass extends MyClass
+["amd"] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
@@ -436,7 +436,7 @@ module M
         void opIntf();
     }
 
-    ["amd"] class B extends A implements Intf
+    ["amd"] class B : A implements Intf
     {
         void opB();
     }

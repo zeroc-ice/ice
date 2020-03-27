@@ -38,7 +38,7 @@ module classdef // Should be escaped
             bool int64 = true; // Should not be escaped
         }
 
-        class xor extends logical // Should not be escaped
+        class xor : logical // Should not be escaped
         {
             int return = 1;
         }
@@ -52,7 +52,7 @@ module classdef // Should be escaped
             int delete = 2; // Should not be escaped
         }
 
-        class properties extends try // Should be escaped
+        class properties : try // Should be escaped
         {
             int if = 2;
             xor catch;
@@ -74,7 +74,7 @@ module classdef // Should be escaped
             logical end;
         }
 
-        exception global extends persistent // Should be escaped
+        exception global : persistent // Should be escaped
         {
             int enumeration = 1;
         }

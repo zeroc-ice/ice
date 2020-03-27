@@ -27,9 +27,9 @@ sequence<M::smnpStruct> smnpTest6StructSeq;
 
 dictionary<M::smnpStruct, M::smnpBaseClass> smnpTest6StructClassSeq;
 
-interface smnpTest6Interface extends M::smnpInterface {}
+interface smnpTest6Interface : M::smnpInterface {}
 
-exception smnpTest6Exception extends M::smnpException
+exception smnpTest6Exception : M::smnpException
 {
     M::smnpEnum e1;
     M::smnpStruct s1;
@@ -39,7 +39,7 @@ exception smnpTest6Exception extends M::smnpException
     M::smnpInterface i1;
 }
 
-class smnpTest6Class extends M::smnpBaseClass implements M::smnpBaseInterface
+class smnpTest6Class : M::smnpBaseClass implements M::smnpBaseInterface
 {
     M::smnpStruct
     smnpTest6Op1(M::smnpEnum i1,

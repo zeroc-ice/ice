@@ -25,9 +25,9 @@ sequence<smnpStruct> smnpTest4StructSeq;
 
 dictionary<smnpStruct, smnpBaseClass> smnpTest4StructClassSeq;
 
-interface smnpTest4Interface extends smnpInterface {}
+interface smnpTest4Interface : smnpInterface {}
 
-exception smnpTest4Exception extends smnpException
+exception smnpTest4Exception : smnpException
 {
     smnpEnum e1;
     smnpStruct s1;
@@ -37,7 +37,7 @@ exception smnpTest4Exception extends smnpException
     smnpInterface i1;
 }
 
-class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
+class smnpTest4Class : smnpBaseClass implements smnpBaseInterface
 {
     smnpStruct
     smnpTest4Op1(smnpEnum i1,

@@ -29,9 +29,9 @@ sequence<smwpStruct> smwpTest13StructSeq;
 
 dictionary<smwpStruct, smwpBaseClass> smwpTest13StructClassSeq;
 
-interface smwpTest13Interface extends smwpInterface {}
+interface smwpTest13Interface : smwpInterface {}
 
-exception smwpTest13Exception extends smwpException
+exception smwpTest13Exception : smwpException
 {
     smwpEnum e1;
     smwpStruct s1;
@@ -41,7 +41,7 @@ exception smwpTest13Exception extends smwpException
     smwpInterface i1;
 }
 
-class smwpTest13Class extends smwpBaseClass implements smwpBaseInterface
+class smwpTest13Class : smwpBaseClass implements smwpBaseInterface
 {
     smwpStruct
     smwpTest13Op1(smwpEnum i1,

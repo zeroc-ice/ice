@@ -41,7 +41,7 @@ class switch
     int volatile;
 }
 
-interface do extends func, break
+interface do : func, break
 {
 }
 
@@ -54,7 +54,7 @@ exception return
     int Int32;
 }
 
-exception as extends return
+exception as : return
 {
     int static; int switch;
 }

@@ -178,7 +178,7 @@ module IceGrid
             throws FileNotAvailableException;
     }
 
-    interface Server extends FileReader
+    interface Server : FileReader
     {
         /// Start the server.
         ["amd"] void start()
@@ -245,7 +245,7 @@ module IceGrid
         void replicaRemoved(InternalRegistry* replica);
     }
 
-    interface Node extends FileReader, ReplicaObserver
+    interface Node : FileReader, ReplicaObserver
     {
         /// Load the given server. If the server resources weren't already
         /// created (database environment directories, property files, etc),
@@ -355,7 +355,7 @@ module IceGrid
         ObjectObserver
     }
 
-    interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver
+    interface DatabaseObserver : ApplicationObserver, ObjectObserver, AdapterObserver
     {
     }
 
@@ -438,7 +438,7 @@ module IceGrid
         string hostname;
     }
 
-    interface InternalRegistry extends FileReader
+    interface InternalRegistry : FileReader
     {
         /// Register a node with the registry. If a node with the same name
         /// is already registered, [registerNode] will overide the previous

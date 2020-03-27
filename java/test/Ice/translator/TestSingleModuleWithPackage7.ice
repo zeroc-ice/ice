@@ -27,9 +27,9 @@ sequence<M::smwpStruct> smwpTest7StructSeq;
 
 dictionary<M::smwpStruct, M::smwpBaseClass> smwpTest7StructClassSeq;
 
-interface smwpTest7Interface extends M::smwpInterface {}
+interface smwpTest7Interface : M::smwpInterface {}
 
-exception smwpTest7Exception extends M::smwpException
+exception smwpTest7Exception : M::smwpException
 {
     M::smwpEnum e1;
     M::smwpStruct s1;
@@ -39,7 +39,7 @@ exception smwpTest7Exception extends M::smwpException
     M::smwpInterface i1;
 }
 
-class smwpTest7Class extends M::smwpBaseClass implements M::smwpBaseInterface
+class smwpTest7Class : M::smwpBaseClass implements M::smwpBaseInterface
 {
     M::smwpStruct
     smwpTest7Op1(M::smwpEnum i1,

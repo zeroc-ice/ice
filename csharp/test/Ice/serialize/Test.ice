@@ -74,7 +74,7 @@ class Base
     MyEnum e;
 }
 
-class MyClass extends Base
+class MyClass : Base
 {
     MyClass c;
     Object o;

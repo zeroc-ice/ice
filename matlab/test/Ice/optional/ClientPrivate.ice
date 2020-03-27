@@ -12,7 +12,7 @@ module Test
 //
 // The server doesn't know this class.
 //
-class D extends B
+class D : B
 {
     string ds;
     tag(990) StringSeq seq;

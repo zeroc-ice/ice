@@ -27,7 +27,7 @@ interface dmnpBaseInterface
     void dmnpBaseInterfaceOp();
 }
 
-interface dmnpInterface extends dmnpBaseInterface
+interface dmnpInterface : dmnpBaseInterface
 {
     void dmnpInterfaceOp();
 }
@@ -40,7 +40,7 @@ class dmnpBaseClass
     dmnpStringStructDict dict;
 }
 
-class dmnpClass extends dmnpBaseClass implements dmnpInterface
+class dmnpClass : dmnpBaseClass implements dmnpInterface
 {
 }
 
@@ -53,7 +53,7 @@ exception dmnpBaseException
     dmnpClass c;
 }
 
-exception dmnpException extends dmnpBaseException
+exception dmnpException : dmnpBaseException
 {
 }
 

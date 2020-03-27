@@ -21,12 +21,12 @@ interface IA
 module MB
 {
 
-interface IB1 extends MA::IA
+interface IB1 : MA::IA
 {
     IB1* ib1op(IB1* p);
 }
 
-interface IB2 extends MA::IA
+interface IB2 : MA::IA
 {
     IB2* ib2op(IB2* p);
 }
@@ -36,7 +36,7 @@ interface IB2 extends MA::IA
 module MA
 {
 
-interface IC extends MB::IB1, MB::IB2
+interface IC : MB::IB1, MB::IB2
 {
     IC* icop(IC* p);
 }

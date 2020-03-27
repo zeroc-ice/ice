@@ -26,7 +26,7 @@ exception BaseEx
     string reason;
 }
 
-class AbstractBase extends Base
+class AbstractBase : Base
 {
     void op();
 }
@@ -43,7 +43,7 @@ class A
     bool postUnmarshalInvoked;
 }
 
-class B extends A
+class B : A
 {
     A theA;
 }
@@ -79,7 +79,7 @@ class F
 }
 
 // Exercise empty class with non-empty base
-class G extends Base
+class G : Base
 {
 }
 
@@ -87,7 +87,7 @@ interface I
 {
 }
 
-interface J extends I
+interface J : I
 {
 }
 
@@ -105,7 +105,7 @@ class Compact(1)
 
 const int CompactExtId = 789;
 
-class CompactExt(CompactExtId) extends Compact
+class CompactExt(CompactExtId) : Compact
 {
 }
 
@@ -150,7 +150,7 @@ class B1
     A1 a2;
 }
 
-class D1 extends B1
+class D1 : B1
 {
     A1 a3;
     A1 a4;
@@ -162,7 +162,7 @@ exception EBase
     A1 a2;
 }
 
-exception EDerived extends EBase
+exception EDerived : EBase
 {
     A1 a3;
     A1 a4;

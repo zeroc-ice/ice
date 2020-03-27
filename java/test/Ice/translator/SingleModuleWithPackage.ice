@@ -27,7 +27,7 @@ interface smwpBaseInterface
     void smwpBaseInterfaceOp();
 }
 
-interface smwpInterface extends smwpBaseInterface
+interface smwpInterface : smwpBaseInterface
 {
     void smwpInterfaceOp();
 }
@@ -40,7 +40,7 @@ class smwpBaseClass
     smwpStringStructDict dict;
 }
 
-class smwpClass extends smwpBaseClass implements smwpInterface
+class smwpClass : smwpBaseClass implements smwpInterface
 {
 }
 
@@ -53,7 +53,7 @@ exception smwpBaseException
     smwpClass c;
 }
 
-exception smwpException extends smwpBaseException
+exception smwpException : smwpBaseException
 {
 }
 

@@ -163,7 +163,7 @@ module IceMX
 
     /// Provides information on the number of threads currently in use and
     /// their activity.
-    class ThreadMetrics extends Metrics
+    class ThreadMetrics : Metrics
     {
         /// The number of threads which are currently performing socket
         /// read or writes.
@@ -181,7 +181,7 @@ module IceMX
     }
 
     /// Provides information on servant dispatch.
-    class DispatchMetrics extends Metrics
+    class DispatchMetrics : Metrics
     {
         /// The number of dispatch that failed with a user exception.
         int userException = 0;
@@ -200,7 +200,7 @@ module IceMX
     /// invocation can have multiple child invocation if it is
     /// retried. Child invocation metrics are embedded within
     /// {@link InvocationMetrics}.
-    class ChildInvocationMetrics extends Metrics
+    class ChildInvocationMetrics : Metrics
     {
         /// The size of the invocation. This corresponds to the size of the
         /// marshalled input parameters.
@@ -213,19 +213,19 @@ module IceMX
 
     /// Provides information on invocations that are collocated. Collocated
     /// metrics are embedded within {@link InvocationMetrics}.
-    class CollocatedMetrics extends ChildInvocationMetrics
+    class CollocatedMetrics : ChildInvocationMetrics
     {
     }
 
     /// Provides information on invocations that are specifically sent over
     /// Ice connections. Remote metrics are embedded within {@link InvocationMetrics}.
-    class RemoteMetrics extends ChildInvocationMetrics
+    class RemoteMetrics : ChildInvocationMetrics
     {
     }
 
     /// Provide measurements for proxy invocations. Proxy invocations can
     /// either be sent over the wire or be collocated.
-    class InvocationMetrics extends Metrics
+    class InvocationMetrics : Metrics
     {
         /// The number of retries for the invocation(s).
         int retry = 0;
@@ -246,7 +246,7 @@ module IceMX
 
     /// Provides information on the data sent and received over Ice
     /// connections.
-    class ConnectionMetrics extends Metrics
+    class ConnectionMetrics : Metrics
     {
         /// The number of bytes received by the connection.
         long receivedBytes = 0;

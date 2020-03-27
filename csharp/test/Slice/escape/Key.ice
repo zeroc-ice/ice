@@ -35,7 +35,7 @@ class delegate
     int event;
 }
 
-interface explicit extends decimal, case
+interface explicit : decimal, case
 {
 }
 
@@ -85,7 +85,7 @@ exception fixed
     int for;
 }
 
-exception foreach extends fixed
+exception foreach : fixed
 {
     int goto;
     int if;

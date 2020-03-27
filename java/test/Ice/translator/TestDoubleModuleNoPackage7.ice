@@ -29,9 +29,9 @@ sequence<dmnpStruct> dmnpTest7StructSeq;
 
 dictionary<dmnpStruct, dmnpBaseClass> dmnpTest7StructClassSeq;
 
-interface dmnpTest7Interface extends dmnpInterface {}
+interface dmnpTest7Interface : dmnpInterface {}
 
-exception dmnpTest7Exception extends dmnpException
+exception dmnpTest7Exception : dmnpException
 {
     dmnpEnum e1;
     dmnpStruct s1;
@@ -41,7 +41,7 @@ exception dmnpTest7Exception extends dmnpException
     dmnpInterface i1;
 }
 
-class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
+class dmnpTest7Class : dmnpBaseClass implements dmnpBaseInterface
 {
     dmnpStruct
     dmnpTest7Op1(dmnpEnum i1,
