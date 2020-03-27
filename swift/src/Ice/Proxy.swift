@@ -804,7 +804,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!id.name.isEmpty, "Identity name cannot be empty")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category))
+                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -835,7 +835,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with an adapterId")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_adapterId(id))
+                try fromICEObjectPrx(handle.ice_adapterId(id)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -850,7 +850,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with endpoints")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_endpoints(endpoints.toObjc()))
+                try fromICEObjectPrx(handle.ice_endpoints(endpoints.toObjc())) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -866,7 +866,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(timeout >= -1, "Invalid locator cache timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout))
+                try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -881,7 +881,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(timeout >= 1 || timeout == -1 || timeout == -2, "Invalid invocation timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_invocationTimeout(timeout))
+                try fromICEObjectPrx(handle.ice_invocationTimeout(timeout)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -896,7 +896,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a connectionId")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_connectionId(id))
+                try fromICEObjectPrx(handle.ice_connectionId(id)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -911,7 +911,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a cached connection")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_connectionCached(cached))
+                try fromICEObjectPrx(handle.ice_connectionCached(cached)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -926,7 +926,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with an endpointSelectionType")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue))
+                try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -995,7 +995,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with preferSecure")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_preferSecure(preferSecure))
+                try fromICEObjectPrx(handle.ice_preferSecure(preferSecure)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -1065,7 +1065,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(timeout > 0 || timeout == -1, "Invalid connection timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_timeout(timeout))
+                try fromICEObjectPrx(handle.ice_timeout(timeout)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -1075,7 +1075,7 @@ open class ObjectPrxI: ObjectPrx {
     public func ice_fixed(_ connection: Connection) -> Self {
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_fixed((connection as! ConnectionI).handle))
+                try fromICEObjectPrx(handle.ice_fixed((connection as! ConnectionI).handle)) as Self
             }
         } catch {
             fatalError("\(error)")
@@ -1109,7 +1109,7 @@ open class ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with collocation optimization")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_collocationOptimized(collocated))
+                try fromICEObjectPrx(handle.ice_collocationOptimized(collocated)) as Self
             }
         } catch {
             fatalError("\(error)")
