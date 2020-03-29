@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using IceInternal;
 
 namespace Ice
@@ -11,18 +12,19 @@ namespace Ice
     {
         internal IRequestHandler GetRequestHandler(RoutableReference rf, IObjectPrx proxy)
         {
+            Debug.Assert(ReferenceEquals(rf, proxy.IceReference));
             if (rf.GetCollocationOptimized())
             {
                 ObjectAdapter? adapter = FindObjectAdapter(proxy);
                 if (adapter != null)
                 {
-                    return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
+                    return rf.SetRequestHandler(new CollocatedRequestHandler(rf, adapter));
                 }
             }
 
             bool connect = false;
             ConnectRequestHandler handler;
-            if (rf.GetCacheConnection())
+            if (rf.IsRequestHandlerCached)
             {
                 lock (_handlers)
                 {
@@ -44,12 +46,12 @@ namespace Ice
             {
                 rf.GetConnection(handler);
             }
-            return proxy.IceSetRequestHandler(handler.Connect(proxy));
+            return rf.SetRequestHandler(handler.Connect(rf));
         }
 
-        internal void RemoveRequestHandler(Reference rf, IRequestHandler handler)
+        internal void RemoveConnectRequestHandler(RoutableReference rf, ConnectRequestHandler handler)
         {
-            if (rf.GetCacheConnection())
+            if (rf.IsRequestHandlerCached)
             {
                 lock (_handlers)
                 {
@@ -61,7 +63,7 @@ namespace Ice
             }
         }
 
-        private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
-            new Dictionary<Reference, ConnectRequestHandler>();
+        private readonly Dictionary<RoutableReference, ConnectRequestHandler> _handlers =
+            new Dictionary<RoutableReference, ConnectRequestHandler>();
     }
 }

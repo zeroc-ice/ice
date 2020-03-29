@@ -37,18 +37,13 @@ namespace IceInternal
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex) =>
             _connection.AsyncRequestCanceled(outAsync, ex);
 
-        public Reference GetReference() => _reference;
-
         public Ice.Connection GetConnection() => _connection;
 
-        public ConnectionRequestHandler(Reference @ref, Ice.Connection connection, bool compress)
+        public ConnectionRequestHandler(Ice.Connection connection, bool compress)
         {
-            _reference = @ref;
             _connection = connection;
             _compress = compress;
         }
-
-        private readonly Reference _reference;
 
         private readonly Ice.Connection _connection;
         private readonly bool _compress;

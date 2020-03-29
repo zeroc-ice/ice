@@ -54,12 +54,29 @@ namespace IceInternal
 
         public Communicator GetCommunicator() => Communicator;
 
+        protected internal bool IsRequestHandlerCached
+        {
+            get => _requestHandlerMutex != null;
+
+            set
+            {
+                // only called in constructor or right after cloning
+                Debug.Assert(_requestHandlerMutex == null && _requestHandler == null);
+                if (value)
+                {
+                    _requestHandlerMutex = new object();
+                }
+            }
+        }
+
+        private IRequestHandler? _requestHandler;
+        private object? _requestHandlerMutex;
+
         public abstract Endpoint[] GetEndpoints();
         public abstract string GetAdapterId();
         public abstract LocatorInfo? GetLocatorInfo();
         public abstract RouterInfo? GetRouterInfo();
         public abstract bool GetCollocationOptimized();
-        public abstract bool GetCacheConnection();
         public abstract bool GetPreferSecure();
         public abstract EndpointSelectionType GetEndpointSelection();
         public abstract int GetLocatorCacheTimeout();
@@ -265,7 +282,83 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> ToProperty(string prefix);
 
-        public abstract IRequestHandler GetRequestHandler(IObjectPrx proxy);
+        private protected abstract IRequestHandler GetRequestHandler(IObjectPrx proxy);
+
+        internal Ice.Connection? GetCachedConnection()
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                IRequestHandler? handler;
+                lock (_requestHandlerMutex)
+                {
+                    handler = _requestHandler;
+                }
+                try
+                {
+                    return handler?.GetConnection();
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+            return null;
+        }
+
+        internal IRequestHandler GetRequestHandlerUsingCache(IObjectPrx proxy)
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler != null)
+                    {
+                        return _requestHandler;
+                    }
+                }
+            }
+            return GetRequestHandler(proxy);
+        }
+
+        internal IRequestHandler SetRequestHandler(IRequestHandler handler)
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler == null)
+                    {
+                        _requestHandler = handler;
+                    }
+                    return _requestHandler;
+                }
+            }
+            return handler;
+        }
+
+        internal void UpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
+        {
+            if (IsRequestHandlerCached && previous != null)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler != null && _requestHandler != handler)
+                    {
+                        //
+                        // Update the request handler only if "previous" is the same
+                        // as the current request handler. This is called after
+                        // connection binding by the connect request handler. We only
+                        // replace the request handler if the current handler is the
+                        // connect request handler.
+                        //
+                        _requestHandler = _requestHandler.Update(previous, handler);
+                    }
+                }
+            }
+        }
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
         {
@@ -390,65 +483,44 @@ namespace IceInternal
 
             if (identity != null && !identity.Equals(_identity))
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._identity = identity.Value;
             }
 
             if (facet != null && !facet.Equals(_facet))
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._facet = facet;
             }
 
             if (compress is bool compressValue && (!OverrideCompress || compressValue != Compress))
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference.Compress = compressValue;
                 reference.OverrideCompress = true;
             }
 
             if (context != null)
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._context = context.Count == 0 ? EmptyContext : new Dictionary<string, string>(context);
             }
 
             if (encoding is Encoding encodingValue && encodingValue != _encoding)
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._encoding = encodingValue;
             }
 
             if (invocationMode is InvocationMode invocationModeValue && invocationModeValue != _mode)
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._mode = invocationModeValue;
             }
             else if (oneway is bool onewayValue && ((onewayValue && reference._mode != InvocationMode.Oneway) ||
                                                     (!onewayValue && reference._mode != InvocationMode.Twoway)))
             {
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._mode = onewayValue ? InvocationMode.Oneway : InvocationMode.Twoway;
             }
 
@@ -460,16 +532,30 @@ namespace IceInternal
                                                 nameof(invocationTimeout));
                 }
 
-                if (reference == this)
-                {
-                    reference = Clone();
-                }
+                reference = Clone(reference);
                 reference._invocationTimeout = invocationTimeoutValue;
             }
             return reference;
         }
 
-        public Reference Clone() => (Reference)MemberwiseClone();
+        public Reference Clone()
+        {
+            var clone = (Reference)MemberwiseClone();
+            clone._requestHandler = null;
+            clone._requestHandlerMutex = null;
+            return clone;
+        }
+
+        // Creates a new clone of this unless `clone` is already a real clone (meaning "not this")
+        // Returns the clone.
+        protected internal T Clone<T>(T clone) where T : Reference
+        {
+            if (ReferenceEquals(this, clone))
+            {
+                clone = (T)Clone();
+            }
+            return clone;
+        }
 
         protected Communicator Communicator;
 
@@ -538,6 +624,7 @@ namespace IceInternal
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
+            IsRequestHandlerCached = true;
             if (compress is bool compressValue)
             {
                 OverrideCompress = true;
@@ -554,8 +641,6 @@ namespace IceInternal
         public override RouterInfo? GetRouterInfo() => null;
 
         public override bool GetCollocationOptimized() => false;
-
-        public override bool GetCacheConnection() => true;
 
         public override bool GetPreferSecure() => false;
 
@@ -595,22 +680,22 @@ namespace IceInternal
         {
             if (locator != null && clearLocator)
             {
-                throw new ArgumentException($"you cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+                throw new ArgumentException($"cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
             if (router != null && clearRouter)
             {
-                throw new ArgumentException($"you cannot set both {nameof(router)} and {nameof(clearRouter)}");
+                throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
 
             if (oneway != null && invocationMode != null)
             {
-                throw new ArgumentException($"you cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
             }
 
             if (endpoints != null && adapterId != null)
             {
-                throw new ArgumentException($"you cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+                throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
             //
@@ -653,9 +738,7 @@ namespace IceInternal
                 }
             }
 
-            //
-            // Pass down options handle by the base class
-            //
+            // Pass options handled by the base class. Note that base.Clone return this if all the options are null.
             var reference = (FixedReference)base.Clone(identity: identity,
                                                        facet: facet,
                                                        compress: compress,
@@ -667,10 +750,7 @@ namespace IceInternal
 
             if (fixedConnection != null && fixedConnection != _fixedConnection)
             {
-                if (reference == this)
-                {
-                    reference = (FixedReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._fixedConnection = fixedConnection;
                 reference.Secure = fixedConnection.Endpoint.GetInfo().Secure();
             }
@@ -742,6 +822,15 @@ namespace IceInternal
             {
                 throw new ArgumentException($"cannot change the secure configuration of a fixed proxy", nameof(secure));
             }
+
+            if (!reference.IsRequestHandlerCached)
+            {
+                reference.IsRequestHandlerCached = true;
+            }
+            else
+            {
+                Debug.Assert(ReferenceEquals(reference, this)); // reference is not a clone
+            }
             return reference;
         }
 
@@ -749,12 +838,15 @@ namespace IceInternal
 
         public override bool IsWellKnown() => false;
 
-        public override void StreamWrite(OutputStream s) => throw new NotSupportedException("you cannot marshal a fixed proxy");
+        public override void StreamWrite(OutputStream s)
+            => throw new NotSupportedException("cannot marshal a fixed proxy");
 
-        public override Dictionary<string, string> ToProperty(string prefix) => throw new NotSupportedException("you cannot convert a fixed proxy to propery dictionary");
+        public override Dictionary<string, string> ToProperty(string prefix)
+            => throw new NotSupportedException("cannot convert a fixed proxy to property dictionary");
 
-        public override IRequestHandler GetRequestHandler(IObjectPrx proxy)
+        private protected override IRequestHandler GetRequestHandler(IObjectPrx proxy)
         {
+            Debug.Assert(ReferenceEquals(proxy.IceReference, this));
             switch (GetMode())
             {
                 case InvocationMode.Twoway:
@@ -810,7 +902,7 @@ namespace IceInternal
                 compress = Compress;
             }
 
-            return proxy.IceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
+            return SetRequestHandler(new ConnectionRequestHandler(_fixedConnection, compress));
         }
 
         public override bool Equals(Reference? other)
@@ -863,8 +955,6 @@ namespace IceInternal
 
         public override bool GetCollocationOptimized() => _collocationOptimized;
 
-        public override bool GetCacheConnection() => _cacheConnection;
-
         public override bool GetPreferSecure() => _preferSecure;
 
         public override EndpointSelectionType GetEndpointSelection() => _endpointSelection;
@@ -913,22 +1003,22 @@ namespace IceInternal
         {
             if (locator != null && clearLocator)
             {
-                throw new ArgumentException($"you cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+                throw new ArgumentException($"cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
             if (router != null && clearRouter)
             {
-                throw new ArgumentException($"you cannot set both {nameof(router)} and {nameof(clearRouter)}");
+                throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
 
             if (oneway != null && invocationMode != null)
             {
-                throw new ArgumentException($"you cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
             }
 
             if (endpoints != null && adapterId != null)
             {
-                throw new ArgumentException($"you cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+                throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
             //
@@ -976,38 +1066,20 @@ namespace IceInternal
 
             if (adapterId != null && !adapterId.Equals(_adapterId))
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._adapterId = adapterId;
                 reference._endpoints = Array.Empty<Endpoint>();
             }
 
             if (collocationOptimized is bool collocationOptimizedValue && collocationOptimizedValue != _collocationOptimized)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._collocationOptimized = collocationOptimizedValue;
-            }
-
-            if (connectionCached is bool connectionCachedValue && connectionCachedValue != _cacheConnection)
-            {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
-                reference._cacheConnection = connectionCachedValue;
             }
 
             if (connectionId != null && !connectionId.Equals(_connectionId))
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._connectionId = connectionId;
                 reference._endpoints = reference._endpoints.Select(e => e.ConnectionId(connectionId)).ToArray();
             }
@@ -1020,10 +1092,7 @@ namespace IceInternal
                                                 nameof(connectionTimeout));
                 }
 
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._timeout = connectionTimeoutValue;
                 reference._endpoints = reference._endpoints.Select(e => e.Timeout(connectionTimeoutValue)).ToArray();
                 reference._overrideTimeout = true;
@@ -1033,10 +1102,7 @@ namespace IceInternal
             {
                 if (_locatorInfo != null && !_locatorInfo.Locator.Encoding.Equals(encodingValue))
                 {
-                    if (reference == this)
-                    {
-                        reference = (RoutableReference)Clone();
-                    }
+                    reference = Clone(reference);
                     reference._locatorInfo = Communicator.GetLocatorInfo(
                         _locatorInfo.Locator.Clone(encoding: encodingValue));
                 }
@@ -1044,19 +1110,13 @@ namespace IceInternal
 
             if (endpointSelectionType is EndpointSelectionType endpointSelectionTypeValue && endpointSelectionTypeValue != _endpointSelection)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._endpointSelection = endpointSelectionTypeValue;
             }
 
             if (endpoints != null && !endpoints.SequenceEqual(_endpoints))
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._adapterId = "";
                 reference._endpoints = reference.ApplyOverrides(endpoints.Select(e => (Endpoint)e).ToArray());
             }
@@ -1066,19 +1126,13 @@ namespace IceInternal
                 LocatorInfo locatorInfo = Communicator.GetLocatorInfo(locator);
                 if (!locatorInfo.Equals(_locatorInfo))
                 {
-                    if (reference == this)
-                    {
-                        reference = (RoutableReference)Clone();
-                    }
+                    reference = Clone(reference);
                     reference._locatorInfo = locatorInfo;
                 }
             }
             else if (clearLocator && _locatorInfo != null)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._locatorInfo = null;
             }
 
@@ -1089,19 +1143,13 @@ namespace IceInternal
                     throw new ArgumentException($"invalid value passed to ice_locatorCacheTimeout: {locatorCacheTimeoutValue}",
                                                 nameof(locatorCacheTimeout));
                 }
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._locatorCacheTimeout = locatorCacheTimeoutValue;
             }
 
             if (preferSecure is bool preferSecureValue && preferSecureValue != _preferSecure)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._preferSecure = preferSecureValue;
             }
 
@@ -1110,29 +1158,36 @@ namespace IceInternal
                 RouterInfo routerInfo = Communicator.GetRouterInfo(router);
                 if (!routerInfo.Equals(_routerInfo))
                 {
-                    if (reference == this)
-                    {
-                        reference = (RoutableReference)Clone();
-                    }
+                    reference = Clone(reference);
                     reference._routerInfo = routerInfo;
                 }
             }
             else if (clearRouter && _routerInfo != null)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference._routerInfo = null;
             }
 
             if (secure is bool secureValue && secureValue != Secure)
             {
-                if (reference == this)
-                {
-                    reference = (RoutableReference)Clone();
-                }
+                reference = Clone(reference);
                 reference.Secure = secureValue;
+            }
+
+            if (connectionCached is bool connectionCachedValue)
+            {
+                // We may be changing this option
+                if (reference.IsRequestHandlerCached != connectionCachedValue)
+                {
+                    reference = Clone(reference);
+                    reference.IsRequestHandlerCached = connectionCachedValue;
+                }
+                // else all good already
+            }
+            else if (IsRequestHandlerCached != reference.IsRequestHandlerCached)
+            {
+                Debug.Assert(!reference.IsRequestHandlerCached); // it's a freshly cloned reference
+                reference.IsRequestHandlerCached = IsRequestHandlerCached;
             }
             return reference;
         }
@@ -1215,7 +1270,7 @@ namespace IceInternal
             {
                 [prefix] = ToString(),
                 [prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0",
-                [prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0",
+                [prefix + ".ConnectionCached"] = IsRequestHandlerCached ? "1" : "0",
                 [prefix + ".PreferSecure"] = _preferSecure ? "1" : "0",
                 [prefix + ".EndpointSelection"] =
                        _endpointSelection == EndpointSelectionType.Random ? "Random" : "Ordered",
@@ -1312,7 +1367,7 @@ namespace IceInternal
             {
                 return false;
             }
-            if (_cacheConnection != rhs._cacheConnection)
+            if (IsRequestHandlerCached != rhs.IsRequestHandlerCached)
             {
                 return false;
             }
@@ -1377,7 +1432,8 @@ namespace IceInternal
             private readonly IGetConnectionCallback _cb;
         }
 
-        public override IRequestHandler GetRequestHandler(IObjectPrx proxy) => Communicator.GetRequestHandler(this, proxy);
+        private protected override IRequestHandler GetRequestHandler(IObjectPrx proxy)
+            => Communicator.GetRequestHandler(this, proxy);
 
         public void GetConnection(IGetConnectionCallback callback)
         {
@@ -1503,12 +1559,12 @@ namespace IceInternal
                                  IReadOnlyDictionary<string, string> context)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
+            IsRequestHandlerCached = cacheConnection;
             _endpoints = endpoints;
             _adapterId = adapterId;
             _locatorInfo = locatorInfo;
             _routerInfo = routerInfo;
             _collocationOptimized = collocationOptimized;
-            _cacheConnection = cacheConnection;
             _preferSecure = preferSecure;
             _endpointSelection = endpointSelection;
             _locatorCacheTimeout = locatorCacheTimeout;
@@ -1724,7 +1780,7 @@ namespace IceInternal
             // Finally, create the connection.
             //
             OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
-            if (GetCacheConnection() || endpoints.Length == 1)
+            if (IsRequestHandlerCached || endpoints.Length == 1)
             {
                 //
                 // Get an existing connection or create one if there's no
@@ -1795,11 +1851,9 @@ namespace IceInternal
         private LocatorInfo? _locatorInfo; // Null if no locator is used.
         private RouterInfo? _routerInfo; // Null if no router is used.
         private bool _collocationOptimized;
-        private bool _cacheConnection;
         private bool _preferSecure;
         private EndpointSelectionType _endpointSelection;
         private int _locatorCacheTimeout;
-
         private bool _overrideTimeout;
         private int _timeout; // Only used if _overrideTimeout == true
         private string _connectionId = "";

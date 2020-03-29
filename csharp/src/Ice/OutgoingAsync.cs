@@ -419,7 +419,7 @@ namespace IceInternal
                 // require could end up waiting for the flush of the
                 // connection to be done.
                 //
-                Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
+                Proxy.IceReference.UpdateRequestHandler(Handler, null); // Clear request handler and always retry.
                 Communicator.AddRetryTask(this, 0);
             }
             catch (System.Exception ex)
@@ -485,7 +485,7 @@ namespace IceInternal
                     try
                     {
                         _sent = false;
-                        Handler = Proxy.IceGetRequestHandler();
+                        Handler = Proxy.IceReference.GetRequestHandlerUsingCache(Proxy);
                         int status = Handler.SendAsyncRequest(this);
                         if ((status & AsyncStatusSent) != 0)
                         {
@@ -509,7 +509,7 @@ namespace IceInternal
                     }
                     catch (RetryException)
                     {
-                        Proxy.IceUpdateRequestHandler(Handler, null); // Clear request handler and always retry.
+                        Proxy.IceReference.UpdateRequestHandler(Handler, null); // Clear request handler and always retry.
                     }
                     catch (System.Exception ex)
                     {

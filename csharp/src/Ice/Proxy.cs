@@ -215,26 +215,7 @@ namespace Ice
         /// an established connection).</returns>
         /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
         /// collocated object.</exception>
-        public static Connection? GetCachedConnection(this IObjectPrx prx)
-        {
-            IRequestHandler? handler;
-            lock (prx)
-            {
-                handler = prx.RequestHandler;
-            }
-
-            if (handler != null)
-            {
-                try
-                {
-                    return handler.GetConnection();
-                }
-                catch (System.Exception)
-                {
-                }
-            }
-            return null;
-        }
+        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
 
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
