@@ -548,7 +548,7 @@ namespace IceInternal
 
         // Creates a new clone of this unless `clone` is already a real clone (meaning "not this")
         // Returns the clone.
-        protected internal T Clone<T>(T clone) where T : Reference
+        private protected T Clone<T>(T clone) where T : Reference
         {
             if (ReferenceEquals(this, clone))
             {
