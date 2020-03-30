@@ -75,7 +75,7 @@ namespace IceInternal
                 }
                 catch (SocketException ex)
                 {
-                    _acceptError = ex;
+                    _acceptError = new Ice.TransportException(ex);
                 }
             }
         }

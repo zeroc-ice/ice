@@ -85,7 +85,7 @@ namespace Ice
             private readonly Connection _connection;
         }
 
-        public void Start(IStartCallback callback)
+        public void Start(IStartCallback? callback)
         {
             try
             {
