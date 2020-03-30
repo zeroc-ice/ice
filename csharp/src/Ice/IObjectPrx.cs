@@ -376,7 +376,7 @@ namespace Ice
         public int IceHandleException(System.Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
-            IceReference.UpdateRequestHandler(handler, null); // Clear the request handler
+            (IceReference as RoutableReference)?.UpdateRequestHandler(handler, null); // Clear the request handler
 
             // We only retry after failing with a DispatchException or a local exception.
             //

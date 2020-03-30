@@ -54,23 +54,7 @@ namespace IceInternal
 
         public Communicator GetCommunicator() => Communicator;
 
-        protected internal bool IsRequestHandlerCached
-        {
-            get => _requestHandlerMutex != null;
-
-            set
-            {
-                // only called in constructor or right after cloning
-                Debug.Assert(_requestHandlerMutex == null && _requestHandler == null);
-                if (value)
-                {
-                    _requestHandlerMutex = new object();
-                }
-            }
-        }
-
-        private IRequestHandler? _requestHandler;
-        private object? _requestHandlerMutex;
+        internal abstract bool IsRequestHandlerCached { get; }
 
         public abstract Endpoint[] GetEndpoints();
         public abstract string GetAdapterId();
@@ -282,83 +266,8 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> ToProperty(string prefix);
 
-        private protected abstract IRequestHandler GetRequestHandler(IObjectPrx proxy);
-
-        internal Ice.Connection? GetCachedConnection()
-        {
-            if (IsRequestHandlerCached)
-            {
-                Debug.Assert(_requestHandlerMutex != null);
-                IRequestHandler? handler;
-                lock (_requestHandlerMutex)
-                {
-                    handler = _requestHandler;
-                }
-                try
-                {
-                    return handler?.GetConnection();
-                }
-                catch (System.Exception)
-                {
-                }
-            }
-            return null;
-        }
-
-        internal IRequestHandler GetRequestHandlerUsingCache(IObjectPrx proxy)
-        {
-            if (IsRequestHandlerCached)
-            {
-                Debug.Assert(_requestHandlerMutex != null);
-                lock (_requestHandlerMutex)
-                {
-                    if (_requestHandler != null)
-                    {
-                        return _requestHandler;
-                    }
-                }
-            }
-            return GetRequestHandler(proxy);
-        }
-
-        internal IRequestHandler SetRequestHandler(IRequestHandler handler)
-        {
-            if (IsRequestHandlerCached)
-            {
-                Debug.Assert(_requestHandlerMutex != null);
-                lock (_requestHandlerMutex)
-                {
-                    if (_requestHandler == null)
-                    {
-                        _requestHandler = handler;
-                    }
-                    return _requestHandler;
-                }
-            }
-            return handler;
-        }
-
-        internal void UpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
-        {
-            if (IsRequestHandlerCached && previous != null)
-            {
-                Debug.Assert(_requestHandlerMutex != null);
-                lock (_requestHandlerMutex)
-                {
-                    if (_requestHandler != null && _requestHandler != handler)
-                    {
-                        //
-                        // Update the request handler only if "previous" is the same
-                        // as the current request handler. This is called after
-                        // connection binding by the connect request handler. We only
-                        // replace the request handler if the current handler is the
-                        // connect request handler.
-                        //
-                        _requestHandler = _requestHandler.Update(previous, handler);
-                    }
-                }
-            }
-        }
+        internal abstract IRequestHandler GetRequestHandler(IObjectPrx proxy);
+        internal abstract Ice.Connection? GetCachedConnection();
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
         {
@@ -538,11 +447,9 @@ namespace IceInternal
             return reference;
         }
 
-        public Reference Clone()
+        internal virtual Reference Clone()
         {
-            var clone = (Reference)MemberwiseClone();
-            clone._requestHandler = null;
-            clone._requestHandlerMutex = null;
+            var clone = (MemberwiseClone() as Reference)!;
             return clone;
         }
 
@@ -552,7 +459,7 @@ namespace IceInternal
         {
             if (ReferenceEquals(this, clone))
             {
-                clone = (T)Clone();
+                clone = (Clone() as T)!;
             }
             return clone;
         }
@@ -609,27 +516,83 @@ namespace IceInternal
         // _hashCode is a cached hash code initialized lazily to a value other than 0.
         private int _hashCode = 0;
         private Connection _fixedConnection;
+        private ConnectionRequestHandler _requestHandler;
+
+        internal override Reference Clone()
+        {
+            var clone = (base.Clone() as FixedReference)!;
+            clone._hashCode = 0;
+            return clone;
+        }
+
+        internal override bool IsRequestHandlerCached => true;
 
         internal FixedReference(Communicator communicator,
-                              Identity identity,
-                              string facet,
-                              InvocationMode mode,
-                              bool secure,
-                              Protocol protocol,
-                              Encoding encoding,
-                              Connection connection,
-                              int invocationTimeout,
-                              IReadOnlyDictionary<string, string> context,
-                              bool? compress)
-        : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
+                                Identity identity,
+                                string facet,
+                                InvocationMode mode,
+                                bool secure,
+                                Protocol protocol,
+                                Encoding encoding,
+                                Connection connection,
+                                int invocationTimeout,
+                                IReadOnlyDictionary<string, string> context,
+                                bool? compress)
+            : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
-            IsRequestHandlerCached = true;
+
             if (compress is bool compressValue)
             {
                 OverrideCompress = true;
                 Compress = compressValue;
             }
+            _requestHandler = CreateConnectionRequestHandler();
+        }
+
+        // Creates the ConnectionRequestHandler after various checks
+        private ConnectionRequestHandler CreateConnectionRequestHandler()
+        {
+            if (GetMode() == InvocationMode.Datagram)
+            {
+                if (!(_fixedConnection.Endpoint as Endpoint)!.Datagram())
+                {
+                    throw new ArgumentException("a fixed datagram proxy requires a datagram connection");
+                }
+            }
+            else if (GetMode() == InvocationMode.BatchOneway || GetMode() == InvocationMode.BatchDatagram)
+            {
+                throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
+            }
+
+            // If a secure connection is requested or secure overrides is set, check if the connection is secure.
+            bool secure;
+            DefaultsAndOverrides defaultsAndOverrides = Communicator.DefaultsAndOverrides;
+            if (defaultsAndOverrides.OverrideSecure)
+            {
+                secure = defaultsAndOverrides.OverrideSecureValue;
+            }
+            else
+            {
+                secure = GetSecure();
+            }
+            if (secure && !((Endpoint)_fixedConnection.Endpoint).Secure())
+            {
+                throw new ArgumentException("cannot create secure fixed proxy over non-secure connection");
+            }
+
+            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
+
+            bool compress = false;
+            if (defaultsAndOverrides.OverrideCompress)
+            {
+                compress = defaultsAndOverrides.OverrideCompressValue;
+            }
+            else if (OverrideCompress)
+            {
+                compress = Compress;
+            }
+            return new ConnectionRequestHandler(_fixedConnection, compress);
         }
 
         public override Endpoint[] GetEndpoints() => Array.Empty<Endpoint>();
@@ -698,36 +661,6 @@ namespace IceInternal
                 throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
-            // Check that invocation mode and connection are compatible
-            if (invocationMode != null || oneway != null || fixedConnection != null)
-            {
-                Connection conn = fixedConnection ?? _fixedConnection;
-                InvocationMode mode = invocationMode ?? GetMode();
-
-                if ((oneway == null) && (mode == InvocationMode.Datagram))
-                {
-                    // Make sure it's a datagram connection
-                    if (!(conn.Endpoint as Endpoint)!.Datagram())
-                    {
-                        string badParam;
-                        if (fixedConnection != null)
-                        {
-                            badParam = nameof(fixedConnection);
-                        }
-                        else if (invocationMode != null)
-                        {
-                            badParam = nameof(invocationMode);
-                        }
-                        else
-                        {
-                            badParam = "";
-                        }
-                        throw new ArgumentException("cannot create fixed datagram proxy using non-datagram connection",
-                            badParam);
-                    }
-                }
-            }
-
             // Pass options handled by the base class. Note that base.Clone return this if all the options are null.
             var reference = (FixedReference)base.Clone(identity: identity,
                                                        facet: facet,
@@ -743,6 +676,7 @@ namespace IceInternal
                 reference = CloneIfSame(reference);
                 reference._fixedConnection = fixedConnection;
                 reference.Secure = fixedConnection.Endpoint.GetInfo().Secure();
+                reference._requestHandler = reference.CreateConnectionRequestHandler();
             }
 
             if (adapterId != null)
@@ -812,15 +746,6 @@ namespace IceInternal
             {
                 throw new ArgumentException($"cannot change the secure configuration of a fixed proxy", nameof(secure));
             }
-
-            if (!reference.IsRequestHandlerCached)
-            {
-                reference.IsRequestHandlerCached = true;
-            }
-            else
-            {
-                Debug.Assert(ReferenceEquals(reference, this)); // reference is not a clone
-            }
             return reference;
         }
 
@@ -834,66 +759,9 @@ namespace IceInternal
         public override Dictionary<string, string> ToProperty(string prefix)
             => throw new NotSupportedException("cannot convert a fixed proxy to property dictionary");
 
-        private protected override IRequestHandler GetRequestHandler(IObjectPrx proxy)
-        {
-            Debug.Assert(ReferenceEquals(proxy.IceReference, this));
-            switch (GetMode())
-            {
-                case InvocationMode.Twoway:
-                case InvocationMode.Oneway:
-                case InvocationMode.BatchOneway:
-                    {
-                        if (((Endpoint)_fixedConnection.Endpoint).Datagram())
-                        {
-                            throw new NoEndpointException(ToString());
-                        }
-                        break;
-                    }
+        internal override IRequestHandler GetRequestHandler(IObjectPrx proxy) => _requestHandler;
 
-                case InvocationMode.Datagram:
-                case InvocationMode.BatchDatagram:
-                    {
-                        if (!((Endpoint)_fixedConnection.Endpoint).Datagram())
-                        {
-                            throw new NoEndpointException(ToString());
-                        }
-                        break;
-                    }
-            }
-
-            //
-            // If a secure connection is requested or secure overrides is set,
-            // check if the connection is secure.
-            //
-            bool secure;
-            DefaultsAndOverrides defaultsAndOverrides = Communicator.DefaultsAndOverrides;
-            if (defaultsAndOverrides.OverrideSecure)
-            {
-                secure = defaultsAndOverrides.OverrideSecureValue;
-            }
-            else
-            {
-                secure = GetSecure();
-            }
-            if (secure && !((Endpoint)_fixedConnection.Endpoint).Secure())
-            {
-                throw new NoEndpointException(ToString());
-            }
-
-            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-
-            bool compress = false;
-            if (defaultsAndOverrides.OverrideCompress)
-            {
-                compress = defaultsAndOverrides.OverrideCompressValue;
-            }
-            else if (OverrideCompress)
-            {
-                compress = Compress;
-            }
-
-            return SetRequestHandler(new ConnectionRequestHandler(_fixedConnection, compress));
-        }
+        internal override Ice.Connection? GetCachedConnection() => _requestHandler.GetConnection();
 
         public override bool Equals(Reference? other)
         {
@@ -1170,14 +1038,18 @@ namespace IceInternal
                 if (reference.IsRequestHandlerCached != connectionCachedValue)
                 {
                     reference = CloneIfSame(reference);
-                    reference.IsRequestHandlerCached = connectionCachedValue;
+                    Debug.Assert(!reference.IsRequestHandlerCached);
+                    if (connectionCachedValue)
+                    {
+                        reference._requestHandlerMutex = new object();
+                    }
                 }
                 // else all good already
             }
             else if (IsRequestHandlerCached != reference.IsRequestHandlerCached)
             {
                 Debug.Assert(!reference.IsRequestHandlerCached); // it's a freshly cloned reference
-                reference.IsRequestHandlerCached = IsRequestHandlerCached;
+                reference._requestHandlerMutex = new object();
             }
             return reference;
         }
@@ -1422,9 +1294,6 @@ namespace IceInternal
             private readonly IGetConnectionCallback _cb;
         }
 
-        private protected override IRequestHandler GetRequestHandler(IObjectPrx proxy)
-            => Communicator.GetRequestHandler(this, proxy);
-
         public void GetConnection(IGetConnectionCallback callback)
         {
             if (_routerInfo != null)
@@ -1549,7 +1418,10 @@ namespace IceInternal
                                  IReadOnlyDictionary<string, string> context)
         : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
-            IsRequestHandlerCached = cacheConnection;
+            if (cacheConnection)
+            {
+                _requestHandlerMutex = new object();
+            }
             _endpoints = endpoints;
             _adapterId = adapterId;
             _locatorInfo = locatorInfo;
@@ -1572,6 +1444,15 @@ namespace IceInternal
             }
 
             Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
+        }
+
+        internal override Reference Clone()
+        {
+            var clone = (base.Clone() as RoutableReference)!;
+            clone._hashCode = 0;
+            clone._requestHandler = null;
+            clone._requestHandlerMutex = null;
+            return clone;
         }
 
         protected Endpoint[] ApplyOverrides(Endpoint[] endpts)
@@ -1793,6 +1674,87 @@ namespace IceInternal
                                new CreateConnectionCallback(this, endpoints, callback));
             }
         }
+
+        internal override IRequestHandler GetRequestHandler(IObjectPrx proxy)
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler != null)
+                    {
+                        return _requestHandler;
+                    }
+                }
+            }
+            return Communicator.GetRequestHandler(this, proxy);
+        }
+
+        internal override Ice.Connection? GetCachedConnection()
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                IRequestHandler? handler;
+                lock (_requestHandlerMutex)
+                {
+                    handler = _requestHandler;
+                }
+                try
+                {
+                    return handler?.GetConnection();
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+            return null;
+        }
+
+        internal IRequestHandler SetRequestHandler(IRequestHandler handler)
+        {
+            if (IsRequestHandlerCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler == null)
+                    {
+                        _requestHandler = handler;
+                    }
+                    return _requestHandler;
+                }
+            }
+            return handler;
+        }
+
+        internal void UpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
+        {
+            if (IsRequestHandlerCached && previous != null)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler != null && _requestHandler != handler)
+                    {
+                        //
+                        // Update the request handler only if "previous" is the same
+                        // as the current request handler. This is called after
+                        // connection binding by the connect request handler. We only
+                        // replace the request handler if the current handler is the
+                        // connect request handler.
+                        //
+                        _requestHandler = _requestHandler.Update(previous, handler);
+                    }
+                }
+            }
+        }
+
+        internal override bool IsRequestHandlerCached => _requestHandlerMutex != null;
+
+        private IRequestHandler? _requestHandler;
+        private object? _requestHandlerMutex;
 
         private class EndpointComparator : IComparer<Endpoint>
         {
