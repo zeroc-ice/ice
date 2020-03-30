@@ -999,12 +999,10 @@ namespace Ice
             }
         }
 
-        internal bool IsLocal(IObjectPrx proxy)
+        internal bool IsLocal(Reference r)
         {
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
-
-            Reference r = proxy.IceReference;
             if (r.IsWellKnown())
             {
                 lock (_mutex)

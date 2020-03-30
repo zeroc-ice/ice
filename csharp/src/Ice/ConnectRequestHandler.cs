@@ -119,10 +119,8 @@ namespace IceInternal
             //
             // If this proxy is for a non-local object, and we are using a router, then
             // add this proxy to the router info object.
-            //
-            Debug.Assert(_proxy != null);
             RouterInfo? ri = _reference.GetRouterInfo();
-            if (ri != null && !ri.AddProxy(_proxy, this))
+            if (ri != null && !ri.AddProxy(IObjectPrx.Factory(_reference), this))
             {
                 return; // The request handler will be initialized once addProxy returns.
             }
@@ -169,7 +167,6 @@ namespace IceInternal
             {
                 _flushing = false;
                 _referenceList = null;
-                _proxy = null; // Break cyclic reference count.
                 Monitor.PulseAll(this);
             }
         }
@@ -182,10 +179,9 @@ namespace IceInternal
         //
         public void addedProxy() => FlushRequests();
 
-        public ConnectRequestHandler(RoutableReference routableReference, Ice.IObjectPrx proxy)
+        public ConnectRequestHandler(RoutableReference routableReference)
         {
             _reference = routableReference;
-            _proxy = proxy;
             _initialized = false;
             _flushing = false;
             _requestHandler = this;
@@ -302,14 +298,11 @@ namespace IceInternal
                 _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
 
                 _referenceList = null;
-                _proxy = null; // Break cyclic reference count.
                 Monitor.PulseAll(this);
             }
         }
 
         private readonly RoutableReference _reference;
-
-        private IObjectPrx? _proxy;
 
         // References to update upon initialization
         private List<RoutableReference>? _referenceList;

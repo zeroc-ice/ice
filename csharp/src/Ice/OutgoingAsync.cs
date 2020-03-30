@@ -487,7 +487,7 @@ namespace IceInternal
                     try
                     {
                         _sent = false;
-                        Handler = Proxy.IceReference.GetRequestHandler(Proxy);
+                        Handler = Proxy.IceReference.GetRequestHandler();
                         int status = Handler.SendAsyncRequest(this);
                         if ((status & AsyncStatusSent) != 0)
                         {

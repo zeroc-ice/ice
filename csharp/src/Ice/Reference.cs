@@ -266,7 +266,7 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> ToProperty(string prefix);
 
-        internal abstract IRequestHandler GetRequestHandler(IObjectPrx proxy);
+        internal abstract IRequestHandler GetRequestHandler();
         internal abstract Ice.Connection? GetCachedConnection();
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
@@ -759,7 +759,7 @@ namespace IceInternal
         public override Dictionary<string, string> ToProperty(string prefix)
             => throw new NotSupportedException("cannot convert a fixed proxy to property dictionary");
 
-        internal override IRequestHandler GetRequestHandler(IObjectPrx proxy) => _requestHandler;
+        internal override IRequestHandler GetRequestHandler() => _requestHandler;
 
         internal override Ice.Connection? GetCachedConnection() => _requestHandler.GetConnection();
 
@@ -1675,7 +1675,7 @@ namespace IceInternal
             }
         }
 
-        internal override IRequestHandler GetRequestHandler(IObjectPrx proxy)
+        internal override IRequestHandler GetRequestHandler()
         {
             if (IsRequestHandlerCached)
             {
@@ -1688,7 +1688,7 @@ namespace IceInternal
                     }
                 }
             }
-            return Communicator.GetRequestHandler(this, proxy);
+            return Communicator.GetRequestHandler(this);
         }
 
         internal override Ice.Connection? GetCachedConnection()

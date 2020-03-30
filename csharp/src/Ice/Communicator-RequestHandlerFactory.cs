@@ -10,12 +10,11 @@ namespace Ice
 {
     public sealed partial class Communicator
     {
-        internal IRequestHandler GetRequestHandler(RoutableReference rf, IObjectPrx proxy)
+        internal IRequestHandler GetRequestHandler(RoutableReference rf)
         {
-            Debug.Assert(ReferenceEquals(rf, proxy.IceReference));
             if (rf.GetCollocationOptimized())
             {
-                ObjectAdapter? adapter = FindObjectAdapter(proxy);
+                ObjectAdapter? adapter = FindObjectAdapter(rf);
                 if (adapter != null)
                 {
                     return rf.SetRequestHandler(new CollocatedRequestHandler(rf, adapter));
@@ -30,7 +29,7 @@ namespace Ice
                 {
                     if (!_handlers.TryGetValue(rf, out handler))
                     {
-                        handler = new ConnectRequestHandler(rf, proxy);
+                        handler = new ConnectRequestHandler(rf);
                         _handlers.Add(rf, handler);
                         connect = true;
                     }
@@ -38,7 +37,7 @@ namespace Ice
             }
             else
             {
-                handler = new ConnectRequestHandler(rf, proxy);
+                handler = new ConnectRequestHandler(rf);
                 connect = true;
             }
 

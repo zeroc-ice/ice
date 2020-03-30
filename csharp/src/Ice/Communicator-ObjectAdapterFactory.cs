@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -208,7 +210,7 @@ namespace Ice
             }
         }
 
-        private ObjectAdapter? FindObjectAdapter(IObjectPrx proxy)
+        private ObjectAdapter? FindObjectAdapter(Reference reference)
         {
             List<ObjectAdapter> adapters;
             lock (this)
@@ -225,7 +227,7 @@ namespace Ice
             {
                 try
                 {
-                    if (adapter.IsLocal(proxy))
+                    if (adapter.IsLocal(reference))
                     {
                         return adapter;
                     }
