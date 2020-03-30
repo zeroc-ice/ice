@@ -35,9 +35,6 @@ namespace Ice
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
-        /// <summary>A read only view of the contents of the stream.</summary>
-        internal ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array, 0, _buffer.Count);
-
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
         {
