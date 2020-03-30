@@ -3,7 +3,6 @@
 //
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using IceInternal;
 
 namespace Ice

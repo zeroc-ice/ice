@@ -447,11 +447,7 @@ namespace IceInternal
             return reference;
         }
 
-        internal virtual Reference Clone()
-        {
-            var clone = (MemberwiseClone() as Reference)!;
-            return clone;
-        }
+        internal virtual Reference Clone() => (MemberwiseClone() as Reference)!;
 
         // Creates a new clone of this unless `clone` is already a real clone (meaning "not this")
         // Returns the clone.
