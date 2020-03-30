@@ -1354,20 +1354,7 @@ namespace Ice
             return _tail;
         }
 
-        /// <summary>
-        /// Writes a pre-encoded encapsulation.
-        /// </summary>
-        /// <param name="v">The encapsulation data.</param>
-        internal void WriteEncapsulation(byte[] v)
-        {
-            Debug.Assert(v.Length >= 6);
-            if (v.Length < 6)
-            {
-                throw new ArgumentException($"encapsulation has only {v.Length} bytes", nameof(v));
-            }
-            WriteSpan(v.AsSpan());
-        }
-
+        // Returns true when something was written, and false otherwise
         internal void WriteSlicedData(SlicedData slicedData)
         {
             Debug.Assert(_current != null);

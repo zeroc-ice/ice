@@ -699,7 +699,7 @@ namespace IceInternal
 
             if (preferSecure != null)
             {
-                throw new ArgumentException($"cannot change the prefer sercure configuration of a fixed proxy", nameof(preferSecure));
+                throw new ArgumentException($"cannot change the prefer secure configuration of a fixed proxy", nameof(preferSecure));
             }
 
             if (router != null)

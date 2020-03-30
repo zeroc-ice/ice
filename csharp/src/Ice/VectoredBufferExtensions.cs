@@ -83,6 +83,7 @@ namespace Ice
         /// <returns>A segment with the requested size.</returns>
         public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int srcOffset, int count)
         {
+
             Debug.Assert(src.GetByteCount() >= srcOffset + count,
                 @$"requested {count} bytes starting at offset {srcOffset
                     } but there is only {src.GetByteCount() - srcOffset} bytes remaining.");
@@ -104,8 +105,8 @@ namespace Ice
                     }
                     else
                     {
-                        // The requested data spans serveral segments, allocate an array of the requested
-                        // size and copy the data into it. We first copy the remainig of the current segment
+                        // The requested data spans several segments, allocate an array of the requested
+                        // size and copy the data into it. We first copy the remaining of the current segment
                         // here and the rest of the data is copied in the loop bellow.
                         data = new byte[count];
                         int remaining = segment.Count - srcOffset;

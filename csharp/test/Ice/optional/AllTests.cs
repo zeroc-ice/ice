@@ -543,13 +543,14 @@ namespace Ice.optional
                     (OutputStream ostr, byte? p1) => ostr.WriteByte(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadByte(1) == 56);
-                test(responseFrame.InputStream.ReadByte(3) == 56);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation(); // make sure tagged parameters are skipped
-                responseFrame.InputStream.EndEncapsulation();
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        byte? b1 = istr.ReadByte(1);
+                        byte? b2 = istr.ReadByte(3);
+                        return (b1, b2);
+                    });
+                test(p1 == 56);
+                test(p2 == 56);
             }
 
             {
@@ -577,13 +578,14 @@ namespace Ice.optional
                     (OutputStream ostr, bool? p1) => ostr.WriteBool(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadBool(1) == true);
-                test(responseFrame.InputStream.ReadBool(3) == true);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                {
+                    bool? b1 = istr.ReadBool(1);
+                    bool? b2 = istr.ReadBool(3);
+                    return (b1, b2);
+                });
+                test(p1 == true);
+                test(p2 == true);
             }
 
             {
@@ -611,13 +613,14 @@ namespace Ice.optional
                     (OutputStream ostr, short? p1) => ostr.WriteShort(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadShort(1) == 56);
-                test(responseFrame.InputStream.ReadShort(3) == 56);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        short? s1 = istr.ReadShort(1);
+                        short? s2 = istr.ReadShort(3);
+                        return (s1, s2);
+                    });
+                test(p1 == 56);
+                test(p2 == 56);
             }
 
             {
@@ -645,13 +648,14 @@ namespace Ice.optional
                     (OutputStream ostr, int? p1) => ostr.WriteInt(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadInt(1) == 56);
-                test(responseFrame.InputStream.ReadInt(3) == 56);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                {
+                    int? i1 = istr.ReadInt(1);
+                    int? i2 = istr.ReadInt(3);
+                    return (i1, i2);
+                });
+                test(p1 == 56);
+                test(p2 == 56);
             }
 
             {
@@ -678,14 +682,15 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, long? p1) => ostr.WriteLong(1, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadLong(2) == 56);
-                test(responseFrame.InputStream.ReadLong(3) == 56);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                {
+                    long? l1 = istr.ReadLong(2);
+                    long? l2 = istr.ReadLong(3);
+                    return (l1, l2);
+                });
+                test(p1 == 56);
+                test(p2 == 56);
             }
 
             {
@@ -713,13 +718,14 @@ namespace Ice.optional
                     (OutputStream ostr, float? p1) =>  ostr.WriteFloat(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadFloat(1) == 1.0f);
-                test(responseFrame.InputStream.ReadFloat(3) == 1.0f);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        float? f1 = istr.ReadFloat(1);
+                        float? f2 = istr.ReadFloat(3);
+                        return (f1, f2);
+                    });
+                test(p2 == 1.0f);
+                test(p3 == 1.0f);
             }
 
             {
@@ -746,14 +752,15 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, double? p1) => ostr.WriteDouble(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadDouble(1) == 1.0);
-                test(responseFrame.InputStream.ReadDouble(3) == 1.0);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        double? d1 = istr.ReadDouble(1);
+                        double? d2 = istr.ReadDouble(3);
+                        return (d1, d2);
+                    });
+                test(p2 == 1.0);
+                test(p3 == 1.0);
             }
 
             {
@@ -783,13 +790,14 @@ namespace Ice.optional
                     (OutputStream ostr, string? p1) => ostr.WriteString(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadString(1) == "test");
-                test(responseFrame.InputStream.ReadString(3) == "test");
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                {
+                    string? s1 = istr.ReadString(1);
+                    string? s2 = istr.ReadString(3);
+                    return (s1, s2);
+                });
+                test(p2 == "test");
+                test(p3 == "test");
             }
 
             {
@@ -817,15 +825,16 @@ namespace Ice.optional
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteEnum(2, (int) p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.Size));
-                test((Test.MyEnum)responseFrame.InputStream.ReadEnum(1) == Test.MyEnum.MyEnumMember);
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.Size));
-                test((Test.MyEnum)responseFrame.InputStream.ReadEnum(1) == Test.MyEnum.MyEnumMember);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                {
+                    istr.ReadOptional(1, OptionalFormat.Size);
+                    MyEnum e1 = istr.ReadMyEnum();
+                    istr.ReadOptional(3, OptionalFormat.Size);
+                    MyEnum e2 = istr.ReadMyEnum();
+                    return (e1, e2);
+                });
+                test(p2 == MyEnum.MyEnumMember);
+                test(p3 == MyEnum.MyEnumMember);
             }
 
             {
@@ -857,30 +866,30 @@ namespace Ice.optional
                         p1!.Value.IceWrite(ostr);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                Test.SmallStruct f = new Test.SmallStruct(responseFrame.InputStream);
-                test(f.m == 56);
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                f = new Test.SmallStruct(responseFrame.InputStream);
-                test(f.m == 56);
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                {
+                    istr.ReadOptional(1, OptionalFormat.VSize);
+                    istr.SkipSize();
+                    var s1 = new SmallStruct(istr);
+                    istr.ReadOptional(3, OptionalFormat.VSize);
+                    istr.SkipSize();
+                    var s2 = new SmallStruct(istr);
+                    return (s1, s2);
+                });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(p2!.Value.m == 56);
+                test(p3!.Value.m == 56);
             }
 
             {
-                Test.FixedStruct? p1 = null;
+                FixedStruct? p1 = null;
                 var (p2, p3) = initial.opFixedStruct(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opFixedStruct(null);
                 test(p2 == null && p3 == null);
 
-                p1 = new Test.FixedStruct(56);
+                p1 = new FixedStruct(56);
                 (p2, p3) = initial.opFixedStruct(p1);
                 test(p2!.Value.m == 56 && p3!.Value.m == 56);
                 var r = initial.opFixedStructAsync(p1).Result;
@@ -902,30 +911,29 @@ namespace Ice.optional
                         p1!.Value.IceWrite(ostr);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                Test.FixedStruct f = new Test.FixedStruct(responseFrame.InputStream);
-                test(f.m == 56);
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                f = new Test.FixedStruct(responseFrame.InputStream);
-                test(f.m == 56);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        FixedStruct? f1 = new FixedStruct(istr);
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        FixedStruct? f2 = new Test.FixedStruct(istr);
+                        return (f1, f2);
+                    });
+                test(p2!.Value.m == 56);
+                test(p3!.Value.m == 56);
             }
 
             {
-                Test.VarStruct? p1 = null;
+                VarStruct? p1 = null;
                 var (p2, p3) = initial.opVarStruct(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opVarStruct(null);
                 test(p2 == null && p3 == null);
 
-                p1 = new Test.VarStruct("test");
+                p1 = new VarStruct("test");
                 (p2, p3) = initial.opVarStruct(p1);
                 test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
 
@@ -954,20 +962,19 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                Test.VarStruct v = new Test.VarStruct(responseFrame.InputStream);
-                test(v.m.Equals("test"));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                v = new Test.VarStruct(responseFrame.InputStream);
-                test(v.m.Equals("test"));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        VarStruct? v1 = new VarStruct(istr);
+                        istr.ReadOptional(3, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        VarStruct? v2 = new VarStruct(istr);
+                        return (v1, v2);
+                    });
+                test(p2!.Value.m.Equals("test"));
+                test(p3!.Value.m.Equals("test"));
 
                 // TODO: why are we testing this here?
                 /* Test.F f = new Test.F();
@@ -993,13 +1000,13 @@ namespace Ice.optional
             }
 
             {
-                Test.OneOptional? p1 = null;
+                OneOptional? p1 = null;
                 var (p2, p3) = initial.opOneOptional(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opOneOptional(null);
                 test(p2 == null && p3 == null);
 
-                p1 = new Test.OneOptional(58);
+                p1 = new OneOptional(58);
                 (p2, p3) = initial.opOneOptional(p1);
                 test(p2!.a == 58 && p3!.a == 58);
                 var r = initial.opOneOptionalAsync(p1).Result;
@@ -1021,16 +1028,16 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.Class));
-                var p2c = responseFrame.InputStream.ReadClass<Test.OneOptional>();
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.Class));
-                var p3c = responseFrame.InputStream.ReadClass<Test.OneOptional>();
-                responseFrame.InputStream.EndEncapsulation();
-                test(p2c.a == 58 && p3c.a == 58);
+                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.Class);
+                        OneOptional? c1 = istr.ReadClass<OneOptional>();
+                        istr.ReadOptional(3, OptionalFormat.Class);
+                        OneOptional? c2 = istr.ReadClass<OneOptional>();
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                        return (c1, c2);
+                    });
+                test(p1!.a == 58 && p2!.a == 58);
             }
 
             {
@@ -1063,13 +1070,15 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(IObjectPrx.Equals(responseFrame.InputStream.ReadProxy(1, IObjectPrx.Factory), p1));
-                test(IObjectPrx.Equals(responseFrame.InputStream.ReadProxy(3, IObjectPrx.Factory), p1));
-                responseFrame.InputStream.EndEncapsulation();
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        IObjectPrx? prx1 = istr.ReadProxy(1, IObjectPrx.Factory);
+                        IObjectPrx? prx2 = istr.ReadProxy(3, IObjectPrx.Factory);
+                        return (prx1, prx2);
+                    });
+                test(IObjectPrx.Equals(p1, p2));
+                test(IObjectPrx.Equals(p1, p3));
             }
 
             {
@@ -1102,20 +1111,21 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadByteArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadByteArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        byte[]? arr1 = istr.ReadByteArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        byte[]? arr2 = istr.ReadByteArray();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
                 bool[]? p1 = null;
-                var (p2, p3) = initial.opBoolSeq(p1);
+                (bool[]? p2, bool[]? p3) = initial.opBoolSeq(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null);
@@ -1143,15 +1153,17 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadBoolArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadBoolArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        bool[]? arr1 = istr.ReadBoolArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        bool[]? arr2 = istr.ReadBoolArray();
+                        return (arr1, arr2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1186,17 +1198,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadShortArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadShortArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        short[]? arr1 = istr .ReadShortArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        short[]? arr2 = istr.ReadShortArray();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1230,17 +1243,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadIntArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadIntArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        int[] arr1 = istr.ReadIntArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        int[] arr2 = istr.ReadIntArray();
+                        return (arr1, arr2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1274,17 +1289,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadLongArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadLongArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        long[]? arr1 = istr.ReadLongArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        long[]? arr2 = istr.ReadLongArray();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1318,17 +1334,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadFloatArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadFloatArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        float[] arr1 = istr.ReadFloatArray();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        float[] arr2 = istr.ReadFloatArray();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1362,17 +1379,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadDoubleArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadDoubleArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                {
+                    istr.ReadOptional(1, OptionalFormat.VSize);
+                    istr.SkipSize();
+                    double[] arr1 = istr.ReadDoubleArray();
+                    istr.ReadOptional(3, OptionalFormat.VSize);
+                    istr.SkipSize();
+                    double[] arr2 = istr.ReadDoubleArray();
+                    return (arr1, arr2);
+                });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1406,17 +1425,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadStringArray(), p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                test(global::Test.Collections.Equals(responseFrame.InputStream.ReadStringArray(), p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        string[] arr1 = istr.ReadStringArray();
+                        istr.ReadOptional(3, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        string[] arr2 = istr.ReadStringArray();
+                        return (arr1, arr2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1449,19 +1470,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                SmallStruct[] arr = responseFrame.InputStream.ReadSmallStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                arr = responseFrame.InputStream.ReadSmallStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        SmallStruct[] arr1 = istr.ReadSmallStructSeq();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        SmallStruct[] arr2 = istr.ReadSmallStructSeq();
+                        return (arr1, arr2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1498,20 +1519,20 @@ namespace Ice.optional
                         ostr.Write(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                List<SmallStruct> arr = responseFrame.InputStream.ReadSmallStructList();
-                test(global::Test.Collections.Equals(arr, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                arr = responseFrame.InputStream.ReadSmallStructList();
-                test(global::Test.Collections.Equals(arr, p1));
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        List<SmallStruct> arr1 = istr.ReadSmallStructList();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        List<SmallStruct> arr2 = istr.ReadSmallStructList();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
             }
 
             {
@@ -1545,19 +1566,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                Test.FixedStruct[] arr = responseFrame.InputStream.ReadFixedStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                arr = responseFrame.InputStream.ReadFixedStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        FixedStruct[] arr1 = istr.ReadFixedStructSeq();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        FixedStruct[] arr2 = istr.ReadFixedStructSeq();
+                        return (arr1, arr2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1595,19 +1616,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                var arr = responseFrame.InputStream.ReadFixedStructList();
-                test(global::Test.Collections.Equals(arr, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                arr = responseFrame.InputStream.ReadFixedStructList();
-                test(global::Test.Collections.Equals(arr, p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        LinkedList<FixedStruct> arr1 = istr.ReadFixedStructList();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        LinkedList<FixedStruct> arr2 = istr.ReadFixedStructList();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1641,25 +1661,24 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                VarStruct[] arr = responseFrame.InputStream.ReadVarStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                arr = responseFrame.InputStream.ReadVarStructSeq();
-                test(global::Test.Collections.Equals(arr, p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        VarStruct[] arr1 = istr.ReadVarStructSeq();
+                        istr.ReadOptional(3, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        VarStruct[] arr2 = istr.ReadVarStructSeq();
+                        return (arr1, arr2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             if (supportsCsharpSerializable)
             {
-                Test.SerializableClass? p1 = null;
+                SerializableClass? p1 = null;
                 var (p2, p3) = initial.opSerializable(p1);
                 test(p2 == null && p3 == null);
                 (p2, p3) = initial.opSerializable(null);
@@ -1688,17 +1707,16 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                var sc = (Test.SerializableClass)responseFrame.InputStream.ReadSerializable();
-                test(sc.Equals(p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                sc = (Test.SerializableClass)responseFrame.InputStream.ReadSerializable();
-                test(sc.Equals(p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        var sc1 = (SerializableClass?)istr.ReadSerializable();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        var sc2 = (SerializableClass?)istr.ReadSerializable();
+                        return (sc1, sc2);
+                    });
+                test(p2!.Equals(p1));
+                test(p3!.Equals(p1));
             }
 
             {
@@ -1734,19 +1752,19 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                Dictionary<int, int> m = responseFrame.InputStream.ReadIntIntDict();
-                test(global::Test.Collections.Equals(m, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.VSize));
-                responseFrame.InputStream.SkipSize();
-                m = responseFrame.InputStream.ReadIntIntDict();
-                test(global::Test.Collections.Equals(m, p1));
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        Dictionary<int, int> m1 = istr.ReadIntIntDict();
+                        istr.ReadOptional(3, OptionalFormat.VSize);
+                        istr.SkipSize();
+                        Dictionary<int, int> m2 = istr.ReadIntIntDict();
+                        return (m1, m2);
+                    });
 
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1783,19 +1801,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                Dictionary<string, int> m = responseFrame.InputStream.ReadStringIntDict();
-                test(global::Test.Collections.Equals(m, p1));
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                m = responseFrame.InputStream.ReadStringIntDict();
-                test(global::Test.Collections.Equals(m, p1));
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        Dictionary<string, int> m1 = istr.ReadStringIntDict();
+                        istr.ReadOptional(3, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        Dictionary<string, int> m2 = istr.ReadStringIntDict();
+                        return (m1, m2);
+                    });
+                test(global::Test.Collections.Equals(p1, p2));
+                test(global::Test.Collections.Equals(p1, p3));
             }
 
             {
@@ -1831,19 +1848,18 @@ namespace Ice.optional
                     });
 
                 var responseFrame = initial.Invoke(requestFrame);
-                responseFrame.InputStream.StartEncapsulation();
-                test(responseFrame.InputStream.ReadOptional(1, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                Dictionary<int, OneOptional> m = responseFrame.InputStream.ReadIntOneOptionalDict();
-                test(m[1].a == 58);
-                test(responseFrame.InputStream.ReadOptional(3, OptionalFormat.FSize));
-                responseFrame.InputStream.Skip(4);
-                m = responseFrame.InputStream.ReadIntOneOptionalDict();
-                test(m[1].a == 58);
-                responseFrame.InputStream.EndEncapsulation();
-
-                responseFrame.InputStream.RestartEncapsulation();
-                responseFrame.InputStream.EndEncapsulation();
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
+                    {
+                        istr.ReadOptional(1, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        Dictionary<int, OneOptional?> m1 = istr.ReadIntOneOptionalDict();
+                        istr.ReadOptional(3, OptionalFormat.FSize);
+                        istr.Skip(4);
+                        Dictionary<int, OneOptional?> m2 = istr.ReadIntOneOptionalDict();
+                        return (m1, m2);
+                    });
+                test(p2[1]!.a == 58);
+                test(p3[1]!.a == 58);
             }
             output.WriteLine("ok");
 

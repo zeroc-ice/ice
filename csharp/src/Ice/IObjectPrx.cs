@@ -306,7 +306,7 @@ namespace Ice
         {
             try
             {
-                var completed = new InvokeTaskCompletionCallback(null, default);
+                var completed = new InvokeTaskCompletionCallback(Communicator, null, default);
                 new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
                                                                                    synchronous: true);
                 return completed.Task.Result;
@@ -323,7 +323,7 @@ namespace Ice
                                                                       IProgress<bool>? progress,
                                                                       CancellationToken cancel)
         {
-            var completed = new InvokeTaskCompletionCallback(progress, cancel);
+            var completed = new InvokeTaskCompletionCallback(Communicator, progress, cancel);
             new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
                                                                                synchronous: false);
             return completed.Task;
@@ -413,26 +413,30 @@ namespace Ice
         // Temporary helper class for IceInvokeAsync
         private class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
         {
-            internal InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken) :
-                base(progress, cancellationToken)
+            private Communicator _communicator;
+            internal InvokeTaskCompletionCallback(Communicator communicator, IProgress<bool>? progress,
+                CancellationToken cancellationToken) : base(progress, cancellationToken)
             {
+                _communicator = communicator;
             }
 
             public override void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
-                                              OutgoingAsyncBase og)
+                OutgoingAsyncBase outgoing)
             {
                 if (Progress != null && !alreadySent)
                 {
                     Progress.Report(sentSynchronously);
                 }
+
                 if (done)
                 {
-                    SetResult(new IncomingResponseFrame(ReplyStatus.OK, og.GetIs()));
+                    outgoing.ResponseFrame = new IncomingResponseFrame(_communicator, Ice1Definitions.EmptyResponsePayload);
+                    SetResult(outgoing.ResponseFrame!);
                 }
             }
 
-            public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
-                SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
+            public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase outgoing) =>
+                SetResult(outgoing.ResponseFrame!);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

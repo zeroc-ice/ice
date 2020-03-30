@@ -253,17 +253,17 @@ namespace Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
         public static async ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
+                                                                          bool oneway,
                                                                           IncomingRequestFrame request,
                                                                           IProgress<bool>? progress = null,
                                                                           CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Current.Operation,
-                request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
-
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Operation, request.IsIdempotent,
+                request.Context, request.Payload);
             IncomingResponseFrame response =
-                await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
+                await proxy.InvokeAsync(forwardedRequest, oneway: oneway, progress, cancel)
                     .ConfigureAwait(false);
-            return new OutgoingResponseFrame(request.Current.Encoding, response.TakePayload());
+            return new OutgoingResponseFrame(request.Encoding, response.Payload);
         }
 
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

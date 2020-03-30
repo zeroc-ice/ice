@@ -40,13 +40,13 @@ namespace Ice.invoke
                 request = OutgoingRequestFrame.WithParameters(cl, "opString", idempotent: false,
                     format: null, context: null, testString, OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
-                var result = response.ReadResult();
-                test(result.ResultType == ResultType.Success);
-                string s = result.InputStream.ReadString();
-                test(s.Equals(testString));
-                s = result.InputStream.ReadString();
-                result.InputStream.EndEncapsulation();
-                test(s.Equals(testString));
+                (string s1, string s2) = response.ReadReturnValue(istr =>
+                    {
+                        string s1 = istr.ReadString();
+                        string s2 = istr.ReadString();
+                        return (s1, s2);
+                    });
+                test(s1.Equals(testString) && s2.Equals(testString));
             }
 
             for (int i = 0; i < 2; ++i)
@@ -60,15 +60,13 @@ namespace Ice.invoke
 
                 var request = OutgoingRequestFrame.WithNoParameter(cl, "opException", idempotent: false, context: ctx);
                 var response = cl.Invoke(request);
-                var result = response.ReadResult();
-                test(result.ResultType == ResultType.Failure);
                 try
                 {
-                    result.InputStream.ThrowException();
+                    response.ReadVoidReturnValue();
                 }
                 catch (Test.MyException)
                 {
-                    result.InputStream.EndEncapsulation();
+                    // expected
                 }
                 catch (System.Exception)
                 {
@@ -95,29 +93,28 @@ namespace Ice.invoke
                 request = OutgoingRequestFrame.WithParameters(cl, "opString", idempotent: false,
                     format: null, context: null, testString, OutputStream.IceWriterFromString);
 
-                var response = cl.InvokeAsync(request).Result;
-                var result = response.ReadResult();
-                test(result.ResultType == ResultType.Success);
-                string s = result.InputStream.ReadString();
-                test(s.Equals(testString));
-                s = result.InputStream.ReadString();
-                result.InputStream.EndEncapsulation();
-                test(s.Equals(testString));
+                IncomingResponseFrame response = cl.InvokeAsync(request).Result;
+                (string s1, string s2) = response.ReadReturnValue(istr =>
+                    {
+                        string s1 = istr.ReadString();
+                        string s2 = istr.ReadString();
+                        return (s1, s2);
+                    });
+                test(s1.Equals(testString));
+                test(s2.Equals(testString));
             }
 
             {
                 var request = OutgoingRequestFrame.WithNoParameter(cl, "opException", idempotent: false);
                 var response = cl.InvokeAsync(request).Result;
-                var result = response.ReadResult();
-                test(result.ResultType == ResultType.Failure);
 
                 try
                 {
-                    result.InputStream.ThrowException();
+                    response.ReadVoidReturnValue();
+                    test(false);
                 }
                 catch (Test.MyException)
                 {
-                    result.InputStream.EndEncapsulation();
                 }
                 catch (System.Exception)
                 {

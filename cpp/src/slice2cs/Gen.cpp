@@ -2697,9 +2697,9 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << getUnqualified("Ice.IObject", ns)
-        << ".DispatchAsync(global::Ice.InputStream istr, global::Ice.Current current)";
+        << ".DispatchAsync(global::Ice.IncomingRequestFrame request, global::Ice.Current current)";
     _out.inc();
-    _out << nl << " => DispatchAsync(this, istr, current);";
+    _out << nl << " => DispatchAsync(this, request, current);";
     _out.dec();
 
     _out << sp;
@@ -2707,7 +2707,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "// and reuse the generated implementation.";
     _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << "DispatchAsync(" << fixId(name) << " servant, "
-        << "global::Ice.InputStream istr, global::Ice.Current current)";
+        << "global::Ice.IncomingRequestFrame request, global::Ice.Current current)";
     _out << sb;
     _out << nl << "switch(current.Operation)";
     _out << sb;
@@ -2725,7 +2725,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "case \"" << opName << "\":";
         _out << sb;
-        _out << nl << "return servant.IceD_" << opName << "Async(istr, current);";
+        _out << nl << "return servant.IceD_" << opName << "Async(request, current);";
         _out << eb;
     }
 
@@ -2850,6 +2850,9 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
     string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns) : "_iceD_" + opName + "Writer";
 
+    bool defaultReader = inParams.size() == 1 && !inParams.front().tagged;
+    string reader = defaultReader ? inputStreamReader(inParams.front().type, ns) : "_iceD_" + opName + "Reader";
+
     _out << sp;
     _out << nl << "protected ";
     if (amd)
@@ -2857,7 +2860,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << "async ";
     }
     _out << "global::System.Threading.Tasks.ValueTask<" + getUnqualified("Ice.OutgoingResponseFrame", ns) + ">";
-    _out << " " << internalName << "(global::Ice.InputStream istr, " << getUnqualified("Ice.Current", ns)
+    _out << " " << internalName << "(global::Ice.IncomingRequestFrame request, " << getUnqualified("Ice.Current", ns)
          << " current)";
     _out << sb;
 
@@ -2868,13 +2871,18 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
     // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
     // skips tagged members, and needs to understand them.
-
-    _out << nl << "istr.CheckIsReadable();";
-    if(!inParams.empty())
+    if(inParams.empty())
     {
-        writeUnmarshalParams(operation, requiredInParams, taggedInParams);
+        _out << nl << "request.ReadEmptyParamList();";
     }
-    _out << nl << "istr.EndEncapsulation();";
+    else if(inParams.size() == 1)
+    {
+        _out << nl << "var " << inParams.front().name << " = request.ReadParamList(" << reader << ");";
+    }
+    else
+    {
+        _out << nl << "var paramList = request.ReadParamList(" << reader << ");";
+    }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
 
@@ -2905,7 +2913,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << "await ";
         }
-        _out << "this." << name << spar << getNames(inParams) << "current" << epar;
+        _out << "this." << name << spar << getNames(inParams, inParams.size() > 1 ? "paramList." : "") << "current"
+             << epar;
         if (amd)
         {
             _out << ".ConfigureAwait(false)";
@@ -2914,14 +2923,16 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 
         if(outParams.size() == 0)
         {
-            if (amd)
+            if(amd)
             {
-                _out << nl << "return " << getUnqualified("Ice.OutgoingResponseFrame", ns)
-                     << ".WithVoidReturnValue(current);";
+                _out << nl << "return global::Ice.OutgoingResponseFrame.WithVoidReturnValue(current);";
             }
             else
             {
-                _out << nl << "return IceFromVoidResult(current);";
+                _out << nl << "return new global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame>(";
+                _out.inc();
+                _out << nl << "global::Ice.OutgoingResponseFrame.WithVoidReturnValue(current));";
+                _out.dec();
             }
         }
         else
@@ -2936,7 +2947,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             }
             else
             {
-                _out << nl << "return IceFromResult(response);";
+                _out << nl << "return new global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame>("
+                     << "response);";
             }
         }
         _out << eb;
@@ -2961,6 +2973,27 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << sb;
         writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
         _out << eb;
+    }
+
+    if(inParams.size() > 1)
+    {
+        _out << sp;
+        _out << nl << "private static readonly global::Ice.InputStreamReader<" << toTupleType(inParams) << "> "
+             << reader << " = istr =>";
+        _out << sb;
+        writeUnmarshalParams(operation, requiredInParams, taggedInParams);
+        _out << nl << "return " << toTuple(inParams, "iceP_") << ";";
+        _out << eb << ";";
+    }
+    else if(inParams.size() == 1 && inParams.front().tagged)
+    {
+        _out << sp;
+        _out << nl << "private static readonly global::Ice.InputStreamReader<" << inParams.front().typeStr << "> "
+             << reader << " = istr =>";
+        _out << sb;
+        writeUnmarshalParams(operation, requiredInParams, taggedInParams);
+        _out << nl << "return " << inParams.front().name << ";";
+        _out << eb << ";";
     }
 }
 

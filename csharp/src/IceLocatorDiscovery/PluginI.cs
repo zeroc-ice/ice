@@ -197,14 +197,13 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public async ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream inputStream, Current current)
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame requestFrame, Current current)
         {
-            var requestFrame = new IncomingRequestFrame(inputStream, current);
-            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.TakePayload(),
+            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.Payload,
                 current.Context);
             Invoke(null, request);
             IncomingResponseFrame incomingResponseFrame = await request.Task.ConfigureAwait(false);
-            return new OutgoingResponseFrame(current.Encoding, incomingResponseFrame.TakePayload());
+            return new OutgoingResponseFrame(current.Encoding, incomingResponseFrame.Payload);
         }
 
         public List<Ice.ILocatorPrx>

@@ -455,10 +455,10 @@ namespace Ice
             }
         }
 
-        public static Ice.InputStream Uncompress(Ice.InputStream compressed, int headerSize, int messageSizeMax)
+        public static ArraySegment<byte> Uncompress(ArraySegment<byte> compressed, int headerSize, int messageSizeMax)
         {
             Debug.Assert(Supported());
-            int uncompressedSize = Ice.InputStream.ReadInt(compressed.Buffer.Slice(headerSize, 4).Span);
+            int uncompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
             if (uncompressedSize <= headerSize)
             {
                 throw new InvalidDataException(
@@ -474,9 +474,9 @@ namespace Ice
             // that doesn't include the uncompressed header, then we allocate an array to hold the
             // uncompressed data and copy the uncompressed data to the uncompressed stream after the
             // header.
-            int compressedLen = compressed.Size - headerSize - 4;
+            int compressedLen = compressed.Count - headerSize - 4;
             byte[] compressedData = new byte[compressedLen];
-            compressed.Buffer.Slice(headerSize + 4).CopyTo(compressedData);
+            compressed.Slice(headerSize + 4).CopyTo(compressedData);
             int uncompressedLen = uncompressedSize - headerSize;
 
             byte[] uncompressedData = new byte[uncompressedLen];
@@ -489,9 +489,9 @@ namespace Ice
             // Copy the header from the compressed buffer to the uncompressed one. We should
             // avoid the copy see comment above.
             byte[] uncompressed = new byte[uncompressedSize];
-            compressed.Buffer.Slice(0, headerSize).CopyTo(uncompressed);
+            compressed.Slice(0, headerSize).CopyTo(uncompressed);
             uncompressedData.AsSpan().CopyTo(uncompressed.AsSpan(headerSize));
-            return new Ice.InputStream(compressed.Communicator, compressed.Encoding, uncompressed);
+            return uncompressed;
         }
 
         private static readonly bool _bzlibInstalled;

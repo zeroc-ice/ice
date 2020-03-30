@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Ice.interceptor
 {
@@ -23,7 +24,7 @@ namespace Ice.interceptor
             }
         }
 
-        public async ValueTask<Ice.OutgoingResponseFrame> DispatchAsync(Ice.InputStream istr, Current current)
+        public async ValueTask<Ice.OutgoingResponseFrame> DispatchAsync(Ice.IncomingRequestFrame request, Current current)
         {
             if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
             {
@@ -45,12 +46,11 @@ namespace Ice.interceptor
                 {
                     try
                     {
-                        var ostr = await _servant.DispatchAsync(istr, current).ConfigureAwait(false);
+                        await _servant.DispatchAsync(request, current).ConfigureAwait(false);
                         test(false);
                     }
                     catch (RetryException)
                     {
-                        istr.RestartEncapsulation();
                         // Expected, retry
                     }
                 }
@@ -60,15 +60,13 @@ namespace Ice.interceptor
             {
                 // Retry the dispatch to ensure that abandoning the result of the dispatch
                 // works fine and is thread-safe
-                var vt1 = _servant.DispatchAsync(istr, current);
-                istr.RestartEncapsulation();
-                var vt2 = _servant.DispatchAsync(istr, current);
+                var vt1 = _servant.DispatchAsync(request, current);
+                var vt2 = _servant.DispatchAsync(request, current);
                 await vt1.ConfigureAwait(false);
                 await vt2.ConfigureAwait(false);
             }
 
-            istr.RestartEncapsulation();
-            var vt = _servant.DispatchAsync(istr, current);
+            var vt = _servant.DispatchAsync(request, current);
 
             AsyncCompletion = !vt.IsCompleted;
 

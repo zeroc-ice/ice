@@ -151,36 +151,32 @@ namespace IceInternal
             try
             {
                 List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
-                byte[] requestBuffer = VectoredBufferExtensions.ToArray(requestData);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
-                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequest.Encoding, requestBuffer,
+                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequest.Encoding,
+                        VectoredBufferExtensions.ToArray(requestData),
                         _logger, _traceLevels);
                 }
 
                 // TODO Avoid copy OutputStream buffer
-                var incomingRequest = new InputStream(_adapter.Communicator, outgoingRequest.Encoding, requestBuffer);
-                incomingRequest.Pos = Ice1Definitions.RequestHeader.Length;
-
-                int start = incomingRequest.Pos;
-                var current = new Current(requestId, incomingRequest, _adapter);
+                var requestBuffer = requestData.GetSegment(Ice1Definitions.HeaderSize + 4,
+                    requestData.GetByteCount() - (Ice1Definitions.HeaderSize + 4));
+                var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, requestBuffer);
+                var current = new Current(_adapter, incomingRequest, requestId);
 
                 // Then notify and set dispatch observer, if any.
                 Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
-                    int encapsSize = incomingRequest.GetEncapsulationSize();
-
-                    dispatchObserver = communicatorObserver.GetDispatchObserver(current,
-                        incomingRequest.Pos - start + encapsSize);
+                    dispatchObserver = communicatorObserver.GetDispatchObserver(current, incomingRequest.Size);
                     dispatchObserver?.Attach();
                 }
 
                 bool amd = true;
                 try
                 {
-                    Ice.IObject? servant = current.Adapter.Find(current.Id, current.Facet);
+                    IObject? servant = current.Adapter.Find(current.Id, current.Facet);
 
                     if (servant == null)
                     {
@@ -235,19 +231,20 @@ namespace IceInternal
             lock (this)
             {
                 List<System.ArraySegment<byte>> responseData = Ice1Definitions.GetResponseData(responseFrame, requestId);
-                byte[] responseBuffer = VectoredBufferExtensions.ToArray(responseData);
-                var iss = new InputStream(_adapter.Communicator, responseFrame.Encoding, responseBuffer);
-
-                iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
 
                 if (_traceLevels.Protocol >= 1)
                 {
+                    byte[] responseBuffer = VectoredBufferExtensions.ToArray(responseData);
+                    var iss = new InputStream(_adapter.Communicator, responseBuffer);
+                    iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
                     TraceUtil.TraceRecv(iss, _logger, _traceLevels);
                 }
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    outAsync.GetIs().Swap(iss);
+                    // TODO avoid copy the response payload
+                    outAsync.ResponseFrame = new IncomingResponseFrame(_adapter.Communicator,
+                        responseFrame.Payload.ToArray());
                     if (!outAsync.Response())
                     {
                         outAsync = null;
