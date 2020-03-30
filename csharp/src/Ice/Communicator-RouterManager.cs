@@ -102,7 +102,7 @@ namespace Ice
             }
 
             serverProxy = serverProxy.Clone(clearRouter: true); // The server proxy cannot be routed.
-            return serverProxy.IceReference.GetEndpoints();
+            return serverProxy.IceReference.Endpoints;
         }
 
         public void AddProxy(IObjectPrx proxy)
@@ -179,7 +179,7 @@ namespace Ice
         {
             lock (this)
             {
-                _identities.Remove(reference.GetIdentity());
+                _identities.Remove(reference.Identity);
             }
         }
 
@@ -195,7 +195,7 @@ namespace Ice
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = Router.IceReference.GetEndpoints();
+                        _clientEndpoints = Router.IceReference.Endpoints;
                     }
                     else
                     {
@@ -211,7 +211,7 @@ namespace Ice
                             clientProxy = clientProxy.Clone(connectionTimeout: Router.GetConnection().Timeout);
                         }
 
-                        _clientEndpoints = clientProxy.IceReference.GetEndpoints();
+                        _clientEndpoints = clientProxy.IceReference.Endpoints;
                     }
                 }
                 return _clientEndpoints;

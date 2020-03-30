@@ -1003,23 +1003,23 @@ namespace Ice
         {
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
-            if (r.IsWellKnown())
+            if (r.IsWellKnown)
             {
                 lock (_mutex)
                 {
                     // Is the servant in the ASM?
                     // TODO: Currently doesn't check default servants - should we?
-                    return _identityServantMap.ContainsKey(new IdentityPlusFacet(r.GetIdentity(), r.GetFacet()));
+                    return _identityServantMap.ContainsKey(new IdentityPlusFacet(r.Identity, r.Facet));
                 }
             }
-            else if (r.IsIndirect())
+            else if (r.IsIndirect)
             {
                 // Proxy is local if the reference adapter id matches this adapter id or replica group id.
-                return r.GetAdapterId().Equals(_id) || r.GetAdapterId().Equals(_replicaGroupId);
+                return r.AdapterId.Equals(_id) || r.AdapterId.Equals(_replicaGroupId);
             }
             else
             {
-                Endpoint[] endpoints = r.GetEndpoints();
+                Endpoint[] endpoints = r.Endpoints;
 
                 lock (_mutex)
                 {

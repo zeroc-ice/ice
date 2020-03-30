@@ -38,23 +38,23 @@ namespace Ice
                 if (proxy != null)
                 {
                     Reference r = proxy.IceReference;
-                    if (_ref.IsWellKnown() && _ref.GetEncoding() != r.GetEncoding())
+                    if (_ref.IsWellKnown && _ref.Encoding != r.Encoding)
                     {
                         // If a well-known proxy and the returned proxy encoding don't match we're done:
                         // there's no compatible endpoint we can use.
                     }
-                    else if (!r.IsIndirect())
+                    else if (!r.IsIndirect)
                     {
-                        endpoints = r.GetEndpoints();
+                        endpoints = r.Endpoints;
                     }
-                    else if (_ref.IsWellKnown() && !r.IsWellKnown())
+                    else if (_ref.IsWellKnown && !r.IsWellKnown)
                     {
                         //
                         // We're resolving the endpoints of a well-known object and the proxy returned
                         // by the locator is an indirect proxy. We now need to resolve the endpoints
                         // of this indirect proxy.
                         //
-                        if (_ref.GetCommunicator().TraceLevels.Location >= 1)
+                        if (_ref.Communicator.TraceLevels.Location >= 1)
                         {
                             locatorInfo.Trace("retrieved adapter for well-known object from locator, " +
                                               "adding to locator cache", _ref, r);
@@ -64,7 +64,7 @@ namespace Ice
                     }
                 }
 
-                if (_ref.GetCommunicator().TraceLevels.Location >= 1)
+                if (_ref.Communicator.TraceLevels.Location >= 1)
                 {
                     locatorInfo.GetEndpointsTrace(_ref, endpoints, false);
                 }
@@ -76,26 +76,26 @@ namespace Ice
 
             public void Exception(Exception ex)
             {
-                Communicator communicator = _ref.GetCommunicator();
+                Communicator communicator = _ref.Communicator;
                 if (communicator.TraceLevels.Location > 0)
                 {
                     if (ex is AdapterNotFoundException)
                     {
                         communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
-                            $"adapter not found\nadapter = {_ref.GetAdapterId()}");
+                            $"adapter not found\nadapter = {_ref.AdapterId}");
                     }
                     else if (ex is ObjectNotFoundException)
                     {
                         communicator.Logger.Trace(communicator.TraceLevels.LocationCat,
-                            $"object not found\nobject = {_ref.GetIdentity().ToString(communicator.ToStringMode)}");
+                            $"object not found\nobject = {_ref.Identity.ToString(communicator.ToStringMode)}");
                     }
                     else
                     {
                         var s = new System.Text.StringBuilder();
                         s.Append("could not contact the locator to retrieve endpoints\n");
-                        if (_ref.GetAdapterId().Length > 0)
+                        if (_ref.AdapterId.Length > 0)
                         {
-                            s.Append($"adapter = {_ref.GetAdapterId()}\n");
+                            s.Append($"adapter = {_ref.AdapterId}\n");
                         }
                         else
                         {
@@ -205,7 +205,7 @@ namespace Ice
             {
                 try
                 {
-                    LocatorInfo.Locator.FindObjectByIdAsync(Ref.GetIdentity()).ContinueWith(
+                    LocatorInfo.Locator.FindObjectByIdAsync(Ref.Identity).ContinueWith(
                         (Task<IObjectPrx?> p) =>
                         {
                             try
@@ -236,7 +236,7 @@ namespace Ice
             {
                 try
                 {
-                    LocatorInfo.Locator.FindAdapterByIdAsync(Ref.GetAdapterId()).ContinueWith(
+                    LocatorInfo.Locator.FindAdapterByIdAsync(Ref.AdapterId).ContinueWith(
                         (Task<IObjectPrx?> p) =>
                         {
                             try
@@ -324,12 +324,12 @@ namespace Ice
         internal void
         GetEndpoints(Reference reference, Reference? wellKnownRef, int ttl, IGetEndpointsCallback? callback)
         {
-            Debug.Assert(reference.IsIndirect());
+            Debug.Assert(reference.IsIndirect);
             Endpoint[]? endpoints = null;
             bool cached;
-            if (!reference.IsWellKnown())
+            if (!reference.IsWellKnown)
             {
-                endpoints = _table.GetAdapterEndpoints(reference.GetAdapterId(), ttl, out cached);
+                endpoints = _table.GetAdapterEndpoints(reference.AdapterId, ttl, out cached);
                 if (!cached)
                 {
                     if (_background && endpoints != null)
@@ -345,7 +345,7 @@ namespace Ice
             }
             else
             {
-                Reference? r = _table.GetObjectReference(reference.GetIdentity(), ttl, out cached);
+                Reference? r = _table.GetObjectReference(reference.Identity, ttl, out cached);
                 if (!cached)
                 {
                     if (_background && r != null)
@@ -360,13 +360,13 @@ namespace Ice
                 }
 
                 Debug.Assert(r != null);
-                if (!r.IsIndirect())
+                if (!r.IsIndirect)
                 {
-                    endpoints = r.GetEndpoints();
+                    endpoints = r.Endpoints;
                 }
-                else if (!r.IsWellKnown())
+                else if (!r.IsWellKnown)
                 {
-                    if (reference.GetCommunicator().TraceLevels.Location >= 1)
+                    if (reference.Communicator.TraceLevels.Location >= 1)
                     {
                         Trace("found adapter for well-known object in locator cache", reference, r);
                     }
@@ -376,7 +376,7 @@ namespace Ice
             }
 
             Debug.Assert(endpoints != null);
-            if (reference.GetCommunicator().TraceLevels.Location >= 1)
+            if (reference.Communicator.TraceLevels.Location >= 1)
             {
                 GetEndpointsTrace(reference, endpoints, true);
             }
@@ -388,31 +388,31 @@ namespace Ice
 
         internal void ClearCache(Reference rf)
         {
-            Debug.Assert(rf.IsIndirect());
-            if (!rf.IsWellKnown())
+            Debug.Assert(rf.IsIndirect);
+            if (!rf.IsWellKnown)
             {
-                Endpoint[]? endpoints = _table.RemoveAdapterEndpoints(rf.GetAdapterId());
+                Endpoint[]? endpoints = _table.RemoveAdapterEndpoints(rf.AdapterId);
 
-                if (endpoints != null && rf.GetCommunicator().TraceLevels.Location >= 2)
+                if (endpoints != null && rf.Communicator.TraceLevels.Location >= 2)
                 {
                     Trace("removed endpoints for adapter from locator cache", rf, endpoints);
                 }
             }
             else
             {
-                Reference? r = _table.RemoveObjectReference(rf.GetIdentity());
+                Reference? r = _table.RemoveObjectReference(rf.Identity);
                 if (r != null)
                 {
-                    if (!r.IsIndirect())
+                    if (!r.IsIndirect)
                     {
-                        if (rf.GetCommunicator().TraceLevels.Location >= 2)
+                        if (rf.Communicator.TraceLevels.Location >= 2)
                         {
-                            Trace("removed endpoints for well-known object from locator cache", rf, r.GetEndpoints());
+                            Trace("removed endpoints for well-known object from locator cache", rf, r.Endpoints);
                         }
                     }
-                    else if (!r.IsWellKnown())
+                    else if (!r.IsWellKnown)
                     {
-                        if (rf.GetCommunicator().TraceLevels.Location >= 2)
+                        if (rf.Communicator.TraceLevels.Location >= 2)
                         {
                             Trace("removed adapter for well-known object from locator cache", rf, r);
                         }
@@ -426,9 +426,9 @@ namespace Ice
         {
             var s = new System.Text.StringBuilder();
             s.Append(msg + "\n");
-            if (r.GetAdapterId().Length > 0)
+            if (r.AdapterId.Length > 0)
             {
-                s.Append("adapter = " + r.GetAdapterId() + "\n");
+                s.Append("adapter = " + r.AdapterId + "\n");
             }
             else
             {
@@ -446,12 +446,12 @@ namespace Ice
                 }
             }
 
-            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.LocationCat, s.ToString());
+            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
         }
 
         private void Trace(string msg, Reference r, Reference resolved)
         {
-            Debug.Assert(r.IsWellKnown());
+            Debug.Assert(r.IsWellKnown);
 
             var s = new System.Text.StringBuilder();
             s.Append(msg);
@@ -460,9 +460,9 @@ namespace Ice
             s.Append(r.ToString());
             s.Append("\n");
             s.Append("adapter = ");
-            s.Append(resolved.GetAdapterId());
+            s.Append(resolved.AdapterId);
 
-            r.GetCommunicator().Logger.Trace(r.GetCommunicator().TraceLevels.LocationCat, s.ToString());
+            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
         }
 
         private void GetEndpointsTrace(Reference reference, Endpoint[]? endpoints, bool cached)
@@ -471,7 +471,7 @@ namespace Ice
             {
                 if (cached)
                 {
-                    if (reference.IsWellKnown())
+                    if (reference.IsWellKnown)
                     {
                         Trace("found endpoints for well-known proxy in locator cache", reference, endpoints);
                     }
@@ -482,7 +482,7 @@ namespace Ice
                 }
                 else
                 {
-                    if (reference.IsWellKnown())
+                    if (reference.IsWellKnown)
                     {
                         Trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
                               reference, endpoints);
@@ -496,13 +496,13 @@ namespace Ice
             }
             else
             {
-                Communicator communicator = reference.GetCommunicator();
+                Communicator communicator = reference.Communicator;
                 var s = new System.Text.StringBuilder();
                 s.Append("no endpoints configured for ");
-                if (reference.GetAdapterId().Length > 0)
+                if (reference.AdapterId.Length > 0)
                 {
                     s.Append("adapter\n");
-                    s.Append("adapter = " + reference.GetAdapterId());
+                    s.Append("adapter = " + reference.AdapterId);
                 }
                 else
                 {
@@ -515,33 +515,33 @@ namespace Ice
 
         private Request GetAdapterRequest(Reference reference)
         {
-            if (reference.GetCommunicator().TraceLevels.Location >= 1)
+            if (reference.Communicator.TraceLevels.Location >= 1)
             {
-                Communicator communicator = reference.GetCommunicator();
+                Communicator communicator = reference.Communicator;
                 var s = new System.Text.StringBuilder();
                 s.Append("searching for adapter by id\nadapter = ");
-                s.Append(reference.GetAdapterId());
+                s.Append(reference.AdapterId);
                 communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
 
             lock (this)
             {
-                if (_adapterRequests.TryGetValue(reference.GetAdapterId(), out Request request))
+                if (_adapterRequests.TryGetValue(reference.AdapterId, out Request request))
                 {
                     return request;
                 }
 
                 request = new AdapterRequest(this, reference);
-                _adapterRequests.Add(reference.GetAdapterId(), request);
+                _adapterRequests.Add(reference.AdapterId, request);
                 return request;
             }
         }
 
         private Request GetObjectRequest(Reference reference)
         {
-            if (reference.GetCommunicator().TraceLevels.Location >= 1)
+            if (reference.Communicator.TraceLevels.Location >= 1)
             {
-                Communicator communicator = reference.GetCommunicator();
+                Communicator communicator = reference.Communicator;
                 var s = new System.Text.StringBuilder();
                 s.Append("searching for well-known object\nwell-known proxy = ");
                 s.Append(reference.ToString());
@@ -550,13 +550,13 @@ namespace Ice
 
             lock (this)
             {
-                if (_objectRequests.TryGetValue(reference.GetIdentity(), out Request request))
+                if (_objectRequests.TryGetValue(reference.Identity, out Request request))
                 {
                     return request;
                 }
 
                 request = new ObjectRequest(this, reference);
-                _objectRequests.Add(reference.GetIdentity(), request);
+                _objectRequests.Add(reference.Identity, request);
                 return request;
             }
         }
@@ -564,7 +564,7 @@ namespace Ice
         private void
         FinishRequest(Reference reference, List<Reference> wellKnownRefs, IObjectPrx? proxy, bool notRegistered)
         {
-            if (proxy == null || proxy.IceReference.IsIndirect())
+            if (proxy == null || proxy.IceReference.IsIndirect)
             {
                 //
                 // Remove the cached references of well-known objects for which we tried
@@ -572,44 +572,44 @@ namespace Ice
                 //
                 foreach (Reference r in wellKnownRefs)
                 {
-                    _table.RemoveObjectReference(r.GetIdentity());
+                    _table.RemoveObjectReference(r.Identity);
                 }
             }
 
-            if (!reference.IsWellKnown())
+            if (!reference.IsWellKnown)
             {
-                if (proxy != null && !proxy.IceReference.IsIndirect())
+                if (proxy != null && !proxy.IceReference.IsIndirect)
                 {
                     // Cache the adapter endpoints.
-                    _table.AddAdapterEndpoints(reference.GetAdapterId(), proxy.IceReference.GetEndpoints());
+                    _table.AddAdapterEndpoints(reference.AdapterId, proxy.IceReference.Endpoints);
                 }
                 else if (notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
                 {
-                    _table.RemoveAdapterEndpoints(reference.GetAdapterId());
+                    _table.RemoveAdapterEndpoints(reference.AdapterId);
                 }
 
                 lock (this)
                 {
-                    Debug.Assert(_adapterRequests.ContainsKey(reference.GetAdapterId()));
-                    _adapterRequests.Remove(reference.GetAdapterId());
+                    Debug.Assert(_adapterRequests.ContainsKey(reference.AdapterId));
+                    _adapterRequests.Remove(reference.AdapterId);
                 }
             }
             else
             {
-                if (proxy != null && !proxy.IceReference.IsWellKnown())
+                if (proxy != null && !proxy.IceReference.IsWellKnown)
                 {
                     // Cache the well-known object reference.
-                    _table.AddObjectReference(reference.GetIdentity(), proxy.IceReference);
+                    _table.AddObjectReference(reference.Identity, proxy.IceReference);
                 }
                 else if (notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
                 {
-                    _table.RemoveObjectReference(reference.GetIdentity());
+                    _table.RemoveObjectReference(reference.Identity);
                 }
 
                 lock (this)
                 {
-                    Debug.Assert(_objectRequests.ContainsKey(reference.GetIdentity()));
-                    _objectRequests.Remove(reference.GetIdentity());
+                    Debug.Assert(_objectRequests.ContainsKey(reference.Identity));
+                    _objectRequests.Remove(reference.Identity);
                 }
             }
         }

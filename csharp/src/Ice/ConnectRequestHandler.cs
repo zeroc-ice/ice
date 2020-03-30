@@ -18,7 +18,7 @@ namespace IceInternal
             {
                 if (!Initialized())
                 {
-                    if (_reference.IsRequestHandlerCached)
+                    if (_reference.IsConnectionCached)
                     {
                         _referenceList ??= new List<RoutableReference>();
                         _referenceList.Add(reference);
@@ -119,7 +119,7 @@ namespace IceInternal
             //
             // If this proxy is for a non-local object, and we are using a router, then
             // add this proxy to the router info object.
-            RouterInfo? ri = _reference.GetRouterInfo();
+            RouterInfo? ri = _reference.RouterInfo;
             if (ri != null && !ri.AddProxy(IObjectPrx.Factory(_reference), this))
             {
                 return; // The request handler will be initialized once addProxy returns.
@@ -147,7 +147,7 @@ namespace IceInternal
             //
             try
             {
-                _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
+                _reference.Communicator.RemoveConnectRequestHandler(_reference, this);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -251,7 +251,7 @@ namespace IceInternal
                     exception = ex.InnerException;
 
                     // Remove the request handler before retrying.
-                    _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
+                    _reference.Communicator.RemoveConnectRequestHandler(_reference, this);
 
                     outAsync.RetryException();
                 }
@@ -272,7 +272,7 @@ namespace IceInternal
             // request handler to use the more efficient connection request
             // handler.
             //
-            if (_reference.IsRequestHandlerCached && exception == null)
+            if (_reference.IsConnectionCached && exception == null)
             {
                 _requestHandler = new ConnectionRequestHandler(_connection, _compress);
                 if (_referenceList != null)
@@ -295,7 +295,7 @@ namespace IceInternal
                 // Only remove once all the requests are flushed to
                 // guarantee serialization.
                 //
-                _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
+                _reference.Communicator.RemoveConnectRequestHandler(_reference, this);
 
                 _referenceList = null;
                 Monitor.PulseAll(this);

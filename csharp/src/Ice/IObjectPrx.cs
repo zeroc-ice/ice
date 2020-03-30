@@ -48,7 +48,7 @@ namespace Ice
         /// Returns the communicator that created this proxy.
         /// </summary>
         /// <returns>The communicator that created this proxy.</returns>
-        public Communicator Communicator => IceReference.GetCommunicator();
+        public Communicator Communicator => IceReference.Communicator;
 
         /// <summary>
         /// Convert a proxy to a set of proxy properties.
@@ -181,118 +181,118 @@ namespace Ice
         /// Returns the identity embedded in this proxy.
         /// <returns>The identity of the target object.</returns>
         /// </summary>
-        public Identity Identity => IceReference.GetIdentity();
+        public Identity Identity => IceReference.Identity;
 
         /// <summary>Returns the context of this proxy.</summary>
-        public IReadOnlyDictionary<string, string> Context => IceReference.GetContext();
+        public IReadOnlyDictionary<string, string> Context => IceReference.Context;
 
         /// <summary>
         /// Returns the facet for this proxy.
         /// </summary>
         /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
         /// empty string.</returns>
-        public string Facet => IceReference.GetFacet();
+        public string Facet => IceReference.Facet;
 
         /// <summary>
         /// Returns the adapter ID for this proxy.
         /// </summary>
         /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
         /// empty string.</returns>
-        public string AdapterId => IceReference.GetAdapterId();
+        public string AdapterId => IceReference.AdapterId;
 
         /// <summary>
         /// Returns the endpoints used by this proxy.
         /// </summary>
         /// <returns>The endpoints used by this proxy.</returns>
-        public IEndpoint[] Endpoints => (IEndpoint[])IceReference.GetEndpoints().Clone();
+        public IEndpoint[] Endpoints => (IEndpoint[])IceReference.Endpoints.Clone();
 
         /// <summary>
         /// Returns the locator cache timeout of this proxy.
         /// </summary>
         /// <returns>The locator cache timeout value (in seconds).</returns>
-        public int LocatorCacheTimeout => IceReference.GetLocatorCacheTimeout();
+        public int LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>
         /// Returns the invocation timeout of this proxy.
         /// </summary>
         /// <returns>The invocation timeout value (in seconds).</returns>
-        public int InvocationTimeout => IceReference.GetInvocationTimeout();
+        public int InvocationTimeout => IceReference.InvocationTimeout;
 
         /// <summary>
         /// Returns whether this proxy caches connections.
         /// </summary>
         /// <returns>True if this proxy caches connections; false, otherwise.</returns>
-        public bool IsConnectionCached => IceReference.IsRequestHandlerCached;
+        public bool IsConnectionCached => IceReference.IsConnectionCached;
 
         /// <summary>
         /// Returns how this proxy selects endpoints (randomly or ordered).
         /// </summary>
         /// <returns>The endpoint selection policy.</returns>
-        public EndpointSelectionType EndpointSelection => IceReference.GetEndpointSelection();
+        public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
 
         /// <summary>
         /// Returns whether this proxy communicates only via secure endpoints.
         /// </summary>
         /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
-        public bool IsSecure => IceReference.GetSecure();
+        public bool IsSecure => IceReference.IsSecure;
 
         /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
         /// <returns>The encoding version.</returns>
-        public Encoding Encoding => IceReference.GetEncoding();
+        public Encoding Encoding => IceReference.Encoding;
 
         /// <summary>
         /// Returns whether this proxy prefers secure endpoints.
         /// </summary>
         /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
         /// attempts to use insecure endpoints; false, otherwise.</returns>
-        public bool IsPreferSecure => IceReference.GetPreferSecure();
+        public bool IsPreferSecure => IceReference.IsPreferSecure;
 
         /// <summary>
         /// Returns the router for this proxy.
         /// </summary>
         /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
         /// is null.</returns>
-        public IRouterPrx? Router => IceReference.GetRouterInfo()?.Router;
+        public IRouterPrx? Router => IceReference.RouterInfo?.Router;
 
         /// <summary>
         /// Returns the locator for this proxy.
         /// </summary>
         /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
-        public ILocatorPrx? Locator => IceReference.GetLocatorInfo()?.Locator;
+        public ILocatorPrx? Locator => IceReference.LocatorInfo?.Locator;
 
         /// <summary>
         /// Returns whether this proxy uses collocation optimization.
         /// </summary>
         /// <returns>True if the proxy uses collocation optimization; false, otherwise.</returns>
-        public bool IsCollocationOptimized => IceReference.GetCollocationOptimized();
+        public bool IsCollocationOptimized => IceReference.IsCollocationOptimized;
 
         /// <summary>Returns whether or not an operation invoked on this proxy returns a response.</summary>
         /// <returns>True if invoking an operation on this proxy does not return a response. This corresponds to
         /// several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. Otherwise,
         /// returns false.</returns>
-        public bool IsOneway => IceReference.GetMode() != InvocationMode.Twoway;
+        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
 
-        public InvocationMode InvocationMode => IceReference.GetMode();
+        public InvocationMode InvocationMode => IceReference.InvocationMode;
 
         /// <summary>
         /// Obtains the compression override setting of this proxy.
         /// </summary>
         /// <returns>The compression override setting. If no optional value is present, no override is
         /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-        public bool? Compress => IceReference.GetCompress();
+        public bool? Compress => IceReference.Compress;
 
         /// <summary>
         /// Obtains the timeout override of this proxy.
         /// </summary>
         /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
         /// returns the timeout override value.</returns>
-        public int? ConnectionTimeout => IceReference.GetTimeout();
+        public int? ConnectionTimeout => IceReference.ConnectionTimeout;
 
         /// <summary>
         /// Returns the connection id of this proxy.
         /// </summary>
         /// <returns>The connection id.</returns>
-        public string ConnectionId => IceReference.GetConnectionId();
+        public string ConnectionId => IceReference.ConnectionId;
 
         /// <summary>
         /// Returns whether this proxy is a fixed proxy.
@@ -332,11 +332,11 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream os)
         {
-            IceReference.GetIdentity().IceWrite(os);
+            Identity.IceWrite(os);
             IceReference.StreamWrite(os);
         }
 
-        public TaskScheduler Scheduler => IceReference.GetThreadPool();
+        public TaskScheduler Scheduler => IceReference.ThreadPool;
 
         public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
         {
@@ -396,7 +396,7 @@ namespace Ice
             {
                 try
                 {
-                    return IceReference.GetCommunicator().CheckRetryAfterException(ex, IceReference, ref cnt);
+                    return IceReference.Communicator.CheckRetryAfterException(ex, IceReference, ref cnt);
                 }
                 catch (CommunicatorDestroyedException)
                 {

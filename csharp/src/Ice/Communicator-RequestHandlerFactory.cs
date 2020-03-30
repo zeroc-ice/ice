@@ -11,7 +11,7 @@ namespace Ice
     {
         internal IRequestHandler GetRequestHandler(RoutableReference rf)
         {
-            if (rf.GetCollocationOptimized())
+            if (rf.IsCollocationOptimized)
             {
                 ObjectAdapter? adapter = FindObjectAdapter(rf);
                 if (adapter != null)
@@ -22,7 +22,7 @@ namespace Ice
 
             bool connect = false;
             ConnectRequestHandler handler;
-            if (rf.IsRequestHandlerCached)
+            if (rf.IsConnectionCached)
             {
                 lock (_handlers)
                 {
@@ -49,7 +49,7 @@ namespace Ice
 
         internal void RemoveConnectRequestHandler(RoutableReference rf, ConnectRequestHandler handler)
         {
-            if (rf.IsRequestHandlerCached)
+            if (rf.IsConnectionCached)
             {
                 lock (_handlers)
                 {

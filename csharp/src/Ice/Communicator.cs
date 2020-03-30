@@ -1647,8 +1647,8 @@ namespace Ice
         {
             ILogger logger = Logger;
 
-            if (reference.GetMode() == InvocationMode.BatchOneway ||
-                reference.GetMode() == InvocationMode.BatchDatagram)
+            if (reference.InvocationMode == InvocationMode.BatchOneway ||
+                reference.InvocationMode == InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // batch no longer implemented anyway
                 throw ex;
@@ -1665,7 +1665,7 @@ namespace Ice
 
             if (ex is ObjectNotExistException one)
             {
-                RouterInfo? ri = reference.GetRouterInfo();
+                RouterInfo? ri = reference.RouterInfo;
                 if (ri != null && one.Operation.Equals("ice_add_proxy"))
                 {
                     //
@@ -1685,16 +1685,16 @@ namespace Ice
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
-                else if (reference.IsIndirect())
+                else if (reference.IsIndirect)
                 {
                     //
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
 
-                    if (reference.IsWellKnown())
+                    if (reference.IsWellKnown)
                     {
-                        reference.GetLocatorInfo()?.ClearCache(reference);
+                        reference.LocatorInfo?.ClearCache(reference);
                     }
                 }
                 else
@@ -1779,7 +1779,7 @@ namespace Ice
 
         internal Reference CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
         {
-            return CreateReference(ident, facet, tmpl.GetMode(), tmpl.GetSecure(), tmpl.GetProtocol(), tmpl.GetEncoding(),
+            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.IsSecure, tmpl.Protocol, tmpl.Encoding,
                           endpoints, null, null);
         }
 
@@ -1788,7 +1788,7 @@ namespace Ice
             //
             // Create new reference
             //
-            return CreateReference(ident, facet, tmpl.GetMode(), tmpl.GetSecure(), tmpl.GetProtocol(), tmpl.GetEncoding(),
+            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.IsSecure, tmpl.Protocol, tmpl.Encoding,
                           Array.Empty<Endpoint>(), adapterId, null);
         }
 
@@ -2175,7 +2175,7 @@ namespace Ice
             LocatorInfo? locatorInfo = null;
             if (_defaultLocator != null)
             {
-                if (!_defaultLocator.IceReference.GetEncoding().Equals(encoding))
+                if (!_defaultLocator.IceReference.Encoding.Equals(encoding))
                 {
                     locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encoding: encoding));
                 }
@@ -2214,7 +2214,7 @@ namespace Ice
                 ILocatorPrx? locator = GetPropertyAsProxy(property, ILocatorPrx.Factory);
                 if (locator != null)
                 {
-                    if (!locator.IceReference.GetEncoding().Equals(encoding))
+                    if (!locator.IceReference.Encoding.Equals(encoding))
                     {
                         locatorInfo = GetLocatorInfo(locator.Clone(encoding: encoding));
                     }

@@ -17,8 +17,8 @@ namespace IceInternal
             _reference = @ref;
             _adapter = adapter;
 
-            _logger = _reference.GetCommunicator().Logger; // Cached for better performance.
-            _traceLevels = _reference.GetCommunicator().TraceLevels; // Cached for better performance.
+            _logger = _reference.Communicator.Logger; // Cached for better performance.
+            _traceLevels = _reference.Communicator.TraceLevels; // Cached for better performance.
             _requestId = 0;
         }
 
@@ -97,7 +97,7 @@ namespace IceInternal
             }
 
             outAsync.AttachCollocatedObserver(_adapter, requestId);
-            if (!synchronous || outAsync.IsOneway || _reference.GetInvocationTimeout() > 0)
+            if (!synchronous || outAsync.IsOneway || _reference.InvocationTimeout > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
                 // TODO: why is oneway included in this list?

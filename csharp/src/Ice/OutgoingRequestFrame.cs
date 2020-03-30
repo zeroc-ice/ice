@@ -164,7 +164,7 @@ namespace Ice
         {
             Encoding = proxy.Encoding;
             Data = new List<ArraySegment<byte>>();
-            proxy.IceReference.GetProtocol().CheckSupported();
+            proxy.IceReference.Protocol.CheckSupported();
 
             Identity = proxy.Identity;
             Facet = proxy.Facet;

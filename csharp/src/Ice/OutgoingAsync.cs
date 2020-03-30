@@ -471,7 +471,7 @@ namespace IceInternal
             {
                 if (userThread)
                 {
-                    int invocationTimeout = Proxy.IceReference.GetInvocationTimeout();
+                    int invocationTimeout = Proxy.IceReference.InvocationTimeout;
                     if (invocationTimeout > 0)
                     {
                         Communicator.Timer().Schedule(this, invocationTimeout);
@@ -556,7 +556,7 @@ namespace IceInternal
             _sent = true;
             if (done)
             {
-                if (Proxy.IceReference.GetInvocationTimeout() != -1)
+                if (Proxy.IceReference.InvocationTimeout != -1)
                 {
                     Communicator.Timer().Cancel(this);
                 }
@@ -565,7 +565,7 @@ namespace IceInternal
         }
         protected override bool ExceptionImpl(System.Exception ex)
         {
-            if (Proxy.IceReference.GetInvocationTimeout() != -1)
+            if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);
             }
@@ -574,7 +574,7 @@ namespace IceInternal
 
         protected override bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
-            if (Proxy.IceReference.GetInvocationTimeout() != -1)
+            if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);
             }
@@ -739,7 +739,7 @@ namespace IceInternal
         public override int InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if (IsOneway || Proxy.IceReference.GetInvocationTimeout() != -1)
+            if (IsOneway || Proxy.IceReference.InvocationTimeout != -1)
             {
                 // Disable caching by marking the streams as cached!
                 State |= StateCachedBuffers;
@@ -749,7 +749,7 @@ namespace IceInternal
 
         public new void Abort(System.Exception ex)
         {
-            Ice.InvocationMode mode = Proxy.IceReference.GetMode();
+            Ice.InvocationMode mode = Proxy.IceReference.InvocationMode;
 
             Debug.Assert(mode != Ice.InvocationMode.BatchOneway &&
                          mode != Ice.InvocationMode.BatchDatagram); // not implemented
@@ -767,7 +767,7 @@ namespace IceInternal
         protected void Invoke(bool synchronous)
         {
             Synchronous = synchronous;
-            Ice.InvocationMode mode = Proxy.IceReference.GetMode();
+            Ice.InvocationMode mode = Proxy.IceReference.InvocationMode;
             if (mode == Ice.InvocationMode.BatchOneway || mode == Ice.InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // not implemented
@@ -796,14 +796,14 @@ namespace IceInternal
         {
             try
             {
-                Proxy.IceReference.GetProtocol().CheckSupported();
+                Proxy.IceReference.Protocol.CheckSupported();
 
                 IsIdempotent = idempotent;
                 IsOneway = oneway;
                 context ??= ProxyAndCurrentContext();
                 Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
 
-                switch (Proxy.IceReference.GetMode())
+                switch (Proxy.IceReference.InvocationMode)
                 {
                     case InvocationMode.BatchOneway:
                     case InvocationMode.BatchDatagram:
