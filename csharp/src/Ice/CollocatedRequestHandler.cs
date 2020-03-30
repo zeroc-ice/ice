@@ -64,8 +64,6 @@ namespace IceInternal
             }
         }
 
-        public Reference GetReference() => _reference;
-
         public Ice.Connection? GetConnection() => null;
 
         public int InvokeAsyncRequest(OutgoingAsync outAsync, bool synchronous)

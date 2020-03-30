@@ -11,13 +11,18 @@ namespace IceInternal
 {
     public class ConnectRequestHandler : IRequestHandler, Reference.IGetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        public IRequestHandler Connect(Ice.IObjectPrx proxy)
+        public IRequestHandler Connect(RoutableReference reference)
         {
+            Debug.Assert(reference == _reference); // not ReferenceEquals, see Communicator.GetRequestHandler
             lock (this)
             {
                 if (!Initialized())
                 {
-                    _proxies.Add(proxy);
+                    if (_reference.IsRequestHandlerCached)
+                    {
+                        _referenceList ??= new List<RoutableReference>();
+                        _referenceList.Add(reference);
+                    }
                 }
                 return _requestHandler;
             }
@@ -77,15 +82,13 @@ namespace IceInternal
             _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
-        public Reference GetReference() => _reference;
-
         public Ice.Connection? GetConnection()
         {
             lock (this)
             {
                 //
                 // First check for the connection, it's important otherwise the user could first get a connection
-                // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+                // and then the exception if he tries to obtain the proxy cached connection multiple times (the
                 // exception can be set after the connection is set if the flush of pending requests fails).
                 //
                 if (_connection != null)
@@ -116,10 +119,8 @@ namespace IceInternal
             //
             // If this proxy is for a non-local object, and we are using a router, then
             // add this proxy to the router info object.
-            //
-            Debug.Assert(_proxy != null);
             RouterInfo? ri = _reference.GetRouterInfo();
-            if (ri != null && !ri.AddProxy(_proxy, this))
+            if (ri != null && !ri.AddProxy(IObjectPrx.Factory(_reference), this))
             {
                 return; // The request handler will be initialized once addProxy returns.
             }
@@ -146,7 +147,7 @@ namespace IceInternal
             //
             try
             {
-                _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
+                _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -165,8 +166,7 @@ namespace IceInternal
             lock (this)
             {
                 _flushing = false;
-                _proxies.Clear();
-                _proxy = null; // Break cyclic reference count.
+                _referenceList = null;
                 Monitor.PulseAll(this);
             }
         }
@@ -179,10 +179,9 @@ namespace IceInternal
         //
         public void addedProxy() => FlushRequests();
 
-        public ConnectRequestHandler(Reference @ref, Ice.IObjectPrx proxy)
+        public ConnectRequestHandler(RoutableReference routableReference)
         {
-            _reference = @ref;
-            _proxy = proxy;
+            _reference = routableReference;
             _initialized = false;
             _flushing = false;
             _requestHandler = this;
@@ -252,7 +251,7 @@ namespace IceInternal
                     exception = ex.InnerException;
 
                     // Remove the request handler before retrying.
-                    _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
+                    _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
 
                     outAsync.RetryException();
                 }
@@ -273,12 +272,15 @@ namespace IceInternal
             // request handler to use the more efficient connection request
             // handler.
             //
-            if (_reference.GetCacheConnection() && exception == null)
+            if (_reference.IsRequestHandlerCached && exception == null)
             {
-                _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-                foreach (Ice.IObjectPrx prx in _proxies)
+                _requestHandler = new ConnectionRequestHandler(_connection, _compress);
+                if (_referenceList != null)
                 {
-                    prx.IceUpdateRequestHandler(this, _requestHandler);
+                    foreach (var reference in _referenceList)
+                    {
+                        reference.UpdateRequestHandler(this, _requestHandler);
+                    }
                 }
             }
 
@@ -293,18 +295,17 @@ namespace IceInternal
                 // Only remove once all the requests are flushed to
                 // guarantee serialization.
                 //
-                _reference.GetCommunicator().RemoveRequestHandler(_reference, this);
+                _reference.GetCommunicator().RemoveConnectRequestHandler(_reference, this);
 
-                _proxies.Clear();
-                _proxy = null; // Break cyclic reference count.
+                _referenceList = null;
                 Monitor.PulseAll(this);
             }
         }
 
-        private readonly Reference _reference;
+        private readonly RoutableReference _reference;
 
-        private IObjectPrx? _proxy;
-        private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
+        // References to update upon initialization
+        private List<RoutableReference>? _referenceList;
 
         private Connection? _connection;
         private bool _compress;

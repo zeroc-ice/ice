@@ -9,26 +9,26 @@ namespace Ice
 {
     public sealed partial class Communicator
     {
-        internal IRequestHandler GetRequestHandler(RoutableReference rf, IObjectPrx proxy)
+        internal IRequestHandler GetRequestHandler(RoutableReference rf)
         {
             if (rf.GetCollocationOptimized())
             {
-                ObjectAdapter? adapter = FindObjectAdapter(proxy);
+                ObjectAdapter? adapter = FindObjectAdapter(rf);
                 if (adapter != null)
                 {
-                    return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
+                    return rf.SetRequestHandler(new CollocatedRequestHandler(rf, adapter));
                 }
             }
 
             bool connect = false;
             ConnectRequestHandler handler;
-            if (rf.GetCacheConnection())
+            if (rf.IsRequestHandlerCached)
             {
                 lock (_handlers)
                 {
                     if (!_handlers.TryGetValue(rf, out handler))
                     {
-                        handler = new ConnectRequestHandler(rf, proxy);
+                        handler = new ConnectRequestHandler(rf);
                         _handlers.Add(rf, handler);
                         connect = true;
                     }
@@ -36,7 +36,7 @@ namespace Ice
             }
             else
             {
-                handler = new ConnectRequestHandler(rf, proxy);
+                handler = new ConnectRequestHandler(rf);
                 connect = true;
             }
 
@@ -44,12 +44,12 @@ namespace Ice
             {
                 rf.GetConnection(handler);
             }
-            return proxy.IceSetRequestHandler(handler.Connect(proxy));
+            return rf.SetRequestHandler(handler.Connect(rf));
         }
 
-        internal void RemoveRequestHandler(Reference rf, IRequestHandler handler)
+        internal void RemoveConnectRequestHandler(RoutableReference rf, ConnectRequestHandler handler)
         {
-            if (rf.GetCacheConnection())
+            if (rf.IsRequestHandlerCached)
             {
                 lock (_handlers)
                 {
@@ -61,7 +61,7 @@ namespace Ice
             }
         }
 
-        private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
-            new Dictionary<Reference, ConnectRequestHandler>();
+        private readonly Dictionary<RoutableReference, ConnectRequestHandler> _handlers =
+            new Dictionary<RoutableReference, ConnectRequestHandler>();
     }
 }

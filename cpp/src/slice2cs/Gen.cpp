@@ -2268,9 +2268,8 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         _out << "new ";
     }
-    _out << name << " UncheckedCast("
-         << getUnqualified("Ice.IObjectPrx", ns) << " prx) =>  "
-         << "new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
+    _out << name << " UncheckedCast(" << getUnqualified("Ice.IObjectPrx", ns) << " prx) => new _" << p->name()
+        << "Prx(prx.IceReference);";
 
     _out << sp;
     _out << nl << "public static ";
@@ -2286,7 +2285,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "if(prx.IceIsA(global::Ice.TypeExtensions.GetIceTypeId(typeof(" << interfaceName(p)
          << "Prx))!, context))";
     _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
+    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference);";
     _out << eb;
     _out << nl << "else";
     _out << sb;
@@ -2306,22 +2305,26 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << name;
     _out << sb;
 
-    _out << nl << "internal _" << p->name() << "Prx("
+    _out << nl << "private _" << p->name() << "Prx("
          << "global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
+         << "global::System.Runtime.Serialization.StreamingContext context)";
+    _out.inc();
+    _out << nl << ": base(info, context)";
+    _out.dec();
     _out << sb;
     _out << eb;
 
     _out << sp;
-    _out << nl << "internal _" << p->name() << "Prx("
-         << "IceInternal.Reference reference, "
-         << "IceInternal.IRequestHandler? requestHandler = null) : base(reference, requestHandler)";
+    _out << nl << "internal _" << p->name() << "Prx(global::IceInternal.Reference reference)";
+    _out.inc();
+    _out << nl << ": base(reference)";
+    _out.dec();
     _out << sb;
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override " << getUnqualified("Ice.IObjectPrx", ns)
-         << " Clone(global::IceInternal.Reference reference) => new _" << p->name() << "Prx(reference);";
+    _out << nl << getUnqualified("Ice.IObjectPrx", ns) << " " << getUnqualified("Ice.IObjectPrx", ns)
+        << ".IceClone(global::IceInternal.Reference reference) => new _" << p->name() << "Prx(reference);";
 
     _out << eb;
 }

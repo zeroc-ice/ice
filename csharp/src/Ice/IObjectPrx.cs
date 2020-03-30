@@ -30,14 +30,19 @@ namespace Ice
     /// </summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
-        public Reference IceReference { get; }
-
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx?> IceReader = (istr) => istr.ReadProxy(Factory);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
-        public IRequestHandler? RequestHandler { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Reference IceReference { get; }
 
-        public IObjectPrx Clone(Reference reference);
+        // IceClone is re-implemented by all generated proxy classes
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected IObjectPrx IceClone(Reference reference) => new ObjectPrx(reference);
+        internal IObjectPrx Clone(Reference reference) => IceClone(reference);
 
         /// <summary>
         /// Returns the communicator that created this proxy.
@@ -217,7 +222,7 @@ namespace Ice
         /// Returns whether this proxy caches connections.
         /// </summary>
         /// <returns>True if this proxy caches connections; false, otherwise.</returns>
-        public bool IsConnectionCached => IceReference.GetCacheConnection();
+        public bool IsConnectionCached => IceReference.IsRequestHandlerCached;
 
         /// <summary>
         /// Returns how this proxy selects endpoints (randomly or ordered).
@@ -371,7 +376,7 @@ namespace Ice
         public int IceHandleException(System.Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
-            IceUpdateRequestHandler(handler, null); // Clear the request handler
+            (IceReference as RoutableReference)?.UpdateRequestHandler(handler, null); // Clear the request handler
 
             // We only retry after failing with a DispatchException or a local exception.
             //
@@ -402,62 +407,6 @@ namespace Ice
             else
             {
                 throw ex; // Retry could break at-most-once semantics, don't retry.
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IRequestHandler IceGetRequestHandler()
-        {
-            if (IceReference.GetCacheConnection())
-            {
-                lock (this)
-                {
-                    if (RequestHandler != null)
-                    {
-                        return RequestHandler;
-                    }
-                }
-            }
-            return IceReference.GetRequestHandler(this);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IRequestHandler
-        IceSetRequestHandler(IRequestHandler handler)
-        {
-            if (IceReference.GetCacheConnection())
-            {
-                lock (this)
-                {
-                    if (RequestHandler == null)
-                    {
-                        RequestHandler = handler;
-                    }
-                    return RequestHandler;
-                }
-            }
-            return handler;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceUpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
-        {
-            if (IceReference.GetCacheConnection() && previous != null)
-            {
-                lock (this)
-                {
-                    if (RequestHandler != null && RequestHandler != handler)
-                    {
-                        //
-                        // Update the request handler only if "previous" is the same
-                        // as the current request handler. This is called after
-                        // connection binding by the connect request handler. We only
-                        // replace the request handler if the current handler is the
-                        // connect request handler.
-                        //
-                        RequestHandler = RequestHandler.Update(previous, handler);
-                    }
-                }
             }
         }
 
@@ -496,43 +445,20 @@ namespace Ice
             => (await task.ConfigureAwait(false)).ReadReturnValue(reader);
     }
 
-    // The base class for all proxies. It's a publically visible Ice-internal class. Applications should
-    // not use it directly.
+    // The base class for all proxies. It's a publicly visible Ice-internal class. Applications should not use it
+    // directly.
     [Serializable]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ObjectPrx : IObjectPrx, ISerializable
     {
-        public Reference IceReference { get; private set; }
-        public IRequestHandler? RequestHandler { get; set; }
-
-        public virtual IObjectPrx Clone(Reference reference) => new ObjectPrx(reference);
-
-        public ObjectPrx(Reference reference, IRequestHandler? requestHandler = null)
-        {
-            IceReference = reference ?? throw new ArgumentNullException(nameof(reference));
-            RequestHandler = requestHandler;
-        }
-
-        protected ObjectPrx(SerializationInfo info, StreamingContext context)
-        {
-            if (!(context.Context is Communicator communicator))
-            {
-                throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
-                    nameof(context));
-            }
-            IceReference = communicator.CreateReference(info.GetString("proxy"), null);
-        }
+        public Reference IceReference { get; }
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
             info.AddValue("proxy", ToString());
 
         /// <summary>Returns the stringified form of this proxy.</summary>
         /// <returns>The stringified proxy.</returns>
-        public override string ToString()
-        {
-            Debug.Assert(IceReference != null);
-            return IceReference.ToString();
-        }
+        public override string ToString() => IceReference.ToString();
 
         /// <summary>Returns a hash code for this proxy.</summary>
         /// <returns>The hash code.</returns>
@@ -544,10 +470,23 @@ namespace Ice
         /// <returns>True if this proxy is equal to other; otherwise, false.</returns>
         public override bool Equals(object? other) => Equals(other as IObjectPrx);
 
+        // Implements IEquatable<IObjectPrx>:
         /// <summary>Returns whether this proxy equals the given proxy. Two proxies are equal if they are equal in all
         /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.</summary>
         /// <param name="other">The proxy to compare this proxy with.</param>
         /// <returns>True if this proxy is equal to other; otherwise, false.</returns>
         public bool Equals(IObjectPrx? other) => other != null && IceReference.Equals(other.IceReference);
+
+        protected internal ObjectPrx(Reference reference) => IceReference = reference;
+
+        protected ObjectPrx(SerializationInfo info, StreamingContext context)
+        {
+            if (!(context.Context is Communicator communicator))
+            {
+                throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
+                    nameof(context));
+            }
+            IceReference = communicator.CreateReference(info.GetString("proxy"), null);
+        }
     }
 }
