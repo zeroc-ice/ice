@@ -483,44 +483,44 @@ namespace IceInternal
 
             if (identity != null && !identity.Equals(_identity))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._identity = identity.Value;
             }
 
             if (facet != null && !facet.Equals(_facet))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._facet = facet;
             }
 
             if (compress is bool compressValue && (!OverrideCompress || compressValue != Compress))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference.Compress = compressValue;
                 reference.OverrideCompress = true;
             }
 
             if (context != null)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._context = context.Count == 0 ? EmptyContext : new Dictionary<string, string>(context);
             }
 
             if (encoding is Encoding encodingValue && encodingValue != _encoding)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._encoding = encodingValue;
             }
 
             if (invocationMode is InvocationMode invocationModeValue && invocationModeValue != _mode)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._mode = invocationModeValue;
             }
             else if (oneway is bool onewayValue && ((onewayValue && reference._mode != InvocationMode.Oneway) ||
                                                     (!onewayValue && reference._mode != InvocationMode.Twoway)))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._mode = onewayValue ? InvocationMode.Oneway : InvocationMode.Twoway;
             }
 
@@ -532,7 +532,7 @@ namespace IceInternal
                                                 nameof(invocationTimeout));
                 }
 
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._invocationTimeout = invocationTimeoutValue;
             }
             return reference;
@@ -548,7 +548,7 @@ namespace IceInternal
 
         // Creates a new clone of this unless `clone` is already a real clone (meaning "not this")
         // Returns the clone.
-        private protected T Clone<T>(T clone) where T : Reference
+        private protected T CloneIfSame<T>(T clone) where T : Reference
         {
             if (ReferenceEquals(this, clone))
             {
@@ -698,43 +698,33 @@ namespace IceInternal
                 throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
-            //
             // Check that invocation mode and connection are compatible
-            //
             if (invocationMode != null || oneway != null || fixedConnection != null)
             {
                 Connection conn = fixedConnection ?? _fixedConnection;
-                InvocationMode? mode = invocationMode;
+                InvocationMode mode = invocationMode ?? GetMode();
 
-                if (mode == null && oneway != null)
+                if ((oneway == null) && (mode == InvocationMode.Datagram))
                 {
-                    mode = oneway == true ? InvocationMode.Twoway : InvocationMode.Oneway;
-                }
-
-                if (mode == null)
-                {
-                    mode = GetMode();
-                }
-                Debug.Assert(mode != null);
-
-                switch (conn.Type())
-                {
-                    case "udp":
+                    // Make sure it's a datagram connection
+                    if (!(conn.Endpoint as Endpoint)!.Datagram())
+                    {
+                        string badParam;
+                        if (fixedConnection != null)
                         {
-                            if (mode != InvocationMode.BatchDatagram && mode != InvocationMode.Datagram)
-                            {
-                                throw new ArgumentException($"invocationMode `{mode}' requires a TCP connection");
-                            }
-                            break;
+                            badParam = nameof(fixedConnection);
                         }
-                    default:
+                        else if (invocationMode != null)
                         {
-                            if (mode == InvocationMode.BatchDatagram || mode == InvocationMode.Datagram)
-                            {
-                                throw new ArgumentException($"invocationMode `{mode}' requires an UDP connection");
-                            }
-                            break;
+                            badParam = nameof(invocationMode);
                         }
+                        else
+                        {
+                            badParam = "";
+                        }
+                        throw new ArgumentException("cannot create fixed datagram proxy using non-datagram connection",
+                            badParam);
+                    }
                 }
             }
 
@@ -750,7 +740,7 @@ namespace IceInternal
 
             if (fixedConnection != null && fixedConnection != _fixedConnection)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._fixedConnection = fixedConnection;
                 reference.Secure = fixedConnection.Endpoint.GetInfo().Secure();
             }
@@ -1066,20 +1056,20 @@ namespace IceInternal
 
             if (adapterId != null && !adapterId.Equals(_adapterId))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._adapterId = adapterId;
                 reference._endpoints = Array.Empty<Endpoint>();
             }
 
             if (collocationOptimized is bool collocationOptimizedValue && collocationOptimizedValue != _collocationOptimized)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._collocationOptimized = collocationOptimizedValue;
             }
 
             if (connectionId != null && !connectionId.Equals(_connectionId))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._connectionId = connectionId;
                 reference._endpoints = reference._endpoints.Select(e => e.ConnectionId(connectionId)).ToArray();
             }
@@ -1092,7 +1082,7 @@ namespace IceInternal
                                                 nameof(connectionTimeout));
                 }
 
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._timeout = connectionTimeoutValue;
                 reference._endpoints = reference._endpoints.Select(e => e.Timeout(connectionTimeoutValue)).ToArray();
                 reference._overrideTimeout = true;
@@ -1102,7 +1092,7 @@ namespace IceInternal
             {
                 if (_locatorInfo != null && !_locatorInfo.Locator.Encoding.Equals(encodingValue))
                 {
-                    reference = Clone(reference);
+                    reference = CloneIfSame(reference);
                     reference._locatorInfo = Communicator.GetLocatorInfo(
                         _locatorInfo.Locator.Clone(encoding: encodingValue));
                 }
@@ -1110,13 +1100,13 @@ namespace IceInternal
 
             if (endpointSelectionType is EndpointSelectionType endpointSelectionTypeValue && endpointSelectionTypeValue != _endpointSelection)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._endpointSelection = endpointSelectionTypeValue;
             }
 
             if (endpoints != null && !endpoints.SequenceEqual(_endpoints))
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._adapterId = "";
                 reference._endpoints = reference.ApplyOverrides(endpoints.Select(e => (Endpoint)e).ToArray());
             }
@@ -1126,13 +1116,13 @@ namespace IceInternal
                 LocatorInfo locatorInfo = Communicator.GetLocatorInfo(locator);
                 if (!locatorInfo.Equals(_locatorInfo))
                 {
-                    reference = Clone(reference);
+                    reference = CloneIfSame(reference);
                     reference._locatorInfo = locatorInfo;
                 }
             }
             else if (clearLocator && _locatorInfo != null)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._locatorInfo = null;
             }
 
@@ -1143,13 +1133,13 @@ namespace IceInternal
                     throw new ArgumentException($"invalid value passed to ice_locatorCacheTimeout: {locatorCacheTimeoutValue}",
                                                 nameof(locatorCacheTimeout));
                 }
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._locatorCacheTimeout = locatorCacheTimeoutValue;
             }
 
             if (preferSecure is bool preferSecureValue && preferSecureValue != _preferSecure)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._preferSecure = preferSecureValue;
             }
 
@@ -1158,19 +1148,19 @@ namespace IceInternal
                 RouterInfo routerInfo = Communicator.GetRouterInfo(router);
                 if (!routerInfo.Equals(_routerInfo))
                 {
-                    reference = Clone(reference);
+                    reference = CloneIfSame(reference);
                     reference._routerInfo = routerInfo;
                 }
             }
             else if (clearRouter && _routerInfo != null)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference._routerInfo = null;
             }
 
             if (secure is bool secureValue && secureValue != Secure)
             {
-                reference = Clone(reference);
+                reference = CloneIfSame(reference);
                 reference.Secure = secureValue;
             }
 
@@ -1179,7 +1169,7 @@ namespace IceInternal
                 // We may be changing this option
                 if (reference.IsRequestHandlerCached != connectionCachedValue)
                 {
-                    reference = Clone(reference);
+                    reference = CloneIfSame(reference);
                     reference.IsRequestHandlerCached = connectionCachedValue;
                 }
                 // else all good already
