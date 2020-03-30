@@ -38,7 +38,7 @@ namespace Ice
                 {
                     var istr = new InputStream(_communicator, Payload, 1);
                     istr.StartEncapsulation();
-                    var ret = reader(istr);
+                    T ret = reader(istr);
                     istr.EndEncapsulation();
                     return ret;
                 }
@@ -46,7 +46,7 @@ namespace Ice
                 {
                     var istr = new InputStream(_communicator, Payload, 1);
                     istr.StartEncapsulation();
-                    var ex = istr.ReadException();
+                    RemoteException ex = istr.ReadException();
                     istr.EndEncapsulation();
                     throw ex;
                 }

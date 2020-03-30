@@ -25,7 +25,7 @@ namespace Ice
         public ArraySegment<byte> Payload { get; }
 
         internal ArraySegment<byte> Data { get; private set; }
-        private Communicator _communicator;
+        private readonly Communicator _communicator;
 
         public IncomingRequestFrame(Communicator communicator, ArraySegment<byte> data)
         {

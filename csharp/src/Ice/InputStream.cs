@@ -82,11 +82,11 @@ namespace Ice
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
-        // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
+        // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
 
-        private ArraySegment<byte> _buffer;
+        private readonly ArraySegment<byte> _buffer;
         private int _pos;
 
         // Map of type ID index to type ID string.
