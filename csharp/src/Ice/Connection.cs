@@ -1128,11 +1128,8 @@ namespace Ice
                     {
                         Debug.Assert(m.OutAsync != null);
                         var outAsync = (OutgoingAsync)m.OutAsync;
-                        Debug.Assert(m.Data != null);
-                        ArraySegment<byte> data = new ArraySegment<byte>(
-                            VectoredBufferExtensions.ToArray(m.Data)).Slice(Ice1Definitions.HeaderSize + 4);
-                        var responseFrame = new IncomingResponseFrame(_communicator, data);
-                        if (outAsync.Response(responseFrame))
+                        Debug.Assert(m.ResponseFrame != null);
+                        if (outAsync.Response(m.ResponseFrame))
                         {
                             outAsync.InvokeResponse();
                         }
@@ -1322,10 +1319,8 @@ namespace Ice
                         {
                             Debug.Assert(message.OutAsync != null);
                             var outAsync = (OutgoingAsync)message.OutAsync;
-                            ArraySegment<byte> data = new ArraySegment<byte>(
-                                VectoredBufferExtensions.ToArray(message.Data)).Slice(Ice1Definitions.HeaderSize + 4);
-                            var response = new IncomingResponseFrame(_communicator, data);
-                            if (outAsync.Response(response))
+                            Debug.Assert(message.ResponseFrame != null);
+                            if (outAsync.Response(message.ResponseFrame))
                             {
                                 outAsync.InvokeResponse();
                             }
@@ -2355,6 +2350,7 @@ namespace Ice
                                 if (message != null && message.OutAsync == info.OutAsync)
                                 {
                                     message.ReceivedReply = true;
+                                    message.ResponseFrame = response;
                                 }
                                 else if (info.OutAsync.Response(response))
                                 {
@@ -2746,6 +2742,7 @@ namespace Ice
             internal bool IsSent;
             internal bool InvokeSent;
             internal bool ReceivedReply;
+            internal IncomingResponseFrame? ResponseFrame;
         }
 
         private readonly Communicator _communicator;
