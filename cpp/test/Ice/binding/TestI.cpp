@@ -15,13 +15,8 @@ RemoteCommunicatorI::RemoteCommunicatorI() :
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<Test::RemoteObjectAdapterPrx>
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::Current& current)
-#else
-RemoteObjectAdapterPrx
-RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpts, const Current& current)
-#endif
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Protocol");
@@ -53,13 +48,8 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpt
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 RemoteCommunicatorI::deactivateObjectAdapter(shared_ptr<RemoteObjectAdapterPrx> adapter, const Current&)
-#else
-void
-RemoteCommunicatorI::deactivateObjectAdapter(const RemoteObjectAdapterPrx& adapter, const Current&)
-#endif
 {
     adapter->deactivate(); // Collocated call
 }

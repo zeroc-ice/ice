@@ -123,9 +123,6 @@ getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, Ice::Long e
 }
 
 class UpdateCallbackI :
-#ifndef ICE_CPP11_MAPPING
-        public Ice::PropertiesAdminUpdateCallback,
-#endif
 private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -447,11 +444,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
 
     ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, communicator->findAdminFacet("Properties"))->addUpdateCallback(
-#ifdef ICE_CPP11_MAPPING
         [update](const Ice::PropertyDict& changes) { update->updated(changes); }
-#else
-        update
-#endif
         );
 
     cout << "ok" << endl;
@@ -964,7 +957,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     CallbackPtr cb = new Callback();
     metrics->op();
-#ifdef ICE_CPP11_MAPPING
     try
     {
         metrics->opAsync().get();
@@ -993,10 +985,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 test(false);
             }
         });
-#else
-    metrics->end_op(metrics->begin_op());
-    metrics->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
-#endif
     cb->waitForResponse();
 
     // User exception
@@ -1009,7 +997,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
     }
 
-#ifdef ICE_CPP11_MAPPING
     try
     {
         metrics->opWithUserExceptionAsync().get();
@@ -1042,18 +1029,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 test(false);
             }
         });
-#else
-    try
-    {
-        metrics->end_opWithUserException(metrics->begin_opWithUserException());
-        test(false);
-    }
-    catch(const Test::UserEx&)
-    {
-    }
-    metrics->begin_opWithUserException(newCallback_Metrics_opWithUserException(
-                                           cb, &Callback::response, &Callback::exception));
-#endif
     cb->waitForResponse();
 
     // Request failed exception
@@ -1066,7 +1041,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
     }
 
-#ifdef ICE_CPP11_MAPPING
     try
     {
         metrics->opWithRequestFailedExceptionAsync().get();
@@ -1095,18 +1069,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 test(false);
             }
         });
-#else
-    try
-    {
-        metrics->end_opWithRequestFailedException(metrics->begin_opWithRequestFailedException());
-        test(false);
-    }
-    catch(const Ice::RequestFailedException&)
-    {
-    }
-    metrics->begin_opWithRequestFailedException(newCallback_Metrics_opWithRequestFailedException(
-                                                    cb, &Callback::response, &Callback::exception));
-#endif
     cb->waitForResponse();
 
     // Local exception
@@ -1119,7 +1081,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
     }
 
-#ifdef ICE_CPP11_MAPPING
     try
     {
         metrics->opWithLocalExceptionAsync().get();
@@ -1148,18 +1109,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 test(false);
             }
         });
-#else
-    try
-    {
-        metrics->end_opWithLocalException(metrics->begin_opWithLocalException());
-        test(false);
-    }
-    catch(const Ice::LocalException&)
-    {
-    }
-    metrics->begin_opWithLocalException(newCallback_Metrics_opWithLocalException(
-                                            cb, &Callback::response, &Callback::exception));
-#endif
     cb->waitForResponse();
 
     // Unknown exception
@@ -1172,7 +1121,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
     }
 
-#ifdef ICE_CPP11_MAPPING
     try
     {
         metrics->opWithUnknownExceptionAsync().get();
@@ -1201,18 +1149,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 test(false);
             }
         });
-#else
-    try
-    {
-        metrics->end_opWithUnknownException(metrics->begin_opWithUnknownException());
-        test(false);
-    }
-    catch(const Ice::UnknownException&)
-    {
-    }
-    metrics->begin_opWithUnknownException(newCallback_Metrics_opWithUnknownException(
-                                              cb, &Callback::response, &Callback::exception));
-#endif
     cb->waitForResponse();
 
     // Fail
@@ -1226,7 +1162,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         catch(const Ice::ConnectionLostException&)
         {
         }
-#ifdef ICE_CPP11_MAPPING
         try
         {
             metrics->failAsync().get();
@@ -1255,17 +1190,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                     test(false);
                 }
             });
-#else
-        try
-        {
-            metrics->end_fail(metrics->begin_fail());
-            test(false);
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
-        }
-        metrics->begin_fail(newCallback_Metrics_fail(cb, &Callback::response, &Callback::exception));
-#endif
         cb->waitForResponse();
     }
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
@@ -1355,7 +1279,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     MetricsPrxPtr metricsOneway = metrics->ice_oneway();
     metricsOneway->op();
-#ifdef ICE_CPP11_MAPPING
     metricsOneway->opAsync().get();
     promise<void> sent;
     metricsOneway->opAsync(
@@ -1380,10 +1303,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [&](bool) { sent.set_value(); });
     sent.get_future().get();
-#else
-    metricsOneway->end_op(metricsOneway->begin_op());
-    metricsOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception))->waitForSent();
-#endif
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
 
@@ -1405,13 +1324,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     MetricsPrxPtr metricsBatchOneway = metrics->ice_batchOneway();
     metricsBatchOneway->op();
-#ifdef ICE_CPP11_MAPPING
     metricsBatchOneway->opAsync().get();
     metricsBatchOneway->opAsync([cb]() {}, [cb](exception_ptr) {});
-#else
-    metricsBatchOneway->end_op(metricsBatchOneway->begin_op());
-    metricsBatchOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception))->waitForCompleted();
-#endif
 
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
@@ -1434,14 +1348,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     metricsBatchOneway->op();
 
     metricsBatchOneway->ice_flushBatchRequests();
-#ifdef ICE_CPP11_MAPPING
     metricsBatchOneway->ice_flushBatchRequestsAsync().get();
     metricsBatchOneway->ice_flushBatchRequestsAsync([cb](exception_ptr) {});
-#else
-    metricsBatchOneway->end_ice_flushBatchRequests(metricsBatchOneway->begin_ice_flushBatchRequests());
-    metricsBatchOneway->begin_ice_flushBatchRequests(
-                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
-#endif
 
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 2);
@@ -1463,14 +1371,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metricsBatchOneway->op();
 
         con->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
-#ifdef ICE_CPP11_MAPPING
         con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
         con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No), [cb](exception_ptr) {});
-#else
-        con->end_flushBatchRequests(con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
-        con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
-            Ice::newCallback_Connection_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
-#endif
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 3);
 
@@ -1482,16 +1384,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metricsBatchOneway->op();
 
         communicator->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
-#ifdef ICE_CPP11_MAPPING
         communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
         communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
                                               [cb](exception_ptr) {});
-#else
-        communicator->end_flushBatchRequests(
-            communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
-        communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
-            Ice::newCallback_Communicator_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
-#endif
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 2);
 

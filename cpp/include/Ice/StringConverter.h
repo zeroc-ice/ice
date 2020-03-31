@@ -26,11 +26,9 @@ typedef IceUtil::WstringConverterPtr WstringConverterPtr;
 /** Indicates an error occurred during string conversion. */
 typedef IceUtil::IllegalConversionException IllegalConversionException;
 
-#ifdef ICE_CPP11_MAPPING
 /** Base class for a string converter. */
 template<typename charT>
 using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
-#endif
 
 #ifdef _WIN32
 /**

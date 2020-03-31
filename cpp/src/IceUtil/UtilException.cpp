@@ -568,14 +568,6 @@ IceUtil::Exception::what() const ICE_NOEXCEPT
     return "";
 }
 
-#ifndef ICE_CPP11_MAPPING
-string
-IceUtil::Exception::ice_name() const
-{
-    return ice_id().substr(2);
-}
-#endif
-
 const char*
 IceUtil::Exception::ice_file() const
 {
@@ -594,13 +586,11 @@ IceUtil::Exception::ice_stackTrace() const
     return getStackTrace(_stackFrames);
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<IceUtil::Exception>
 IceUtil::Exception::ice_clone() const
 {
     return unique_ptr<Exception>(ice_cloneImpl());
 }
-#endif
 
 ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
@@ -623,14 +613,6 @@ IceUtil::NullHandleException::ice_id() const
 {
     return "::IceUtil::NullHandleException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::NullHandleException*
-IceUtil::NullHandleException::ice_clone() const
-{
-    return new NullHandleException(*this);
-}
-#endif
 
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
     ExceptionHelper<IllegalArgumentException>(file, line)
@@ -661,14 +643,6 @@ IceUtil::IllegalArgumentException::ice_id() const
 {
     return "::IceUtil::IllegalArgumentException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::IllegalArgumentException*
-IceUtil::IllegalArgumentException::ice_clone() const
-{
-    return new IllegalArgumentException(*this);
-}
-#endif
 
 string
 IceUtil::IllegalArgumentException::reason() const
@@ -711,14 +685,6 @@ IceUtil::IllegalConversionException::ice_id() const
     return "::IceUtil::IllegalConversionException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::IllegalConversionException*
-IceUtil::IllegalConversionException::ice_clone() const
-{
-    return new IllegalConversionException(*this);
-}
-#endif
-
 string
 IceUtil::IllegalConversionException::reason() const
 {
@@ -752,14 +718,6 @@ IceUtil::SyscallException::ice_id() const
 {
     return "::IceUtil::SyscallException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::SyscallException*
-IceUtil::SyscallException::ice_clone() const
-{
-    return new SyscallException(*this);
-}
-#endif
 
 int
 IceUtil::SyscallException::error() const
@@ -797,14 +755,6 @@ IceUtil::FileLockException::ice_id() const
     return "::IceUtil::FileLockException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::FileLockException*
-IceUtil::FileLockException::ice_clone() const
-{
-    return new FileLockException(*this);
-}
-#endif
-
 int
 IceUtil::FileLockException::error() const
 {
@@ -825,11 +775,3 @@ IceUtil::OptionalNotSetException::ice_id() const
 {
     return "::IceUtil::OptionalNotSetException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::OptionalNotSetException*
-IceUtil::OptionalNotSetException::ice_clone() const
-{
-    return new OptionalNotSetException(*this);
-}
-#endif

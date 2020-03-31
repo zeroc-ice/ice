@@ -13,12 +13,7 @@ namespace IceInternal
 
 class ResponseHandler;
 
-#ifdef ICE_CPP11_MAPPING
 using ResponseHandlerPtr = ::std::shared_ptr<ResponseHandler>;
-#else
-ICE_API IceUtil::Shared* upCast(ResponseHandler*);
-typedef IceInternal::Handle<ResponseHandler> ResponseHandlerPtr;
-#endif
 
 }
 

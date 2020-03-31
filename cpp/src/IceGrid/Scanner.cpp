@@ -714,7 +714,6 @@ YY_DECL
 	{
 #line 57 "src/IceGrid/Scanner.l"
 
-
 #line 718 "src/IceGrid/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
@@ -1926,7 +1925,6 @@ void yyfree (void * ptr )
 
 #line 178 "src/IceGrid/Scanner.l"
 
-
 namespace IceGrid {
 
 //
@@ -2048,4 +2046,3 @@ parseSingleQuotedString()
 }
 
 }
-

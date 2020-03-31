@@ -1376,16 +1376,12 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-#ifdef ICE_CPP11_MAPPING
     //
     // TODO: With C++14 we could use the version that receives four iterators and we don't need to explicitly
     // check the sizes are equal.
     //
     if(_endpoints.size() != rhs->_endpoints.size() ||
        !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
-#else
-    if(_endpoints != rhs->_endpoints)
-#endif
     {
         return false;
     }
@@ -1507,12 +1503,8 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     {
         return false;
     }
-#ifdef ICE_CPP11_MAPPING
     if(lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
                                Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
-#else
-    if(_endpoints < rhs->_endpoints)
-#endif
     {
         return true;
     }

@@ -44,19 +44,11 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Slice::CompilerException*
 Slice::CompilerException::ice_cloneImpl() const
 {
     return new CompilerException(*this);
 }
-#else
-Slice::CompilerException*
-Slice::CompilerException::ice_clone() const
-{
-    return new CompilerException(*this);
-}
-#endif
 
 void
 Slice::CompilerException::ice_throw() const

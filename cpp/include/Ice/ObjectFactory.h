@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -101,83 +99,6 @@ using ObjectFactoryPtr = ::std::shared_ptr<ObjectFactory>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class ObjectFactory;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(ObjectFactory*);
-/// \endcond
-typedef ::IceInternal::Handle< ObjectFactory> ObjectFactoryPtr;
-
-}
-
-namespace Ice
-{
-
-/**
- * A factory for objects. Object factories are used when receiving "objects by value".
- * An object factory must be implemented by the application writer and registered
- * with the communicator.
- *
- * @deprecated ObjectFactory has been deprecated, use ValueFactory instead.
- * \headerfile Ice/Ice.h
- */
-class ICE_API ObjectFactory : public virtual LocalObject
-{
-public:
-
-    typedef ObjectFactoryPtr PointerType;
-
-    virtual ~ObjectFactory();
-
-    /**
-     * Create a new object for a given object type. The type is the
-     * absolute Slice type id, i.e., the id relative to the
-     * unnamed top-level Slice module. For example, the absolute
-     * Slice type id for interfaces of type <code>Bar</code> in the module
-     * <code>Foo</code> is <code>"::Foo::Bar"</code>.
-     *
-     * <p class="Note">The leading "<code>::</code>" is required.
-     * @param type The object type.
-     * @return The object created for the given type, or nil if the
-     * factory is unable to create the object.
-     */
-    ICE_DEPRECATED_API("ObjectFactory has been deprecated, use ValueFactory instead.") virtual ValuePtr create(const ::std::string& type) = 0;
-
-    /**
-     * Called when the factory is removed from the communicator, or if
-     * the communicator is destroyed.
-     * @see Communicator#destroy
-     */
-    ICE_DEPRECATED_API("ObjectFactory has been deprecated, use ValueFactory instead.") virtual void destroy() = 0;
-};
-
-/// \cond INTERNAL
-inline bool operator==(const ObjectFactory& lhs, const ObjectFactory& rhs)
-{
-    return static_cast<const LocalObject&>(lhs) == static_cast<const LocalObject&>(rhs);
-}
-
-inline bool operator<(const ObjectFactory& lhs, const ObjectFactory& rhs)
-{
-    return static_cast<const LocalObject&>(lhs) < static_cast<const LocalObject&>(rhs);
-}
-/// \endcond
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

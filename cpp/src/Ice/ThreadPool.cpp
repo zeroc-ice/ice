@@ -573,15 +573,11 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
     {
         try
         {
-#    ifdef ICE_CPP11_MAPPING
             _dispatcher([workItem]()
             {
                 workItem->run();
             },
             workItem->getConnection());
-#    else
-            _dispatcher->dispatch(workItem, workItem->getConnection());
-#    endif
         }
         catch(const std::exception& ex)
         {
@@ -1195,19 +1191,11 @@ IceInternal::ThreadPool::EventHandlerThread::setState(Ice::Instrumentation::Thre
 void
 IceInternal::ThreadPool::EventHandlerThread::run()
 {
-#ifdef ICE_CPP11_MAPPING
     if(_pool->_instance->initializationData().threadStart)
-#else
-    if(_pool->_instance->initializationData().threadHook)
-#endif
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             _pool->_instance->initializationData().threadStart();
-#else
-            _pool->_instance->initializationData().threadHook->start();
-#endif
         }
         catch(const exception& ex)
         {
@@ -1238,19 +1226,11 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 
     _observer.detach();
 
-#ifdef ICE_CPP11_MAPPING
     if(_pool->_instance->initializationData().threadStop)
-#else
-    if(_pool->_instance->initializationData().threadHook)
-#endif
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             _pool->_instance->initializationData().threadStop();
-#else
-            _pool->_instance->initializationData().threadHook->stop();
-#endif
         }
         catch(const exception& ex)
         {

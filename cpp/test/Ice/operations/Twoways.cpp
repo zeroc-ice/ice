@@ -381,11 +381,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* helper, cons
         test(rso.p == 0);
         test(rso.e == ICE_ENUM(MyEnum, enum2));
         test(rso.s.s == "def");
-#ifdef ICE_CPP11_MAPPING
         test(Ice::targetEqualTo(so.p, p));
-#else
-        test(so.p == p);
-#endif
         test(so.e == ICE_ENUM(MyEnum, enum3));
         test(so.s.s == "a new string");
         so.p->opVoid();

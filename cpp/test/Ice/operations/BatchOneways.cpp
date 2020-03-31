@@ -12,9 +12,6 @@ namespace
 {
 
 class BatchRequestInterceptorI ICE_FINAL
-#ifndef ICE_CPP11_MAPPING
-    : public Ice::BatchRequestInterceptor
-#endif
 {
 public:
 
@@ -37,11 +34,7 @@ public:
 
         if(_size + request.getSize() > 25000)
         {
-#ifdef ICE_CPP11_MAPPING
             request.getProxy()->ice_flushBatchRequestsAsync();
-#else
-            request.getProxy()->begin_ice_flushBatchRequests();
-#endif
             _size = 18; // header
         }
 

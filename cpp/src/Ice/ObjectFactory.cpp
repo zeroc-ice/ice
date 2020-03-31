@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -38,24 +36,3 @@ namespace
 Ice::ObjectFactory::~ObjectFactory()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::ObjectFactory::~ObjectFactory()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(ObjectFactory* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

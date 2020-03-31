@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -38,24 +36,3 @@ namespace
 IceBT::ConnectionInfo::~ConnectionInfo()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-IceBT::ConnectionInfo::~ConnectionInfo()
-{
-}
-
-/// \cond INTERNAL
-ICEBT_API ::Ice::LocalObject* IceBT::upCast(ConnectionInfo* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

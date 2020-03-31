@@ -268,11 +268,7 @@ IceObjC::StreamEndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::StreamEndpointI::operator==(const Endpoint& r) const
-#else
-IceObjC::StreamEndpointI::operator==(const LocalObject& r) const
-#endif
 {
     if(!IPEndpointI::operator==(r))
     {
@@ -304,11 +300,7 @@ IceObjC::StreamEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::StreamEndpointI::operator<(const Endpoint& r) const
-#else
-IceObjC::StreamEndpointI::operator<(const LocalObject& r) const
-#endif
 {
     const StreamEndpointI* p = dynamic_cast<const StreamEndpointI*>(&r);
     if(!p)

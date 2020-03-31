@@ -1215,11 +1215,6 @@ void yynoreturn fatalError(const char* msg);
 #define YY_NO_INPUT 1
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
 
-
-
-
-
-
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
 #line 1225 "src/Slice/Scanner.cpp"
@@ -1509,7 +1504,6 @@ YY_DECL
 	{
 /* %% [7.0] user's declarations go here */
 #line 136 "src/Slice/Scanner.l"
-
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
@@ -3154,7 +3148,6 @@ void yyfree (void * ptr )
 
 #line 552 "src/Slice/Scanner.l"
 
-
 namespace Slice
 {
 
@@ -3395,4 +3388,3 @@ void yynoreturn fatalError(const char* msg)
 }
 
 }
-

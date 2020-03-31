@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -38,24 +36,3 @@ namespace
 Ice::ServantLocator::~ServantLocator()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::ServantLocator::~ServantLocator()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(ServantLocator* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

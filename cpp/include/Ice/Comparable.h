@@ -96,8 +96,6 @@ inline bool targetNotEqualTo(const T& lhs, const U& rhs)
     return !targetEqualTo(lhs, rhs);
 }
 
-#ifdef ICE_CPP11_MAPPING
-
 /**
  * Functor class that compares the contents of two smart pointers of the given type using the given comparator.
  * \headerfile Ice/Ice.h
@@ -197,8 +195,6 @@ bool operator!=(const C& lhs, const C& rhs)
 {
    return lhs.ice_tuple() != rhs.ice_tuple();
 }
-
-#endif
 
 }
 

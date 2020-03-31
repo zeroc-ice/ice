@@ -32,8 +32,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -42,24 +40,3 @@ namespace
 Ice::Communicator::~Communicator()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::Communicator::~Communicator()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(Communicator* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

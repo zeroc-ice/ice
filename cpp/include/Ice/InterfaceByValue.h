@@ -9,8 +9,6 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 
-#ifdef ICE_CPP11_MAPPING
-
 namespace Ice
 {
 
@@ -51,7 +49,5 @@ public:
 };
 
 }
-
-#endif
 
 #endif

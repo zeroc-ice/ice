@@ -10,11 +10,7 @@
 #include <IceSSL/ConnectionInfoF.h>
 #include <IceSSL/EndpointInfo.h>
 
-#ifdef ICE_CPP11_MAPPING
 #   include <chrono>
-#else
-#   include <IceUtil/Time.h>
-#endif
 
 #include <vector>
 #include <list>
@@ -48,14 +44,6 @@ public:
 
     virtual std::string ice_id() const;
 
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Creates a shallow copy of this exception.
-     * @return The new exception instance.
-     */
-    virtual CertificateReadException* ice_clone() const;
-#endif
-
     /** The reason for the exception. */
     std::string reason;
 
@@ -80,14 +68,6 @@ public:
 
     virtual std::string ice_id() const;
 
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Creates a shallow copy of this exception.
-     * @return The new exception instance.
-     */
-    virtual CertificateEncodingException* ice_clone() const;
-#endif
-
     /** The reason for the exception. */
     std::string reason;
 
@@ -111,14 +91,6 @@ public:
 #endif
 
     virtual std::string ice_id() const;
-
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Creates a shallow copy of this exception.
-     * @return The new exception instance.
-     */
-    virtual ParseException* ice_clone() const;
-#endif
 
     /** The reason for the exception. */
     std::string reason;
@@ -246,9 +218,6 @@ operator!=(const DistinguishedName& lhs, const DistinguishedName& rhs)
  * \headerfile IceSSL/IceSSL.h
  */
 class ICESSL_API X509Extension
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -281,11 +250,7 @@ ICE_DEFINE_PTR(CertificatePtr, Certificate);
  * \headerfile IceSSL/IceSSL.h
  */
 class ICESSL_API Certificate :
-#ifdef ICE_CPP11_MAPPING
     public std::enable_shared_from_this<Certificate>
-#else
-    public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -338,31 +303,19 @@ public:
      * @param t The target time.
      * @return True if the certificate is valid, false otherwise.
      */
-#ifdef ICE_CPP11_MAPPING
     virtual bool checkValidity(const std::chrono::system_clock::time_point& t) const = 0;
-#else
-    virtual bool checkValidity(const IceUtil::Time& t) const = 0;
-#endif
 
     /**
      * Obtains the not-after validity time.
      * @return The time after which this certificate is invalid.
      */
-#ifdef ICE_CPP11_MAPPING
     virtual std::chrono::system_clock::time_point getNotAfter() const = 0;
-#else
-    virtual IceUtil::Time getNotAfter() const = 0;
-#endif
 
     /**
      * Obtains the not-before validity time.
      * @return The time at which this certificate is valid.
      */
-#ifdef ICE_CPP11_MAPPING
     virtual std::chrono::system_clock::time_point getNotBefore() const = 0;
-#else
-    virtual IceUtil::Time getNotBefore() const = 0;
-#endif
 
     /**
      * Obtains the serial number. This is an arbitrarily large number.
@@ -461,61 +414,6 @@ public:
     static CertificatePtr decode(const std::string& str);
 };
 
-#ifndef ICE_CPP11_MAPPING // C++98 mapping
-
-/**
- * An application can customize the certificate verification process
- * by implementing the CertificateVerifier interface.
- * \headerfile IceSSL/IceSSL.h
- */
-class ICESSL_API CertificateVerifier : public IceUtil::Shared
-{
-public:
-
-    virtual ~CertificateVerifier();
-
-    /**
-     * Determines whether to accept a certificate.
-     * @param info Information about the connection.
-     * @return False if the connection should be rejected, or true to allow it.
-     */
-    virtual bool verify(const ConnectionInfoPtr& info) = 0;
-};
-typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
-
-/**
- * In order to read an encrypted file, such as one containing a
- * private key, OpenSSL requests a password from IceSSL. The password
- * can be defined using an IceSSL configuration property, but a
- * plain-text password is a security risk. If a password is not
- * supplied via configuration, IceSSL allows OpenSSL to prompt the
- * user interactively. This may not be desirable (or even possible),
- * so the application can supply an implementation of PasswordPrompt
- * to take responsibility for obtaining the password.
- *
- * Note that the password is needed during plug-in initialization, so
- * in general you will need to delay initialization (by defining
- * IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
- * initialize the plug-in.
- * \headerfile IceSSL/IceSSL.h
- */
-class ICESSL_API PasswordPrompt : public IceUtil::Shared
-{
-public:
-
-    virtual ~PasswordPrompt();
-
-    /**
-     * Obtains the password. This method may be invoked repeatedly, such as when
-     * several encrypted files are opened, or when multiple password
-     * attempts are allowed.
-     * @return The clear-text password.
-     */
-    virtual std::string getPassword() = 0;
-};
-typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
-#endif
-
 /**
  * Represents the IceSSL plug-in object.
  * \headerfile IceSSL/IceSSL.h
@@ -531,22 +429,14 @@ public:
      * before any connections are established.
      * @param v The verifier.
      */
-#ifdef ICE_CPP11_MAPPING
     virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v) = 0;
-#else
-    virtual void setCertificateVerifier(const CertificateVerifierPtr& v) = 0;
-#endif
 
     /**
      * Establish the password prompt object. This must be done before
      * the plug-in is initialized.
      * @param p The password prompt.
      */
-#ifdef ICE_CPP11_MAPPING
     virtual void setPasswordPrompt(std::function<std::string()> p) = 0;
-#else
-    virtual void setPasswordPrompt(const PasswordPromptPtr& p) = 0;
-#endif
 
     /**
      * Load the certificate from a file. The certificate must use the

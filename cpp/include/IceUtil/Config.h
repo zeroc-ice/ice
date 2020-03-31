@@ -317,7 +317,6 @@ typedef long long Int64;
 //
 // Macros to facilitate C++98 -> C++11 transition
 //
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 #   include <memory>
 #   include <future>
 #   define ICE_HANDLE ::std::shared_ptr
@@ -337,24 +336,5 @@ typedef long long Int64;
 #   define ICE_DELEGATE(T) T
 #   define ICE_IN(...) __VA_ARGS__
 #   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
-#else // C++98 mapping
-#   define ICE_HANDLE ::IceUtil::Handle
-#   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
-#   define ICE_PROXY_HANDLE ::IceInternal::ProxyHandle
-#   define ICE_MAKE_SHARED(T, ...) new T(__VA_ARGS__)
-#   define ICE_DEFINE_PTR(TPtr, T) typedef ::IceUtil::Handle<T> TPtr
-#   define ICE_ENUM(CLASS,ENUMERATOR) ENUMERATOR
-#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS##ENUMERATOR
-#   define ICE_NULLPTR 0
-#   define ICE_DYNAMIC_CAST(T,V) T##Ptr::dynamicCast(V)
-#   define ICE_SHARED_FROM_THIS this
-#   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)
-#   define ICE_GET_SHARED_FROM_THIS(p) p
-#   define ICE_CHECKED_CAST(T, ...) T::checkedCast(__VA_ARGS__)
-#   define ICE_UNCHECKED_CAST(T, ...) T::uncheckedCast(__VA_ARGS__)
-#   define ICE_DELEGATE(T) T##Ptr
-#   define ICE_IN(...) const __VA_ARGS__&
-#   define ICE_SET_EXCEPTION_FROM_CLONE(T, V) T.reset(V)
-#endif
 
 #endif

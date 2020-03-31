@@ -323,7 +323,6 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(++count == locator->getRequestCount());
     int i;
 
-#ifdef ICE_CPP11_MAPPING
     list<future<void>>  results;
     for(i = 0; i < 1000; i++)
     {
@@ -387,48 +386,6 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         cout << "queuing = " << locator->getRequestCount() - count;
     }
-#else
-    list<Ice::AsyncResultPtr>  results;
-    AMICallbackPtr cb = new AMICallback;
-    for(i = 0; i < 1000; i++)
-    {
-        Ice::AsyncResultPtr result = hello->begin_sayHello(
-            newCallback_Hello_sayHello(cb, &AMICallback::response1, &AMICallback::exception1));
-        results.push_back(result);
-    }
-    while(!results.empty())
-    {
-        Ice::AsyncResultPtr result = results.front();
-        results.pop_front();
-        result->waitForCompleted();
-    }
-
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
-    if(locator->getRequestCount() > count + 800)
-    {
-        cout << "queuing = " << locator->getRequestCount() - count;
-    }
-    count = locator->getRequestCount();
-    hello = hello->ice_adapterId("unknown");
-    for(i = 0; i < 1000; i++)
-    {
-        Ice::AsyncResultPtr result = hello->begin_sayHello(
-            newCallback_Hello_sayHello(cb, &AMICallback::response2, &AMICallback::exception2));
-        results.push_back(result);
-    }
-    while(!results.empty())
-    {
-        Ice::AsyncResultPtr result = results.front();
-        results.pop_front();
-        result->waitForCompleted();
-    }
-    // Take into account the retries.
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
-    if(locator->getRequestCount() > count + 800)
-    {
-        cout << "queuing = " << locator->getRequestCount() - count;
-    }
-#endif
     cout << "ok" << endl;
 
     cout << "testing adapter locator cache... " << flush;

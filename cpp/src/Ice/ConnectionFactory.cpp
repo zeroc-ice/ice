@@ -41,14 +41,9 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
-#endif
-
 namespace
 {
 
-#ifdef ICE_CPP11_MAPPING
 template <typename Map> void
 remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
 {
@@ -79,45 +74,8 @@ find(const Map& m, const typename Map::key_type& k, Predicate predicate)
     return nullptr;
 }
 
-#else
-template <typename K, typename V> void
-remove(multimap<K, V>& m, K k, V v)
-{
-    pair<typename multimap<K, V>::iterator, typename multimap<K, V>::iterator> pr = m.equal_range(k);
-    assert(pr.first != pr.second);
-    for(typename multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
-    {
-        if(q->second.get() == v.get())
-        {
-            m.erase(q);
-            return;
-        }
-    }
-    assert(false); // Nothing was removed which is an error.
-}
-
-template <typename K, typename V> ::IceInternal::Handle<V>
-find(const multimap<K,::IceInternal::Handle<V> >& m,
-     K k,
-     const ::IceUtilInternal::ConstMemFun<bool, V, ::IceInternal::Handle<V> >& predicate)
-{
-    pair<typename multimap<K, ::IceInternal::Handle<V> >::const_iterator,
-         typename multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
-    for(typename multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
-    {
-        if(predicate(q->second))
-        {
-            return q->second;
-        }
-    }
-    return IceInternal::Handle<V>();
-}
-#endif
-
 class StartAcceptor : public IceUtil::TimerTask
-#ifdef ICE_CPP11_MAPPING
                     , public std::enable_shared_from_this<StartAcceptor>
-#endif
 {
 public:
 
@@ -301,11 +259,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         return;
     }
 
-#ifdef ICE_CPP11_MAPPING
     auto cb = make_shared<ConnectCallback>(_instance, this, endpoints, hasMore, callback, selType);
-#else
-    ConnectCallbackPtr cb = new ConnectCallback(_instance, this, endpoints, hasMore, callback, selType);
-#endif
     cb->getConnectors();
 }
 
@@ -463,15 +417,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
     assert(!endpoints.empty());
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-#ifdef ICE_CPP11_MAPPING
         auto connection = find(_connectionsByEndpoint, *p,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
                                });
-#else
-        ConnectionIPtr connection = find(_connectionsByEndpoint, *p, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -501,15 +451,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             continue;
         }
 
-#ifdef ICE_CPP11_MAPPING
         auto connection = find(_connections, p->connector,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
                                });
-#else
-        ConnectionIPtr connection = find(_connections, p->connector, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)

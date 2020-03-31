@@ -11,7 +11,6 @@ class MetricsI : public Test::Metrics
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual void opAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
     virtual void failAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
@@ -30,22 +29,6 @@ public:
 
     virtual void opByteSAsync(Test::ByteSeq, std::function<void()>, std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
-#else
-    virtual void op_async(const Test::AMD_Metrics_opPtr&, const Ice::Current&);
-
-    virtual void fail_async(const Test::AMD_Metrics_failPtr&, const Ice::Current&);
-
-    virtual void opWithUserException_async(const Test::AMD_Metrics_opWithUserExceptionPtr&, const Ice::Current&);
-
-    virtual void opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr&,
-                                                    const Ice::Current&);
-
-    virtual void opWithLocalException_async(const Test::AMD_Metrics_opWithLocalExceptionPtr&, const Ice::Current&);
-
-    virtual void opWithUnknownException_async(const Test::AMD_Metrics_opWithUnknownExceptionPtr&, const Ice::Current&);
-
-    virtual void opByteS_async(const Test::AMD_Metrics_opByteSPtr&, const Test::ByteSeq&, const Ice::Current&);
-#endif
 
     virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
 

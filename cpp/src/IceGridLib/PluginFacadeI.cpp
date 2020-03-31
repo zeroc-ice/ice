@@ -13,11 +13,7 @@ using namespace IceGrid;
 namespace
 {
 
-#ifdef ICE_CPP11_MAPPING
 std::shared_ptr<RegistryPluginFacade> pluginFacade;
-#else
-RegistryPluginFacade* pluginFacade = 0;
-#endif
 }
 
 namespace IceGrid
@@ -36,17 +32,5 @@ IceGrid::getRegistryPluginFacade()
 void
 IceGrid::setRegistryPluginFacade(const RegistryPluginFacadePtr& facade)
 {
-#ifdef ICE_CPP11_MAPPING
     pluginFacade = facade;
-#else
-    if(pluginFacade)
-    {
-        pluginFacade->__decRef();
-    }
-    pluginFacade = facade.get();
-    if(pluginFacade)
-    {
-        pluginFacade->__incRef();
-    }
-#endif
 }

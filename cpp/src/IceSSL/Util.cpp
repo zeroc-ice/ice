@@ -45,7 +45,6 @@ IceSSL::fromCFString(CFStringRef v)
 
 #endif
 
-#ifdef ICE_CPP11_MAPPING
 IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v) :
     _verify(std::move(v))
 {
@@ -67,7 +66,6 @@ IceSSL::PasswordPrompt::getPassword()
 {
     return _prompt();
 }
-#endif
 
 bool
 IceSSL::parseBytes(const string& arg, vector<unsigned char>& buffer)

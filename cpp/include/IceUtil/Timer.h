@@ -24,9 +24,6 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 // code at a specific time or repeatedly.
 //
 class ICE_API TimerTask
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 

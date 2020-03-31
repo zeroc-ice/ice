@@ -14,9 +14,6 @@ namespace
 {
 
 class Callback
-#ifndef ICE_CPP11_MAPPING
-    : public IceUtil::Shared
-#endif
 {
 public:
 
@@ -128,7 +125,6 @@ allTests(Test::TestHelper* helper)
         p->op();
 
         CallbackPtr cb = ICE_MAKE_SHARED(Callback);
-#ifdef ICE_CPP11_MAPPING
         p->opAsync(
             [cb]()
             {
@@ -230,42 +226,6 @@ allTests(Test::TestHelper* helper)
         {
             c->get_future().get();
         }
-#else
-        Test::Callback_TestIntf_opPtr callback = Test::newCallback_TestIntf_op(cb,
-                                                                               &Callback::response,
-                                                                               &Callback::exception);
-        p->begin_op(callback);
-        cb->check();
-
-        Test::TestIntfPrx i = p->ice_adapterId("dummy");
-        i->begin_op(callback);
-        cb->check();
-
-        {
-            //
-            // Expect InvocationTimeoutException.
-            //
-            Test::TestIntfPrx to = p->ice_invocationTimeout(10);
-            to->begin_sleep(500, Test::newCallback_TestIntf_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
-            cb->check();
-        }
-
-        testController->holdAdapter();
-
-        Test::Callback_TestIntf_opWithPayloadPtr callback2 =
-            Test::newCallback_TestIntf_opWithPayload(cb, &Callback::payload, &Callback::ignoreEx, &Callback::sent);
-
-        Ice::ByteSeq seq;
-        seq.resize(1024); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-        {
-            *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-        }
-        Ice::AsyncResultPtr result;
-        while((result = p->begin_opWithPayload(seq, callback2))->sentSynchronously());
-        testController->resumeAdapter();
-        result->waitForCompleted();
-#endif
     }
     cout << "ok" << endl;
 

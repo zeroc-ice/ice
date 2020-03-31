@@ -16,17 +16,10 @@ public:
 };
 
 class Cookie
-#ifndef  ICE_CPP11_MAPPING
-    : public Ice::LocalObject
-#endif // ! ICE_CPP11_MAPPING
 {
 public:
     virtual ~Cookie();
     virtual std::string message() const;
 };
-
-#ifndef  ICE_CPP11_MAPPING
-typedef IceUtil::Handle<Cookie> CookiePtr;
-#endif // ! ICE_CPP11_MAPPING
 
 #endif

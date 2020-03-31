@@ -22,8 +22,6 @@
 #ifndef ICE_OPTIONAL_H
 #define ICE_OPTIONAL_H
 
-#ifdef ICE_CPP11_MAPPING
-
 # include <utility>
 # include <type_traits>
 # include <initializer_list>
@@ -1104,11 +1102,5 @@ template<class T> using Optional = std::experimental::Ice::optional<T>;
 constexpr std::experimental::Ice::nullopt_t None{std::experimental::Ice::nullopt_t::init()};
 
 }
-
-#else // C++98 mapping
-
-#   include <IceUtil/Optional.h>
-
-#endif
 
 #endif

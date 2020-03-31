@@ -53,11 +53,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     }
     if(connect)
     {
-#ifdef ICE_CPP11_MAPPING
         ref->getConnection(handler);
-#else
-        ref->getConnection(handler.get());
-#endif
     }
     return proxy->_setRequestHandler(handler->connect(proxy));
 }

@@ -36,7 +36,6 @@ private:
     Test::MA::ICPrxPtr _ic;
 };
 
-#ifdef ICE_CPP11_MAPPING
 class CAI_ : public virtual Test::MA::CADisp
 {
 public:
@@ -93,62 +92,5 @@ public:
 
     virtual std::shared_ptr<Test::MA::CDPrx> cdop(std::shared_ptr<Test::MA::CDPrx>, const Ice::Current&);
 };
-#else
-class CAI_ : public virtual Test::MA::CA
-{
-public:
-
-    virtual Test::MA::CAPrx caop(const Test::MA::CAPrx&, const Ice::Current&);
-};
-
-class CBI : public virtual Test::MB::CB, public virtual CAI_
-{
-public:
-
-    virtual Test::MB::CBPrx cbop(const Test::MB::CBPrx&, const Ice::Current&);
-};
-
-class CCI : public virtual Test::MA::CC, public virtual CBI
-{
-public:
-
-    virtual Test::MA::CCPrx ccop(const Test::MA::CCPrx&, const Ice::Current&);
-};
-
-class IAI : public virtual Test::MA::IA
-{
-public:
-
-    virtual Test::MA::IAPrx iaop(const Test::MA::IAPrx&, const Ice::Current&);
-};
-
-class IB1I : public virtual Test::MB::IB1, public virtual IAI
-{
-public:
-
-    virtual Test::MB::IB1Prx ib1op(const Test::MB::IB1Prx&, const Ice::Current&);
-};
-
-class IB2I : public virtual Test::MB::IB2, public virtual IAI
-{
-public:
-
-    virtual Test::MB::IB2Prx ib2op(const Test::MB::IB2Prx&, const Ice::Current&);
-};
-
-class ICI : public virtual Test::MA::IC, public virtual IB1I, public virtual IB2I
-{
-public:
-
-    virtual Test::MA::ICPrx icop(const Test::MA::ICPrx&, const Ice::Current&);
-};
-
-class CDI : public virtual Test::MA::CD, public virtual CCI, public virtual IB1I, public virtual IB2I
-{
-public:
-
-    virtual Test::MA::CDPrx cdop(const Test::MA::CDPrx&, const Ice::Current&);
-};
-#endif
 
 #endif

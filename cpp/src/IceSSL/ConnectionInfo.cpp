@@ -12,11 +12,3 @@
 IceSSL::ConnectionInfo::~ConnectionInfo()
 {
 }
-
-#ifndef ICE_CPP11_MAPPING
-
-/// \cond INTERNAL
-ICESSL_API ::Ice::LocalObject* IceSSL::upCast(ConnectionInfo* p) { return p; }
-/// \endcond
-
-#endif

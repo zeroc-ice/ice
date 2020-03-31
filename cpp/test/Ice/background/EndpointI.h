@@ -13,9 +13,7 @@ class EndpointI;
 ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
 
 class EndpointI : public IceInternal::EndpointI
-#ifdef ICE_CPP11_MAPPING
                 , public std::enable_shared_from_this<EndpointI>
-#endif
 {
 public:
 
@@ -46,13 +44,8 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
-#else
-    virtual bool operator==(const Ice::LocalObject&) const;
-    virtual bool operator<(const Ice::LocalObject&) const;
-#endif
 
     virtual int hash() const;
     virtual std::string options() const;

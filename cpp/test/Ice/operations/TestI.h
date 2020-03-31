@@ -19,11 +19,7 @@ public:
     virtual bool ice_isA(ICE_IN(std::string), const Ice::Current&) const;
     virtual void ice_ping(const Ice::Current&) const;
     virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual std::string ice_id(const Ice::Current&) const;
-#else
-    virtual const std::string& ice_id(const Ice::Current&) const;
-#endif
 
     virtual void shutdown(const Ice::Current&);
 
@@ -296,7 +292,6 @@ public:
 
     virtual Test::WStringS opWStringLiterals(const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual OpMStruct1MarshaledResult opMStruct1(const Ice::Current&);
 
     virtual OpMStruct2MarshaledResult opMStruct2(ICE_IN(Test::Structure), const Ice::Current&);
@@ -308,19 +303,6 @@ public:
     virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
 
     virtual OpMDict2MarshaledResult opMDict2(ICE_IN(Test::StringStringD), const Ice::Current&);
-#else
-    virtual Test::Structure opMStruct1(const Ice::Current&);
-
-    virtual Test::Structure opMStruct2(ICE_IN(Test::Structure), Test::Structure&, const Ice::Current&);
-
-    virtual Test::StringS opMSeq1(const Ice::Current&);
-
-    virtual Test::StringS opMSeq2(ICE_IN(Test::StringS), Test::StringS&, const Ice::Current&);
-
-    virtual Test::StringStringD opMDict1(const Ice::Current&);
-
-    virtual Test::StringStringD opMDict2(ICE_IN(Test::StringStringD), Test::StringStringD&, const Ice::Current&);
-#endif
 
 private:
 
@@ -328,11 +310,7 @@ private:
     int _opByteSOnewayCallCount;
 };
 
-#ifdef ICE_CPP11_MAPPING
 class BI : public M::BDisp
-#else
-class BI : public M::B
-#endif
 {
 public:
 

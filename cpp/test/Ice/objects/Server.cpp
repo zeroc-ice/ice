@@ -9,7 +9,6 @@
 using namespace std;
 using namespace Test;
 
-#ifdef ICE_CPP11_MAPPING
 template<typename T>
 function<shared_ptr<T>(string)> makeFactory()
 {
@@ -18,32 +17,6 @@ function<shared_ptr<T>(string)> makeFactory()
             return make_shared<T>();
         };
 }
-#else
-class MyValueFactory : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ObjectPtr create(const string& type)
-    {
-        if(type == "::Test::I")
-        {
-            return new II;
-        }
-        else if(type == "::Test::J")
-        {
-            return new JI;
-        }
-        else if(type == "::Test::H")
-        {
-            return new HI;
-        }
-
-        assert(false); // Should never be reached
-        return 0;
-    }
-
-};
-#endif
 
 class Server : public Test::TestHelper
 {
@@ -60,16 +33,9 @@ Server::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-#ifdef ICE_CPP11_MAPPING
     communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
     communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
     communicator->getValueFactoryManager()->add(makeFactory<HI>(), "::Test::H");
-#else
-    Ice::ValueFactoryPtr factory = new MyValueFactory;
-    communicator->getValueFactoryManager()->add(factory, "::Test::I");
-    communicator->getValueFactoryManager()->add(factory, "::Test::J");
-    communicator->getValueFactoryManager()->add(factory, "::Test::H");
-#endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

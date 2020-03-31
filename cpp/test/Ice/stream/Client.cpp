@@ -15,11 +15,7 @@ using namespace Test;
 using namespace Test::Sub;
 using namespace Test2::Sub2;
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
-#else
-class TestObjectWriter : public Ice::Object
-#endif
 {
 public:
 
@@ -45,11 +41,7 @@ public:
 };
 ICE_DEFINE_PTR(TestObjectWriterPtr, TestObjectWriter);
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
-#else
-class TestObjectReader : public Ice::Object
-#endif
 {
 public:
 
@@ -76,7 +68,6 @@ public:
 ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
 
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
-#ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 template<class S>
@@ -100,32 +91,7 @@ struct StreamReader<TestObjectReader, S>
     static void read(S*, TestObjectReader&) { assert(false); }
 };
 }
-#endif
 
-#ifndef ICE_CPP11_MAPPING
-class TestValueFactory : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ObjectPtr
-#ifndef NDEBUG
-    create(const string& type)
-#else
-    create(const string&)
-#endif
-    {
-        assert(type == MyClass::ice_staticId());
-        return new TestObjectReader;
-    }
-
-    virtual void
-    destroy()
-    {
-    }
-};
-#endif
-
-#ifdef ICE_CPP11_MAPPING
 void
 patchObject(void* addr, const Ice::ValuePtr& v)
 {
@@ -133,17 +99,7 @@ patchObject(void* addr, const Ice::ValuePtr& v)
     assert(p);
     *p = v;
 }
-#else
-void
-patchObject(void* addr, const Ice::ObjectPtr& v)
-{
-    Ice::ObjectPtr* p = static_cast<Ice::ObjectPtr*>(addr);
-    assert(p);
-    *p = v;
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 class MyClassFactoryWrapper
 {
 public:
@@ -170,74 +126,15 @@ public:
 
     function<Ice::ValuePtr(const string&)> _factory;
 };
-#else
-class MyClassFactoryWrapper : public Ice::ValueFactory
-{
-public:
-
-    MyClassFactoryWrapper()
-    {
-        clear();
-    }
-
-    virtual Ice::ObjectPtr create(const string& type)
-    {
-        return _factory->create(type);
-    }
-
-    virtual void destroy()
-    {
-    }
-
-    void setFactory(const Ice::ValueFactoryPtr& factory)
-    {
-        _factory = factory;
-    }
-
-    void clear()
-    {
-        _factory = MyClass::ice_factory();
-    }
-
-private:
-
-    Ice::ValueFactoryPtr _factory;
-};
-typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
-#endif
-
-#ifndef ICE_CPP11_MAPPING
-class MyInterfaceFactory : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ObjectPtr
-    create(const string&)
-    {
-        return new MyInterface;
-    }
-
-    virtual void
-    destroy()
-    {
-    }
-};
-#endif
 
 void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-#ifdef ICE_CPP11_MAPPING
     MyClassFactoryWrapper factoryWrapper;
     function<Ice::ValuePtr(const string&)> f =
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
-#else
-    MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
-    communicator->getValueFactoryManager()->add(factoryWrapper, MyClass::ice_staticId());
-    communicator->getValueFactoryManager()->add(new MyInterfaceFactory, MyInterface::ice_staticId());
-#endif
 
     vector<Ice::Byte> data;
 
@@ -396,27 +293,11 @@ allTests(Test::TestHelper* helper)
         SmallStruct s2;
         in.read(s2);
 
-#ifdef ICE_CPP11_MAPPING
         test(targetEqualTo(s2.p, s.p));
         s2.p = s.p; // otherwise the s2 == s below will fail
-#endif
 
         test(s2 == s);
     }
-
-#ifndef ICE_CPP11_MAPPING
-    {
-        Ice::OutputStream out(communicator);
-        ClassStructPtr s = new ClassStruct();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        ClassStructPtr s2 = new ClassStruct();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
 
     {
         Ice::OutputStream out(communicator);
@@ -760,10 +641,8 @@ allTests(Test::TestHelper* helper)
 
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
-#ifdef ICE_CPP11_MAPPING
             test(targetEqualTo(arr[j].p, arr2[j].p));
             arr2[j].p = arr[j].p;
-#endif
             test(arr[j] == arr2[j]);
         }
 
@@ -779,10 +658,6 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in2(communicator, data);
         SmallStructSS arr2S;
         in2.read(arr2S);
-#ifndef ICE_CPP11_MAPPING
-        // With C++11, we need targetEqualTo to compare proxies
-        test(arr2S == arrS);
-#endif
     }
 
     {
@@ -839,12 +714,6 @@ allTests(Test::TestHelper* helper)
             c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
             c->d["hi"] = c;
-#ifndef ICE_CPP11_MAPPING
-            //
-            // No GC support in C++11.
-            //
-            c->ice_collectable(true);
-#endif
             arr.push_back(c);
         }
         Ice::OutputStream out(communicator);
@@ -853,9 +722,6 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         MyClassS arr2;
         in.read(arr2);
         in.readPendingValues();
@@ -889,9 +755,6 @@ allTests(Test::TestHelper* helper)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in2.setCollectObjects(true);
-#endif
         MyClassSS arr2S;
         in2.read(arr2S);
         in2.readPendingValues();
@@ -919,7 +782,6 @@ allTests(Test::TestHelper* helper)
             }
         }
 
-#ifdef ICE_CPP11_MAPPING
         auto clearS = [](MyClassS& arr3) {
             for(MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
@@ -941,38 +803,15 @@ allTests(Test::TestHelper* helper)
         clearS(arr2);
         clearSS(arrS);
         clearSS(arr2S);
-#endif
     }
-
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for interfaces-as-values in C++11.
-    //
-    {
-        MyInterfacePtr i = new MyInterface();
-        Ice::OutputStream out(communicator);
-        out.write(i);
-        out.writePendingValues();
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        i = 0;
-        in.read(i);
-        in.readPendingValues();
-        test(i);
-    }
-#endif
 
     {
         Ice::OutputStream out(communicator);
         MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
         obj->s.e = ICE_ENUM(MyEnum, enum2);
         TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
-#ifdef ICE_CPP11_MAPPING
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
-#else
-        out.write(Ice::ObjectPtr(writer));
-#endif
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
@@ -983,26 +822,14 @@ allTests(Test::TestHelper* helper)
         MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
         obj->s.e = ICE_ENUM(MyEnum, enum2);
         TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
-#ifdef ICE_CPP11_MAPPING
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
-#else
-        out.write(Ice::ObjectPtr(writer));
-#endif
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-#ifdef ICE_CPP11_MAPPING
         factoryWrapper.setFactory([](const string&) { return ICE_MAKE_SHARED(TestObjectReader); });
-#else
-        factoryWrapper->setFactory(new TestValueFactory);
-#endif
         Ice::InputStream in(communicator, data);
-#ifdef ICE_CPP11_MAPPING
         Ice::ValuePtr p;
-#else
-        Ice::ObjectPtr p;
-#endif
         in.read(&patchObject, &p);
         in.readPendingValues();
         test(p);
@@ -1011,11 +838,7 @@ allTests(Test::TestHelper* helper)
         test(reader->called);
         test(reader->obj);
         test(reader->obj->s.e == ICE_ENUM(MyEnum, enum2));
-#ifdef ICE_CPP11_MAPPING
         factoryWrapper.clear();
-#else
-        factoryWrapper->clear();
-#endif
     }
 
     {
@@ -1071,20 +894,11 @@ allTests(Test::TestHelper* helper)
         c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
         ex.c = c;
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No GC support in C++11.
-        //
-        ex.c->ice_collectable(true);
-#endif
 
         out.write(ex);
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         try
         {
             in.throwException();
@@ -1103,15 +917,11 @@ allTests(Test::TestHelper* helper)
             test(ex1.c->seq8 == c->seq8);
             test(ex1.c->seq9 == c->seq9);
 
-#ifdef ICE_CPP11_MAPPING
             ex1.c->c = nullptr;
             ex1.c->o = nullptr;
-#endif
         }
-#ifdef ICE_CPP11_MAPPING
         c->c = nullptr;
         c->o = nullptr;
-#endif
     }
 
     {
@@ -1215,23 +1025,6 @@ allTests(Test::TestHelper* helper)
         test(s2 == s);
     }
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for struct-as-class in C++11.
-    //
-    {
-        Ice::OutputStream out(communicator);
-        NestedClassStructPtr s = new NestedClassStruct();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        NestedClassStructPtr s2 = new NestedClassStruct();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
-
     {
         Ice::OutputStream out(communicator);
         NestedException ex;
@@ -1281,23 +1074,6 @@ allTests(Test::TestHelper* helper)
         in.read(s2);
         test(s2 == s);
     }
-
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for struct-as-class in C++11.
-    //
-    {
-        Ice::OutputStream out(communicator);
-        NestedClassStruct2Ptr s = new NestedClassStruct2();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        NestedClassStruct2Ptr s2 = new NestedClassStruct2();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
 
     {
         Ice::OutputStream out(communicator);

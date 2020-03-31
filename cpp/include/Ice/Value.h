@@ -5,8 +5,6 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 #include <Ice/ValueF.h>
 #include <Ice/SlicedDataF.h>
 
@@ -134,6 +132,5 @@ protected:
 /// \endcond
 
 }
-#endif // C++11 mapping end
 
 #endif

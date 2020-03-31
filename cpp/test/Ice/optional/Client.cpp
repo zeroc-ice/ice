@@ -20,9 +20,6 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-#ifndef ICE_CPP11_MAPPING
-    properties->setProperty("Ice.CollectObjects", "1");
-#endif
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     InitialPrxPtr allTests(Test::TestHelper*, bool);
     InitialPrxPtr initial = allTests(this, false);

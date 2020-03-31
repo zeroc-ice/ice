@@ -11,7 +11,6 @@
 using namespace IceUtil;
 using namespace std;
 
-#ifdef ICE_CPP11_MAPPING
 Test::RetryException::~RetryException()
 {
 }
@@ -22,34 +21,6 @@ Test::RetryException::ice_staticId()
     static const ::std::string typeId = "::Test::RetryException";
     return typeId;
 }
-#else
-Test::RetryException::RetryException(const char* file, int line) :
-    ::Ice::LocalException(file, line)
-{
-}
-
-Test::RetryException::~RetryException() throw()
-{
-}
-
-::std::string
-Test::RetryException::ice_id() const
-{
-    return "::Test::RetryException";
-}
-
-Test::RetryException*
-Test::RetryException::ice_clone() const
-{
-    return new RetryException(*this);
-}
-
-void
-Test::RetryException::ice_throw() const
-{
-    throw* this;
-}
-#endif
 
 void
 Test::RetryException::ice_print(ostream& out) const

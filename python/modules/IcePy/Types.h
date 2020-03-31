@@ -675,9 +675,6 @@ public:
     ~ExceptionWriter() throw();
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    virtual Ice::UserException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
     virtual void _write(Ice::OutputStream*) const;
@@ -708,9 +705,6 @@ public:
     ~ExceptionReader() throw();
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    virtual Ice::UserException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
     virtual void _write(Ice::OutputStream*) const;

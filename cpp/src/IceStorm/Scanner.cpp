@@ -712,7 +712,6 @@ YY_DECL
 	{
 #line 55 "src/IceStorm/Scanner.l"
 
-
 #line 716 "src/IceStorm/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
@@ -1951,7 +1950,6 @@ void yyfree (void * ptr )
 
 #line 203 "src/IceStorm/Scanner.l"
 
-
 namespace IceStorm {
 
 //
@@ -1978,4 +1976,3 @@ initScanner()
 }
 
 }
-

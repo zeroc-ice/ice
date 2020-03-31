@@ -20,7 +20,6 @@ InitialI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-#ifdef ICE_CPP11_MAPPING
 Test::Initial::PingPongMarshaledResult
 InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 {
@@ -32,13 +31,6 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
     }
     return result;
 }
-#else
-Ice::ValuePtr
-InitialI::pingPong(const Ice::ValuePtr& obj, const Current&)
-{
-  return obj;
-}
-#endif
 
 void
 InitialI::opOptionalException(ICE_IN(Optional<Int>) a,
@@ -271,7 +263,6 @@ InitialI::opDoubleSeq(ICE_IN(Optional<pair<const Double*, const Double*> >) p1, 
     return p3;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Ice::optional<Ice::StringSeq>
 InitialI::opStringSeq(Ice::optional<Ice::StringSeq> p1,
                       Ice::optional<Ice::StringSeq>& p3, const Current&)
@@ -282,18 +273,6 @@ InitialI::opStringSeq(Ice::optional<Ice::StringSeq> p1,
     }
     return p3;
 }
-#else
-Optional<Ice::StringSeq>
-InitialI::opStringSeq(const Optional<pair<Ice::StringSeq::const_iterator, Ice::StringSeq::const_iterator> >& p1,
-                      Optional<Ice::StringSeq>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = Ice::StringSeq(p1->first, p1->second);
-    }
-    return p3;
-}
-#endif
 
 Optional<SmallStructSeq>
 InitialI::opSmallStructSeq(ICE_IN(Optional<pair<const SmallStruct*, const SmallStruct*> >) p1,
@@ -339,7 +318,6 @@ InitialI::opFixedStructList(ICE_IN(Optional<pair<const FixedStruct*, const Fixed
     return p3;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Ice::optional<VarStructSeq>
 InitialI::opVarStructSeq(Ice::optional<VarStructSeq> p1,
                          Ice::optional<VarStructSeq>& p3, const Current&)
@@ -350,18 +328,6 @@ InitialI::opVarStructSeq(Ice::optional<VarStructSeq> p1,
     }
     return p3;
 }
-#else
-Optional<VarStructSeq>
-InitialI::opVarStructSeq(const Optional<pair<VarStructSeq::const_iterator, VarStructSeq::const_iterator> >& p1,
-                         Optional<VarStructSeq>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = VarStructSeq(p1->first, p1->second);
-    }
-    return p3;
-}
-#endif
 
 Optional<Serializable>
 InitialI::opSerializable(ICE_IN(Optional<Serializable>) p1, Optional<Serializable>& p3, const Current&)
@@ -434,7 +400,6 @@ InitialI::opVoid(const Ice::Current&)
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 InitialI::OpMStruct1MarshaledResult
 InitialI::opMStruct1(const Ice::Current& current)
 {
@@ -482,67 +447,6 @@ InitialI::opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>) p1, const Ice::Current& cu
 {
     return OpMG2MarshaledResult(p1, p1, current);
 }
-#else
-IceUtil::Optional<Test::SmallStruct>
-InitialI::opMStruct1(const Ice::Current&)
-{
-    return Test::SmallStruct();
-}
-
-IceUtil::Optional<Test::SmallStruct>
-InitialI::opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>) p1,
-                     IceUtil::Optional<Test::SmallStruct>& p2,
-                     const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-IceUtil::Optional<Test::StringSeq>
-InitialI::opMSeq1(const Ice::Current&)
-{
-    return Test::StringSeq();
-}
-
-IceUtil::Optional<Test::StringSeq>
-InitialI::opMSeq2(ICE_IN(IceUtil::Optional<Test::StringSeq>) p1,
-                  IceUtil::Optional<Test::StringSeq>& p2,
-                  const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-IceUtil::Optional<Test::StringIntDict>
-InitialI::opMDict1(const Ice::Current&)
-{
-    return Test::StringIntDict();
-}
-
-IceUtil::Optional<Test::StringIntDict>
-InitialI::opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>) p1,
-                   IceUtil::Optional<Test::StringIntDict>& p2,
-                   const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-IceUtil::Optional<Test::GPtr>
-InitialI::opMG1(const Ice::Current&)
-{
-    return ICE_MAKE_SHARED(G);
-}
-
-IceUtil::Optional<Test::GPtr>
-InitialI::opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>) p1,
-                IceUtil::Optional<Test::GPtr>& p2,
-                const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-#endif
 
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)

@@ -14,11 +14,7 @@ namespace IceUtilInternal
 //
 // Must be kept in sync with Ice::ToStringMode
 //
-#ifdef ICE_CPP11_MAPPING
 enum class ToStringMode : unsigned char
-#else
-enum ToStringMode
-#endif
 { Unicode, ASCII, Compat };
 
 //

@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -66,40 +64,6 @@ using ConnectionPtr = ::std::shared_ptr<Connection>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class ConnectionInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(ConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< ConnectionInfo> ConnectionInfoPtr;
-
-class WSConnectionInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(WSConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< WSConnectionInfo> WSConnectionInfoPtr;
-
-class Connection;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Connection*);
-/// \endcond
-typedef ::IceInternal::Handle< Connection> ConnectionPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

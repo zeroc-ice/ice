@@ -16,18 +16,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-#ifndef ICE_CPP11_MAPPING
-CertificateVerifier::~CertificateVerifier()
-{
-    // Out of line to avoid weak vtable
-}
-
-PasswordPrompt::~PasswordPrompt()
-{
-    // Out of line to avoid weak vtable
-}
-#endif
-
 IceSSL::Plugin::~Plugin()
 {
     // Out of line to avoid weak vtable
@@ -61,7 +49,6 @@ PluginI::destroy()
     _engine = 0;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL::ConnectionInfo>&)> verifier)
 {
@@ -74,15 +61,7 @@ PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL:
         _engine->setCertificateVerifier(nullptr);
     }
 }
-#else
-void
-PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
-{
-    _engine->setCertificateVerifier(verifier);
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 PluginI::setPasswordPrompt(std::function<std::string()> prompt)
 {
@@ -95,13 +74,6 @@ PluginI::setPasswordPrompt(std::function<std::string()> prompt)
          _engine->setPasswordPrompt(nullptr);
      }
 }
-#else
-void
-PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
-{
-    _engine->setPasswordPrompt(prompt);
-}
-#endif
 
 extern "C"
 {
