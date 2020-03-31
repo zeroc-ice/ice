@@ -303,7 +303,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 ostringstream ostr;
                 ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
                      << " connection:\n" << _delegate->toString() << "\n" << _engine->sslErrors();
-                throw ProtocolException(__FILE__, __LINE__, ostr.str());
+                throw SecurityException(__FILE__, __LINE__, ostr.str());
             }
             }
         }
@@ -535,7 +535,7 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_SSL:
             {
-                throw ProtocolException(__FILE__, __LINE__,
+                throw SecurityException(__FILE__, __LINE__,
                                         "SSL protocol error during write:\n" + _engine->sslErrors());
             }
             }
@@ -647,7 +647,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_SSL:
             {
-                throw ProtocolException(__FILE__, __LINE__,
+                throw SecurityException(__FILE__, __LINE__,
                                         "SSL protocol error during read:\n" + _engine->sslErrors());
             }
             }
@@ -792,7 +792,7 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
                 }
                 case SSL_ERROR_SSL:
                 {
-                    throw ProtocolException(__FILE__, __LINE__,
+                    throw SecurityException(__FILE__, __LINE__,
                                             "SSL protocol error during read:\n" + _engine->sslErrors());
                 }
             }
@@ -885,7 +885,6 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
     // Always return 1 to prevent SSL_connect/SSL_accept from
     // returning SSL_ERROR_SSL for verification failures. This ensure
     // that we can raise SecurityException for verification failures
-    // rather than a ProtocolException.
     //
     return 1;
 }

@@ -301,7 +301,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         ostringstream os;
         os << "IceSSL: ssl error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
            << _delegate->toString() << "\n" << sslErrorToString(err);
-        throw ProtocolException(__FILE__, __LINE__, os.str());
+        throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
     for(CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
@@ -416,7 +416,7 @@ IceSSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
             //
             if(err <= -9800 && err >= -9849)
             {
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during write:\n" + sslErrorToString(err));
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: error during write:\n" + sslErrorToString(err));
             }
 
             errno = err;
@@ -489,7 +489,7 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
             //
             if(err <= -9800 && err >= -9849)
             {
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + sslErrorToString(err));
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: error during read:\n" + sslErrorToString(err));
             }
 
             errno = err;
