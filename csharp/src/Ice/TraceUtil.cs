@@ -11,7 +11,7 @@ namespace IceInternal
 {
     internal sealed class TraceUtil
     {
-        internal static void TraceSend(Communicator communicator, Encoding encoding,
+        internal static void TraceSend(Communicator communicator,
             byte[] buffer, ILogger logger, TraceLevels tl)
         {
             if (tl.Protocol >= 1)

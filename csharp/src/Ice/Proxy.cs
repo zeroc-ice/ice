@@ -196,7 +196,7 @@ namespace Ice
 
         private static void IceI_getConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            var outgoing = new ProxyGetConnection(prx, completed);
+            var outgoing = new ProxyGetConnection(prx, completed, null!);
             try
             {
                 outgoing.Invoke("ice_getConnection", synchronous);
@@ -247,6 +247,8 @@ namespace Ice
             => proxy.IceInvokeAsync(request, oneway, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// two-way request.</param>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The incoming request frame.</param>
         /// <param name="progress">Sent progress provider.</param>

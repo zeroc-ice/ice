@@ -162,7 +162,9 @@ namespace Ice
                 // is preserved for reading the opaque endpoint.
                 if (e == null)
                 {
-                    e = new OpaqueEndpointI(type, encoding, istr.ReadBlob(size));
+                    byte[] data = new byte[size];
+                    istr.ReadSpan(data);
+                    e = new OpaqueEndpointI(type, encoding, data);
                 }
                 istr.EndEndpointEncapsulation();
 

@@ -397,7 +397,6 @@ namespace Ice
 
         internal int SendAsyncRequest(OutgoingAsyncBase outgoing, bool compress, bool response)
         {
-            OutgoingRequestFrame? requestFrame = outgoing.RequestFrame;
             lock (this)
             {
                 //
@@ -412,14 +411,6 @@ namespace Ice
 
                 Debug.Assert(_state > StateNotValidated);
                 Debug.Assert(_state < StateClosing);
-                //
-                // Ensure the message isn't bigger than what we can send with the
-                // transport.
-                //
-                if (requestFrame != null)
-                {
-                    _transceiver.CheckSendSize(requestFrame.Size);
-                }
 
                 //
                 // Notify the request that it's cancelable with this connection.
@@ -440,19 +431,21 @@ namespace Ice
                     }
                 }
 
-                outgoing.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId);
+                List<ArraySegment<byte>> data = outgoing.GetRequestData(requestId);
+                int size = data.GetByteCount();
+                // Ensure the message isn't bigger than what we can send with the
+                // transport.
+                _transceiver.CheckSendSize(size);
+
+                outgoing.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId,
+                    size - (Ice1Definitions.HeaderSize + 4));
 
                 int status = OutgoingAsyncBase.AsyncStatusQueued;
                 try
                 {
-                    if (requestFrame != null)
-                    {
-                        outgoing.RequestData = Ice1Definitions.GetRequestData(requestFrame, requestId);
-                    }
-                    Encoding encoding = requestFrame?.Encoding ?? _communicator.DefaultsAndOverrides.DefaultEncoding;
-                    status = SendMessage(new OutgoingMessage(outgoing, encoding, compress, requestId));
+                    status = SendMessage(new OutgoingMessage(outgoing, data, compress, requestId));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     SetState(StateClosed, ex);
                     Debug.Assert(_exception != null);
@@ -550,11 +543,12 @@ namespace Ice
                                           IOutgoingAsyncCompletionCallback completionCallback) :
                 base(communicator, completionCallback) => _connection = connection;
 
+            public override List<ArraySegment<byte>> GetRequestData(int requestId) => _validateConnectionMessage;
+
             public void Invoke()
             {
                 try
                 {
-                    RequestData = _validateConnectionMessage;
                     int status = _connection.SendAsyncRequest(this, false, false);
 
                     if ((status & AsyncStatusSent) != 0)
@@ -1134,7 +1128,11 @@ namespace Ice
                     {
                         Debug.Assert(m.OutAsync != null);
                         var outAsync = (OutgoingAsync)m.OutAsync;
-                        if (outAsync.Response())
+                        Debug.Assert(m.Data != null);
+                        ArraySegment<byte> data = new ArraySegment<byte>(
+                            VectoredBufferExtensions.ToArray(m.Data)).Slice(Ice1Definitions.HeaderSize + 4);
+                        var responseFrame = new IncomingResponseFrame(_communicator, data);
+                        if (outAsync.Response(responseFrame))
                         {
                             outAsync.InvokeResponse();
                         }
@@ -1173,7 +1171,7 @@ namespace Ice
             if (info.InvokeNum > 0)
             {
                 Debug.Assert(info.Request != null);
-                ValueTask vt = InvokeAllAsync(info.Request, info.InvokeNum, info.RequestId, info.Compress,
+                ValueTask vt = InvokeAllAsync(info.Data, info.InvokeNum, info.RequestId, info.Compress,
                     info.Adapter!);
 
                 // TODO: do something with the value task
@@ -1324,7 +1322,10 @@ namespace Ice
                         {
                             Debug.Assert(message.OutAsync != null);
                             var outAsync = (OutgoingAsync)message.OutAsync;
-                            if (outAsync.Response())
+                            ArraySegment<byte> data = new ArraySegment<byte>(
+                                VectoredBufferExtensions.ToArray(message.Data)).Slice(Ice1Definitions.HeaderSize + 4);
+                            var response = new IncomingResponseFrame(_communicator, data);
+                            if (outAsync.Response(response))
                             {
                                 outAsync.InvokeResponse();
                             }
@@ -1944,7 +1945,7 @@ namespace Ice
                         _writeBufferOffset = 0;
                         _writeBufferSize = Ice1Definitions.HeaderSize;
                         // TODO we need a better API for tracing
-                        TraceUtil.TraceSend(_communicator, _communicator.DefaultsAndOverrides.DefaultEncoding,
+                        TraceUtil.TraceSend(_communicator,
                             _writeBuffer.GetSegment(0, _writeBufferSize).ToArray(), _logger, _traceLevels);
                     }
 
@@ -2105,8 +2106,7 @@ namespace Ice
                     message.Data = DoCompress(message.Data, message.Size, message.Compress);
                     message.Size = message.Data.GetByteCount();
 
-                    TraceUtil.TraceSend(_communicator, message.Encoding,
-                        data.GetSegment(0, message.Size).Array, _logger, _traceLevels);
+                    TraceUtil.TraceSend(_communicator, data.GetSegment(0, message.Size).Array, _logger, _traceLevels);
                     _writeBuffer = message.Data;
                     _writeBufferSize = message.Size;
                     _writeBufferOffset = 0;
@@ -2167,8 +2167,7 @@ namespace Ice
             _writeBufferSize = message.Size;
             _writeBufferOffset = 0;
 
-            TraceUtil.TraceSend(_communicator, message.Encoding,
-                VectoredBufferExtensions.ToArray(requestData), _logger, _traceLevels);
+            TraceUtil.TraceSend(_communicator, VectoredBufferExtensions.ToArray(requestData), _logger, _traceLevels);
 
             //
             // Send the message without blocking.
@@ -2219,7 +2218,6 @@ namespace Ice
         {
             public ArraySegment<byte> Data;
             public IncomingRequestFrame? Request;
-            public IncomingResponseFrame? Response;
             public int InvokeNum;
             public int RequestId;
             public byte Compress;
@@ -2345,7 +2343,7 @@ namespace Ice
                             {
                                 _asyncRequests.Remove(info.RequestId);
 
-                                info.OutAsync.ResponseFrame = new IncomingResponseFrame(_communicator,
+                                var response = new IncomingResponseFrame(_communicator,
                                     info.Data.Slice(Ice1Definitions.HeaderSize + 4));
 
                                 //
@@ -2358,7 +2356,7 @@ namespace Ice
                                 {
                                     message.ReceivedReply = true;
                                 }
-                                else if (info.OutAsync.Response())
+                                else if (info.OutAsync.Response(response))
                                 {
                                     ++info.MessageDispatchCount;
                                 }
@@ -2409,7 +2407,7 @@ namespace Ice
             return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
         }
 
-        private async ValueTask InvokeAllAsync(IncomingRequestFrame request, int invokeNum, int requestId,
+        private async ValueTask InvokeAllAsync(ArraySegment<byte> data, int invokeNum, int requestId,
             byte compressionStatus, ObjectAdapter adapter)
         {
             // Note: In contrast to other private or protected methods, this method must be called *without* the
@@ -2422,6 +2420,8 @@ namespace Ice
 
             try
             {
+                var request = new IncomingRequestFrame(adapter.Communicator,
+                    data.Slice(Ice1Definitions.RequestHeaderSzie));
                 var current = new Current(adapter, request, requestId, this);
 
                 // Then notify and set dispatch observer, if any.
@@ -2438,6 +2438,8 @@ namespace Ice
                     IObject? servant = current.Adapter.Find(current.Id, current.Facet);
                     if (servant == null)
                     {
+                        // TODO if we want to support incoming batch request we need
+                        // to skip current encapsulation.
                         throw new ObjectNotExistException(current.Id, current.Facet, current.Operation);
                     }
 
@@ -2691,12 +2693,10 @@ namespace Ice
                 Compress = compress;
             }
 
-            internal OutgoingMessage(OutgoingAsyncBase outgoing, Encoding encoding, bool compress, int requestId)
+            internal OutgoingMessage(OutgoingAsyncBase outgoing, List<ArraySegment<byte>> data, bool compress, int requestId)
             {
-                Debug.Assert(outgoing.RequestData != null);
                 OutAsync = outgoing;
-                Encoding = encoding;
-                Data = outgoing.RequestData;
+                Data = data;
                 Size = Data.GetByteCount();
                 Compress = compress;
                 RequestId = requestId;
@@ -2704,7 +2704,6 @@ namespace Ice
 
             internal OutgoingMessage(OutgoingResponseFrame frame, bool compress, int requestId)
             {
-                Encoding = frame.Encoding;
                 Data = Ice1Definitions.GetResponseData(frame, requestId);
                 Size = Data.GetByteCount();
                 Compress = compress;
@@ -2741,7 +2740,6 @@ namespace Ice
 
             internal List<ArraySegment<byte>>? Data;
             internal int Size;
-            internal Encoding Encoding;
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
             internal int RequestId;

@@ -66,7 +66,7 @@ namespace IceInternal
 
         public Ice.Connection? GetConnection() => null;
 
-        public int InvokeAsyncRequest(OutgoingAsync outAsync, bool synchronous)
+        public int InvokeAsyncRequest(ProxyOutgoingAsyncBase outAsync, bool synchronous)
         {
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
@@ -96,7 +96,7 @@ namespace IceInternal
                 throw;
             }
 
-            outAsync.AttachCollocatedObserver(_adapter, requestId);
+            outAsync.AttachCollocatedObserver(_adapter, requestId, outAsync.RequestFrame.Size);
             if (!synchronous || outAsync.IsOneway || _reference.InvocationTimeout > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
@@ -106,7 +106,6 @@ namespace IceInternal
                     {
                         if (SentAsync(outAsync))
                         {
-                            Debug.Assert(outAsync.RequestFrame != null);
                             ValueTask vt = InvokeAllAsync(outAsync.RequestFrame, requestId);
                             // TODO: do something with the value task
                         }
@@ -150,19 +149,16 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                List<System.ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
+                List<System.ArraySegment<byte>> requestData =
+                    Ice1Definitions.GetRequestData(outgoingRequest, requestId);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
-                    TraceUtil.TraceSend(_adapter.Communicator, outgoingRequest.Encoding,
-                        VectoredBufferExtensions.ToArray(requestData),
-                        _logger, _traceLevels);
+                    TraceUtil.TraceSend(_adapter.Communicator, VectoredBufferExtensions.ToArray(requestData), _logger,
+                        _traceLevels);
                 }
 
-                // TODO Avoid copy OutputStream buffer
-                var requestBuffer = requestData.GetSegment(Ice1Definitions.HeaderSize + 4,
-                    requestData.GetByteCount() - (Ice1Definitions.HeaderSize + 4));
-                var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, requestBuffer);
+                var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
                 var current = new Current(_adapter, incomingRequest, requestId);
 
                 // Then notify and set dispatch observer, if any.
@@ -197,8 +193,8 @@ namespace IceInternal
                 {
                     if (requestId != 0)
                     {
-                        Ice.RemoteException actualEx;
-                        if (ex is Ice.RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                        RemoteException actualEx;
+                        if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
                         {
                             actualEx = remoteEx;
                         }
@@ -242,10 +238,7 @@ namespace IceInternal
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    // TODO avoid copy the response payload
-                    outAsync.ResponseFrame = new IncomingResponseFrame(_adapter.Communicator,
-                        responseFrame.Payload.ToArray());
-                    if (!outAsync.Response())
+                    if (!outAsync.Response(new IncomingResponseFrame(_adapter.Communicator, responseFrame)))
                     {
                         outAsync = null;
                     }

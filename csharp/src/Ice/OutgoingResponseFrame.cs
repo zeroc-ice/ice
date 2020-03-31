@@ -203,14 +203,7 @@ namespace Ice
             if (writeVoidReturnValue)
             {
                 Encoding.CheckSupported();
-                byte[] buffer = new byte[256];
-                int pos = 0;
-                buffer[pos++] = (byte)ReplyStatus.OK;
-                OutputStream.WriteInt(6, buffer.AsSpan(pos, 4));
-                pos += 4;
-                buffer[pos++] = encoding.Major;
-                buffer[pos++] = encoding.Minor;
-                Data.Add(new ArraySegment<byte>(buffer, 0, pos));
+                Data.Add(Ice1Definitions.EmptyResponsePayload);;
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }

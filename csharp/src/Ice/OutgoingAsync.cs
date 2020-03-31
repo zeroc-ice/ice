@@ -21,7 +21,7 @@ namespace IceInternal
         bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
         void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og);
-        void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og);
+        void HandleInvokeException(Exception ex, OutgoingAsyncBase og);
         void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
     }
 
@@ -31,7 +31,7 @@ namespace IceInternal
 
         public virtual bool Exception(System.Exception ex) => ExceptionImpl(ex);
 
-        public virtual bool Response()
+        public virtual bool Response(IncomingResponseFrame response)
         {
             Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
@@ -121,11 +121,11 @@ namespace IceInternal
                 {
                     _completionCallback.HandleInvokeResponse((State & StateOK) != 0, this);
                 }
-                catch (System.AggregateException ex)
+                catch (AggregateException ex)
                 {
                     throw ex.InnerException;
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     if (_completionCallback.HandleException(ex, this))
                     {
@@ -168,13 +168,12 @@ namespace IceInternal
         // TODO: add more details in message
         public void Cancel() => Cancel(new OperationCanceledException("invocation on remote Ice object canceled"));
 
-        public void AttachRemoteObserver(Ice.ConnectionInfo info, Ice.IEndpoint endpt, int requestId)
+        public void AttachRemoteObserver(ConnectionInfo info, IEndpoint endpt, int requestId, int size)
         {
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                Debug.Assert(RequestFrame != null);
-                ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, RequestFrame.Size);
+                ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
                 if (ChildObserver != null)
                 {
                     ChildObserver.Attach();
@@ -182,13 +181,12 @@ namespace IceInternal
             }
         }
 
-        public void AttachCollocatedObserver(ObjectAdapter adapter, int requestId)
+        public void AttachCollocatedObserver(ObjectAdapter adapter, int requestId, int size)
         {
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
-                Debug.Assert(RequestFrame != null);
-                ChildObserver = observer.GetCollocatedObserver(adapter, requestId, RequestFrame.Size);
+                ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
                 if (ChildObserver != null)
                 {
                     ChildObserver.Attach();
@@ -202,9 +200,7 @@ namespace IceInternal
 
         public bool IsSynchronous() => Synchronous;
 
-        protected OutgoingAsyncBase(Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback,
-                                    OutgoingRequestFrame? requestFrame = null, List<ArraySegment<byte>>? requestData = null,
-                                    IncomingResponseFrame? responseFrame = null)
+        protected OutgoingAsyncBase(Communicator communicator, IOutgoingAsyncCompletionCallback completionCallback)
         {
             Communicator = communicator;
             SentSynchronously = false;
@@ -212,14 +208,12 @@ namespace IceInternal
             _doneInSent = false;
             _alreadySent = false;
             State = 0;
-            RequestFrame = requestFrame;
-            RequestData = requestData;
-
-            ResponseFrame = responseFrame;
 
             _completionCallback = completionCallback;
             _completionCallback.Init(this);
         }
+
+        public abstract List<ArraySegment<byte>> GetRequestData(int requestId);
 
         protected virtual bool SentImpl(bool done)
         {
@@ -229,6 +223,7 @@ namespace IceInternal
                 State |= StateSent;
                 if (done)
                 {
+                    ResponseFrame = new IncomingResponseFrame(Communicator, Ice1Definitions.EmptyResponsePayload);
                     _doneInSent = true;
                     if (ChildObserver != null)
                     {
@@ -342,11 +337,7 @@ namespace IceInternal
         protected Ice.Instrumentation.IInvocationObserver? Observer;
         protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
-        public OutgoingRequestFrame? RequestFrame;
-        public List<ArraySegment<byte>>? RequestData;
-
         public IncomingResponseFrame? ResponseFrame;
-        public ArraySegment<byte> ResponseData;
 
         private bool _doneInSent;
         private bool _alreadySent;
@@ -374,10 +365,14 @@ namespace IceInternal
     //
     public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, ITimerTask
     {
-        public abstract int InvokeRemote(Ice.Connection connection, bool compress, bool response);
+        public OutgoingRequestFrame RequestFrame { get; protected set; }
+        public abstract int InvokeRemote(Connection connection, bool compress, bool response);
         public abstract int InvokeCollocated(CollocatedRequestHandler handler);
 
-        public override bool Exception(System.Exception exc)
+        public override List<ArraySegment<byte>> GetRequestData(int requestId) =>
+            Ice1Definitions.GetRequestData(RequestFrame, requestId);
+
+        public override bool Exception(Exception exc)
         {
             if (ChildObserver != null)
             {
@@ -433,7 +428,7 @@ namespace IceInternal
         }
 
         public void Retry() => InvokeImpl(false);
-        public void Abort(System.Exception ex)
+        public void Abort(Exception ex)
         {
             Debug.Assert(ChildObserver == null);
             if (ExceptionImpl(ex))
@@ -453,15 +448,15 @@ namespace IceInternal
 
         protected ProxyOutgoingAsyncBase(IObjectPrx prx,
                                          IOutgoingAsyncCompletionCallback completionCallback,
-                                         OutgoingRequestFrame? requestFrame = null,
-                                         IncomingResponseFrame? responseFrame = null) :
-            base(prx.Communicator, completionCallback, requestFrame, null, responseFrame)
+                                         OutgoingRequestFrame requestFrame) :
+            base(prx.Communicator, completionCallback)
         {
             Proxy = prx;
             IsIdempotent = false;
             IsOneway = false;
             _cnt = 0;
             _sent = false;
+            RequestFrame = requestFrame;
         }
 
         protected void InvokeImpl(bool userThread)
@@ -625,10 +620,8 @@ namespace IceInternal
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         public OutgoingAsync(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-                             OutgoingRequestFrame? requestFrame = null,
-                             IncomingResponseFrame? responseFrame = null,
-                             bool oneway = false) :
-            base(prx, completionCallback, requestFrame, responseFrame)
+            OutgoingRequestFrame requestFrame, bool oneway = false) :
+            base(prx, completionCallback, requestFrame)
         {
             Encoding = Proxy.Encoding;
             Synchronous = false;
@@ -637,9 +630,9 @@ namespace IceInternal
 
         public override bool Sent() => base.SentImpl(IsOneway); // done = true
 
-        public override bool Response()
+        public override bool Response(IncomingResponseFrame response)
         {
-            Debug.Assert(ResponseFrame != null);
+            ResponseFrame = response;
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke
@@ -752,8 +745,7 @@ namespace IceInternal
                            bool idempotent,
                            bool oneway,
                            IReadOnlyDictionary<string, string>? context,
-                           bool synchronous,
-                           OutgoingRequestFrame request)
+                           bool synchronous)
         {
             try
             {
@@ -773,11 +765,9 @@ namespace IceInternal
                         break;
                     }
                 }
-
-                RequestFrame = request;
                 Invoke(synchronous);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Abort(ex);
             }
@@ -788,11 +778,9 @@ namespace IceInternal
 
     public class OutgoingAsyncT<T> : OutgoingAsync
     {
-        public OutgoingAsyncT(IObjectPrx prx,
-                              IOutgoingAsyncCompletionCallback completionCallback,
-                              OutgoingRequestFrame? requestFrame = null,
-                              IncomingResponseFrame? responseFrame = null) :
-            base(prx, completionCallback, requestFrame, responseFrame)
+        public OutgoingAsyncT(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
+                              OutgoingRequestFrame requestFrame) :
+            base(prx, completionCallback, requestFrame)
         {
         }
 
@@ -801,33 +789,22 @@ namespace IceInternal
                            bool oneway,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous,
-                           OutgoingRequestFrame request,
                            InputStreamReader<T>? read = null)
         {
             Read = read;
-            base.Invoke(operation, idempotent, oneway, context, synchronous, request);
+            base.Invoke(operation, idempotent, oneway, context, synchronous);
         }
 
         public T GetResult()
         {
+            Debug.Assert(ResponseFrame != null);
             if (Read == null)
             {
-                if (ResponseFrame == null || ResponseFrame.Size == 0)
-                {
-                    //
-                    // If there's no response (oneway), we just set the result
-                    // on completion without reading anything from the input stream.
-                    //
-                }
-                else
-                {
-                    ResponseFrame.ReadVoidReturnValue();
-                }
+                ResponseFrame.ReadVoidReturnValue();
                 return default;
             }
             else
             {
-                Debug.Assert(ResponseFrame != null);
                 return ResponseFrame.ReadReturnValue(Read);
             }
         }
@@ -840,8 +817,8 @@ namespace IceInternal
     //
     internal class ProxyGetConnection : ProxyOutgoingAsyncBase
     {
-        public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback) :
-            base(prx, completionCallback)
+        public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback, 
+            OutgoingRequestFrame request) : base(prx, completionCallback, request)
         {
         }
 
@@ -872,7 +849,7 @@ namespace IceInternal
             // since it's a local operation.
             Debug.Assert(!IsOneway); // always constructed with IsOneway set to false
             Synchronous = synchronous;
-            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, IceInternal.Reference.EmptyContext);
+            Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, Reference.EmptyContext);
             InvokeImpl(true); // userThread = true
         }
     }
@@ -952,13 +929,13 @@ namespace IceInternal
             }
         }
 
-        public void HandleInvokeException(System.Exception ex, OutgoingAsyncBase og) => SetException(ex);
+        public void HandleInvokeException(Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
         public abstract void HandleInvokeResponse(bool ok, OutgoingAsyncBase og);
 
         private readonly CancellationToken _cancellationToken;
 
-        protected readonly System.IProgress<bool>? Progress;
+        protected readonly IProgress<bool>? Progress;
     }
 
     public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>

@@ -336,21 +336,6 @@ namespace Ice
             return sz;
         }
 
-        /// <summary>Reads a blob of bytes from the stream.</summary>
-        /// <param name="sz">The number of bytes to read.</param>
-        /// <returns>The requested bytes as a byte array.</returns>
-        public byte[] ReadBlob(int sz)
-        {
-            if (_buffer.Count - _pos < sz)
-            {
-                throw new IndexOutOfRangeException($"cannot read {sz} bytes");
-            }
-            byte[] v = new byte[sz];
-            _buffer.Slice(_pos).CopyTo(v);
-            _pos += sz;
-            return v;
-        }
-
         /// <summary>Determine if an optional value is available for reading.</summary>
         /// <param name="tag">The tag associated with the value.</param>
         /// <param name="expectedFormat">The optional format for the value.</param>
@@ -441,7 +426,6 @@ namespace Ice
         public void ReadSpan(Span<byte> span)
         {
             int length = span.Length;
-            Debug.Assert(_buffer.Count - _pos >= length);
             _buffer.AsSpan(_pos, length).CopyTo(span);
             _pos += length;
         }
@@ -1117,7 +1101,7 @@ namespace Ice
             _endpointEncaps = null;
         }
 
-        private (Encoding Encoding, int Size) ReadEncapsulationHeader()
+        internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
             // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and
             // not on a variable-length size, for ease of marshaling.
@@ -1216,7 +1200,7 @@ namespace Ice
                 int index = ReadSize();
                 if (index > 0 && index - 1 < _typeIdMap.Count)
                 {
-                    // The encoded type-id indices start at 1, not 0.
+                    // The encoded type-id indexes start at 1, not 0.
                     return _typeIdMap[index - 1];
                 }
                 throw new InvalidDataException($"read invalid type ID index {index}");

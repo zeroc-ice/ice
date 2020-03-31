@@ -23,6 +23,10 @@ namespace Ice
         // Message size (Int - 4 bytes)
         internal const int HeaderSize = 14;
 
+        // The request header is the same as the frame header plus
+        // 4 bytes of the request id size.
+        internal const int RequestHeaderSzie = HeaderSize + 4;
+
         // The magic number at the front of each message
         internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 

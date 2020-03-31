@@ -31,7 +31,7 @@ namespace Ice
         /// <summary>The frame byte count</summary>
         public int Size => Data.Count;
 
-        internal ArraySegment<byte> Data { get; private set; }
+        internal ArraySegment<byte> Data { get; }
         private readonly Communicator _communicator;
 
         /// <summary>Creates a new OutgoingRequestFrame.</summary>
@@ -56,7 +56,19 @@ namespace Ice
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();
             Payload = Data.Slice(istr.Pos);
-            Encoding = istr.StartEncapsulation();
+            (Encoding encoding, int size) = istr.ReadEncapsulationHeader();
+            if (size != Payload.Count)
+            {
+                throw new InvalidDataException($"invalid encapsulation size: {size}");
+            }
+            Encoding = encoding;
+        }
+
+        // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
+        // the frame has a single segment.
+        internal IncomingRequestFrame(Communicator communicator, OutgoingRequestFrame frame)
+            : this(communicator, VectoredBufferExtensions.ToArray(frame.Data))
+        {
         }
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload

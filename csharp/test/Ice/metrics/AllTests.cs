@@ -1025,7 +1025,6 @@ public class AllTests : Test.AllTests
         test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
         test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        System.Console.WriteLine($"rim1.Size {rim1.Size} rim1.ReplySize {rim1.ReplySize}");
         test(rim1.Size == 42 && rim1.ReplySize == 14);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUserException"];

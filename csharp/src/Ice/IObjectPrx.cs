@@ -306,7 +306,7 @@ namespace Ice
         {
             try
             {
-                var completed = new InvokeTaskCompletionCallback(Communicator, null, default);
+                var completed = new InvokeTaskCompletionCallback(null, default);
                 new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
                                                                                    synchronous: true);
                 return completed.Task.Result;
@@ -323,7 +323,7 @@ namespace Ice
                                                                       IProgress<bool>? progress,
                                                                       CancellationToken cancel)
         {
-            var completed = new InvokeTaskCompletionCallback(Communicator, progress, cancel);
+            var completed = new InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
                                                                                synchronous: false);
             return completed.Task;
@@ -413,11 +413,9 @@ namespace Ice
         // Temporary helper class for IceInvokeAsync
         private class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
         {
-            private Communicator _communicator;
-            internal InvokeTaskCompletionCallback(Communicator communicator, IProgress<bool>? progress,
-                CancellationToken cancellationToken) : base(progress, cancellationToken)
+            internal InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken)
+                : base(progress, cancellationToken)
             {
-                _communicator = communicator;
             }
 
             public override void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
@@ -430,7 +428,7 @@ namespace Ice
 
                 if (done)
                 {
-                    outgoing.ResponseFrame = new IncomingResponseFrame(_communicator, Ice1Definitions.EmptyResponsePayload);
+                    Debug.Assert(outgoing.ResponseFrame != null);
                     SetResult(outgoing.ResponseFrame);
                 }
             }

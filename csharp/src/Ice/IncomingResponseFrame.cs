@@ -36,43 +36,17 @@ namespace Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(InputStreamReader<T> reader)
         {
-            switch (ReplyStatus)
+            if (ReplyStatus == ReplyStatus.OK)
             {
-                case ReplyStatus.OK:
-                {
-                    var istr = new InputStream(_communicator, Payload, 1);
-                    istr.StartEncapsulation();
-                    T ret = reader(istr);
-                    istr.EndEncapsulation();
-                    return ret;
-                }
-                case ReplyStatus.UserException:
-                {
-                    var istr = new InputStream(_communicator, Payload, 1);
-                    istr.StartEncapsulation();
-                    RemoteException ex = istr.ReadException();
-                    istr.EndEncapsulation();
-                    throw ex;
-                }
-                case ReplyStatus.ObjectNotExistException:
-                case ReplyStatus.FacetNotExistException:
-                case ReplyStatus.OperationNotExistException:
-                {
-                    throw ReadDispatchException();
-                }
-                case ReplyStatus.UnknownException:
-                case ReplyStatus.UnknownLocalException:
-                case ReplyStatus.UnknownUserException:
-                {
-                    throw new UnhandledException(InputStream.ReadString(Payload.Slice(1)), Identity.Empty, "", "");
-                }
-
-                default:
-                {
-                    Debug.Assert(false);
-                    throw new InvalidDataException(
-                        $"received ice1 response frame with unknown reply status `{ReplyStatus}'");
-                }
+                var istr = new InputStream(_communicator, Payload, 1);
+                istr.StartEncapsulation();
+                T ret = reader(istr);
+                istr.EndEncapsulation();
+                return ret;
+            }
+            else
+            {
+                throw ReadException();
             }
         }
 
@@ -80,35 +54,15 @@ namespace Ice
         /// a failure, reads and throws this exception.</summary>
         public void ReadVoidReturnValue()
         {
-            switch (ReplyStatus)
+            if (ReplyStatus == ReplyStatus.OK)
             {
-                case ReplyStatus.OK:
-                {
-                    var istr = new InputStream(_communicator, Payload, 1);
-                    istr.StartEncapsulation();
-                    istr.EndEncapsulation();
-                    break;
-                }
-                case ReplyStatus.UserException:
-                {
-                    var istr = new InputStream(_communicator, Payload, 1);
-                    istr.StartEncapsulation();
-                    RemoteException ex = istr.ReadException();
-                    istr.EndEncapsulation();
-                    throw ex;
-                }
-                case ReplyStatus.ObjectNotExistException:
-                case ReplyStatus.FacetNotExistException:
-                case ReplyStatus.OperationNotExistException:
-                {
-                    throw ReadDispatchException();
-                }
-                case ReplyStatus.UnknownException:
-                case ReplyStatus.UnknownLocalException:
-                case ReplyStatus.UnknownUserException:
-                {
-                    throw ReadUnhandledException();
-                }
+                var istr = new InputStream(_communicator, Payload, 1);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
+            }
+            else
+            {
+                throw ReadException();
             }
         }
 
@@ -128,11 +82,51 @@ namespace Ice
             Payload = payload;
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
+                int size = InputStream.ReadInt(Payload.Slice(1, 4));
+                if (size != Payload.Count - 1)
+                {
+                    throw new InvalidDataException($"invalid encapsulation size: `{size}'");
+                }
                 Encoding = new Encoding(payload[5], payload[6]);
             }
             else
             {
                 Encoding = Encoding.V1_1;
+            }
+        }
+
+        // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
+        // the frame has a single segment.
+        public IncomingResponseFrame(Communicator communicator, OutgoingResponseFrame frame)
+            : this(communicator, frame.Payload.ToArray())
+        {
+        }
+
+        private Exception ReadException()
+        {
+            switch (ReplyStatus)
+            {
+                case ReplyStatus.UserException:
+                {
+                    var istr = new InputStream(_communicator, Payload, 1);
+                    istr.StartEncapsulation();
+                    RemoteException ex = istr.ReadException();
+                    istr.EndEncapsulation();
+                    return ex;
+                }
+                case ReplyStatus.ObjectNotExistException:
+                case ReplyStatus.FacetNotExistException:
+                case ReplyStatus.OperationNotExistException:
+                {
+                    return ReadDispatchException();
+                }
+                default:
+                {
+                    Debug.Assert(ReplyStatus == ReplyStatus.UnknownException ||
+                                 ReplyStatus == ReplyStatus.UnknownLocalException ||
+                                 ReplyStatus == ReplyStatus.UnknownUserException);
+                    return ReadUnhandledException();
+                }
             }
         }
 
