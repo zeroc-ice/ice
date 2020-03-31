@@ -745,7 +745,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server->ice_ping();
             test(false);
         }
-        catch(const ProtocolException&)
+        catch(const SecurityException&)
         {
             // Expected, if reported as an SSL alert by the server.
         }
@@ -1600,7 +1600,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 import.cleanup();
                 test(false);
             }
-            catch(const Ice::ProtocolException&)
+            catch(const Ice::SecurityException&)
             {
                 // Expected
             }
@@ -1870,7 +1870,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 server->ice_ping();
                 test(false);
             }
-            catch(const ProtocolException&)
+            catch(const SecurityException&)
             {
                 // Expected on some platforms.
             }
@@ -1942,7 +1942,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 server->ice_ping();
                 test(false);
             }
-            catch(const ProtocolException&)
+            catch(const SecurityException&)
             {
                 // Expected on some platforms.
             }
@@ -2021,7 +2021,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 server->ice_ping();
                 test(false);
             }
-            catch(const ProtocolException&)
+            catch(const SecurityException&)
             {
                 // Expected on some platforms.
             }
@@ -2084,7 +2084,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 server->ice_ping();
                 test(false);
             }
-            catch(const ProtocolException&)
+            catch(const SecurityException&)
             {
                 // Expected on some platforms.
             }
@@ -2479,7 +2479,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server->ice_ping();
             test(false);
         }
-        catch(const ProtocolException&)
+        catch(const SecurityException&)
         {
             // Expected
         }
@@ -2710,7 +2710,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server->ice_ping();
             test(false);
         }
-        catch(const ProtocolException&)
+        catch(const SecurityException&)
         {
             // Expected.
         }
@@ -2743,7 +2743,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server->ice_ping();
             test(false);
         }
-        catch(const ProtocolException&)
+        catch(const SecurityException&)
         {
             // Expected.
         }
