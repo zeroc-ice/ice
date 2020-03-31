@@ -2432,13 +2432,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "var request = " << getUnqualified("Ice.OutgoingRequestFrame", ns);
         if(inParams.size() == 0)
         {
-            _out << ".WithNoParameter("
+            _out << ".WithEmptyParamList("
                  << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
                  << ", context);";
         }
         else
         {
-            _out << ".WithParameters("
+            _out << ".WithParamList("
                  << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
                  << ", " << opFormatTypeToString(operation, ns) << ", context, ";
             _out << toTuple(inParams, "iceP_") << ", " << writer << ");";

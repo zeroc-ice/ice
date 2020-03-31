@@ -8,14 +8,13 @@ using System.Diagnostics;
 
 namespace Ice
 {
-    public enum ResultType : byte { Success, Failure };
-
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        public int Size => Payload.Count;
-
+        /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
+
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The response context. Always null with Ice1.</summary>
@@ -25,11 +24,16 @@ namespace Ice
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
 
+        /// <summary>The frame byte count.</summary>
+        public int Size => Payload.Count;
+
         private readonly Communicator _communicator;
 
-        /// <summary>Starts reading the return value carried by this response frame. If the response frame carries
-        /// a failure, ReadReturnValue reads and throws this exception.</summary>
-        /// <returns>An InputStream iterator over this return value.</returns>
+        /// <summary>Reads the return value carried by this response frame. If the response frame carries
+        /// a failure, reads and throws this exception.</summary>
+        /// <param name="reader">An input stream reader used to read the frame return value, when the frame
+        /// return value contain multiple values the reader must use a tuple to return the values.</param>
+        /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(InputStreamReader<T> reader)
         {
             switch (ReplyStatus)
@@ -72,7 +76,8 @@ namespace Ice
             }
         }
 
-        /// <summary>Reads an empty return value from the response frame.</summary>
+        /// <summary>Reads an empty return value from the response frame. If the response frame carries
+        /// a failure, reads and throws this exception.</summary>
         public void ReadVoidReturnValue()
         {
             switch (ReplyStatus)
@@ -107,6 +112,9 @@ namespace Ice
             }
         }
 
+        /// <summary>Creates a new IncomingResponse Frame</summary>
+        /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="payload">The frame raw data as an array segment.</param>
         public IncomingResponseFrame(Communicator communicator, ArraySegment<byte> payload)
         {
             _communicator = communicator;

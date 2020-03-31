@@ -376,7 +376,7 @@ namespace Ice.optional
 
             initial.opVoid();
 
-            OutgoingRequestFrame requestFrame = OutgoingRequestFrame.WithParameters(
+            OutgoingRequestFrame requestFrame = OutgoingRequestFrame.WithParamList(
                 initial, "opVoid", idempotent: false, format: null, context: null, (15, "test"),
                 (OutputStream ostr, (int n, string s) value) =>
                 {
@@ -538,7 +538,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opByte(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opByte", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByte", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, byte? p1) => ostr.WriteByte(2, p1));
 
@@ -573,7 +573,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opBool(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opBool", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBool", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, bool? p1) => ostr.WriteBool(2, p1));
 
@@ -608,7 +608,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opShort(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opShort", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShort", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, short? p1) => ostr.WriteShort(2, p1));
 
@@ -643,7 +643,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opInt(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opInt", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opInt", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, int? p1) => ostr.WriteInt(2, p1));
 
@@ -678,7 +678,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opLong(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opLong", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLong", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, long? p1) => ostr.WriteLong(1, p1));
 
@@ -713,7 +713,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloat(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opFloat", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloat", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, float? p1) =>  ostr.WriteFloat(2, p1));
 
@@ -748,7 +748,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opDouble(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opDouble", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDouble", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, double? p1) => ostr.WriteDouble(2, p1));
 
@@ -785,7 +785,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opString(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opString", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opString", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, string? p1) => ostr.WriteString(2, p1));
 
@@ -820,7 +820,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opMyEnum(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opMyEnum", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opMyEnum", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteEnum(2, (int) p1));
 
@@ -857,7 +857,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opSmallStruct", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStruct", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, SmallStruct? p1) =>
                     {
@@ -902,7 +902,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opFixedStruct", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStruct", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, FixedStruct? p1) =>
                     {
@@ -951,7 +951,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStruct(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opVarStruct", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opVarStruct", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, VarStruct? p1) =>
                     {
@@ -1019,7 +1019,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptional(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opOneOptional", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptional", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, OneOptional? p1) =>
                     {
@@ -1059,7 +1059,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opOneOptionalProxy(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opOneOptionalProxy", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptionalProxy", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, IObjectPrx? p1) =>
                     {
@@ -1101,7 +1101,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opByteSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opByteSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByteSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, byte[]? p1) =>
                     {
@@ -1143,7 +1143,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opBoolSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opBoolSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBoolSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, bool[]? p1) =>
                     {
@@ -1187,7 +1187,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opShortSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opShortSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShortSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, short[]? p1) =>
                     {
@@ -1232,7 +1232,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opIntSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, int[]? p1) =>
                     {
@@ -1278,7 +1278,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opLongSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opLongSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLongSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, long[]? p1) =>
                     {
@@ -1323,7 +1323,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opFloatSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opFloatSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloatSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, float[]? p1) =>
                     {
@@ -1368,7 +1368,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opDoubleSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opDoubleSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDoubleSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, double[]? p1) =>
                     {
@@ -1414,7 +1414,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opStringSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opStringSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, string[]? p1) =>
                     {
@@ -1460,7 +1460,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opSmallStructSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStructSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, SmallStruct[]? p1) =>
                     {
@@ -1509,7 +1509,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSmallStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opSmallStructList", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStructList", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, List<SmallStruct>? p1) =>
                     {
@@ -1555,7 +1555,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opFixedStructSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStructSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, FixedStruct[]? p1) =>
                     {
@@ -1605,7 +1605,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opFixedStructList(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opFixedStructList", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStructList", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, LinkedList<FixedStruct> ? p1) =>
                     {
@@ -1650,7 +1650,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opVarStructSeq(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opVarStructSeq", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opVarStructSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, VarStruct[]? p1) =>
                     {
@@ -1697,7 +1697,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opSerializable(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opSerializable", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSerializable", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, SerializableClass? p1) =>
                     {
@@ -1741,7 +1741,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opIntIntDict", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntIntDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, int>? p1) =>
                     {
@@ -1789,7 +1789,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opStringIntDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opStringIntDict", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opStringIntDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
                     {
@@ -1837,7 +1837,7 @@ namespace Ice.optional
                 (p2, p3) = initial.opIntOneOptionalDict(null);
                 test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParameters(initial, "opIntOneOptionalDict", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneOptionalDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, Test.OneOptional?>? p1) =>
                     {
