@@ -431,7 +431,7 @@ namespace Ice
                 if (done)
                 {
                     outgoing.ResponseFrame = new IncomingResponseFrame(_communicator, Ice1Definitions.EmptyResponsePayload);
-                    SetResult(outgoing.ResponseFrame!);
+                    SetResult(outgoing.ResponseFrame);
                 }
             }
 

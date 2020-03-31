@@ -543,7 +543,7 @@ namespace Ice.optional
                     (OutputStream ostr, byte? p1) => ostr.WriteByte(2, p1));
 
                 var responseFrame = initial.Invoke(requestFrame);
-                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         byte? b1 = istr.ReadByte(1);
                         byte? b2 = istr.ReadByte(3);
@@ -577,15 +577,15 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, bool? p1) => ostr.WriteBool(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
-                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
                     bool? b1 = istr.ReadBool(1);
                     bool? b2 = istr.ReadBool(3);
                     return (b1, b2);
                 });
-                test(p1 == true);
                 test(p2 == true);
+                test(p3 == true);
             }
 
             {
@@ -612,15 +612,15 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, short? p1) => ostr.WriteShort(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
-                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         short? s1 = istr.ReadShort(1);
                         short? s2 = istr.ReadShort(3);
                         return (s1, s2);
                     });
-                test(p1 == 56);
                 test(p2 == 56);
+                test(p3 == 56);
             }
 
             {
@@ -647,7 +647,7 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, int? p1) => ostr.WriteInt(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p1, p2) = responseFrame.ReadReturnValue(istr =>
                 {
                     int? i1 = istr.ReadInt(1);
@@ -683,14 +683,14 @@ namespace Ice.optional
                     (OutputStream ostr, long? p1) => ostr.WriteLong(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
                     long? l1 = istr.ReadLong(2);
                     long? l2 = istr.ReadLong(3);
                     return (l1, l2);
                 });
-                test(p1 == 56);
                 test(p2 == 56);
+                test(p3 == 56);
             }
 
             {
@@ -717,7 +717,7 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, float? p1) =>  ostr.WriteFloat(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         float? f1 = istr.ReadFloat(1);
@@ -789,7 +789,7 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, string? p1) => ostr.WriteString(2, p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
                     string? s1 = istr.ReadString(1);
@@ -824,7 +824,7 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteEnum(2, (int) p1));
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
                     istr.ReadOptional(1, OptionalFormat.Size);
@@ -1027,8 +1027,8 @@ namespace Ice.optional
                         ostr.WriteClass(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
-                (p1, p2) = responseFrame.ReadReturnValue(istr =>
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.Class);
                         OneOptional? c1 = istr.ReadClass<OneOptional>();
@@ -1037,7 +1037,7 @@ namespace Ice.optional
 
                         return (c1, c2);
                     });
-                test(p1!.a == 58 && p2!.a == 58);
+                test(p2!.a == 58 && p3!.a == 58);
             }
 
             {
@@ -1069,7 +1069,7 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
 
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
@@ -1110,7 +1110,7 @@ namespace Ice.optional
                         ostr.WriteByteSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1152,7 +1152,7 @@ namespace Ice.optional
                         ostr.WriteBoolSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1197,7 +1197,7 @@ namespace Ice.optional
                         ostr.WriteShortSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1242,7 +1242,7 @@ namespace Ice.optional
                         ostr.WriteIntSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1288,7 +1288,7 @@ namespace Ice.optional
                         ostr.WriteLongSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1333,7 +1333,7 @@ namespace Ice.optional
                         ostr.WriteFloatSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1378,7 +1378,7 @@ namespace Ice.optional
                         ostr.WriteDoubleSeq(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
                     istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1424,7 +1424,7 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.FSize);
@@ -1469,7 +1469,7 @@ namespace Ice.optional
                         ostr.Write(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1565,7 +1565,7 @@ namespace Ice.optional
                         ostr.Write(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1615,7 +1615,7 @@ namespace Ice.optional
                         ostr.Write(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1706,7 +1706,7 @@ namespace Ice.optional
                         ostr.WriteSerializable(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1751,7 +1751,7 @@ namespace Ice.optional
                         ostr.Write(p1);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
@@ -1800,7 +1800,7 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.FSize);
@@ -1847,7 +1847,7 @@ namespace Ice.optional
                         ostr.EndSize(pos);
                     });
 
-                var responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.FSize);

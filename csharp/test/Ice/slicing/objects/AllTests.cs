@@ -225,8 +225,6 @@ public class AllTests : Test.AllTests
         }
         catch (Ice.InvalidDataException ex)
         {
-            Console.WriteLine(ex);
-            Console.WriteLine(ex.Message);
             test(ex.Message.Contains("::Test::SBSUnknownDerived"));
         }
         catch (System.Exception ex)

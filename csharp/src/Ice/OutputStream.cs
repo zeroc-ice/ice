@@ -1354,7 +1354,6 @@ namespace Ice
             return _tail;
         }
 
-        // Returns true when something was written, and false otherwise
         internal void WriteSlicedData(SlicedData slicedData)
         {
             Debug.Assert(_current != null);

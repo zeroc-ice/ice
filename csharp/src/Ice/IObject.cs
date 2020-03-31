@@ -70,9 +70,6 @@ namespace Ice
             }
         }
 
-        protected static ValueTask<OutgoingResponseFrame> IceFromResult(OutgoingResponseFrame responseFrame)
-            => new ValueTask<OutgoingResponseFrame>(responseFrame);
-
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();

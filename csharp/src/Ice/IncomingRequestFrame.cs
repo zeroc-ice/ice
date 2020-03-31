@@ -36,7 +36,7 @@ namespace Ice
 
         /// <summary>Creates a new OutgoingRequestFrame.</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="data">The frame raw data as an array segment.</param>
+        /// <param name="data">The frame data as an array segment.</param>
         public IncomingRequestFrame(Communicator communicator, ArraySegment<byte> data)
         {
             _communicator = communicator;

@@ -2896,8 +2896,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "return IceFromResult(this." << name << spar << getNames(inParams)
-                << "current" << epar << ".Response);";
+            _out << nl << "return new global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame>(this."
+                 << name << spar << getNames(inParams) << "current" << epar << ".Response);";
         }
         _out << eb;
     }

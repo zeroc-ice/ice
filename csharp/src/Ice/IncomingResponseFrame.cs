@@ -114,7 +114,7 @@ namespace Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="payload">The frame raw data as an array segment.</param>
+        /// <param name="payload">The frame data as an array segment.</param>
         public IncomingResponseFrame(Communicator communicator, ArraySegment<byte> payload)
         {
             _communicator = communicator;
