@@ -16,9 +16,9 @@
 #define ICE_PRODUCT_NAME "Ice\0"
 
 #  if defined(_DEBUG)
-#      define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D"
+#      define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D"
 #  else
-#      define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11"
+#      define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION
 #  endif
 
 #ifndef DEBUG

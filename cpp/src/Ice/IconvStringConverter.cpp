@@ -16,12 +16,6 @@ IconvInitializationException::IconvInitializationException(const char* file, int
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IconvInitializationException::~IconvInitializationException() throw()
-{
-}
-#endif
-
 void
 IconvInitializationException::ice_print(ostream& out) const
 {

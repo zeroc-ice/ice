@@ -233,10 +233,6 @@ Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
 #  define ICE_OBJECT_PRX Ice::ObjectPrx
 #  define CONST_POINTER_CAST_OBJECT_PRX const_pointer_cast<ObjectPrx>(shared_from_this())
 
-//
-// methods common for both C++11/C++98 mappings
-//
-
 Identity
 ICE_OBJECT_PRX::ice_getIdentity() const
 {

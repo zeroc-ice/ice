@@ -22,9 +22,6 @@ class ICE_API APIException : public IceUtil::ExceptionHelper<APIException>
 public:
 
     APIException(const char*, int, const ::std::string&);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~APIException() throw();
-#endif
     virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 
@@ -38,9 +35,6 @@ class ICE_API BadOptException : public IceUtil::ExceptionHelper<BadOptException>
 public:
 
     BadOptException(const char*, int, const ::std::string&);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~BadOptException() throw();
-#endif
     virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 

@@ -121,11 +121,7 @@ allTests(Test::TestHelper* helper)
             adapter->setPublishedEndpoints(router->ice_getEndpoints());
             test(false);
         }
-#if defined(ICE_CPP11_MAPPING)
         catch(const invalid_argument&)
-#else
-        catch(const IceUtil::IllegalArgumentException&)
-#endif
         {
             // Expected.
         }

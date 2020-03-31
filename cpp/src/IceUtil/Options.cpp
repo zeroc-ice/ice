@@ -15,12 +15,6 @@ IceUtilInternal::APIException::APIException(const char* file, int line, const st
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IceUtilInternal::APIException::~APIException() throw()
-{
-}
-#endif
-
 string
 IceUtilInternal::APIException::ice_id() const
 {
@@ -48,12 +42,6 @@ IceUtilInternal::BadOptException::BadOptException(const char* file, int line, co
     : IceUtil::ExceptionHelper<BadOptException>(file, line), reason(r)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtilInternal::BadOptException::~BadOptException() throw()
-{
-}
-#endif
 
 string
 IceUtilInternal::BadOptException::ice_id() const

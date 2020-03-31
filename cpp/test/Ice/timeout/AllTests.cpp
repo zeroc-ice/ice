@@ -484,11 +484,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         try
         {
             timeout->ice_invocationTimeout(-2)->ice_ping();
-            #ifdef ICE_CPP11_MAPPING
             timeout->ice_invocationTimeout(-2)->ice_pingAsync().get();
-            #else
-            timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
-            #endif
         }
         catch(const Ice::Exception&)
         {

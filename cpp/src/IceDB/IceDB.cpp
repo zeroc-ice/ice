@@ -16,12 +16,6 @@ LMDBException::LMDBException(const char* file, int line, int err) :
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-LMDBException::~LMDBException() throw()
-{
-}
-#endif
-
 string
 LMDBException::ice_id() const
 {
@@ -59,12 +53,6 @@ KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-KeyTooLongException::~KeyTooLongException() throw()
-{
-}
-#endif
-
 string
 KeyTooLongException::ice_id() const
 {
@@ -100,12 +88,6 @@ BadEnvException::BadEnvException(const char* file, int line, size_t size) :
     _size(size)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-BadEnvException::~BadEnvException() throw()
-{
-}
-#endif
 
 string
 BadEnvException::ice_id() const

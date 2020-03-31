@@ -375,7 +375,6 @@ InitialI::opVoidAsync(::std::function<void()> response,
     response();
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 InitialI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> response,
                           function<void(exception_ptr)>,
@@ -443,75 +442,6 @@ InitialI::opMG2Async(Ice::optional<GPtr> p1,
 {
     response(OpMG2MarshaledResult(p1, p1, current));
 }
-#else
-void
-InitialI::opMStruct1Async(function<void(const Ice::optional<SmallStruct>&)> response,
-                          function<void(exception_ptr)>,
-                          const Ice::Current&)
-{
-    response(Test::SmallStruct());
-}
-
-void
-InitialI::opMStruct2Async(Ice::optional<SmallStruct> p1,
-                          function<void(const Ice::optional<SmallStruct>&, const Ice::optional<SmallStruct>&)> response,
-                          function<void(exception_ptr)>,
-                          const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
-InitialI::opMSeq1Async(function<void(const Ice::optional<Test::StringSeq>&)> response,
-                       function<void(exception_ptr)>,
-                       const Ice::Current&)
-{
-    response(Test::StringSeq());
-}
-
-void
-InitialI::opMSeq2Async(Ice::optional<Test::StringSeq> p1,
-                       function<void(const Ice::optional<Test::StringSeq>&, const Ice::optional<Test::StringSeq>&)> response,
-                       function<void(exception_ptr)>,
-                       const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
-InitialI::opMDict1Async(function<void(const Ice::optional<StringIntDict>&)> response,
-                        function<void(exception_ptr)>,
-                        const Ice::Current&)
-{
-    response(StringIntDict());
-}
-
-void
-InitialI::opMDict2Async(Ice::optional<StringIntDict> p1,
-                        function<void(const Ice::optional<StringIntDict>&, const Ice::optional<StringIntDict>&)> response,
-                        function<void(exception_ptr)>,
-                        const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
-InitialI::opMG1Async(function<void(const Ice::optional<shared_ptr<G>>&)> response,
-                     function<void(exception_ptr)>,
-                     const Ice::Current&)
-{
-    response(ICE_MAKE_SHARED(G));
-}
-
-void
-InitialI::opMG2Async(Ice::optional<GPtr> p1,
-                     function<void(const Ice::optional<shared_ptr<G>>&, const Ice::optional<shared_ptr<G>>&)> response,
-                     function<void(exception_ptr)>,
-                     const Ice::Current&)
-{
-    response(p1, p1);
-}
-#endif
 
 void
 InitialI::supportsRequiredParamsAsync(::std::function<void(bool)> response,

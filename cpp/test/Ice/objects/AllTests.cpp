@@ -62,7 +62,6 @@ void clear(const CPtr&);
 void
 clear(const BPtr& b)
 {
-    // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(b->theA))
     {
         auto tmp = b->theA;
@@ -81,7 +80,6 @@ clear(const BPtr& b)
 void
 clear(const CPtr& c)
 {
-    // No GC with the C++11 mapping
     clear(c->theB);
     c->theB = nullptr;
 }
@@ -89,7 +87,6 @@ clear(const CPtr& c)
 void
 clear(const DPtr& d)
 {
-    // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(d->theA))
     {
         clear(dynamic_pointer_cast<B>(d->theA));

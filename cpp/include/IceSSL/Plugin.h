@@ -38,10 +38,6 @@ public:
 
     CertificateReadException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~CertificateReadException() throw();
-#endif
-
     virtual std::string ice_id() const;
 
     /** The reason for the exception. */
@@ -62,10 +58,6 @@ public:
 
     CertificateEncodingException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~CertificateEncodingException() throw();
-#endif
-
     virtual std::string ice_id() const;
 
     /** The reason for the exception. */
@@ -85,10 +77,6 @@ class ICESSL_API ParseException : public IceUtil::ExceptionHelper<ParseException
 public:
 
     ParseException(const char*, int, const std::string&);
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~ParseException() throw();
-#endif
 
     virtual std::string ice_id() const;
 

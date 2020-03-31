@@ -1148,13 +1148,6 @@ char *yytext;
 #   endif
 #endif
 
-#ifdef __SUNPRO_CC
-#   ifdef slice_wrap
-#      undef slice_wrap
-#      define slice_wrap() 1
-#   endif
-#endif
-
 using namespace std;
 using namespace Slice;
 

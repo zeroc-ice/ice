@@ -530,12 +530,6 @@ IceUtil::Exception::Exception(const char* file, int line) :
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IceUtil::Exception::~Exception() throw()
-{
-}
-#endif
-
 void
 IceUtil::Exception::ice_print(ostream& out) const
 {
@@ -625,12 +619,6 @@ IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, in
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IceUtil::IllegalArgumentException::~IllegalArgumentException() throw()
-{
-}
-#endif
-
 void
 IceUtil::IllegalArgumentException::ice_print(ostream& out) const
 {
@@ -665,12 +653,6 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IceUtil::IllegalConversionException::~IllegalConversionException() throw()
-{
-}
-#endif
-
 void
 IceUtil::IllegalConversionException::ice_print(ostream& out) const
 {
@@ -696,12 +678,6 @@ IceUtil::SyscallException::SyscallException(const char* file, int line, int err 
     _error(err)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtil::SyscallException::~SyscallException() throw()
-{
-}
-#endif
 
 void
 IceUtil::SyscallException::ice_print(ostream& os) const
@@ -731,12 +707,6 @@ IceUtil::FileLockException::FileLockException(const char* file, int line, int er
     _path(path)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtil::FileLockException::~FileLockException() throw()
-{
-}
-#endif
 
 void
 IceUtil::FileLockException::ice_print(ostream& os) const

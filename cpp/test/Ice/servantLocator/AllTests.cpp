@@ -13,7 +13,7 @@ using namespace Test;
 //
 // Work-around for strange VS2017 15.5 optimizer bug, see ICE-8611
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG)
 #   pragma optimize("g", off)
 #endif
 
@@ -218,7 +218,7 @@ testExceptions(const TestIntfPrxPtr& obj)
 //
 // See above
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG)
 #   pragma optimize("g", on)
 #endif
 

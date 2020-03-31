@@ -222,11 +222,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
             p->ice_isAAsync(Test::MyClass::ice_staticId());
             test(false);
         }
-#ifdef ICE_CPP11_MAPPING
         catch(const Ice::TwowayOnlyException&)
-#else
-        catch(const IceUtil::IllegalArgumentException&)
-#endif
         {
         }
     }
@@ -237,11 +233,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
             p->ice_idAsync();
             test(false);
         }
-#ifdef ICE_CPP11_MAPPING
         catch(const Ice::TwowayOnlyException&)
-#else
-        catch(const IceUtil::IllegalArgumentException&)
-#endif
         {
         }
     }
@@ -252,11 +244,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
             p->ice_idsAsync();
             test(false);
         }
-#ifdef ICE_CPP11_MAPPING
         catch(const Ice::TwowayOnlyException&)
-#else
-        catch(const IceUtil::IllegalArgumentException&)
-#endif
         {
         }
     }

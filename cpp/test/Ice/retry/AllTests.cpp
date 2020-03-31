@@ -309,11 +309,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         {
             // No more than 2 retries before timeout kicks-in
             RetryPrxPtr prx = retry2->ice_invocationTimeout(500);
-        #ifdef ICE_CPP11_MAPPING
             prx->opIdempotentAsync(4).get();
-        #else
-            prx->end_opIdempotent(prx->begin_opIdempotent(4));
-        #endif
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)

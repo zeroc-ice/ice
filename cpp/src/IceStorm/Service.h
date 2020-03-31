@@ -9,7 +9,7 @@
 #include <IceStorm/IceStorm.h>
 
 //
-// Automatically link with IceStormService[D|++11|++11D].lib
+// Automatically link with IceStormService[D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICESTORM_SERVICE_API_EXPORTS)

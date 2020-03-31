@@ -36,9 +36,6 @@ toCFString(const std::string& s)
 }
 #endif
 
-//
-// Adapts the C++11 functions to C++98-like callbacks
-//
 class ICESSL_API CertificateVerifier
 {
 public:

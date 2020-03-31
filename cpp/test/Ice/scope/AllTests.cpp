@@ -73,7 +73,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::IPrxPtr i =
@@ -145,7 +145,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++11 Callback-Based Async Function
+    // Callback-Based Async Function
     //
     {
         Test::IPrxPtr i =
@@ -443,7 +443,7 @@ allTests(Test::TestHelper* helper)
         test(cmap3["a"]->s == c1->s);
     }
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::Inner::Inner2::IPrxPtr i =
@@ -499,7 +499,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++11 Callback-Based Async Function
+    // Callback-Based Async Function
     //
     {
         Test::Inner::Inner2::IPrxPtr i =
@@ -722,7 +722,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Test::Inner::IPrxPtr i =
@@ -777,7 +777,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++11 Callback-Based Async Function
+    // Callback-Based Async Function
     //
     {
         Test::Inner::IPrxPtr i =
@@ -999,7 +999,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++ 11 Future-Based Async Function
+    // Future-Based Async Function
     //
     {
         Inner::Test::Inner2::IPrxPtr i =
@@ -1054,7 +1054,7 @@ allTests(Test::TestHelper* helper)
     }
 
     //
-    // C++11 Callback-Based Async Function
+    // Callback-Based Async Function
     //
     {
         Inner::Test::Inner2::IPrxPtr i =

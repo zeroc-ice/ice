@@ -50,7 +50,7 @@
 			containerPortal = 14905C491DF98FD8002AE61B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 1440D86B1E0186FF00CF7ED3;
-			remoteInfo = Cpp11ControllerBundle;
+			remoteInfo = CppControllerBundle;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -209,7 +209,7 @@
 			dependencies = (
 			);
 			name = CppControllerBundle;
-			productName = Cpp11ControllerBundle;
+			productName = CppControllerBundle;
 			productReference = 1440D86C1E0186FF00CF7ED3 /* CppControllerBundle.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
@@ -307,7 +307,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#\n# We don't use a CopyFile build phase here to copy the test bundles because the test\n# bundles are located in different location depending on the platform. This script\n# copies the bundles if updated and sign them.\n#\n\nFRAMEWORKS_PATH=\"${TARGET_BUILD_DIR}\"/\"${FRAMEWORKS_FOLDER_PATH}\"\ncd \"../bundles/Bundles++11-${PLATFORM_NAME}\"\nif [ ! -d \"$FRAMEWORKS_PATH\" ]; then\nmkdir -p \"$FRAMEWORKS_PATH\"\nfi;\nfor i in `ls -d */*.bundle`;\n                  do\n                  if [ ! -d \"$FRAMEWORKS_PATH/$i\" -o \"$i\" -nt \"$FRAMEWORKS_PATH/$i\" ]; then\n                  echo \"Copying $i\"\n                  mkdir -p \"$FRAMEWORKS_PATH/$(dirname $i)\"\n                  cp -rf $i \"$FRAMEWORKS_PATH/$(dirname $i)\"\n                  if [ -n \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" ]; then\n                  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --preserve-metadata=identifier,entitlements \"${FRAMEWORKS_PATH}/$i\"\n                  fi;\n                  fi;\n                  done\n                  \n";
+			shellScript = "#\n# We don't use a CopyFile build phase here to copy the test bundles because the test\n# bundles are located in different location depending on the platform. This script\n# copies the bundles if updated and sign them.\n#\n\nFRAMEWORKS_PATH=\"${TARGET_BUILD_DIR}\"/\"${FRAMEWORKS_FOLDER_PATH}\"\ncd \"../bundles/Bundles-${PLATFORM_NAME}\"\nif [ ! -d \"$FRAMEWORKS_PATH\" ]; then\nmkdir -p \"$FRAMEWORKS_PATH\"\nfi;\nfor i in `ls -d */*.bundle`;\n                  do\n                  if [ ! -d \"$FRAMEWORKS_PATH/$i\" -o \"$i\" -nt \"$FRAMEWORKS_PATH/$i\" ]; then\n                  echo \"Copying $i\"\n                  mkdir -p \"$FRAMEWORKS_PATH/$(dirname $i)\"\n                  cp -rf $i \"$FRAMEWORKS_PATH/$(dirname $i)\"\n                  if [ -n \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" ]; then\n                  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --preserve-metadata=identifier,entitlements \"${FRAMEWORKS_PATH}/$i\"\n                  fi;\n                  fi;\n                  done\n                  \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -371,7 +371,6 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					ICE_CPP11_MAPPING,
 					ICE_STATIC_LIBS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -393,7 +392,7 @@
 					"-lbz2",
 					"-liconv",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp11ControllerBundle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.CppControllerBundle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = bundle;
@@ -409,7 +408,6 @@
 				ENABLE_BITCODE = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					ICE_CPP11_MAPPING,
 					ICE_STATIC_LIBS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -431,7 +429,7 @@
 					"-lbz2",
 					"-liconv",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp11ControllerBundle;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.CppControllerBundle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = bundle;
@@ -446,7 +444,6 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ICE_STATIC_LIBS,
-					ICE_CPP11_MAPPING,
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;
@@ -479,7 +476,6 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ICE_STATIC_LIBS,
-					ICE_CPP11_MAPPING,
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;

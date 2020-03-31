@@ -172,7 +172,6 @@ def create_platform_targets(project, platform, bindist)
                     "$(SRCROOT)/../cpp/src/"
                 ]
                 config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
-                    "ICE_CPP11_MAPPING",
                     "ICE_BUILDING_SRC",
                     "ICE_STATIC_LIBS",
                     "ICE_SWIFT"
@@ -235,7 +234,6 @@ def create_platform_targets(project, platform, bindist)
                 "-liconv"
             ]
             config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
-                "ICE_CPP11_MAPPING",
                 "ICE_STATIC_LIBS",
                 "ICE_SWIFT"
             ]

@@ -473,13 +473,6 @@ using namespace IceGrid;
 #   endif
 #endif
 
-#ifdef __SUNPRO_CC
-#   ifdef yywrap
-#      undef yywrap
-#      define yywrap() 1
-#   endif
-#endif
-
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 namespace IceGrid

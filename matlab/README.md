@@ -41,7 +41,7 @@ msbuild msbuild\ice.proj /p:Configuration=Debug
 
 Upon completion, a build in release mode generates the following components:
 
- - Ice for C++11 libraries, located in `cpp\bin\x64\Release`
+ - Ice for C++ libraries, located in `cpp\bin\x64\Release`
  - slice2matlab executable, located in `cpp\bin\x64\Release`
  - ice.mexw64 MEX file, located in `matlab\lib\x64\Release`
  - Prototype and thunk files, located in `matlab\lib\x64\Release`

@@ -100,42 +100,17 @@
 #   define ICE_CPLUSPLUS __cplusplus
 #endif
 
-//
-// Check for C++ 11 support
-//
-// For GCC, we recognize --std=c++0x only for GCC version 4.5 and greater,
-// as C++11 support in prior releases was too limited.
-//
-#if (ICE_CPLUSPLUS >= 201103) || \
-    ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
-    (defined(_MSC_VER))
-#   define ICE_CPP11_COMPILER
-#endif
-
-//
-// Ensure the C++ compiler supports C++11 when using the C++11 mapping
-//
-#if defined(ICE_CPP11_MAPPING) && !defined(ICE_CPP11_COMPILER)
-#   error "you need a C++11 capable compiler to use the C++11 mapping"
-#endif
-
-#if defined(ICE_CPP11_COMPILER)
-#   define ICE_NOEXCEPT noexcept
-#   define ICE_NOEXCEPT_FALSE noexcept(false)
-#   define ICE_FINAL final
-#else
-#   define ICE_NOEXCEPT throw()
-#   define ICE_NOEXCEPT_FALSE /**/
-#   define ICE_FINAL /**/
-#endif
+#define ICE_NOEXCEPT noexcept
+#define ICE_NOEXCEPT_FALSE noexcept(false)
+#define ICE_FINAL final
 
 //
 // Does the C++ compiler library provide std::codecvt_utf8 and
 // std::codecvt_utf8_utf16?
 //
 #if (defined(_MSC_VER) || \
-    defined(__clang__) || \
-     (defined(ICE_CPP11_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5)))
+     defined(__clang__) || \
+    (defined(__GNUC__) && (__GNUC__ >= 5)))
 #define ICE_HAS_CODECVT_UTF8
 #endif
 
@@ -314,27 +289,24 @@ typedef long long Int64;
 
 }
 
-//
-// Macros to facilitate C++98 -> C++11 transition
-//
-#   include <memory>
-#   include <future>
-#   define ICE_HANDLE ::std::shared_ptr
-#   define ICE_INTERNAL_HANDLE ::std::shared_ptr
-#   define ICE_PROXY_HANDLE ::std::shared_ptr
-#   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
-#   define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
-#   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#   define ICE_NULLPTR nullptr
-#   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
-#   define ICE_SHARED_FROM_THIS shared_from_this()
-#   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
-#   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
-#   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
-#   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#   define ICE_DELEGATE(T) T
-#   define ICE_IN(...) __VA_ARGS__
-#   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
+#include <memory>
+#include <future>
+#define ICE_HANDLE ::std::shared_ptr
+#define ICE_INTERNAL_HANDLE ::std::shared_ptr
+#define ICE_PROXY_HANDLE ::std::shared_ptr
+#define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
+#define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
+#define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
+#define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
+#define ICE_NULLPTR nullptr
+#define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
+#define ICE_SHARED_FROM_THIS shared_from_this()
+#define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
+#define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
+#define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
+#define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
+#define ICE_DELEGATE(T) T
+#define ICE_IN(...) __VA_ARGS__
+#define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 
 #endif

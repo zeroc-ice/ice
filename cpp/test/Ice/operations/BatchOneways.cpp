@@ -147,14 +147,10 @@ batchOneways(const Test::MyClassPrxPtr& p)
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
         BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
-#if defined(ICE_CPP11_MAPPING)
         initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int countP, int size)
         {
             interceptor->enqueue(request, countP, size);
         };
-#else
-        initData.batchRequestInterceptor = interceptor;
-#endif
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
         Test::MyClassPrxPtr batch4 =

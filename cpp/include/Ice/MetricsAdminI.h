@@ -11,16 +11,7 @@
 
 #include <Ice/Metrics.h>
 
-#ifdef _MSC_VER
-#  define ICE_CPP11_COMPILER_REGEXP
-#endif
-
-#if defined(ICE_CPP11_COMPILER_REGEXP)
-#  include <regex>
-#else
-#  include <regex.h>
-#endif
-
+#include <regex>
 #include <list>
 
 namespace IceMX
@@ -72,11 +63,7 @@ public:
 
         const std::string _attribute;
 
-#if defined(ICE_CPP11_COMPILER_REGEXP)
         std::regex _regex;
-#else
-        regex_t _preg;
-#endif
     };
     ICE_DEFINE_PTR(RegExpPtr, RegExp);
 

@@ -51,12 +51,6 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-CertificateReadException::~CertificateReadException() throw()
-{
-}
-#endif
-
 string
 CertificateReadException::ice_id() const
 {
@@ -69,12 +63,6 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-CertificateEncodingException::~CertificateEncodingException() throw()
-{
-}
-#endif
-
 string
 CertificateEncodingException::ice_id() const
 {
@@ -86,12 +74,6 @@ ParseException::ParseException(const char* file, int line, const string& r) :
     reason(r)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-ParseException::~ParseException() throw()
-{
-}
-#endif
 
 string
 ParseException::ice_id() const

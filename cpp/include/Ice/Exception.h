@@ -36,12 +36,8 @@ public:
      */
     LocalException(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     LocalException(const LocalException&) = default;
     virtual ~LocalException();
-#else
-    virtual ~LocalException() throw();
-#endif
 
     /**
      * Polymporphically clones this exception.
@@ -110,12 +106,8 @@ public:
      */
     SystemException(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     SystemException(const SystemException&) = default;
     virtual ~SystemException();
-#else
-    virtual ~SystemException() throw();
-#endif
 
     /**
      * Polymporphically clones this exception.

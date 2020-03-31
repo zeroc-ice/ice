@@ -16,9 +16,6 @@ class FileException : public ::IceUtil::Exception
 public:
 
     FileException(const char*, int, const std::string&);
-#ifndef ICE_CPP11_COMPILER
-    ~FileException() throw();
-#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
     virtual FileException* ice_cloneImpl() const;

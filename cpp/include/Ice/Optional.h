@@ -1092,13 +1092,7 @@ using std::experimental::Ice::in_place;
 namespace IceUtil
 {
 
-/**
- * For compatibility with the Ice C++98 mapping, do not use in new code:
- */
 template<class T> using Optional = std::experimental::Ice::optional<T>;
-/**
- * For compatibility with the Ice C++98 mapping, do not use in new code:
- */
 constexpr std::experimental::Ice::nullopt_t None{std::experimental::Ice::nullopt_t::init()};
 
 }

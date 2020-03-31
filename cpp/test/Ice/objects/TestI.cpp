@@ -102,7 +102,6 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
 InitialI::~InitialI()
 {
-    // No GC with the C++11 mapping
     _b1->theA = ICE_NULLPTR;
     _b1->theB = ICE_NULLPTR;
 
