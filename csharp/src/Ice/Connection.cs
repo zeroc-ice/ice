@@ -2185,7 +2185,7 @@ namespace Ice
                 {
                     if (_compressionSupported)
                     {
-                        info.Data = BZip2.Uncompress(info.Data, Ice1Definitions.HeaderSize, _messageSizeMax);
+                        info.Data = BZip2.Decompress(info.Data, Ice1Definitions.HeaderSize, _messageSizeMax);
                     }
                     else
                     {
@@ -2736,7 +2736,7 @@ namespace Ice
         private bool _initialized = false;
         private bool _validated = false;
 
-        private static readonly bool _compressionSupported = BZip2.Supported();
+        private static readonly bool _compressionSupported = BZip2.Supported;
 
         private ConnectionInfo? _info;
 

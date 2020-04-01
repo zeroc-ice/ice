@@ -9,8 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Ice
 {
-    // Map Bzip2 bz_stream struct to a C# struct
-    // for using with the Bzip2 low level API.
+    // Map Bzip2 bz_stream struct to a C# struct for using with the Bzip2 low level API.
     [StructLayout(LayoutKind.Sequential)]
     internal struct BZStream
     {
@@ -29,7 +28,7 @@ namespace Ice
         internal IntPtr BzFree;
         internal IntPtr Opaque;
 
-        public BZStream(IntPtr nextOut, uint availOut)
+        internal BZStream(IntPtr nextOut, uint availOut)
         {
             NextIn = IntPtr.Zero;
             AvailIn = 0;
@@ -143,18 +142,45 @@ namespace Ice
     internal delegate int BZCompress(ref BZStream stream, int action);
     internal delegate int BZCompressEnd(ref BZStream stream);
 
-    internal delegate int BZDeompressInit(ref BZStream stream, int verbosity, int small);
+    internal delegate int BZDecompressInit(ref BZStream stream, int verbosity, int small);
     internal delegate int BZDeompress(ref BZStream stream);
     internal delegate int BZDeompressEnd(ref BZStream stream);
 
     internal class BZip2
     {
-        private const int BzRun = 0;
-        private const int BzFinish = 2;
+        private enum BzAction
+        {
+            Run = 0,
+            Flush = 1,
+            Finish = 2
+        }
 
-        private const int BzRunOk = 1;
-        private const int BzFinishOk = 3;
-        private const int BzStreamEnd = 4;
+        private enum BzStatus
+        {
+            RunOk = 1,
+            FinishOk = 3,
+            StreamEnd = 4,
+
+            SequenceError = -1,
+            ParamError = -2,
+            MemError = -3,
+            DataError = -4,
+            DataErrorMagic = -5,
+            IoError = -6,
+            UnexpectedEof = -7,
+            OutbuffFull = -8,
+            ConfigError = -9
+        }
+
+        internal static bool Supported { get; }
+
+        private static readonly BZCompressInit _compressInit;
+        private static readonly BZCompress _compress;
+        private static readonly BZCompressEnd _compressEnd;
+
+        private static readonly BZDecompressInit _decompressInit;
+        private static readonly BZDeompress _decompress;
+        private static readonly BZDeompressEnd _decompressEnd;
 
         static BZip2()
         {
@@ -162,38 +188,38 @@ namespace Ice
             // Simple trick to find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function in the
             // library. If we get an exception, the library is not available.
             //
-            _bzlibInstalled = false;
-            _bzlibName = string.Empty;
+            Supported = false;
+            string bzlibName = string.Empty;
             try
             {
                 if (IceInternal.AssemblyUtil.IsWindows)
                 {
-                    _bzlibName = "bzip2.dll";
+                    bzlibName = "bzip2.dll";
                     SafeNativeMethods.WindowsBZ2_bzlibVersion();
                 }
                 else if (IceInternal.AssemblyUtil.IsMacOS)
                 {
-                    _bzlibName = "libbz2.dylib";
+                    bzlibName = "libbz2.dylib";
                     SafeNativeMethods.MacOSBZ2_bzlibVersion();
                 }
                 else
                 {
                     try
                     {
-                        _bzlibName = "libbz2.so.1.0";
+                        bzlibName = "libbz2.so.1.0";
                         SafeNativeMethods.UnixBZ2_10_bzlibVersion();
                     }
                     catch (TypeLoadException)
                     {
-                        _bzlibName = "libbz2.so.1";
+                        bzlibName = "libbz2.so.1";
                         SafeNativeMethods.UnixBZ2_1_bzlibVersion();
                     }
                 }
-                _bzlibInstalled = true;
+                Supported = true;
             }
             catch (EntryPointNotFoundException)
             {
-                Console.Error.WriteLine($"warning: found {_bzlibName} but entry point BZ2_bzlibVersion is missing.");
+                Console.Error.WriteLine($"warning: found {bzlibName} but entry point BZ2_bzlibVersion is missing.");
             }
             catch (TypeLoadException)
             {
@@ -201,7 +227,7 @@ namespace Ice
             }
             catch (BadImageFormatException ex)
             {
-                string lib = _bzlibName;
+                string lib = bzlibName;
                 if (!string.IsNullOrEmpty(ex.FileName))
                 {
                     lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
@@ -252,7 +278,7 @@ namespace Ice
             }
             else
             {
-                if (_bzlibName == "libbz2.so.1.0")
+                if (bzlibName == "libbz2.so.1.0")
                 {
                     _decompressInit = (ref BZStream stream, int verbosity, int small) =>
                         SafeNativeMethods.UnixBZ2_10_bzDecompressInit(ref stream, verbosity, small);
@@ -291,77 +317,15 @@ namespace Ice
             }
         }
 
-        private static string GetBZ2Error(int error)
-        {
-            string rc;
-
-            switch (error)
-            {
-                case BzSequenceError:
-                    {
-                        rc = "BZ_SEQUENCE_ERROR";
-                        break;
-                    }
-                case BzParamError:
-                    {
-                        rc = "BZ_PARAM_ERROR";
-                        break;
-                    }
-                case BzMemError:
-                    {
-                        rc = "BZ_MEM_ERROR";
-                        break;
-                    }
-                case BzDataError:
-                    {
-                        rc = "BZ_DATA_ERROR";
-                        break;
-                    }
-                case BzDataErrorMagic:
-                    {
-                        rc = "BZ_DATA_ERROR_MAGIC";
-                        break;
-                    }
-                case BzIoError:
-                    {
-                        rc = "BZ_IO_ERROR";
-                        break;
-                    }
-                case BzUnexpectedEof:
-                    {
-                        rc = "BZ_UNEXPECTED_EOF";
-                        break;
-                    }
-                case BzOutbuffFull:
-                    {
-                        rc = "BZ_OUTBUFF_FULL";
-                        break;
-                    }
-                case BzConfigError:
-                    {
-                        rc = "BZ_CONFIG_ERROR";
-                        break;
-                    }
-                default:
-                    {
-                        rc = "Unknown bzip2 error: " + error;
-                        break;
-                    }
-            }
-            return rc;
-        }
-
-        internal static bool Supported() => _bzlibInstalled;
-
         internal static List<ArraySegment<byte>>? Compress(
             List<ArraySegment<byte>> data, int size, int headerSize, int compressionLevel)
         {
-            Debug.Assert(Supported());
+            Debug.Assert(Supported);
 
             // Compress the message body, but not the header.
-            int uncompressedLen = size - headerSize;
+            int decompressedLen = size - headerSize;
             // Compress the message body, but not the header.
-            byte[] compressed = new byte[(int)((uncompressedLen * 1.01) + 600)];
+            byte[] compressed = new byte[(int)((decompressedLen * 1.01) + 600)];
 
             // Prevent GC from moving the byte array, this allow to take the object address
             // and pass it to bzip2 calls.
@@ -377,8 +341,8 @@ namespace Ice
                 Debug.Assert(headerSegment.Offset == 0);
                 data[0] = headerSegment.Slice(headerSize);
 
-                int rc = BzRunOk;
-                for (int i = 0; rc == BzRunOk && i < data.Count; i++)
+                var rc = BzStatus.RunOk;
+                for (int i = 0; rc == BzStatus.RunOk && i < data.Count; i++)
                 {
                     ArraySegment<byte> segment = data[i];
                     var segmentHandle = GCHandle.Alloc(segment.Array, GCHandleType.Pinned);
@@ -388,39 +352,39 @@ namespace Ice
 
                     do
                     {
-                        rc = _compress(ref bzStream, BzRun);
+                        rc = (BzStatus)_compress(ref bzStream, (int)BzAction.Run);
                     }
-                    while (rc == BzRunOk && bzStream.AvailIn > 0);
+                    while (rc == BzStatus.RunOk && bzStream.AvailIn > 0);
                     segmentHandle.Free();
                 }
 
-                if (rc != BzRunOk)
+                if (rc != BzStatus.RunOk)
                 {
-                    throw new TransportException($"bzip2 compression failed: {GetBZ2Error(rc)}");
+                    throw new TransportException($"bzip2 compression failed: {rc}");
                 }
 
                 do
                 {
-                    rc = _compress(ref bzStream, BzFinish);
+                    rc = (BzStatus)_compress(ref bzStream, (int)BzAction.Finish);
                 }
-                while (rc == BzFinishOk);
+                while (rc == BzStatus.FinishOk);
 
-                if (rc != BzStreamEnd)
+                if (rc != BzStatus.StreamEnd)
                 {
-                    throw new TransportException($"bzip2 compression failed: {GetBZ2Error(rc)}");
+                    throw new TransportException($"bzip2 compression failed: {rc}");
                 }
 
                 int compressedLen = compressed.Length - (int)bzStream.AvailOut;
 
-                // Don't bother if the compressed data is larger than the uncompressed data.
-                if (compressedLen >= uncompressedLen)
+                // Don't bother if the compressed data is larger than the decompressed data.
+                if (compressedLen >= decompressedLen)
                 {
                     return null;
                 }
 
-                // Copy the header from the uncompressed stream to the compressed one,
+                // Copy the header from the decompressed stream to the compressed one,
                 // we use headerSize + 4 to ensure there is room for the size of the
-                // uncompressed stream in the first segment.
+                // decompressed stream in the first segment.
                 ArraySegment<byte> compressedHeader = new byte[headerSize + 4];
                 headerSegment.AsSpan(0, headerSize).CopyTo(compressedHeader);
 
@@ -431,12 +395,12 @@ namespace Ice
                 OutputStream.WriteInt(compressedSize, compressedHeader.AsSpan(10, 4));
 
                 // Write the compression status and size of the compressed stream
-                // into the header of the uncompressed stream -- we need this to
+                // into the header of the decompressed stream -- we need this to
                 // trace requests correctly.
                 headerSegment[9] = 2;
                 OutputStream.WriteInt(compressedSize, headerSegment.AsSpan(10, 4));
 
-                // Add the size of the uncompressed stream before the message body.
+                // Add the size of the decompressed stream before the message body.
                 OutputStream.WriteInt(size, compressedHeader.AsSpan(headerSize, 4));
 
                 return new List<ArraySegment<byte>>(2)
@@ -454,30 +418,30 @@ namespace Ice
             }
         }
 
-        public static ArraySegment<byte> Uncompress(ArraySegment<byte> compressed, int headerSize, int messageSizeMax)
+        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int messageSizeMax)
         {
-            Debug.Assert(Supported());
-            int uncompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
-            if (uncompressedSize <= headerSize)
+            Debug.Assert(Supported);
+            int decompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
+            if (decompressedSize <= headerSize)
             {
                 throw new InvalidDataException(
-                    $"received compressed ice1 frame with a decompressed size of only {uncompressedSize} bytes");
+                    $"received compressed ice1 frame with a decompressed size of only {decompressedSize} bytes");
             }
-            if (uncompressedSize > messageSizeMax)
+            if (decompressedSize > messageSizeMax)
             {
                 throw new InvalidDataException(
-                    $"uncompressed size of {uncompressedSize} bytes is greater than Ice.MessageSizeMax value");
+                    $"decompressed size of {decompressedSize} bytes is greater than Ice.MessageSizeMax value");
             }
 
-            int uncompressedLen = uncompressedSize - headerSize;
-            byte[] uncompressed = new byte[uncompressedSize];
+            int decompressedLen = decompressedSize - headerSize;
+            byte[] decompressed = new byte[decompressedSize];
 
             // Prevent GC from moving the byte array, this allow to take the object address
             // and pass it to bzip2 calls.
-            var uncompressedHandle = GCHandle.Alloc(uncompressed, GCHandleType.Pinned);
+            var decompressedHandle = GCHandle.Alloc(decompressed, GCHandleType.Pinned);
             var compressedHandle = GCHandle.Alloc(compressed.Array, GCHandleType.Pinned);
-            var bzStream = new BZStream(uncompressedHandle.AddrOfPinnedObject() + headerSize,
-                (uint)(uncompressedSize - headerSize));
+            var bzStream = new BZStream(decompressedHandle.AddrOfPinnedObject() + headerSize,
+                (uint)(decompressedSize - headerSize));
 
             try
             {
@@ -485,42 +449,21 @@ namespace Ice
 
                 bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + compressed.Offset + headerSize + 4;
                 bzStream.AvailIn = (uint)(compressed.Count - headerSize - 4);
-                int rc = _decompress(ref bzStream);
-                if (rc != BzStreamEnd)
+                var rc = (BzStatus)_decompress(ref bzStream);
+                if (rc != BzStatus.StreamEnd)
                 {
-                    throw new TransportException($"bzip2 decompression failed: {GetBZ2Error(rc)}");
+                    throw new TransportException($"bzip2 decompression failed: {rc}");
                 }
             }
             finally
             {
                 _decompressEnd(ref bzStream);
-                uncompressedHandle.Free();
+                decompressedHandle.Free();
                 compressedHandle.Free();
             }
-            compressed.AsSpan(0, headerSize).CopyTo(uncompressed);
-            return uncompressed;
+            compressed.AsSpan(0, headerSize).CopyTo(decompressed);
+            return decompressed;
         }
-
-        private static readonly bool _bzlibInstalled;
-        private static readonly string _bzlibName;
-
-        private static readonly BZCompressInit _compressInit;
-        private static readonly BZCompress _compress;
-        private static readonly BZCompressEnd _compressEnd;
-
-        private static readonly BZDeompressInit _decompressInit;
-        private static readonly BZDeompress _decompress;
-        private static readonly BZDeompressEnd _decompressEnd;
-
-        private const int BzSequenceError = -1;
-        private const int BzParamError = -2;
-        private const int BzMemError = -3;
-        private const int BzDataError = -4;
-        private const int BzDataErrorMagic = -5;
-        private const int BzIoError = -6;
-        private const int BzUnexpectedEof = -7;
-        private const int BzOutbuffFull = -8;
-        private const int BzConfigError = -9;
     }
 
 }
