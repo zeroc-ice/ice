@@ -355,11 +355,11 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::E> in(5);
-        in[0] = Test:: ICE_ENUM(E, E1);
-        in[1] = Test:: ICE_ENUM(E, E2);
-        in[2] = Test:: ICE_ENUM(E, E3);
-        in[3] = Test:: ICE_ENUM(E, E1);
-        in[4] = Test:: ICE_ENUM(E, E3);
+        in[0] = Test:: E::E1;
+        in[1] = Test:: E::E2;
+        in[2] = Test:: E::E3;
+        in[3] = Test:: E::E1;
+        in[4] = Test:: E::E3;
 
         deque<Test::E> out;
         deque<Test::E> ret = t->opESeq(in, out);
@@ -369,11 +369,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::E> in;
-        in.push_back(Test:: ICE_ENUM(E, E1));
-        in.push_back(Test:: ICE_ENUM(E, E2));
-        in.push_back(Test:: ICE_ENUM(E, E3));
-        in.push_back(Test:: ICE_ENUM(E, E1));
-        in.push_back(Test:: ICE_ENUM(E, E3));
+        in.push_back(Test:: E::E1);
+        in.push_back(Test:: E::E2);
+        in.push_back(Test:: E::E3);
+        in.push_back(Test:: E::E1);
+        in.push_back(Test:: E::E3);
 
         list<Test::E> out;
         list<Test::E> ret = t->opEList(in, out);
@@ -424,7 +424,7 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = ICE_MAKE_SHARED(Test::C);
+        in[0] = std::make_shared<Test::C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -443,11 +443,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::CPtr> in;
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
 
         list<Test::CPtr> out;
         list<Test::CPtr> ret = t->opCList(in, out);
@@ -844,11 +844,11 @@ allTests(Test::TestHelper* helper)
 
         {
             deque<Test::E> in(5);
-            in[0] = Test:: ICE_ENUM(E, E1);
-            in[1] = Test:: ICE_ENUM(E, E2);
-            in[2] = Test:: ICE_ENUM(E, E3);
-            in[3] = Test:: ICE_ENUM(E, E1);
-            in[4] = Test:: ICE_ENUM(E, E3);
+            in[0] = Test:: E::E1;
+            in[1] = Test:: E::E2;
+            in[2] = Test:: E::E3;
+            in[3] = Test:: E::E1;
+            in[4] = Test:: E::E3;
 
             auto r = t->opESeqAsync(in).get();
             test(r.outSeq == in);
@@ -857,11 +857,11 @@ allTests(Test::TestHelper* helper)
 
         {
             list<Test::E> in;
-            in.push_back(Test:: ICE_ENUM(E, E1));
-            in.push_back(Test:: ICE_ENUM(E, E2));
-            in.push_back(Test:: ICE_ENUM(E, E3));
-            in.push_back(Test:: ICE_ENUM(E, E1));
-            in.push_back(Test:: ICE_ENUM(E, E3));
+            in.push_back(Test:: E::E1);
+            in.push_back(Test:: E::E2);
+            in.push_back(Test:: E::E3);
+            in.push_back(Test:: E::E1);
+            in.push_back(Test:: E::E3);
 
             auto r = t->opEListAsync(in).get();
             test(r.outSeq == in);
@@ -916,7 +916,7 @@ allTests(Test::TestHelper* helper)
 
         {
             deque<Test::CPtr> in(5);
-            in[0] = ICE_MAKE_SHARED(Test::C);
+            in[0] = std::make_shared<Test::C>();
             in[1] = in[0];
             in[2] = in[0];
             in[3] = in[0];
@@ -936,11 +936,11 @@ allTests(Test::TestHelper* helper)
 
         {
             list<Test::CPtr> in;
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(std::make_shared<Test::C>());
+            in.push_back(std::make_shared<Test::C>());
+            in.push_back(std::make_shared<Test::C>());
+            in.push_back(std::make_shared<Test::C>());
+            in.push_back(std::make_shared<Test::C>());
 
             auto r = t->opCListAsync(in).get();
             test(r.outSeq.size() == in.size());
@@ -1449,11 +1449,11 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::E> in(5);
-        in[0] = Test:: ICE_ENUM(E, E1);
-        in[1] = Test:: ICE_ENUM(E, E2);
-        in[2] = Test:: ICE_ENUM(E, E3);
-        in[3] = Test:: ICE_ENUM(E, E1);
-        in[4] = Test:: ICE_ENUM(E, E3);
+        in[0] = Test:: E::E1;
+        in[1] = Test:: E::E2;
+        in[2] = Test:: E::E3;
+        in[3] = Test:: E::E1;
+        in[4] = Test:: E::E3;
 
         promise<bool> done;
 
@@ -1474,11 +1474,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::E> in;
-        in.push_back(Test:: ICE_ENUM(E, E1));
-        in.push_back(Test:: ICE_ENUM(E, E2));
-        in.push_back(Test:: ICE_ENUM(E, E3));
-        in.push_back(Test:: ICE_ENUM(E, E1));
-        in.push_back(Test:: ICE_ENUM(E, E3));
+        in.push_back(Test:: E::E1);
+        in.push_back(Test:: E::E2);
+        in.push_back(Test:: E::E3);
+        in.push_back(Test:: E::E1);
+        in.push_back(Test:: E::E3);
 
         promise<bool> done;
 
@@ -1561,7 +1561,7 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = ICE_MAKE_SHARED(Test::C);
+        in[0] = std::make_shared<Test::C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -1586,11 +1586,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::CPtr> in;
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
+        in.push_back(std::make_shared<Test::C>());
 
         promise<bool> done;
 

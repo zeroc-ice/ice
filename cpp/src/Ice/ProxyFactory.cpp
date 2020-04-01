@@ -86,7 +86,7 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
     }
     else
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 }
 

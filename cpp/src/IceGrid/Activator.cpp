@@ -367,7 +367,7 @@ Activator::activate(const string& name,
             // IceGrid doesn't support to use string converters, so don't need to use
             // any string converter in wstringToString conversions.
             //
-            if(SearchPathW(ICE_NULLPTR, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
+            if(SearchPathW(nullptr, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
             {
                 if(_traceLevels->activator > 0)
                 {
@@ -394,7 +394,7 @@ Activator::activate(const string& name,
     if(!pwd.empty())
     {
         wchar_t absbuf[_MAX_PATH];
-        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == ICE_NULLPTR)
+        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == nullptr)
         {
             if(_traceLevels->activator > 0)
             {
@@ -483,7 +483,7 @@ Activator::activate(const string& name,
     // any string converter in stringToWstring conversions.
     //
     wstring wpwd = stringToWstring(pwd);
-    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : ICE_NULLPTR;
+    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : nullptr;
 
     //
     // Make a copy of the command line.
@@ -496,7 +496,7 @@ Activator::activate(const string& name,
     // Since Windows is case insensitive wrt environment variables we convert the keys to
     // uppercase to ensure matches are found.
     //
-    const wchar_t* env = ICE_NULLPTR;
+    const wchar_t* env = nullptr;
     wstring envbuf;
     if(!envs.empty())
     {
@@ -1010,7 +1010,7 @@ Activator::sendSignal(const string& name, int signal)
     else if(signal == SIGKILL)
     {
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-        if(hnd == ICE_NULLPTR)
+        if(hnd == nullptr)
         {
             throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }

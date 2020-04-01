@@ -52,11 +52,11 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TimeoutI), Ice::stringToIdentity("timeout"));
+    adapter->add(std::make_shared<TimeoutI>(), Ice::stringToIdentity("timeout"));
     adapter->activate();
 
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
-    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->add(std::make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     controllerAdapter->activate();
 
     serverReady();

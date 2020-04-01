@@ -124,7 +124,7 @@ allTests(Test::TestHelper* helper)
     {
         p->op();
 
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->opAsync(
             [cb]()
             {

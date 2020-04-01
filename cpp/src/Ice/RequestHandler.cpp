@@ -10,12 +10,12 @@ using namespace IceInternal;
 
 RetryException::RetryException(const Ice::LocalException& ex)
 {
-    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
+    _ex = ex.ice_clone();
 }
 
 RetryException::RetryException(const RetryException& ex)
 {
-    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.get()->ice_clone());
+    _ex = ex.get()->ice_clone();
 }
 
 const Ice::LocalException*

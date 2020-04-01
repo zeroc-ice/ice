@@ -26,7 +26,7 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(RetryI), Ice::stringToIdentity("retry"));
+    adapter->add(std::make_shared<RetryI>(), Ice::stringToIdentity("retry"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

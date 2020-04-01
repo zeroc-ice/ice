@@ -31,7 +31,7 @@ public:
 
     virtual std::string operator()(const std::string&) const = 0;
 
-    virtual void initMetrics(const ICE_INTERNAL_HANDLE<T>&) const
+    virtual void initMetrics(const std::shared_ptr<T>&) const
     {
         // To be overriden in specialization to initialize state attributes
     }
@@ -322,7 +322,7 @@ public:
 };
 ICE_DEFINE_PTR(UpdaterPtr, Updater);
 
-template<typename T> class UpdaterT ICE_FINAL : public Updater
+template<typename T> class UpdaterT final : public Updater
 {
 public:
 
@@ -339,7 +339,7 @@ public:
 
 private:
 
-    const ICE_HANDLE<T> _updater;
+    const std::shared_ptr<T> _updater;
     void (T::*_fn)();
 };
 
@@ -439,10 +439,10 @@ public:
                 return *p;
             }
         }
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
-    template<typename ObserverImpl, typename ObserverMetricsType> ICE_INTERNAL_HANDLE<ObserverImpl>
+    template<typename ObserverImpl, typename ObserverMetricsType> std::shared_ptr<ObserverImpl>
     getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
         std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
@@ -457,10 +457,10 @@ public:
 
         if(metricsObjects.empty())
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
-        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = ICE_MAKE_SHARED(ObserverImpl);
+        std::shared_ptr<ObserverImpl> obsv = std::make_shared<ObserverImpl>();
         obsv->init(helper, metricsObjects);
         return obsv;
     }
@@ -501,7 +501,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -516,10 +516,10 @@ public:
 
         if(metricsObjects.empty())
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
-        ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
+        ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
         obsv->init(helper, metricsObjects);
         return obsv;
     }
@@ -536,7 +536,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -551,10 +551,10 @@ public:
         if(metricsObjects.empty())
         {
             old->detach();
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
-        ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
+        ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
         obsv->init(helper, metricsObjects, old.get());
         return obsv;
     }

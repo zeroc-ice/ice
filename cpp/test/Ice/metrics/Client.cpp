@@ -26,7 +26,7 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Admin.InstanceName", "client");
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
+    CommunicatorObserverIPtr observer = std::make_shared<CommunicatorObserverI>();
     initData.observer = observer;
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 

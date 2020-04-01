@@ -39,7 +39,7 @@ Server::run(int argc, char** argv)
     {
         ostringstream os;
         os << "controller" << num;
-        adapter->add(ICE_MAKE_SHARED(ControllerI), Ice::stringToIdentity(os.str()));
+        adapter->add(std::make_shared<ControllerI>(), Ice::stringToIdentity(os.str()));
     }
     adapter->activate();
 

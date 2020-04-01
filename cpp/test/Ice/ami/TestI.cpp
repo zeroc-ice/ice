@@ -37,7 +37,7 @@ TestIntfI::opWithResultAndUE(const Ice::Current&)
 }
 
 void
-TestIntfI::opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&)
+TestIntfI::opWithPayload(Ice::ByteSeq, const Ice::Current&)
 {
 }
 
@@ -158,7 +158,7 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
-TestIntfI::pingBiDir(ICE_IN(Test::PingReplyPrxPtr) reply, const Ice::Current& current)
+TestIntfI::pingBiDir(Test::PingReplyPrxPtr reply, const Ice::Current& current)
 {
     reply->ice_fixed(current.con)->replyAsync().get();
 }

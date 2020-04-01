@@ -270,7 +270,7 @@ IceSSL::OpenSSL::getSslErrors(bool verbose)
         else
         {
             const char* reason = ERR_reason_error_string(err);
-            ostr << (reason == ICE_NULLPTR ? "unknown reason" : reason);
+            ostr << (reason == nullptr ? "unknown reason" : reason);
             if(flags & ERR_TXT_STRING)
             {
                 ostr << ": " << data;

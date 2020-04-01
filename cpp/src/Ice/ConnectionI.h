@@ -136,7 +136,7 @@ public:
     void activate();
     void hold();
     void destroy(DestructionReason);
-    virtual void close(ConnectionClose) ICE_NOEXCEPT; // From Connection.
+    virtual void close(ConnectionClose) noexcept; // From Connection.
 
     bool isActiveOrHolding() const;
     bool isFinished() const;
@@ -159,8 +159,8 @@ public:
                             ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
 
-    virtual void setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)));
-    virtual void setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)));
+    virtual void setCloseCallback(CloseCallback);
+    virtual void setHeartbeatCallback(HeartbeatCallback);
 
     virtual void heartbeat();
 
@@ -170,7 +170,7 @@ public:
     virtual void setACM(const IceUtil::Optional<int>&,
                         const IceUtil::Optional<ACMClose>&,
                         const IceUtil::Optional<ACMHeartbeat>&);
-    virtual ACM getACM() ICE_NOEXCEPT;
+    virtual ACM getACM() noexcept;
 
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
@@ -183,8 +183,8 @@ public:
     IceInternal::ConnectorPtr connector() const;
 
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
-    virtual ObjectAdapterPtr getAdapter() const ICE_NOEXCEPT; // From Connection.
-    virtual EndpointPtr getEndpoint() const ICE_NOEXCEPT; // From Connection.
+    virtual ObjectAdapterPtr getAdapter() const noexcept; // From Connection.
+    virtual EndpointPtr getEndpoint() const noexcept; // From Connection.
     virtual ObjectPrxPtr createProxy(const Identity& ident) const; // From Connection.
 
     void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
@@ -199,13 +199,13 @@ public:
 
     virtual void message(IceInternal::ThreadPoolCurrent&);
     virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
-    virtual std::string toString() const ICE_NOEXCEPT; // From Connection and EvantHandler.
+    virtual std::string toString() const noexcept; // From Connection and EvantHandler.
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     void timedOut();
 
-    virtual std::string type() const ICE_NOEXCEPT; // From Connection.
-    virtual Ice::Int timeout() const ICE_NOEXCEPT; // From Connection.
+    virtual std::string type() const noexcept; // From Connection.
+    virtual Ice::Int timeout() const noexcept; // From Connection.
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
     virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection
@@ -215,10 +215,10 @@ public:
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
-                  const ICE_DELEGATE(HeartbeatCallback)&, Ice::InputStream&);
+                  const HeartbeatCallback&, Ice::InputStream&);
     void finish(bool);
 
-    void closeCallback(const ICE_DELEGATE(CloseCallback)&);
+    void closeCallback(const CloseCallback&);
 
     virtual ~ConnectionI();
 
@@ -266,7 +266,7 @@ private:
 
     IceInternal::SocketOperation parseMessage(Ice::InputStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
-                                              IceInternal::OutgoingAsyncBasePtr&, ICE_DELEGATE(HeartbeatCallback)&, int&);
+                                              IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
 
     void invokeAll(Ice::InputStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
@@ -341,8 +341,8 @@ private:
     bool _initialized;
     bool _validated;
 
-    ICE_DELEGATE(CloseCallback) _closeCallback;
-    ICE_DELEGATE(HeartbeatCallback) _heartbeatCallback;
+    CloseCallback _closeCallback;
+    HeartbeatCallback _heartbeatCallback;
 };
 
 }

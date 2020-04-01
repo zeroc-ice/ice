@@ -54,7 +54,7 @@ ServerCustomThreadPool::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.ThreadPool.ThreadPriority", "50");
 #endif
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(PriorityI, adapter);
+    Ice::ObjectPtr object = std::make_shared<PriorityI>(adapter);
     adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();
     communicator->waitForShutdown();

@@ -45,7 +45,7 @@ ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const
     {
         // Ignore.
     }
-    return ICE_SHARED_FROM_THIS;
+    return shared_from_this();
 }
 
 AsyncStatus

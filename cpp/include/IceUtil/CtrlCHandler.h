@@ -39,7 +39,7 @@ public:
      * Only a single CtrlCHandler object can exist in a process at a give time.
      * @param cb The callback function to invoke when a signal is received.
      */
-    explicit CtrlCHandler(CtrlCHandlerCallback cb = ICE_NULLPTR);
+    explicit CtrlCHandler(CtrlCHandlerCallback cb = nullptr);
 
      /**
      * Unregisters the callback function.

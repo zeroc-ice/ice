@@ -21,12 +21,12 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)), const std::string&);
-    virtual ICE_DELEGATE(::Ice::ValueFactory) find(const std::string&) const ICE_NOEXCEPT;
+    virtual void add(::Ice::ValueFactory, const std::string&);
+    virtual ::Ice::ValueFactory find(const std::string&) const noexcept;
 
 private:
 
-    typedef std::map<std::string, ICE_DELEGATE(::Ice::ValueFactory)> FactoryMap;
+    typedef std::map<std::string, ::Ice::ValueFactory> FactoryMap;
 
     FactoryMap _factoryMap;
     mutable FactoryMap::iterator _factoryMapHint;

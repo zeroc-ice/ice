@@ -100,7 +100,7 @@ Ice::UserException::ice_clone() const
 Ice::SlicedDataPtr
 Ice::UserException::ice_getSlicedData() const
 {
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -306,7 +306,7 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `" << identityToString(id, ICE_ENUM(ToStringMode, Unicode)) << "'";
+    out << ":\nillegal identity: `" << identityToString(id, ToStringMode::Unicode) << "'";
 }
 
 void
@@ -319,7 +319,7 @@ Ice::IllegalServantException::ice_print(ostream& out) const
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << ":\nidentity: `" << identityToString(ex.id, ICE_ENUM(ToStringMode, Unicode)) << "'";
+    out << ":\nidentity: `" << identityToString(ex.id, ToStringMode::Unicode) << "'";
     out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }

@@ -67,7 +67,7 @@ inline EndpointIPtr toEndpointI(const EndpointPtr& endp)
 }
 
 string
-Ice::ObjectAdapterI::getName() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getName() const noexcept
 {
     //
     // No mutex lock necessary, _name is immutable.
@@ -76,7 +76,7 @@ Ice::ObjectAdapterI::getName() const ICE_NOEXCEPT
 }
 
 CommunicatorPtr
-Ice::ObjectAdapterI::getCommunicator() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getCommunicator() const noexcept
 {
     return _communicator;
 }
@@ -199,7 +199,7 @@ Ice::ObjectAdapterI::waitForHold()
 }
 
 void
-Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
+Ice::ObjectAdapterI::deactivate() noexcept
 {
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -255,7 +255,7 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
             factory->destroy();
         });
 
-    _instance->outgoingConnectionFactory()->removeAdapter(ICE_SHARED_FROM_THIS);
+    _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -266,7 +266,7 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
 }
 
 void
-Ice::ObjectAdapterI::waitForDeactivate() ICE_NOEXCEPT
+Ice::ObjectAdapterI::waitForDeactivate() noexcept
 {
     vector<IceInternal::IncomingConnectionFactoryPtr> incomingConnectionFactories;
 
@@ -300,7 +300,7 @@ Ice::ObjectAdapterI::waitForDeactivate() ICE_NOEXCEPT
 }
 
 bool
-Ice::ObjectAdapterI::isDeactivated() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::isDeactivated() const noexcept
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -308,7 +308,7 @@ Ice::ObjectAdapterI::isDeactivated() const ICE_NOEXCEPT
 }
 
 void
-Ice::ObjectAdapterI::destroy() ICE_NOEXCEPT
+Ice::ObjectAdapterI::destroy() noexcept
 {
     //
     // Deactivate and wait for completion.
@@ -353,7 +353,7 @@ Ice::ObjectAdapterI::destroy() ICE_NOEXCEPT
 
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->removeObjectAdapter(ICE_SHARED_FROM_THIS);
+        _objectAdapterFactory->removeObjectAdapter(shared_from_this());
     }
 
     {
@@ -587,7 +587,7 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrxPtr& locator)
 }
 
 LocatorPrxPtr
-Ice::ObjectAdapterI::getLocator() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getLocator() const noexcept
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -602,7 +602,7 @@ Ice::ObjectAdapterI::getLocator() const ICE_NOEXCEPT
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getEndpoints() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getEndpoints() const noexcept
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -651,7 +651,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getPublishedEndpoints() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     return EndpointSeq(_publishedEndpoints.begin(), _publishedEndpoints.end());
@@ -884,7 +884,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     checkForDeactivation();
-    connection->setAdapterAndServantManager(ICE_SHARED_FROM_THIS, _servantManager);
+    connection->setAdapterAndServantManager(shared_from_this(), _servantManager);
 }
 
 //
@@ -1015,7 +1015,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             // Associate this object adapter with the router. This way, new outgoing connections
             // to the router's client proxy will use this object adapter for callbacks.
             //
-            _routerInfo->setAdapter(ICE_SHARED_FROM_THIS);
+            _routerInfo->setAdapter(shared_from_this());
 
             //
             // Also modify all existing outgoing connections to the router's client proxy to use
@@ -1037,11 +1037,11 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                 vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
                 for(vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
                 {
-                    IncomingConnectionFactoryPtr factory = ICE_MAKE_SHARED(IncomingConnectionFactory,
+                    IncomingConnectionFactoryPtr factory = std::make_shared<IncomingConnectionFactory>(
                                                                            _instance,
                                                                            *q,
                                                                            publishedEndpoint,
-                                                                           ICE_SHARED_FROM_THIS);
+                                                                           shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }

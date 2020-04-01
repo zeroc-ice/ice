@@ -32,8 +32,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
 
         adapters = _adapters;
 
-        _instance = ICE_NULLPTR;
-        _communicator = ICE_NULLPTR;
+        _instance = nullptr;
+        _communicator = nullptr;
 
         notifyAll();
     }
@@ -134,7 +134,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         if(name.empty())
         {
             string uuid = Ice::generateUUID();
-            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
+            adapter = std::make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), uuid, true);
         }
         else
         {
@@ -142,7 +142,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
             {
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
-            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, name, false);
+            adapter = std::make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), name, false);
             _adapterNamesInUse.insert(name);
         }
     }
@@ -194,7 +194,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
 
         if(!_instance)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         adapters = _adapters;
@@ -215,7 +215,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
         }
     }
 
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 void

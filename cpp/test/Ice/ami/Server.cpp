@@ -39,10 +39,10 @@ Server::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-    TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
+    TestIntfControllerIPtr testController = std::make_shared<TestIntfControllerI>(adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
-    adapter->add(ICE_MAKE_SHARED(TestIntfII), Ice::stringToIdentity("test2"));
+    adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<TestIntfII>(), Ice::stringToIdentity("test2"));
     adapter->activate();
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));

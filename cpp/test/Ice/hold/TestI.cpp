@@ -28,7 +28,7 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
     {
         try
         {
-            _timer->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::milliSeconds(milliSeconds));
+            _timer->schedule(shared_from_this(), IceUtil::Time::milliSeconds(milliSeconds));
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
@@ -72,7 +72,7 @@ HoldI::waitForHold(const Ice::Current& current)
 
     try
     {
-        _timer->schedule(ICE_MAKE_SHARED(WaitForHold, current.adapter), IceUtil::Time());
+        _timer->schedule(std::make_shared<WaitForHold>(current.adapter), IceUtil::Time());
     }
     catch(const IceUtil::IllegalArgumentException&)
     {

@@ -33,7 +33,7 @@ EndpointFactory::protocol() const
 IceInternal::EndpointIPtr
 EndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _factory->create(args, oaEndpoint));
+    return std::make_shared<EndpointI>(_factory->create(args, oaEndpoint));
 }
 
 IceInternal::EndpointIPtr
@@ -44,7 +44,7 @@ EndpointFactory::read(Ice::InputStream* s) const
     assert(type == _factory->type());
 
     s->startEncapsulation();
-    IceInternal::EndpointIPtr endpoint = ICE_MAKE_SHARED(EndpointI, _factory->read(s));
+    IceInternal::EndpointIPtr endpoint = std::make_shared<EndpointI>(_factory->read(s));
     s->endEncapsulation();
     return endpoint;
 }

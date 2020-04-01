@@ -39,16 +39,16 @@ Server::run(int argc, char** argv)
     // locator interface, this locator is used by the clients and the
     // 'servers' created with the server manager interface.
     //
-    ServerLocatorRegistryPtr registry = ICE_MAKE_SHARED(ServerLocatorRegistry);
+    ServerLocatorRegistryPtr registry = std::make_shared<ServerLocatorRegistry>();
     registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(ServerManagerI, registry, initData);
+    Ice::ObjectPtr object = std::make_shared<ServerManagerI>(registry, initData);
     adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrxPtr registryPrx =
         ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx,
                            adapter->add(registry, Ice::stringToIdentity("registry")));
 
-    Ice::LocatorPtr locator = ICE_MAKE_SHARED(ServerLocator, registry, registryPrx);
+    Ice::LocatorPtr locator = std::make_shared<ServerLocator>(registry, registryPrx);
     adapter->add(locator, Ice::stringToIdentity("locator"));
 
     adapter->activate();

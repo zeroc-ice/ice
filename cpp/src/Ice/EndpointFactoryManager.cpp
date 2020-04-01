@@ -66,7 +66,7 @@ IceInternal::EndpointFactoryManager::get(Short type) const
             return _factories[i];
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 EndpointIPtr
@@ -140,7 +140,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     //
     if(protocol == "opaque")
     {
-        EndpointIPtr ue = ICE_MAKE_SHARED(OpaqueEndpointI, v);
+        EndpointIPtr ue = std::make_shared<OpaqueEndpointI>(v);
         if(!v.empty())
         {
             throw EndpointParseException(__FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" +
@@ -168,7 +168,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
 
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 EndpointIPtr
@@ -194,7 +194,7 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
     //
     if(!e)
     {
-        e = ICE_MAKE_SHARED(OpaqueEndpointI, type, s);
+        e = std::make_shared<OpaqueEndpointI>(type, s);
     }
 
     s->endEncapsulation();

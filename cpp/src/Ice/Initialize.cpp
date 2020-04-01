@@ -161,13 +161,13 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 PropertiesPtr
 Ice::createProperties()
 {
-    return ICE_MAKE_SHARED(PropertiesI);
+    return std::make_shared<PropertiesI>();
 }
 
 PropertiesPtr
 Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return ICE_MAKE_SHARED(PropertiesI, args, defaults);
+    return std::make_shared<PropertiesI>(args, defaults);
 }
 
 PropertiesPtr
@@ -337,12 +337,12 @@ Ice::getProcessLogger()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
 
-    if(processLogger == ICE_NULLPTR)
+    if(processLogger == nullptr)
     {
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = ICE_MAKE_SHARED(LoggerI, "", "", true);
+       processLogger = std::make_shared<LoggerI>("", "", true);
     }
     return processLogger;
 }
@@ -406,7 +406,7 @@ Ice::CommunicatorHolder::~CommunicatorHolder()
 
 Ice::CommunicatorHolder::operator bool() const
 {
-    return _communicator != ICE_NULLPTR;
+    return _communicator != nullptr;
 }
 
 const Ice::CommunicatorPtr&

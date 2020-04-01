@@ -16,9 +16,9 @@ TestIntfI::getAdapterId(const Ice::Current& current)
 }
 
 void
-ControllerI::activateObjectAdapter(ICE_IN(string) name,
-                                   ICE_IN(string) adapterId,
-                                   ICE_IN(string) replicaGroupId,
+ControllerI::activateObjectAdapter(string name,
+                                   string adapterId,
+                                   string replicaGroupId,
                                    const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
@@ -31,23 +31,23 @@ ControllerI::activateObjectAdapter(ICE_IN(string) name,
 }
 
 void
-ControllerI::deactivateObjectAdapter(ICE_IN(string) name, const Ice::Current&)
+ControllerI::deactivateObjectAdapter(string name, const Ice::Current&)
 {
     _adapters[name]->destroy();
     _adapters.erase(name);
 }
 
 void
-ControllerI::addObject(ICE_IN(string) oaName, ICE_IN(string) id, const Ice::Current&)
+ControllerI::addObject(string oaName, string id, const Ice::Current&)
 {
     assert(_adapters[oaName]);
     Ice::Identity identity;
     identity.name = id;
-    _adapters[oaName]->add(ICE_MAKE_SHARED(TestIntfI), identity);
+    _adapters[oaName]->add(std::make_shared<TestIntfI>(), identity);
 }
 
 void
-ControllerI::removeObject(ICE_IN(string) oaName, ICE_IN(string) id, const Ice::Current&)
+ControllerI::removeObject(string oaName, string id, const Ice::Current&)
 {
     assert(_adapters[oaName]);
     Ice::Identity identity;

@@ -115,7 +115,7 @@ template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceU
 public:
 
     typedef MetricsType T;
-    typedef ICE_INTERNAL_HANDLE<MetricsType> TPtr;
+    typedef std::shared_ptr<MetricsType> TPtr;
 
     ICE_DEFINE_PTR(MetricsMapTPtr, MetricsMapT);
 
@@ -349,9 +349,9 @@ public:
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
-            return std::pair<MetricsMapIPtr, SubMapMember>(ICE_GET_SHARED_FROM_THIS(p->second.second->clone()), p->second.first);
+            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone()->shared_from_this(), p->second.first);
         }
-        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(ICE_NULLPTR), static_cast<SubMapMember>(0));
+        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
     }
 
     EntryTPtr
@@ -364,7 +364,7 @@ public:
         {
             if(!(*p)->match(helper, false))
             {
-                return ICE_NULLPTR;
+                return nullptr;
             }
         }
 
@@ -372,7 +372,7 @@ public:
         {
             if((*p)->match(helper, true))
             {
-                return ICE_NULLPTR;
+                return nullptr;
             }
         }
 
@@ -404,7 +404,7 @@ public:
         }
         catch(const std::exception&)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         //
@@ -413,7 +413,7 @@ public:
         Lock sync(*this);
         if(_destroyed)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         if(previous && previous->_object->id == key)
@@ -425,7 +425,7 @@ public:
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
         if(p == _objects.end())
         {
-            TPtr t = ICE_MAKE_SHARED(T);
+            TPtr t = std::make_shared<T>();
             t->id = key;
 
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
@@ -440,7 +440,7 @@ private:
 
     virtual MetricsMapIPtr clone() const
     {
-        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, *this);
+        return std::make_shared<MetricsMapT<MetricsType>>(*this);
     }
 
     void detached(EntryTPtr entry)
@@ -516,14 +516,14 @@ public:
     virtual MetricsMapIPtr
     create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
     {
-        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, mapPrefix, properties, _subMaps);
+        return std::make_shared<MetricsMapT<MetricsType>>(mapPrefix, properties, _subMaps);
     }
 
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*,
-                                     MetricsMapFactoryPtr>(member, ICE_MAKE_SHARED(MetricsMapFactoryT<SubMapMetricsType>, ICE_NULLPTR));
+                                     MetricsMapFactoryPtr>(member, std::make_shared<MetricsMapFactoryT<SubMapMetricsType>>(nullptr));
     }
 
 private:
@@ -577,7 +577,7 @@ public:
         MetricsMapFactoryPtr factory;
         {
             Lock sync(*this);
-            factory = ICE_MAKE_SHARED(MetricsMapFactoryT<MetricsType>, updater);
+            factory = std::make_shared<MetricsMapFactoryT<MetricsType>>(updater);
             _factories[map] = factory;
             updated = addOrUpdateMap(map, factory);
         }
@@ -591,7 +591,7 @@ public:
     registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         bool updated;
-        ICE_HANDLE<MetricsMapFactoryT<MetricsType> > factory;
+        std::shared_ptr<MetricsMapFactoryT<MetricsType> > factory;
         {
             Lock sync(*this);
             std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);

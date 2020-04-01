@@ -63,7 +63,7 @@ ProxyFlushBatchAsync::invokeRemote(const ConnectionIPtr& connection, bool compre
         }
     }
     _cachedConnection = connection;
-    return connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, _batchRequestNum);
+    return connection->sendAsyncRequest(shared_from_this(), compress, false, _batchRequestNum);
 }
 
 AsyncStatus
@@ -154,7 +154,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
                           const Context& ctx)
 {
     _checkTwowayOnly(ice_isA_name);
-    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx,
+    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx,
                      [&](Ice::OutputStream* os)
                      {
                          os->write(typeId, false);
@@ -165,14 +165,14 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
 void
 Ice::ObjectPrx::_iceI_ping(const shared_ptr<IceInternal::OutgoingAsyncT<void>>& outAsync, const Context& ctx)
 {
-    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr);
+    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr);
 }
 
 void
 Ice::ObjectPrx::_iceI_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
 {
     _checkTwowayOnly(ice_ids_name);
-    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr,
+    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
                      [](Ice::InputStream* stream)
                      {
                          vector<string> v;
@@ -185,7 +185,7 @@ void
 Ice::ObjectPrx::_iceI_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
 {
     _checkTwowayOnly(ice_id_name);
-    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr,
+    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
                      [](Ice::InputStream* stream)
                      {
                          string v;
@@ -843,7 +843,7 @@ ICE_OBJECT_PRX::_handleException(const Exception& ex,
     //
     const LocalException* localEx = dynamic_cast<const LocalException*>(&ex);
     if(localEx && (!sent ||
-                   mode == ICE_ENUM(OperationMode, Nonmutating) || mode == ICE_ENUM(OperationMode, Idempotent) ||
+                   mode == OperationMode::Nonmutating || mode == OperationMode::Idempotent ||
                    dynamic_cast<const CloseConnectionException*>(&ex) ||
                    dynamic_cast<const ObjectNotExistException*>(&ex)))
     {
@@ -878,7 +878,7 @@ ICE_OBJECT_PRX::_getRequestHandler()
             return _requestHandler;
         }
     }
-    return _reference->getRequestHandler(ICE_SHARED_FROM_THIS);
+    return _reference->getRequestHandler(shared_from_this());
 }
 
 IceInternal::BatchRequestQueuePtr

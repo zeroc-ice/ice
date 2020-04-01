@@ -148,7 +148,7 @@ ThrowerI::throwAssertException(const Ice::Current&)
 }
 
 Ice::ByteSeq
-ThrowerI::throwMemoryLimitException(ICE_IN(Ice::ByteSeq), const Ice::Current&)
+ThrowerI::throwMemoryLimitException(Ice::ByteSeq, const Ice::Current&)
 {
     return Ice::ByteSeq(1024 * 20); // 20 KB.
 }
