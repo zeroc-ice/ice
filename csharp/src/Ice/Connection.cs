@@ -2153,7 +2153,6 @@ namespace Ice
         private struct MessageInfo
         {
             public ArraySegment<byte> Data;
-            public IncomingRequestFrame? Request;
             public int InvokeNum;
             public int RequestId;
             public byte Compress;
