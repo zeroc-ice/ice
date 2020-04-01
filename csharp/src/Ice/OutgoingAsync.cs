@@ -558,7 +558,6 @@ namespace IceInternal
         }
         protected override bool ExceptionImpl(Exception ex)
         {
-            Debug.Assert(ResponseFrame != null);
             if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);
@@ -568,7 +567,6 @@ namespace IceInternal
 
         protected override bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
-            Debug.Assert(ResponseFrame != null);
             if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);
