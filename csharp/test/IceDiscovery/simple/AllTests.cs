@@ -153,7 +153,7 @@ public class AllTests : Test.AllTests
             adapterIds.Add("oa2");
             adapterIds.Add("oa3");
             ITestIntfPrx intf = ITestIntfPrx.Parse("object", communicator).Clone(
-                connectionCached: false,
+                cacheConnection: false,
                 locatorCacheTimeout: 0);
             while (adapterIds.Count > 0)
             {
@@ -165,7 +165,7 @@ public class AllTests : Test.AllTests
                 adapterIds.Add("oa1");
                 adapterIds.Add("oa2");
                 adapterIds.Add("oa3");
-                intf = ITestIntfPrx.Parse("object @ rg", communicator).Clone(connectionCached: false);
+                intf = ITestIntfPrx.Parse("object @ rg", communicator).Clone(cacheConnection: false);
                 int nRetry = 100;
                 while (adapterIds.Count > 0 && --nRetry > 0)
                 {
