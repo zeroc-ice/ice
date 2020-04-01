@@ -5,6 +5,9 @@
 
 namespace Ice
 {
+    /// <summary>Each endpoint's type is identified by a short value. The enumerators of EndpointType represent the
+    /// types of endpoints that the Ice runtime knows and implements. Other endpoint types, with values not represented
+    /// by these enumerators, can be implemented and registered using transport plug-ins.</summary>
     public enum EndpointType : short
     {
         TCP = 1,

@@ -67,16 +67,16 @@ namespace IceDiscovery
         public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current)
             => new ValueTask(Task.CompletedTask);
 
-        internal IObjectPrx? FindObject(Identity id)
+        internal IObjectPrx? FindObject(Identity identity)
         {
             lock (this)
             {
-                if (id.Name.Length == 0)
+                if (identity.Name.Length == 0)
                 {
                     return null;
                 }
 
-                IObjectPrx prx = _wellKnownProxy.Clone(id);
+                IObjectPrx prx = _wellKnownProxy.Clone(identity, IObjectPrx.Factory);
 
                 List<string> adapterIds = new List<string>();
                 foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)

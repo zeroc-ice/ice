@@ -29,7 +29,7 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.ThreadPool.Size", "2");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    ServantLocatorPtr locator = ICE_MAKE_SHARED(ServantLocatorI);
+    ServantLocatorPtr locator = std::make_shared<ServantLocatorI>();
     adapter->addServantLocator(locator, "");
 
     TestIntfPrxPtr allTests(TestHelper*);

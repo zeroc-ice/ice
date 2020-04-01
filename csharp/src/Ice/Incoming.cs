@@ -41,7 +41,7 @@ namespace IceInternal
             var output = new System.Text.StringBuilder();
 
             output.Append("dispatch exception:");
-            output.Append("\nidentity: ").Append(current.Id.ToString(current.Adapter.Communicator.ToStringMode));
+            output.Append("\nidentity: ").Append(current.Identity.ToString(current.Adapter.Communicator.ToStringMode));
             output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.EscapeString(current.Facet, "",
                 current.Adapter.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);

@@ -37,7 +37,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
+    Ice::ObjectPtr object = std::make_shared<TestI>();
     adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();
     serverReady();

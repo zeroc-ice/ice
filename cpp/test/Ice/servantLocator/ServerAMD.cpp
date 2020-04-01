@@ -48,8 +48,8 @@ public:
     {
         if(activate)
         {
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, ""), "");
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, "category"), "category");
+            current.adapter->addServantLocator(std::make_shared<ServantLocatorAMDI>(""), "");
+            current.adapter->addServantLocator(std::make_shared<ServantLocatorAMDI>("category"), "category");
         }
         else
         {
@@ -77,10 +77,10 @@ ServerAMD::run(int argc, char** argv)
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
 
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, ""), "");
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, "category"), "category");
-    adapter->add(ICE_MAKE_SHARED(TestAMDI), Ice::stringToIdentity("asm"));
-    adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
+    adapter->addServantLocator(std::make_shared<ServantLocatorAMDI>(""), "");
+    adapter->addServantLocator(std::make_shared<ServantLocatorAMDI>("category"), "category");
+    adapter->add(std::make_shared<TestAMDI>(), Ice::stringToIdentity("asm"));
+    adapter->add(std::make_shared<TestActivationI>(), Ice::stringToIdentity("test/activation"));
     adapter->activate();
     serverReady();
     adapter->waitForDeactivate();

@@ -183,7 +183,7 @@ namespace Ice.operations
         }
 
         public (Test.IMyClassPrx, Test.IMyClassPrx, Test.IMyClassPrx)
-        opMyClass(Test.IMyClassPrx p1, Current current) => (current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory),
+        opMyClass(Test.IMyClassPrx p1, Current current) => (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
              p1,
              current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
 

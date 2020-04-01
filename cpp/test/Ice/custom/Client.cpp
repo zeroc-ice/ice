@@ -19,8 +19,8 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
-    setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
+    setProcessStringConverter(std::make_shared<Test::StringConverterI>());
+    setProcessWstringConverter(std::make_shared<Test::WstringConverterI>());
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     Test::TestIntfPrxPtr allTests(Test::TestHelper*);
     Test::TestIntfPrxPtr test = allTests(this);

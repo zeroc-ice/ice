@@ -113,7 +113,7 @@ void
 AMDInterceptorI::setException(const IceUtil::Exception& e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    ICE_SET_EXCEPTION_FROM_CLONE(_exception, e.ice_clone());
+    _exception = e.ice_clone();
 }
 
 IceUtil::Exception*

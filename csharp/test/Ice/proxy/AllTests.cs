@@ -407,7 +407,7 @@ namespace Ice.proxy
                 b2 = b1.GetConnection().CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 string str = b2.ToString();
                 test(b2.ToString() == str);
-                string str2 = b1.Clone(b2.Identity).Clone(secure: b2.IsSecure).ToString();
+                string str2 = b1.Clone(b2.Identity, IObjectPrx.Factory).Clone(secure: b2.IsSecure).ToString();
 
                 // Verify that the stringified fixed proxy is the same as a regular stringified proxy
                 // but without endpoints
@@ -533,26 +533,26 @@ namespace Ice.proxy
 
             var router = IRouterPrx.Parse("router", communicator).Clone(
                 collocationOptimized: false,
-                connectionCached: true,
+                cacheConnection: true,
                 preferSecure: true,
-                endpointSelectionType: EndpointSelectionType.Random,
+                endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: 200,
                 invocationTimeout: 1500);
 
             var locator = ILocatorPrx.Parse("locator", communicator).Clone(
                 collocationOptimized: true,
-                connectionCached: false,
+                cacheConnection: false,
                 preferSecure: true,
-                endpointSelectionType: EndpointSelectionType.Random,
+                endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: 300,
                 invocationTimeout: 1500,
                 router: router);
 
             b1 = IObjectPrx.Parse("test", communicator).Clone(
                 collocationOptimized: true,
-                connectionCached: true,
+                cacheConnection: true,
                 preferSecure: false,
-                endpointSelectionType: EndpointSelectionType.Ordered,
+                endpointSelection: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: 100,
                 invocationTimeout: 1234,
                 encoding: Encoding.V2_0,
@@ -569,8 +569,7 @@ namespace Ice.proxy
             test(proxyProps["Test.LocatorCacheTimeout"].Equals("100"));
             test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
-            test(proxyProps["Test.Locator"].Equals(
-                        "locator -t -p ice1 -e " + Encoding.Latest.ToString()));
+            test(proxyProps["Test.Locator"].Equals($"locator -t -p ice1 -e {Encoding.V2_0}"));
             // Locator collocation optimization is always disabled.
             //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
             test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
@@ -597,7 +596,7 @@ namespace Ice.proxy
 
             output.Write("testing proxy methods... ");
 
-            test(baseProxy.Clone(facet: "facet").Facet.Equals("facet"));
+            test(baseProxy.Clone(facet: "facet", IObjectPrx.Factory).Facet.Equals("facet"));
             test(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             test(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             test(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
@@ -703,8 +702,10 @@ namespace Ice.proxy
 
             var compObj = IObjectPrx.Parse("foo", communicator);
 
-            test(compObj.Clone(facet: "facet").Equals(compObj.Clone(facet: "facet")));
-            test(!compObj.Clone(facet: "facet").Equals(compObj.Clone(facet: "facet1")));
+            test(compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
+                compObj.Clone(facet: "facet", IObjectPrx.Factory)));
+            test(!compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
+                compObj.Clone(facet: "facet1", IObjectPrx.Factory)));
 
             test(compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
                 compObj.Clone(invocationMode: InvocationMode.Oneway)));
@@ -717,13 +718,13 @@ namespace Ice.proxy
             test(compObj.Clone(collocationOptimized: true).Equals(compObj.Clone(collocationOptimized: true)));
             test(!compObj.Clone(collocationOptimized: false).Equals(compObj.Clone(collocationOptimized: true)));
 
-            test(compObj.Clone(connectionCached: true).Equals(compObj.Clone(connectionCached: true)));
-            test(!compObj.Clone(connectionCached: false).Equals(compObj.Clone(connectionCached: true)));
+            test(compObj.Clone(cacheConnection: true).Equals(compObj.Clone(cacheConnection: true)));
+            test(!compObj.Clone(cacheConnection: false).Equals(compObj.Clone(cacheConnection: true)));
 
-            test(compObj.Clone(endpointSelectionType: EndpointSelectionType.Random).Equals(
-                compObj.Clone(endpointSelectionType: EndpointSelectionType.Random)));
-            test(!compObj.Clone(endpointSelectionType: EndpointSelectionType.Random).Equals(
-                compObj.Clone(endpointSelectionType: EndpointSelectionType.Ordered)));
+            test(compObj.Clone(endpointSelection: EndpointSelectionType.Random).Equals(
+                compObj.Clone(endpointSelection: EndpointSelectionType.Random)));
+            test(!compObj.Clone(endpointSelection: EndpointSelectionType.Random).Equals(
+                compObj.Clone(endpointSelection: EndpointSelectionType.Ordered)));
 
             test(compObj.Clone(connectionId: "id2").Equals(compObj.Clone(connectionId: "id2")));
             test(!compObj.Clone(connectionId: "id1").Equals(compObj.Clone(connectionId: "id2")));
@@ -820,7 +821,7 @@ namespace Ice.proxy
             test(cl.Equals(derived));
             try
             {
-                Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet"));
+                Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet", IObjectPrx.Factory));
                 test(false);
             }
             catch (ObjectNotExistException)
@@ -860,7 +861,7 @@ namespace Ice.proxy
                     catch (ArgumentException)
                     {
                     }
-                    test(cl.Clone(facet: "facet", fixedConnection: connection).Facet.Equals("facet"));
+                    test(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection).Facet.Equals("facet"));
                     test(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection).IsOneway);
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
                     ctx["one"] = "hello";

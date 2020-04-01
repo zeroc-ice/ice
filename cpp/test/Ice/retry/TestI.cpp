@@ -17,7 +17,7 @@ RetryI::op(bool kill, const Ice::Current& current)
     {
         if(current.con)
         {
-            current.con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+            current.con->close(Ice::ConnectionClose::Forcefully);
         }
         else
         {

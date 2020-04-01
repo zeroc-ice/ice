@@ -28,7 +28,7 @@ Collocated::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(ThrowerI);
+    Ice::ObjectPtr object = std::make_shared<ThrowerI>();
     adapter->add(object, Ice::stringToIdentity("thrower"));
 
     ThrowerPrxPtr allTests(Test::TestHelper*);

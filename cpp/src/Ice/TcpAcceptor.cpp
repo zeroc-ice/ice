@@ -84,7 +84,7 @@ IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
 void
 IceInternal::TcpAcceptor::startAccept()
 {
-    LPFN_ACCEPTEX AcceptEx = ICE_NULLPTR; // a pointer to the 'AcceptEx()' function
+    LPFN_ACCEPTEX AcceptEx = nullptr; // a pointer to the 'AcceptEx()' function
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
     if(WSAIoctl(_fd,
@@ -94,8 +94,8 @@ IceInternal::TcpAcceptor::startAccept()
                 &AcceptEx,
                 sizeof(AcceptEx),
                 &dwBytes,
-                ICE_NULLPTR,
-                ICE_NULLPTR) == SOCKET_ERROR)
+                nullptr,
+                nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }

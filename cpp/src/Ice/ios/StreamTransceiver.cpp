@@ -420,7 +420,7 @@ IceObjC::StreamTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::StreamTransceiver::getInfo() const
 {
-    Ice::TCPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::TCPConnectionInfo);
+    Ice::TCPConnectionInfoPtr info = std::make_shared<Ice::TCPConnectionInfo>();
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     info->rcvSize = getRecvBufferSize(_fd);
     info->sndSize = getSendBufferSize(_fd);

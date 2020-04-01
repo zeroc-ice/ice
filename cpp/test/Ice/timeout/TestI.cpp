@@ -37,7 +37,7 @@ TimeoutI::op(const Ice::Current&)
 }
 
 void
-TimeoutI::sendData(ICE_IN(Test::ByteSeq), const Ice::Current&)
+TimeoutI::sendData(Test::ByteSeq, const Ice::Current&)
 {
 }
 

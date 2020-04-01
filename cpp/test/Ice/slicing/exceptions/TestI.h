@@ -33,14 +33,14 @@ public:
     virtual void knownPreservedAsBase(const ::Ice::Current&);
     virtual void knownPreservedAsKnownPreserved(const ::Ice::Current&);
 
-    virtual void relayKnownPreservedAsBase(ICE_IN(::Test::RelayPrxPtr), const ::Ice::Current&);
-    virtual void relayKnownPreservedAsKnownPreserved(ICE_IN(::Test::RelayPrxPtr), const ::Ice::Current&);
+    virtual void relayKnownPreservedAsBase(::Test::RelayPrxPtr, const ::Ice::Current&);
+    virtual void relayKnownPreservedAsKnownPreserved(::Test::RelayPrxPtr, const ::Ice::Current&);
 
     virtual void unknownPreservedAsBase(const ::Ice::Current&);
     virtual void unknownPreservedAsKnownPreserved(const ::Ice::Current&);
 
-    virtual void relayUnknownPreservedAsBase(ICE_IN(::Test::RelayPrxPtr), const ::Ice::Current&);
-    virtual void relayUnknownPreservedAsKnownPreserved(ICE_IN(::Test::RelayPrxPtr), const ::Ice::Current&);
+    virtual void relayUnknownPreservedAsBase(::Test::RelayPrxPtr, const ::Ice::Current&);
+    virtual void relayUnknownPreservedAsKnownPreserved(::Test::RelayPrxPtr, const ::Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
 };

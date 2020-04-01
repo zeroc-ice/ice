@@ -107,7 +107,7 @@ namespace Ice
                 {
                     if (value.Count == 0)
                     {
-                        _defaultContext = IceInternal.Reference.EmptyContext;
+                        _defaultContext = Reference.EmptyContext;
                     }
                     else
                     {
@@ -171,7 +171,7 @@ namespace Ice
         private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private IReadOnlyDictionary<string, string> _defaultContext = IceInternal.Reference.EmptyContext;
+        private IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
 
@@ -1659,7 +1659,7 @@ namespace Ice
             // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
             // the connection and the request will fail with the exception.
             //
-            if (reference is FixedReference)
+            if (reference.IsFixed)
             {
                 throw ex;
             }
@@ -1795,18 +1795,19 @@ namespace Ice
 
         internal Reference CreateReference(Identity ident, Connection connection)
         {
-            return new FixedReference(
-                this,
-                ident,
-                "", // Facet
-                ((Endpoint)connection.Endpoint).Datagram() ? InvocationMode.Datagram : InvocationMode.Twoway,
-                ((Endpoint)connection.Endpoint).Secure(),
-                Protocol.Ice1,
-                DefaultsAndOverrides.DefaultEncoding,
-                connection,
-                -1,
-                DefaultContext,
-                null);
+            // Fixed reference
+            return new Reference(
+                communicator: this,
+                compress: null,
+                context: DefaultContext,
+                encoding: DefaultsAndOverrides.DefaultEncoding,
+                facet: "",
+                fixedConnection: connection,
+                identity: ident,
+                invocationMode: ((Endpoint)connection.Endpoint).Datagram() ?
+                    InvocationMode.Datagram : InvocationMode.Twoway,
+                invocationTimeout: -1,
+                secure: ((Endpoint)connection.Endpoint).Secure());
         }
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
@@ -1954,7 +1955,7 @@ namespace Ice
 
             if (locator != null && serverId != null)
             {
-                var process = IProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
+                var process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
                     //
@@ -2289,24 +2290,28 @@ namespace Ice
                 context = DefaultContext;
             }
 
-            return new RoutableReference(this,
-                                         ident,
-                                         facet,
-                                         mode,
-                                         secure,
-                                         protocol,
-                                         encoding,
-                                         endpoints,
-                                         adapterId,
-                                         locatorInfo,
-                                         routerInfo,
-                                         collocOptimized,
-                                         cacheConnection,
-                                         preferSecure,
-                                         endpointSelection,
-                                         locatorCacheTimeout,
-                                         invocationTimeout,
-                                         context);
+            // routable reference
+            return new Reference(adapterId: adapterId ?? "", // TODO: make adapterId parameter non null
+                                 cacheConnection: cacheConnection,
+                                 collocationOptimized: collocOptimized,
+                                 communicator: this,
+                                 compress: null,
+                                 connectionId: "",
+                                 connectionTimeout: null,
+                                 context: context,
+                                 encoding: encoding,
+                                 endpointSelection: endpointSelection,
+                                 endpoints: endpoints,
+                                 facet: facet,
+                                 identity: ident,
+                                 invocationMode: mode,
+                                 invocationTimeout: invocationTimeout,
+                                 locatorCacheTimeout: locatorCacheTimeout,
+                                 locatorInfo: locatorInfo,
+                                 preferSecure: preferSecure,
+                                 protocol: protocol,
+                                 routerInfo: routerInfo,
+                                 secure: secure);
         }
     }
 }

@@ -53,7 +53,7 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint());
     auto adapter = communicator->createObjectAdapter("CallbackAdapter");
-    adapter->add(ICE_MAKE_SHARED(CallbackI), Ice::stringToIdentity("callback"));
+    adapter->add(std::make_shared<CallbackI>(), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
 }

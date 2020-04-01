@@ -43,7 +43,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
         // We need to initiate a connection attempt.
         //
         _needConnect = false;
-        _instance->engine()->connect(_addr, _uuid, ICE_MAKE_SHARED(ConnectCallbackI, this));
+        _instance->engine()->connect(_addr, _uuid, std::make_shared<ConnectCallbackI>(this));
         return IceInternal::SocketOperationConnect;
     }
 
@@ -119,7 +119,7 @@ IceBT::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceBT::TransceiverI::getInfo() const
 {
-    IceBT::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceBT::ConnectionInfo);
+    IceBT::ConnectionInfoPtr info = std::make_shared<IceBT::ConnectionInfo>();
     fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
                           info->remoteChannel);
     if(_stream->fd() != INVALID_SOCKET)
@@ -184,7 +184,7 @@ IceBT::TransceiverI::connectFailed(const Ice::LocalException& ex)
     //
     // Save the exception - it will be raised in initialize().
     //
-    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+    _exception = ex.ice_clone();
     //
     // Triggers a call to write() from a different thread.
     //

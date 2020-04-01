@@ -52,7 +52,7 @@ public:
      * Returns a description of this exception.
      * @return The description.
      */
-    virtual const char* what() const ICE_NOEXCEPT;
+    virtual const char* what() const noexcept;
 
     /**
      * Returns a shallow polymorphic copy of this exception.

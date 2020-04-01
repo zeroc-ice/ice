@@ -32,7 +32,7 @@ TestI::op(bool throwIt, const Ice::Current&)
 ICE_DECLSPEC_EXPORT
 void allTests(const Ice::ObjectAdapterPtr& oa)
 {
-    Test::MyInterfacePtr servant = ICE_MAKE_SHARED(TestI);
+    Test::MyInterfacePtr servant = std::make_shared<TestI>();
     Test::MyInterfacePrxPtr proxy = ICE_UNCHECKED_CAST(Test::MyInterfacePrx, oa->addWithUUID(servant));
     consume(servant, proxy);
 }

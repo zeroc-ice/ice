@@ -17,7 +17,7 @@ public:
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
-    virtual bool ice_isA(ICE_IN(std::string), const Ice::Current&) const;
+    virtual bool ice_isA(std::string, const Ice::Current&) const;
     virtual void ice_ping(const Ice::Current&) const;
     virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
     virtual std::string ice_id(const Ice::Current&) const;
@@ -375,7 +375,7 @@ public:
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opMStruct2Async(ICE_IN(Test::Structure),
+    virtual void opMStruct2Async(Test::Structure,
                                  ::std::function<void(const OpMStruct2MarshaledResult&)>,
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
@@ -384,7 +384,7 @@ public:
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 
-    virtual void opMSeq2Async(ICE_IN(Test::StringS),
+    virtual void opMSeq2Async(Test::StringS,
                               ::std::function<void(const OpMSeq2MarshaledResult&)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
@@ -393,7 +393,7 @@ public:
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opMDict2Async(ICE_IN(Test::StringStringD),
+    virtual void opMDict2Async(Test::StringStringD,
                                ::std::function<void(const OpMDict2MarshaledResult&)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);

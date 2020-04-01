@@ -384,7 +384,7 @@ namespace Ice.binding
                     obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 }
 
-                obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Random);
+                obj = obj.Clone(endpointSelection: EndpointSelectionType.Random);
                 test(obj.EndpointSelection == EndpointSelectionType.Random);
 
                 names.Add("Adapter21");
@@ -409,7 +409,7 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("Adapter33", "default"));
 
                 var obj = createTestIntfPrx(adapters);
-                obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
                 test(obj.EndpointSelection == EndpointSelectionType.Ordered);
                 int nRetry = 3;
                 int i;
@@ -465,8 +465,8 @@ namespace Ice.binding
             {
                 var adapter = com.createObjectAdapter("Adapter41", "default");
 
-                var test1 = adapter.getTestIntf().Clone(connectionCached: false);
-                var test2 = adapter.getTestIntf().Clone(connectionCached: false);
+                var test1 = adapter.getTestIntf().Clone(cacheConnection: false);
+                var test2 = adapter.getTestIntf().Clone(cacheConnection: false);
                 test(!test1.IsConnectionCached);
                 test(!test2.IsConnectionCached);
                 test(test1.GetConnection() != null && test2.GetConnection() != null);
@@ -496,7 +496,7 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("Adapter52", "default"));
                 adapters.Add(com.createObjectAdapter("Adapter53", "default"));
 
-                var obj = createTestIntfPrx(adapters).Clone(connectionCached: false);
+                var obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
                 test(!obj.IsConnectionCached);
 
                 List<string> names = new List<string>();
@@ -533,7 +533,7 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
                 adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
 
-                var obj = createTestIntfPrx(adapters).Clone(connectionCached: false);
+                var obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
                 test(!obj.IsConnectionCached);
 
                 var names = new List<string>();
@@ -571,9 +571,9 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("Adapter63", "default"));
 
                 var obj = createTestIntfPrx(adapters);
-                obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
                 test(obj.EndpointSelection == EndpointSelectionType.Ordered);
-                obj = obj.Clone(connectionCached: false);
+                obj = obj.Clone(cacheConnection: false);
                 test(!obj.IsConnectionCached);
                 int nRetry = 3;
                 int i;
@@ -631,9 +631,9 @@ namespace Ice.binding
                 adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
 
                 var obj = createTestIntfPrx(adapters);
-                obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
                 test(obj.EndpointSelection == EndpointSelectionType.Ordered);
-                obj = obj.Clone(connectionCached: false);
+                obj = obj.Clone(cacheConnection: false);
                 test(!obj.IsConnectionCached);
                 int nRetry = 3;
                 int i;

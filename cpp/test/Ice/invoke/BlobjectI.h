@@ -11,14 +11,14 @@ class BlobjectI : public Ice::Blobject
 {
 public:
 
-    virtual bool ice_invoke(ICE_IN(std::vector<Ice::Byte>), std::vector<Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(std::vector<Ice::Byte>, std::vector<Ice::Byte>&, const Ice::Current&);
 };
 
 class BlobjectArrayI : public Ice::BlobjectArray
 {
 public:
 
-    virtual bool ice_invoke(ICE_IN(std::pair<const Ice::Byte*, const Ice::Byte*>), std::vector<Ice::Byte>&,
+    virtual bool ice_invoke(std::pair<const Ice::Byte*, const Ice::Byte*>, std::vector<Ice::Byte>&,
                             const Ice::Current&);
 };
 

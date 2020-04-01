@@ -57,7 +57,7 @@ public:
 
     virtual void _iceRead(Ice::InputStream* in)
     {
-        obj = ICE_MAKE_SHARED(MyClass);
+        obj = std::make_shared<MyClass>();
         obj->_iceRead(in);
         called = true;
     }
@@ -121,7 +121,7 @@ public:
 
     void clear()
     {
-        _factory = [](const string&) { return ICE_MAKE_SHARED(MyClass); };
+        _factory = [](const string&) { return std::make_shared<MyClass>(); };
     }
 
     function<Ice::ValuePtr(const string&)> _factory;
@@ -266,12 +266,12 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(MyEnum, enum3));
+        out.write(MyEnum::enum3);
         out.finished(data);
         Ice::InputStream in(communicator, data);
         MyEnum e;
         in.read(e);
-        test(e == ICE_ENUM(MyEnum, enum3));
+        test(e == MyEnum::enum3);
     }
 
     {
@@ -285,7 +285,7 @@ allTests(Test::TestHelper* helper)
         s.f = 5.0;
         s.d = 6.0;
         s.str = "7";
-        s.e = ICE_ENUM(MyEnum, enum2);
+        s.e = MyEnum::enum2;
         s.p = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test:default"));
         out.write(s);
         out.finished(data);
@@ -301,7 +301,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
+        OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
         o->sh = static_cast<Ice::Short>(4);
@@ -329,7 +329,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator, Ice::Encoding_1_0);
-        OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
+        OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
         o->sh = static_cast<Ice::Short>(4);
@@ -584,10 +584,10 @@ allTests(Test::TestHelper* helper)
 
     {
         MyEnumS arr;
-        arr.push_back(ICE_ENUM(MyEnum, enum3));
-        arr.push_back(ICE_ENUM(MyEnum, enum2));
-        arr.push_back(ICE_ENUM(MyEnum, enum1));
-        arr.push_back(ICE_ENUM(MyEnum, enum2));
+        arr.push_back(MyEnum::enum3);
+        arr.push_back(MyEnum::enum2);
+        arr.push_back(MyEnum::enum1);
+        arr.push_back(MyEnum::enum2);
 
         Ice::OutputStream out(communicator);
         out.write(arr);
@@ -625,7 +625,7 @@ allTests(Test::TestHelper* helper)
             s.f = 5.0;
             s.d = 6.0;
             s.str = "7";
-            s.e = ICE_ENUM(MyEnum, enum2);
+            s.e = MyEnum::enum2;
             s.p = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test:default"));
             arr.push_back(s);
         }
@@ -664,10 +664,10 @@ allTests(Test::TestHelper* helper)
         MyClassS arr;
         for(int i = 0; i < 4; ++i)
         {
-            MyClassPtr c = ICE_MAKE_SHARED(MyClass);
+            MyClassPtr c = std::make_shared<MyClass>();
             c->c = c;
             c->o = c;
-            c->s.e = ICE_ENUM(MyEnum, enum2);
+            c->s.e = MyEnum::enum2;
 
             c->seq1.push_back(true);
             c->seq1.push_back(false);
@@ -709,9 +709,9 @@ allTests(Test::TestHelper* helper)
             c->seq8.push_back("string3");
             c->seq8.push_back("string4");
 
-            c->seq9.push_back(ICE_ENUM(MyEnum, enum3));
-            c->seq9.push_back(ICE_ENUM(MyEnum, enum2));
-            c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
+            c->seq9.push_back(MyEnum::enum3);
+            c->seq9.push_back(MyEnum::enum2);
+            c->seq9.push_back(MyEnum::enum1);
 
             c->d["hi"] = c;
             arr.push_back(c);
@@ -731,7 +731,7 @@ allTests(Test::TestHelper* helper)
             test(arr2[j]);
             test(arr2[j]->c == arr2[j]);
             test(arr2[j]->o == arr2[j]);
-            test(arr2[j]->s.e == ICE_ENUM(MyEnum, enum2));
+            test(arr2[j]->s.e == MyEnum::enum2);
             test(arr2[j]->seq1 == arr[j]->seq1);
             test(arr2[j]->seq2 == arr[j]->seq2);
             test(arr2[j]->seq3 == arr[j]->seq3);
@@ -768,7 +768,7 @@ allTests(Test::TestHelper* helper)
             {
                 test(arr2S[j][k]->c == arr2S[j][k]);
                 test(arr2S[j][k]->o == arr2S[j][k]);
-                test(arr2S[j][k]->s.e == ICE_ENUM(MyEnum, enum2));
+                test(arr2S[j][k]->s.e == MyEnum::enum2);
                 test(arr2S[j][k]->seq1 == arr[k]->seq1);
                 test(arr2S[j][k]->seq2 == arr[k]->seq2);
                 test(arr2S[j][k]->seq3 == arr[k]->seq3);
@@ -807,9 +807,9 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
-        obj->s.e = ICE_ENUM(MyEnum, enum2);
-        TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
+        MyClassPtr obj = std::make_shared<MyClass>();
+        obj->s.e = MyEnum::enum2;
+        TestObjectWriterPtr writer = std::make_shared<TestObjectWriter>(obj);
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
         out.writePendingValues();
@@ -819,15 +819,15 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
-        obj->s.e = ICE_ENUM(MyEnum, enum2);
-        TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
+        MyClassPtr obj = std::make_shared<MyClass>();
+        obj->s.e = MyEnum::enum2;
+        TestObjectWriterPtr writer = std::make_shared<TestObjectWriter>(obj);
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-        factoryWrapper.setFactory([](const string&) { return ICE_MAKE_SHARED(TestObjectReader); });
+        factoryWrapper.setFactory([](const string&) { return std::make_shared<TestObjectReader>(); });
         Ice::InputStream in(communicator, data);
         Ice::ValuePtr p;
         in.read(&patchObject, &p);
@@ -837,17 +837,17 @@ allTests(Test::TestHelper* helper)
         test(reader);
         test(reader->called);
         test(reader->obj);
-        test(reader->obj->s.e == ICE_ENUM(MyEnum, enum2));
+        test(reader->obj->s.e == MyEnum::enum2);
         factoryWrapper.clear();
     }
 
     {
         Ice::OutputStream out(communicator);
         MyException ex;
-        MyClassPtr c = ICE_MAKE_SHARED(MyClass);
+        MyClassPtr c = std::make_shared<MyClass>();
         c->c = c;
         c->o = c;
-        c->s.e = ICE_ENUM(MyEnum, enum2);
+        c->s.e = MyEnum::enum2;
 
         c->seq1.push_back(true);
         c->seq1.push_back(false);
@@ -889,9 +889,9 @@ allTests(Test::TestHelper* helper)
         c->seq8.push_back("string3");
         c->seq8.push_back("string4");
 
-        c->seq9.push_back(ICE_ENUM(MyEnum, enum3));
-        c->seq9.push_back(ICE_ENUM(MyEnum, enum2));
-        c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
+        c->seq9.push_back(MyEnum::enum3);
+        c->seq9.push_back(MyEnum::enum2);
+        c->seq9.push_back(MyEnum::enum1);
 
         ex.c = c;
 
@@ -978,10 +978,10 @@ allTests(Test::TestHelper* helper)
 
     {
         StringMyClassD dict;
-        dict["key1"] = ICE_MAKE_SHARED(MyClass);
-        dict["key1"]->s.e = ICE_ENUM(MyEnum, enum2);
-        dict["key2"] = ICE_MAKE_SHARED(MyClass);
-        dict["key2"]->s.e = ICE_ENUM(MyEnum, enum3);
+        dict["key1"] = std::make_shared<MyClass>();
+        dict["key1"]->s.e = MyEnum::enum2;
+        dict["key2"] = std::make_shared<MyClass>();
+        dict["key2"]->s.e = MyEnum::enum3;
         Ice::OutputStream out(communicator);
         out.write(dict);
         out.writePendingValues();
@@ -991,18 +991,18 @@ allTests(Test::TestHelper* helper)
         in.read(dict2);
         in.readPendingValues();
         test(dict2.size() == dict.size());
-        test(dict2["key1"] && (dict2["key1"]->s.e == ICE_ENUM(MyEnum, enum2)));
-        test(dict2["key2"] && (dict2["key2"]->s.e == ICE_ENUM(MyEnum, enum3)));
+        test(dict2["key1"] && (dict2["key1"]->s.e == MyEnum::enum2));
+        test(dict2["key2"] && (dict2["key2"]->s.e == MyEnum::enum3));
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(Sub::NestedEnum, nestedEnum3));
+        out.write(Sub::NestedEnum::nestedEnum3);
         out.finished(data);
         Ice::InputStream in(communicator, data);
         NestedEnum e;
         in.read(e);
-        test(e == ICE_ENUM(Sub::NestedEnum, nestedEnum3));
+        test(e == Sub::NestedEnum::nestedEnum3);
     }
 
     {
@@ -1016,7 +1016,7 @@ allTests(Test::TestHelper* helper)
         s.f = 5.0;
         s.d = 6.0;
         s.str = "7";
-        s.e = ICE_ENUM(Sub::NestedEnum, nestedEnum2);
+        s.e = Sub::NestedEnum::nestedEnum2;
         out.write(s);
         out.finished(data);
         Ice::InputStream in(communicator, data);
@@ -1047,12 +1047,12 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(NestedEnum2, nestedEnum4));
+        out.write(NestedEnum2::nestedEnum4);
         out.finished(data);
         Ice::InputStream in(communicator, data);
         NestedEnum2 e;
         in.read(e);
-        test(e == ICE_ENUM(NestedEnum2, nestedEnum4));
+        test(e == NestedEnum2::nestedEnum4);
     }
 
     {
@@ -1066,7 +1066,7 @@ allTests(Test::TestHelper* helper)
         s.f = 5.0;
         s.d = 6.0;
         s.str = "7";
-        s.e = ICE_ENUM(NestedEnum2, nestedEnum5);
+        s.e = NestedEnum2::nestedEnum5;
         out.write(s);
         out.finished(data);
         Ice::InputStream in(communicator, data);

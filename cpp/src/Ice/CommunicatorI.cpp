@@ -122,7 +122,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
 
     try
     {
-        OutgoingAsyncBasePtr flushBatch = ICE_MAKE_SHARED(FlushBatch, ICE_SHARED_FROM_THIS, _instance, _observer);
+        OutgoingAsyncBasePtr flushBatch = std::make_shared<FlushBatch>(shared_from_this(), _instance, _observer);
         bool compress;
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs(), compress);
         if(batchRequestNum == 0)
@@ -131,11 +131,11 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         }
         else
         {
-            if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, Yes))
+            if(compressBatch == CompressBatch::Yes)
             {
                 compress = true;
             }
-            else if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, No))
+            else if(compressBatch == CompressBatch::No)
             {
                 compress = false;
             }
@@ -153,8 +153,8 @@ void
 CommunicatorFlushBatchAsync::invoke(const string& operation, CompressBatch compressBatch)
 {
     _observer.attach(_instance.get(), operation);
-    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
-    _instance->objectAdapterFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
+    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
+    _instance->objectAdapterFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
     check(true);
 }
 
@@ -185,7 +185,7 @@ CommunicatorFlushBatchAsync::check(bool userThread)
 }
 
 void
-Ice::CommunicatorI::destroy() ICE_NOEXCEPT
+Ice::CommunicatorI::destroy() noexcept
 {
     if(_instance)
     {
@@ -194,7 +194,7 @@ Ice::CommunicatorI::destroy() ICE_NOEXCEPT
 }
 
 void
-Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
+Ice::CommunicatorI::shutdown() noexcept
 {
     try
     {
@@ -207,7 +207,7 @@ Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
 }
 
 void
-Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
+Ice::CommunicatorI::waitForShutdown() noexcept
 {
     try
     {
@@ -220,7 +220,7 @@ Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
 }
 
 bool
-Ice::CommunicatorI::isShutdown() const ICE_NOEXCEPT
+Ice::CommunicatorI::isShutdown() const noexcept
 {
     try
     {
@@ -271,7 +271,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullptr);
 }
 
 ObjectAdapterPtr
@@ -284,7 +284,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullptr);
 }
 
 ObjectAdapterPtr
@@ -312,25 +312,25 @@ Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, con
 }
 
 ::Ice::ObjectFactoryPtr
-Ice::CommunicatorI::findObjectFactory(const string& id) const ICE_NOEXCEPT
+Ice::CommunicatorI::findObjectFactory(const string& id) const noexcept
 {
     return _instance->findObjectFactory(id);
 }
 
 PropertiesPtr
-Ice::CommunicatorI::getProperties() const ICE_NOEXCEPT
+Ice::CommunicatorI::getProperties() const noexcept
 {
     return _instance->initializationData().properties;
 }
 
 LoggerPtr
-Ice::CommunicatorI::getLogger() const ICE_NOEXCEPT
+Ice::CommunicatorI::getLogger() const noexcept
 {
     return _instance->initializationData().logger;
 }
 
 Ice::Instrumentation::CommunicatorObserverPtr
-Ice::CommunicatorI::getObserver() const ICE_NOEXCEPT
+Ice::CommunicatorI::getObserver() const noexcept
 {
     return _instance->initializationData().observer;
 }
@@ -360,7 +360,7 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrxPtr& locator)
 }
 
 Ice::ImplicitContextPtr
-Ice::CommunicatorI::getImplicitContext() const ICE_NOEXCEPT
+Ice::CommunicatorI::getImplicitContext() const noexcept
 {
     return _instance->getImplicitContext();
 }
@@ -372,7 +372,7 @@ Ice::CommunicatorI::getPluginManager() const
 }
 
 ValueFactoryManagerPtr
-Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
+Ice::CommunicatorI::getValueFactoryManager() const noexcept
 {
     return _instance->initializationData().valueFactoryManager;
 }
@@ -459,7 +459,7 @@ Ice::CommunicatorI::findAllAdminFacets()
 CommunicatorIPtr
 Ice::CommunicatorI::create(const InitializationData& initData)
 {
-    Ice::CommunicatorIPtr communicator = ICE_MAKE_SHARED(CommunicatorI);
+    Ice::CommunicatorIPtr communicator = std::make_shared<CommunicatorI>();
     try
     {
         const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
@@ -493,7 +493,7 @@ Ice::CommunicatorI::finishSetup(int& argc, const char* argv[])
 {
     try
     {
-        _instance->finishSetup(argc, argv, ICE_SHARED_FROM_THIS);
+        _instance->finishSetup(argc, argv, shared_from_this());
     }
     catch(...)
     {

@@ -21,7 +21,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(InitialI, adapter);
+    Ice::ObjectPtr object = std::make_shared<InitialI>(adapter);
     adapter->add(object, Ice::stringToIdentity("initial"));
     adapter->activate();
     serverReady();

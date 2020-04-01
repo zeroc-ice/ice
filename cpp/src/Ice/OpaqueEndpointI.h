@@ -20,7 +20,7 @@ public:
     OpaqueEndpointI(Ice::Short, Ice::InputStream*);
 
     virtual void streamWrite(Ice::OutputStream*) const;
-    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
 

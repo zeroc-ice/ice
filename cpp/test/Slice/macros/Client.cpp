@@ -20,11 +20,11 @@ void
 Client::run(int, char**)
 {
     cout << "testing Slice predefined macros... " << flush;
-    DefaultPtr d = ICE_MAKE_SHARED(Default);
+    DefaultPtr d = std::make_shared<Default>();
     test(d->x == 10);
     test(d->y == 10);
 
-    CppOnlyPtr c = ICE_MAKE_SHARED(CppOnly);
+    CppOnlyPtr c = std::make_shared<CppOnly>();
     test(c->lang == "cpp");
     test(c->version == ICE_INT_VERSION);
     cout << "ok" << endl;

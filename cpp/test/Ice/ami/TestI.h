@@ -21,7 +21,7 @@ public:
     virtual int opWithResult(const Ice::Current&);
     virtual void opWithUE(const Ice::Current&);
     virtual int opWithResultAndUE(const Ice::Current&);
-    virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
+    virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);
     virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
@@ -37,7 +37,7 @@ public:
     virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
 
-    virtual void pingBiDir(ICE_IN(Test::PingReplyPrxPtr), const Ice::Current&);
+    virtual void pingBiDir(Test::PingReplyPrxPtr, const Ice::Current&);
 
 private:
 

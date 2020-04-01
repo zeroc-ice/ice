@@ -107,7 +107,7 @@ public:
     createTestProperties(int&, char*[]);
 
     Ice::CommunicatorPtr
-    initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = ICE_NULLPTR);
+    initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
 
     Ice::CommunicatorPtr initialize(int&, char*[], const Ice::InitializationData&);
 

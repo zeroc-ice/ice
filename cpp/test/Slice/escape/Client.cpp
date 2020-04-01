@@ -82,18 +82,18 @@ testtypes()
     _cpp_and::breakPrxPtr d;
     int d2;
     d->_cpp_case(0, d2);
-    _cpp_and::breakPtr d1 = ICE_MAKE_SHARED(breakI);
+    _cpp_and::breakPtr d1 = std::make_shared<breakI>();
 
     _cpp_and::charPrxPtr e;
     e->_cpp_explicit();
-    _cpp_and::charPtr e1 = ICE_MAKE_SHARED(charI);
+    _cpp_and::charPtr e1 = std::make_shared<charI>();
 
-    _cpp_and::switchPtr f1 = ICE_MAKE_SHARED(switchI);
+    _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
-    _cpp_and::doPtr g1 = ICE_MAKE_SHARED(doI);
+    _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;
     _cpp_and::_cpp_for i;
@@ -123,7 +123,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(charI), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<charI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
     cout << "Testing operation name... " << flush;

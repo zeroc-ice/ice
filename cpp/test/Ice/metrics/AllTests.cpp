@@ -279,7 +279,7 @@ struct Connect
     {
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
         try
         {
@@ -290,7 +290,7 @@ struct Connect
         }
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
     }
 
@@ -441,7 +441,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     IceMX::MetricsAdminPrxPtr serverMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
     test(serverProps && serverMetrics);
 
-    UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
+    UpdateCallbackIPtr update = std::make_shared<UpdateCallbackI>(serverProps);
 
     ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, communicator->findAdminFacet("Properties"))->addUpdateCallback(
         [update](const Ice::PropertyDict& changes) { update->updated(changes); }
@@ -520,9 +520,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     if(!collocated)
     {
-        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         metrics->ice_connectionId("Con1")->ice_getConnection()->close(
-            Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            Ice::ConnectionClose::GracefullyWithWait);
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -632,7 +632,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["holding"]->current == 1);
 
-        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["closing"]->current == 1);
@@ -647,7 +647,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
         metrics->ice_timeout(500)->ice_ping();
         controller->hold();
@@ -704,7 +704,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastPort", "");
 
-        m->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        m->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -723,7 +723,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
         test(m1->current == 0 && m1->total == 1 && m1->id == hostAndPort);
 
-        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         controller->hold();
         try
         {
@@ -771,7 +771,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         try
         {
             prx->ice_ping();
-            prx->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            prx->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
         catch(const Ice::LocalException&)
         {
@@ -1370,9 +1370,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metricsBatchOneway = metricsBatchOneway->ice_fixed(con);
         metricsBatchOneway->op();
 
-        con->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
-        con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
-        con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No), [cb](exception_ptr) {});
+        con->flushBatchRequests(Ice::CompressBatch::No);
+        con->flushBatchRequestsAsync(Ice::CompressBatch::No).get();
+        con->flushBatchRequestsAsync(Ice::CompressBatch::No, [cb](exception_ptr) {});
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 3);
 
@@ -1383,9 +1383,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         clearView(clientProps, serverProps, update.get());
         metricsBatchOneway->op();
 
-        communicator->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
-        communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
-        communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
+        communicator->flushBatchRequests(Ice::CompressBatch::No);
+        communicator->flushBatchRequestsAsync(Ice::CompressBatch::No).get();
+        communicator->flushBatchRequestsAsync(Ice::CompressBatch::No,
                                               [cb](exception_ptr) {});
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 2);

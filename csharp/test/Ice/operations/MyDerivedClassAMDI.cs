@@ -253,7 +253,7 @@ namespace Ice.operations.AMD
             var p2 = p1;
             var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
             return FromResult((
-                current.Adapter.CreateProxy(current.Id, Test.IMyClassPrx.Factory), p2, p3));
+                current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory), p2, p3));
         }
 
         public ValueTask<(Test.MyEnum, Test.MyEnum)>

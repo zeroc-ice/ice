@@ -36,10 +36,10 @@ namespace IceDiscovery
         {
             LookupCount = lookups.Count;
             FailureCount = 0;
-            var id = new Identity(_requestId, "");
+            var identity = new Identity(_requestId, "");
             foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> entry in lookups)
             {
-                InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value!.Clone(id)));
+                InvokeWithLookup(domainId, entry.Key, entry.Value!.Clone(identity, ILookupReplyPrx.Factory));
             }
         }
 
@@ -523,10 +523,10 @@ namespace IceDiscovery
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
         public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c)
-            => _lookup.FoundObject(id, c.Id.Name, proxy!); // proxy cannot be null
+            => _lookup.FoundObject(id, c.Identity.Name, proxy!); // proxy cannot be null
 
         public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current c) =>
-            _lookup.FoundAdapter(adapterId, c.Id.Name, proxy!, isReplicaGroup); // proxy cannot be null
+            _lookup.FoundAdapter(adapterId, c.Identity.Name, proxy!, isReplicaGroup); // proxy cannot be null
 
         private readonly Lookup _lookup;
     };

@@ -21,7 +21,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    ServantLocatorPtr locator = ICE_MAKE_SHARED(ServantLocatorI);
+    ServantLocatorPtr locator = std::make_shared<ServantLocatorI>();
     adapter->addServantLocator(locator, "");
     adapter->activate();
     serverReady();

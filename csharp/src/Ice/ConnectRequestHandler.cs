@@ -11,7 +11,7 @@ namespace IceInternal
 {
     public class ConnectRequestHandler : IRequestHandler, Reference.IGetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        public IRequestHandler Connect(RoutableReference reference)
+        public IRequestHandler Connect(Reference reference)
         {
             Debug.Assert(reference == _reference); // not ReferenceEquals, see Communicator.GetRequestHandler
             lock (this)
@@ -20,7 +20,7 @@ namespace IceInternal
                 {
                     if (_reference.IsConnectionCached)
                     {
-                        _referenceList ??= new List<RoutableReference>();
+                        _referenceList ??= new List<Reference>();
                         _referenceList.Add(reference);
                     }
                 }
@@ -179,9 +179,10 @@ namespace IceInternal
         //
         public void addedProxy() => FlushRequests();
 
-        public ConnectRequestHandler(RoutableReference routableReference)
+        public ConnectRequestHandler(Reference reference)
         {
-            _reference = routableReference;
+            Debug.Assert(!reference.IsFixed);
+            _reference = reference;
             _initialized = false;
             _flushing = false;
             _requestHandler = this;
@@ -302,10 +303,10 @@ namespace IceInternal
             }
         }
 
-        private readonly RoutableReference _reference;
+        private readonly Reference _reference;
 
         // References to update upon initialization
-        private List<RoutableReference>? _referenceList;
+        private List<Reference>? _referenceList;
 
         private Connection? _connection;
         private bool _compress;

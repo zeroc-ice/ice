@@ -134,7 +134,7 @@ namespace Ice
 
                     if (string.IsNullOrEmpty(preExecutionException.Id.Name))
                     {
-                        preExecutionException.Id = current.Id;
+                        preExecutionException.Id = current.Identity;
                     }
 
                     if (string.IsNullOrEmpty(preExecutionException.Facet))

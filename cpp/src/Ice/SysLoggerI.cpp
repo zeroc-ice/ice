@@ -160,7 +160,7 @@ Ice::SysLoggerI::getPrefix()
 Ice::LoggerPtr
 Ice::SysLoggerI::cloneWithPrefix(const string& prefix)
 {
-    return ICE_MAKE_SHARED(SysLoggerI, prefix, _facility);
+    return std::make_shared<SysLoggerI>(prefix, _facility);
 }
 
 #endif

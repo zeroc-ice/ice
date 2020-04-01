@@ -19,13 +19,13 @@ public:
 
     virtual Test::SimpleEnum opSimple(Test::SimpleEnum, Test::SimpleEnum&, const Ice::Current&);
 
-    virtual Test::ByteEnumSeq opByteSeq(ICE_IN(Test::ByteEnumSeq), Test::ByteEnumSeq&, const Ice::Current&);
+    virtual Test::ByteEnumSeq opByteSeq(Test::ByteEnumSeq, Test::ByteEnumSeq&, const Ice::Current&);
 
-    virtual Test::ShortEnumSeq opShortSeq(ICE_IN(Test::ShortEnumSeq), Test::ShortEnumSeq&, const ::Ice::Current&);
+    virtual Test::ShortEnumSeq opShortSeq(Test::ShortEnumSeq, Test::ShortEnumSeq&, const ::Ice::Current&);
 
-    virtual Test::IntEnumSeq opIntSeq(ICE_IN(Test::IntEnumSeq), Test::IntEnumSeq&, const ::Ice::Current&);
+    virtual Test::IntEnumSeq opIntSeq(Test::IntEnumSeq, Test::IntEnumSeq&, const ::Ice::Current&);
 
-    virtual Test::SimpleEnumSeq opSimpleSeq(ICE_IN(Test::SimpleEnumSeq), Test::SimpleEnumSeq&, const ::Ice::Current&);
+    virtual Test::SimpleEnumSeq opSimpleSeq(Test::SimpleEnumSeq, Test::SimpleEnumSeq&, const ::Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

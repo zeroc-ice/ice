@@ -618,7 +618,7 @@ IceInternal::FixedReference::getPreferSecure() const
 Ice::EndpointSelectionType
 IceInternal::FixedReference::getEndpointSelection() const
 {
-    return ICE_ENUM(EndpointSelectionType, Random);
+    return EndpointSelectionType::Random;
 }
 
 int
@@ -800,7 +800,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
-    return proxy->_setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
+    return proxy->_setRequestHandler(std::make_shared<ConnectionRequestHandler>(ref, _fixedConnection, compress));
 }
 
 BatchRequestQueuePtr
@@ -1264,7 +1264,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
-    properties[prefix + ".EndpointSelection"] = _endpointSelection == ICE_ENUM(EndpointSelectionType, Random) ? "Random" : "Ordered";
+    properties[prefix + ".EndpointSelection"] = _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
     {
         ostringstream s;
         s << _locatorCacheTimeout;
@@ -1575,7 +1575,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
     public:
 
-        class Callback2 ICE_FINAL : public Reference::GetConnectionCallback
+        class Callback2 final : public Reference::GetConnectionCallback
         {
         public:
 
@@ -1640,7 +1640,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
 
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
-            _reference->createConnection(endpts, ICE_MAKE_SHARED(Callback2, _reference, _callback, cached));
+            _reference->createConnection(endpts, std::make_shared<Callback2>(_reference, _callback, cached));
         }
 
         virtual void
@@ -1763,7 +1763,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             {
                 if(!_exception)
                 {
-                    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+                    _exception = ex.ice_clone();
                 }
 
                 if(++_i == _endpoints.size())
@@ -1904,12 +1904,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     switch(getEndpointSelection())
     {
-        case ICE_ENUM(EndpointSelectionType, Random):
+        case EndpointSelectionType::Random:
         {
             IceUtilInternal::shuffle(endpoints.begin(), endpoints.end());
             break;
         }
-        case ICE_ENUM(EndpointSelectionType, Ordered):
+        case EndpointSelectionType::Ordered:
         {
             // Nothing to do.
             break;

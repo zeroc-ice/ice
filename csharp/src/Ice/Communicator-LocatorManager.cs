@@ -313,7 +313,8 @@ namespace Ice
                 // endpoint selection in case the locator returned a proxy
                 // with some endpoints which are prefered to be tried first.
                 //
-                _locatorRegistry = locatorRegistry.Clone(clearLocator: true, endpointSelectionType: EndpointSelectionType.Ordered);
+                _locatorRegistry = locatorRegistry.Clone(clearLocator: true,
+                    endpointSelection: EndpointSelectionType.Ordered);
                 return _locatorRegistry;
             }
         }

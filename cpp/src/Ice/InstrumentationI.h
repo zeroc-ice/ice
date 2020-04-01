@@ -16,7 +16,7 @@ template<typename T, typename O> class ObserverWithDelegateT : public IceMX::Obs
 public:
 
     typedef O ObserverType;
-    typedef typename ICE_INTERNAL_HANDLE<O> ObserverPtrType;
+    typedef typename std::shared_ptr<O> ObserverPtrType;
     virtual void
     attach()
     {
@@ -63,7 +63,7 @@ public:
     getObserverWithDelegate(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper,
                             const ObserverPtrType& del)
     {
-        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName,
+        std::shared_ptr<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName,
                                                                                                          helper);
         if(obsv)
         {
@@ -90,7 +90,7 @@ public:
     template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType
     getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del)
     {
-        ICE_INTERNAL_HANDLE<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
+        std::shared_ptr<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
         if(obsv)
         {
             obsv->setDelegate(del);
@@ -103,7 +103,7 @@ public:
     getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del,
                             const ObserverPtrType& old)
     {
-        ICE_INTERNAL_HANDLE<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
+        std::shared_ptr<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
         if(obsv)
         {
             obsv->setDelegate(del);
