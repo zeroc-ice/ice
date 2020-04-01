@@ -52,7 +52,7 @@ public:
     virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller)
@@ -73,14 +73,14 @@ public:
     {
         hasRoutingTable = true;
         _controller->checkCallPause(current);
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::ObjectProxySeq

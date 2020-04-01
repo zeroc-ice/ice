@@ -251,13 +251,13 @@ EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 }
 
 string
-EndpointI::toString() const ICE_NOEXCEPT
+EndpointI::toString() const noexcept
 {
     return "test-" + _endpoint->toString();
 }
 
 Ice::EndpointInfoPtr
-EndpointI::getInfo() const ICE_NOEXCEPT
+EndpointI::getInfo() const noexcept
 {
     return _endpoint->getInfo();
 }

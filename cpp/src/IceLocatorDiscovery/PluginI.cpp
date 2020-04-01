@@ -151,7 +151,7 @@ public:
     virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 };
 
@@ -278,7 +278,7 @@ PluginI::initialize()
 
     Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
     // No collocation optimization for the multicast proxy!
-    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(ICE_NULLPTR);
+    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
 
     Ice::LocatorPrxPtr voidLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx,
                                                         _locatorAdapter->addWithUUID(ICE_MAKE_SHARED(VoidLocatorI)));
@@ -538,7 +538,7 @@ LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
     //
     // Find a locator
     //
-    invoke(ICE_NULLPTR, ICE_NULLPTR);
+    invoke(nullptr, nullptr);
 
     //
     // Wait for responses

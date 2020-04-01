@@ -32,7 +32,7 @@ public:
 
     operator bool() const
     {
-        return _observer != ICE_NULLPTR;
+        return _observer != nullptr;
     }
 
     T* operator->() const
@@ -139,7 +139,7 @@ public:
         {
             return _observer->getRemoteObserver(con, endpt, requestId, size);
         }
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     ::Ice::Instrumentation::ChildInvocationObserverPtr
@@ -149,7 +149,7 @@ public:
         {
             return _observer->getCollocatedObserver(adapter, requestId, size);
         }
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     void

@@ -100,10 +100,6 @@
 #   define ICE_CPLUSPLUS __cplusplus
 #endif
 
-#define ICE_NOEXCEPT noexcept
-#define ICE_NOEXCEPT_FALSE noexcept(false)
-#define ICE_FINAL final
-
 //
 // Does the C++ compiler library provide std::codecvt_utf8 and
 // std::codecvt_utf8_utf16?
@@ -298,7 +294,7 @@ typedef long long Int64;
 #define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
 #define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#define ICE_NULLPTR nullptr
+#define nullptr nullptr
 #define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
 #define ICE_SHARED_FROM_THIS shared_from_this()
 #define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()

@@ -274,7 +274,7 @@ protected:
 };
 ICE_DEFINE_PTR(TestCasePtr, TestCase);
 
-class InvocationHeartbeatTest ICE_FINAL : public TestCase
+class InvocationHeartbeatTest final : public TestCase
 {
 public:
 
@@ -293,7 +293,7 @@ public:
     }
 };
 
-class InvocationHeartbeatOnHoldTest ICE_FINAL : public TestCase
+class InvocationHeartbeatOnHoldTest final : public TestCase
 {
 public:
 
@@ -323,7 +323,7 @@ public:
     }
 };
 
-class InvocationNoHeartbeatTest ICE_FINAL : public TestCase
+class InvocationNoHeartbeatTest final : public TestCase
 {
 public:
 
@@ -355,7 +355,7 @@ public:
     }
 };
 
-class InvocationHeartbeatCloseOnIdleTest ICE_FINAL : public TestCase
+class InvocationHeartbeatCloseOnIdleTest final : public TestCase
 {
 public:
 
@@ -377,7 +377,7 @@ public:
     }
 };
 
-class CloseOnIdleTest ICE_FINAL : public TestCase
+class CloseOnIdleTest final : public TestCase
 {
 public:
 
@@ -395,7 +395,7 @@ public:
     }
 };
 
-class CloseOnInvocationTest ICE_FINAL : public TestCase
+class CloseOnInvocationTest final : public TestCase
 {
 public:
 
@@ -414,7 +414,7 @@ public:
     }
 };
 
-class CloseOnIdleAndInvocationTest ICE_FINAL : public TestCase
+class CloseOnIdleAndInvocationTest final : public TestCase
 {
 public:
 
@@ -445,7 +445,7 @@ public:
     }
 };
 
-class ForcefulCloseOnIdleAndInvocationTest ICE_FINAL : public TestCase
+class ForcefulCloseOnIdleAndInvocationTest final : public TestCase
 {
 public:
 
@@ -466,7 +466,7 @@ public:
     }
 };
 
-class HeartbeatOnIdleTest ICE_FINAL : public TestCase
+class HeartbeatOnIdleTest final : public TestCase
 {
 public:
 
@@ -484,7 +484,7 @@ public:
     }
 };
 
-class HeartbeatAlwaysTest ICE_FINAL : public TestCase
+class HeartbeatAlwaysTest final : public TestCase
 {
 public:
 
@@ -506,7 +506,7 @@ public:
     }
 };
 
-class HeartbeatManualTest ICE_FINAL : public TestCase
+class HeartbeatManualTest final : public TestCase
 {
 public:
 
@@ -532,7 +532,7 @@ public:
     }
 };
 
-class SetACMTest ICE_FINAL : public TestCase
+class SetACMTest final : public TestCase
 {
 public:
 

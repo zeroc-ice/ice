@@ -143,7 +143,7 @@ public:
     virtual void run()
     {
         _session->destroyInternal(_disconnected);
-        _session = ICE_NULLPTR;
+        _session = nullptr;
 
         //
         // Join the connect thread to free resources.
@@ -175,7 +175,7 @@ public:
     virtual void run()
     {
         _session->destroyCommunicator();
-        _session = ICE_NULLPTR;
+        _session = nullptr;
 
         //
         // Join the connect thread to free resources.
@@ -233,9 +233,9 @@ SessionHelperI::destroy()
     {
         destroyThread = new DestroyInternal(ICE_SHARED_FROM_THIS, _callback, _threadCB);
         _connected = false;
-        _session = ICE_NULLPTR;
+        _session = nullptr;
     }
-    _threadCB = ICE_NULLPTR;
+    _threadCB = nullptr;
 
     //
     // Run destroy in a thread because it can block.
@@ -324,7 +324,7 @@ Glacier2::SessionCallback::~SessionCallback()
 namespace
 {
 
-class ConnectStrategySecureConnection ICE_FINAL : public ConnectStrategy
+class ConnectStrategySecureConnection final : public ConnectStrategy
 {
 
 public:
@@ -345,7 +345,7 @@ private:
     const map<string, string> _context;
 };
 
-class ConnectStrategyUserPassword ICE_FINAL : public ConnectStrategy
+class ConnectStrategyUserPassword final : public ConnectStrategy
 {
 
 public:
@@ -395,7 +395,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
     {
         IceUtil::Mutex::Lock sync(_mutex);
         router = _router;
-        _router = ICE_NULLPTR;
+        _router = nullptr;
         _connected = false;
 
         communicator = _communicator;
@@ -436,7 +436,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
     {
         communicator->destroy();
     }
-    dispatchCallback(disconnected, ICE_NULLPTR);
+    dispatchCallback(disconnected, nullptr);
 }
 
 void
@@ -552,7 +552,7 @@ public:
                 IceUtil::Mutex::Lock sync(_session->_mutex);
                 _session->_destroy = true;
             }
-            _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), ICE_NULLPTR);
+            _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), nullptr);
             return;
         }
 
@@ -627,7 +627,7 @@ public:
     virtual void run()
     {
         _session->dispatchCallback(_call, _conn);
-        _session = ICE_NULLPTR;
+        _session = nullptr;
     }
 
 private:

@@ -68,13 +68,13 @@ public:
     virtual ::Ice::Instrumentation::RemoteObserverPtr
     getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::Ice::Int, ::Ice::Int)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual ::Ice::Instrumentation::CollocatedObserverPtr
     getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
 };
@@ -88,13 +88,13 @@ public:
     virtual Ice::Instrumentation::ObserverPtr
     getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const ::std::string&)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::Instrumentation::ObserverPtr
     getEndpointLookupObserver(const Ice::EndpointPtr&)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::Instrumentation::ConnectionObserverPtr
@@ -103,7 +103,7 @@ public:
                           Ice::Instrumentation::ConnectionState,
                           const Ice::Instrumentation::ConnectionObserverPtr&)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::Instrumentation::ThreadObserverPtr
@@ -112,7 +112,7 @@ public:
                       Ice::Instrumentation::ThreadState,
                       const Ice::Instrumentation::ThreadObserverPtr&)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::Instrumentation::InvocationObserverPtr
@@ -124,7 +124,7 @@ public:
     virtual Ice::Instrumentation::DispatchObserverPtr
     getDispatchObserver(const Ice::Current&, Ice::Int)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual void

@@ -149,7 +149,7 @@ Client::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    Ice::setProcessStringConverter(ICE_NULLPTR);
+    Ice::setProcessStringConverter(nullptr);
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
 
     string propValue = "Ice:createStringConverter";

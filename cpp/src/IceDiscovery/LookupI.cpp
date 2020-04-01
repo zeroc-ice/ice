@@ -329,7 +329,7 @@ LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
         }
         catch(const Ice::LocalException&)
         {
-            p->second->finished(ICE_NULLPTR);
+            p->second->finished(nullptr);
             _objectRequests.erase(p);
         }
     }
@@ -357,7 +357,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
         }
         catch(const Ice::LocalException&)
         {
-            p->second->finished(ICE_NULLPTR);
+            p->second->finished(nullptr);
             _adapterRequests.erase(p);
         }
     }

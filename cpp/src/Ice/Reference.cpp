@@ -1575,7 +1575,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
     public:
 
-        class Callback2 ICE_FINAL : public Reference::GetConnectionCallback
+        class Callback2 final : public Reference::GetConnectionCallback
         {
         public:
 

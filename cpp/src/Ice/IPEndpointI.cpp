@@ -53,25 +53,25 @@ IceInternal::IPEndpointInfoI::~IPEndpointInfoI()
 }
 
 Ice::Short
-IceInternal::IPEndpointInfoI::type() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
 }
 
 bool
-IceInternal::IPEndpointInfoI::datagram() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::datagram() const noexcept
 {
     return _endpoint->datagram();
 }
 
 bool
-IceInternal::IPEndpointInfoI::secure() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::secure() const noexcept
 {
     return _endpoint->secure();
 }
 
 Ice::EndpointInfoPtr
-IceInternal::IPEndpointI::getInfo() const ICE_NOEXCEPT
+IceInternal::IPEndpointI::getInfo() const noexcept
 {
     Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());

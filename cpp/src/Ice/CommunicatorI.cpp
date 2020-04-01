@@ -185,7 +185,7 @@ CommunicatorFlushBatchAsync::check(bool userThread)
 }
 
 void
-Ice::CommunicatorI::destroy() ICE_NOEXCEPT
+Ice::CommunicatorI::destroy() noexcept
 {
     if(_instance)
     {
@@ -194,7 +194,7 @@ Ice::CommunicatorI::destroy() ICE_NOEXCEPT
 }
 
 void
-Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
+Ice::CommunicatorI::shutdown() noexcept
 {
     try
     {
@@ -207,7 +207,7 @@ Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
 }
 
 void
-Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
+Ice::CommunicatorI::waitForShutdown() noexcept
 {
     try
     {
@@ -220,7 +220,7 @@ Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
 }
 
 bool
-Ice::CommunicatorI::isShutdown() const ICE_NOEXCEPT
+Ice::CommunicatorI::isShutdown() const noexcept
 {
     try
     {
@@ -271,7 +271,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullptr);
 }
 
 ObjectAdapterPtr
@@ -284,7 +284,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullptr);
 }
 
 ObjectAdapterPtr
@@ -312,25 +312,25 @@ Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, con
 }
 
 ::Ice::ObjectFactoryPtr
-Ice::CommunicatorI::findObjectFactory(const string& id) const ICE_NOEXCEPT
+Ice::CommunicatorI::findObjectFactory(const string& id) const noexcept
 {
     return _instance->findObjectFactory(id);
 }
 
 PropertiesPtr
-Ice::CommunicatorI::getProperties() const ICE_NOEXCEPT
+Ice::CommunicatorI::getProperties() const noexcept
 {
     return _instance->initializationData().properties;
 }
 
 LoggerPtr
-Ice::CommunicatorI::getLogger() const ICE_NOEXCEPT
+Ice::CommunicatorI::getLogger() const noexcept
 {
     return _instance->initializationData().logger;
 }
 
 Ice::Instrumentation::CommunicatorObserverPtr
-Ice::CommunicatorI::getObserver() const ICE_NOEXCEPT
+Ice::CommunicatorI::getObserver() const noexcept
 {
     return _instance->initializationData().observer;
 }
@@ -360,7 +360,7 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrxPtr& locator)
 }
 
 Ice::ImplicitContextPtr
-Ice::CommunicatorI::getImplicitContext() const ICE_NOEXCEPT
+Ice::CommunicatorI::getImplicitContext() const noexcept
 {
     return _instance->getImplicitContext();
 }
@@ -372,7 +372,7 @@ Ice::CommunicatorI::getPluginManager() const
 }
 
 ValueFactoryManagerPtr
-Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
+Ice::CommunicatorI::getValueFactoryManager() const noexcept
 {
     return _instance->initializationData().valueFactoryManager;
 }

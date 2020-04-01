@@ -107,7 +107,7 @@ ConnectRequestHandler::getConnection()
     {
         _exception->ice_throw();
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 Ice::ConnectionIPtr
@@ -330,7 +330,7 @@ ConnectRequestHandler::flushRequests()
         _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
         _proxies.clear();
-        _proxy = ICE_NULLPTR; // Break cyclic reference count.
+        _proxy = nullptr; // Break cyclic reference count.
         notifyAll();
     }
 }

@@ -261,7 +261,7 @@ public:
 };
 #endif
 
-class PasswordPromptI ICE_FINAL
+class PasswordPromptI final
 {
 public:
 
@@ -287,7 +287,7 @@ private:
 };
 ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
 
-class CertificateVerifierI ICE_FINAL
+class CertificateVerifierI final
 {
 public:
 
@@ -529,7 +529,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #ifdef __APPLE__
     vector<char> s(256);
     size_t size = s.size();
-    int ret = sysctlbyname("kern.osrelease", &s[0], &size, ICE_NULLPTR, 0);
+    int ret = sysctlbyname("kern.osrelease", &s[0], &size, nullptr, 0);
     if(ret == 0)
     {
         // version format is x.y.z

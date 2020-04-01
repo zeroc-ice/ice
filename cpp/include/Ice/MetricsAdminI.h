@@ -351,7 +351,7 @@ public:
         {
             return std::pair<MetricsMapIPtr, SubMapMember>(ICE_GET_SHARED_FROM_THIS(p->second.second->clone()), p->second.first);
         }
-        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(ICE_NULLPTR), static_cast<SubMapMember>(0));
+        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
     }
 
     EntryTPtr
@@ -364,7 +364,7 @@ public:
         {
             if(!(*p)->match(helper, false))
             {
-                return ICE_NULLPTR;
+                return nullptr;
             }
         }
 
@@ -372,7 +372,7 @@ public:
         {
             if((*p)->match(helper, true))
             {
-                return ICE_NULLPTR;
+                return nullptr;
             }
         }
 
@@ -404,7 +404,7 @@ public:
         }
         catch(const std::exception&)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         //
@@ -413,7 +413,7 @@ public:
         Lock sync(*this);
         if(_destroyed)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         if(previous && previous->_object->id == key)
@@ -523,7 +523,7 @@ public:
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*,
-                                     MetricsMapFactoryPtr>(member, ICE_MAKE_SHARED(MetricsMapFactoryT<SubMapMetricsType>, ICE_NULLPTR));
+                                     MetricsMapFactoryPtr>(member, ICE_MAKE_SHARED(MetricsMapFactoryT<SubMapMetricsType>, nullptr));
     }
 
 private:

@@ -18,7 +18,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 string
-Ice::PropertiesI::getProperty(const string& key) ICE_NOEXCEPT
+Ice::PropertiesI::getProperty(const string& key) noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -35,7 +35,7 @@ Ice::PropertiesI::getProperty(const string& key) ICE_NOEXCEPT
 }
 
 string
-Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -52,13 +52,13 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 }
 
 Int
-Ice::PropertiesI::getPropertyAsInt(const string& key) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertyAsInt(const string& key) noexcept
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
 Int
-Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -80,13 +80,13 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) ICE_
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsList(const string& key) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertyAsList(const string& key) noexcept
 {
     return getPropertyAsListWithDefault(key, StringSeq());
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -114,7 +114,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
 }
 
 PropertyDict
-Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) ICE_NOEXCEPT
+Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -230,7 +230,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 }
 
 StringSeq
-Ice::PropertiesI::getCommandLineOptions() ICE_NOEXCEPT
+Ice::PropertiesI::getCommandLineOptions() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -309,8 +309,8 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR,
-                                  &numValues, &maxNameSize, &maxDataSize, ICE_NULLPTR, ICE_NULLPTR);
+            err = RegQueryInfoKey(iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                  &numValues, &maxNameSize, &maxDataSize, nullptr, nullptr);
             if(err != ERROR_SUCCESS)
             {
                 throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file +
@@ -324,7 +324,7 @@ Ice::PropertiesI::load(const std::string& file)
                 DWORD keyType;
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
-                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, ICE_NULLPTR, &keyType, &dataBuf[0], &dataBufSize);
+                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, nullptr, &keyType, &dataBuf[0], &dataBufSize);
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
@@ -420,7 +420,7 @@ Ice::PropertiesI::load(const std::string& file)
 }
 
 PropertiesPtr
-Ice::PropertiesI::clone() ICE_NOEXCEPT
+Ice::PropertiesI::clone() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
     return ICE_MAKE_SHARED(PropertiesI, this);

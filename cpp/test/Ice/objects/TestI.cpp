@@ -102,14 +102,14 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
 InitialI::~InitialI()
 {
-    _b1->theA = ICE_NULLPTR;
-    _b1->theB = ICE_NULLPTR;
+    _b1->theA = nullptr;
+    _b1->theB = nullptr;
 
-    _b2->theA = ICE_NULLPTR;
-    _b2->theB = ICE_NULLPTR;
-    _b2->theC = ICE_NULLPTR;
+    _b2->theA = nullptr;
+    _b2->theB = nullptr;
+    _b2->theC = nullptr;
 
-    _c->theB = ICE_NULLPTR;
+    _c->theB = nullptr;
 }
 
 void

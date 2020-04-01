@@ -11,7 +11,7 @@ using namespace std;
 namespace
 {
 
-class BatchRequestInterceptorI ICE_FINAL
+class BatchRequestInterceptorI final
 {
 public:
 

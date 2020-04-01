@@ -602,7 +602,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         }
 
         connection = ConnectionI::create(_communicator, _instance, _monitor, transceiver, ci.connector,
-                                         ci.endpoint->compress(false), ICE_NULLPTR);
+                                         ci.endpoint->compress(false), nullptr);
     }
     catch(const Ice::LocalException&)
     {
@@ -1359,7 +1359,7 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
     }
     catch(const LocalException& ex)
     {
-        _acceptorException.reset(ICE_NULLPTR);
+        _acceptorException.reset(nullptr);
 
         Error out(_instance->initializationData().logger);
         out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();

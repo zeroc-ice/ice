@@ -518,8 +518,8 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
         throw CertificateReadException(__FILE__, __LINE__, "error opening file");
     }
 
-    x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
-    if(x == ICE_NULLPTR)
+    x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
+    if(x == nullptr)
     {
         BIO_free(cert);
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
@@ -532,8 +532,8 @@ IceSSL::OpenSSL::CertificatePtr
 IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
 {
     BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
-    x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
-    if(x == ICE_NULLPTR)
+    x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
+    if(x == nullptr)
     {
         BIO_free(cert);
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));

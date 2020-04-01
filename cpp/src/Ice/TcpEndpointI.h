@@ -24,7 +24,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;

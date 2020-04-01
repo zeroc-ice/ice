@@ -337,7 +337,7 @@ Ice::getProcessLogger()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
 
-    if(processLogger == ICE_NULLPTR)
+    if(processLogger == nullptr)
     {
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
@@ -406,7 +406,7 @@ Ice::CommunicatorHolder::~CommunicatorHolder()
 
 Ice::CommunicatorHolder::operator bool() const
 {
-    return _communicator != ICE_NULLPTR;
+    return _communicator != nullptr;
 }
 
 const Ice::CommunicatorPtr&

@@ -322,7 +322,7 @@ public:
 };
 ICE_DEFINE_PTR(UpdaterPtr, Updater);
 
-template<typename T> class UpdaterT ICE_FINAL : public Updater
+template<typename T> class UpdaterT final : public Updater
 {
 public:
 
@@ -439,7 +439,7 @@ public:
                 return *p;
             }
         }
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     template<typename ObserverImpl, typename ObserverMetricsType> ICE_INTERNAL_HANDLE<ObserverImpl>
@@ -457,7 +457,7 @@ public:
 
         if(metricsObjects.empty())
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         ICE_INTERNAL_HANDLE<ObserverImpl> obsv = ICE_MAKE_SHARED(ObserverImpl);
@@ -501,7 +501,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -516,7 +516,7 @@ public:
 
         if(metricsObjects.empty())
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
@@ -536,7 +536,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!_metrics)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
@@ -551,7 +551,7 @@ public:
         if(metricsObjects.empty())
         {
             old->detach();
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);

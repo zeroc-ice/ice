@@ -38,8 +38,8 @@ Selector::~Selector()
 void
 Selector::setup(int sizeIO)
 {
-    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, ICE_NULLPTR, 0, sizeIO);
-    if(_handle == ICE_NULLPTR)
+    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, sizeIO);
+    if(_handle == nullptr)
     {
         throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
@@ -69,7 +69,7 @@ Selector::initialize(EventHandler* handler)
         if(CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket),
                                   _handle,
                                   reinterpret_cast<ULONG_PTR>(handler),
-                                  0) == ICE_NULLPTR)
+                                  0) == nullptr)
         {
             throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
         }

@@ -1883,7 +1883,7 @@ IceInternal::Instance::findObjectFactory(const string& id) const
     }
     else
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 }
 

@@ -1355,7 +1355,7 @@ allTests(Test::TestHelper* helper, bool)
         if(initial->supportsNullOptional())
         {
             p2 = initial->opOneOptional(OneOptionalPtr(), p3);
-            test(*p2 == ICE_NULLPTR && *p3 == ICE_NULLPTR);
+            test(*p2 == nullptr && *p3 == nullptr);
         }
 
         p1 = ICE_MAKE_SHARED(OneOptional, 58);

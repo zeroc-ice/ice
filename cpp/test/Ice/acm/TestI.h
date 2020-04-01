@@ -44,7 +44,7 @@ public:
 
 private:
 
-    class HeartbeatCallbackI ICE_FINAL :
+    class HeartbeatCallbackI final :
                                 public std::enable_shared_from_this<HeartbeatCallbackI>,
                                 private IceUtil::Monitor<IceUtil::Mutex>
     {

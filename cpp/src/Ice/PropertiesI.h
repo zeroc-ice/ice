@@ -18,20 +18,20 @@ class PropertiesI : public Properties, public IceUtil::Mutex
 {
 public:
 
-    virtual std::string getProperty(const std::string&) ICE_NOEXCEPT;
-    virtual std::string getPropertyWithDefault(const std::string&, const std::string&) ICE_NOEXCEPT;
-    virtual Ice::Int getPropertyAsInt(const std::string&) ICE_NOEXCEPT;
-    virtual Ice::Int getPropertyAsIntWithDefault(const std::string&, Ice::Int) ICE_NOEXCEPT;
-    virtual Ice::StringSeq getPropertyAsList(const std::string&) ICE_NOEXCEPT;
-    virtual Ice::StringSeq getPropertyAsListWithDefault(const std::string&, const Ice::StringSeq&) ICE_NOEXCEPT;
+    virtual std::string getProperty(const std::string&) noexcept;
+    virtual std::string getPropertyWithDefault(const std::string&, const std::string&) noexcept;
+    virtual Ice::Int getPropertyAsInt(const std::string&) noexcept;
+    virtual Ice::Int getPropertyAsIntWithDefault(const std::string&, Ice::Int) noexcept;
+    virtual Ice::StringSeq getPropertyAsList(const std::string&) noexcept;
+    virtual Ice::StringSeq getPropertyAsListWithDefault(const std::string&, const Ice::StringSeq&) noexcept;
 
-    virtual PropertyDict getPropertiesForPrefix(const std::string&) ICE_NOEXCEPT;
+    virtual PropertyDict getPropertiesForPrefix(const std::string&) noexcept;
     virtual void setProperty(const std::string&, const std::string&);
-    virtual StringSeq getCommandLineOptions() ICE_NOEXCEPT;
+    virtual StringSeq getCommandLineOptions() noexcept;
     virtual StringSeq parseCommandLineOptions(const std::string&, const StringSeq&);
     virtual StringSeq parseIceCommandLineOptions(const StringSeq&);
     virtual void load(const std::string&);
-    virtual PropertiesPtr clone() ICE_NOEXCEPT;
+    virtual PropertiesPtr clone() noexcept;
 
     std::set<std::string> getUnusedProperties();
 

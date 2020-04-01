@@ -32,8 +32,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
 
         adapters = _adapters;
 
-        _instance = ICE_NULLPTR;
-        _communicator = ICE_NULLPTR;
+        _instance = nullptr;
+        _communicator = nullptr;
 
         notifyAll();
     }
@@ -194,7 +194,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
 
         if(!_instance)
         {
-            return ICE_NULLPTR;
+            return nullptr;
         }
 
         adapters = _adapters;
@@ -215,7 +215,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
         }
     }
 
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 void

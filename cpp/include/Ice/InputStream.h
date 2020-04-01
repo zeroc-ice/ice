@@ -987,7 +987,7 @@ public:
      * the stream will attempt to instantiate the exception using static type information.
      * @throws UserException The user exception that was unmarshaled.
      */
-    void throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory = ICE_NULLPTR);
+    void throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory = nullptr);
 
     /**
      * Skips one optional value with the given format.

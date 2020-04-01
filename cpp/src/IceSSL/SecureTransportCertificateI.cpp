@@ -225,7 +225,7 @@ private:
 
 #endif
 
-class SecureTransportCertificateI ICE_FINAL : public IceSSL::SecureTransport::Certificate,
+class SecureTransportCertificateI final : public IceSSL::SecureTransport::Certificate,
                                               public IceSSL::CertificateI
 {
 public:

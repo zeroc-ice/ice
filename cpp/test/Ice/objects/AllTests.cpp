@@ -181,7 +181,7 @@ allTests(Test::TestHelper* helper)
     test(b2 != dynamic_pointer_cast<B>(d));
     test(c != dynamic_pointer_cast<C>(d));
     test(b1->theB == b1);
-    test(b1->theC == ICE_NULLPTR);
+    test(b1->theC == nullptr);
     test(ICE_DYNAMIC_CAST(B, b1->theA));
     test(ICE_DYNAMIC_CAST(B, b1->theA)->theA == b1->theA);
     test(ICE_DYNAMIC_CAST(B, b1->theA)->theB == b1);
@@ -196,7 +196,7 @@ allTests(Test::TestHelper* helper)
     test(dynamic_pointer_cast<B>(b1->theA)->theC->postUnmarshalInvoked);
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
-    test(d->theC == ICE_NULLPTR);
+    test(d->theC == nullptr);
 
     clear(b1);
     clear(b2);

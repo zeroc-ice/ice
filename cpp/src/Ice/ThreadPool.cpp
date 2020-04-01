@@ -641,7 +641,7 @@ IceInternal::ThreadPool::prefix() const
 #ifdef ICE_SWIFT
 
 dispatch_queue_t
-IceInternal::ThreadPool::getDispatchQueue() const ICE_NOEXCEPT
+IceInternal::ThreadPool::getDispatchQueue() const noexcept
 {
     return _dispatchQueue;
 }

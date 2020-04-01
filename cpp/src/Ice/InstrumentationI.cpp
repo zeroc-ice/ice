@@ -74,7 +74,7 @@ getIPConnectionInfo(const ConnectionInfoPtr& info)
             return ipInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 class ConnectionHelper : public MetricsHelperT<ConnectionMetrics>
@@ -875,7 +875,7 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
     catch(const exception&)
     {
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 CollocatedObserverPtr
@@ -895,7 +895,7 @@ InvocationObserverI::getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter,
     catch(const exception&)
     {
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 CommunicatorObserverI::CommunicatorObserverI(const InitializationData& initData) :
@@ -943,7 +943,7 @@ CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointPtr& end
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ObserverPtr
@@ -966,7 +966,7 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ConnectionObserverPtr
@@ -993,7 +993,7 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ThreadObserverPtr
@@ -1020,7 +1020,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 InvocationObserverPtr
@@ -1043,7 +1043,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrxPtr& proxy, const st
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 DispatchObserverPtr
@@ -1066,7 +1066,7 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 const IceInternal::MetricsAdminIPtr&

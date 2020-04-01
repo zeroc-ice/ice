@@ -323,7 +323,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     int err;
     if(_state == StateConnected)
     {
-        err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, ICE_NULLPTR);
+        err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, nullptr);
     }
     else
     {
@@ -341,7 +341,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             // No peer has sent a datagram yet.
             throw SocketException(__FILE__, __LINE__, 0);
         }
-        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, len, &_write, ICE_NULLPTR);
+        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, len, &_write, nullptr);
     }
 
     if(err == SOCKET_ERROR)
@@ -399,7 +399,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     int err;
     if(_state == StateConnected)
     {
-        err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, ICE_NULLPTR);
+        err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, nullptr);
     }
     else
     {
@@ -407,7 +407,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
         err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_readAddr.sa, &_readAddrLen, &_read,
-                          ICE_NULLPTR);
+                          nullptr);
     }
 
     if(err == SOCKET_ERROR)
