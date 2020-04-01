@@ -12,6 +12,10 @@ using System.Linq;
 
 namespace Ice
 {
+    /// <summary>Reference is an Ice-internal but publicly visible class. Each Ice proxy has single get-only property,
+    /// IceReference, which holds the reference associated with this proxy. Reference represents the untyped
+    /// implementation of a proxy. Multiples proxies that point to the same Ice object and share the same proxy
+    /// options can share the same Reference object, even if these proxies have different types.</summary>
     public sealed class Reference : IEquatable<Reference>
     {
         internal interface IGetConnectionCallback
