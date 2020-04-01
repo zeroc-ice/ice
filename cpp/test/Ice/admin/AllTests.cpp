@@ -419,8 +419,8 @@ allTests(Test::TestHelper* helper)
         com->warning("warning2");
 
         Ice::LogMessageTypeSeq messageTypes;
-        messageTypes.push_back(ICE_ENUM(LogMessageType, ErrorMessage));
-        messageTypes.push_back(ICE_ENUM(LogMessageType, WarningMessage));
+        messageTypes.push_back(LogMessageType::ErrorMessage);
+        messageTypes.push_back(LogMessageType::WarningMessage);
 
         logMessages =
             logger->getLog(messageTypes, Ice::StringSeq(), -1, prefix);
@@ -430,7 +430,7 @@ allTests(Test::TestHelper* helper)
         p = logMessages.begin();
         while(p != logMessages.end())
         {
-            test(p->type == ICE_ENUM(LogMessageType, ErrorMessage) || p->type == ICE_ENUM(LogMessageType, WarningMessage));
+            test(p->type == LogMessageType::ErrorMessage || p->type == LogMessageType::WarningMessage);
             ++p;
         }
 
@@ -442,8 +442,8 @@ allTests(Test::TestHelper* helper)
         com->trace("testCat2", "B");
 
         messageTypes.clear();
-        messageTypes.push_back(ICE_ENUM(LogMessageType, ErrorMessage));
-        messageTypes.push_back(ICE_ENUM(LogMessageType, TraceMessage));
+        messageTypes.push_back(LogMessageType::ErrorMessage);
+        messageTypes.push_back(LogMessageType::TraceMessage);
 
         Ice::StringSeq categories;
         categories.push_back("testCat");
@@ -456,8 +456,8 @@ allTests(Test::TestHelper* helper)
         p = logMessages.begin();
         while(p != logMessages.end())
         {
-            test(p->type == ICE_ENUM(LogMessageType, ErrorMessage) ||
-                (p->type == ICE_ENUM(LogMessageType, TraceMessage) && p->traceCategory == "testCat"));
+            test(p->type == LogMessageType::ErrorMessage ||
+                (p->type == LogMessageType::TraceMessage && p->traceCategory == "testCat"));
             ++p;
         }
 
@@ -507,10 +507,10 @@ allTests(Test::TestHelper* helper)
         com->print("rprint");
         remoteLogger->wait(4);
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, WarningMessage), "rwarning");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, PrintMessage), "rprint");
+        remoteLogger->checkNextLog(LogMessageType::TraceMessage, "rtrace", "testCat");
+        remoteLogger->checkNextLog(LogMessageType::WarningMessage, "rwarning");
+        remoteLogger->checkNextLog(LogMessageType::ErrorMessage, "rerror");
+        remoteLogger->checkNextLog(LogMessageType::PrintMessage, "rprint");
 
         test(logger->detachRemoteLogger(myProxy));
         test(!logger->detachRemoteLogger(myProxy));
@@ -535,8 +535,8 @@ allTests(Test::TestHelper* helper)
         com->print("rprint2");
         remoteLogger->wait(2);
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace2", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror2");
+        remoteLogger->checkNextLog(LogMessageType::TraceMessage, "rtrace2", "testCat");
+        remoteLogger->checkNextLog(LogMessageType::ErrorMessage, "rerror2");
 
         //
         // Attempt reconnection with slightly different proxy

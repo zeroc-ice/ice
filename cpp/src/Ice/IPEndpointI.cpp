@@ -174,7 +174,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<Address> addrs = getAddresses(_host,
                                          _port,
                                          _instance->protocolSupport(),
-                                         Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         Ice::EndpointSelectionType::Ordered,
                                          _instance->preferIPv6(),
                                          true);
 
@@ -618,7 +618,7 @@ IceInternal::EndpointHostResolver::run()
 
         if(threadObserver)
         {
-            threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateIdle), ICE_ENUM(ThreadState, ThreadStateInUseForOther));
+            threadObserver->stateChanged(ThreadState::ThreadStateIdle, ThreadState::ThreadStateInUseForOther);
         }
 
         try
@@ -645,8 +645,8 @@ IceInternal::EndpointHostResolver::run()
 
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ThreadState::ThreadStateInUseForOther,
+                                             ThreadState::ThreadStateIdle);
             }
 
         }
@@ -654,8 +654,8 @@ IceInternal::EndpointHostResolver::run()
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ThreadState::ThreadStateInUseForOther,
+                                             ThreadState::ThreadStateIdle);
             }
             if(r.observer)
             {
@@ -693,7 +693,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     {
         _observer.attach(obsv->getThreadObserver("Communicator",
                                                  name(),
-                                                 ICE_ENUM(ThreadState, ThreadStateIdle),
+                                                 ThreadState::ThreadStateIdle,
                                                  _observer.get()));
     }
 }

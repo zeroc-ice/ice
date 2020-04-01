@@ -341,7 +341,7 @@ allTests(Test::TestHelper* helper)
         backgroundController->buffered(true);
 
         background->opAsync();
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         background->opAsync();
 
         vector<future<void>> results;
@@ -384,7 +384,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
     {
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     for(int i = 0; i < 4; ++i)
     {
@@ -471,7 +471,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
 
         configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         configuration->connectException(0);
         try
@@ -505,7 +505,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     for(int i = 0; i < 4; i++)
     {
@@ -575,7 +575,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     try
     {
@@ -589,7 +589,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 #endif
 
     //
@@ -624,7 +624,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     try
     {
@@ -662,7 +662,7 @@ initializeTests(const ConfigurationPtr& configuration,
         }
 
         configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         configuration->initializeException(0);
         try
@@ -684,12 +684,12 @@ initializeTests(const ConfigurationPtr& configuration,
         }
 
         configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         background->ice_ping();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
 
         ctl->initializeException(true);
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         ctl->initializeException(false);
         try
@@ -714,11 +714,11 @@ initializeTests(const ConfigurationPtr& configuration,
         {
 #if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
             ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
-            background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+            background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
             background->op();
             ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
 #else
-            background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+            background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
             background->op();
 #endif
         }
@@ -750,7 +750,7 @@ validationTests(const ConfigurationPtr& configuration,
     {
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     try
     {
@@ -811,7 +811,7 @@ validationTests(const ConfigurationPtr& configuration,
             cerr << "stack: " << ex.ice_stackTrace() << endl;
             test(false);
         }
-        background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
         try
         {
@@ -949,7 +949,7 @@ validationTests(const ConfigurationPtr& configuration,
         cerr << "stack: " << ex.ice_stackTrace() << endl;
         test(false);
     }
-    background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    background->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     try
     {
@@ -1030,7 +1030,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
     backgroundBatchOneway->ice_flushBatchRequestsAsync();
-    backgroundBatchOneway->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    backgroundBatchOneway->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
     ctl->holdAdapter();
     backgroundBatchOneway->opWithPayload(seq);
@@ -1039,7 +1039,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
     backgroundBatchOneway->ice_flushBatchRequestsAsync().get();
-    backgroundBatchOneway->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+    backgroundBatchOneway->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 }
 
 void
@@ -1520,10 +1520,10 @@ readWriteTests(const ConfigurationPtr& configuration,
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 
         background->ice_ping();
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 
-        background->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
     }
 
     thread1->destroy();

@@ -1075,7 +1075,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
             b1->opBatch();
-            b1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
             auto id = this_thread::get_id();
             promise<void> promise;
@@ -1151,7 +1151,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
                     p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
                 b1->opBatch();
-                b1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequestsAsync(
@@ -1231,7 +1231,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
                     p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
                 b1->opBatch();
-                b1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
@@ -1303,8 +1303,8 @@ allTests(Test::TestHelper* helper, bool collocated)
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b2->opBatch();
-                b1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
-                b2->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                b2->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
@@ -1413,7 +1413,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                               [s](exception_ptr ex) { s->set_exception(ex); });
                 auto f = s->get_future();
                 // Blocks until the request completes.
-                con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                con->close(Ice::ConnectionClose::GracefullyWithWait);
                 f.get(); // Should complete successfully.
                 fc.get();
             }

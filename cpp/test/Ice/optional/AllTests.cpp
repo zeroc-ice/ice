@@ -370,7 +370,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->f = 5.5f;
     mo1->g = 1.0;
     mo1->h = string("test");
-    mo1->i = ICE_ENUM(MyEnum, MyEnumMember);
+    mo1->i = MyEnum::MyEnumMember;
     mo1->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test"));
     mo1->k = mo1;
     mo1->bs = ByteSeq();
@@ -392,8 +392,8 @@ allTests(Test::TestHelper* helper, bool)
     mo1->shs = ShortSeq();
     mo1->shs->push_back(1);
     mo1->es = MyEnumSeq();
-    mo1->es->push_back(ICE_ENUM(MyEnum, MyEnumMember));
-    mo1->es->push_back(ICE_ENUM(MyEnum, MyEnumMember));
+    mo1->es->push_back(MyEnum::MyEnumMember);
+    mo1->es->push_back(MyEnum::MyEnumMember);
     mo1->fss = FixedStructSeq();
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->oops->push_back(ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test")));
 
     mo1->ied = IntEnumDict();
-    mo1->ied.value()[4] = ICE_ENUM(MyEnum, MyEnumMember);
+    mo1->ied.value()[4] = MyEnum::MyEnumMember;
     mo1->ifsd = IntFixedStructDict();
     mo1->ifsd.value()[4] = fs;
     mo1->ivsd = IntVarStructDict();
@@ -433,7 +433,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->f == 5.5f);
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
-    test(mo3->i = ICE_ENUM(MyEnum, MyEnumMember));
+    test(mo3->i = MyEnum::MyEnumMember);
     test(mo3->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test")));
     test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
@@ -686,7 +686,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(oo1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         Ice::ValuePtr obj;
@@ -701,7 +701,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(mo1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         Ice::ValuePtr obj;
@@ -762,7 +762,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, IceUtil::Optional<string>("test"));
         out.endEncapsulation();
         out.finished(inEncaps);
-        test(initial->ice_invoke("opVoid", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(initial->ice_invoke("opVoid", Ice::OperationMode::Normal, inEncaps, outEncaps));
     }
 
     cout << "ok" << endl;
@@ -802,7 +802,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(mc);
         out.endEncapsulation();
         out.finished(inEncaps);
-        test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         Ice::ValuePtr obj;
@@ -839,7 +839,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(b);
         out.endEncapsulation();
         out.finished(inEncaps);
-        test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         Ice::ValuePtr obj;
@@ -905,7 +905,7 @@ allTests(Test::TestHelper* helper, bool)
                 out.endEncapsulation();
                 out.finished(inEncaps);
                 factory->setEnabled(true);
-                test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+                test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
                 Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
                 in.startEncapsulation();
                 Ice::ValuePtr obj;
@@ -923,7 +923,7 @@ allTests(Test::TestHelper* helper, bool)
                 out.write(d);
                 out.endEncapsulation();
                 out.finished(inEncaps);
-                test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+                test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
                 Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
                 in.startEncapsulation();
                 Ice::ValuePtr obj;
@@ -946,7 +946,7 @@ allTests(Test::TestHelper* helper, bool)
             out.write(1, Ice::make_optional(make_shared<DObjectWriter>()));
             out.endEncapsulation();
             out.finished(inEncaps);
-            test(initial->ice_invoke("opClassAndUnknownOptional", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+            test(initial->ice_invoke("opClassAndUnknownOptional", Ice::OperationMode::Normal, inEncaps, outEncaps));
 
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
@@ -973,7 +973,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opByte", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opByte", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1005,7 +1005,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opBool", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opBool", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1035,7 +1035,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opShort", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opShort", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1065,7 +1065,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opInt", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opInt", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1095,7 +1095,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(1, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opLong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opLong", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(2, p3);
@@ -1125,7 +1125,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opFloat", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opFloat", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1155,7 +1155,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opDouble", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opDouble", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1185,7 +1185,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opString", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opString", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1217,7 +1217,7 @@ allTests(Test::TestHelper* helper, bool)
             out.write(2, p1);
             out.endEncapsulation();
             out.finished(inEncaps);
-            initial->ice_invoke("opCustomString", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+            initial->ice_invoke("opCustomString", Ice::OperationMode::Normal, inEncaps, outEncaps);
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
             in.read(1, p2);
@@ -1237,22 +1237,22 @@ allTests(Test::TestHelper* helper, bool)
         IceUtil::Optional<Test::MyEnum> p2 = initial->opMyEnum(p1, p3);
         test(!p2 && !p3);
 
-        p1 = ICE_ENUM(MyEnum, MyEnumMember);
+        p1 = MyEnum::MyEnumMember;
         p2 = initial->opMyEnum(p1, p3);
-        test(p2 == ICE_ENUM(MyEnum, MyEnumMember) && p3 == ICE_ENUM(MyEnum, MyEnumMember));
+        test(p2 == MyEnum::MyEnumMember && p3 == MyEnum::MyEnumMember);
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opMyEnum", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opMyEnum", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
         in.read(3, p3);
         in.endEncapsulation();
-        test(p2 == ICE_ENUM(MyEnum, MyEnumMember) && p3 == ICE_ENUM(MyEnum, MyEnumMember));
+        test(p2 == MyEnum::MyEnumMember && p3 == MyEnum::MyEnumMember);
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();
@@ -1275,7 +1275,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opSmallStruct", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opSmallStruct", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1304,7 +1304,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opFixedStruct", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opFixedStruct", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1333,7 +1333,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opVarStruct", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opVarStruct", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1367,7 +1367,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opOneOptional", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opOneOptional", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1396,7 +1396,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opOneOptionalProxy", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opOneOptionalProxy", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1451,7 +1451,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opByteSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opByteSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1483,7 +1483,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opBoolSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opBoolSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1514,7 +1514,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opShortSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opShortSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1545,7 +1545,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opIntSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opIntSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1576,7 +1576,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opLongSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opLongSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1607,7 +1607,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opFloatSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opFloatSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1638,7 +1638,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opDoubleSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opDoubleSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1684,7 +1684,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opFixedStructSeq", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opFixedStructSeq", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1718,7 +1718,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opIntIntDict", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opIntIntDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1749,7 +1749,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opStringIntDict", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opStringIntDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1780,7 +1780,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opIntOneOptionalDict", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opIntOneOptionalDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);
@@ -1815,7 +1815,7 @@ allTests(Test::TestHelper* helper, bool)
             out.write(2, p1);
             out.endEncapsulation();
             out.finished(inEncaps);
-            initial->ice_invoke("opCustomIntStringDict", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+            initial->ice_invoke("opCustomIntStringDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
             in.read(1, p2);

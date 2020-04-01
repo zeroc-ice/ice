@@ -229,7 +229,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
-                                            Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
+                                            Instrumentation::ThreadState::ThreadStateIdle,
                                             _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
@@ -246,8 +246,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
-                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther));
+            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateIdle,
+                                         Instrumentation::ThreadState::ThreadStateInUseForOther);
         }
         try
         {
@@ -257,14 +257,14 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
+                                             Instrumentation::ThreadState::ThreadStateIdle);
             }
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
+            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
+                                         Instrumentation::ThreadState::ThreadStateIdle);
         }
     }
     else
@@ -937,7 +937,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _batchAutoFlushSize(0),
     _classGraphDepthMax(0),
     _collectObjects(false),
-    _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
+    _toStringMode(ToStringMode::Unicode),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
@@ -1204,11 +1204,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
         if(toStringModeStr == "ASCII")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, ASCII);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::ASCII;
         }
         else if(toStringModeStr == "Compat")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, Compat);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::Compat;
         }
         else if(toStringModeStr != "Unicode")
         {

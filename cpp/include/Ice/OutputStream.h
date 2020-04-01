@@ -1001,7 +1001,7 @@ private:
 
     public:
 
-        Encaps() : format(ICE_ENUM(FormatType, DefaultFormat)), encoder(0), previous(0)
+        Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }

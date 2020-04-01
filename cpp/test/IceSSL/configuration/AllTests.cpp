@@ -1757,7 +1757,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         verifier->reset();
         verifier->returnValue(false);
-        server->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        server->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         try
         {
             server->ice_ping();

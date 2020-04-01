@@ -131,11 +131,11 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         }
         else
         {
-            if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, Yes))
+            if(compressBatch == CompressBatch::Yes)
             {
                 compress = true;
             }
-            else if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, No))
+            else if(compressBatch == CompressBatch::No)
             {
                 compress = false;
             }

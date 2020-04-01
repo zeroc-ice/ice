@@ -812,11 +812,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             string type = properties->getProperty(property);
             if(type == "Random")
             {
-                endpointSelection = ICE_ENUM(EndpointSelectionType, Random);
+                endpointSelection = EndpointSelectionType::Random;
             }
             else if(type == "Ordered")
             {
-                endpointSelection = ICE_ENUM(EndpointSelectionType, Ordered);
+                endpointSelection = EndpointSelectionType::Ordered;
             }
             else
             {
