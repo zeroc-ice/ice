@@ -24,7 +24,7 @@ namespace Ice
             void SetException(System.Exception ex);
         }
 
-        internal static IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
+        internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
 
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
@@ -52,7 +52,7 @@ namespace Ice
         internal RouterInfo? RouterInfo { get; }
         internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
 
-        private static Random Rand = new Random(unchecked((int)DateTime.Now.Ticks));
+        private static readonly Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
         private readonly Connection? _fixedConnection;
         private int _hashCode = 0;
         private IRequestHandler? _requestHandler; // readonly when IsFixed is true
@@ -95,10 +95,6 @@ namespace Ice
             if (IsFixed)
             {
                 // Compare properties and fields specific to fixed references
-                if (!other.IsFixed)
-                {
-                    return false;
-                }
                 if (_fixedConnection != other._fixedConnection)
                 {
                     return false;
@@ -107,10 +103,6 @@ namespace Ice
             else
             {
                 // Compare properties specific to routable references
-                if (other.IsFixed)
-                {
-                    return false;
-                }
                 if (AdapterId != other.AdapterId)
                 {
                     return false;
@@ -183,6 +175,10 @@ namespace Ice
                 return false;
             }
             if (InvocationTimeout != other.InvocationTimeout)
+            {
+                return false;
+            }
+            if (IsFixed != other.IsFixed)
             {
                 return false;
             }
@@ -1108,11 +1104,11 @@ namespace Ice
             {
                 case EndpointSelectionType.Random:
                     {
-                        lock (Rand)
+                        lock (_rand)
                         {
                             for (int i = 0; i < endpoints.Count - 1; ++i)
                             {
-                                int r = Rand.Next(endpoints.Count - i) + i;
+                                int r = _rand.Next(endpoints.Count - i) + i;
                                 Debug.Assert(r >= i && r < endpoints.Count);
                                 if (r != i)
                                 {
