@@ -31,7 +31,7 @@ public:
 
     virtual std::string operator()(const std::string&) const = 0;
 
-    virtual void initMetrics(const ICE_INTERNAL_HANDLE<T>&) const
+    virtual void initMetrics(const std::shared_ptr<T>&) const
     {
         // To be overriden in specialization to initialize state attributes
     }
@@ -339,7 +339,7 @@ public:
 
 private:
 
-    const ICE_HANDLE<T> _updater;
+    const std::shared_ptr<T> _updater;
     void (T::*_fn)();
 };
 
@@ -442,7 +442,7 @@ public:
         return nullptr;
     }
 
-    template<typename ObserverImpl, typename ObserverMetricsType> ICE_INTERNAL_HANDLE<ObserverImpl>
+    template<typename ObserverImpl, typename ObserverMetricsType> std::shared_ptr<ObserverImpl>
     getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
         std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
@@ -460,7 +460,7 @@ public:
             return nullptr;
         }
 
-        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = std::make_shared<ObserverImpl>();
+        std::shared_ptr<ObserverImpl> obsv = std::make_shared<ObserverImpl>();
         obsv->init(helper, metricsObjects);
         return obsv;
     }

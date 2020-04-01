@@ -115,7 +115,7 @@ template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceU
 public:
 
     typedef MetricsType T;
-    typedef ICE_INTERNAL_HANDLE<MetricsType> TPtr;
+    typedef std::shared_ptr<MetricsType> TPtr;
 
     ICE_DEFINE_PTR(MetricsMapTPtr, MetricsMapT);
 
@@ -591,7 +591,7 @@ public:
     registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         bool updated;
-        ICE_HANDLE<MetricsMapFactoryT<MetricsType> > factory;
+        std::shared_ptr<MetricsMapFactoryT<MetricsType> > factory;
         {
             Lock sync(*this);
             std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
