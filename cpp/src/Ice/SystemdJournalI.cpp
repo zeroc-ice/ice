@@ -51,7 +51,7 @@ Ice::SystemdJournalI::getPrefix()
 Ice::LoggerPtr
 Ice::SystemdJournalI::cloneWithPrefix(const string& prefix)
 {
-    return ICE_MAKE_SHARED(SystemdJournalI, prefix);
+    return std::make_shared<SystemdJournalI>(prefix);
 }
 
 void

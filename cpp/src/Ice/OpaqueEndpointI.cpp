@@ -99,7 +99,7 @@ IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const noexcept
 {
-    return ICE_MAKE_SHARED(OpaqueEndpointInfoI, _type, _rawEncoding, _rawBytes);
+    return std::make_shared<OpaqueEndpointInfoI>(_type, _rawEncoding, _rawBytes);
 }
 
 Short

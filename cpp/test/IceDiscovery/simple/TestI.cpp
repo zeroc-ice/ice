@@ -43,7 +43,7 @@ ControllerI::addObject(ICE_IN(string) oaName, ICE_IN(string) id, const Ice::Curr
     assert(_adapters[oaName]);
     Ice::Identity identity;
     identity.name = id;
-    _adapters[oaName]->add(ICE_MAKE_SHARED(TestIntfI), identity);
+    _adapters[oaName]->add(std::make_shared<TestIntfI>(), identity);
 }
 
 void

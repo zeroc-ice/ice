@@ -526,7 +526,7 @@ SChannelCertificateI::loadX509Extensions() const
         {
             CERT_EXTENSION ext = _certInfo->rgExtension[i];
             _extensions.push_back(ICE_DYNAMIC_CAST(X509Extension,
-                ICE_MAKE_SHARED(SCHannelX509ExtensionI, ext, ext.pszObjId,
+                std::make_shared<SCHannelX509ExtensionI>(ext, ext.pszObjId,
                 _certInfoHolder)));
         }
     }
@@ -535,7 +535,7 @@ SChannelCertificateI::loadX509Extensions() const
 SChannel::CertificatePtr
 SChannel::Certificate::create(CERT_SIGNED_CONTENT_INFO* cert)
 {
-    return ICE_MAKE_SHARED(SChannelCertificateI, cert);
+    return std::make_shared<SChannelCertificateI>(cert);
 }
 
 SChannel::CertificatePtr
@@ -543,7 +543,7 @@ SChannel::Certificate::load(const std::string& file)
 {
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, file);
-    return ICE_MAKE_SHARED(SChannelCertificateI, cert);
+    return std::make_shared<SChannelCertificateI>(cert);
 }
 
 SChannel::CertificatePtr
@@ -551,5 +551,5 @@ SChannel::Certificate::decode(const std::string& encoding)
 {
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, encoding.c_str(), static_cast<DWORD>(encoding.size()));
-    return ICE_MAKE_SHARED(SChannelCertificateI, cert);
+    return std::make_shared<SChannelCertificateI>(cert);
 }

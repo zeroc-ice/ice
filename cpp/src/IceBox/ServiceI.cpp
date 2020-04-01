@@ -98,7 +98,7 @@ IceBox::IceBoxService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    _serviceManager = ICE_MAKE_SHARED(ServiceManagerI, communicator(), argc, argv);
+    _serviceManager = std::make_shared<ServiceManagerI>(communicator(), argc, argv);
 
     return _serviceManager->start();
 }

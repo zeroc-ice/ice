@@ -535,7 +535,7 @@ IceInternal::UdpTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
-    Ice::UDPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::UDPConnectionInfo);
+    Ice::UDPConnectionInfoPtr info = std::make_shared<Ice::UDPConnectionInfo>();
     if(_fd == INVALID_SOCKET)
     {
         return info;

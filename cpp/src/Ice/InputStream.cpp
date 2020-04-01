@@ -2269,7 +2269,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     // Preserve this slice.
     //
-    SliceInfoPtr info = ICE_MAKE_SHARED(SliceInfo);
+    SliceInfoPtr info = std::make_shared<SliceInfo>();
     info->typeId = _current->typeId;
     info->compactId = _current->compactId;
     info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
@@ -2407,7 +2407,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
             v = newInstance(Object::ice_staticId());
             if(!v)
             {
-                v = ICE_MAKE_SHARED(UnknownSlicedValue, mostDerivedId);
+                v = std::make_shared<UnknownSlicedValue>(mostDerivedId);
             }
 
             break;
@@ -2474,5 +2474,5 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
             addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
         }
     }
-    return ICE_MAKE_SHARED(SlicedData, _current->slices);
+    return std::make_shared<SlicedData>(_current->slices);
 }

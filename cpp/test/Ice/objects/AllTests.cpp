@@ -116,13 +116,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
-    BasePtr ba1 = ICE_MAKE_SHARED(Base);
+    BasePtr ba1 = std::make_shared<Base>();
     test(ba1->theS.str == "");
     test(ba1->str == "");
 
     S s;
     s.str = "hello";
-    BasePtr ba2 = ICE_MAKE_SHARED(Base, s, "hi");
+    BasePtr ba2 = std::make_shared<Base>(s, "hi");
     test(ba2->theS.str == "hello");
     test(ba2->str == "hi");
 
@@ -138,7 +138,7 @@ allTests(Test::TestHelper* helper)
     test(*ba1 >= *ba2);
     test(*ba1 <= *ba2);
 
-    BasePtr bp1 = ICE_MAKE_SHARED(Base);
+    BasePtr bp1 = std::make_shared<Base>();
     *bp1 = *ba2;
     test(bp1->theS.str == "hello");
     test(bp1->str == "hi");
@@ -269,7 +269,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing Value as parameter..." << flush;
     {
-        LPtr v1 = ICE_MAKE_SHARED(L, "l");
+        LPtr v1 = std::make_shared<L>("l");
         Ice::ValuePtr v2;
         Ice::ValuePtr v3 = initial->opValue(v1, v2);
         test(ICE_DYNAMIC_CAST(L, v2)->data == "l");
@@ -277,7 +277,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        LPtr l = ICE_MAKE_SHARED(L, "l");
+        LPtr l = std::make_shared<L>("l");
         Test::ValueSeq v1;
         v1.push_back(l);
         Test::ValueSeq v2;
@@ -287,7 +287,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        LPtr l = ICE_MAKE_SHARED(L, "l");
+        LPtr l = std::make_shared<L>("l");
         Test::ValueMap v1;
         v1["l"] = l;
         Test::ValueMap v2;
@@ -298,11 +298,11 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "getting D1... " << flush;
-    D1Ptr d1 = ICE_MAKE_SHARED(D1,
-                               ICE_MAKE_SHARED(A1, "a1"),
-                               ICE_MAKE_SHARED(A1, "a2"),
-                               ICE_MAKE_SHARED(A1, "a3"),
-                               ICE_MAKE_SHARED(A1, "a4"));
+    D1Ptr d1 = std::make_shared<D1>(
+                               std::make_shared<A1>("a1"),
+                               std::make_shared<A1>("a2"),
+                               std::make_shared<A1>("a3"),
+                               std::make_shared<A1>("a4"));
     d1 = initial->getD1(d1);
     test(d1->a1->name == "a1");
     test(d1->a2->name == "a2");
@@ -326,7 +326,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "setting G... " << flush;
-    GPtr g = ICE_MAKE_SHARED(G, s, "g");
+    GPtr g = std::make_shared<G>(s, "g");
     try
     {
         initial->setG(g);
@@ -347,13 +347,13 @@ allTests(Test::TestHelper* helper)
     retS = initial->opBaseSeq(inS, outS);
 
     inS.resize(1);
-    inS[0] = ICE_MAKE_SHARED(Base);
+    inS[0] = std::make_shared<Base>();
     retS = initial->opBaseSeq(inS, outS);
     test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
     cout << "testing recursive type... " << flush;
-    RecursivePtr top = ICE_MAKE_SHARED(Recursive);
+    RecursivePtr top = std::make_shared<Recursive>();
     int depth = 0;
     try
     {
@@ -366,7 +366,7 @@ allTests(Test::TestHelper* helper)
 #endif
         for(; depth <= maxDepth; ++depth)
         {
-            p->v = ICE_MAKE_SHARED(Recursive);
+            p->v = std::make_shared<Recursive>();
             p = p->v;
             if((depth < 10 && (depth % 10) == 0) ||
                (depth < 1000 && (depth % 100) == 0) ||
@@ -387,7 +387,7 @@ allTests(Test::TestHelper* helper)
     {
         // Expected stack overflow from the server (Java only)
     }
-    initial->setRecursive(ICE_MAKE_SHARED(Recursive));
+    initial->setRecursive(std::make_shared<Recursive>());
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;
@@ -454,17 +454,17 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing class containing complex dictionary... " << flush;
     {
-        Test::MPtr m = ICE_MAKE_SHARED(Test::M);
+        Test::MPtr m = std::make_shared<Test::M>();
 
         Test::StructKey k1;
         k1.i = 1;
         k1.s = "1";
-        m->v[k1] = ICE_MAKE_SHARED(L, "one");
+        m->v[k1] = std::make_shared<L>("one");
 
         Test::StructKey k2;
         k2.i = 2;
         k2.s = "2";
-        m->v[k2] = ICE_MAKE_SHARED(L, "two");
+        m->v[k2] = std::make_shared<L>("two");
 
         Test::MPtr m1;
         Test::MPtr m2 = initial->opM(m, m1);
@@ -484,7 +484,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing forward declarations... " << flush;
     {
         F1Ptr f12;
-        F1Ptr f11 = initial->opF1(ICE_MAKE_SHARED(F1, "F11"), f12);
+        F1Ptr f11 = initial->opF1(std::make_shared<F1>("F11"), f12);
         test(f11->name == "F11");
         test(f12->name == "F12");
 
@@ -498,7 +498,7 @@ allTests(Test::TestHelper* helper)
         if(initial->hasF3())
         {
             F3Ptr f32;
-            F3Ptr f31 = initial->opF3(ICE_MAKE_SHARED(F3, f11, f21), f32);
+            F3Ptr f31 = initial->opF3(std::make_shared<F3>(f11, f21), f32);
             test(f31->f1->name == "F11");
             test(f31->f2->ice_getIdentity().name == "F21");
 

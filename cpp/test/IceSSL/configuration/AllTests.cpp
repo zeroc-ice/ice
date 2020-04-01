@@ -1717,7 +1717,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         CommunicatorPtr comm = initialize(initData);
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
+        CertificateVerifierIPtr verifier = std::make_shared<CertificateVerifierI>();
 
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
@@ -1789,7 +1789,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         CommunicatorPtr comm = initialize(initData);
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
+        CertificateVerifierIPtr verifier = std::make_shared<CertificateVerifierI>();
 
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
@@ -2280,7 +2280,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         PluginManagerPtr pm = comm->getPluginManager();
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
+        PasswordPromptIPtr prompt = std::make_shared<PasswordPromptI>("client");
 
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
         pm->initializePlugins();
@@ -2312,7 +2312,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         pm = comm->getPluginManager();
         plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
+        prompt = std::make_shared<PasswordPromptI>("invalid");
 
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
         try

@@ -293,7 +293,6 @@ typedef long long Int64;
 #define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
 #define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
 #define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
-#define ICE_SHARED_FROM_THIS shared_from_this()
 #define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
 #define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)

@@ -461,7 +461,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TimeoutCollocated");
         adapter->activate();
 
-        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(ICE_MAKE_SHARED(TimeoutI)));
+        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(std::make_shared<TimeoutI>()));
         timeout = timeout->ice_invocationTimeout(100);
         try
         {

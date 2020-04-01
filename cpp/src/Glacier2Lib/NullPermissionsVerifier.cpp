@@ -119,8 +119,8 @@ Init::createObjects()
     if(!_adapter)
     {
         _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter
-        _adapter->add(ICE_MAKE_SHARED(NullPermissionsVerifier), _nullPVId);
-        _adapter->add(ICE_MAKE_SHARED(NullSSLPermissionsVerifier), _nullSSLPVId);
+        _adapter->add(std::make_shared<NullPermissionsVerifier>(), _nullPVId);
+        _adapter->add(std::make_shared<NullSSLPermissionsVerifier>(), _nullSSLPVId);
         _adapter->activate();
     }
 }

@@ -231,19 +231,19 @@ InitialI::opBaseSeq(ICE_IN(BaseSeq) inSeq, BaseSeq& outSeq, const Ice::Current&)
 CompactPtr
 InitialI::getCompact(const Ice::Current&)
 {
-    return ICE_MAKE_SHARED(CompactExt);
+    return std::make_shared<CompactExt>();
 }
 
 Test::Inner::APtr
 InitialI::getInnerA(const Ice::Current&)
 {
-    return ICE_MAKE_SHARED(Inner::A, _b1);
+    return std::make_shared<Inner::A>(_b1);
 }
 
 Test::Inner::Sub::APtr
 InitialI::getInnerSubA(const Ice::Current&)
 {
-    return ICE_MAKE_SHARED(Inner::Sub::A, ICE_MAKE_SHARED(Inner::A, _b1));
+    return std::make_shared<Inner::Sub::A>(std::make_shared<Inner::A>(_b1));
 }
 
 void
@@ -277,7 +277,7 @@ InitialI::getH(const Ice::Current&)
 KPtr
 InitialI::getK(const Ice::Current&)
 {
-    return ICE_MAKE_SHARED(K, ICE_MAKE_SHARED(L, "l"));
+    return std::make_shared<K>(std::make_shared<L>("l"));
 }
 
 Ice::ValuePtr
@@ -310,10 +310,10 @@ InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
 void
 InitialI::throwEDerived(const Ice::Current&)
 {
-    throw EDerived(ICE_MAKE_SHARED(A1, "a1"),
-                   ICE_MAKE_SHARED(A1, "a2"),
-                   ICE_MAKE_SHARED(A1, "a3"),
-                   ICE_MAKE_SHARED(A1, "a4"));
+    throw EDerived(std::make_shared<A1>("a1"),
+                   std::make_shared<A1>("a2"),
+                   std::make_shared<A1>("a3"),
+                   std::make_shared<A1>("a4"));
 }
 
 Test::MPtr
@@ -331,7 +331,7 @@ UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStream out(communicator);
     out.startEncapsulation(current.encoding, Ice::FormatType::DefaultFormat);
-    AlsoEmptyPtr obj = ICE_MAKE_SHARED(AlsoEmpty);
+    AlsoEmptyPtr obj = std::make_shared<AlsoEmpty>();
     out.write(obj);
     out.writePendingValues();
     out.endEncapsulation();
@@ -342,7 +342,7 @@ UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
 Test::F1Ptr
 InitialI::opF1(ICE_IN(Test::F1Ptr) f11, Test::F1Ptr& f12, const Ice::Current&)
 {
-    f12 = ICE_MAKE_SHARED(F1, "F12");
+    f12 = std::make_shared<F1>("F12");
     return f11;
 }
 
@@ -356,8 +356,8 @@ InitialI::opF2(ICE_IN(Test::F2PrxPtr) f21, Test::F2PrxPtr& f22, const Ice::Curre
 Test::F3Ptr
 InitialI::opF3(ICE_IN(Test::F3Ptr) f31, Test::F3Ptr& f32, const Ice::Current& current)
 {
-    f32 = ICE_MAKE_SHARED(F3);
-    f32->f1 = ICE_MAKE_SHARED(F1, "F12");
+    f32 = std::make_shared<F3>();
+    f32->f1 = std::make_shared<F1>("F12");
     f32->f2 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
     return f31;
 }

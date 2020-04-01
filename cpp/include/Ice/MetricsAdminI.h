@@ -349,7 +349,7 @@ public:
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
-            return std::pair<MetricsMapIPtr, SubMapMember>(ICE_GET_SHARED_FROM_THIS(p->second.second->clone()), p->second.first);
+            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone()->shared_from_this(), p->second.first);
         }
         return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
     }
@@ -425,7 +425,7 @@ public:
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
         if(p == _objects.end())
         {
-            TPtr t = ICE_MAKE_SHARED(T);
+            TPtr t = std::make_shared<T>();
             t->id = key;
 
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
@@ -440,7 +440,7 @@ private:
 
     virtual MetricsMapIPtr clone() const
     {
-        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, *this);
+        return std::make_shared<MetricsMapT<MetricsType>>(*this);
     }
 
     void detached(EntryTPtr entry)
@@ -516,14 +516,14 @@ public:
     virtual MetricsMapIPtr
     create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
     {
-        return ICE_MAKE_SHARED(MetricsMapT<MetricsType>, mapPrefix, properties, _subMaps);
+        return std::make_shared<MetricsMapT<MetricsType>>(mapPrefix, properties, _subMaps);
     }
 
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
         _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*,
-                                     MetricsMapFactoryPtr>(member, ICE_MAKE_SHARED(MetricsMapFactoryT<SubMapMetricsType>, nullptr));
+                                     MetricsMapFactoryPtr>(member, std::make_shared<MetricsMapFactoryT<SubMapMetricsType>>(nullptr));
     }
 
 private:
@@ -577,7 +577,7 @@ public:
         MetricsMapFactoryPtr factory;
         {
             Lock sync(*this);
-            factory = ICE_MAKE_SHARED(MetricsMapFactoryT<MetricsType>, updater);
+            factory = std::make_shared<MetricsMapFactoryT<MetricsType>>(updater);
             _factories[map] = factory;
             updated = addOrUpdateMap(map, factory);
         }

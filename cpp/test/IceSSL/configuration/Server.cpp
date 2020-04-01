@@ -39,7 +39,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint("tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("factory");
-    adapter->add(ICE_MAKE_SHARED(ServerFactoryI, testdir), id);
+    adapter->add(std::make_shared<ServerFactoryI>(testdir), id);
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

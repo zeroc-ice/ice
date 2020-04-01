@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints",
                                                getTestEndpoint() + ":" + getTestEndpoint("udp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<TestI>(), Ice::stringToIdentity("test"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

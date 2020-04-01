@@ -460,7 +460,7 @@ public:
             return nullptr;
         }
 
-        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = ICE_MAKE_SHARED(ObserverImpl);
+        ICE_INTERNAL_HANDLE<ObserverImpl> obsv = std::make_shared<ObserverImpl>();
         obsv->init(helper, metricsObjects);
         return obsv;
     }
@@ -519,7 +519,7 @@ public:
             return nullptr;
         }
 
-        ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
+        ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
         obsv->init(helper, metricsObjects);
         return obsv;
     }
@@ -554,7 +554,7 @@ public:
             return nullptr;
         }
 
-        ObserverImplPtrType obsv = ICE_MAKE_SHARED(ObserverImplType);
+        ObserverImplPtrType obsv = std::make_shared<ObserverImplType>();
         obsv->init(helper, metricsObjects, old.get());
         return obsv;
     }

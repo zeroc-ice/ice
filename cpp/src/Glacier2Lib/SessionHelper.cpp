@@ -227,11 +227,11 @@ SessionHelperI::destroy()
         // We destroy the communicator to trigger the immediate
         // failure of the connection establishment.
         //
-        destroyThread = new DestroyCommunicator(ICE_SHARED_FROM_THIS, _threadCB);
+        destroyThread = new DestroyCommunicator(shared_from_this(), _threadCB);
     }
     else
     {
-        destroyThread = new DestroyInternal(ICE_SHARED_FROM_THIS, _callback, _threadCB);
+        destroyThread = new DestroyInternal(shared_from_this(), _callback, _threadCB);
         _connected = false;
         _session = nullptr;
     }
@@ -376,14 +376,14 @@ void
 SessionHelperI::connect(const map<string, string>& context)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    connectImpl(ICE_MAKE_SHARED(ConnectStrategySecureConnection, context));
+    connectImpl(std::make_shared<ConnectStrategySecureConnection>(context));
 }
 
 void
 SessionHelperI::connect(const string& user, const string& password, const map<string, string>& context)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    connectImpl(ICE_MAKE_SHARED(ConnectStrategyUserPassword, user, password, context));
+    connectImpl(std::make_shared<ConnectStrategyUserPassword>(user, password, context));
 }
 
 void
@@ -643,7 +643,7 @@ void
 SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 {
     assert(!_destroy);
-    IceUtil::ThreadPtr thread = new ConnectThread(_callback, ICE_SHARED_FROM_THIS, factory, _finder);
+    IceUtil::ThreadPtr thread = new ConnectThread(_callback, shared_from_this(), factory, _finder);
     _threadCB->add(this, thread);
     thread->start();
 }
@@ -757,11 +757,11 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
         // connected() is only called from the ConnectThread so it is ok to
         // call destroyInternal here.
         //
-        destroyInternal(new Disconnected(ICE_SHARED_FROM_THIS, _callback));
+        destroyInternal(new Disconnected(shared_from_this(), _callback));
     }
     else
     {
-        dispatchCallback(new Connected(_callback, ICE_SHARED_FROM_THIS), conn);
+        dispatchCallback(new Connected(_callback, shared_from_this()), conn);
     }
 }
 
@@ -1053,8 +1053,8 @@ Glacier2::SessionFactoryHelper::connect()
     map<string, string> context;
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        session = ICE_MAKE_SHARED(SessionHelperI,
-                                  ICE_MAKE_SHARED(SessionThreadCallback, ICE_SHARED_FROM_THIS),
+        session = std::make_shared<SessionHelperI>(
+                                  std::make_shared<SessionThreadCallback>(shared_from_this()),
                                   _callback,
                                   createInitData(),
                                   getRouterFinderStr(),
@@ -1072,8 +1072,8 @@ Glacier2::SessionFactoryHelper::connect(const string& user,  const string& passw
     map<string, string> context;
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        session = ICE_MAKE_SHARED(SessionHelperI,
-                                  ICE_MAKE_SHARED(SessionThreadCallback, ICE_SHARED_FROM_THIS),
+        session = std::make_shared<SessionHelperI>(
+                                  std::make_shared<SessionThreadCallback>(shared_from_this()),
                                   _callback,
                                   createInitData(),
                                   getRouterFinderStr(),

@@ -227,7 +227,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!remoteObserver)
         {
-            remoteObserver = ICE_MAKE_SHARED(RemoteObserverI);
+            remoteObserver = std::make_shared<RemoteObserverI>();
             remoteObserver->reset();
         }
         return remoteObserver;
@@ -239,7 +239,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!collocatedObserver)
         {
-            collocatedObserver = ICE_MAKE_SHARED(CollocatedObserverI);
+            collocatedObserver = std::make_shared<CollocatedObserverI>();
             collocatedObserver->reset();
         }
         return collocatedObserver;
@@ -269,7 +269,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!connectionEstablishmentObserver)
         {
-            connectionEstablishmentObserver = ICE_MAKE_SHARED(ObserverI);
+            connectionEstablishmentObserver = std::make_shared<ObserverI>();
             connectionEstablishmentObserver->reset();
         }
         return connectionEstablishmentObserver;
@@ -281,7 +281,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!endpointLookupObserver)
         {
-            endpointLookupObserver = ICE_MAKE_SHARED(ObserverI);
+            endpointLookupObserver = std::make_shared<ObserverI>();
             endpointLookupObserver->reset();
         }
         return endpointLookupObserver;
@@ -297,7 +297,7 @@ public:
         test(!old || dynamic_cast<ConnectionObserverI*>(old.get()));
         if(!connectionObserver)
         {
-            connectionObserver = ICE_MAKE_SHARED(ConnectionObserverI);
+            connectionObserver = std::make_shared<ConnectionObserverI>();
             connectionObserver->reset();
         }
         return connectionObserver;
@@ -311,7 +311,7 @@ public:
         test(!old || dynamic_cast<ThreadObserverI*>(old.get()));
         if(!threadObserver)
         {
-            threadObserver = ICE_MAKE_SHARED(ThreadObserverI);
+            threadObserver = std::make_shared<ThreadObserverI>();
             threadObserver->reset();
         }
         return threadObserver;
@@ -323,7 +323,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!invocationObserver)
         {
-            invocationObserver = ICE_MAKE_SHARED(InvocationObserverI);
+            invocationObserver = std::make_shared<InvocationObserverI>();
             invocationObserver->reset();
         }
         return invocationObserver;
@@ -335,7 +335,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!dispatchObserver)
         {
-            dispatchObserver = ICE_MAKE_SHARED(DispatchObserverI);
+            dispatchObserver = std::make_shared<DispatchObserverI>();
             dispatchObserver->reset();
         }
         return dispatchObserver;

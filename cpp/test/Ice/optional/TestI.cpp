@@ -386,7 +386,7 @@ InitialI::sendOptionalClass(bool, ICE_IN(Optional<OneOptionalPtr>), const Ice::C
 void
 InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Current&)
 {
-    o = ICE_MAKE_SHARED(OneOptional, 53);
+    o = std::make_shared<OneOptional>(53);
 }
 
 GPtr
@@ -439,7 +439,7 @@ InitialI::opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>) p1, const Ice:
 InitialI::OpMG1MarshaledResult
 InitialI::opMG1(const Ice::Current& current)
 {
-    return OpMG1MarshaledResult(ICE_MAKE_SHARED(G), current);
+    return OpMG1MarshaledResult(std::make_shared<G>(), current);
 }
 
 InitialI::OpMG2MarshaledResult

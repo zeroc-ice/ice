@@ -28,12 +28,12 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MetricsI), Ice::stringToIdentity("metrics"));
+    adapter->add(std::make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     adapter->activate();
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
-    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->add(std::make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     controllerAdapter->activate();
 
     serverReady();

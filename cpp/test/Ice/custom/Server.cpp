@@ -20,14 +20,14 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
-    setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
+    setProcessStringConverter(std::make_shared<Test::StringConverterI>());
+    setProcessWstringConverter(std::make_shared<Test::WstringConverterI>());
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("TEST"));
-    adapter->add(ICE_MAKE_SHARED(Test1::WstringClassI), Ice::stringToIdentity("WSTRING1"));
-    adapter->add(ICE_MAKE_SHARED(Test2::WstringClassI), Ice::stringToIdentity("WSTRING2"));
+    adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("TEST"));
+    adapter->add(std::make_shared<Test1::WstringClassI>(), Ice::stringToIdentity("WSTRING1"));
+    adapter->add(std::make_shared<Test2::WstringClassI>(), Ice::stringToIdentity("WSTRING2"));
 
     adapter->activate();
     serverReady();

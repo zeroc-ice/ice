@@ -122,7 +122,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
 
     try
     {
-        OutgoingAsyncBasePtr flushBatch = ICE_MAKE_SHARED(FlushBatch, ICE_SHARED_FROM_THIS, _instance, _observer);
+        OutgoingAsyncBasePtr flushBatch = std::make_shared<FlushBatch>(shared_from_this(), _instance, _observer);
         bool compress;
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs(), compress);
         if(batchRequestNum == 0)
@@ -153,8 +153,8 @@ void
 CommunicatorFlushBatchAsync::invoke(const string& operation, CompressBatch compressBatch)
 {
     _observer.attach(_instance.get(), operation);
-    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
-    _instance->objectAdapterFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
+    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
+    _instance->objectAdapterFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
     check(true);
 }
 
@@ -459,7 +459,7 @@ Ice::CommunicatorI::findAllAdminFacets()
 CommunicatorIPtr
 Ice::CommunicatorI::create(const InitializationData& initData)
 {
-    Ice::CommunicatorIPtr communicator = ICE_MAKE_SHARED(CommunicatorI);
+    Ice::CommunicatorIPtr communicator = std::make_shared<CommunicatorI>();
     try
     {
         const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
@@ -493,7 +493,7 @@ Ice::CommunicatorI::finishSetup(int& argc, const char* argv[])
 {
     try
     {
-        _instance->finishSetup(argc, argv, ICE_SHARED_FROM_THIS);
+        _instance->finishSetup(argc, argv, shared_from_this());
     }
     catch(...)
     {

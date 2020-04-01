@@ -497,7 +497,7 @@ OpenSSLCertificateI::loadX509Extensions() const
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
             _extensions.push_back(ICE_DYNAMIC_CAST(IceSSL::X509Extension,
-                ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, _cert)));
+                std::make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
         }
     }
 }
@@ -505,7 +505,7 @@ OpenSSLCertificateI::loadX509Extensions() const
 IceSSL::OpenSSL::CertificatePtr
 IceSSL::OpenSSL::Certificate::create(x509_st* cert)
 {
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, cert);
+    return std::make_shared<OpenSSLCertificateI>(cert);
 }
 
 IceSSL::OpenSSL::CertificatePtr
@@ -525,7 +525,7 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
     }
     BIO_free(cert);
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
+    return std::make_shared<OpenSSLCertificateI>(x);
 }
 
 IceSSL::OpenSSL::CertificatePtr
@@ -539,5 +539,5 @@ IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
     BIO_free(cert);
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
+    return std::make_shared<OpenSSLCertificateI>(x);
 }

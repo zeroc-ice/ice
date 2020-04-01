@@ -63,7 +63,7 @@ ProxyFlushBatchAsync::invokeRemote(const ConnectionIPtr& connection, bool compre
         }
     }
     _cachedConnection = connection;
-    return connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, _batchRequestNum);
+    return connection->sendAsyncRequest(shared_from_this(), compress, false, _batchRequestNum);
 }
 
 AsyncStatus
@@ -878,7 +878,7 @@ ICE_OBJECT_PRX::_getRequestHandler()
             return _requestHandler;
         }
     }
-    return _reference->getRequestHandler(ICE_SHARED_FROM_THIS);
+    return _reference->getRequestHandler(shared_from_this());
 }
 
 IceInternal::BatchRequestQueuePtr

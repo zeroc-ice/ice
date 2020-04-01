@@ -56,9 +56,9 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    BlobjectIPtr blob = ICE_MAKE_SHARED(BlobjectI);
+    BlobjectIPtr blob = std::make_shared<BlobjectI>();
     adapter->addDefaultServant(blob, "");
-    adapter->add(ICE_MAKE_SHARED(EchoI, blob), Ice::stringToIdentity("__echo"));
+    adapter->add(std::make_shared<EchoI>(blob), Ice::stringToIdentity("__echo"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

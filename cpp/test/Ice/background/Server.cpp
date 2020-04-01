@@ -146,11 +146,11 @@ Server::run(int argc, char** argv)
     shared_ptr<PluginI> plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
     assert(plugin);
     ConfigurationPtr configuration = plugin->getConfiguration();
-    BackgroundControllerIPtr backgroundController = ICE_MAKE_SHARED(BackgroundControllerI, adapter, configuration);
+    BackgroundControllerIPtr backgroundController = std::make_shared<BackgroundControllerI>(adapter, configuration);
 
-    adapter->add(ICE_MAKE_SHARED(BackgroundI, backgroundController), Ice::stringToIdentity("background"));
-    adapter->add(ICE_MAKE_SHARED(LocatorI, backgroundController), Ice::stringToIdentity("locator"));
-    adapter->add(ICE_MAKE_SHARED(RouterI, backgroundController), Ice::stringToIdentity("router"));
+    adapter->add(std::make_shared<BackgroundI>(backgroundController), Ice::stringToIdentity("background"));
+    adapter->add(std::make_shared<LocatorI>(backgroundController), Ice::stringToIdentity("locator"));
+    adapter->add(std::make_shared<RouterI>(backgroundController), Ice::stringToIdentity("router"));
     adapter->activate();
 
     adapter2->add(backgroundController, Ice::stringToIdentity("backgroundController"));

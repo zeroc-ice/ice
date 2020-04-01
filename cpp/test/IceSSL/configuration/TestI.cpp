@@ -86,7 +86,7 @@ ServerFactoryI::createServer(ICE_IN(Test::Properties) props, const Current&)
 
     CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-    ServerIPtr server = ICE_MAKE_SHARED(ServerI, communicator);
+    ServerIPtr server = std::make_shared<ServerI>(communicator);
     ObjectPrxPtr obj = adapter->addWithUUID(server);
     _servers[obj->ice_getIdentity()] = server;
     adapter->activate();

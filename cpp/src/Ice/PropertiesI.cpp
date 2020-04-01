@@ -423,7 +423,7 @@ PropertiesPtr
 Ice::PropertiesI::clone() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
-    return ICE_MAKE_SHARED(PropertiesI, this);
+    return std::make_shared<PropertiesI>(this);
 }
 
 set<string>

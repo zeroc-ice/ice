@@ -691,7 +691,7 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 
         if(!_sendLogThread)
         {
-            _sendLogThread = new SendLogThread(ICE_SHARED_FROM_THIS);
+            _sendLogThread = new SendLogThread(shared_from_this());
             _sendLogThread->start();
         }
 
@@ -832,7 +832,7 @@ LoggerAdminLoggerPtr
 createLoggerAdminLogger(const PropertiesPtr& props,
                         const LoggerPtr& localLogger)
 {
-    return ICE_MAKE_SHARED(LoggerAdminLoggerI, props, localLogger);
+    return std::make_shared<LoggerAdminLoggerI>(props, localLogger);
 }
 
 }

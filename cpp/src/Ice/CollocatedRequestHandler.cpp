@@ -150,10 +150,10 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         if(_response)
         {
             requestId = ++_requestId;
-            _asyncRequests.insert(make_pair(requestId, ICE_GET_SHARED_FROM_THIS(outAsync)));
+            _asyncRequests.insert(make_pair(requestId, outAsync->shared_from_this()));
         }
 
-        _sendAsyncRequests.insert(make_pair(ICE_GET_SHARED_FROM_THIS(outAsync), requestId));
+        _sendAsyncRequests.insert(make_pair(outAsync->shared_from_this(), requestId));
     }
     catch(...)
     {
@@ -166,7 +166,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     if(!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
         // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+        _adapter->getThreadPool()->dispatch(new InvokeAllAsync(outAsync->shared_from_this(),
                                                                outAsync->getOs(),
                                                                ICE_SHARED_FROM_THIS,
                                                                requestId,
@@ -174,7 +174,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     }
     else if(_dispatcher)
     {
-        _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+        _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(outAsync->shared_from_this(),
                                                                              outAsync->getOs(),
                                                                              ICE_SHARED_FROM_THIS,
                                                                              requestId,
@@ -288,7 +288,7 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 {
     {
         Lock sync(*this);
-        if(_sendAsyncRequests.erase(ICE_GET_SHARED_FROM_THIS(outAsync)) == 0)
+        if(_sendAsyncRequests.erase(outAsync->shared_from_this()) == 0)
         {
             return false; // The request timed-out.
         }

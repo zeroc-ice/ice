@@ -441,7 +441,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     IceMX::MetricsAdminPrxPtr serverMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
     test(serverProps && serverMetrics);
 
-    UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
+    UpdateCallbackIPtr update = std::make_shared<UpdateCallbackI>(serverProps);
 
     ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, communicator->findAdminFacet("Properties"))->addUpdateCallback(
         [update](const Ice::PropertyDict& changes) { update->updated(changes); }

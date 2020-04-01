@@ -76,7 +76,7 @@ Selector::initialize(EventHandler* handler)
     }
     handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 #else
-    EventHandlerPtr h = ICE_GET_SHARED_FROM_THIS(handler);
+    EventHandlerPtr h = handler->shared_from_this();
     handler->getNativeInfo()->setCompletedHandler(
         ref new SocketOperationCompletedHandler(
             [=](int operation)
@@ -658,7 +658,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation> >& handlers)
             continue; // Interrupted
         }
 
-        map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(ICE_GET_SHARED_FROM_THIS(p.first));
+        map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(p.first->shared_from_this());
 
         if(q != _readyHandlers.end()) // Handler will be added by the loop below
         {
@@ -778,12 +778,12 @@ Selector::checkReady(EventHandler* handler)
 {
     if(handler->_ready & ~handler->_disabled & handler->_registered)
     {
-        _readyHandlers.insert(make_pair(ICE_GET_SHARED_FROM_THIS(handler), SocketOperationNone));
+        _readyHandlers.insert(make_pair(handler->shared_from_this(), SocketOperationNone));
         wakeup();
     }
     else
     {
-        map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(ICE_GET_SHARED_FROM_THIS(handler));
+        map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(handler->shared_from_this());
         if(p != _readyHandlers.end())
         {
             _readyHandlers.erase(p);
@@ -1082,7 +1082,7 @@ toCFCallbacks(SocketOperation op)
 }
 
 EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& selector) :
-    _handler(ICE_GET_SHARED_FROM_THIS(handler)),
+    _handler(handler->shared_from_this()),
     _streamNativeInfo(StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo())),
     _selector(selector),
     _ready(SocketOperationNone),

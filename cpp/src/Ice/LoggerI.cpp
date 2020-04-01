@@ -124,7 +124,7 @@ LoggerPtr
 Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex); // for _sizeMax
-    return ICE_MAKE_SHARED(LoggerI, prefix, _file, _convert, _sizeMax);
+    return std::make_shared<LoggerI>(prefix, _file, _convert, _sizeMax);
 }
 
 void

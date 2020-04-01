@@ -145,7 +145,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     {
         Ice::InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
-        BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
+        BatchRequestInterceptorIPtr interceptor = std::make_shared<BatchRequestInterceptorI>();
 
         initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int countP, int size)
         {

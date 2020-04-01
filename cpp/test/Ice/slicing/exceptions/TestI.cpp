@@ -188,7 +188,7 @@ TestI::unknownPreservedAsBase(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
+    ex.p1 = std::make_shared<SPreservedClass>("bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }
@@ -200,7 +200,7 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
+    ex.p1 = std::make_shared<SPreservedClass>("bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }

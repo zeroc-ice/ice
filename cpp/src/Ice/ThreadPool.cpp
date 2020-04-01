@@ -396,7 +396,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         const_cast<int&>(_priority) = properties->getPropertyAsInt("Ice.ThreadPriority");
     }
 
-    _workQueue = ICE_MAKE_SHARED(ThreadPoolWorkQueue, *this);
+    _workQueue = std::make_shared<ThreadPoolWorkQueue>(*this);
     _selector.initialize(_workQueue.get());
 
     if(_instance->traceLevels()->threadPool >= 1)
@@ -754,7 +754,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             if(_nextHandler != _handlers.end())
             {
                 current._ioCompleted = false;
-                current._handler = ICE_GET_SHARED_FROM_THIS(_nextHandler->first);
+                current._handler = _nextHandler->first->shared_from_this();
                 current.operation = _nextHandler->second;
                 ++_nextHandler;
                 thread->setState(ThreadState::ThreadStateInUseForIO);
@@ -805,8 +805,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         try
         {
             current._ioCompleted = false;
-            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                                                                                 current._error, _threadIdleTime));
+            current._handler = _selector.getNextHandler(current.operation, current._count, current._error,
+                                                        _threadIdleTime)->shared_from_this();
         }
         catch(const SelectorTimeoutException&)
         {
@@ -844,8 +844,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             try
             {
 
-                current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                                                                                     current._error, _serverIdleTime));
+                current._handler = _selector.getNextHandler(current.operation, current._count,
+                                   current._error, _serverIdleTime)->shared_from_this();
             }
             catch(const SelectorTimeoutException&)
             {

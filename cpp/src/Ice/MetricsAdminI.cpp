@@ -75,7 +75,7 @@ parseRule(const PropertiesPtr& properties, const string& name)
     {
         try
         {
-            regexps.push_back(ICE_MAKE_SHARED(MetricsMapI::RegExp, p->first.substr(name.length() + 1), p->second));
+            regexps.push_back(std::make_shared<MetricsMapI::RegExp>(p->first.substr(name.length() + 1), p->second));
         }
         catch(const std::exception&)
         {
@@ -402,7 +402,7 @@ MetricsAdminI::updateViews()
             map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
             if(q == _views.end())
             {
-                q = views.insert(map<string, MetricsViewIPtr>::value_type(viewName, ICE_MAKE_SHARED(MetricsViewI, viewName))).first;
+                q = views.insert(map<string, MetricsViewIPtr>::value_type(viewName, std::make_shared<MetricsViewI>(viewName))).first;
             }
             else
             {

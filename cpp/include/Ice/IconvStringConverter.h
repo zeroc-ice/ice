@@ -344,7 +344,7 @@ createIconvStringConverter(const std::string& internalCodeWithDefault = "")
         internalCode = nl_langinfo(CODESET);
     }
 
-    return ICE_MAKE_SHARED(IceInternal::IconvStringConverter<charT>, internalCode);
+    return std::make_shared<IceInternal::IconvStringConverter<charT>>(internalCode);
 }
 
 }

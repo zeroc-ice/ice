@@ -334,10 +334,10 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(I1), Ice::stringToIdentity("i1"));
-    adapter->add(ICE_MAKE_SHARED(I2), Ice::stringToIdentity("i2"));
-    adapter->add(ICE_MAKE_SHARED(I3), Ice::stringToIdentity("i3"));
-    adapter->add(ICE_MAKE_SHARED(I4), Ice::stringToIdentity("i4"));
+    adapter->add(std::make_shared<I1>(), Ice::stringToIdentity("i1"));
+    adapter->add(std::make_shared<I2>(), Ice::stringToIdentity("i2"));
+    adapter->add(std::make_shared<I3>(), Ice::stringToIdentity("i3"));
+    adapter->add(std::make_shared<I4>(), Ice::stringToIdentity("i4"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

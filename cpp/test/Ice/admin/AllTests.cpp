@@ -21,9 +21,9 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         test(com->findAdminFacet("Metrics"));
     }
 
-    TestFacetPtr f1 = ICE_MAKE_SHARED(TestFacetI);
-    TestFacetPtr f2 = ICE_MAKE_SHARED(TestFacetI);
-    TestFacetPtr f3 = ICE_MAKE_SHARED(TestFacetI);
+    TestFacetPtr f1 = std::make_shared<TestFacetI>();
+    TestFacetPtr f2 = std::make_shared<TestFacetI>();
+    TestFacetPtr f3 = std::make_shared<TestFacetI>();
 
     com->addAdminFacet(f1, "Facet1");
     com->addAdminFacet(f2, "Facet2");
@@ -482,7 +482,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectAdapterPtr adapter =
             communicator->createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
-        RemoteLoggerIPtr remoteLogger = ICE_MAKE_SHARED(RemoteLoggerI);
+        RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
         Ice::RemoteLoggerPrxPtr myProxy =
             ICE_UNCHECKED_CAST(Ice::RemoteLoggerPrx, adapter->addWithUUID(remoteLogger));

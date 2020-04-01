@@ -281,19 +281,19 @@ PluginI::initialize()
     lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
 
     Ice::LocatorPrxPtr voidLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx,
-                                                        _locatorAdapter->addWithUUID(ICE_MAKE_SHARED(VoidLocatorI)));
+                                                        _locatorAdapter->addWithUUID(std::make_shared<VoidLocatorI>()));
 
     string instanceName = properties->getProperty(_name + ".InstanceName");
     Ice::Identity id;
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
-    _locator = ICE_MAKE_SHARED(LocatorI, _name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
+    _locator = std::make_shared<LocatorI>(_name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
                                voidLocator);
     _defaultLocator = _communicator->getDefaultLocator();
     _locatorPrx = ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id));
     _communicator->setDefaultLocator(_locatorPrx);
 
-    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _locator))->ice_datagram();
+    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(std::make_shared<LookupReplyI>(_locator))->ice_datagram();
     _locator->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
 
     _replyAdapter->activate();
@@ -608,7 +608,7 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 
     if(_pending) // No need to continue, we found a locator.
     {
-        _timer->cancel(ICE_SHARED_FROM_THIS);
+        _timer->cancel(shared_from_this());
         _pendingRetryCount = 0;
         _pending = false;
     }
@@ -735,7 +735,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
                         }
                     });
                 }
-                _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
+                _timer->schedule(shared_from_this(), _timeout);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -771,7 +771,7 @@ LocatorI::exception(const Ice::LocalException& ex)
         //
         // All the lookup calls failed, cancel the timer and propagate the error to the requests.
         //
-        _timer->cancel(ICE_SHARED_FROM_THIS);
+        _timer->cancel(shared_from_this());
         _pendingRetryCount = 0;
         _pending = false;
 
@@ -849,7 +849,7 @@ LocatorI::runTimerTask()
                         }
                     });
             }
-            _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
+            _timer->schedule(shared_from_this(), _timeout);
             return;
         }
         catch(const Ice::LocalException&)

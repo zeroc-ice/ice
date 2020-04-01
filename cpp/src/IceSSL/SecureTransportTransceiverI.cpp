@@ -546,7 +546,7 @@ IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
-    IceSSL::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ConnectionInfo);
+    IceSSL::ConnectionInfoPtr info = std::make_shared<IceSSL::ConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

@@ -95,7 +95,7 @@ public:
         {
             Error out(_instance->initializationData().logger);
             out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
-            _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::seconds(1));
+            _instance->timer()->schedule(shared_from_this(), IceUtil::Time::seconds(1));
         }
     }
 
@@ -883,7 +883,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartComplete
     }
 
     connection->activate();
-    _factory->finishGetConnection(_connectors, *_iter, connection, ICE_SHARED_FROM_THIS);
+    _factory->finishGetConnection(_connectors, *_iter, connection, shared_from_this());
 }
 
 void
@@ -976,7 +976,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
     try
     {
         assert(_endpointsIter != _endpoints.end());
-        (*_endpointsIter)->connectors_async(_selType, ICE_SHARED_FROM_THIS);
+        (*_endpointsIter)->connectors_async(_selType, shared_from_this());
 
     }
     catch(const Ice::LocalException& ex)
@@ -995,7 +995,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
         // connection.
         //
         bool compress;
-        Ice::ConnectionIPtr connection = _factory->getConnection(_connectors, ICE_SHARED_FROM_THIS, compress);
+        Ice::ConnectionIPtr connection = _factory->getConnection(_connectors, shared_from_this(), compress);
         if(!connection)
         {
             //
@@ -1043,7 +1043,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
                     << _iter->connector->toString();
             }
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
-            connection->start(ICE_SHARED_FROM_THIS);
+            connection->start(shared_from_this());
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1109,7 +1109,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::removeConnectors(const 
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::removeFromPending()
 {
-    _factory->removeFromPending(ICE_SHARED_FROM_THIS, _connectors);
+    _factory->removeFromPending(shared_from_this(), _connectors);
 }
 
 bool
@@ -1130,7 +1130,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedIm
     _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
     if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
     {
-        _factory->finishGetConnection(_connectors, ex, ICE_SHARED_FROM_THIS);
+        _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
     else if(++_iter != _connectors.end()) // Try the next connector.
     {
@@ -1138,7 +1138,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedIm
     }
     else
     {
-        _factory->finishGetConnection(_connectors, ex, ICE_SHARED_FROM_THIS);
+        _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
     return false;
 }
@@ -1366,7 +1366,7 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
         if(_acceptorStarted)
         {
             _acceptorStarted = false;
-            if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+            if(_adapter->getThreadPool()->finish(shared_from_this(), true))
             {
                 closeAcceptor();
             }
@@ -1440,7 +1440,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
                 assert(_acceptorStarted);
                 _acceptorStarted = false;
-                if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+                if(_adapter->getThreadPool()->finish(shared_from_this(), true))
                 {
                     closeAcceptor();
                 }
@@ -1491,7 +1491,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
     assert(connection);
 
-    connection->start(ICE_SHARED_FROM_THIS);
+    connection->start(shared_from_this());
 }
 
 void
@@ -1511,7 +1511,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         //
         if(!_acceptorStopped)
         {
-            _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
+            _instance->timer()->schedule(std::make_shared<StartAcceptor>(shared_from_this(), _instance),
                                          IceUtil::Time::seconds(1));
         }
         return;
@@ -1535,7 +1535,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 void
 IceInternal::IncomingConnectionFactory::finish()
 {
-    unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+    unregisterForBackgroundNotification(shared_from_this());
 }
 #endif
 
@@ -1649,7 +1649,7 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
 
     _acceptorStopped = true;
     _acceptorStarted = false;
-    if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+    if(_adapter->getThreadPool()->finish(shared_from_this(), true))
     {
         closeAcceptor();
     }
@@ -1690,7 +1690,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             // The notification center will call back on the factory to
             // start the acceptor if necessary.
             //
-            registerForBackgroundNotification(ICE_SHARED_FROM_THIS);
+            registerForBackgroundNotification(shared_from_this());
 #else
             createAcceptor();
 #endif
@@ -1746,7 +1746,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "accepting " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-                _adapter->getThreadPool()->_register(ICE_SHARED_FROM_THIS, SocketOperationRead);
+                _adapter->getThreadPool()->_register(shared_from_this(), SocketOperationRead);
             }
 
             for(const auto& conn : _connections)
@@ -1769,7 +1769,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                     Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
                     out << "holding " << _endpoint->protocol() << " connections at " << _acceptor->toString();
                 }
-                _adapter->getThreadPool()->unregister(ICE_SHARED_FROM_THIS, SocketOperationRead);
+                _adapter->getThreadPool()->unregister(shared_from_this(), SocketOperationRead);
             }
 
             for(const auto& conn : _connections)
@@ -1791,7 +1791,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 // however.
                 //
                 _acceptorStarted = false;
-                if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+                if(_adapter->getThreadPool()->finish(shared_from_this(), true))
                 {
                     closeAcceptor();
                 }
@@ -1799,7 +1799,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             else
             {
 #if TARGET_OS_IPHONE != 0
-                _adapter->getThreadPool()->dispatch(new FinishCall(ICE_SHARED_FROM_THIS));
+                _adapter->getThreadPool()->dispatch(new FinishCall(shared_from_this()));
 #endif
                 state = StateFinished;
             }
@@ -1843,10 +1843,10 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
             out << "listening for " << _endpoint->protocol() << " connections\n" << _acceptor->toDetailedString();
         }
 
-        _adapter->getThreadPool()->initialize(ICE_SHARED_FROM_THIS);
+        _adapter->getThreadPool()->initialize(shared_from_this());
         if(_state == StateActive)
         {
-            _adapter->getThreadPool()->_register(ICE_SHARED_FROM_THIS, SocketOperationRead);
+            _adapter->getThreadPool()->_register(shared_from_this(), SocketOperationRead);
         }
 
         _acceptorStarted = true;

@@ -42,7 +42,7 @@ public:
 
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 };
 
@@ -175,7 +175,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
 
     if(init.properties->getPropertyAsInt("NullLogger") > 0)
     {
-        init.logger = ICE_MAKE_SHARED(NullLogger);
+        init.logger = std::make_shared<NullLogger>();
     }
 
     //
@@ -186,13 +186,13 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     //
     // Install a custom admin facet.
     //
-    communicator->addAdminFacet(ICE_MAKE_SHARED(TestFacetI), "TestFacet");
+    communicator->addAdminFacet(std::make_shared<TestFacetI>(), "TestFacet");
 
     //
     // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
     // Set the callback on the admin facet.
     //
-    RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
+    RemoteCommunicatorIPtr servant = std::make_shared<RemoteCommunicatorI>(communicator);
     servant->addUpdateCallback(Ice::emptyCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
