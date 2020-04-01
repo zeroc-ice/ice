@@ -8,49 +8,49 @@
 using namespace Test;
 
 MA::CAPrxPtr
-CAI_::caop(ICE_IN(MA::CAPrxPtr) p, const Ice::Current&)
+CAI_::caop(MA::CAPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MB::CBPrxPtr
-CBI::cbop(ICE_IN(MB::CBPrxPtr) p, const Ice::Current&)
+CBI::cbop(MB::CBPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MA::CCPrxPtr
-CCI::ccop(ICE_IN(MA::CCPrxPtr) p, const Ice::Current&)
+CCI::ccop(MA::CCPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MA::CDPrxPtr
-CDI::cdop(ICE_IN(MA::CDPrxPtr) p, const Ice::Current&)
+CDI::cdop(MA::CDPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MA::IAPrxPtr
-IAI::iaop(ICE_IN(MA::IAPrxPtr) p, const Ice::Current&)
+IAI::iaop(MA::IAPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB1PrxPtr
-IB1I::ib1op(ICE_IN(MB::IB1PrxPtr) p, const Ice::Current&)
+IB1I::ib1op(MB::IB1PrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB2PrxPtr
-IB2I::ib2op(ICE_IN(MB::IB2PrxPtr) p, const Ice::Current&)
+IB2I::ib2op(MB::IB2PrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MA::ICPrxPtr
-ICI::icop(ICE_IN(MA::ICPrxPtr) p, const Ice::Current&)
+ICI::icop(MA::ICPrxPtr p, const Ice::Current&)
 {
     return p;
 }

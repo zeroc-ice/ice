@@ -15,13 +15,13 @@ class MyObjectI : public Test::MyObject
 {
 public:
 
-    virtual wstring widen(ICE_IN(string) msg, const Ice::Current&)
+    virtual wstring widen(string msg, const Ice::Current&)
     {
         return stringToWstring(msg, Ice::getProcessStringConverter(),
                                Ice::getProcessWstringConverter());
     }
 
-    virtual string narrow(ICE_IN(wstring) wmsg, const Ice::Current&)
+    virtual string narrow(wstring wmsg, const Ice::Current&)
     {
         return wstringToString(wmsg, Ice::getProcessStringConverter(),
                                Ice::getProcessWstringConverter());

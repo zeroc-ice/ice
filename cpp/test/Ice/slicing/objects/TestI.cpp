@@ -208,7 +208,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 }
 
 void
-TestI::checkSUnknown(ICE_IN(Ice::ValuePtr) obj, const ::Ice::Current& current)
+TestI::checkSUnknown(Ice::ValuePtr obj, const ::Ice::Current& current)
 {
     SUnknownPtr su = ICE_DYNAMIC_CAST(SUnknown, obj);
     if(current.encoding == Ice::Encoding_1_0)
@@ -390,7 +390,7 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 BPtr
-TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
+TestI::returnTest3(BPtr p1, BPtr p2, const ::Ice::Current&)
 {
     _values.push_back(p1);
     _values.push_back(p2);
@@ -398,7 +398,7 @@ TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
 }
 
 SS3
-TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
+TestI::sequenceTest(SS1Ptr p1, SS2Ptr p2, const ::Ice::Current&)
 {
     SS3 ss;
     ss.c1 = p1;
@@ -409,7 +409,7 @@ TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
 }
 
 Test::BDict
-TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
+TestI::dictionaryTest(BDict bin, BDict& bout, const ::Ice::Current&)
 {
     int i;
     for(i = 0; i < 10; ++i)
@@ -440,7 +440,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
 }
 
 Test::PBasePtr
-TestI::exchangePBase(ICE_IN(Test::PBasePtr) pb, const Ice::Current&)
+TestI::exchangePBase(Test::PBasePtr pb, const Ice::Current&)
 {
     _values.push_back(pb);
     return pb;
@@ -466,7 +466,7 @@ TestI::PBSUnknownAsPreserved(const Ice::Current& current)
 }
 
 void
-TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknown(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknownPtr pu =  ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -504,7 +504,7 @@ TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::
 }
 
 void
-TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknownWithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknownPtr pu = ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -540,7 +540,7 @@ TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test:
 }
 
 void
-TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknown2WithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknown2Ptr pu = ICE_DYNAMIC_CAST(PSUnknown2, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -560,7 +560,7 @@ TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Curren
 }
 
 Test::PNodePtr
-TestI::exchangePNode(ICE_IN(Test::PNodePtr) pn, const Ice::Current&)
+TestI::exchangePNode(Test::PNodePtr pn, const Ice::Current&)
 {
     _values.push_back(pn);
     return pn;

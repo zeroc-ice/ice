@@ -168,7 +168,7 @@ InitialI::getF(const Ice::Current&)
 }
 
 void
-InitialI::setRecursive(ICE_IN(RecursivePtr), const Ice::Current&)
+InitialI::setRecursive(RecursivePtr, const Ice::Current&)
 {
 }
 
@@ -206,7 +206,7 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 }
 
 void
-InitialI::setG(ICE_IN(Test::GPtr), const Ice::Current&)
+InitialI::setG(Test::GPtr, const Ice::Current&)
 {
 }
 
@@ -217,12 +217,12 @@ InitialI::getI(const Ice::Current&)
 }
 
 void
-InitialI::setI(ICE_IN(shared_ptr<Ice::Value>), const Ice::Current&)
+InitialI::setI(shared_ptr<Ice::Value>, const Ice::Current&)
 {
 }
 
 BaseSeq
-InitialI::opBaseSeq(ICE_IN(BaseSeq) inSeq, BaseSeq& outSeq, const Ice::Current&)
+InitialI::opBaseSeq(BaseSeq inSeq, BaseSeq& outSeq, const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
@@ -281,28 +281,28 @@ InitialI::getK(const Ice::Current&)
 }
 
 Ice::ValuePtr
-InitialI::opValue(ICE_IN(Ice::ValuePtr) v1, Ice::ValuePtr& v2, const Ice::Current&)
+InitialI::opValue(Ice::ValuePtr v1, Ice::ValuePtr& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
 Test::ValueSeq
-InitialI::opValueSeq(ICE_IN(Test::ValueSeq) v1, Test::ValueSeq& v2, const Ice::Current&)
+InitialI::opValueSeq(Test::ValueSeq v1, Test::ValueSeq& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
 Test::ValueMap
-InitialI::opValueMap(ICE_IN(Test::ValueMap) v1, Test::ValueMap& v2, const Ice::Current&)
+InitialI::opValueMap(Test::ValueMap v1, Test::ValueMap& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
 D1Ptr
-InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
+InitialI::getD1(Test::D1Ptr d1, const Ice::Current&)
 {
     return d1;
 }
@@ -317,14 +317,14 @@ InitialI::throwEDerived(const Ice::Current&)
 }
 
 Test::MPtr
-InitialI::opM(ICE_IN(Test::MPtr) v1, Test::MPtr& v2, const Ice::Current&)
+InitialI::opM(Test::MPtr v1, Test::MPtr& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
+UnexpectedObjectExceptionTestI::ice_invoke(std::vector<Ice::Byte>,
                                            std::vector<Ice::Byte>& outParams,
                                            const Ice::Current& current)
 {
@@ -340,21 +340,21 @@ UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
 }
 
 Test::F1Ptr
-InitialI::opF1(ICE_IN(Test::F1Ptr) f11, Test::F1Ptr& f12, const Ice::Current&)
+InitialI::opF1(Test::F1Ptr f11, Test::F1Ptr& f12, const Ice::Current&)
 {
     f12 = std::make_shared<F1>("F12");
     return f11;
 }
 
 Test::F2PrxPtr
-InitialI::opF2(ICE_IN(Test::F2PrxPtr) f21, Test::F2PrxPtr& f22, const Ice::Current& current)
+InitialI::opF2(Test::F2PrxPtr f21, Test::F2PrxPtr& f22, const Ice::Current& current)
 {
     f22 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
     return f21;
 }
 
 Test::F3Ptr
-InitialI::opF3(ICE_IN(Test::F3Ptr) f31, Test::F3Ptr& f32, const Ice::Current& current)
+InitialI::opF3(Test::F3Ptr f31, Test::F3Ptr& f32, const Ice::Current& current)
 {
     f32 = std::make_shared<F3>();
     f32->f1 = std::make_shared<F1>("F12");

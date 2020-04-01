@@ -12,7 +12,7 @@ using namespace std;
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(::Ice::UserExceptionFactory) f)
+IceInternal::FactoryTable::addExceptionFactory(const string& t, ::Ice::UserExceptionFactory f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -62,7 +62,7 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, ICE_IN(::Ice::ValueFactory) f)
+IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactory f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);

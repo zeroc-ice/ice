@@ -907,7 +907,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
 }
 
 void
-Ice::ConnectionI::setHeartbeatCallback(ICE_IN(HeartbeatCallback) callback)
+Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -918,7 +918,7 @@ Ice::ConnectionI::setHeartbeatCallback(ICE_IN(HeartbeatCallback) callback)
 }
 
 void
-Ice::ConnectionI::setCloseCallback(ICE_IN(CloseCallback) callback)
+Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -929,7 +929,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(CloseCallback) callback)
             {
             public:
 
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(CloseCallback) callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection, CloseCallback callback) :
                     _connection(connection),
                     _callback(move(callback))
                 {

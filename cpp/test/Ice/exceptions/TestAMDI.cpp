@@ -292,7 +292,7 @@ ThrowerI::throwAssertExceptionAsync(function<void()>,
 }
 
 void
-ThrowerI::throwMemoryLimitExceptionAsync(ICE_IN(Ice::ByteSeq),
+ThrowerI::throwMemoryLimitExceptionAsync(Ice::ByteSeq,
                                          function<void(const Ice::ByteSeq&)> response,
                                          function<void(exception_ptr)>,
                                          const Ice::Current&)

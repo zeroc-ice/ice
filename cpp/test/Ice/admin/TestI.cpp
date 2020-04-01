@@ -110,23 +110,23 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
 }
 
 void
-RemoteCommunicatorI::print(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::print(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->print(message);
 }
 void
-RemoteCommunicatorI::trace(ICE_IN(std::string) category,
-                           ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::trace(std::string category,
+                           std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->trace(category, message);
 }
 void
-RemoteCommunicatorI::warning(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::warning(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->warning(message);
 }
 void
-RemoteCommunicatorI::error(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::error(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->error(message);
 }
@@ -161,7 +161,7 @@ RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
 }
 
 Test::RemoteCommunicatorPrxPtr
-RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, const Ice::Current& current)
+RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ice::Current& current)
 {
     //
     // Prepare the property set using the given properties.

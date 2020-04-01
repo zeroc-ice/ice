@@ -140,9 +140,9 @@ public:
 
     void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void findObjectById(ICE_IN(std::string), ICE_IN(Ice::Identity), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findObjectById(std::string, Ice::Identity, IceDiscovery::LookupReplyPrxPtr,
                                 const Ice::Current&);
-    virtual void findAdapterById(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findAdapterById(std::string, std::string, IceDiscovery::LookupReplyPrxPtr,
                                  const Ice::Current&);
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);

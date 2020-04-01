@@ -159,8 +159,8 @@ public:
                             ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
 
-    virtual void setCloseCallback(ICE_IN(CloseCallback));
-    virtual void setHeartbeatCallback(ICE_IN(HeartbeatCallback));
+    virtual void setCloseCallback(CloseCallback);
+    virtual void setHeartbeatCallback(HeartbeatCallback);
 
     virtual void heartbeat();
 

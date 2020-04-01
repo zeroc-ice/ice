@@ -116,7 +116,7 @@ public:
     {
     }
 
-    virtual void foundLocator(ICE_IN(Ice::LocatorPrxPtr), const Ice::Current&);
+    virtual void foundLocator(Ice::LocatorPrxPtr, const Ice::Current&);
 
 private:
 
@@ -887,7 +887,7 @@ LocatorI::runTimerTask()
 }
 
 void
-LookupReplyI::foundLocator(ICE_IN(Ice::LocatorPrxPtr) locator, const Ice::Current&)
+LookupReplyI::foundLocator(Ice::LocatorPrxPtr locator, const Ice::Current&)
 {
     _locator->foundLocator(locator);
 }

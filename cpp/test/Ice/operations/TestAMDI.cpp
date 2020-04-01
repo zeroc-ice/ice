@@ -18,7 +18,7 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 }
 
 bool
-MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
+MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
 {
     test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_isA(move(id), current);

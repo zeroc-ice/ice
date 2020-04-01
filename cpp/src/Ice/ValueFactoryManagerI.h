@@ -21,7 +21,7 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(ICE_IN(::Ice::ValueFactory), const std::string&);
+    virtual void add(::Ice::ValueFactory, const std::string&);
     virtual ::Ice::ValueFactory find(const std::string&) const noexcept;
 
 private:

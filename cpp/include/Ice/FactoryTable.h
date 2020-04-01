@@ -39,11 +39,11 @@ class ICE_API FactoryTable : private IceUtil::noncopyable
 {
 public:
 
-    void addExceptionFactory(const ::std::string&, ICE_IN(::Ice::UserExceptionFactory));
+    void addExceptionFactory(const ::std::string&, ::Ice::UserExceptionFactory);
     ::Ice::UserExceptionFactory getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
-    void addValueFactory(const ::std::string&, ICE_IN(::Ice::ValueFactory));
+    void addValueFactory(const ::std::string&, ::Ice::ValueFactory);
     ::Ice::ValueFactory getValueFactory(const ::std::string&) const;
     void removeValueFactory(const ::std::string&);
 

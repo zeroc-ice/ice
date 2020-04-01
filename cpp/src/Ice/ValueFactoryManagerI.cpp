@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ICE_IN(ValueFactory) factory, const string& id)
+IceInternal::ValueFactoryManagerI::add(ValueFactory factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 

@@ -255,7 +255,7 @@ LookupI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 }
 
 void
-LookupI::findObjectById(ICE_IN(string) domainId, ICE_IN(Ice::Identity) id, ICE_IN(LookupReplyPrxPtr) reply,
+LookupI::findObjectById(string domainId, Ice::Identity id, LookupReplyPrxPtr reply,
                         const Ice::Current&)
 {
     if(domainId != _domainId)
@@ -281,7 +281,7 @@ LookupI::findObjectById(ICE_IN(string) domainId, ICE_IN(Ice::Identity) id, ICE_I
 }
 
 void
-LookupI::findAdapterById(ICE_IN(string) domainId, ICE_IN(string) adapterId, ICE_IN(LookupReplyPrxPtr) reply,
+LookupI::findAdapterById(string domainId, string adapterId, LookupReplyPrxPtr reply,
                          const Ice::Current&)
 {
     if(domainId != _domainId)

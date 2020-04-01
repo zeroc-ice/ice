@@ -84,7 +84,7 @@ public:
     }
 
     virtual Ice::ObjectProxySeq
-    addProxies(ICE_IN(Ice::ObjectProxySeq), const Ice::Current&)
+    addProxies(Ice::ObjectProxySeq, const Ice::Current&)
     {
         return Ice::ObjectProxySeq();
     }
