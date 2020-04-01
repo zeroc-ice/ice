@@ -29,9 +29,9 @@ namespace IceInternal
     {
         public virtual bool Sent() => SentImpl(true);
 
-        public virtual bool Exception(System.Exception ex) => ExceptionImpl(ex);
+        public virtual bool Exception(Exception ex) => ExceptionImpl(ex);
 
-        public virtual bool Response(IncomingResponseFrame response)
+        public virtual bool Response(ArraySegment<byte> data)
         {
             Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
@@ -631,9 +631,10 @@ namespace IceInternal
 
         public override bool Sent() => base.SentImpl(IsOneway); // done = true
 
-        public override bool Response(IncomingResponseFrame response)
+        public override bool Response(ArraySegment<byte> data)
         {
-            ResponseFrame = response;
+            ResponseFrame = new IncomingResponseFrame(Communicator,
+                data.Slice(Ice1Definitions.HeaderSize + 4));
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke

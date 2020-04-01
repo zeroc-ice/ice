@@ -1128,8 +1128,7 @@ namespace Ice
                     {
                         Debug.Assert(m.OutAsync != null);
                         var outAsync = (OutgoingAsync)m.OutAsync;
-                        Debug.Assert(m.ResponseFrame != null);
-                        if (outAsync.Response(m.ResponseFrame))
+                        if (outAsync.Response(m.IncomingData))
                         {
                             outAsync.InvokeResponse();
                         }
@@ -1297,7 +1296,7 @@ namespace Ice
                     // Return the stream to the outgoing call. This is important for
                     // retriable AMI calls which are not marshalled again.
                     OutgoingMessage message = _outgoingMessages.First.Value;
-                    Debug.Assert(message.Data != null);
+                    Debug.Assert(message.OutgoingData != null);
                     _writeBufferOffset = 0;
                     _writeBufferSize = 0;
                     _writeBuffer = _emptyBuffer;
@@ -1318,8 +1317,7 @@ namespace Ice
                         {
                             Debug.Assert(message.OutAsync != null);
                             var outAsync = (OutgoingAsync)message.OutAsync;
-                            Debug.Assert(message.ResponseFrame != null);
-                            if (outAsync.Response(message.ResponseFrame))
+                            if (outAsync.Response(message.IncomingData))
                             {
                                 outAsync.InvokeResponse();
                             }
@@ -1415,7 +1413,7 @@ namespace Ice
                         InitiateShutdown();
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     SetState(StateClosed, ex);
                 }
@@ -2094,14 +2092,14 @@ namespace Ice
                     // Otherwise, prepare the next message stream for writing.
                     //
                     message = _outgoingMessages.First.Value;
-                    Debug.Assert(message.Data != null);
-                    List<ArraySegment<byte>> data = message.Data;
+                    Debug.Assert(message.OutgoingData != null);
+                    List<ArraySegment<byte>> data = message.OutgoingData;
 
-                    message.Data = DoCompress(message.Data, message.Size, message.Compress);
-                    message.Size = message.Data.GetByteCount();
+                    message.OutgoingData = DoCompress(message.OutgoingData, message.Size, message.Compress);
+                    message.Size = message.OutgoingData.GetByteCount();
 
                     TraceUtil.TraceSend(_communicator, data.GetSegment(0, message.Size).Array, _logger, _traceLevels);
-                    _writeBuffer = message.Data;
+                    _writeBuffer = message.OutgoingData;
                     _writeBufferSize = message.Size;
                     _writeBufferOffset = 0;
                     //
@@ -2152,12 +2150,12 @@ namespace Ice
             // asynchronous I/O or we request the caller to call FinishSendMessage() outside
             // the synchronization.
             //
-            Debug.Assert(message.Data != null);
-            List<ArraySegment<byte>> requestData = message.Data;
+            Debug.Assert(message.OutgoingData != null);
+            List<ArraySegment<byte>> requestData = message.OutgoingData;
 
-            message.Data = DoCompress(requestData, message.Size, message.Compress);
-            message.Size = message.Data.GetByteCount();
-            _writeBuffer = message.Data;
+            message.OutgoingData = DoCompress(requestData, message.Size, message.Compress);
+            message.Size = message.OutgoingData.GetByteCount();
+            _writeBuffer = message.OutgoingData;
             _writeBufferSize = message.Size;
             _writeBufferOffset = 0;
 
@@ -2335,9 +2333,6 @@ namespace Ice
                             {
                                 _asyncRequests.Remove(info.RequestId);
 
-                                var response = new IncomingResponseFrame(_communicator,
-                                    info.Data.Slice(Ice1Definitions.HeaderSize + 4));
-
                                 //
                                 // If we just received the reply for a request which isn't acknowledge as
                                 // sent yet, we queue the reply instead of processing it right away. It
@@ -2347,9 +2342,9 @@ namespace Ice
                                 if (message != null && message.OutAsync == info.OutAsync)
                                 {
                                     message.ReceivedReply = true;
-                                    message.ResponseFrame = response;
+                                    message.IncomingData = info.Data;
                                 }
-                                else if (info.OutAsync.Response(response))
+                                else if (info.OutAsync.Response(info.Data))
                                 {
                                     ++info.MessageDispatchCount;
                                 }
@@ -2681,24 +2676,24 @@ namespace Ice
         {
             internal OutgoingMessage(List<ArraySegment<byte>> requestData, bool compress)
             {
-                Data = requestData;
-                Size = Data.GetByteCount();
+                OutgoingData = requestData;
+                Size = OutgoingData.GetByteCount();
                 Compress = compress;
             }
 
             internal OutgoingMessage(OutgoingAsyncBase outgoing, List<ArraySegment<byte>> data, bool compress, int requestId)
             {
                 OutAsync = outgoing;
-                Data = data;
-                Size = Data.GetByteCount();
+                OutgoingData = data;
+                Size = OutgoingData.GetByteCount();
                 Compress = compress;
                 RequestId = requestId;
             }
 
             internal OutgoingMessage(OutgoingResponseFrame frame, bool compress, int requestId)
             {
-                Data = Ice1Definitions.GetResponseData(frame, requestId);
-                Size = Data.GetByteCount();
+                OutgoingData = Ice1Definitions.GetResponseData(frame, requestId);
+                Size = OutgoingData.GetByteCount();
                 Compress = compress;
             }
 
@@ -2710,7 +2705,7 @@ namespace Ice
 
             internal bool Sent()
             {
-                Data = null;
+                OutgoingData = null;
                 if (OutAsync != null)
                 {
                     InvokeSent = OutAsync.Sent();
@@ -2728,10 +2723,11 @@ namespace Ice
                         OutAsync.InvokeException();
                     }
                 }
-                Data = null;
+                OutgoingData = null;
             }
 
-            internal List<ArraySegment<byte>>? Data;
+            internal List<ArraySegment<byte>>? OutgoingData;
+            internal ArraySegment<byte> IncomingData;
             internal int Size;
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
@@ -2739,7 +2735,6 @@ namespace Ice
             internal bool IsSent;
             internal bool InvokeSent;
             internal bool ReceivedReply;
-            internal IncomingResponseFrame? ResponseFrame;
         }
 
         private readonly Communicator _communicator;

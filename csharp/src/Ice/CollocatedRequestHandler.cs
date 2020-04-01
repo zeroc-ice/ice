@@ -149,11 +149,11 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                List<System.ArraySegment<byte>> requestData =
-                    Ice1Definitions.GetRequestData(outgoingRequest, requestId);
                 if (_traceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
+                    List<System.ArraySegment<byte>> requestData =
+                        Ice1Definitions.GetRequestData(outgoingRequest, requestId);
                     TraceUtil.TraceSend(_adapter.Communicator, VectoredBufferExtensions.ToArray(requestData), _logger,
                         _traceLevels);
                 }
@@ -226,19 +226,18 @@ namespace IceInternal
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                List<System.ArraySegment<byte>> responseData = Ice1Definitions.GetResponseData(responseFrame, requestId);
-
+                byte[] responseBuffer = VectoredBufferExtensions.ToArray(
+                        Ice1Definitions.GetResponseData(responseFrame, requestId));
                 if (_traceLevels.Protocol >= 1)
                 {
-                    byte[] responseBuffer = VectoredBufferExtensions.ToArray(responseData);
-                    var iss = new InputStream(_adapter.Communicator, responseBuffer);
-                    iss.Pos = Ice1Definitions.HeaderSize + 4;
+                    var iss = new InputStream(_adapter.Communicator, responseBuffer,
+                        Ice1Definitions.HeaderSize + 4);
                     TraceUtil.TraceRecv(iss, _logger, _traceLevels);
                 }
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if (!outAsync.Response(new IncomingResponseFrame(_adapter.Communicator, responseFrame)))
+                    if (!outAsync.Response(responseBuffer))
                     {
                         outAsync = null;
                     }
