@@ -428,13 +428,14 @@ namespace Ice
 
                 if (done)
                 {
-                    Debug.Assert(outgoing.ResponseFrame != null);
-                    SetResult(outgoing.ResponseFrame);
+                    IncomingResponseFrame? response = ((ProxyOutgoingAsyncBase)outgoing).ResponseFrame;
+                    Debug.Assert(response != null);
+                    SetResult(response);
                 }
             }
 
             public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase outgoing) =>
-                SetResult(outgoing.ResponseFrame!);
+                SetResult(((ProxyOutgoingAsyncBase)outgoing).ResponseFrame!);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

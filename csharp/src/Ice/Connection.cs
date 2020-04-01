@@ -1361,7 +1361,7 @@ namespace Ice
                 {
                     _closeCallback(this);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     _logger.Error($"connection callback exception:\n{ex}\n{_desc}");
                 }

@@ -16,7 +16,7 @@ namespace IceInternal
         void Init(OutgoingAsyncBase og);
 
         bool HandleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
-        bool HandleException(System.Exception ex, OutgoingAsyncBase og);
+        bool HandleException(Exception ex, OutgoingAsyncBase og);
 
         bool HandleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
@@ -223,7 +223,6 @@ namespace IceInternal
                 State |= StateSent;
                 if (done)
                 {
-                    ResponseFrame = new IncomingResponseFrame(Communicator, Ice1Definitions.EmptyResponsePayload);
                     _doneInSent = true;
                     if (ChildObserver != null)
                     {
@@ -243,7 +242,7 @@ namespace IceInternal
             }
         }
 
-        protected virtual bool ExceptionImpl(System.Exception ex)
+        protected virtual bool ExceptionImpl(Exception ex)
         {
             lock (this)
             {
@@ -286,7 +285,7 @@ namespace IceInternal
                 {
                     invoke &= _completionCallback.HandleResponse(userThread, ok, this);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     _ex = ex;
                     invoke = _completionCallback.HandleException(ex, this);
@@ -300,7 +299,7 @@ namespace IceInternal
             }
         }
 
-        protected void Cancel(System.Exception ex)
+        protected void Cancel(Exception ex)
         {
             ICancellationHandler handler;
             {
@@ -317,7 +316,7 @@ namespace IceInternal
             handler.AsyncRequestCanceled(this, ex);
         }
 
-        protected void Warning(System.Exception ex)
+        protected void Warning(Exception ex)
         {
             if ((Communicator.GetPropertyAsInt("Ice.Warn.AMICallback") ?? 1) > 0)
             {
@@ -337,12 +336,10 @@ namespace IceInternal
         protected Ice.Instrumentation.IInvocationObserver? Observer;
         protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
 
-        public IncomingResponseFrame? ResponseFrame;
-
         private bool _doneInSent;
         private bool _alreadySent;
-        private System.Exception? _ex;
-        private System.Exception? _cancellationException;
+        private Exception? _ex;
+        private Exception? _cancellationException;
         private ICancellationHandler? _cancellationHandler;
         private readonly IOutgoingAsyncCompletionCallback _completionCallback;
 
@@ -366,6 +363,7 @@ namespace IceInternal
     public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, ITimerTask
     {
         public OutgoingRequestFrame RequestFrame { get; protected set; }
+        public IncomingResponseFrame? ResponseFrame { get; protected set; }
         public abstract int InvokeRemote(Connection connection, bool compress, bool response);
         public abstract int InvokeCollocated(CollocatedRequestHandler handler);
 
@@ -397,7 +395,7 @@ namespace IceInternal
                 Communicator.AddRetryTask(this, Proxy.IceHandleException(exc, Handler, IsIdempotent, _sent, ref _cnt));
                 return false;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return ExceptionImpl(ex); // No retries, we're done
             }
@@ -418,7 +416,7 @@ namespace IceInternal
                 (Proxy.IceReference as RoutableReference)?.UpdateRequestHandler(Handler, null);
                 Communicator.AddRetryTask(this, 0);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 if (Exception(ex))
                 {
@@ -508,7 +506,7 @@ namespace IceInternal
                         // Clear request handler and always retry.
                         (Proxy.IceReference as RoutableReference)?.UpdateRequestHandler(Handler, null);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         if (ChildObserver != null)
                         {
@@ -529,7 +527,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 //
                 // If called from the user thread we re-throw, the exception
@@ -550,6 +548,7 @@ namespace IceInternal
             _sent = true;
             if (done)
             {
+                ResponseFrame = new IncomingResponseFrame(Communicator, Ice1Definitions.EmptyResponsePayload);
                 if (Proxy.IceReference.InvocationTimeout != -1)
                 {
                     Communicator.Timer().Cancel(this);
@@ -557,8 +556,9 @@ namespace IceInternal
             }
             return base.SentImpl(done);
         }
-        protected override bool ExceptionImpl(System.Exception ex)
+        protected override bool ExceptionImpl(Exception ex)
         {
+            Debug.Assert(ResponseFrame != null);
             if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);
@@ -568,6 +568,7 @@ namespace IceInternal
 
         protected override bool ResponseImpl(bool userThread, bool ok, bool invoke)
         {
+            Debug.Assert(ResponseFrame != null);
             if (Proxy.IceReference.InvocationTimeout != -1)
             {
                 Communicator.Timer().Cancel(this);

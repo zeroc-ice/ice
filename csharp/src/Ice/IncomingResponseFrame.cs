@@ -140,19 +140,11 @@ namespace Ice
 
             // For compatibility with the old FacetPath.
             string[] facetPath = istr.ReadStringArray();
-            string facet;
-            if (facetPath.Length > 0)
+            if (facetPath.Length > 1)
             {
-                if (facetPath.Length > 1)
-                {
-                    throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
-                }
-                facet = facetPath[0];
+                throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
             }
-            else
-            {
-                facet = "";
-            }
+            string facet = facetPath.Length > 0 ? facetPath[0] : "";
 
             string operation = istr.ReadString();
 
