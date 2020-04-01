@@ -36,16 +36,6 @@ internal class BackgroundController : IBackgroundController
         }
     }
 
-    public void holdAdapter(Ice.Current current)
-    {
-        _adapter.Hold();
-    }
-
-    public void resumeAdapter(Ice.Current current)
-    {
-        _adapter.Activate();
-    }
-
     public void initializeException(bool enable, Ice.Current current)
     {
         _configuration.initializeException(enable ? new Ice.TransportException("") : null);
@@ -81,8 +71,7 @@ internal class BackgroundController : IBackgroundController
         _adapter = adapter;
         _configuration = Configuration.getInstance();
     }
-
     private Ice.ObjectAdapter _adapter;
-    private HashSet<string> _pausedCalls = new HashSet<string>();
     private Configuration _configuration;
+    private HashSet<string> _pausedCalls = new HashSet<string>();
 }

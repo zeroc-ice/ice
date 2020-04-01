@@ -24,13 +24,16 @@ public class Server : TestHelper
 
         using var communicator = initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add("metrics", new Metrics());
-        adapter.Activate();
+        communicator.SetProperty("TestAdapter.ThreadPool.SizeMax",
+            communicator.GetProperty("Ice.ThreadPool.Server.SizeMax"));
 
         communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-        controllerAdapter.Add("controller", new Controller(adapter));
+        controllerAdapter.Add("controller", new Controller(() => {
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("metrics", new Metrics());
+            return adapter;
+        }));
         controllerAdapter.Activate();
 
         communicator.WaitForShutdown();

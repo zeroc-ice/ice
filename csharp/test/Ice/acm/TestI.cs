@@ -51,10 +51,6 @@ namespace Ice.acm
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;
 
-        public void activate(Current current) => _adapter.Activate();
-
-        public void hold(Current current) => _adapter.Hold();
-
         public void deactivate(Current current)
         {
             try
@@ -76,15 +72,6 @@ namespace Ice.acm
         {
             lock (this)
             {
-                System.Threading.Monitor.Wait(this, delay * 1000);
-            }
-        }
-
-        public void sleepAndHold(int delay, Current current)
-        {
-            lock (this)
-            {
-                current.Adapter.Hold();
                 System.Threading.Monitor.Wait(this, delay * 1000);
             }
         }

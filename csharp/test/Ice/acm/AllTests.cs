@@ -301,33 +301,6 @@ namespace Ice.acm
             }
         }
 
-        class InvocationHeartbeatOnHoldTest : TestCase
-        {
-            public InvocationHeartbeatOnHoldTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
-                base("invocation with heartbeat on hold", com, helper)
-            {
-                // Use default ACM configuration.
-            }
-
-            public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
-            {
-                try
-                {
-                    // When the OA is put on hold, connections shouldn't
-                    // send heartbeats, the invocation should therefore
-                    // fail.
-                    proxy.sleepAndHold(10);
-                    test(false);
-                }
-                catch (Ice.ConnectionTimeoutException)
-                {
-                    adapter.activate();
-                    proxy.interruptSleep();
-                    waitForClosed();
-                }
-            }
-        }
-
         class InvocationNoHeartbeatTest : TestCase
         {
             public InvocationNoHeartbeatTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
@@ -392,10 +365,19 @@ namespace Ice.acm
 
             public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
+                var connection = proxy.GetConnection();
                 waitForClosed();
                 lock (this)
                 {
                     test(_heartbeat == 0);
+                    try
+                    {
+                        connection.ThrowException();
+                    }
+                    catch (Exception ex)
+                    {
+                        test(ex is Ice.ConnectionIdleException);;
+                    }
                 }
             }
         }
@@ -425,27 +407,25 @@ namespace Ice.acm
             public CloseOnIdleAndInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on idle and invocation", com, helper)
             {
-                SetClientACM(3, 3, 0); // Only close on idle and invocation
+                SetClientACM(1, 3, 0); // Only close on idle and invocation
             }
 
             public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
-                //
-                // Put the adapter on hold. The server will not respond to
-                // the graceful close. This allows to test whether or not
-                // the close is graceful or forceful.
-                //
-                adapter.hold();
-                Thread.Sleep(5000); // Idle for 5 seconds
-
+                var connection = proxy.GetConnection();
+                waitForClosed();
                 lock (this)
                 {
                     test(_heartbeat == 0);
-                    test(!_closed); // Not closed yet because of graceful close.
                 }
-
-                adapter.activate();
-                waitForClosed();
+                try
+                {
+                    connection.ThrowException();
+                }
+                catch (Exception ex)
+                {
+                    test(ex is Ice.ConnectionIdleException);;
+                }
             }
         }
 
@@ -459,11 +439,19 @@ namespace Ice.acm
 
             public override void RunTestCase(Test.IRemoteObjectAdapterPrx adapter, Test.ITestIntfPrx proxy)
             {
-                adapter.hold();
+                var connection = proxy.GetConnection();
                 waitForClosed();
                 lock (this)
                 {
                     test(_heartbeat == 0);
+                }
+                try
+                {
+                    connection.ThrowException();
+                }
+                catch (Exception ex)
+                {
+                    test(ex is Ice.ConnectionTimeoutException);;
                 }
             }
         }
@@ -609,7 +597,6 @@ namespace Ice.acm
             List<TestCase> tests = new List<TestCase>();
 
             tests.Add(new InvocationHeartbeatTest(com, helper));
-            tests.Add(new InvocationHeartbeatOnHoldTest(com, helper));
             tests.Add(new InvocationNoHeartbeatTest(com, helper));
             tests.Add(new InvocationHeartbeatCloseOnIdleTest(com, helper));
 

@@ -321,8 +321,8 @@ public class AllTests
                 results.Add(t);
                 if (i % 50 == 0)
                 {
-                    backgroundController.holdAdapter();
-                    backgroundController.resumeAdapter();
+                    backgroundController.readReady(false);
+                    backgroundController.readReady(true);
                 }
                 if (i % 100 == 0)
                 {
@@ -755,7 +755,7 @@ public class AllTests
         }
 
         {
-            ctl.holdAdapter(); // Hold to block in connection validation
+            ctl.readReady(false); // Hold to block in connection validation
             var t1SentSynchronously = false;
             var t2SentSynchronously = false;
             var t1 = background.opAsync(progress: new Progress<bool>(value =>
@@ -768,7 +768,7 @@ public class AllTests
             }));
             test(!t1SentSynchronously && !t2SentSynchronously);
             test(!t1.IsCompleted && !t2.IsCompleted);
-            ctl.resumeAdapter();
+            ctl.readReady(true);
             t1.Wait();
             t2.Wait();
             test(t1.IsCompleted && t2.IsCompleted);
@@ -1017,14 +1017,14 @@ public class AllTests
         IBackgroundPrx backgroundOneway = background.Clone(oneway: true);
         test(backgroundOneway.GetConnection() == background.GetConnection());
 
-        ctl.holdAdapter(); // Hold to block in request send.
+        ctl.readReady(false); // Hold to block in request send.
 
-        byte[] seq = new byte[10024];
+        byte[] seq = new byte[1000 * 1024];
         (new System.Random()).NextBytes(seq);
         OpAMICallback cbWP = new OpAMICallback();
 
         // Fill up the receive and send buffers
-        for (int i = 0; i < 200; ++i) // 2MB
+        for (int i = 0; i < 10; ++i) // 10MB
         {
             backgroundOneway.opWithPayloadAsync(seq);
         }
@@ -1110,7 +1110,7 @@ public class AllTests
 
         test(!cb.checkResponse(false));
         test(!cb2.checkResponse(false));
-        ctl.resumeAdapter();
+        ctl.readReady(true);
         cb.checkResponseAndSent();
         cb2.checkResponseAndSent();
         test(t1Sent);

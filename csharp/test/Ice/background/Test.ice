@@ -22,9 +22,6 @@ interface BackgroundController
     void pauseCall(string call);
     void resumeCall(string call);
 
-    void holdAdapter();
-    void resumeAdapter();
-
     void initializeException(bool enable);
 
     void readReady(bool enable);

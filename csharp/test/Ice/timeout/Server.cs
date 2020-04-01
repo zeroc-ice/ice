@@ -32,13 +32,10 @@ namespace Ice.timeout
             communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("timeout", new Timeout());
-            adapter.Activate();
-
             var controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add("controller", new Controller(adapter));
+            controllerAdapter.Add("controller", new Controller(communicator));
             controllerAdapter.Activate();
+
             serverReady();
             communicator.WaitForShutdown();
         }

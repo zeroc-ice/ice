@@ -202,8 +202,6 @@ namespace IceInternal
             {
                 case Ice.Instrumentation.ConnectionState.ConnectionStateValidating:
                     return "validating";
-                case Ice.Instrumentation.ConnectionState.ConnectionStateHolding:
-                    return "holding";
                 case Ice.Instrumentation.ConnectionState.ConnectionStateActive:
                     return "active";
                 case Ice.Instrumentation.ConnectionState.ConnectionStateClosing:

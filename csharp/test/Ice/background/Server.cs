@@ -104,7 +104,6 @@ public class Server : TestHelper
         ObjectAdapter adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
 
         var backgroundController = new BackgroundController(adapter);
-
         var backgroundI = new Background(backgroundController);
 
         adapter.Add("background", backgroundI);

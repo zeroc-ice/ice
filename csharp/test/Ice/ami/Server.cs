@@ -32,17 +32,11 @@ namespace Ice.ami
 
             using var communicator = initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            var adapter2 = communicator.CreateObjectAdapter("ControllerAdapter");
-
             adapter.Add("test", new TestIntf());
             adapter.Add("test2", new TestIntf2());
             adapter.Activate();
-            adapter2.Add("testController", new TestControllerIntf(adapter));
-            adapter2.Activate();
             serverReady();
             communicator.WaitForShutdown();
         }

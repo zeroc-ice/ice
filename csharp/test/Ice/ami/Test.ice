@@ -51,12 +51,6 @@ interface TestIntf
     void pingBiDir(PingReply* reply);
 }
 
-interface TestIntfController
-{
-    void holdAdapter();
-    void resumeAdapter();
-}
-
 module Outer
 {
 
