@@ -777,6 +777,7 @@ namespace IceInternal
             }
 
             // Don't write the identity here. Operations calling StreamWrite write the identity.
+            // TODO: why not write identity here?
 
             // For compatibility with the old FacetPath
             if (Facet.Length == 0)
@@ -815,7 +816,7 @@ namespace IceInternal
         {
             if (IsFixed)
             {
-                throw new NotSupportedException("cannot convert a fixed proxy to property dictionary");
+                throw new NotSupportedException("cannot convert a fixed proxy to a property dictionary");
             }
 
             var properties = new Dictionary<string, string>
