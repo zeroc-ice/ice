@@ -186,10 +186,8 @@ namespace Ice
         static BZip2()
 #pragma warning restore CA1810 // Initialize reference type static fields inline
         {
-            //
-            // Simple trick to find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function in the
-            // library. If we get an exception, the library is not available.
-            //
+            // Find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function
+            // in the library. If we get an exception, the library is not available.
             Supported = false;
             string bzlibName = string.Empty;
             try
@@ -227,17 +225,12 @@ namespace Ice
             {
                 // Expected -- bzip2 lib not installed or not in PATH.
             }
-            catch (BadImageFormatException ex)
+            catch (BadImageFormatException)
             {
-                string lib = bzlibName;
-                if (!string.IsNullOrEmpty(ex.FileName))
-                {
-                    lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
-                }
-                Console.Error.Write($"warning: {lib} could not be loaded (likely due to 32/64-bit mismatch).");
+                Console.Error.Write($"warning: {bzlibName} could not be loaded (likely due to 32/64-bit mismatch).");
                 if (IntPtr.Size == 8)
                 {
-                    Console.Error.Write($" Make sure the directory containing the 64-bit {lib} is in your PATH.");
+                    Console.Error.Write($" Make sure the directory containing the 64-bit {bzlibName} is in your PATH.");
                 }
                 Console.Error.WriteLine();
             }
@@ -278,44 +271,41 @@ namespace Ice
 
                 _compressEnd = (ref BZStream stream) => SafeNativeMethods.MacOSBZ2_bzCompressEnd(ref stream);
             }
+            else if (bzlibName == "libbz2.so.1.0")
+            {
+                _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                    SafeNativeMethods.UnixBZ2_10_bzDecompressInit(ref stream, verbosity, small);
+
+                _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_10_bzDecompress(ref stream);
+
+                _decompressEnd = (ref BZStream stream) =>
+                    SafeNativeMethods.UnixBZ2_10_bzDecompressEnd(ref stream);
+
+                _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
+                    SafeNativeMethods.UnixBZ2_10_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
+
+                _compress = (ref BZStream stream, int action) =>
+                    SafeNativeMethods.UnixBZ2_10_bzCompress(ref stream, action);
+
+                _compressEnd = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_10_bzCompressEnd(ref stream);
+            }
             else
             {
-                if (bzlibName == "libbz2.so.1.0")
-                {
-                    _decompressInit = (ref BZStream stream, int verbosity, int small) =>
-                        SafeNativeMethods.UnixBZ2_10_bzDecompressInit(ref stream, verbosity, small);
+                _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                    SafeNativeMethods.UnixBZ2_1_bzDecompressInit(ref stream, verbosity, small);
 
-                    _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_10_bzDecompress(ref stream);
+                _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_1_bzDecompress(ref stream);
 
-                    _decompressEnd = (ref BZStream stream) =>
-                        SafeNativeMethods.UnixBZ2_10_bzDecompressEnd(ref stream);
+                _decompressEnd = (ref BZStream stream) =>
+                    SafeNativeMethods.UnixBZ2_1_bzDecompressEnd(ref stream);
 
-                    _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
-                        SafeNativeMethods.UnixBZ2_10_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
+                _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
+                    SafeNativeMethods.UnixBZ2_1_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
 
-                    _compress = (ref BZStream stream, int action) =>
-                        SafeNativeMethods.UnixBZ2_10_bzCompress(ref stream, action);
+                _compress = (ref BZStream stream, int action) =>
+                    SafeNativeMethods.UnixBZ2_1_bzCompress(ref stream, action);
 
-                    _compressEnd = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_10_bzCompressEnd(ref stream);
-                }
-                else
-                {
-                    _decompressInit = (ref BZStream stream, int verbosity, int small) =>
-                        SafeNativeMethods.UnixBZ2_1_bzDecompressInit(ref stream, verbosity, small);
-
-                    _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_1_bzDecompress(ref stream);
-
-                    _decompressEnd = (ref BZStream stream) =>
-                        SafeNativeMethods.UnixBZ2_1_bzDecompressEnd(ref stream);
-
-                    _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
-                        SafeNativeMethods.UnixBZ2_1_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
-
-                    _compress = (ref BZStream stream, int action) =>
-                        SafeNativeMethods.UnixBZ2_1_bzCompress(ref stream, action);
-
-                    _compressEnd = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_1_bzCompressEnd(ref stream);
-                }
+                _compressEnd = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_1_bzCompressEnd(ref stream);
             }
         }
 
@@ -343,7 +333,7 @@ namespace Ice
                 Debug.Assert(headerSegment.Offset == 0);
                 data[0] = headerSegment.Slice(headerSize);
 
-                var rc = BzStatus.RunOk;
+                BzStatus rc = BzStatus.RunOk;
                 for (int i = 0; rc == BzStatus.RunOk && i < data.Count; i++)
                 {
                     ArraySegment<byte> segment = data[i];
