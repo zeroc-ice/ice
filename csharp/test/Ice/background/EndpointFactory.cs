@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -16,9 +18,9 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
     {
     }
 
-    public short Type()
+    public EndpointType Type()
     {
-        return (short)(Endpoint.TYPE_BASE + _factory.Type());
+        return (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type());
     }
 
     public string Transport()
@@ -33,7 +35,7 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
 
     public IceInternal.Endpoint Read(Ice.InputStream s)
     {
-        short type = s.ReadShort();
+        Ice.EndpointType type = (Ice.EndpointType)s.ReadShort();
         Debug.Assert(type == _factory.Type());
         IceInternal.Endpoint endpoint = new Endpoint(_factory.Read(s));
         return endpoint;

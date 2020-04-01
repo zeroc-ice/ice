@@ -1040,7 +1040,7 @@ namespace IceInternal
                 Debug.Assert(_adapterId!.Length == 0);
                 foreach (Endpoint endpoint in _endpoints)
                 {
-                    s.WriteShort(endpoint.Type());
+                    s.WriteShort((short)endpoint.Type());
                     endpoint.StreamWrite(s);
                 }
             }

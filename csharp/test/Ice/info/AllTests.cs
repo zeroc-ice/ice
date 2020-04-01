@@ -55,14 +55,14 @@ namespace Ice.info
                 test(tcpEndpoint.Compress);
                 test(!tcpEndpoint.Datagram());
 
-                test(tcpEndpoint.Type() == TCPEndpointType.Value && !tcpEndpoint.Secure() ||
-                        tcpEndpoint.Type() == SSLEndpointType.Value && tcpEndpoint.Secure() ||
-                        tcpEndpoint.Type() == WSEndpointType.Value && !tcpEndpoint.Secure() ||
-                        tcpEndpoint.Type() == WSSEndpointType.Value && tcpEndpoint.Secure());
-                test(tcpEndpoint.Type() == TCPEndpointType.Value && info is TCPEndpointInfo ||
-                        tcpEndpoint.Type() == SSLEndpointType.Value && info is IceSSL.EndpointInfo ||
-                        tcpEndpoint.Type() == WSEndpointType.Value && info is WSEndpointInfo ||
-                        tcpEndpoint.Type() == WSSEndpointType.Value && info is WSEndpointInfo);
+                test(tcpEndpoint.Type() == EndpointType.TCP && !tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == EndpointType.SSL && tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == EndpointType.WS && !tcpEndpoint.Secure() ||
+                        tcpEndpoint.Type() == EndpointType.WSS && tcpEndpoint.Secure());
+                test(tcpEndpoint.Type() == EndpointType.TCP && info is TCPEndpointInfo ||
+                        tcpEndpoint.Type() == EndpointType.SSL && info is IceSSL.EndpointInfo ||
+                        tcpEndpoint.Type() == EndpointType.WS && info is WSEndpointInfo ||
+                        tcpEndpoint.Type() == EndpointType.WSS && info is WSEndpointInfo);
 
                 UDPEndpointInfo udpEndpoint = (UDPEndpointInfo)endps[1].GetInfo();
                 test(udpEndpoint.Host.Equals("udphost"));
@@ -74,7 +74,7 @@ namespace Ice.info
                 test(!udpEndpoint.Compress);
                 test(!udpEndpoint.Secure());
                 test(udpEndpoint.Datagram());
-                test(udpEndpoint.Type() == 3);
+                test(udpEndpoint.Type() == EndpointType.UDP);
 
                 OpaqueEndpointInfo opaqueEndpoint = (OpaqueEndpointInfo)endps[2].GetInfo();
                 test(opaqueEndpoint.RawBytes.Length > 0);
@@ -97,10 +97,10 @@ namespace Ice.info
                 test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
 
                 TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].GetInfo());
-                test(tcpEndpoint.Type() == TCPEndpointType.Value ||
-                        tcpEndpoint.Type() == SSLEndpointType.Value ||
-                        tcpEndpoint.Type() == WSEndpointType.Value ||
-                        tcpEndpoint.Type() == WSSEndpointType.Value);
+                test(tcpEndpoint.Type() == EndpointType.TCP ||
+                        tcpEndpoint.Type() == EndpointType.SSL ||
+                        tcpEndpoint.Type() == EndpointType.WS ||
+                        tcpEndpoint.Type() == EndpointType.WSS);
 
                 test(tcpEndpoint.Host.Equals(host));
                 test(tcpEndpoint.Port > 0);

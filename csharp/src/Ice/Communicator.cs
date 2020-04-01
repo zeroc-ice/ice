@@ -181,7 +181,8 @@ namespace Ice
         private static bool _printProcessIdDone = false;
         private readonly int[] _retryIntervals;
         private IceInternal.ThreadPool? _serverThreadPool;
-        private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
+        private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
+            new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
         private readonly ConcurrentDictionary<string, Type?> _typeIdCache = new ConcurrentDictionary<string, Type?>();
@@ -438,10 +439,10 @@ namespace Ice
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
                 _endpointFactories = new List<IEndpointFactory>();
-                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, TCPEndpointType.Value, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, UDPEndpointType.Value, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSEndpointType.Value, "ws", false), TCPEndpointType.Value));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSSEndpointType.Value, "wss", true), SSLEndpointType.Value));
+                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, EndpointType.TCP, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, EndpointType.UDP, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -1808,7 +1809,7 @@ namespace Ice
                 null);
         }
 
-        internal BufSizeWarnInfo GetBufSizeWarn(short type)
+        internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
         {
             lock (_setBufSizeWarn)
             {
@@ -1934,7 +1935,7 @@ namespace Ice
             }
         }
 
-        internal void SetRcvBufSizeWarn(short type, int size)
+        internal void SetRcvBufSizeWarn(EndpointType type, int size)
         {
             lock (_setBufSizeWarn)
             {
@@ -1979,7 +1980,7 @@ namespace Ice
             }
         }
 
-        internal void SetSndBufSizeWarn(short type, int size)
+        internal void SetSndBufSizeWarn(EndpointType type, int size)
         {
             lock (_setBufSizeWarn)
             {

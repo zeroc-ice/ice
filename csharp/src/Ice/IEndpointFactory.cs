@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System.Collections.Generic;
 
 namespace IceInternal
@@ -9,7 +10,7 @@ namespace IceInternal
     public interface IEndpointFactory
     {
         void Initialize();
-        short Type();
+        EndpointType Type();
         string Transport();
         Endpoint? Create(List<string> args, bool oaEndpoint);
         Endpoint? Read(Ice.InputStream s);
@@ -20,7 +21,7 @@ namespace IceInternal
 
     public abstract class EndpointFactoryWithUnderlying : IEndpointFactory
     {
-        public EndpointFactoryWithUnderlying(TransportInstance instance, short type)
+        public EndpointFactoryWithUnderlying(TransportInstance instance, EndpointType type)
         {
             Instance = instance;
             _type = type;
@@ -40,7 +41,7 @@ namespace IceInternal
             }
         }
 
-        public short Type() => Instance!.Type;
+        public EndpointType Type() => Instance!.Type;
 
         public string Transport() => Instance!.Transport;
 
@@ -73,14 +74,14 @@ namespace IceInternal
 
         public IEndpointFactory Clone(TransportInstance instance) => CloneWithUnderlying(instance, _type);
 
-        public abstract IEndpointFactory CloneWithUnderlying(TransportInstance instance, short type);
+        public abstract IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType type);
 
         protected abstract Endpoint CreateWithUnderlying(Endpoint? underlying, List<string> args, bool oaEndpoint);
         protected abstract Endpoint ReadWithUnderlying(Endpoint? underlying, Ice.InputStream s);
 
         protected TransportInstance? Instance;
 
-        private readonly short _type;
+        private readonly EndpointType _type;
         private IEndpointFactory? _underlying;
     }
 }
